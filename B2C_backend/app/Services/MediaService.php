@@ -2,57 +2,58 @@
 
 namespace App\Services;
 
-use App\Models\Post;
-use App\Models\PostImage;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class MediaService
 {
-    public function storeCmsAsset(UploadedFile $file, string $directory): array
+    public function storeIdeaAttachment(UploadedFile $file, string $directory): array
     {
-        $path = $file->store($directory, $this->disk());
+        $stored = $this->storeFile($file, $directory);
+        $isImage = $this->isImageFile($file);
 
         return [
-            'media_path' => $path,
-            'media_url' => $this->url($path),
+            'disk' => $stored['disk'],
+            'original_name' => $stored['original_name'],
+            'file_name' => $stored['file_name'],
+            'extension' => $stored['extension'],
+            'mime_type' => $stored['mime_type'],
+            'size_bytes' => $stored['size_bytes'],
+            'path' => $stored['path'],
+            'url' => $stored['url'],
+            'preview_url' => $isImage ? $stored['url'] : null,
+            'thumbnail_url' => $isImage ? $stored['url'] : null,
+        ];
+    }
+
+    public function storeCmsAsset(UploadedFile $file, string $directory): array
+    {
+        $stored = $this->storeFile($file, $directory);
+
+        return [
+            'media_path' => $stored['path'],
+            'media_url' => $stored['url'],
         ];
     }
 
     public function storeAvatar(UploadedFile $file, User $user): array
     {
-        $path = $file->store('avatars/'.$user->id, $this->disk());
+        $stored = $this->storeFile($file, 'avatars/'.$user->id);
 
         return [
-            'avatar_path' => $path,
-            'avatar_url' => $this->url($path),
+            'avatar_path' => $stored['path'],
+            'avatar_url' => $stored['url'],
         ];
     }
 
-    public function storePostImage(
-        UploadedFile $file,
-        Post $post,
-        int $sortOrder,
-        ?string $altText = null
-    ): PostImage {
-        $path = $file->store('posts/'.$post->id, $this->disk());
-
-        return $post->images()->create([
-            'path' => $path,
-            'url' => $this->url($path),
-            'alt_text' => $altText,
-            'sort_order' => $sortOrder,
-        ]);
-    }
-
-    public function deletePath(?string $path): void
+    public function deletePath(?string $path, ?string $disk = null): void
     {
         if ($path === null || $path === '') {
             return;
         }
 
-        Storage::disk($this->disk())->delete($path);
+        Storage::disk($disk ?: $this->disk())->delete($path);
     }
 
     private function url(string $path): string
@@ -63,5 +64,31 @@ class MediaService
     private function disk(): string
     {
         return (string) config('community.uploads.disk');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function storeFile(UploadedFile $file, string $directory): array
+    {
+        $path = $file->store($directory, $this->disk());
+
+        return [
+            'disk' => $this->disk(),
+            'original_name' => $file->getClientOriginalName(),
+            'file_name' => basename($path),
+            'extension' => strtolower((string) pathinfo($path, PATHINFO_EXTENSION)),
+            'mime_type' => $file->getClientMimeType(),
+            'size_bytes' => (int) ($file->getSize() ?? 0),
+            'path' => $path,
+            'url' => $this->url($path),
+        ];
+    }
+
+    private function isImageFile(UploadedFile $file): bool
+    {
+        $extension = strtolower((string) ($file->getClientOriginalExtension() ?: $file->extension()));
+
+        return in_array($extension, config('community.idea_media.image_extensions', []), true);
     }
 }

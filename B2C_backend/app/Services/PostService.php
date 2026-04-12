@@ -3,7 +3,11 @@
 namespace App\Services;
 
 use App\Enums\ContentStatus;
+use App\Enums\IdeaMediaKind;
+use App\Enums\IdeaMediaSourceType;
+use App\Enums\IdeaMediaType;
 use App\Models\Favorite;
+use App\Models\IdeaMedia;
 use App\Models\Post;
 use App\Models\PostLike;
 use App\Models\User;
@@ -12,6 +16,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class PostService
 {
@@ -21,7 +26,7 @@ class PostService
 
     public function list(array $filters, ?User $viewer = null): LengthAwarePaginator
     {
-        $query = Post::query()->with(['user.profile', 'category', 'tags', 'images']);
+        $query = Post::query()->with(['user.profile', 'category', 'tags', 'images', 'media']);
 
         if (($filters['mine'] ?? false) && $viewer !== null) {
             $query->where('user_id', $viewer->id);
@@ -70,7 +75,7 @@ class PostService
     public function findForDisplay(string $identifier, ?User $viewer = null): Post
     {
         $post = Post::query()
-            ->with(['user.profile', 'category', 'tags', 'images'])
+            ->with(['user.profile', 'category', 'tags', 'images', 'media'])
             ->where(function ($query) use ($identifier): void {
                 if (ctype_digit($identifier)) {
                     $query->whereKey((int) $identifier);
@@ -109,7 +114,7 @@ class PostService
             ]);
 
             $post->tags()->sync($data['tag_ids'] ?? []);
-            $this->storeImages($post, $data['images'] ?? [], $data['image_alts'] ?? []);
+            $this->syncMedia($post, $data);
 
             return $this->reload($post, $user);
         });
@@ -148,16 +153,7 @@ class PostService
                 $post->tags()->sync($data['tag_ids'] ?? []);
             }
 
-            if (! empty($data['remove_image_ids'])) {
-                $images = $post->images()->whereIn('id', $data['remove_image_ids'])->get();
-
-                foreach ($images as $image) {
-                    $this->mediaService->deletePath($image->path);
-                    $image->delete();
-                }
-            }
-
-            $this->storeImages($post, $data['images'] ?? [], $data['image_alts'] ?? []);
+            $this->syncMedia($post, $data);
 
             return $this->reload($post, $user);
         });
@@ -166,11 +162,7 @@ class PostService
     public function delete(Post $post): void
     {
         DB::transaction(function () use ($post): void {
-            $post->loadMissing('images');
-
-            foreach ($post->images as $image) {
-                $this->mediaService->deletePath($image->path);
-            }
+            $post->loadMissing('media');
 
             $post->delete();
         });
@@ -212,28 +204,37 @@ class PostService
 
     private function reload(Post $post, ?User $viewer = null): Post
     {
-        $post = $post->fresh()->load(['user.profile', 'category', 'tags', 'images']);
+        $post = $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media']);
         $this->hydrateViewerState(collect([$post]), $viewer);
 
         return $post;
     }
 
-    private function storeImages(Post $post, array $files, array $alts): void
+    private function syncMedia(Post $post, array $data): void
     {
-        if ($files === []) {
-            return;
-        }
+        $this->removeMedia($post, $data);
+        $this->replaceMedia($post, $data['replace_media'] ?? []);
 
-        $sortOrder = (int) ($post->images()->max('sort_order') ?? -1) + 1;
-
-        foreach ($files as $index => $file) {
-            $this->mediaService->storePostImage(
-                $file,
-                $post,
-                $sortOrder + $index,
-                $alts[$index] ?? $post->title
-            );
-        }
+        $nextSortOrder = $this->nextSortOrder($post);
+        $nextSortOrder = $this->storeLegacyImages(
+            $post,
+            $data['images'] ?? [],
+            $data['image_alts'] ?? [],
+            $nextSortOrder
+        );
+        $nextSortOrder = $this->storeAttachments(
+            $post,
+            $data['attachments'] ?? [],
+            $data['attachment_titles'] ?? [],
+            $data['attachment_alts'] ?? [],
+            $data['attachment_kinds'] ?? [],
+            $nextSortOrder
+        );
+        $this->storeExternalLinks(
+            $post,
+            $data['model_3d_links'] ?? [],
+            $nextSortOrder
+        );
     }
 
     private function applyCategoryFilter($query, array $filters): void
@@ -308,5 +309,240 @@ class PostService
     private function notFound(string $model, int|string $id): ModelNotFoundException
     {
         return (new ModelNotFoundException)->setModel($model, [$id]);
+    }
+
+    private function removeMedia(Post $post, array $data): void
+    {
+        $mediaIds = collect(array_merge(
+            $data['remove_image_ids'] ?? [],
+            $data['remove_media_ids'] ?? []
+        ))
+            ->filter()
+            ->map(static fn (mixed $value): int => (int) $value)
+            ->unique()
+            ->values();
+
+        if ($mediaIds->isEmpty()) {
+            return;
+        }
+
+        $media = $post->media()
+            ->whereIn('id', $mediaIds)
+            ->get();
+
+        if ($media->count() !== $mediaIds->count()) {
+            throw ValidationException::withMessages([
+                'media' => ['One or more media items do not belong to this post.'],
+            ]);
+        }
+
+        foreach ($media as $item) {
+            $item->delete();
+        }
+    }
+
+    private function replaceMedia(Post $post, array $replacements): void
+    {
+        if ($replacements === []) {
+            return;
+        }
+
+        $replacementIds = collect($replacements)
+            ->pluck('id')
+            ->filter()
+            ->map(static fn (mixed $value): int => (int) $value)
+            ->unique()
+            ->values();
+
+        if ($replacementIds->isEmpty()) {
+            return;
+        }
+
+        $existingMedia = $post->media()
+            ->whereIn('id', $replacementIds)
+            ->get()
+            ->keyBy('id');
+
+        if ($existingMedia->count() !== $replacementIds->count()) {
+            throw ValidationException::withMessages([
+                'replace_media' => ['One or more media items do not belong to this post.'],
+            ]);
+        }
+
+        foreach ($replacements as $replacement) {
+            $media = $existingMedia->get((int) $replacement['id']);
+
+            if (! $media instanceof IdeaMedia) {
+                continue;
+            }
+
+            if (! empty($replacement['external_url'])) {
+                $this->replaceWithExternalLink($media, $replacement);
+
+                continue;
+            }
+
+            if (! isset($replacement['file'])) {
+                continue;
+            }
+
+            $this->replaceWithUpload($media, $replacement);
+        }
+    }
+
+    private function replaceWithUpload(IdeaMedia $media, array $replacement): void
+    {
+        $type = $this->detectUploadType($replacement['file']);
+        $kind = $this->normalizeKind($replacement['kind'] ?? null, $type);
+        $upload = $this->mediaService->storeIdeaAttachment(
+            $replacement['file'],
+            $this->mediaDirectory($media->post_id)
+        );
+
+        $this->mediaService->deletePath($media->path, $media->disk);
+
+        $media->fill([
+            'source_type' => IdeaMediaSourceType::Upload->value,
+            'media_type' => $type->value,
+            'kind' => $kind->value,
+            'title' => $replacement['title'] ?? $media->title,
+            'alt_text' => $replacement['alt_text'] ?? ($type === IdeaMediaType::Image ? $media->alt_text : null),
+            'external_url' => null,
+            'metadata' => $media->metadata,
+            ...$upload,
+        ]);
+
+        $media->save();
+    }
+
+    private function replaceWithExternalLink(IdeaMedia $media, array $replacement): void
+    {
+        $this->mediaService->deletePath($media->path, $media->disk);
+
+        $media->fill([
+            'source_type' => IdeaMediaSourceType::ExternalUrl->value,
+            'media_type' => IdeaMediaType::External3d->value,
+            'kind' => IdeaMediaKind::Model3d->value,
+            'title' => $replacement['title'] ?? $media->title,
+            'alt_text' => $replacement['alt_text'] ?? $media->alt_text,
+            'disk' => null,
+            'original_name' => null,
+            'file_name' => null,
+            'extension' => null,
+            'mime_type' => null,
+            'size_bytes' => null,
+            'path' => null,
+            'url' => $replacement['external_url'],
+            'preview_url' => null,
+            'thumbnail_url' => null,
+            'external_url' => $replacement['external_url'],
+            'metadata' => [
+                'host' => parse_url((string) $replacement['external_url'], PHP_URL_HOST),
+            ],
+        ]);
+
+        $media->save();
+    }
+
+    private function storeLegacyImages(Post $post, array $files, array $alts, int $nextSortOrder): int
+    {
+        return $this->storeAttachments(
+            $post,
+            $files,
+            [],
+            $alts,
+            [],
+            $nextSortOrder,
+            IdeaMediaKind::ConceptImage
+        );
+    }
+
+    private function storeAttachments(
+        Post $post,
+        array $files,
+        array $titles,
+        array $alts,
+        array $kinds,
+        int $nextSortOrder,
+        ?IdeaMediaKind $defaultKind = null,
+    ): int {
+        foreach ($files as $index => $file) {
+            $type = $this->detectUploadType($file);
+            $kind = $this->normalizeKind($kinds[$index] ?? $defaultKind?->value, $type, $defaultKind);
+            $upload = $this->mediaService->storeIdeaAttachment($file, $this->mediaDirectory($post->id));
+
+            $post->media()->create([
+                'source_type' => IdeaMediaSourceType::Upload->value,
+                'media_type' => $type->value,
+                'kind' => $kind->value,
+                'title' => $titles[$index] ?? null,
+                'alt_text' => $alts[$index] ?? ($type === IdeaMediaType::Image ? $post->title : null),
+                'metadata' => null,
+                'sort_order' => $nextSortOrder,
+                ...$upload,
+            ]);
+
+            $nextSortOrder++;
+        }
+
+        return $nextSortOrder;
+    }
+
+    private function storeExternalLinks(Post $post, array $links, int $nextSortOrder): int
+    {
+        foreach ($links as $link) {
+            $post->media()->create([
+                'source_type' => IdeaMediaSourceType::ExternalUrl->value,
+                'media_type' => IdeaMediaType::External3d->value,
+                'kind' => IdeaMediaKind::Model3d->value,
+                'title' => $link['title'] ?? null,
+                'alt_text' => $link['alt_text'] ?? null,
+                'url' => $link['url'],
+                'external_url' => $link['url'],
+                'metadata' => [
+                    'host' => parse_url((string) $link['url'], PHP_URL_HOST),
+                ],
+                'sort_order' => $nextSortOrder,
+            ]);
+
+            $nextSortOrder++;
+        }
+
+        return $nextSortOrder;
+    }
+
+    private function nextSortOrder(Post $post): int
+    {
+        return (int) ($post->media()->max('sort_order') ?? -1) + 1;
+    }
+
+    private function normalizeKind(
+        ?string $kind,
+        IdeaMediaType $type,
+        ?IdeaMediaKind $fallback = null,
+    ): IdeaMediaKind {
+        $mediaKind = IdeaMediaKind::tryFrom((string) $kind);
+
+        if ($mediaKind !== null && $mediaKind->supportsType($type)) {
+            return $mediaKind;
+        }
+
+        if ($fallback !== null && $fallback->supportsType($type)) {
+            return $fallback;
+        }
+
+        return IdeaMediaKind::defaultForType($type);
+    }
+
+    private function detectUploadType($file): IdeaMediaType
+    {
+        return IdeaMedia::inferMediaTypeFromExtension(
+            strtolower((string) ($file->getClientOriginalExtension() ?: $file->extension()))
+        );
+    }
+
+    private function mediaDirectory(int $postId): string
+    {
+        return rtrim((string) config('community.idea_media.directory', 'ideas'), '/').'/'.$postId;
     }
 }

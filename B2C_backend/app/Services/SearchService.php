@@ -16,7 +16,7 @@ class SearchService
     public function searchPosts(string $query, ?User $viewer = null, null|int|string $requestedPerPage = null): LengthAwarePaginator
     {
         $builder = Post::query()
-            ->with(['user.profile', 'category', 'tags', 'images'])
+            ->with(['user.profile', 'category', 'tags', 'images', 'media'])
             ->publiclyVisible();
 
         $term = trim($query);

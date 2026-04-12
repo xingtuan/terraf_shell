@@ -2,41 +2,29 @@
 
 namespace App\Models;
 
+use App\Enums\IdeaMediaKind;
+use App\Enums\IdeaMediaSourceType;
+use App\Enums\IdeaMediaType;
 use Database\Factories\PostImageFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
 
-class PostImage extends Model
+class PostImage extends IdeaMedia
 {
     /** @use HasFactory<PostImageFactory> */
-    use HasFactory;
+    protected $table = 'idea_media';
 
-    protected $fillable = [
-        'post_id',
-        'path',
-        'url',
-        'alt_text',
-        'sort_order',
+    protected $attributes = [
+        'source_type' => IdeaMediaSourceType::Upload->value,
+        'media_type' => IdeaMediaType::Image->value,
+        'kind' => IdeaMediaKind::ConceptImage->value,
     ];
 
     protected static function booted(): void
     {
-        static::saving(function (self $image): void {
-            if (blank($image->path)) {
-                $image->url = '';
+        parent::booted();
 
-                return;
-            }
-
-            $image->url = Storage::disk((string) config('community.uploads.disk'))
-                ->url($image->path);
+        static::addGlobalScope('image_only', function (Builder $query): void {
+            $query->where('media_type', IdeaMediaType::Image->value);
         });
-    }
-
-    public function post(): BelongsTo
-    {
-        return $this->belongsTo(Post::class);
     }
 }

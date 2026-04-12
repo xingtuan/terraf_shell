@@ -2,11 +2,11 @@
 
 namespace App\Http\Resources;
 
-use App\Models\PostImage;
+use App\Models\IdeaMedia;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin PostImage */
+/** @mixin IdeaMedia */
 class PostImageResource extends JsonResource
 {
     /**
@@ -19,7 +19,10 @@ class PostImageResource extends JsonResource
         return [
             'id' => $this->id,
             'url' => $this->url,
+            'preview_url' => $this->preview_url,
+            'thumbnail_url' => $this->thumbnail_url,
             'alt_text' => $this->alt_text,
+            'kind' => $this->kind,
             'sort_order' => $this->sort_order,
         ];
     }

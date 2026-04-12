@@ -54,9 +54,14 @@ class Post extends Model
         return $this->belongsToMany(Tag::class, 'post_tags')->withTimestamps();
     }
 
+    public function media(): HasMany
+    {
+        return $this->hasMany(IdeaMedia::class)->orderBy('sort_order')->orderBy('id');
+    }
+
     public function images(): HasMany
     {
-        return $this->hasMany(PostImage::class)->orderBy('sort_order');
+        return $this->hasMany(PostImage::class)->orderBy('sort_order')->orderBy('id');
     }
 
     public function comments(): HasMany

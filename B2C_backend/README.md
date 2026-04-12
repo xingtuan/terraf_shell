@@ -18,6 +18,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - RBAC: `visitor`, `creator`, `sme_partner`, `moderator`, `admin`
 - Account controls: `active`, `restricted`, `banned`
 - Posts: create, update, delete, list, detail
+- Idea media: multi-file image/document attachments, legacy image compatibility, and external 3D links
 - Comments: create, reply, edit, delete, list by post and by user
 - Likes: posts and comments
 - Favorites: posts
@@ -29,7 +30,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - Material CMS: materials, specs, story sections, applications, home sections, and articles
 - Homepage content aggregation for hero, science, and editorial sections
 - Internal admin panel for admins and moderators at `/admin`
-- Uploads: avatar upload, post image upload, and CMS media upload
+- Uploads: avatar upload, idea media upload, and CMS media upload
 - Search: post title/content search
 - Taxonomy: categories and tags with public list endpoints and admin CRUD
 
@@ -50,6 +51,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - `password_reset_tokens`
 - `posts`
 - `post_images`
+- `idea_media`
 - `categories`
 - `tags`
 - `post_tags`
@@ -140,6 +142,13 @@ Error responses:
 - `DELETE /api/posts/{id}`
 - `GET /api/posts/{id}/comments`
 - `POST /api/posts/{id}/comments`
+
+`POST /api/posts` and `PATCH /api/posts/{id}` support:
+
+- legacy `images[]` + `image_alts[]`
+- new `attachments[]` + `attachment_titles[]` + `attachment_alts[]` + `attachment_kinds[]`
+- `model_3d_links[][url]` for external 3D links
+- `remove_media_ids[]`, `remove_image_ids[]`, and `replace_media[][id|file|external_url]` on update
 - `PATCH /api/comments/{id}`
 - `POST /api/comments/{id}/reply`
 - `DELETE /api/comments/{id}`
@@ -392,7 +401,9 @@ Seeded CMS content also includes:
 ## Upload Behavior
 
 - Profile avatar upload is handled through `PATCH /api/auth/profile` with an `avatar` file field
-- Post image upload is handled through `POST /api/posts` and `PATCH /api/posts/{id}` with `images[]`
+- Legacy post image upload is handled through `POST /api/posts` and `PATCH /api/posts/{id}` with `images[]`
+- Structured idea media upload is handled through `POST /api/posts` and `PATCH /api/posts/{id}` with `attachments[]`
+- External 3D references are handled through `model_3d_links[][url]`
 - CMS media upload is handled through admin CMS create and update endpoints with a `media` file field
 - CMS media removal is handled with `remove_media=true` on admin CMS update endpoints
 
@@ -520,6 +531,75 @@ Public homepage response shape:
 }
 ```
 
+## Phase 3 Payload Examples
+
+Create a concept with mixed media:
+
+```json
+{
+  "title": "Oyster shell stool concept",
+  "content": "Concept submission with sketches, renders, a PDF deck, and a 3D reference link.",
+  "attachment_titles": ["Render board", "Pitch deck"],
+  "attachment_alts": ["Rendered shell stool board", null],
+  "attachment_kinds": ["render_image", "pdf_presentation"],
+  "model_3d_links": [
+    {
+      "url": "https://sketchfab.com/models/oyster-shell-stool",
+      "title": "3D exploration"
+    }
+  ]
+}
+```
+
+Update a concept by removing and replacing media:
+
+```json
+{
+  "remove_media_ids": [12],
+  "replace_media": [
+    {
+      "id": 15,
+      "title": "Revised spec sheet",
+      "kind": "spec_sheet"
+    }
+  ]
+}
+```
+
+Attachment metadata in post responses:
+
+```json
+{
+  "images": [
+    {
+      "id": 1,
+      "url": "https://cdn.example.com/ideas/1/render.jpg",
+      "preview_url": "https://cdn.example.com/ideas/1/render.jpg",
+      "thumbnail_url": "https://cdn.example.com/ideas/1/render.jpg",
+      "alt_text": "Rendered material board",
+      "kind": "render_image",
+      "sort_order": 0
+    }
+  ],
+  "media": [
+    {
+      "id": 1,
+      "source_type": "upload",
+      "media_type": "image",
+      "kind": "render_image",
+      "title": "Render board",
+      "mime_type": "image/jpeg",
+      "size_bytes": 123456,
+      "url": "https://cdn.example.com/ideas/1/render.jpg",
+      "preview_url": "https://cdn.example.com/ideas/1/render.jpg",
+      "thumbnail_url": "https://cdn.example.com/ideas/1/render.jpg",
+      "external_url": null,
+      "sort_order": 0
+    }
+  ]
+}
+```
+
 ## Running Tests
 
 The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
@@ -543,6 +623,9 @@ vendor/bin/pint
 - Post slugs are generated automatically from titles
 - Category and tag admin endpoints generate unique slugs automatically when omitted
 - Search only returns approved posts by default
+- Post responses keep the legacy `images` array for image-only clients
+- Post responses now also include a structured `media` array for mixed attachments
+- Image attachments expose `preview_url` and `thumbnail_url`
 - Homepage content is available from `GET /api/homepage`
 - Public material and article endpoints only return `published` content
 - Material detail responses include published `specs`, `story_sections`, and `applications`

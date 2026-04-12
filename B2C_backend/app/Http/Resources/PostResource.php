@@ -36,6 +36,7 @@ class PostResource extends JsonResource
             'category' => new CategoryResource($this->whenLoaded('category')),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'images' => PostImageResource::collection($this->whenLoaded('images')),
+            'media' => IdeaMediaResource::collection($this->whenLoaded('media')),
             'can_edit' => $request->user()?->can('update', $this->resource) ?? false,
             'can_delete' => $request->user()?->can('delete', $this->resource) ?? false,
             'published_at' => $this->published_at?->toISOString(),
