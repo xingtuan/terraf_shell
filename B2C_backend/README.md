@@ -26,8 +26,10 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - Notifications: comment, reply, like, and follow notifications
 - Moderation: `pending`, `approved`, `rejected`, `hidden`
 - Admin: review reports, moderate posts/comments, ban users
+- Material CMS: materials, specs, story sections, applications, home sections, and articles
+- Homepage content aggregation for hero, science, and editorial sections
 - Internal admin panel for admins and moderators at `/admin`
-- Uploads: avatar upload and post image upload
+- Uploads: avatar upload, post image upload, and CMS media upload
 - Search: post title/content search
 - Taxonomy: categories and tags with public list endpoints and admin CRUD
 
@@ -59,6 +61,12 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - `notifications`
 - `reports`
 - `moderation_logs`
+- `materials`
+- `material_specs`
+- `material_story_sections`
+- `material_applications`
+- `articles`
+- `home_sections`
 - `personal_access_tokens`
 
 ## Status Rules
@@ -166,6 +174,24 @@ Error responses:
 - `GET /api/categories`
 - `GET /api/tags`
 
+### Material CMS and Homepage
+
+- `GET /api/homepage`
+- `GET /api/home-sections`
+- `GET /api/materials`
+- `GET /api/materials/{id_or_slug}`
+- `GET /api/articles`
+- `GET /api/articles/{id_or_slug}`
+
+`GET /api/materials` also supports:
+
+- `featured=1`
+
+`GET /api/articles` also supports:
+
+- `category=updates`
+- `per_page=10`
+
 ### Notifications, Reports, Search
 
 - `GET /api/notifications`
@@ -192,6 +218,36 @@ Error responses:
 - `GET /api/admin/tags/{id}`
 - `PATCH /api/admin/tags/{id}`
 - `DELETE /api/admin/tags/{id}`
+- `GET /api/admin/materials`
+- `POST /api/admin/materials`
+- `GET /api/admin/materials/{id}`
+- `PATCH /api/admin/materials/{id}`
+- `DELETE /api/admin/materials/{id}`
+- `GET /api/admin/material-specs`
+- `POST /api/admin/material-specs`
+- `GET /api/admin/material-specs/{id}`
+- `PATCH /api/admin/material-specs/{id}`
+- `DELETE /api/admin/material-specs/{id}`
+- `GET /api/admin/material-story-sections`
+- `POST /api/admin/material-story-sections`
+- `GET /api/admin/material-story-sections/{id}`
+- `PATCH /api/admin/material-story-sections/{id}`
+- `DELETE /api/admin/material-story-sections/{id}`
+- `GET /api/admin/material-applications`
+- `POST /api/admin/material-applications`
+- `GET /api/admin/material-applications/{id}`
+- `PATCH /api/admin/material-applications/{id}`
+- `DELETE /api/admin/material-applications/{id}`
+- `GET /api/admin/articles`
+- `POST /api/admin/articles`
+- `GET /api/admin/articles/{id}`
+- `PATCH /api/admin/articles/{id}`
+- `DELETE /api/admin/articles/{id}`
+- `GET /api/admin/home-sections`
+- `POST /api/admin/home-sections`
+- `GET /api/admin/home-sections/{id}`
+- `PATCH /api/admin/home-sections/{id}`
+- `DELETE /api/admin/home-sections/{id}`
 
 ## Setup
 
@@ -326,10 +382,19 @@ After `php artisan migrate --seed`:
 - Moderator: `moderator@example.com` / `password`
 - Banned sample user: `banned@example.com` / `password`
 
+Seeded CMS content also includes:
+
+- one published featured material at `premium-oyster-shell`
+- published material specs, story sections, and application sections
+- published homepage sections for hero, science, and updates
+- published sample articles for frontend integration
+
 ## Upload Behavior
 
 - Profile avatar upload is handled through `PATCH /api/auth/profile` with an `avatar` file field
 - Post image upload is handled through `POST /api/posts` and `PATCH /api/posts/{id}` with `images[]`
+- CMS media upload is handled through admin CMS create and update endpoints with a `media` file field
+- CMS media removal is handled with `remove_media=true` on admin CMS update endpoints
 
 ## Phase 1 Payload Examples
 
@@ -383,6 +448,78 @@ Request a password reset:
 }
 ```
 
+## Phase 2 Payload Examples
+
+Create or update a material:
+
+```json
+{
+  "title": "Premium Oyster Shell Composite",
+  "headline": "Science-backed shell composite for premium applications",
+  "summary": "Core showcase material for storytelling and collaboration.",
+  "story_overview": "Recovered shell is refined into a premium composite.",
+  "science_overview": "Performance and circularity data can be surfaced dynamically.",
+  "status": "published",
+  "is_featured": true,
+  "sort_order": 1
+}
+```
+
+Create a material spec:
+
+```json
+{
+  "material_id": 1,
+  "key": "durability",
+  "label": "Durability",
+  "value": "High",
+  "detail": "Dense compression improves edge stability.",
+  "status": "published",
+  "sort_order": 1
+}
+```
+
+Create a homepage section:
+
+```json
+{
+  "key": "hero",
+  "title": "Premium oyster-shell materials",
+  "subtitle": "Material showcase",
+  "content": "Drive homepage content dynamically from the API.",
+  "cta_label": "Explore the material",
+  "cta_url": "/materials/premium-oyster-shell",
+  "payload": {
+    "variant": "hero"
+  },
+  "status": "published",
+  "sort_order": 1
+}
+```
+
+Create an article:
+
+```json
+{
+  "title": "Material launch update",
+  "excerpt": "Published article summary.",
+  "content": "Published article body.",
+  "category": "updates",
+  "status": "published",
+  "sort_order": 1
+}
+```
+
+Public homepage response shape:
+
+```json
+{
+  "home_sections": [],
+  "materials": [],
+  "articles": []
+}
+```
+
 ## Running Tests
 
 The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
@@ -406,3 +543,6 @@ vendor/bin/pint
 - Post slugs are generated automatically from titles
 - Category and tag admin endpoints generate unique slugs automatically when omitted
 - Search only returns approved posts by default
+- Homepage content is available from `GET /api/homepage`
+- Public material and article endpoints only return `published` content
+- Material detail responses include published `specs`, `story_sections`, and `applications`

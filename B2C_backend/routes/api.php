@@ -1,18 +1,28 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\Admin\CommentModerationController;
+use App\Http\Controllers\Api\Admin\HomeSectionController as AdminHomeSectionController;
+use App\Http\Controllers\Api\Admin\MaterialApplicationController as AdminMaterialApplicationController;
+use App\Http\Controllers\Api\Admin\MaterialController as AdminMaterialController;
+use App\Http\Controllers\Api\Admin\MaterialSpecController as AdminMaterialSpecController;
+use App\Http\Controllers\Api\Admin\MaterialStorySectionController as AdminMaterialStorySectionController;
 use App\Http\Controllers\Api\Admin\PostModerationController;
 use App\Http\Controllers\Api\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\Api\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Api\Admin\UserModerationController;
+use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CommentLikeController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\FollowController;
+use App\Http\Controllers\Api\HomepageController;
+use App\Http\Controllers\Api\HomeSectionController;
 use App\Http\Controllers\Api\InquiryController;
+use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\PostLikeController;
@@ -55,6 +65,12 @@ Route::get('/posts/{identifier}', [PostController::class, 'show']);
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/tags', [TagController::class, 'index']);
+Route::get('/homepage', [HomepageController::class, 'show']);
+Route::get('/home-sections', [HomeSectionController::class, 'index']);
+Route::get('/materials', [MaterialController::class, 'index']);
+Route::get('/materials/{identifier}', [MaterialController::class, 'show']);
+Route::get('/articles', [ArticleController::class, 'index']);
+Route::get('/articles/{identifier}', [ArticleController::class, 'show']);
 Route::post('/inquiries', [InquiryController::class, 'store']);
 Route::get('/users/{user}/posts', [UserController::class, 'posts'])->whereNumber('user');
 Route::get('/users/{user}/comments', [UserController::class, 'comments'])->whereNumber('user');
@@ -114,4 +130,42 @@ Route::prefix('admin')
         Route::get('/tags/{tag}', [AdminTagController::class, 'show'])->whereNumber('tag');
         Route::patch('/tags/{tag}', [AdminTagController::class, 'update'])->whereNumber('tag');
         Route::delete('/tags/{tag}', [AdminTagController::class, 'destroy'])->whereNumber('tag');
+
+        Route::middleware('role:admin')->group(function (): void {
+            Route::get('/materials', [AdminMaterialController::class, 'index']);
+            Route::post('/materials', [AdminMaterialController::class, 'store']);
+            Route::get('/materials/{material}', [AdminMaterialController::class, 'show'])->whereNumber('material');
+            Route::patch('/materials/{material}', [AdminMaterialController::class, 'update'])->whereNumber('material');
+            Route::delete('/materials/{material}', [AdminMaterialController::class, 'destroy'])->whereNumber('material');
+
+            Route::get('/material-specs', [AdminMaterialSpecController::class, 'index']);
+            Route::post('/material-specs', [AdminMaterialSpecController::class, 'store']);
+            Route::get('/material-specs/{materialSpec}', [AdminMaterialSpecController::class, 'show'])->whereNumber('materialSpec');
+            Route::patch('/material-specs/{materialSpec}', [AdminMaterialSpecController::class, 'update'])->whereNumber('materialSpec');
+            Route::delete('/material-specs/{materialSpec}', [AdminMaterialSpecController::class, 'destroy'])->whereNumber('materialSpec');
+
+            Route::get('/material-story-sections', [AdminMaterialStorySectionController::class, 'index']);
+            Route::post('/material-story-sections', [AdminMaterialStorySectionController::class, 'store']);
+            Route::get('/material-story-sections/{materialStorySection}', [AdminMaterialStorySectionController::class, 'show'])->whereNumber('materialStorySection');
+            Route::patch('/material-story-sections/{materialStorySection}', [AdminMaterialStorySectionController::class, 'update'])->whereNumber('materialStorySection');
+            Route::delete('/material-story-sections/{materialStorySection}', [AdminMaterialStorySectionController::class, 'destroy'])->whereNumber('materialStorySection');
+
+            Route::get('/material-applications', [AdminMaterialApplicationController::class, 'index']);
+            Route::post('/material-applications', [AdminMaterialApplicationController::class, 'store']);
+            Route::get('/material-applications/{materialApplication}', [AdminMaterialApplicationController::class, 'show'])->whereNumber('materialApplication');
+            Route::patch('/material-applications/{materialApplication}', [AdminMaterialApplicationController::class, 'update'])->whereNumber('materialApplication');
+            Route::delete('/material-applications/{materialApplication}', [AdminMaterialApplicationController::class, 'destroy'])->whereNumber('materialApplication');
+
+            Route::get('/articles', [AdminArticleController::class, 'index']);
+            Route::post('/articles', [AdminArticleController::class, 'store']);
+            Route::get('/articles/{article}', [AdminArticleController::class, 'show'])->whereNumber('article');
+            Route::patch('/articles/{article}', [AdminArticleController::class, 'update'])->whereNumber('article');
+            Route::delete('/articles/{article}', [AdminArticleController::class, 'destroy'])->whereNumber('article');
+
+            Route::get('/home-sections', [AdminHomeSectionController::class, 'index']);
+            Route::post('/home-sections', [AdminHomeSectionController::class, 'store']);
+            Route::get('/home-sections/{homeSection}', [AdminHomeSectionController::class, 'show'])->whereNumber('homeSection');
+            Route::patch('/home-sections/{homeSection}', [AdminHomeSectionController::class, 'update'])->whereNumber('homeSection');
+            Route::delete('/home-sections/{homeSection}', [AdminHomeSectionController::class, 'destroy'])->whereNumber('homeSection');
+        });
     });

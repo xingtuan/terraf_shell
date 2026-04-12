@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Http\Requests\Admin\Cms;
+
+use App\Enums\PublishStatus;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Validation\Rule;
+
+class UpsertMaterialRequest extends AdminCmsRequest
+{
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'title' => [$this->requiredRule(), 'string', 'max:200'],
+            'slug' => ['nullable', 'string', 'max:200'],
+            'headline' => ['nullable', 'string', 'max:255'],
+            'summary' => ['nullable', 'string', 'max:2000'],
+            'story_overview' => ['nullable', 'string'],
+            'science_overview' => ['nullable', 'string'],
+            'status' => ['nullable', Rule::in(PublishStatus::values())],
+            'is_featured' => ['nullable', 'boolean'],
+            'sort_order' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'published_at' => ['nullable', 'date'],
+            'media' => ['nullable', 'image', 'max:5120'],
+            'remove_media' => ['nullable', 'boolean'],
+        ];
+    }
+}

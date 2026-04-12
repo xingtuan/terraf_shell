@@ -10,6 +10,16 @@ use Illuminate\Support\Facades\Storage;
 
 class MediaService
 {
+    public function storeCmsAsset(UploadedFile $file, string $directory): array
+    {
+        $path = $file->store($directory, $this->disk());
+
+        return [
+            'media_path' => $path,
+            'media_url' => $this->url($path),
+        ];
+    }
+
     public function storeAvatar(UploadedFile $file, User $user): array
     {
         $path = $file->store('avatars/'.$user->id, $this->disk());
