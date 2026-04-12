@@ -24,6 +24,7 @@ class PostService
         private readonly MediaService $mediaService,
         private readonly PostRankingService $postRankingService,
         private readonly NotificationService $notificationService,
+        private readonly GovernanceService $governanceService,
     ) {}
 
     public function list(array $filters, ?User $viewer = null): LengthAwarePaginator
@@ -125,6 +126,16 @@ class PostService
             $post->tags()->sync($data['tag_ids'] ?? []);
             $this->syncMedia($post, $data);
             $post = $this->postRankingService->refreshScores($post);
+            $this->governanceService->flagSensitiveContent(
+                $user,
+                [
+                    'title' => $post->title,
+                    'content' => $post->content,
+                    'excerpt' => $post->excerpt,
+                ],
+                'post',
+                $post
+            );
 
             return $this->reload($post, $user);
         });
@@ -169,6 +180,16 @@ class PostService
 
             $this->syncMedia($post, $data);
             $post = $this->postRankingService->refreshScores($post);
+            $this->governanceService->flagSensitiveContent(
+                $user,
+                [
+                    'title' => $post->title,
+                    'content' => $post->content,
+                    'excerpt' => $post->excerpt,
+                ],
+                'post',
+                $post
+            );
 
             if ($user->isAdmin() && ! $wasFeatured && $post->is_featured) {
                 $this->notificationService->notifyPostFeatured($post, $user);

@@ -2,25 +2,24 @@
 
 namespace App\Models;
 
-use Database\Factories\ModerationLogFactory;
+use Database\Factories\AdminActionLogFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class ModerationLog extends Model
+class AdminActionLog extends Model
 {
-    /** @use HasFactory<ModerationLogFactory> */
+    /** @use HasFactory<AdminActionLogFactory> */
     use HasFactory;
 
     protected $fillable = [
         'actor_user_id',
         'target_user_id',
-        'report_id',
         'subject_type',
         'subject_id',
         'action',
-        'reason',
+        'description',
         'metadata',
     ];
 
@@ -39,11 +38,6 @@ class ModerationLog extends Model
     public function targetUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'target_user_id');
-    }
-
-    public function report(): BelongsTo
-    {
-        return $this->belongsTo(Report::class);
     }
 
     public function subject(): MorphTo

@@ -27,6 +27,7 @@ class ReportResource extends JsonResource
             'reason' => $this->reason,
             'description' => $this->description,
             'status' => $this->status,
+            'moderator_note' => $this->moderator_note,
             'reporter' => new UserResource($this->whenLoaded('reporter')),
             'reviewer' => new UserResource($this->whenLoaded('reviewer')),
             'reviewed_at' => $this->reviewed_at?->toISOString(),

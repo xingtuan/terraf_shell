@@ -26,6 +26,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - Reports: post and comment reporting
 - Notifications: approvals, rejections, comments, replies, likes, favorites, featured concepts, follows, and system announcements
 - Moderation: `pending`, `approved`, `rejected`, `hidden`
+- Governance: user violations, moderation history, admin action logs, review history, and optional sensitive-word flagging
 - Admin: review reports, moderate posts/comments, ban users
 - Material CMS: materials, specs, story sections, applications, home sections, and articles
 - Homepage content aggregation for hero, science, and editorial sections
@@ -64,6 +65,8 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - `notifications`
 - `reports`
 - `moderation_logs`
+- `user_violations`
+- `admin_action_logs`
 - `materials`
 - `material_specs`
 - `material_story_sections`
@@ -223,6 +226,13 @@ Error responses:
 - `PATCH /api/admin/posts/{id}/feature`
 - `POST /api/admin/notifications/announcements`
 - `PATCH /api/admin/comments/{id}/status`
+- `GET /api/admin/users/{id}/moderation-history`
+- `GET /api/admin/users/{id}/admin-actions`
+- `GET /api/admin/users/{id}/violations`
+- `POST /api/admin/users/{id}/violations`
+- `PATCH /api/admin/users/{id}/violations/{violation_id}`
+- `GET /api/admin/posts/{id}/review-history`
+- `GET /api/admin/comments/{id}/review-history`
 - `PATCH /api/admin/users/{id}/role`
 - `PATCH /api/admin/users/{id}/account-status`
 - `PATCH /api/admin/users/{id}/ban`
@@ -705,6 +715,60 @@ Broadcast a system announcement as an admin:
 }
 ```
 
+## Phase 6 Payload Examples
+
+Record a manual user violation as staff:
+
+```json
+{
+  "type": "manual_warning",
+  "severity": "warning",
+  "reason": "Repeated low-quality submissions after prior guidance.",
+  "subject_type": "post",
+  "subject_id": 42
+}
+```
+
+Resolve a violation:
+
+```json
+{
+  "status": "resolved",
+  "resolution_note": "Issue addressed after moderator review."
+}
+```
+
+Fetch a user's moderation history:
+
+```text
+GET /api/admin/users/42/moderation-history
+```
+
+Example moderation log payload:
+
+```json
+{
+  "id": 91,
+  "action": "post.status_updated",
+  "reason": "Temporarily taken down during review.",
+  "subject_type": "post",
+  "subject_id": 42,
+  "target_user_id": 7,
+  "report_id": null,
+  "metadata": {
+    "from": "approved",
+    "to": "hidden"
+  }
+}
+```
+
+Enable optional sensitive-word flagging:
+
+```env
+COMMUNITY_SENSITIVE_WORDS_ENABLED=true
+COMMUNITY_SENSITIVE_WORDS=scamword,abusive-term
+```
+
 ## Running Tests
 
 The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
@@ -737,6 +801,10 @@ vendor/bin/pint
 - Notification responses include `title`, `body`, `action_url`, and `meta.unread_count`
 - `GET /api/notifications` supports `read=all|read|unread` and `type=...` filters
 - System announcements are sent through `POST /api/admin/notifications/announcements` and target active users only
+- Report responses now include `moderator_note`
+- Staff can inspect user-level audit trails through moderation history, admin action, and violation endpoints
+- Post and comment review histories are available through `GET /api/admin/posts/{id}/review-history` and `GET /api/admin/comments/{id}/review-history`
+- Sensitive-word flagging is config-driven and records audit entries without breaking the existing pending-review flow
 - Homepage content is available from `GET /api/homepage`
 - Public material and article endpoints only return `published` content
 - Material detail responses include published `specs`, `story_sections`, and `applications`

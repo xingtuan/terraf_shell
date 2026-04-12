@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\Admin\CommentModerationController;
+use App\Http\Controllers\Api\Admin\GovernanceController;
 use App\Http\Controllers\Api\Admin\HomeSectionController as AdminHomeSectionController;
 use App\Http\Controllers\Api\Admin\MaterialApplicationController as AdminMaterialApplicationController;
 use App\Http\Controllers\Api\Admin\MaterialController as AdminMaterialController;
@@ -117,6 +118,13 @@ Route::prefix('admin')
         Route::patch('/posts/{post}/status', [PostModerationController::class, 'updateStatus'])->whereNumber('post');
         Route::get('/posts/ranking-formula', [PostModerationController::class, 'rankingFormula']);
         Route::patch('/comments/{comment}/status', [CommentModerationController::class, 'updateStatus'])->whereNumber('comment');
+        Route::get('/users/{user}/moderation-history', [GovernanceController::class, 'userModerationHistory'])->whereNumber('user');
+        Route::get('/users/{user}/admin-actions', [GovernanceController::class, 'userAdminActions'])->whereNumber('user');
+        Route::get('/users/{user}/violations', [GovernanceController::class, 'userViolations'])->whereNumber('user');
+        Route::post('/users/{user}/violations', [GovernanceController::class, 'storeUserViolation'])->whereNumber('user');
+        Route::patch('/users/{user}/violations/{violation}', [GovernanceController::class, 'updateUserViolation'])->whereNumber('user')->whereNumber('violation');
+        Route::get('/posts/{post}/review-history', [GovernanceController::class, 'postReviewHistory'])->whereNumber('post');
+        Route::get('/comments/{comment}/review-history', [GovernanceController::class, 'commentReviewHistory'])->whereNumber('comment');
         Route::patch('/users/{user}/role', [UserModerationController::class, 'updateRole'])->whereNumber('user');
         Route::patch('/users/{user}/account-status', [UserModerationController::class, 'updateAccountStatus'])->whereNumber('user');
         Route::patch('/users/{user}/ban', [UserModerationController::class, 'ban'])->whereNumber('user');

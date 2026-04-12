@@ -12,6 +12,10 @@ use Illuminate\Validation\ValidationException;
 
 class ReportService
 {
+    public function __construct(
+        private readonly GovernanceService $governanceService,
+    ) {}
+
     public function create(User $reporter, array $data): Report
     {
         return DB::transaction(function () use ($reporter, $data): Report {
@@ -47,6 +51,31 @@ class ReportService
             $report->reporter()->associate($reporter);
             $report->target()->associate($target);
             $report->save();
+            $report->load('target');
+
+            $this->governanceService->recordModerationLog(
+                $report,
+                $reporter,
+                'report.submitted',
+                $data['reason'],
+                [
+                    'target_type' => $report->target_type,
+                    'target_id' => $report->target_id,
+                ],
+                $this->governanceService->subjectOwner($report),
+                $report
+            );
+
+            $this->governanceService->flagSensitiveContent(
+                $reporter,
+                [
+                    'reason' => $report->reason,
+                    'description' => $report->description,
+                ],
+                'report',
+                $report,
+                $report
+            );
 
             return $report->load(['reporter.profile', 'target']);
         });

@@ -16,6 +16,7 @@ class CommentService
     public function __construct(
         private readonly NotificationService $notificationService,
         private readonly PostRankingService $postRankingService,
+        private readonly GovernanceService $governanceService,
     ) {}
 
     public function listForPost(Post $post, ?User $viewer = null): Collection
@@ -67,6 +68,13 @@ class CommentService
                 $this->notificationService->notifyCommentCreated($post, $comment, $user);
             }
 
+            $this->governanceService->flagSensitiveContent(
+                $user,
+                ['content' => $comment->content],
+                'comment',
+                $comment
+            );
+
             $this->postRankingService->refreshScores($post->fresh());
 
             return $this->reload($comment, $user);
@@ -95,6 +103,13 @@ class CommentService
                 $this->notificationService->notifyReplyCreated($parent, $reply, $user);
             }
 
+            $this->governanceService->flagSensitiveContent(
+                $user,
+                ['content' => $reply->content],
+                'comment',
+                $reply
+            );
+
             $this->postRankingService->refreshScores($parent->post->fresh());
 
             return $this->reload($reply, $user);
@@ -117,6 +132,12 @@ class CommentService
             }
 
             $comment->save();
+            $this->governanceService->flagSensitiveContent(
+                $user,
+                ['content' => $comment->content],
+                'comment',
+                $comment
+            );
             $this->postRankingService->refreshScores($comment->post->fresh());
 
             return $this->reload($comment, $user);

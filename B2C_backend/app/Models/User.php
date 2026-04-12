@@ -142,6 +142,31 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
         return $this->hasMany(ModerationLog::class, 'actor_user_id');
     }
 
+    public function receivedModerationLogs(): HasMany
+    {
+        return $this->hasMany(ModerationLog::class, 'target_user_id');
+    }
+
+    public function adminActionLogs(): HasMany
+    {
+        return $this->hasMany(AdminActionLog::class, 'actor_user_id');
+    }
+
+    public function receivedAdminActionLogs(): HasMany
+    {
+        return $this->hasMany(AdminActionLog::class, 'target_user_id');
+    }
+
+    public function violations(): HasMany
+    {
+        return $this->hasMany(UserViolation::class);
+    }
+
+    public function resolvedViolations(): HasMany
+    {
+        return $this->hasMany(UserViolation::class, 'resolved_by');
+    }
+
     public function isAdmin(): bool
     {
         return $this->hasRole(UserRole::Admin);

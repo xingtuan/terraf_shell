@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSystemAnnouncementRequest;
+use App\Services\GovernanceService;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 
@@ -11,7 +12,8 @@ class SystemAnnouncementController extends Controller
 {
     public function store(
         StoreSystemAnnouncementRequest $request,
-        NotificationService $notificationService
+        NotificationService $notificationService,
+        GovernanceService $governanceService
     ): JsonResponse {
         $data = $request->validated();
         $sentCount = $notificationService->broadcastSystemAnnouncement(
@@ -20,6 +22,20 @@ class SystemAnnouncementController extends Controller
             $data['body'],
             $data['action_url'] ?? null,
             $data['roles'] ?? []
+        );
+
+        $governanceService->recordAdminAction(
+            $request->user(),
+            'notification.system_announcement_sent',
+            $data['body'],
+            [
+                'title' => $data['title'],
+                'roles' => $data['roles'] ?? [],
+                'sent_count' => $sentCount,
+                'action_url' => $data['action_url'] ?? null,
+            ],
+            $request->user(),
+            $request->user()
         );
 
         return $this->successResponse([

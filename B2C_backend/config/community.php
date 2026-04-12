@@ -35,4 +35,13 @@ return [
             explode(',', (string) env('IDEA_MEDIA_DOCUMENT_EXTENSIONS', 'pdf,doc,docx,ppt,pptx,xls,xlsx'))
         ))),
     ],
+    'moderation' => [
+        'sensitive_words' => [
+            'enabled' => (bool) env('COMMUNITY_SENSITIVE_WORDS_ENABLED', false),
+            'terms' => array_values(array_filter(array_map(
+                static fn (string $value): string => trim($value),
+                explode(',', (string) env('COMMUNITY_SENSITIVE_WORDS', ''))
+            ))),
+        ],
+    ],
 ];

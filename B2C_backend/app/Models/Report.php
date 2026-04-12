@@ -6,6 +6,7 @@ use Database\Factories\ReportFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Report extends Model
@@ -45,5 +46,15 @@ class Report extends Model
     public function target(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function moderationLogs(): HasMany
+    {
+        return $this->hasMany(ModerationLog::class);
+    }
+
+    public function violations(): HasMany
+    {
+        return $this->hasMany(UserViolation::class);
     }
 }
