@@ -31,6 +31,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - Material CMS: materials, specs, story sections, applications, home sections, and articles
 - Homepage content aggregation for hero, science, and editorial sections
 - Discovery: latest, hot, popular, trending, most liked, most discussed, featured concepts
+- Collaboration leads: business contacts, partnership inquiries, sample requests, university collaborations, and product development collaborations
 - Internal admin panel for admins and moderators at `/admin`
 - Uploads: avatar upload, idea media upload, and CMS media upload
 - Search: post title/content search
@@ -67,6 +68,9 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - `moderation_logs`
 - `user_violations`
 - `admin_action_logs`
+- `inquiries`
+- `partnership_inquiries`
+- `sample_requests`
 - `materials`
 - `material_specs`
 - `material_story_sections`
@@ -209,6 +213,24 @@ Error responses:
 - `category=updates`
 - `per_page=10`
 
+### Collaboration and B2B Leads
+
+- `POST /api/inquiries`
+- `POST /api/business-contacts`
+- `POST /api/partnership-inquiries`
+- `POST /api/sample-requests`
+- `POST /api/university-collaborations`
+- `POST /api/product-development-collaborations`
+
+Lead capture endpoints are rate-limited and support optional shared fields such as:
+
+- `organization_type`
+- `region`
+- `company_website`
+- `job_title`
+- `source_page`
+- `metadata`
+
 ### Notifications, Reports, Search
 
 - `GET /api/notifications`
@@ -225,6 +247,10 @@ Error responses:
 - `PATCH /api/admin/posts/{id}/status`
 - `PATCH /api/admin/posts/{id}/feature`
 - `POST /api/admin/notifications/announcements`
+- `GET /api/admin/b2b-leads/export`
+- `GET /api/admin/b2b-leads`
+- `GET /api/admin/b2b-leads/{id}`
+- `PATCH /api/admin/b2b-leads/{id}`
 - `PATCH /api/admin/comments/{id}/status`
 - `GET /api/admin/users/{id}/moderation-history`
 - `GET /api/admin/users/{id}/admin-actions`
@@ -344,6 +370,8 @@ See [`.env.example`](/c:/Users/xingz/Desktop/B2C_backend/.env.example) for the f
 - `COMMUNITY_UPLOAD_DISK=s3`
 - `SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000`
 - `FRONTEND_URL=http://localhost:3000`
+- `B2B_LEADS_NOTIFY_ADMINS=false`
+- `B2B_LEAD_NOTIFICATION_RECIPIENTS=`
 
 ### MySQL TLS / Azure MySQL
 
@@ -769,6 +797,92 @@ COMMUNITY_SENSITIVE_WORDS_ENABLED=true
 COMMUNITY_SENSITIVE_WORDS=scamword,abusive-term
 ```
 
+## Phase 7 Payload Examples
+
+Submit a business contact lead:
+
+```json
+{
+  "name": "Ariana Kim",
+  "company_name": "Blue Current",
+  "organization_type": "brand",
+  "email": "ariana@example.com",
+  "job_title": "Partnership Director",
+  "region": "Seoul",
+  "company_website": "https://bluecurrent.example.com",
+  "message": "We want to discuss a premium packaging collaboration.",
+  "source_page": "materials:hero"
+}
+```
+
+Submit a partnership inquiry:
+
+```json
+{
+  "name": "Leo Park",
+  "company_name": "Helix Atelier",
+  "organization_type": "company",
+  "email": "leo@example.com",
+  "message": "We want to co-develop a premium furniture capsule.",
+  "collaboration_type": "partnership_inquiry",
+  "collaboration_goal": "Pilot a limited-edition material application.",
+  "project_stage": "prototype",
+  "timeline": "Q3 2026"
+}
+```
+
+Submit a sample request:
+
+```json
+{
+  "name": "Mika Tan",
+  "company_name": "Carbon Form",
+  "organization_type": "manufacturer",
+  "email": "mika@example.com",
+  "country": "Japan",
+  "region": "Osaka",
+  "message": "We need evaluation samples for an interior pilot.",
+  "material_interest": "Pressed oyster-shell panel",
+  "quantity_estimate": "10 sheets",
+  "shipping_country": "Japan",
+  "shipping_region": "Osaka",
+  "shipping_address": "1-2-3 Minami, Osaka",
+  "intended_use": "Interior wall system prototyping."
+}
+```
+
+Update a lead as an admin:
+
+```json
+{
+  "status": "qualified",
+  "internal_notes": "Strong partnership fit. Schedule a follow-up call."
+}
+```
+
+Export filtered leads:
+
+```text
+GET /api/admin/b2b-leads/export?search=Helix&status=qualified
+```
+
+Lead response shape:
+
+```json
+{
+  "id": 101,
+  "reference": "INQ-000101",
+  "lead_type": "partnership_inquiry",
+  "inquiry_type": "Partnership Inquiry",
+  "company_name": "Helix Atelier",
+  "status": "in_review",
+  "partnership_inquiry": {
+    "collaboration_type": "partnership_inquiry",
+    "collaboration_goal": "Pilot a limited-edition material application."
+  }
+}
+```
+
 ## Running Tests
 
 The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
@@ -808,3 +922,6 @@ vendor/bin/pint
 - Homepage content is available from `GET /api/homepage`
 - Public material and article endpoints only return `published` content
 - Material detail responses include published `specs`, `story_sections`, and `applications`
+- Collaboration leads are available through the legacy `POST /api/inquiries` path and the new dedicated lead endpoints
+- Admin lead management supports search, status updates, internal notes, and CSV export
+- Admin email notifications for new leads are optional and controlled by `B2B_LEADS_NOTIFY_ADMINS` and `B2B_LEAD_NOTIFICATION_RECIPIENTS`

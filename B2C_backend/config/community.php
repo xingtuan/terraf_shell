@@ -44,4 +44,11 @@ return [
             ))),
         ],
     ],
+    'b2b_leads' => [
+        'notify_admins' => (bool) env('B2B_LEADS_NOTIFY_ADMINS', false),
+        'notification_recipients' => array_values(array_filter(array_map(
+            static fn (string $value): string => trim($value),
+            explode(',', (string) env('B2B_LEAD_NOTIFICATION_RECIPIENTS', ''))
+        ))),
+    ],
 ];

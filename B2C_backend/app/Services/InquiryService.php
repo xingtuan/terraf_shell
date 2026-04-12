@@ -6,18 +6,14 @@ use App\Models\Inquiry;
 
 class InquiryService
 {
+    public function __construct(
+        private readonly B2BLeadService $b2BLeadService,
+    ) {}
+
     public function create(array $data): Inquiry
     {
-        return Inquiry::query()->create([
-            'name' => $data['name'],
-            'company_name' => $data['company_name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
-            'country' => $data['country'] ?? null,
-            'inquiry_type' => $data['inquiry_type'],
-            'message' => $data['message'],
-            'source_page' => $data['source_page'] ?? null,
-            'status' => 'new',
-        ]);
+        return Inquiry::query()->findOrFail(
+            $this->b2BLeadService->createBusinessContact($data)->id
+        );
     }
 }

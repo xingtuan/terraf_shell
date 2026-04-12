@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Inquiry;
+namespace App\Http\Requests\Lead;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreInquiryRequest extends FormRequest
+abstract class BaseLeadRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -13,11 +13,9 @@ class StoreInquiryRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    protected function commonRules(): array
     {
         return [
             'name' => ['required', 'string', 'max:100'],
@@ -29,7 +27,6 @@ class StoreInquiryRequest extends FormRequest
             'region' => ['nullable', 'string', 'max:120'],
             'company_website' => ['nullable', 'url', 'max:2048'],
             'job_title' => ['nullable', 'string', 'max:120'],
-            'inquiry_type' => ['required', 'string', 'max:150'],
             'message' => ['required', 'string', 'max:5000'],
             'source_page' => ['nullable', 'string', 'max:120'],
             'metadata' => ['nullable', 'array'],

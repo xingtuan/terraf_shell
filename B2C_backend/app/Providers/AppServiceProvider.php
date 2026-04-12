@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\B2BLead;
 use App\Models\Comment;
+use App\Models\PartnershipInquiry;
 use App\Models\Post;
 use App\Models\Report;
+use App\Models\SampleRequest;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -32,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
             'comment' => Comment::class,
             'user' => User::class,
             'report' => Report::class,
+            'b2b_lead' => B2BLead::class,
+            'partnership_inquiry' => PartnershipInquiry::class,
+            'sample_request' => SampleRequest::class,
         ]);
 
         Gate::define('access-admin', fn (User $user): bool => $user->isAdmin());
@@ -44,6 +50,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for(
             'verification',
             fn ($request): Limit => Limit::perMinute(6)->by((string) ($request->user()?->id ?? $request->ip()))
+        );
+        RateLimiter::for(
+            'leads',
+            fn ($request): Limit => Limit::perMinute(15)->by(
+                strtolower((string) $request->input('email')).'|'.$request->ip()
+            )
         );
     }
 }

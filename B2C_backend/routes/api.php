@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\ArticleController as AdminArticleController;
+use App\Http\Controllers\Api\Admin\B2BLeadController as AdminB2BLeadController;
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\Admin\CommentModerationController;
 use App\Http\Controllers\Api\Admin\GovernanceController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Api\Admin\UserModerationController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BusinessContactController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CommentLikeController;
@@ -26,10 +28,12 @@ use App\Http\Controllers\Api\HomeSectionController;
 use App\Http\Controllers\Api\InquiryController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PartnershipInquiryController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\PostLikeController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\SampleRequestController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\UserController;
@@ -73,7 +77,14 @@ Route::get('/materials', [MaterialController::class, 'index']);
 Route::get('/materials/{identifier}', [MaterialController::class, 'show']);
 Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/articles/{identifier}', [ArticleController::class, 'show']);
-Route::post('/inquiries', [InquiryController::class, 'store']);
+Route::middleware('throttle:leads')->group(function (): void {
+    Route::post('/inquiries', [InquiryController::class, 'store']);
+    Route::post('/business-contacts', [BusinessContactController::class, 'store']);
+    Route::post('/partnership-inquiries', [PartnershipInquiryController::class, 'store']);
+    Route::post('/sample-requests', [SampleRequestController::class, 'store']);
+    Route::post('/university-collaborations', [PartnershipInquiryController::class, 'storeUniversity']);
+    Route::post('/product-development-collaborations', [PartnershipInquiryController::class, 'storeProductDevelopment']);
+});
 Route::get('/users/{user}/posts', [UserController::class, 'posts'])->whereNumber('user');
 Route::get('/users/{user}/comments', [UserController::class, 'comments'])->whereNumber('user');
 Route::get('/users/{user}/followers', [UserController::class, 'followers'])->whereNumber('user');
@@ -144,6 +155,10 @@ Route::prefix('admin')
         Route::middleware('role:admin')->group(function (): void {
             Route::patch('/posts/{post}/feature', [PostModerationController::class, 'updateFeaturedStatus'])->whereNumber('post');
             Route::post('/notifications/announcements', [SystemAnnouncementController::class, 'store']);
+            Route::get('/b2b-leads/export', [AdminB2BLeadController::class, 'export']);
+            Route::get('/b2b-leads', [AdminB2BLeadController::class, 'index']);
+            Route::get('/b2b-leads/{b2bLead}', [AdminB2BLeadController::class, 'show'])->whereNumber('b2bLead');
+            Route::patch('/b2b-leads/{b2bLead}', [AdminB2BLeadController::class, 'update'])->whereNumber('b2bLead');
 
             Route::get('/materials', [AdminMaterialController::class, 'index']);
             Route::post('/materials', [AdminMaterialController::class, 'store']);
