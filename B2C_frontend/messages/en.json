@@ -1,0 +1,325 @@
+{
+  "meta": {
+    "siteName": "Shellfin",
+    "localeName": "English",
+    "title": "Shellfin | Oyster Shell Pellets, Premium Tableware, and Material Supply",
+    "description": "Shellfin is a South Korean oyster shell material company creating pellets, compress-moulded tableware, and premium home objects."
+  },
+  "header": {
+    "home": "Home",
+    "material": "Material",
+    "store": "Store",
+    "b2b": "B2B",
+    "community": "Community",
+    "contact": "Contact",
+    "primaryCta": "Request Sample",
+    "mobileMenuLabel": "Toggle menu"
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "locales": {
+      "en": "EN",
+      "ko": "KO",
+      "zh": "中文"
+    }
+  },
+  "footer": {
+    "description": "Oyster shell pellets and finished objects from South Korea, shaped for premium retail, hospitality, and material partnerships.",
+    "explore": "Explore",
+    "business": "Business",
+    "communityLabel": "Community",
+    "materialSheet": "Material Sheet",
+    "sampleRequest": "Sample Request",
+    "productDevelopment": "Product Development",
+    "ideaSupport": "Idea Support",
+    "conceptFund": "Concept Fund",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "locationLabel": "Location",
+    "locationValue": "South Korea",
+    "copyright": "© 2026 Shellfin. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "South Korean Oyster Shell Material",
+      "title": "Quietly stronger tableware and objects, formed from reclaimed oyster shell.",
+      "description": "Shellfin turns oyster shells into pellets and compress-moulded objects for health-conscious homes, hospitality spaces, and premium material partners.",
+      "primaryCta": "Explore Store",
+      "secondaryCta": "Talk to B2B Team",
+      "indicators": [
+        "Lighter than traditional porcelain",
+        "Durable compress-moulded finish",
+        "Traceable shell-to-object process"
+      ]
+    },
+    "whyItMatters": {
+      "eyebrow": "Why Shellfin Matters",
+      "title": "A premium material story grounded in oyster shell, not surface-level sustainability.",
+      "cards": [
+        {
+          "title": "Lighter Everyday Use",
+          "description": "Shellfin is developed to feel lighter in hand than traditional porcelain, making premium objects easier to live with and easier to service."
+        },
+        {
+          "title": "Durability With Presence",
+          "description": "Pellet-based compress moulding helps deliver stronger edges, a stable body, and a refined finish that feels substantial without heaviness."
+        },
+        {
+          "title": "Natural Health Positioning",
+          "description": "The oyster shell origin gives the material a more natural, mineral-led story for brands speaking to health-conscious consumers."
+        }
+      ],
+      "stats": [
+        "Oyster shell sourcing, pellet refining, and finished-object making are kept in one coherent material narrative.",
+        "The material story supports conscious premium positioning for both B2C products and B2B programs.",
+        "Documentation and traceability are prepared to support sampling, evaluation, and brand storytelling."
+      ]
+    },
+    "materialStory": {
+      "eyebrow": "Production Logic",
+      "title": "From oyster shell to compress-moulded object.",
+      "steps": [
+        {
+          "number": "01",
+          "title": "Oyster Shell Collection",
+          "description": "Discarded oyster shells are sourced from South Korean coastal operations and sorted for material recovery."
+        },
+        {
+          "number": "02",
+          "title": "Pellet Refining",
+          "description": "Shell mineral content is cleaned, milled, and refined into Shellfin pellets prepared for controlled production."
+        },
+        {
+          "number": "03",
+          "title": "Compress Moulding",
+          "description": "The pellets are formed under pressure into stable, durable shapes for premium tableware and object programs."
+        },
+        {
+          "number": "04",
+          "title": "Finished Objects",
+          "description": "The final result is a family of lighter, stronger, design-led products ready for retail, hospitality, and collaboration."
+        }
+      ]
+    },
+    "applications": {
+      "eyebrow": "Applications",
+      "title": "Built for tableware, hospitality, homeware, and premium collaborations.",
+      "items": [
+        {
+          "title": "Premium Tableware",
+          "description": "Dining pieces with calm tactility and lighter handling."
+        },
+        {
+          "title": "Hospitality Programs",
+          "description": "Tabletop and service objects for boutique hotels and chef-led spaces."
+        },
+        {
+          "title": "Homeware Objects",
+          "description": "Trays, accents, and display pieces that carry the shell story into the home."
+        },
+        {
+          "title": "Brand Collaborations",
+          "description": "Co-developed launches, gifting lines, and limited premium editions."
+        }
+      ]
+    },
+    "materialFacts": {
+      "eyebrow": "Material Facts",
+      "title": "The performance story behind the finish.",
+      "sheetTitle": "Material Sheet",
+      "sheetDescription": "A technical summary can later connect to a live backend endpoint with full data sheets, certifications, and sample-kit availability.",
+      "sheetCta": "Download Material Sheet",
+      "infoCards": [
+        {
+          "label": "Sampling",
+          "value": "Available for B2B review"
+        },
+        {
+          "label": "Traceability",
+          "value": "Source and batch notes prepared"
+        }
+      ],
+      "note": "All figures are placeholder data for frontend navigation and should be replaced with certified lab values before launch."
+    },
+    "collaboration": {
+      "eyebrow": "B2B Collaboration",
+      "title": "Supply pellets, request samples, or build a new product line.",
+      "cards": [
+        {
+          "title": "Pellet Supply",
+          "forWhom": "For converters, manufacturers, and material buyers",
+          "description": "Source Shellfin pellets as a raw material input for your next development cycle.",
+          "cta": "Discuss Supply"
+        },
+        {
+          "title": "Sample Request",
+          "forWhom": "For teams comparing materials",
+          "description": "Request sample kits and material notes before committing to development or testing.",
+          "cta": "Request Samples"
+        },
+        {
+          "title": "Product Development",
+          "forWhom": "For premium brands and design studios",
+          "description": "Co-develop compress-moulded products around your use case, silhouette, and finish direction.",
+          "cta": "Start Development"
+        }
+      ],
+      "processTitle": "A simple path from first brief to next sample.",
+      "steps": [
+        "Share your target application",
+        "Review pellets, samples, and material notes",
+        "Move into pilot development or supply planning"
+      ]
+    },
+    "credibility": {
+      "eyebrow": "Credibility",
+      "title": "Prepared for certification conversations, traceability, and technical support.",
+      "benefits": [
+        "Material story focused only on reclaimed oyster shell content",
+        "Traceability notes designed for sourcing and brand reviews",
+        "Technical support for samples, moulding direction, and application fit",
+        "Placeholder certification and food-contact modules ready for backend integration"
+      ],
+      "features": [
+        {
+          "title": "Certification Readiness",
+          "description": "Frontend placeholders are prepared for third-party testing documents and future compliance records."
+        },
+        {
+          "title": "Technical Support",
+          "description": "The site structure now includes space for project-specific material guidance and application reviews."
+        },
+        {
+          "title": "Traceable Origin",
+          "description": "Source storytelling remains focused on South Korean oyster shell recovery and controlled pellet making."
+        },
+        {
+          "title": "Sample Workflow",
+          "description": "Teams can move from inquiry to sample planning without leaving the site architecture."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Bring Shellfin into your next tableware, pellet, or concept program.",
+      "description": "Use the store for product inspiration, or contact the team for B2B supply and development.",
+      "primaryCta": "Send a B2B Inquiry",
+      "secondaryCta": "Browse the Store"
+    }
+  },
+  "materialPage": {
+    "intro": {
+      "eyebrow": "The Material",
+      "title": "Oyster shell pellets engineered for lighter, stronger, more natural premium objects.",
+      "description": "This page focuses on the Shellfin material system: oyster shell recovery, pellet refining, compress moulding, and the technical story required for review.",
+      "primaryCta": "Request Material Sheet",
+      "secondaryCta": "Contact Material Team"
+    }
+  },
+  "storePage": {
+    "intro": {
+      "eyebrow": "B2C Store",
+      "title": "Premium tableware and home objects shaped from oyster shell pellets.",
+      "description": "A mock storefront for Shellfin products, prepared for later commerce integration while already usable for browsing and category discovery.",
+      "primaryCta": "Shop Featured Pieces",
+      "secondaryCta": "Learn About the Material"
+    },
+    "grid": {
+      "eyebrow": "Product Grid",
+      "title": "Shellfin objects for dining, gifting, and calm interior rituals.",
+      "description": "The current catalogue uses mock data and service abstractions so a future backend can replace it without rebuilding the UI.",
+      "pricePrefix": "From",
+      "availabilityLabel": "Availability"
+    }
+  },
+  "b2bPage": {
+    "intro": {
+      "eyebrow": "B2B Supply",
+      "title": "Source oyster shell pellets or develop finished products with Shellfin.",
+      "description": "For manufacturers, hospitality groups, designers, and premium brands looking for oyster shell material supply, samples, or co-development.",
+      "primaryCta": "Send Inquiry",
+      "secondaryCta": "Review Material Facts"
+    },
+    "form": {
+      "eyebrow": "Start a Project",
+      "title": "Tell us how you plan to use Shellfin pellets or finished objects.",
+      "description": "Send a lightweight project brief directly to the Laravel backend. This keeps the workflow simple while giving the team a real submission record.",
+      "fields": {
+        "name": "Name",
+        "company": "Company",
+        "email": "Email",
+        "phone": "Phone",
+        "application": "Application",
+        "volume": "Estimated volume",
+        "timeline": "Target timeline",
+        "message": "Project details"
+      },
+      "placeholders": {
+        "name": "Your name",
+        "company": "Company or studio",
+        "email": "name@company.com",
+        "phone": "Optional phone number",
+        "application": "Pellet supply, tableware line, hospitality project...",
+        "volume": "Pilot run, annual demand, sample quantity...",
+        "timeline": "Quarter, launch date, or development window",
+        "message": "Share shape requirements, target market, finish expectations, or certification needs."
+      },
+      "submit": "Send Inquiry",
+      "success": "Your inquiry has been submitted successfully.",
+      "referenceLabel": "Reference",
+      "disclaimer": "Submissions are stored in the backend inquiry table with a default status of new."
+    }
+  },
+  "communityPage": {
+    "intro": {
+      "eyebrow": "Community",
+      "title": "Share ideas, build collaborations, and support new oyster shell concepts.",
+      "description": "The community layer is designed for designers, studios, makers, and supporters who want to shape the next Shellfin objects and material experiments.",
+      "primaryCta": "Share an Idea",
+      "secondaryCta": "Support a Concept"
+    },
+    "ideas": {
+      "eyebrow": "Open Concepts",
+      "title": "Projects looking for collaborators, retail partners, and early supporters.",
+      "description": "Mock concept cards now live behind a typed service layer so future backend workflows can add status, comments, and fundraising updates.",
+      "focusLabel": "Focus",
+      "stageLabel": "Stage",
+      "supportLabel": "Support",
+      "ctaPrimary": "Submit a Concept",
+      "ctaSecondary": "Contact the Community Team"
+    }
+  },
+  "contactPage": {
+    "intro": {
+      "eyebrow": "Contact",
+      "title": "Talk to Shellfin about material supply, products, or collaborative concepts.",
+      "description": "Use the direct contact details for quick conversations, or submit a structured project brief through the inquiry form.",
+      "primaryCta": "Email the Team",
+      "secondaryCta": "Open B2B Inquiry"
+    },
+    "details": {
+      "eyebrow": "Reach Shellfin",
+      "title": "Direct paths for retail, B2B, and community conversations.",
+      "description": "The contact layer keeps business, product, and concept discussions visible while staying ready for backend-driven CRM integration.",
+      "cards": [
+        {
+          "label": "Email",
+          "value": "hello@shellfin.kr",
+          "detail": "General, retail, and product inquiries"
+        },
+        {
+          "label": "B2B Desk",
+          "value": "+82 51-555-0188",
+          "detail": "Material supply and sample coordination"
+        },
+        {
+          "label": "Location",
+          "value": "South Korea",
+          "detail": "Oyster shell sourcing and pellet processing network"
+        }
+      ],
+      "response": "Typical response time: within two business days."
+    }
+  }
+}

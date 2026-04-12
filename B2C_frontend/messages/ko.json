@@ -1,0 +1,325 @@
+{
+  "meta": {
+    "siteName": "Shellfin",
+    "localeName": "한국어",
+    "title": "Shellfin | 굴 패각 펠릿, 프리미엄 테이블웨어, 소재 공급",
+    "description": "Shellfin은 한국의 굴 패각을 기반으로 펠릿, 압축 성형 테이블웨어, 프리미엄 홈 오브제를 만드는 소재 기업입니다."
+  },
+  "header": {
+    "home": "홈",
+    "material": "소재",
+    "store": "스토어",
+    "b2b": "B2B",
+    "community": "커뮤니티",
+    "contact": "문의",
+    "primaryCta": "샘플 요청",
+    "mobileMenuLabel": "메뉴 열기"
+  },
+  "languageSwitcher": {
+    "label": "언어",
+    "locales": {
+      "en": "EN",
+      "ko": "KO",
+      "zh": "中文"
+    }
+  },
+  "footer": {
+    "description": "한국의 굴 패각에서 출발한 펠릿과 완제품을 프리미엄 리테일, 호스피탈리티, 소재 파트너십에 맞춰 제공합니다.",
+    "explore": "탐색",
+    "business": "비즈니스",
+    "communityLabel": "커뮤니티",
+    "materialSheet": "소재 시트",
+    "sampleRequest": "샘플 요청",
+    "productDevelopment": "제품 개발",
+    "ideaSupport": "아이디어 지원",
+    "conceptFund": "컨셉 펀드",
+    "emailLabel": "이메일",
+    "phoneLabel": "전화",
+    "locationLabel": "위치",
+    "locationValue": "대한민국",
+    "copyright": "© 2026 Shellfin. All rights reserved.",
+    "privacy": "개인정보 처리방침",
+    "terms": "이용약관"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "한국의 굴 패각 소재",
+      "title": "재생 굴 패각으로 완성한, 더 가볍고 더 단단한 테이블웨어와 오브제.",
+      "description": "Shellfin은 굴 패각을 펠릿과 압축 성형 오브제로 전환해 건강을 중시하는 가정, 호스피탈리티 공간, 프리미엄 소재 파트너를 연결합니다.",
+      "primaryCta": "스토어 보기",
+      "secondaryCta": "B2B 상담",
+      "indicators": [
+        "기존 도자기보다 더 가벼운 사용감",
+        "압축 성형 기반의 높은 내구성",
+        "패각에서 완제품까지 이어지는 추적 가능한 공정"
+      ]
+    },
+    "whyItMatters": {
+      "eyebrow": "왜 Shellfin인가",
+      "title": "겉보기 친환경이 아닌, 굴 패각에 기반한 프리미엄 소재 스토리.",
+      "cards": [
+        {
+          "title": "더 가벼운 일상 사용성",
+          "description": "Shellfin은 기존 도자기보다 손에 들었을 때 더 가볍게 느껴지도록 설계되어 프리미엄 오브제를 일상과 서비스 환경 모두에 적합하게 만듭니다."
+        },
+        {
+          "title": "존재감 있는 내구성",
+          "description": "펠릿 기반 압축 성형은 가장자리 강도와 안정적인 바디, 그리고 무겁지 않으면서도 밀도감 있는 마감을 구현합니다."
+        },
+        {
+          "title": "자연 유래 건강 포지셔닝",
+          "description": "굴 패각이라는 출발점은 건강을 중시하는 소비자에게 더 자연스럽고 미네랄 중심의 브랜드 이야기를 제공합니다."
+        }
+      ],
+      "stats": [
+        "굴 패각 수거부터 펠릿 정제, 완제품 제작까지 하나의 일관된 소재 서사로 연결됩니다.",
+        "이 소재 스토리는 B2C 제품과 B2B 프로그램 모두에서 의식 있는 프리미엄 포지셔닝을 지원합니다.",
+        "샘플 검토와 평가, 브랜드 스토리텔링을 위한 문서와 추적성 준비가 가능합니다."
+      ]
+    },
+    "materialStory": {
+      "eyebrow": "생산 로직",
+      "title": "굴 패각에서 압축 성형 오브제까지.",
+      "steps": [
+        {
+          "number": "01",
+          "title": "굴 패각 수거",
+          "description": "국내 연안에서 발생하는 굴 패각을 선별 수거해 소재 회수 공정으로 연결합니다."
+        },
+        {
+          "number": "02",
+          "title": "펠릿 정제",
+          "description": "패각의 미네랄 성분을 세정, 분쇄, 정제하여 제어 가능한 생산용 Shellfin 펠릿으로 만듭니다."
+        },
+        {
+          "number": "03",
+          "title": "압축 성형",
+          "description": "펠릿을 압력 하에 성형해 프리미엄 테이블웨어와 오브제용으로 안정적이고 내구성 있는 형태를 구현합니다."
+        },
+        {
+          "number": "04",
+          "title": "완성 제품",
+          "description": "최종 결과물은 더 가볍고 더 단단한 디자인 중심 제품군으로, 리테일, 호스피탈리티, 협업 프로젝트에 바로 적용할 수 있습니다."
+        }
+      ]
+    },
+    "applications": {
+      "eyebrow": "활용 분야",
+      "title": "테이블웨어, 호스피탈리티, 홈웨어, 프리미엄 협업을 위해 설계되었습니다.",
+      "items": [
+        {
+          "title": "프리미엄 테이블웨어",
+          "description": "차분한 촉감과 가벼운 사용감을 지닌 다이닝 오브제."
+        },
+        {
+          "title": "호스피탈리티 프로그램",
+          "description": "부티크 호텔과 셰프 공간을 위한 테이블탑 및 서비스 오브제."
+        },
+        {
+          "title": "홈웨어 오브제",
+          "description": "패각 소재의 이야기를 집 안으로 확장하는 트레이와 디스플레이 피스."
+        },
+        {
+          "title": "브랜드 협업",
+          "description": "공동 개발 런칭, 기프트 라인, 한정판 프리미엄 에디션."
+        }
+      ]
+    },
+    "materialFacts": {
+      "eyebrow": "소재 정보",
+      "title": "마감 뒤에 있는 성능 이야기.",
+      "sheetTitle": "소재 시트",
+      "sheetDescription": "기술 요약은 향후 백엔드 엔드포인트와 연결되어 데이터시트, 인증, 샘플 키트 정보를 제공할 수 있도록 준비되어 있습니다.",
+      "sheetCta": "소재 시트 다운로드",
+      "infoCards": [
+        {
+          "label": "샘플링",
+          "value": "B2B 검토용 제공 가능"
+        },
+        {
+          "label": "추적성",
+          "value": "소스 및 배치 노트 준비"
+        }
+      ],
+      "note": "현재 수치는 프런트엔드 탐색용 플레이스홀더이며, 출시 전 반드시 인증된 시험 데이터로 교체해야 합니다."
+    },
+    "collaboration": {
+      "eyebrow": "B2B 협업",
+      "title": "펠릿 공급, 샘플 요청, 신규 제품 개발까지 연결합니다.",
+      "cards": [
+        {
+          "title": "펠릿 공급",
+          "forWhom": "컨버터, 제조사, 소재 바이어 대상",
+          "description": "다음 개발 사이클을 위한 원재료로 Shellfin 펠릿을 공급합니다.",
+          "cta": "공급 문의"
+        },
+        {
+          "title": "샘플 요청",
+          "forWhom": "소재 비교 중인 팀 대상",
+          "description": "개발 또는 테스트 전에 샘플 키트와 소재 노트를 요청할 수 있습니다.",
+          "cta": "샘플 요청"
+        },
+        {
+          "title": "제품 개발",
+          "forWhom": "프리미엄 브랜드와 디자인 스튜디오 대상",
+          "description": "용도, 실루엣, 마감 방향에 맞춰 압축 성형 제품을 공동 개발합니다.",
+          "cta": "개발 시작"
+        }
+      ],
+      "processTitle": "첫 브리프에서 다음 샘플까지의 간결한 경로.",
+      "steps": [
+        "목표 적용 분야를 공유합니다",
+        "펠릿, 샘플, 소재 노트를 검토합니다",
+        "파일럿 개발 또는 공급 계획으로 이동합니다"
+      ]
+    },
+    "credibility": {
+      "eyebrow": "신뢰 요소",
+      "title": "인증 논의, 추적성, 기술 지원을 위해 준비된 구조.",
+      "benefits": [
+        "재생 굴 패각에만 집중한 소재 스토리",
+        "소싱 검토와 브랜드 리뷰를 위한 추적성 노트",
+        "샘플, 성형 방향, 적용 적합성에 대한 기술 지원",
+        "향후 백엔드 연동을 위한 인증 및 식품 접촉 모듈 자리 확보"
+      ],
+      "features": [
+        {
+          "title": "인증 준비",
+          "description": "서드파티 시험 문서와 향후 컴플라이언스 기록을 위한 프런트엔드 자리표시자가 준비되어 있습니다."
+        },
+        {
+          "title": "기술 지원",
+          "description": "프로젝트별 소재 가이드와 적용 검토를 위한 구조가 사이트 안에 마련되어 있습니다."
+        },
+        {
+          "title": "추적 가능한 원산지",
+          "description": "국내 굴 패각 회수와 통제된 펠릿 생산에 초점을 맞춘 소스 스토리텔링을 유지합니다."
+        },
+        {
+          "title": "샘플 워크플로우",
+          "description": "문의에서 샘플 계획까지 사이트 구조 안에서 자연스럽게 이어집니다."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "다음 테이블웨어, 펠릿, 혹은 컨셉 프로그램에 Shellfin을 적용해보세요.",
+      "description": "제품 영감은 스토어에서 확인하고, B2B 공급과 개발은 팀에 직접 문의할 수 있습니다.",
+      "primaryCta": "B2B 문의하기",
+      "secondaryCta": "스토어 둘러보기"
+    }
+  },
+  "materialPage": {
+    "intro": {
+      "eyebrow": "소재",
+      "title": "더 가볍고 더 단단하며 더 자연스러운 프리미엄 오브제를 위한 굴 패각 펠릿.",
+      "description": "이 페이지는 Shellfin 소재 시스템 자체에 집중합니다. 굴 패각 회수, 펠릿 정제, 압축 성형, 그리고 검토를 위한 기술적 스토리를 한곳에 정리했습니다.",
+      "primaryCta": "소재 시트 요청",
+      "secondaryCta": "소재팀 문의"
+    }
+  },
+  "storePage": {
+    "intro": {
+      "eyebrow": "B2C 스토어",
+      "title": "굴 패각 펠릿으로 만든 프리미엄 테이블웨어와 홈 오브제.",
+      "description": "향후 커머스 연동을 고려해 구성한 목업 스토어로, 현재도 카테고리 탐색과 제품 브라우징이 가능하도록 설계했습니다.",
+      "primaryCta": "추천 제품 보기",
+      "secondaryCta": "소재 알아보기"
+    },
+    "grid": {
+      "eyebrow": "제품 그리드",
+      "title": "다이닝, 기프팅, 차분한 인테리어 루틴을 위한 Shellfin 오브제.",
+      "description": "현재 카탈로그는 목업 데이터와 서비스 추상화를 사용해 향후 백엔드 교체 시 UI를 유지할 수 있도록 구성되었습니다.",
+      "pricePrefix": "시작가",
+      "availabilityLabel": "공급 상태"
+    }
+  },
+  "b2bPage": {
+    "intro": {
+      "eyebrow": "B2B 공급",
+      "title": "Shellfin과 함께 굴 패각 펠릿을 공급받거나 완제품을 공동 개발하세요.",
+      "description": "굴 패각 소재 공급, 샘플, 공동 개발이 필요한 제조사, 호스피탈리티 그룹, 디자이너, 프리미엄 브랜드를 위한 페이지입니다.",
+      "primaryCta": "문의 보내기",
+      "secondaryCta": "소재 정보 보기"
+    },
+    "form": {
+      "eyebrow": "프로젝트 시작",
+      "title": "Shellfin 펠릿 또는 완제품을 어떻게 활용할지 알려주세요.",
+      "description": "이 폼은 타입이 지정된 목업 서비스와 연결되어 있으며, CRM 또는 백엔드 연동 지점을 명확한 TODO로 표시해 두었습니다.",
+      "fields": {
+        "name": "이름",
+        "company": "회사명",
+        "email": "이메일",
+        "phone": "전화번호",
+        "application": "적용 분야",
+        "volume": "예상 물량",
+        "timeline": "목표 일정",
+        "message": "프로젝트 상세"
+      },
+      "placeholders": {
+        "name": "담당자 이름",
+        "company": "회사 또는 스튜디오명",
+        "email": "name@company.com",
+        "phone": "선택 입력",
+        "application": "펠릿 공급, 테이블웨어 라인, 호스피탈리티 프로젝트 등",
+        "volume": "파일럿 물량, 연간 수요, 샘플 수량 등",
+        "timeline": "분기, 런칭 일정, 개발 기간 등",
+        "message": "형상 요구사항, 목표 시장, 마감 기대치, 인증 필요사항을 공유해주세요."
+      },
+      "submit": "문의 보내기",
+      "success": "문의가 목업 서비스 레이어에 저장되었습니다.",
+      "referenceLabel": "접수 번호",
+      "disclaimer": "현재 제출은 목업 API 서비스를 사용하며, 실제 운영 전 백엔드와 연결해야 합니다."
+    }
+  },
+  "communityPage": {
+    "intro": {
+      "eyebrow": "커뮤니티",
+      "title": "아이디어를 공유하고, 협업을 만들고, 새로운 굴 패각 컨셉을 지원하세요.",
+      "description": "커뮤니티 레이어는 디자이너, 스튜디오, 메이커, 서포터가 다음 Shellfin 오브제와 소재 실험을 함께 만들어가기 위해 설계되었습니다.",
+      "primaryCta": "아이디어 공유",
+      "secondaryCta": "컨셉 지원"
+    },
+    "ideas": {
+      "eyebrow": "오픈 컨셉",
+      "title": "협업자, 리테일 파트너, 초기 서포터를 찾는 프로젝트.",
+      "description": "현재 컨셉 카드는 타입이 지정된 서비스 레이어 뒤에 구성되어 있어 향후 상태, 댓글, 펀딩 업데이트를 백엔드로 확장할 수 있습니다.",
+      "focusLabel": "포커스",
+      "stageLabel": "단계",
+      "supportLabel": "지원 방식",
+      "ctaPrimary": "컨셉 제출",
+      "ctaSecondary": "커뮤니티 팀 문의"
+    }
+  },
+  "contactPage": {
+    "intro": {
+      "eyebrow": "문의",
+      "title": "소재 공급, 제품, 협업 컨셉에 대해 Shellfin과 이야기하세요.",
+      "description": "빠른 상담은 직접 연락처를 이용하고, 구조화된 프로젝트 브리프는 문의 폼으로 전달할 수 있습니다.",
+      "primaryCta": "이메일 보내기",
+      "secondaryCta": "B2B 문의 열기"
+    },
+    "details": {
+      "eyebrow": "연락 방법",
+      "title": "리테일, B2B, 커뮤니티 대화를 위한 직접 연결 경로.",
+      "description": "비즈니스, 제품, 컨셉 대화를 명확하게 나누면서도 향후 CRM 백엔드 연동이 가능하도록 구조화했습니다.",
+      "cards": [
+        {
+          "label": "이메일",
+          "value": "hello@shellfin.kr",
+          "detail": "일반 문의, 리테일, 제품 문의"
+        },
+        {
+          "label": "B2B 데스크",
+          "value": "+82 51-555-0188",
+          "detail": "소재 공급 및 샘플 조율"
+        },
+        {
+          "label": "위치",
+          "value": "대한민국",
+          "detail": "굴 패각 소싱 및 펠릿 생산 네트워크"
+        }
+      ],
+      "response": "평균 응답 시간: 영업일 기준 2일 이내."
+    }
+  }
+}

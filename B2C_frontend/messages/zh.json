@@ -1,0 +1,325 @@
+{
+  "meta": {
+    "siteName": "Shellfin",
+    "localeName": "中文",
+    "title": "Shellfin | 牡蛎壳颗粒、精品餐具与材料供应",
+    "description": "Shellfin 是一家韩国牡蛎壳材料公司，提供颗粒原料、压缩模塑餐具以及高端家居物件。"
+  },
+  "header": {
+    "home": "首页",
+    "material": "材料",
+    "store": "商店",
+    "b2b": "B2B",
+    "community": "社区",
+    "contact": "联系",
+    "primaryCta": "申请样品",
+    "mobileMenuLabel": "切换菜单"
+  },
+  "languageSwitcher": {
+    "label": "语言",
+    "locales": {
+      "en": "EN",
+      "ko": "KO",
+      "zh": "中文"
+    }
+  },
+  "footer": {
+    "description": "来自韩国的牡蛎壳颗粒与成品物件，服务于高端零售、餐饮酒店与材料合作项目。",
+    "explore": "浏览",
+    "business": "商务",
+    "communityLabel": "社区",
+    "materialSheet": "材料说明",
+    "sampleRequest": "样品申请",
+    "productDevelopment": "产品开发",
+    "ideaSupport": "创意支持",
+    "conceptFund": "概念基金",
+    "emailLabel": "邮箱",
+    "phoneLabel": "电话",
+    "locationLabel": "地点",
+    "locationValue": "韩国",
+    "copyright": "© 2026 Shellfin. All rights reserved.",
+    "privacy": "隐私政策",
+    "terms": "使用条款"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "韩国牡蛎壳材料",
+      "title": "由再生牡蛎壳制成，更轻、更强、更安静的餐具与家居物件。",
+      "description": "Shellfin 将牡蛎壳转化为颗粒和压缩模塑物件，服务于注重健康的家庭、餐饮酒店空间与高端材料合作伙伴。",
+      "primaryCta": "进入商店",
+      "secondaryCta": "联系 B2B 团队",
+      "indicators": [
+        "比传统瓷器更轻",
+        "压缩模塑带来稳定耐用性",
+        "从贝壳到成品的可追溯流程"
+      ]
+    },
+    "whyItMatters": {
+      "eyebrow": "为什么选择 Shellfin",
+      "title": "不是表层可持续叙事，而是建立在牡蛎壳之上的高端材料故事。",
+      "cards": [
+        {
+          "title": "更轻的日常体验",
+          "description": "Shellfin 被设计为比传统瓷器握持更轻，让高端物件在日常使用与服务场景中都更友好。"
+        },
+        {
+          "title": "带有存在感的耐用性",
+          "description": "基于颗粒的压缩成型有助于实现更强的边缘、更稳定的结构，以及有分量但不笨重的表面质感。"
+        },
+        {
+          "title": "更自然的健康叙事",
+          "description": "牡蛎壳来源让材料具备天然矿物感，更适合面向健康意识消费者的品牌定位。"
+        }
+      ],
+      "stats": [
+        "从牡蛎壳回收到颗粒精制，再到成品制造，形成了一条完整清晰的材料叙事。",
+        "这一材料故事同时支撑 B2C 产品表达与 B2B 商务合作中的高端可持续定位。",
+        "相关文档与可追溯信息已为打样、评估与品牌传播预留结构。"
+      ]
+    },
+    "materialStory": {
+      "eyebrow": "生产逻辑",
+      "title": "从牡蛎壳到压缩模塑成品。",
+      "steps": [
+        {
+          "number": "01",
+          "title": "牡蛎壳回收",
+          "description": "从韩国沿海养殖与加工环节回收废弃牡蛎壳，并进行分类整理以进入材料流程。"
+        },
+        {
+          "number": "02",
+          "title": "颗粒精制",
+          "description": "将贝壳矿物成分清洗、粉碎、精制，制成可控生产用的 Shellfin 颗粒。"
+        },
+        {
+          "number": "03",
+          "title": "压缩模塑",
+          "description": "通过压力成型将颗粒转化为稳定耐用的形体，用于高端餐具与家居物件。"
+        },
+        {
+          "number": "04",
+          "title": "完成品",
+          "description": "最终形成更轻、更强、更具设计感的产品系列，可用于零售、餐饮酒店与合作项目。"
+        }
+      ]
+    },
+    "applications": {
+      "eyebrow": "应用方向",
+      "title": "适用于餐具、餐饮酒店、家居用品与高端品牌合作。",
+      "items": [
+        {
+          "title": "精品餐具",
+          "description": "兼具安静触感与轻盈使用体验的用餐器物。"
+        },
+        {
+          "title": "餐饮酒店方案",
+          "description": "面向精品酒店与主厨空间的桌面与服务器物。"
+        },
+        {
+          "title": "家居物件",
+          "description": "将贝壳材料故事带入居家场景的托盘与陈列物件。"
+        },
+        {
+          "title": "品牌合作",
+          "description": "联合开发发布、礼赠系列与限定高端版本。"
+        }
+      ]
+    },
+    "materialFacts": {
+      "eyebrow": "材料事实",
+      "title": "表面之下的性能逻辑。",
+      "sheetTitle": "材料说明",
+      "sheetDescription": "技术摘要已经为后续后端接口预留位置，可连接完整数据表、认证信息与样品包状态。",
+      "sheetCta": "下载材料说明",
+      "infoCards": [
+        {
+          "label": "样品",
+          "value": "可供 B2B 审阅"
+        },
+        {
+          "label": "可追溯性",
+          "value": "已准备来源与批次说明"
+        }
+      ],
+      "note": "当前数值为前端导航演示用占位数据，正式上线前应替换为经过认证的实验室数据。"
+    },
+    "collaboration": {
+      "eyebrow": "B2B 协作",
+      "title": "供应颗粒、申请样品，或共同开发新的产品线。",
+      "cards": [
+        {
+          "title": "颗粒供应",
+          "forWhom": "适用于转化商、制造商与材料采购方",
+          "description": "将 Shellfin 颗粒作为下一轮开发的原材料输入。",
+          "cta": "洽谈供应"
+        },
+        {
+          "title": "样品申请",
+          "forWhom": "适用于正在比较材料的团队",
+          "description": "在开发或测试前申请样品套组与材料说明。",
+          "cta": "申请样品"
+        },
+        {
+          "title": "产品开发",
+          "forWhom": "适用于高端品牌与设计工作室",
+          "description": "围绕用途、轮廓和表面方向，共同开发压缩模塑产品。",
+          "cta": "开始开发"
+        }
+      ],
+      "processTitle": "从首份需求到下一轮样品的清晰路径。",
+      "steps": [
+        "提交目标应用场景",
+        "审核颗粒、样品与材料说明",
+        "进入试点开发或供应规划"
+      ]
+    },
+    "credibility": {
+      "eyebrow": "可信度",
+      "title": "为认证讨论、可追溯性与技术支持做好准备。",
+      "benefits": [
+        "材料叙事只聚焦再生牡蛎壳内容",
+        "可追溯说明适用于采购与品牌审核",
+        "支持样品、模塑方向与应用适配咨询",
+        "已为后续认证与食品接触模块预留后端接入位置"
+      ],
+      "features": [
+        {
+          "title": "认证准备",
+          "description": "前端占位结构已为第三方测试文件与未来合规记录做好准备。"
+        },
+        {
+          "title": "技术支持",
+          "description": "站点结构已包含项目级材料建议与应用评估的展示空间。"
+        },
+        {
+          "title": "可追溯来源",
+          "description": "来源叙事始终聚焦韩国牡蛎壳回收与受控颗粒生产。"
+        },
+        {
+          "title": "样品流程",
+          "description": "团队可以在同一站点架构内从询盘顺畅过渡到样品规划。"
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "让 Shellfin 进入你的下一套餐具、颗粒项目或概念计划。",
+      "description": "可以先通过商店获取产品灵感，也可以直接联系团队进行 B2B 供应与开发沟通。",
+      "primaryCta": "发送 B2B 询盘",
+      "secondaryCta": "浏览商店"
+    }
+  },
+  "materialPage": {
+    "intro": {
+      "eyebrow": "材料",
+      "title": "面向更轻、更强、更自然的高端物件而设计的牡蛎壳颗粒。",
+      "description": "此页面聚焦 Shellfin 材料系统本身，包括牡蛎壳回收、颗粒精制、压缩模塑，以及供评审使用的技术叙事。",
+      "primaryCta": "申请材料说明",
+      "secondaryCta": "联系材料团队"
+    }
+  },
+  "storePage": {
+    "intro": {
+      "eyebrow": "B2C 商店",
+      "title": "由牡蛎壳颗粒制成的高端餐具与家居物件。",
+      "description": "这是一个为后续电商接入准备的模拟店铺，目前已经可以完整浏览品类与产品。",
+      "primaryCta": "查看精选产品",
+      "secondaryCta": "了解材料"
+    },
+    "grid": {
+      "eyebrow": "产品网格",
+      "title": "适用于用餐、礼赠与安静居家仪式的 Shellfin 物件。",
+      "description": "当前目录使用模拟数据与服务抽象构建，后续接入后端时无需重做界面。",
+      "pricePrefix": "起价",
+      "availabilityLabel": "供应状态"
+    }
+  },
+  "b2bPage": {
+    "intro": {
+      "eyebrow": "B2B 供应",
+      "title": "与 Shellfin 合作采购牡蛎壳颗粒或共同开发成品。",
+      "description": "面向制造商、餐饮酒店集团、设计师与高端品牌，提供牡蛎壳材料供应、样品与联合开发。",
+      "primaryCta": "发送询盘",
+      "secondaryCta": "查看材料事实"
+    },
+    "form": {
+      "eyebrow": "启动项目",
+      "title": "告诉我们你计划如何使用 Shellfin 颗粒或成品。",
+      "description": "该表单已连接到类型安全的模拟服务，并用明确的 TODO 标注了未来 CRM 或后端接入点。",
+      "fields": {
+        "name": "姓名",
+        "company": "公司",
+        "email": "邮箱",
+        "phone": "电话",
+        "application": "应用方向",
+        "volume": "预估量级",
+        "timeline": "目标时间",
+        "message": "项目详情"
+      },
+      "placeholders": {
+        "name": "你的姓名",
+        "company": "公司或工作室",
+        "email": "name@company.com",
+        "phone": "可选联系电话",
+        "application": "颗粒供应、餐具系列、酒店项目等",
+        "volume": "试产规模、年度需求、样品数量等",
+        "timeline": "季度、发布日期或开发周期",
+        "message": "请说明形态要求、目标市场、表面方向或认证需求。"
+      },
+      "submit": "发送询盘",
+      "success": "你的询盘已记录到模拟服务层。",
+      "referenceLabel": "编号",
+      "disclaimer": "当前提交流程使用模拟 API 服务，正式上线前应接入真实后端。"
+    }
+  },
+  "communityPage": {
+    "intro": {
+      "eyebrow": "社区",
+      "title": "分享想法、建立合作，并支持新的牡蛎壳概念项目。",
+      "description": "社区层面向设计师、工作室、创作者与支持者，帮助他们共同推动下一代 Shellfin 物件与材料实验。",
+      "primaryCta": "分享创意",
+      "secondaryCta": "支持概念"
+    },
+    "ideas": {
+      "eyebrow": "开放概念",
+      "title": "正在寻找合作方、零售伙伴与早期支持者的项目。",
+      "description": "当前概念卡片运行在类型化服务层之上，未来可继续接入状态、评论与筹资更新。",
+      "focusLabel": "方向",
+      "stageLabel": "阶段",
+      "supportLabel": "支持方式",
+      "ctaPrimary": "提交概念",
+      "ctaSecondary": "联系社区团队"
+    }
+  },
+  "contactPage": {
+    "intro": {
+      "eyebrow": "联系",
+      "title": "与 Shellfin 讨论材料供应、产品或合作概念。",
+      "description": "可通过直接联系方式进行快速沟通，也可以使用结构化表单提交项目简报。",
+      "primaryCta": "发送邮件",
+      "secondaryCta": "打开 B2B 询盘"
+    },
+    "details": {
+      "eyebrow": "联系 Shellfin",
+      "title": "为零售、B2B 与社区合作准备的直接沟通入口。",
+      "description": "该联系层让商务、产品与概念交流保持清晰，同时为未来 CRM 后端集成预留结构。",
+      "cards": [
+        {
+          "label": "邮箱",
+          "value": "hello@shellfin.kr",
+          "detail": "一般咨询、零售与产品问题"
+        },
+        {
+          "label": "B2B 专线",
+          "value": "+82 51-555-0188",
+          "detail": "材料供应与样品协调"
+        },
+        {
+          "label": "地点",
+          "value": "韩国",
+          "detail": "牡蛎壳采购与颗粒生产网络"
+        }
+      ],
+      "response": "通常回复时间：2 个工作日内。"
+    }
+  }
+}
