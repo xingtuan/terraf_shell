@@ -27,6 +27,10 @@ class Post extends Model
         'status',
         'is_pinned',
         'is_featured',
+        'engagement_score',
+        'trending_score',
+        'featured_at',
+        'featured_by',
         'published_at',
     ];
 
@@ -35,6 +39,9 @@ class Post extends Model
         return [
             'is_pinned' => 'boolean',
             'is_featured' => 'boolean',
+            'engagement_score' => 'integer',
+            'trending_score' => 'integer',
+            'featured_at' => 'datetime',
             'published_at' => 'datetime',
         ];
     }
@@ -42,6 +49,11 @@ class Post extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function featuredBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'featured_by');
     }
 
     public function category(): BelongsTo

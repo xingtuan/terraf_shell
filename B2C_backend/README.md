@@ -29,6 +29,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - Admin: review reports, moderate posts/comments, ban users
 - Material CMS: materials, specs, story sections, applications, home sections, and articles
 - Homepage content aggregation for hero, science, and editorial sections
+- Discovery: latest, hot, popular, trending, most liked, most discussed, featured concepts
 - Internal admin panel for admins and moderators at `/admin`
 - Uploads: avatar upload, idea media upload, and CMS media upload
 - Search: post title/content search
@@ -155,8 +156,12 @@ Error responses:
 
 `GET /api/posts` also supports optional query params such as:
 
-- `sort=latest|hot`
+- `sort=latest|hot|popular|trending|most_liked|most_discussed`
 - `user_id=`
+- `creator=alicecreator`
+- `school_or_company=Auckland Design Lab`
+- `region=Auckland`
+- `status=approved|pending|rejected|hidden`
 - `category=` or `category_id=`
 - `tag=`
 - `featured=1`
@@ -212,7 +217,9 @@ Error responses:
 
 - `GET /api/admin/reports`
 - `PATCH /api/admin/reports/{id}/status`
+- `GET /api/admin/posts/ranking-formula`
 - `PATCH /api/admin/posts/{id}/status`
+- `PATCH /api/admin/posts/{id}/feature`
 - `PATCH /api/admin/comments/{id}/status`
 - `PATCH /api/admin/users/{id}/role`
 - `PATCH /api/admin/users/{id}/account-status`
@@ -600,6 +607,53 @@ Attachment metadata in post responses:
 }
 ```
 
+## Phase 4 Payload Examples
+
+Fetch concepts by discovery order:
+
+```text
+GET /api/posts?sort=trending&category=hardware&tag=oyster-shell&featured=1
+```
+
+Filter concepts by creator and profile attributes:
+
+```text
+GET /api/posts?creator=alicecreator&school_or_company=Auckland%20Design&region=Auckland
+```
+
+Feature a concept as an admin:
+
+```json
+{
+  "is_featured": true,
+  "reason": "Featured for homepage discovery."
+}
+```
+
+Post ranking fields in API responses:
+
+```json
+{
+  "id": 42,
+  "title": "Popular concept",
+  "is_featured": true,
+  "engagement_score": 109,
+  "trending_score": 160,
+  "featured_at": "2026-04-12T00:00:00Z"
+}
+```
+
+Ranking formula reference:
+
+```json
+{
+  "engagement_score": "likes_count * 3 + comments_count * 4 + favorites_count * 2",
+  "trending_score": "((weekly_likes * 3 + weekly_comments * 4 + weekly_favorites * 2) * 10) + recency_boost",
+  "window_days": 7,
+  "recency_boost_max_hours": 168
+}
+```
+
 ## Running Tests
 
 The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
@@ -626,6 +680,9 @@ vendor/bin/pint
 - Post responses keep the legacy `images` array for image-only clients
 - Post responses now also include a structured `media` array for mixed attachments
 - Image attachments expose `preview_url` and `thumbnail_url`
+- Post discovery responses include `engagement_score`, `trending_score`, and `featured_at`
+- `sort=hot` remains supported as a backward-compatible alias for popularity ordering
+- Staff can inspect the ranking formula at `GET /api/admin/posts/ranking-formula`
 - Homepage content is available from `GET /api/homepage`
 - Public material and article endpoints only return `published` content
 - Material detail responses include published `specs`, `story_sections`, and `applications`

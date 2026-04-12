@@ -27,6 +27,8 @@ class PostResource extends JsonResource
             'status' => $this->status,
             'is_pinned' => (bool) $this->is_pinned,
             'is_featured' => (bool) $this->is_featured,
+            'engagement_score' => (int) ($this->engagement_score ?? 0),
+            'trending_score' => (int) ($this->trending_score ?? 0),
             'comments_count' => (int) $this->comments_count,
             'likes_count' => (int) $this->likes_count,
             'favorites_count' => (int) $this->favorites_count,
@@ -37,8 +39,13 @@ class PostResource extends JsonResource
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'images' => PostImageResource::collection($this->whenLoaded('images')),
             'media' => IdeaMediaResource::collection($this->whenLoaded('media')),
+            'featured_by' => $this->when(
+                $request->user()?->canModerate() ?? false,
+                $this->featured_by
+            ),
             'can_edit' => $request->user()?->can('update', $this->resource) ?? false,
             'can_delete' => $request->user()?->can('delete', $this->resource) ?? false,
+            'featured_at' => $this->featured_at?->toISOString(),
             'published_at' => $this->published_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

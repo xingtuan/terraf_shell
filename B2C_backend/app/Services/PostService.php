@@ -22,6 +22,7 @@ class PostService
 {
     public function __construct(
         private readonly MediaService $mediaService,
+        private readonly PostRankingService $postRankingService,
     ) {}
 
     public function list(array $filters, ?User $viewer = null): LengthAwarePaginator
@@ -30,13 +31,20 @@ class PostService
 
         if (($filters['mine'] ?? false) && $viewer !== null) {
             $query->where('user_id', $viewer->id);
-        } elseif ($viewer?->isAdmin() && ! empty($filters['status'])) {
+            if (! empty($filters['status'])) {
+                $query->where('status', $filters['status']);
+            }
+        } elseif ($viewer?->canModerate() && ! empty($filters['status'])) {
             $query->where('status', $filters['status']);
+        } elseif (($filters['status'] ?? null) === ContentStatus::Approved->value) {
+            $query->approved();
         } else {
             $query->publiclyVisible();
         }
 
         $this->applyCategoryFilter($query, $filters);
+        $this->applyCreatorFilter($query, $filters);
+        $this->applyProfileFilters($query, $filters);
 
         if (! empty($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
@@ -115,6 +123,7 @@ class PostService
 
             $post->tags()->sync($data['tag_ids'] ?? []);
             $this->syncMedia($post, $data);
+            $post = $this->postRankingService->refreshScores($post);
 
             return $this->reload($post, $user);
         });
@@ -141,6 +150,8 @@ class PostService
 
                 if (array_key_exists('is_featured', $data)) {
                     $post->is_featured = (bool) $data['is_featured'];
+                    $post->featured_at = $post->is_featured ? now() : null;
+                    $post->featured_by = $post->is_featured ? $user->id : null;
                 }
             } else {
                 $post->status = ContentStatus::Pending->value;
@@ -154,6 +165,7 @@ class PostService
             }
 
             $this->syncMedia($post, $data);
+            $post = $this->postRankingService->refreshScores($post);
 
             return $this->reload($post, $user);
         });
@@ -260,15 +272,79 @@ class PostService
         });
     }
 
+    private function applyCreatorFilter($query, array $filters): void
+    {
+        if (empty($filters['creator'])) {
+            return;
+        }
+
+        $creator = (string) $filters['creator'];
+
+        $query->whereHas('user', function ($userQuery) use ($creator): void {
+            $userQuery->where(function ($nestedQuery) use ($creator): void {
+                $nestedQuery
+                    ->where('username', 'like', '%'.$creator.'%')
+                    ->orWhere('name', 'like', '%'.$creator.'%');
+
+                if (is_numeric($creator)) {
+                    $nestedQuery->orWhere('id', (int) $creator);
+                }
+            });
+        });
+    }
+
+    private function applyProfileFilters($query, array $filters): void
+    {
+        if (! empty($filters['school_or_company'])) {
+            $query->whereHas('user.profile', function ($profileQuery) use ($filters): void {
+                $profileQuery->where('school_or_company', 'like', '%'.$filters['school_or_company'].'%');
+            });
+        }
+
+        if (! empty($filters['region'])) {
+            $query->whereHas('user.profile', function ($profileQuery) use ($filters): void {
+                $profileQuery->where('region', 'like', '%'.$filters['region'].'%');
+            });
+        }
+    }
+
     private function applySort($query, ?string $sort): void
     {
         $query->orderByDesc('is_pinned');
 
-        if ($sort === 'hot') {
+        if (in_array($sort, ['hot', 'popular'], true)) {
             $query
+                ->orderByDesc('engagement_score')
                 ->orderByDesc('likes_count')
                 ->orderByDesc('comments_count')
                 ->orderByDesc('favorites_count')
+                ->orderByDesc('created_at');
+
+            return;
+        }
+
+        if ($sort === 'trending') {
+            $query
+                ->orderByDesc('trending_score')
+                ->orderByDesc('engagement_score')
+                ->orderByDesc('created_at');
+
+            return;
+        }
+
+        if ($sort === 'most_liked') {
+            $query
+                ->orderByDesc('likes_count')
+                ->orderByDesc('engagement_score')
+                ->orderByDesc('created_at');
+
+            return;
+        }
+
+        if (in_array($sort, ['most_commented', 'most_discussed'], true)) {
+            $query
+                ->orderByDesc('comments_count')
+                ->orderByDesc('engagement_score')
                 ->orderByDesc('created_at');
 
             return;

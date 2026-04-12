@@ -18,6 +18,7 @@ class InteractionService
 {
     public function __construct(
         private readonly NotificationService $notificationService,
+        private readonly PostRankingService $postRankingService,
     ) {}
 
     public function likePost(Post $post, User $user): Post
@@ -32,6 +33,7 @@ class InteractionService
 
         if ($like->wasRecentlyCreated) {
             $post->increment('likes_count');
+            $this->postRankingService->refreshScores($post->fresh());
 
             $this->notificationService->dispatch(
                 $post->user,
@@ -55,6 +57,7 @@ class InteractionService
 
         if ($deleted > 0) {
             $post->decrement('likes_count');
+            $this->postRankingService->refreshScores($post->fresh());
         }
 
         return $post->fresh()->load(['user.profile', 'category', 'tags', 'images']);
@@ -112,6 +115,7 @@ class InteractionService
 
         if ($favorite->wasRecentlyCreated) {
             $post->increment('favorites_count');
+            $this->postRankingService->refreshScores($post->fresh());
         }
 
         return $post->fresh()->load(['user.profile', 'category', 'tags', 'images']);
@@ -128,6 +132,7 @@ class InteractionService
 
         if ($deleted > 0) {
             $post->decrement('favorites_count');
+            $this->postRankingService->refreshScores($post->fresh());
         }
 
         return $post->fresh()->load(['user.profile', 'category', 'tags', 'images']);

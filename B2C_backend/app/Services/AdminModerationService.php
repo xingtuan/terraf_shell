@@ -15,6 +15,10 @@ use Illuminate\Validation\ValidationException;
 
 class AdminModerationService
 {
+    public function __construct(
+        private readonly PostRankingService $postRankingService,
+    ) {}
+
     public function updatePostStatus(Post $post, string $status, User $admin, ?string $reason = null): Post
     {
         return DB::transaction(function () use ($post, $status, $admin, $reason): Post {
@@ -39,7 +43,31 @@ class AdminModerationService
                 ['from' => $previousStatus, 'to' => $status]
             );
 
-            return $post->fresh()->load(['user.profile', 'category', 'tags', 'images']);
+            $post = $this->postRankingService->refreshScores($post);
+
+            return $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media']);
+        });
+    }
+
+    public function updatePostFeaturedStatus(
+        Post $post,
+        bool $isFeatured,
+        User $admin,
+        ?string $reason = null
+    ): Post {
+        return DB::transaction(function () use ($post, $isFeatured, $admin, $reason): Post {
+            $previousState = (bool) $post->is_featured;
+            $post = $this->postRankingService->markFeatured($post, $isFeatured, $admin);
+
+            $this->log(
+                $post,
+                $admin,
+                'post.feature_updated',
+                $reason,
+                ['from' => $previousState, 'to' => $isFeatured]
+            );
+
+            return $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media']);
         });
     }
 
@@ -59,6 +87,7 @@ class AdminModerationService
 
             $comment->status = $status;
             $comment->save();
+            $this->postRankingService->refreshScores($comment->post->fresh());
 
             $this->log(
                 $comment,
@@ -135,8 +164,7 @@ class AdminModerationService
         string $status,
         User $admin,
         ?string $reason = null
-    ): User
-    {
+    ): User {
         if ($admin->is($target)) {
             throw ValidationException::withMessages([
                 'user' => ['You cannot change your own account status.'],

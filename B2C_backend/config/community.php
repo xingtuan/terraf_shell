@@ -5,6 +5,15 @@ return [
         'default_per_page' => env('API_PER_PAGE', 20),
         'max_per_page' => env('API_MAX_PER_PAGE', 50),
     ],
+    'discovery' => [
+        'weights' => [
+            'like' => 3,
+            'comment' => 4,
+            'favorite' => 2,
+        ],
+        'trending_window_days' => 7,
+        'trending_recency_boost_hours' => 168,
+    ],
     'uploads' => [
         'disk' => env('COMMUNITY_UPLOAD_DISK', env('FILESYSTEM_DISK', 's3')),
     ],

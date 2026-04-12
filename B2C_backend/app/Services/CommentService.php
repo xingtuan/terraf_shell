@@ -16,6 +16,7 @@ class CommentService
 {
     public function __construct(
         private readonly NotificationService $notificationService,
+        private readonly PostRankingService $postRankingService,
     ) {}
 
     public function listForPost(Post $post, ?User $viewer = null): Collection
@@ -75,6 +76,8 @@ class CommentService
                 ['post_id' => $post->id]
             );
 
+            $this->postRankingService->refreshScores($post->fresh());
+
             return $this->reload($comment, $user);
         });
     }
@@ -108,6 +111,8 @@ class CommentService
                 ['post_id' => $parent->post_id]
             );
 
+            $this->postRankingService->refreshScores($parent->post->fresh());
+
             return $this->reload($reply, $user);
         });
     }
@@ -128,6 +133,7 @@ class CommentService
             }
 
             $comment->save();
+            $this->postRankingService->refreshScores($comment->post->fresh());
 
             return $this->reload($comment, $user);
         });
@@ -143,6 +149,7 @@ class CommentService
             }
 
             $comment->delete();
+            $this->postRankingService->refreshScores($comment->post->fresh());
         });
     }
 

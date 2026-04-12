@@ -34,6 +34,10 @@ class PostFactory extends Factory
             'status' => ContentStatus::Approved->value,
             'is_pinned' => false,
             'is_featured' => false,
+            'engagement_score' => 0,
+            'trending_score' => 0,
+            'featured_at' => null,
+            'featured_by' => null,
             'published_at' => now(),
         ];
     }

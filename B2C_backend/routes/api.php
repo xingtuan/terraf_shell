@@ -114,6 +114,7 @@ Route::prefix('admin')
         Route::get('/reports', [AdminReportController::class, 'index']);
         Route::patch('/reports/{report}/status', [AdminReportController::class, 'updateStatus'])->whereNumber('report');
         Route::patch('/posts/{post}/status', [PostModerationController::class, 'updateStatus'])->whereNumber('post');
+        Route::get('/posts/ranking-formula', [PostModerationController::class, 'rankingFormula']);
         Route::patch('/comments/{comment}/status', [CommentModerationController::class, 'updateStatus'])->whereNumber('comment');
         Route::patch('/users/{user}/role', [UserModerationController::class, 'updateRole'])->whereNumber('user');
         Route::patch('/users/{user}/account-status', [UserModerationController::class, 'updateAccountStatus'])->whereNumber('user');
@@ -132,6 +133,8 @@ Route::prefix('admin')
         Route::delete('/tags/{tag}', [AdminTagController::class, 'destroy'])->whereNumber('tag');
 
         Route::middleware('role:admin')->group(function (): void {
+            Route::patch('/posts/{post}/feature', [PostModerationController::class, 'updateFeaturedStatus'])->whereNumber('post');
+
             Route::get('/materials', [AdminMaterialController::class, 'index']);
             Route::post('/materials', [AdminMaterialController::class, 'store']);
             Route::get('/materials/{material}', [AdminMaterialController::class, 'show'])->whereNumber('material');
