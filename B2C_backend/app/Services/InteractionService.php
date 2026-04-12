@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\ContentStatus;
-use App\Enums\NotificationType;
 use App\Models\Comment;
 use App\Models\CommentLike;
 use App\Models\Favorite;
@@ -34,13 +33,7 @@ class InteractionService
         if ($like->wasRecentlyCreated) {
             $post->increment('likes_count');
             $this->postRankingService->refreshScores($post->fresh());
-
-            $this->notificationService->dispatch(
-                $post->user,
-                $user,
-                NotificationType::Like,
-                $post
-            );
+            $this->notificationService->notifyPostLiked($post, $user);
         }
 
         return $post->fresh()->load(['user.profile', 'category', 'tags', 'images']);
@@ -75,14 +68,7 @@ class InteractionService
 
         if ($like->wasRecentlyCreated) {
             $comment->increment('likes_count');
-
-            $this->notificationService->dispatch(
-                $comment->user,
-                $user,
-                NotificationType::Like,
-                $comment,
-                ['post_id' => $comment->post_id]
-            );
+            $this->notificationService->notifyCommentLiked($comment, $user);
         }
 
         return $comment->fresh()->load('user.profile');
@@ -116,6 +102,7 @@ class InteractionService
         if ($favorite->wasRecentlyCreated) {
             $post->increment('favorites_count');
             $this->postRankingService->refreshScores($post->fresh());
+            $this->notificationService->notifyPostFavorited($post, $user);
         }
 
         return $post->fresh()->load(['user.profile', 'category', 'tags', 'images']);
@@ -151,12 +138,7 @@ class InteractionService
             'following_id' => $target->id,
         ]);
 
-        $this->notificationService->dispatch(
-            $target,
-            $actor,
-            NotificationType::Follow,
-            $target
-        );
+        $this->notificationService->notifyUserFollowed($target, $actor);
 
         return $target->fresh()->load('profile');
     }

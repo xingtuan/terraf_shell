@@ -23,6 +23,7 @@ class PostService
     public function __construct(
         private readonly MediaService $mediaService,
         private readonly PostRankingService $postRankingService,
+        private readonly NotificationService $notificationService,
     ) {}
 
     public function list(array $filters, ?User $viewer = null): LengthAwarePaginator
@@ -132,6 +133,8 @@ class PostService
     public function update(User $user, Post $post, array $data): Post
     {
         return DB::transaction(function () use ($user, $post, $data): Post {
+            $wasFeatured = (bool) $post->is_featured;
+
             if (array_key_exists('title', $data) && $data['title'] !== $post->title) {
                 $post->slug = $this->uniqueSlug($data['title'], $post->id);
             }
@@ -166,6 +169,10 @@ class PostService
 
             $this->syncMedia($post, $data);
             $post = $this->postRankingService->refreshScores($post);
+
+            if ($user->isAdmin() && ! $wasFeatured && $post->is_featured) {
+                $this->notificationService->notifyPostFeatured($post, $user);
+            }
 
             return $this->reload($post, $user);
         });

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Models\User;
 use App\Models\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -21,6 +22,9 @@ class UserNotificationResource extends JsonResource
         return [
             'id' => $this->id,
             'type' => $this->type,
+            'title' => $this->title ?? data_get($this->data, 'title'),
+            'body' => $this->body ?? data_get($this->data, 'body') ?? data_get($this->data, 'message'),
+            'action_url' => $this->action_url ?? data_get($this->data, 'action_url'),
             'target_type' => $this->target_type,
             'target_id' => $this->target_id,
             'target' => $this->targetSummary(),
@@ -50,6 +54,11 @@ class UserNotificationResource extends JsonResource
                 'post_id' => $this->target->post_id,
                 'content' => $this->target->content,
                 'status' => $this->target->status,
+            ],
+            $this->target instanceof User => [
+                'id' => $this->target->id,
+                'name' => $this->target->name,
+                'username' => $this->target->username,
             ],
             default => null,
         };

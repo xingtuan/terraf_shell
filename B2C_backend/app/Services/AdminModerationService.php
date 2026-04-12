@@ -17,6 +17,7 @@ class AdminModerationService
 {
     public function __construct(
         private readonly PostRankingService $postRankingService,
+        private readonly NotificationService $notificationService,
     ) {}
 
     public function updatePostStatus(Post $post, string $status, User $admin, ?string $reason = null): Post
@@ -45,6 +46,16 @@ class AdminModerationService
 
             $post = $this->postRankingService->refreshScores($post);
 
+            if ($previousStatus !== $status) {
+                if ($status === ContentStatus::Approved->value) {
+                    $this->notificationService->notifyPostApproved($post, $admin);
+                }
+
+                if ($status === ContentStatus::Rejected->value) {
+                    $this->notificationService->notifyPostRejected($post, $admin, $reason);
+                }
+            }
+
             return $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media']);
         });
     }
@@ -66,6 +77,10 @@ class AdminModerationService
                 $reason,
                 ['from' => $previousState, 'to' => $isFeatured]
             );
+
+            if (! $previousState && $isFeatured) {
+                $this->notificationService->notifyPostFeatured($post, $admin);
+            }
 
             return $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media']);
         });
@@ -96,6 +111,16 @@ class AdminModerationService
                 $reason,
                 ['from' => $previousStatus, 'to' => $status]
             );
+
+            if ($previousStatus !== ContentStatus::Approved->value && $status === ContentStatus::Approved->value) {
+                $comment->loadMissing(['user', 'post.user', 'parent.user', 'post']);
+
+                if ($comment->parent_id !== null && $comment->parent !== null) {
+                    $this->notificationService->notifyReplyCreated($comment->parent, $comment, $admin);
+                } else {
+                    $this->notificationService->notifyCommentCreated($comment->post, $comment, $admin);
+                }
+            }
 
             return $comment->fresh()->load('user.profile');
         });

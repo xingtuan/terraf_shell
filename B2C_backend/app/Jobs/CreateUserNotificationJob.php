@@ -14,8 +14,11 @@ class CreateUserNotificationJob implements ShouldQueue
         public readonly int $recipientUserId,
         public readonly ?int $actorUserId,
         public readonly string $type,
-        public readonly ?string $targetType,
-        public readonly ?int $targetId,
+        public readonly ?string $title = null,
+        public readonly ?string $body = null,
+        public readonly ?string $actionUrl = null,
+        public readonly ?string $targetType = null,
+        public readonly ?int $targetId = null,
         public readonly array $data = [],
     ) {}
 
@@ -25,6 +28,9 @@ class CreateUserNotificationJob implements ShouldQueue
             $this->recipientUserId,
             $this->actorUserId,
             $this->type,
+            $this->title,
+            $this->body,
+            $this->actionUrl,
             $this->targetType,
             $this->targetId,
             $this->data

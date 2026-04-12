@@ -24,7 +24,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - Favorites: posts
 - Follows: users, followers, following
 - Reports: post and comment reporting
-- Notifications: comment, reply, like, and follow notifications
+- Notifications: approvals, rejections, comments, replies, likes, favorites, featured concepts, follows, and system announcements
 - Moderation: `pending`, `approved`, `rejected`, `hidden`
 - Admin: review reports, moderate posts/comments, ban users
 - Material CMS: materials, specs, story sections, applications, home sections, and articles
@@ -209,6 +209,7 @@ Error responses:
 ### Notifications, Reports, Search
 
 - `GET /api/notifications`
+- `GET /api/notifications?read=unread&type=favorite`
 - `PATCH /api/notifications/{id}/read`
 - `POST /api/reports`
 - `GET /api/search/posts?q=keyword`
@@ -220,6 +221,7 @@ Error responses:
 - `GET /api/admin/posts/ranking-formula`
 - `PATCH /api/admin/posts/{id}/status`
 - `PATCH /api/admin/posts/{id}/feature`
+- `POST /api/admin/notifications/announcements`
 - `PATCH /api/admin/comments/{id}/status`
 - `PATCH /api/admin/users/{id}/role`
 - `PATCH /api/admin/users/{id}/account-status`
@@ -654,6 +656,55 @@ Ranking formula reference:
 }
 ```
 
+## Phase 5 Payload Examples
+
+Filter unread notifications:
+
+```text
+GET /api/notifications?read=unread&type=system_announcement
+```
+
+Example notification payload:
+
+```json
+{
+  "id": 18,
+  "type": "concept_featured",
+  "title": "Concept featured",
+  "body": "Your concept \"Oyster shell stool\" is now featured.",
+  "action_url": "/posts/oyster-shell-stool",
+  "target_type": "post",
+  "target_id": 42,
+  "target": {
+    "id": 42,
+    "title": "Oyster shell stool",
+    "slug": "oyster-shell-stool",
+    "status": "approved"
+  },
+  "actor": {
+    "id": 1,
+    "name": "Admin User"
+  },
+  "data": {
+    "post_id": 42,
+    "post_slug": "oyster-shell-stool"
+  },
+  "is_read": false,
+  "read_at": null
+}
+```
+
+Broadcast a system announcement as an admin:
+
+```json
+{
+  "title": "Platform update",
+  "body": "Material showcase content has been refreshed.",
+  "action_url": "/materials/premium-oyster-shell",
+  "roles": ["creator", "sme_partner"]
+}
+```
+
 ## Running Tests
 
 The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
@@ -683,6 +734,9 @@ vendor/bin/pint
 - Post discovery responses include `engagement_score`, `trending_score`, and `featured_at`
 - `sort=hot` remains supported as a backward-compatible alias for popularity ordering
 - Staff can inspect the ranking formula at `GET /api/admin/posts/ranking-formula`
+- Notification responses include `title`, `body`, `action_url`, and `meta.unread_count`
+- `GET /api/notifications` supports `read=all|read|unread` and `type=...` filters
+- System announcements are sent through `POST /api/admin/notifications/announcements` and target active users only
 - Homepage content is available from `GET /api/homepage`
 - Public material and article endpoints only return `published` content
 - Material detail responses include published `specs`, `story_sections`, and `applications`

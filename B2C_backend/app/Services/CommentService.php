@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Enums\ContentStatus;
-use App\Enums\NotificationType;
 use App\Models\Comment;
 use App\Models\CommentLike;
 use App\Models\Post;
@@ -65,16 +64,8 @@ class CommentService
 
             if ($comment->status === ContentStatus::Approved->value) {
                 $post->increment('comments_count');
+                $this->notificationService->notifyCommentCreated($post, $comment, $user);
             }
-
-            $post->loadMissing('user');
-            $this->notificationService->dispatch(
-                $post->user,
-                $user,
-                NotificationType::Comment,
-                $comment,
-                ['post_id' => $post->id]
-            );
 
             $this->postRankingService->refreshScores($post->fresh());
 
@@ -101,15 +92,8 @@ class CommentService
 
             if ($reply->status === ContentStatus::Approved->value) {
                 $parent->post->increment('comments_count');
+                $this->notificationService->notifyReplyCreated($parent, $reply, $user);
             }
-
-            $this->notificationService->dispatch(
-                $parent->user,
-                $user,
-                NotificationType::Reply,
-                $reply,
-                ['post_id' => $parent->post_id]
-            );
 
             $this->postRankingService->refreshScores($parent->post->fresh());
 

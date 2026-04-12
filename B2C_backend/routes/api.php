@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\MaterialSpecController as AdminMaterialSpecCo
 use App\Http\Controllers\Api\Admin\MaterialStorySectionController as AdminMaterialStorySectionController;
 use App\Http\Controllers\Api\Admin\PostModerationController;
 use App\Http\Controllers\Api\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Api\Admin\SystemAnnouncementController;
 use App\Http\Controllers\Api\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Api\Admin\UserModerationController;
 use App\Http\Controllers\Api\ArticleController;
@@ -134,6 +135,7 @@ Route::prefix('admin')
 
         Route::middleware('role:admin')->group(function (): void {
             Route::patch('/posts/{post}/feature', [PostModerationController::class, 'updateFeaturedStatus'])->whereNumber('post');
+            Route::post('/notifications/announcements', [SystemAnnouncementController::class, 'store']);
 
             Route::get('/materials', [AdminMaterialController::class, 'index']);
             Route::post('/materials', [AdminMaterialController::class, 'store']);
