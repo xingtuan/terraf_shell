@@ -3,11 +3,13 @@
 namespace Database\Seeders;
 
 use App\Enums\ContentStatus;
+use App\Enums\FundingCampaignStatus;
 use App\Enums\UserRole;
 use App\Models\Category;
 use App\Models\Comment;
 use App\Models\Favorite;
 use App\Models\Follow;
+use App\Models\FundingCampaign;
 use App\Models\Post;
 use App\Models\PostLike;
 use App\Models\Report;
@@ -119,6 +121,28 @@ class PostSeeder extends Seeder
                 'data' => [
                     'message' => 'Someone interacted with your post.',
                 ],
+            ]);
+        }
+
+        $supportPost = Post::query()
+            ->approved()
+            ->orderBy('id')
+            ->first();
+
+        if ($supportPost !== null) {
+            FundingCampaign::query()->firstOrCreate([
+                'post_id' => $supportPost->id,
+            ], [
+                'support_enabled' => true,
+                'support_button_text' => 'Support this concept',
+                'external_crowdfunding_url' => 'https://crowdfund.example.com/projects/premium-oyster-shell-concept',
+                'campaign_status' => FundingCampaignStatus::Live->value,
+                'target_amount' => 15000,
+                'pledged_amount' => 4200,
+                'backer_count' => 64,
+                'reward_description' => 'Backers receive sample material tiles and early design updates.',
+                'campaign_start_at' => now()->subDays(5),
+                'campaign_end_at' => now()->addDays(25),
             ]);
         }
     }

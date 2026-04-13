@@ -51,4 +51,7 @@ return [
             explode(',', (string) env('B2B_LEAD_NOTIFICATION_RECIPIENTS', ''))
         ))),
     ],
+    'funding' => [
+        'default_support_button_text' => env('FUNDING_DEFAULT_SUPPORT_BUTTON_TEXT', 'Support this concept'),
+    ],
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\FundingCampaign;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,6 +17,8 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $campaign = $this->visibleFundingCampaign($request);
+
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
@@ -29,6 +32,20 @@ class PostResource extends JsonResource
             'is_featured' => (bool) $this->is_featured,
             'engagement_score' => (int) ($this->engagement_score ?? 0),
             'trending_score' => (int) ($this->trending_score ?? 0),
+            'support_enabled' => (bool) ($campaign?->support_enabled ?? false),
+            'support_button_text' => $campaign?->support_button_text,
+            'external_crowdfunding_url' => $campaign?->external_crowdfunding_url,
+            'campaign_status' => $campaign?->campaign_status,
+            'target_amount' => $campaign?->target_amount !== null ? (float) $campaign->target_amount : null,
+            'pledged_amount' => $campaign?->pledged_amount !== null ? (float) $campaign->pledged_amount : null,
+            'backer_count' => $campaign?->backer_count !== null ? (int) $campaign->backer_count : null,
+            'reward_description' => $campaign?->reward_description,
+            'campaign_start_at' => $campaign?->campaign_start_at?->toISOString(),
+            'campaign_end_at' => $campaign?->campaign_end_at?->toISOString(),
+            'funding_campaign' => $this->when(
+                $campaign !== null,
+                fn (): FundingCampaignResource => new FundingCampaignResource($campaign)
+            ),
             'comments_count' => (int) $this->comments_count,
             'likes_count' => (int) $this->likes_count,
             'favorites_count' => (int) $this->favorites_count,
@@ -50,5 +67,16 @@ class PostResource extends JsonResource
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];
+    }
+
+    private function visibleFundingCampaign(Request $request): ?FundingCampaign
+    {
+        if (! $this->relationLoaded('fundingCampaign') || ! ($this->fundingCampaign instanceof FundingCampaign)) {
+            return null;
+        }
+
+        return $this->fundingCampaign->isVisibleTo($request->user())
+            ? $this->fundingCampaign
+            : null;
     }
 }

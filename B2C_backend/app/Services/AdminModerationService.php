@@ -106,7 +106,7 @@ class AdminModerationService
                 }
             }
 
-            return $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media']);
+            return $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media', 'fundingCampaign']);
         });
     }
 
@@ -129,7 +129,7 @@ class AdminModerationService
                 $this->notificationService->notifyPostFeatured($post, $admin);
             }
 
-            return $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media']);
+            return $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media', 'fundingCampaign']);
         });
     }
 

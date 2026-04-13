@@ -29,7 +29,7 @@ class PostService
 
     public function list(array $filters, ?User $viewer = null): LengthAwarePaginator
     {
-        $query = Post::query()->with(['user.profile', 'category', 'tags', 'images', 'media']);
+        $query = Post::query()->with(['user.profile', 'category', 'tags', 'images', 'media', 'fundingCampaign']);
 
         if (($filters['mine'] ?? false) && $viewer !== null) {
             $query->where('user_id', $viewer->id);
@@ -85,7 +85,7 @@ class PostService
     public function findForDisplay(string $identifier, ?User $viewer = null): Post
     {
         $post = Post::query()
-            ->with(['user.profile', 'category', 'tags', 'images', 'media'])
+            ->with(['user.profile', 'category', 'tags', 'images', 'media', 'fundingCampaign'])
             ->where(function ($query) use ($identifier): void {
                 if (ctype_digit($identifier)) {
                     $query->whereKey((int) $identifier);
@@ -244,7 +244,7 @@ class PostService
 
     private function reload(Post $post, ?User $viewer = null): Post
     {
-        $post = $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media']);
+        $post = $post->fresh()->load(['user.profile', 'category', 'tags', 'images', 'media', 'fundingCampaign']);
         $this->hydrateViewerState(collect([$post]), $viewer);
 
         return $post;

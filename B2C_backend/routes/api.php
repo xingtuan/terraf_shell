@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Api\Admin\B2BLeadController as AdminB2BLeadController;
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\Admin\CommentModerationController;
+use App\Http\Controllers\Api\Admin\FundingCampaignController as AdminFundingCampaignController;
 use App\Http\Controllers\Api\Admin\GovernanceController;
 use App\Http\Controllers\Api\Admin\HomeSectionController as AdminHomeSectionController;
 use App\Http\Controllers\Api\Admin\MaterialApplicationController as AdminMaterialApplicationController;
@@ -154,6 +155,9 @@ Route::prefix('admin')
 
         Route::middleware('role:admin')->group(function (): void {
             Route::patch('/posts/{post}/feature', [PostModerationController::class, 'updateFeaturedStatus'])->whereNumber('post');
+            Route::get('/posts/{post}/funding-campaign', [AdminFundingCampaignController::class, 'show'])->whereNumber('post');
+            Route::patch('/posts/{post}/funding-campaign', [AdminFundingCampaignController::class, 'update'])->whereNumber('post');
+            Route::delete('/posts/{post}/funding-campaign', [AdminFundingCampaignController::class, 'destroy'])->whereNumber('post');
             Route::post('/notifications/announcements', [SystemAnnouncementController::class, 'store']);
             Route::get('/b2b-leads/export', [AdminB2BLeadController::class, 'export']);
             Route::get('/b2b-leads', [AdminB2BLeadController::class, 'index']);

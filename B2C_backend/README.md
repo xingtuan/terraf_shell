@@ -32,6 +32,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - Homepage content aggregation for hero, science, and editorial sections
 - Discovery: latest, hot, popular, trending, most liked, most discussed, featured concepts
 - Collaboration leads: business contacts, partnership inquiries, sample requests, university collaborations, and product development collaborations
+- Lightweight concept funding support through external crowdfunding campaigns
 - Internal admin panel for admins and moderators at `/admin`
 - Uploads: avatar upload, idea media upload, and CMS media upload
 - Search: post title/content search
@@ -71,6 +72,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - `inquiries`
 - `partnership_inquiries`
 - `sample_requests`
+- `funding_campaigns`
 - `materials`
 - `material_specs`
 - `material_story_sections`
@@ -157,6 +159,7 @@ Error responses:
 - new `attachments[]` + `attachment_titles[]` + `attachment_alts[]` + `attachment_kinds[]`
 - `model_3d_links[][url]` for external 3D links
 - `remove_media_ids[]`, `remove_image_ids[]`, and `replace_media[][id|file|external_url]` on update
+- post responses may also include `support_enabled`, `support_button_text`, `external_crowdfunding_url`, `campaign_status`, and `funding_campaign`
 - `PATCH /api/comments/{id}`
 - `POST /api/comments/{id}/reply`
 - `DELETE /api/comments/{id}`
@@ -246,6 +249,9 @@ Lead capture endpoints are rate-limited and support optional shared fields such 
 - `GET /api/admin/posts/ranking-formula`
 - `PATCH /api/admin/posts/{id}/status`
 - `PATCH /api/admin/posts/{id}/feature`
+- `GET /api/admin/posts/{id}/funding-campaign`
+- `PATCH /api/admin/posts/{id}/funding-campaign`
+- `DELETE /api/admin/posts/{id}/funding-campaign`
 - `POST /api/admin/notifications/announcements`
 - `GET /api/admin/b2b-leads/export`
 - `GET /api/admin/b2b-leads`
@@ -372,6 +378,7 @@ See [`.env.example`](/c:/Users/xingz/Desktop/B2C_backend/.env.example) for the f
 - `FRONTEND_URL=http://localhost:3000`
 - `B2B_LEADS_NOTIFY_ADMINS=false`
 - `B2B_LEAD_NOTIFICATION_RECIPIENTS=`
+- `FUNDING_DEFAULT_SUPPORT_BUTTON_TEXT=Support this concept`
 
 ### MySQL TLS / Azure MySQL
 
@@ -444,6 +451,7 @@ Seeded CMS content also includes:
 - published material specs, story sections, and application sections
 - published homepage sections for hero, science, and updates
 - published sample articles for frontend integration
+- one approved concept with a sample live external funding campaign
 
 ## Upload Behavior
 
@@ -883,6 +891,52 @@ Lead response shape:
 }
 ```
 
+## Phase 8 Payload Examples
+
+Attach or update a funding campaign on a concept as an admin:
+
+```json
+{
+  "support_enabled": true,
+  "support_button_text": "Back this concept",
+  "external_crowdfunding_url": "https://crowdfund.example.com/projects/oyster-shell-chair",
+  "campaign_status": "live",
+  "target_amount": 15000,
+  "pledged_amount": 4200,
+  "backer_count": 64,
+  "reward_description": "Backers receive sample material tiles and early design updates.",
+  "campaign_start_at": "2026-05-01T00:00:00Z",
+  "campaign_end_at": "2026-06-01T00:00:00Z"
+}
+```
+
+Fetch a concept with support metadata from the public API:
+
+```json
+{
+  "id": 42,
+  "title": "Oyster shell chair",
+  "support_enabled": true,
+  "support_button_text": "Back this concept",
+  "external_crowdfunding_url": "https://crowdfund.example.com/projects/oyster-shell-chair",
+  "campaign_status": "live",
+  "target_amount": 15000,
+  "pledged_amount": 4200,
+  "backer_count": 64,
+  "funding_campaign": {
+    "support_enabled": true,
+    "campaign_status": "live",
+    "progress_percentage": 28
+  }
+}
+```
+
+Remove a funding campaign from a concept:
+
+```text
+DELETE /api/admin/posts/42/funding-campaign
+```
+
 ## Running Tests
 
 The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
@@ -925,3 +979,6 @@ vendor/bin/pint
 - Collaboration leads are available through the legacy `POST /api/inquiries` path and the new dedicated lead endpoints
 - Admin lead management supports search, status updates, internal notes, and CSV export
 - Admin email notifications for new leads are optional and controlled by `B2B_LEADS_NOTIFY_ADMINS` and `B2B_LEAD_NOTIFICATION_RECIPIENTS`
+- Concept responses can expose a public `funding_campaign` block plus top-level support CTA fields when a campaign is not in `draft`
+- Admins manage concept funding support through `/api/admin/posts/{id}/funding-campaign`
+- Funding support is external-link only; no internal payment, checkout, or pledge processing is implemented
