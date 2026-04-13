@@ -22,7 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if (! extension_loaded('intl')) {
+            require_once app_path('Support/IntlFallback.php');
+        }
     }
 
     /**

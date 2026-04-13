@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasOptionalMediaUrl;
 use App\Models\Concerns\HasPublishStatus;
 use Database\Factories\MaterialStorySectionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class MaterialStorySection extends Model
 {
     /** @use HasFactory<MaterialStorySectionFactory> */
-    use HasFactory, HasPublishStatus;
+    use HasFactory, HasOptionalMediaUrl, HasPublishStatus;
 
     protected $fillable = [
         'material_id',

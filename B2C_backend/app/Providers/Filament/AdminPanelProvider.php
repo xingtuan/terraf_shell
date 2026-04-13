@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\AnalyticsSnapshot;
 use App\Filament\Widgets\CommunityStatsOverview;
 use App\Filament\Widgets\RecentActivity;
 use Filament\Http\Middleware\Authenticate;
@@ -40,6 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 CommunityStatsOverview::class,
+                AnalyticsSnapshot::class,
                 RecentActivity::class,
             ])
             ->middleware([

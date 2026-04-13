@@ -443,16 +443,19 @@ The Filament admin panel is intended for internal staff only.
 - Allowed roles: `admin`, `moderator`
 - Blocked roles: regular users and banned staff
 - The panel uses Laravel web sessions, so `sessions` must exist if `SESSION_DRIVER=database`
-- Main navigation groups: `Community`, `Moderation`, `Taxonomy`, `System`
+- Main navigation groups: `Community`, `Content`, `Growth`, `Governance`, `Taxonomy`, `System`
 
 The panel includes:
 
-- Dashboard widgets for users, posts, comments, pending content, open reports, banned users, and recent activity
-- User management with profile editing, role changes, and ban / unban actions
-- Post and comment moderation workflows
-- Report review with moderator notes
+- Dashboard widgets for operational stats, analytics snapshots, and recent governance activity
+- User management with roles, account status, verification state, extended profiles, moderation history, and activity summaries
+- Concept management with engagement metrics, featured state, funding campaign visibility, and creator context
+- Idea media oversight with file metadata, previews, and moderation-friendly review
+- Comment, report, violation, moderation-log, and admin-action-log review workflows
+- CMS management for materials, specs, story sections, applications, articles, and homepage sections
+- System notification visibility plus admin announcement broadcasting
+- B2B lead and funding campaign management
 - Category and tag CRUD
-- Read-only moderation logs
 
 ## Sample Seeded Accounts
 

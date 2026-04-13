@@ -9,6 +9,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -289,5 +290,32 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isStaff() && $this->isActive();
+    }
+
+    public function reportsReceivedQuery(): Builder
+    {
+        return Report::query()->where(function (Builder $query): void {
+            $query
+                ->where(function (Builder $userQuery): void {
+                    $userQuery
+                        ->where('target_type', 'user')
+                        ->where('target_id', $this->id);
+                })
+                ->orWhere(function (Builder $postQuery): void {
+                    $postQuery
+                        ->where('target_type', 'post')
+                        ->whereIn('target_id', $this->posts()->select('id'));
+                })
+                ->orWhere(function (Builder $commentQuery): void {
+                    $commentQuery
+                        ->where('target_type', 'comment')
+                        ->whereIn('target_id', $this->comments()->select('id'));
+                });
+        });
+    }
+
+    public function reportsReceivedCount(): int
+    {
+        return $this->reportsReceivedQuery()->count();
     }
 }

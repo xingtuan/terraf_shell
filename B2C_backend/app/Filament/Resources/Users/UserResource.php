@@ -59,7 +59,15 @@ class UserResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(['profile'])
-            ->withCount(['posts', 'comments', 'followers', 'following']);
+            ->withCount([
+                'posts',
+                'comments',
+                'followers',
+                'following',
+                'receivedModerationLogs',
+                'receivedAdminActionLogs',
+                'violations',
+            ]);
     }
 
     public static function canViewAny(): bool
@@ -79,7 +87,7 @@ class UserResource extends Resource
 
     public static function canEdit(Model $record): bool
     {
-        return PanelAccess::isStaff();
+        return PanelAccess::isAdmin();
     }
 
     public static function canDelete(Model $record): bool

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Reports\Schemas;
 use App\Enums\ReportStatus;
 use App\Filament\Resources\Reports\ReportResource;
 use App\Models\Report;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -41,6 +42,9 @@ class ReportInfolist
                                     ->label('Target content')
                                     ->state(fn (Report $record): string => ReportResource::targetSummary($record))
                                     ->columnSpanFull(),
+                                TextEntry::make('violations_count')
+                                    ->label('Violations')
+                                    ->state(fn (Report $record): int => (int) ($record->violations_count ?? $record->violations()->count())),
                             ]),
                     ]),
                 Section::make('Reason')
@@ -63,6 +67,36 @@ class ReportInfolist
                             ->label('Reviewed at')
                             ->dateTime()
                             ->placeholder('Not reviewed yet.'),
+                    ]),
+                Section::make('Governance')
+                    ->schema([
+                        RepeatableEntry::make('violations')
+                            ->label('Violation records')
+                            ->schema([
+                                TextEntry::make('type')
+                                    ->badge(),
+                                TextEntry::make('severity')
+                                    ->badge(),
+                                TextEntry::make('status')
+                                    ->badge(),
+                                TextEntry::make('reason')
+                                    ->placeholder('No reason recorded.')
+                                    ->columnSpanFull(),
+                            ]),
+                        RepeatableEntry::make('moderationLogs')
+                            ->label('Moderation history')
+                            ->schema([
+                                TextEntry::make('action')
+                                    ->badge(),
+                                TextEntry::make('actor.name')
+                                    ->label('Actor')
+                                    ->placeholder('System'),
+                                TextEntry::make('reason')
+                                    ->placeholder('No note provided.')
+                                    ->columnSpanFull(),
+                                TextEntry::make('created_at')
+                                    ->dateTime(),
+                            ]),
                     ]),
             ]);
     }

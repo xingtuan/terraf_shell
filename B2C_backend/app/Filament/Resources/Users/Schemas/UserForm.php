@@ -6,10 +6,10 @@ use App\Enums\AccountStatus;
 use App\Enums\UserRole;
 use App\Filament\Support\PanelAccess;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -69,7 +69,8 @@ class UserForm
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('avatars')
                                     ->visibility('public')
-                                    ->imagePreviewHeight('140'),
+                                    ->imagePreviewHeight('140')
+                                    ->avatar(),
                                 Textarea::make('bio')
                                     ->rows(5)
                                     ->columnSpanFull(),

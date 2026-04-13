@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasOptionalMediaUrl;
 use App\Models\Concerns\HasPublishStatus;
 use Database\Factories\HomeSectionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class HomeSection extends Model
 {
     /** @use HasFactory<HomeSectionFactory> */
-    use HasFactory, HasPublishStatus;
+    use HasFactory, HasOptionalMediaUrl, HasPublishStatus;
 
     protected $fillable = [
         'key',

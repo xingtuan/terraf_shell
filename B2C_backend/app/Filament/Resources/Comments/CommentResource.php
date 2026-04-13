@@ -55,7 +55,8 @@ class CommentResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['post', 'user.profile', 'parent.user', 'replies.user']);
+            ->with(['post', 'user.profile', 'parent.user', 'replies.user'])
+            ->withCount(['likes', 'replies', 'reports']);
     }
 
     public static function canViewAny(): bool

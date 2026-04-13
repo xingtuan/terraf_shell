@@ -26,6 +26,9 @@ class ModerationLogInfolist
                                 TextEntry::make('actor.name')
                                     ->label('Actor')
                                     ->placeholder('System'),
+                                TextEntry::make('targetUser.name')
+                                    ->label('Target user')
+                                    ->placeholder('No user target.'),
                                 TextEntry::make('action')
                                     ->badge(),
                                 TextEntry::make('subject_type')
@@ -35,6 +38,9 @@ class ModerationLogInfolist
                                     ->color('gray'),
                                 TextEntry::make('subject_id')
                                     ->label('Subject ID'),
+                                TextEntry::make('report_id')
+                                    ->label('Report ID')
+                                    ->placeholder('No linked report.'),
                                 TextEntry::make('subject_summary')
                                     ->label('Subject')
                                     ->state(fn (ModerationLog $record): string => ModerationLogResource::subjectSummary($record))

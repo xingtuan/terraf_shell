@@ -29,7 +29,7 @@ class PostResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Community';
 
-    protected static ?string $navigationLabel = 'Posts';
+    protected static ?string $navigationLabel = 'Concepts';
 
     protected static ?int $navigationSort = 20;
 
@@ -60,7 +60,8 @@ class PostResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['user.profile', 'category', 'tags', 'images']);
+            ->with(['user.profile', 'category', 'tags', 'images', 'media', 'fundingCampaign', 'featuredBy'])
+            ->withCount(['reports']);
     }
 
     public static function canViewAny(): bool

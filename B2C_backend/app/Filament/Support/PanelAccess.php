@@ -18,6 +18,11 @@ class PanelAccess
         return self::user()?->isAdmin() ?? false;
     }
 
+    public static function isModerator(): bool
+    {
+        return self::user()?->isModerator() ?? false;
+    }
+
     public static function isStaff(): bool
     {
         return self::user()?->isStaff() ?? false;

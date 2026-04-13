@@ -2,15 +2,20 @@
 
 namespace App\Filament\Resources\ModerationLogs;
 
+use App\Filament\Resources\Comments\CommentResource as CommentAdminResource;
 use App\Filament\Resources\ModerationLogs\Pages\ListModerationLogs;
 use App\Filament\Resources\ModerationLogs\Pages\ViewModerationLog;
 use App\Filament\Resources\ModerationLogs\Schemas\ModerationLogForm;
 use App\Filament\Resources\ModerationLogs\Schemas\ModerationLogInfolist;
 use App\Filament\Resources\ModerationLogs\Tables\ModerationLogsTable;
+use App\Filament\Resources\Posts\PostResource as PostAdminResource;
+use App\Filament\Resources\Reports\ReportResource as ReportAdminResource;
+use App\Filament\Resources\Users\UserResource as UserAdminResource;
 use App\Filament\Support\PanelAccess;
 use App\Models\Comment;
 use App\Models\ModerationLog;
 use App\Models\Post;
+use App\Models\Report;
 use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -27,7 +32,7 @@ class ModerationLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'System';
+    protected static string|\UnitEnum|null $navigationGroup = 'Governance';
 
     protected static ?string $navigationLabel = 'Moderation Logs';
 
@@ -58,7 +63,7 @@ class ModerationLogResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['actor', 'subject'])
+            ->with(['actor.profile', 'targetUser.profile', 'report', 'subject'])
             ->latest();
     }
 
@@ -104,6 +109,17 @@ class ModerationLogResource extends Resource
             $log->subject instanceof Comment => Str::limit($log->subject->content, 140),
             $log->subject instanceof User => $log->subject->name.' (@'.$log->subject->username.')',
             default => 'Subject record is no longer available.',
+        };
+    }
+
+    public static function subjectAdminUrl(ModerationLog $log): ?string
+    {
+        return match (true) {
+            $log->subject instanceof Post => PostAdminResource::getUrl('view', ['record' => $log->subject]),
+            $log->subject instanceof Comment => CommentAdminResource::getUrl('view', ['record' => $log->subject]),
+            $log->subject instanceof User => UserAdminResource::getUrl('view', ['record' => $log->subject]),
+            $log->subject instanceof Report => ReportAdminResource::getUrl('view', ['record' => $log->subject]),
+            default => null,
         };
     }
 

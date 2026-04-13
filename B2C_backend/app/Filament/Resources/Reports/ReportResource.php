@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Filament\Resources\Comments\CommentResource as CommentAdminResource;
+use App\Filament\Resources\Posts\PostResource as PostAdminResource;
 use App\Filament\Resources\Reports\Pages\EditReport;
 use App\Filament\Resources\Reports\Pages\ListReports;
 use App\Filament\Resources\Reports\Pages\ViewReport;
 use App\Filament\Resources\Reports\Schemas\ReportForm;
 use App\Filament\Resources\Reports\Schemas\ReportInfolist;
 use App\Filament\Resources\Reports\Tables\ReportsTable;
+use App\Filament\Resources\Users\UserResource as UserAdminResource;
 use App\Filament\Support\PanelAccess;
 use App\Models\Comment;
 use App\Models\Post;
@@ -59,7 +62,8 @@ class ReportResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['reporter.profile', 'reviewer.profile', 'target']);
+            ->with(['reporter.profile', 'reviewer.profile', 'target'])
+            ->withCount(['violations', 'moderationLogs']);
     }
 
     public static function canViewAny(): bool
@@ -113,6 +117,16 @@ class ReportResource extends Resource
             $report->target instanceof Comment => Str::limit($report->target->content, 140),
             $report->target instanceof User => $report->target->name.' (@'.$report->target->username.')',
             default => 'Target content is no longer available.',
+        };
+    }
+
+    public static function targetAdminUrl(Report $report): ?string
+    {
+        return match (true) {
+            $report->target instanceof Post => PostAdminResource::getUrl('view', ['record' => $report->target]),
+            $report->target instanceof Comment => CommentAdminResource::getUrl('view', ['record' => $report->target]),
+            $report->target instanceof User => UserAdminResource::getUrl('view', ['record' => $report->target]),
+            default => null,
         };
     }
 

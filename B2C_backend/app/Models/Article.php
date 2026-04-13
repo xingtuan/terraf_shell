@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasOptionalMediaUrl;
 use App\Models\Concerns\HasPublishStatus;
 use Database\Factories\ArticleFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class Article extends Model
 {
     /** @use HasFactory<ArticleFactory> */
-    use HasFactory, HasPublishStatus;
+    use HasFactory, HasOptionalMediaUrl, HasPublishStatus;
 
     protected $fillable = [
         'title',

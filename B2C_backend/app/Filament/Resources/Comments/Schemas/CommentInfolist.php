@@ -25,10 +25,16 @@ class CommentInfolist
                                     ->formatStateUsing(fn (string $state): string => ContentStatus::tryFrom($state)?->label() ?? ucfirst($state))
                                     ->color(fn (string $state): string => ContentStatus::tryFrom($state)?->color() ?? 'gray'),
                                 TextEntry::make('post.title')
-                                    ->label('Post')
+                                    ->label('Concept')
                                     ->columnSpanFull(),
                                 TextEntry::make('user.name')
-                                    ->label('User'),
+                                    ->label('Author'),
+                                TextEntry::make('user.username')
+                                    ->label('Username')
+                                    ->state(fn ($record): string => '@'.$record->user->username),
+                                TextEntry::make('user.profile.school_or_company')
+                                    ->label('School / Company')
+                                    ->placeholder('No organization provided.'),
                                 TextEntry::make('parent.content')
                                     ->label('Parent comment')
                                     ->placeholder('Top-level comment.')
@@ -36,6 +42,10 @@ class CommentInfolist
                                     ->columnSpanFull(),
                                 TextEntry::make('likes_count')
                                     ->label('Likes'),
+                                TextEntry::make('reports_count')
+                                    ->label('Reports'),
+                                TextEntry::make('replies_count')
+                                    ->label('Replies'),
                                 TextEntry::make('created_at')
                                     ->label('Created')
                                     ->dateTime(),
@@ -52,13 +62,30 @@ class CommentInfolist
                             ->label('Replies')
                             ->schema([
                                 TextEntry::make('user.name')
-                                    ->label('User'),
+                                    ->label('Author'),
                                 TextEntry::make('status')
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => ContentStatus::tryFrom($state)?->label() ?? ucfirst($state))
                                     ->color(fn (string $state): string => ContentStatus::tryFrom($state)?->color() ?? 'gray'),
                                 TextEntry::make('content')
                                     ->columnSpanFull(),
+                            ]),
+                    ]),
+                Section::make('Moderation History')
+                    ->schema([
+                        RepeatableEntry::make('moderationLogs')
+                            ->label('Review history')
+                            ->schema([
+                                TextEntry::make('action')
+                                    ->badge(),
+                                TextEntry::make('actor.name')
+                                    ->label('Actor')
+                                    ->placeholder('System'),
+                                TextEntry::make('reason')
+                                    ->placeholder('No note provided.')
+                                    ->columnSpanFull(),
+                                TextEntry::make('created_at')
+                                    ->dateTime(),
                             ]),
                     ]),
             ]);

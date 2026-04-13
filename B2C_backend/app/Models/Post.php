@@ -131,4 +131,21 @@ class Post extends Model
 
         return $viewer->isAdmin() || $viewer->is($this->user);
     }
+
+    public function coverImageUrl(): ?string
+    {
+        $image = $this->relationLoaded('media')
+            ? $this->media->first(fn (IdeaMedia $media): bool => $media->isImage())
+            : $this->media()->ordered()->get()->first(fn (IdeaMedia $media): bool => $media->isImage());
+
+        if ($image instanceof IdeaMedia) {
+            return $image->thumbnail_url ?: $image->preview_url ?: $image->url;
+        }
+
+        $legacyImage = $this->relationLoaded('images')
+            ? $this->images->first()
+            : $this->images()->first();
+
+        return $legacyImage?->url;
+    }
 }
