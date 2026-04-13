@@ -6,6 +6,7 @@ use App\Enums\ContentStatus;
 use App\Enums\IdeaMediaKind;
 use App\Enums\IdeaMediaSourceType;
 use App\Enums\IdeaMediaType;
+use App\Enums\UserRole;
 use App\Models\Favorite;
 use App\Models\IdeaMedia;
 use App\Models\Post;
@@ -44,6 +45,7 @@ class PostService
             $query->publiclyVisible();
         }
 
+        $this->applyKeywordSearch($query, $filters);
         $this->applyCategoryFilter($query, $filters);
         $this->applyCreatorFilter($query, $filters);
         $this->applyProfileFilters($query, $filters);
@@ -303,20 +305,50 @@ class PostService
     private function applyCreatorFilter($query, array $filters): void
     {
         if (empty($filters['creator'])) {
+            if (empty($filters['creator_role'])) {
+                return;
+            }
+        }
+
+        $creator = isset($filters['creator']) ? (string) $filters['creator'] : null;
+        $creatorRole = $filters['creator_role'] ?? null;
+
+        $query->whereHas('user', function ($userQuery) use ($creator, $creatorRole): void {
+            if ($creator !== null && $creator !== '') {
+                $this->applyCaseInsensitiveLike($userQuery, ['username', 'name'], $creator);
+            }
+
+            if ($creatorRole === null || $creatorRole === '') {
+                return;
+            }
+
+            if ($creatorRole === UserRole::Creator->value) {
+                $userQuery->whereIn('role', [UserRole::Creator->value, 'user']);
+
+                return;
+            }
+
+            $userQuery->where('role', $creatorRole);
+        });
+    }
+
+    private function applyKeywordSearch($query, array $filters): void
+    {
+        if (empty($filters['q'])) {
             return;
         }
 
-        $creator = (string) $filters['creator'];
+        $term = trim((string) $filters['q']);
 
-        $query->whereHas('user', function ($userQuery) use ($creator): void {
-            $userQuery->where(function ($nestedQuery) use ($creator): void {
-                $nestedQuery
-                    ->where('username', 'like', '%'.$creator.'%')
-                    ->orWhere('name', 'like', '%'.$creator.'%');
+        $query->where(function ($searchQuery) use ($term): void {
+            $this->applyCaseInsensitiveLike($searchQuery, ['title', 'content', 'excerpt'], $term);
 
-                if (is_numeric($creator)) {
-                    $nestedQuery->orWhere('id', (int) $creator);
-                }
+            $searchQuery->orWhereHas('user', function ($userQuery) use ($term): void {
+                $this->applyCaseInsensitiveLike($userQuery, ['username', 'name'], $term);
+            });
+
+            $searchQuery->orWhereHas('user.profile', function ($profileQuery) use ($term): void {
+                $this->applyCaseInsensitiveLike($profileQuery, ['school_or_company', 'region'], $term);
             });
         });
     }
@@ -346,7 +378,8 @@ class PostService
                 ->orderByDesc('likes_count')
                 ->orderByDesc('comments_count')
                 ->orderByDesc('favorites_count')
-                ->orderByDesc('created_at');
+                ->orderByDesc('created_at')
+                ->orderByDesc('id');
 
             return;
         }
@@ -355,7 +388,8 @@ class PostService
             $query
                 ->orderByDesc('trending_score')
                 ->orderByDesc('engagement_score')
-                ->orderByDesc('created_at');
+                ->orderByDesc('created_at')
+                ->orderByDesc('id');
 
             return;
         }
@@ -364,7 +398,8 @@ class PostService
             $query
                 ->orderByDesc('likes_count')
                 ->orderByDesc('engagement_score')
-                ->orderByDesc('created_at');
+                ->orderByDesc('created_at')
+                ->orderByDesc('id');
 
             return;
         }
@@ -373,12 +408,34 @@ class PostService
             $query
                 ->orderByDesc('comments_count')
                 ->orderByDesc('engagement_score')
-                ->orderByDesc('created_at');
+                ->orderByDesc('created_at')
+                ->orderByDesc('id');
 
             return;
         }
 
-        $query->orderByDesc('created_at');
+        $query->orderByDesc('created_at')
+            ->orderByDesc('id');
+    }
+
+    private function applyCaseInsensitiveLike($query, array $columns, string $term): void
+    {
+        $driver = DB::connection()->getDriverName();
+
+        $query->where(function ($nestedQuery) use ($columns, $term, $driver): void {
+            foreach ($columns as $index => $column) {
+                $method = $index === 0 ? 'where' : 'orWhere';
+
+                if ($driver === 'pgsql') {
+                    $nestedQuery->{$method}($column, 'ilike', '%'.$term.'%');
+
+                    continue;
+                }
+
+                $rawMethod = $index === 0 ? 'whereRaw' : 'orWhereRaw';
+                $nestedQuery->{$rawMethod}('LOWER('.$column.') LIKE ?', ['%'.mb_strtolower($term).'%']);
+            }
+        });
     }
 
     private function uniqueSlug(string $title, ?int $ignoreId = null): string

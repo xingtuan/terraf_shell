@@ -13,9 +13,8 @@ class SearchController extends Controller
     public function posts(SearchPostsRequest $request, SearchService $searchService): JsonResponse
     {
         $posts = $searchService->searchPosts(
-            $request->validated()['q'],
+            $request->validated(),
             $request->user(),
-            $request->validated()['per_page'] ?? null
         );
 
         return $this->paginatedResponse(

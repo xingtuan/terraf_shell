@@ -166,9 +166,11 @@ Error responses:
 
 `GET /api/posts` also supports optional query params such as:
 
+- `q=keyword`
 - `sort=latest|hot|popular|trending|most_liked|most_discussed`
 - `user_id=`
 - `creator=alicecreator`
+- `creator_role=creator|admin|moderator`
 - `school_or_company=Auckland Design Lab`
 - `region=Auckland`
 - `status=approved|pending|rejected|hidden`
@@ -241,6 +243,19 @@ Lead capture endpoints are rate-limited and support optional shared fields such 
 - `PATCH /api/notifications/{id}/read`
 - `POST /api/reports`
 - `GET /api/search/posts?q=keyword`
+
+`GET /api/search/posts` also supports:
+
+- `sort=latest|hot|popular|trending|most_liked|most_discussed`
+- `creator=alicecreator`
+- `creator_role=creator|admin|moderator`
+- `school_or_company=Auckland Design Lab`
+- `region=Auckland`
+- `status=approved|pending|rejected|hidden`
+- `category=` or `category_id=`
+- `tag=`
+- `featured=1`
+- `per_page=10`
 
 ### Admin
 
@@ -937,6 +952,26 @@ Remove a funding campaign from a concept:
 DELETE /api/admin/posts/42/funding-campaign
 ```
 
+## Phase 9 Payload Examples
+
+Search concepts by keyword and creator metadata:
+
+```text
+GET /api/search/posts?q=hana&creator_role=creator&school_or_company=Pacific%20Materials%20Lab&region=Auckland&sort=latest&per_page=10
+```
+
+Filter concepts from the main listing endpoint with the same search fields:
+
+```text
+GET /api/posts?q=oyster&creator=ariana&creator_role=creator&region=Auckland&category=furniture&sort=trending
+```
+
+Moderation-aware search by status as staff:
+
+```text
+GET /api/search/posts?q=shell&status=pending&creator_role=creator
+```
+
 ## Running Tests
 
 The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
@@ -982,3 +1017,6 @@ vendor/bin/pint
 - Concept responses can expose a public `funding_campaign` block plus top-level support CTA fields when a campaign is not in `draft`
 - Admins manage concept funding support through `/api/admin/posts/{id}/funding-campaign`
 - Funding support is external-link only; no internal payment, checkout, or pledge processing is implemented
+- `GET /api/posts` and `GET /api/search/posts` now share the same keyword, creator, profile, status, tag, category, featured, and sort filters
+- Search matches post text plus creator name, username, school/company, and region
+- Result ordering now uses stable `created_at` plus `id` tie-breaks for safer pagination under load

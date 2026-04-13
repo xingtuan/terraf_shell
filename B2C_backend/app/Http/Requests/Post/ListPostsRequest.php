@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Post;
 
 use App\Enums\ContentStatus;
+use App\Enums\UserRole;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -22,10 +23,12 @@ class ListPostsRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'q' => ['nullable', 'string', 'min:2', 'max:100'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'category' => ['nullable', 'string', 'max:120'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'creator' => ['nullable', 'string', 'max:120'],
+            'creator_role' => ['nullable', Rule::in(UserRole::values())],
             'school_or_company' => ['nullable', 'string', 'max:160'],
             'region' => ['nullable', 'string', 'max:160'],
             'tag' => ['nullable', 'string', 'max:60'],

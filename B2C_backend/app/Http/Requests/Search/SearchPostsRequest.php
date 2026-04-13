@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Search;
 
+use App\Http\Requests\Post\ListPostsRequest;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 
-class SearchPostsRequest extends FormRequest
+class SearchPostsRequest extends ListPostsRequest
 {
     public function authorize(): bool
     {
@@ -19,9 +19,8 @@ class SearchPostsRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        return array_merge(parent::rules(), [
             'q' => ['required', 'string', 'min:2', 'max:100'],
-            'per_page' => ['nullable', 'integer', 'min:1', 'max:'.config('community.pagination.max_per_page')],
-        ];
+        ]);
     }
 }

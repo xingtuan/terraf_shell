@@ -102,6 +102,45 @@ class TaxonomyAndPostFilteringTest extends TestCase
             ->assertJsonPath('data.0.id', $hotPost->id);
     }
 
+    public function test_posts_index_supports_keyword_and_creator_profile_filters(): void
+    {
+        $creator = User::factory()->create([
+            'name' => 'Ariana Kim',
+            'role' => 'creator',
+        ]);
+        $creator->profile()->update([
+            'school_or_company' => 'Pacific Materials Lab',
+            'region' => 'Auckland',
+        ]);
+
+        $creatorPost = Post::factory()->create([
+            'user_id' => $creator->id,
+            'title' => 'Oyster shell lounge chair',
+            'content' => 'Premium shell-based seating concept.',
+            'status' => 'approved',
+        ]);
+
+        $admin = User::factory()->admin()->create([
+            'name' => 'Ariana Staff',
+        ]);
+        $admin->profile()->update([
+            'school_or_company' => 'Pacific Materials Lab',
+            'region' => 'Auckland',
+        ]);
+
+        Post::factory()->create([
+            'user_id' => $admin->id,
+            'title' => 'Staff concept note',
+            'content' => 'Should be excluded by creator_role.',
+            'status' => 'approved',
+        ]);
+
+        $this->getJson('/api/posts?q=ariana&creator_role=creator&school_or_company=Pacific%20Materials%20Lab&region=Auckland')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $creatorPost->id);
+    }
+
     public function test_admin_can_manage_categories_and_tags_over_api(): void
     {
         $admin = User::factory()->admin()->create();
