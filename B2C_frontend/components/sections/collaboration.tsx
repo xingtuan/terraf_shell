@@ -14,6 +14,7 @@ import { useSectionInView } from "@/hooks/use-section-in-view"
 type CollaborationSectionProps = {
   locale: Locale
   content: SiteMessages["home"]["collaboration"]
+  cardHrefs?: string[]
 }
 
 const collaborationIcons = [Package, FlaskConical, Boxes]
@@ -21,6 +22,7 @@ const collaborationIcons = [Package, FlaskConical, Boxes]
 export function CollaborationSection({
   locale,
   content,
+  cardHrefs,
 }: CollaborationSectionProps) {
   const { sectionRef, isVisible } = useSectionInView<HTMLElement>(0.2)
 
@@ -69,7 +71,12 @@ export function CollaborationSection({
                 </p>
 
                 <Button asChild variant="ghost" className="w-full justify-between">
-                  <Link href={`${getLocalizedHref(locale, "b2b")}#inquiry`}>
+                  <Link
+                    href={
+                      cardHrefs?.[index] ??
+                      `${getLocalizedHref(locale, "b2b")}#inquiry`
+                    }
+                  >
                     {card.cta}
                     <ArrowRight className="h-4 w-4" />
                   </Link>

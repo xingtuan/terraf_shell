@@ -4,10 +4,17 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 
 import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
+import { CommunityNotificationsPanel } from "@/components/community/community-notifications-panel"
+import { CommunityPostComposer } from "@/components/community/community-post-composer"
+import { CommunityPostEditorDialog } from "@/components/community/community-post-editor-dialog"
+import { CommunityReportDialog } from "@/components/community/community-report-dialog"
+import { CommunityUserSheet } from "@/components/community/community-user-sheet"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { getErrorMessage } from "@/lib/api/client"
 import { togglePostFavorite, togglePostLike } from "@/lib/api/interactions"
-import { listPosts } from "@/lib/api/posts"
+import { deletePost, listPosts } from "@/lib/api/posts"
+import { searchPosts } from "@/lib/api/search"
 import type { CommunityCopy } from "@/lib/community-copy"
 import { getLocalizedHref, getIntlLocale, type Locale } from "@/lib/i18n"
 import type { ApiPaginationMeta, CommunityPost } from "@/lib/types"
@@ -53,9 +60,11 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
   const [meta, setMeta] = useState<ApiPaginationMeta | null>(null)
   const [sort, setSort] = useState<"latest" | "hot">("latest")
   const [refreshTick, setRefreshTick] = useState(0)
+  const [searchQuery, setSearchQuery] = useState("")
   const [isLoadingPosts, setIsLoadingPosts] = useState(false)
   const [activeAction, setActiveAction] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
 
   useEffect(() => {
     if (!session.isReady) {
@@ -69,20 +78,37 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
       setMessage(null)
 
       try {
-        const response = await listPosts(
-          {
-            sort,
-            per_page: 12,
-          },
-          session.token,
-        )
+        if (searchQuery.trim().length >= 2) {
+          const response = await searchPosts(
+            {
+              q: searchQuery.trim(),
+              per_page: 12,
+            },
+            session.token,
+          )
 
-        if (isCancelled) {
-          return
+          if (isCancelled) {
+            return
+          }
+
+          setPosts(response.posts)
+          setMeta(response.meta)
+        } else {
+          const response = await listPosts(
+            {
+              sort,
+              per_page: 12,
+            },
+            session.token,
+          )
+
+          if (isCancelled) {
+            return
+          }
+
+          setPosts(response.posts)
+          setMeta(response.meta)
         }
-
-        setPosts(response.posts)
-        setMeta(response.meta)
       } catch (error) {
         if (!isCancelled) {
           setMessage(getErrorMessage(error))
@@ -99,7 +125,14 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
     return () => {
       isCancelled = true
     }
-  }, [sort, refreshTick, session.isReady, session.token, session.user?.id])
+  }, [
+    refreshTick,
+    searchQuery,
+    session.isReady,
+    session.token,
+    session.user?.id,
+    sort,
+  ])
 
   async function handleLikeToggle(post: CommunityPost) {
     if (!session.token) {
@@ -218,6 +251,8 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
               />
             </div>
 
+            <CommunityNotificationsPanel locale={locale} token={session.token} />
+
             <div className="rounded-3xl border border-border/60 bg-card p-7">
               <p className="text-sm uppercase tracking-[0.18em] text-primary">
                 {copy.hub.backendStatusTitle}
@@ -231,6 +266,38 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
                 </p>
                 <p>{copy.hub.loginHint}</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-10 space-y-6">
+          <CommunityPostComposer
+            token={session.token}
+            onCreated={(post) => {
+              setPosts((currentPosts) => [post, ...currentPosts])
+              setMeta((currentMeta) =>
+                currentMeta
+                  ? {
+                      ...currentMeta,
+                      total: currentMeta.total + 1,
+                    }
+                  : currentMeta,
+              )
+            }}
+            onMessage={setMessage}
+          />
+
+          <div className="rounded-3xl border border-border/60 bg-card p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center">
+              <Input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search posts"
+                className="md:max-w-sm"
+              />
+              <p className="text-sm text-muted-foreground">
+                Search uses `/api/search/posts` when the query has at least two characters.
+              </p>
             </div>
           </div>
         </div>
@@ -299,9 +366,17 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
                     {post.title}
                   </Link>
 
-                  <p className="mt-3 text-sm text-muted-foreground">
-                    {getAuthorName(post)} - {formatDate(locale, post.created_at)}
-                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                    <button
+                      type="button"
+                      className="font-medium text-foreground transition-colors hover:text-primary"
+                      onClick={() => setSelectedUserId(post.user?.id ?? null)}
+                    >
+                      {getAuthorName(post)}
+                    </button>
+                    <span>/</span>
+                    <span>{formatDate(locale, post.created_at)}</span>
+                  </div>
 
                   <p className="mt-5 leading-relaxed text-muted-foreground">
                     {getPostPreview(post)}
@@ -323,9 +398,7 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
                       type="button"
                       variant={post.is_liked ? "default" : "outline"}
                       size="sm"
-                      disabled={
-                        !session.user || activeAction === `like-${post.id}`
-                      }
+                      disabled={!session.user || activeAction === `like-${post.id}`}
                       onClick={() => {
                         void handleLikeToggle(post)
                       }}
@@ -338,8 +411,7 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
                       variant={post.is_favorited ? "default" : "outline"}
                       size="sm"
                       disabled={
-                        !session.user ||
-                        activeAction === `favorite-${post.id}`
+                        !session.user || activeAction === `favorite-${post.id}`
                       }
                       onClick={() => {
                         void handleFavoriteToggle(post)
@@ -358,6 +430,61 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
                         {copy.hub.readMore}
                       </Link>
                     </Button>
+                    {session.token ? (
+                      <CommunityReportDialog
+                        token={session.token}
+                        targetType="post"
+                        targetId={post.id}
+                        onReported={setMessage}
+                      />
+                    ) : null}
+                    {session.token && post.can_edit ? (
+                      <CommunityPostEditorDialog
+                        post={post}
+                        token={session.token}
+                        onSaved={(updatedPost) => {
+                          setPosts((currentPosts) =>
+                            currentPosts.map((currentPost) =>
+                              currentPost.id === updatedPost.id
+                                ? updatedPost
+                                : currentPost,
+                            ),
+                          )
+                          setMessage("Post updated successfully.")
+                        }}
+                      />
+                    ) : null}
+                    {session.token && post.can_delete ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (!session.token) {
+                            return
+                          }
+
+                          if (!window.confirm("Delete this post?")) {
+                            return
+                          }
+
+                          void deletePost(post.id, session.token)
+                            .then(() => {
+                              setPosts((currentPosts) =>
+                                currentPosts.filter(
+                                  (currentPost) => currentPost.id !== post.id,
+                                ),
+                              )
+                              setMessage("Post deleted successfully.")
+                            })
+                            .catch((error) => {
+                              setMessage(getErrorMessage(error))
+                            })
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               </article>
@@ -365,6 +492,19 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
           </div>
         ) : null}
       </div>
+
+      <CommunityUserSheet
+        locale={locale}
+        userId={selectedUserId}
+        currentUserId={session.user?.id}
+        token={session.token}
+        open={selectedUserId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedUserId(null)
+          }
+        }}
+      />
     </section>
   )
 }

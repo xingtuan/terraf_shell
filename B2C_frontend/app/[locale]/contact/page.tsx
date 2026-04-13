@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { PageIntro } from "@/components/page-intro"
 import { B2BInquiryFormSection } from "@/components/sections/b2b-inquiry-form"
 import { ContactDetailsSection } from "@/components/sections/contact-details"
@@ -30,12 +32,15 @@ export default async function ContactPage({ params }: ContactPageProps) {
         }}
       />
       <ContactDetailsSection content={messages.contactPage.details} />
-      <B2BInquiryFormSection
-        locale={locale}
-        content={messages.b2bPage.form}
-        id="contact-form"
-        sourcePage="contact"
-      />
+      <Suspense fallback={null}>
+        <B2BInquiryFormSection
+          locale={locale}
+          content={messages.b2bPage.form}
+          id="contact-form"
+          sourcePage="contact"
+          defaultLeadType="business_contact"
+        />
+      </Suspense>
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />
     </>
   )

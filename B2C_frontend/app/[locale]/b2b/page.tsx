@@ -1,11 +1,17 @@
+import { Suspense } from "react"
+
 import { PageIntro } from "@/components/page-intro"
 import { B2BInquiryFormSection } from "@/components/sections/b2b-inquiry-form"
 import { CollaborationSection } from "@/components/sections/collaboration"
 import { CredibilitySection } from "@/components/sections/credibility"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { MaterialFactsSection } from "@/components/sections/material-facts"
-import { getMaterialSpecs } from "@/lib/api/materials"
+import { getFeaturedMaterial, getMaterialSpecs } from "@/lib/api/materials"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
+import {
+  buildCredibilityContent,
+  buildMaterialFactsContent,
+} from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
 
 type B2BPageProps = {
@@ -15,8 +21,26 @@ type B2BPageProps = {
 export default async function B2BPage({ params }: B2BPageProps) {
   const locale = await resolveLocale(params)
   const messages = getMessages(locale)
-  const specs = await getMaterialSpecs(locale)
+  const fallbackSpecs = await getMaterialSpecs(locale)
+
+  let material = null
+
+  try {
+    material = await getFeaturedMaterial()
+  } catch {
+    material = null
+  }
+
   const intro = messages.b2bPage.intro
+  const materialFactsContent = buildMaterialFactsContent(
+    messages.home.materialFacts,
+    material,
+    null,
+  )
+  const credibilityContent = buildCredibilityContent(
+    messages.home.credibility,
+    material,
+  )
 
   return (
     <>
@@ -26,25 +50,37 @@ export default async function B2BPage({ params }: B2BPageProps) {
         description={intro.description}
         primaryAction={{
           label: intro.primaryCta,
-          href: `${getLocalizedHref(locale, "b2b")}#inquiry`,
+          href: `${getLocalizedHref(locale, "b2b")}?leadType=inquiry#inquiry`,
         }}
         secondaryAction={{
           label: intro.secondaryCta,
           href: getLocalizedHref(locale, "material"),
         }}
       />
-      <CollaborationSection locale={locale} content={messages.home.collaboration} />
+      <CollaborationSection
+        locale={locale}
+        content={messages.home.collaboration}
+        cardHrefs={[
+          `${getLocalizedHref(locale, "b2b")}?leadType=inquiry#inquiry`,
+          `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
+          `${getLocalizedHref(locale, "b2b")}?leadType=product_development_collaboration#inquiry`,
+        ]}
+      />
       <MaterialFactsSection
         locale={locale}
-        content={messages.home.materialFacts}
-        specs={specs}
+        content={materialFactsContent}
+        specs={material?.specs.length ? material.specs : fallbackSpecs}
+        sheetHref={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}
       />
-      <CredibilitySection content={messages.home.credibility} />
-      <B2BInquiryFormSection
-        locale={locale}
-        content={messages.b2bPage.form}
-        sourcePage="b2b"
-      />
+      <CredibilitySection content={credibilityContent} />
+      <Suspense fallback={null}>
+        <B2BInquiryFormSection
+          locale={locale}
+          content={messages.b2bPage.form}
+          sourcePage="b2b"
+          defaultLeadType="inquiry"
+        />
+      </Suspense>
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />
     </>
   )

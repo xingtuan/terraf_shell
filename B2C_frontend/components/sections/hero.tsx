@@ -10,11 +10,18 @@ import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 type HeroSectionProps = {
   locale: Locale
   content: SiteMessages["home"]["hero"]
+  primaryHref?: string
+  secondaryHref?: string
 }
 
 const indicatorIcons = [Leaf, Shield, Waves]
 
-export function HeroSection({ locale, content }: HeroSectionProps) {
+export function HeroSection({
+  locale,
+  content,
+  primaryHref = getLocalizedHref(locale, "store"),
+  secondaryHref = getLocalizedHref(locale, "b2b"),
+}: HeroSectionProps) {
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
@@ -45,13 +52,13 @@ export function HeroSection({ locale, content }: HeroSectionProps) {
 
           <div className="mb-16 flex flex-col gap-4 animate-fade-in-up opacity-0 animation-delay-300 sm:flex-row">
             <Button asChild size="lg" className="px-8 py-6 text-base group">
-              <Link href={getLocalizedHref(locale, "store")}>
+              <Link href={primaryHref}>
                 {content.primaryCta}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="px-8 py-6 text-base">
-              <Link href={getLocalizedHref(locale, "b2b")}>
+              <Link href={secondaryHref}>
                 {content.secondaryCta}
               </Link>
             </Button>

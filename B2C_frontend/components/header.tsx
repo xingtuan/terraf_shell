@@ -96,7 +96,7 @@ export function Header({ locale, header, languageSwitcher }: HeaderProps) {
               content={languageSwitcher}
             />
             <Button asChild className="px-6">
-              <Link href={`${getLocalizedHref(locale, "b2b")}#inquiry`}>
+              <Link href={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}>
                 {header.primaryCta}
               </Link>
             </Button>
@@ -140,7 +140,7 @@ export function Header({ locale, header, languageSwitcher }: HeaderProps) {
               className="w-fit"
             />
             <Button asChild className="w-full">
-              <Link href={`${getLocalizedHref(locale, "b2b")}#inquiry`}>
+              <Link href={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}>
                 {header.primaryCta}
               </Link>
             </Button>

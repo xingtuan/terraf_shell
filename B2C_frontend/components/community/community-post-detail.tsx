@@ -2,15 +2,30 @@
 
 import Link from "next/link"
 import { useEffect, useState, type FormEvent } from "react"
+import { useRouter } from "next/navigation"
 
 import { CommentThread } from "@/components/community/comment-thread"
 import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
+import { CommunityNotificationsPanel } from "@/components/community/community-notifications-panel"
+import { CommunityPostEditorDialog } from "@/components/community/community-post-editor-dialog"
+import { CommunityReportDialog } from "@/components/community/community-report-dialog"
+import { CommunityUserSheet } from "@/components/community/community-user-sheet"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { createComment, listComments } from "@/lib/api/comments"
+import {
+  createComment,
+  deleteComment,
+  listComments,
+  replyToComment,
+  updateComment,
+} from "@/lib/api/comments"
 import { getErrorMessage } from "@/lib/api/client"
-import { togglePostFavorite, togglePostLike } from "@/lib/api/interactions"
-import { getPost } from "@/lib/api/posts"
+import {
+  toggleCommentLike,
+  togglePostFavorite,
+  togglePostLike,
+} from "@/lib/api/interactions"
+import { deletePost, getPost } from "@/lib/api/posts"
 import type { CommunityCopy } from "@/lib/community-copy"
 import { getLocalizedHref, getIntlLocale, type Locale } from "@/lib/i18n"
 import type { CommunityComment, CommunityPost } from "@/lib/types"
@@ -41,11 +56,29 @@ function getCoverImage(post: CommunityPost) {
   return post.images[0]?.url ?? "/placeholder.jpg"
 }
 
+function updateCommentTree(
+  comments: CommunityComment[],
+  commentId: number,
+  updater: (comment: CommunityComment) => CommunityComment,
+): CommunityComment[] {
+  return comments.map((comment) => {
+    if (comment.id === commentId) {
+      return updater(comment)
+    }
+
+    return {
+      ...comment,
+      replies: updateCommentTree(comment.replies, commentId, updater),
+    }
+  })
+}
+
 export function CommunityPostDetail({
   locale,
   slug,
   copy,
 }: CommunityPostDetailProps) {
+  const router = useRouter()
   const session = useAuthSession()
   const [post, setPost] = useState<CommunityPost | null>(null)
   const [comments, setComments] = useState<CommunityComment[]>([])
@@ -55,6 +88,7 @@ export function CommunityPostDetail({
   const [isLoadingComments, setIsLoadingComments] = useState(false)
   const [isSubmittingComment, setIsSubmittingComment] = useState(false)
   const [activeAction, setActiveAction] = useState<string | null>(null)
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
 
   useEffect(() => {
     if (!session.isReady) {
@@ -111,6 +145,19 @@ export function CommunityPostDetail({
       isCancelled = true
     }
   }, [slug, session.isReady, session.token, session.user?.id])
+
+  async function refreshComments(postId: number) {
+    setIsLoadingComments(true)
+
+    try {
+      const nextComments = await listComments(postId, session.token)
+      setComments(nextComments)
+    } catch (error) {
+      setMessage(getErrorMessage(error))
+    } finally {
+      setIsLoadingComments(false)
+    }
+  }
 
   async function handleLikeToggle() {
     if (!post) {
@@ -203,9 +250,7 @@ export function CommunityPostDetail({
 
     try {
       const createdComment = await createComment(post.id, content, session.token)
-      const nextComments = await listComments(post.id, session.token)
-
-      setComments(nextComments)
+      await refreshComments(post.id)
       setCommentText("")
       setPost((currentPost) =>
         currentPost
@@ -294,7 +339,13 @@ export function CommunityPostDetail({
                   <div className="mt-6 grid grid-cols-1 gap-4 rounded-3xl border border-border/60 bg-background p-5 text-sm text-muted-foreground sm:grid-cols-2">
                     <p>
                       <span className="text-foreground">{copy.detail.authorLabel}:</span>{" "}
-                      {getAuthorName(post)}
+                      <button
+                        type="button"
+                        className="font-medium text-foreground transition-colors hover:text-primary"
+                        onClick={() => setSelectedUserId(post.user?.id ?? null)}
+                      >
+                        {getAuthorName(post)}
+                      </button>
                     </p>
                     <p>
                       <span className="text-foreground">
@@ -359,6 +410,47 @@ export function CommunityPostDetail({
                     <span className="text-sm text-muted-foreground">
                       {copy.actions.comments}: {post.comments_count}
                     </span>
+                    {session.token ? (
+                      <CommunityReportDialog
+                        token={session.token}
+                        targetType="post"
+                        targetId={post.id}
+                        onReported={setMessage}
+                      />
+                    ) : null}
+                    {session.token && post.can_edit ? (
+                      <CommunityPostEditorDialog
+                        post={post}
+                        token={session.token}
+                        onSaved={(updatedPost) => {
+                          setPost(updatedPost)
+                          setMessage("Post updated successfully.")
+                        }}
+                      />
+                    ) : null}
+                    {session.token && post.can_delete ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (!session.token || !window.confirm("Delete this post?")) {
+                            return
+                          }
+
+                          void deletePost(post.id, session.token)
+                            .then(() => {
+                              setMessage("Post deleted successfully.")
+                              router.push(getLocalizedHref(locale, "community"))
+                            })
+                            .catch((error) => {
+                              setMessage(getErrorMessage(error))
+                            })
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               </article>
@@ -374,6 +466,8 @@ export function CommunityPostDetail({
                   onLogout={session.logout}
                   onRefresh={session.refreshUser}
                 />
+
+                <CommunityNotificationsPanel locale={locale} token={session.token} />
 
                 <div className="rounded-3xl border border-border/60 bg-card p-7">
                   <p className="text-sm uppercase tracking-[0.18em] text-primary">
@@ -420,7 +514,7 @@ export function CommunityPostDetail({
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
                   <p className="text-sm text-muted-foreground">
                     {session.user
-                      ? "Your comment will be sent to the backend API."
+                      ? "You can reply, edit, delete, like, and report comments from this thread."
                       : copy.detail.loginToComment}
                   </p>
                   <Button
@@ -459,6 +553,99 @@ export function CommunityPostDetail({
                     comments={comments}
                     copy={copy.detail}
                     locale={locale}
+                    token={session.token}
+                    activeAction={activeAction}
+                    onReply={async (commentId, content) => {
+                      if (!post || !session.token) {
+                        setMessage(copy.detail.loginToComment)
+                        throw new Error(copy.detail.loginToComment)
+                      }
+
+                      setActiveAction(`comment-reply-${commentId}`)
+
+                      try {
+                        await replyToComment(commentId, content, session.token)
+                        await refreshComments(post.id)
+                        setMessage("Reply added successfully.")
+                      } catch (error) {
+                        setMessage(getErrorMessage(error))
+                        throw error
+                      } finally {
+                        setActiveAction(null)
+                      }
+                    }}
+                    onUpdate={async (commentId, content) => {
+                      if (!session.token) {
+                        setMessage(copy.detail.loginToComment)
+                        throw new Error(copy.detail.loginToComment)
+                      }
+
+                      setActiveAction(`comment-update-${commentId}`)
+
+                      try {
+                        await updateComment(commentId, content, session.token)
+                        setComments((currentComments) =>
+                          updateCommentTree(currentComments, commentId, (comment) => ({
+                            ...comment,
+                            content,
+                          })),
+                        )
+                        setMessage("Comment updated successfully.")
+                      } catch (error) {
+                        setMessage(getErrorMessage(error))
+                        throw error
+                      } finally {
+                        setActiveAction(null)
+                      }
+                    }}
+                    onDelete={async (commentId) => {
+                      if (!post || !session.token) {
+                        setMessage(copy.detail.loginToComment)
+                        return
+                      }
+
+                      setActiveAction(`comment-delete-${commentId}`)
+
+                      try {
+                        await deleteComment(commentId, session.token)
+                        await refreshComments(post.id)
+                        setMessage("Comment deleted successfully.")
+                      } catch (error) {
+                        setMessage(getErrorMessage(error))
+                      } finally {
+                        setActiveAction(null)
+                      }
+                    }}
+                    onLike={async (commentId, isLiked) => {
+                      if (!session.token) {
+                        setMessage(copy.actions.signInToInteract)
+                        return
+                      }
+
+                      setActiveAction(`comment-like-${commentId}`)
+
+                      try {
+                        const payload = await toggleCommentLike(
+                          commentId,
+                          isLiked,
+                          session.token,
+                        )
+
+                        setComments((currentComments) =>
+                          updateCommentTree(currentComments, commentId, (comment) => ({
+                            ...comment,
+                            likes_count: payload.likes_count,
+                            is_liked: payload.is_liked,
+                          })),
+                        )
+                      } catch (error) {
+                        setMessage(getErrorMessage(error))
+                      } finally {
+                        setActiveAction(null)
+                      }
+                    }}
+                    onMessage={setMessage}
+                    onOpenUser={setSelectedUserId}
                   />
                 </div>
               ) : null}
@@ -466,6 +653,19 @@ export function CommunityPostDetail({
           </>
         ) : null}
       </div>
+
+      <CommunityUserSheet
+        locale={locale}
+        userId={selectedUserId}
+        currentUserId={session.user?.id}
+        token={session.token}
+        open={selectedUserId !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedUserId(null)
+          }
+        }}
+      />
     </section>
   )
 }

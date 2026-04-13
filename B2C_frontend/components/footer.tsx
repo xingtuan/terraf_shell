@@ -19,8 +19,14 @@ export function Footer({ locale, header, footer }: FooterProps) {
   const businessLinks = [
     { label: header.b2b, href: getLocalizedHref(locale, "b2b") },
     { label: footer.materialSheet, href: getLocalizedHref(locale, "material") },
-    { label: footer.sampleRequest, href: `${getLocalizedHref(locale, "b2b")}#inquiry` },
-    { label: footer.productDevelopment, href: getLocalizedHref(locale, "b2b") },
+    {
+      label: footer.sampleRequest,
+      href: `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
+    },
+    {
+      label: footer.productDevelopment,
+      href: `${getLocalizedHref(locale, "b2b")}?leadType=product_development_collaboration#inquiry`,
+    },
   ]
 
   const communityLinks = [

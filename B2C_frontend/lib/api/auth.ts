@@ -1,3 +1,4 @@
+import { normalizeCommunityUser } from "@/lib/api/adapters"
 import { requestApi } from "@/lib/api/client"
 import type { AuthSessionPayload, CommunityUser } from "@/lib/types"
 
@@ -22,7 +23,10 @@ export async function login(payload: LoginPayload) {
     body: payload,
   })
 
-  return response.data
+  return {
+    ...response.data,
+    user: normalizeCommunityUser(response.data.user) ?? response.data.user,
+  }
 }
 
 export async function register(payload: RegisterPayload) {
@@ -31,7 +35,10 @@ export async function register(payload: RegisterPayload) {
     body: payload,
   })
 
-  return response.data
+  return {
+    ...response.data,
+    user: normalizeCommunityUser(response.data.user) ?? response.data.user,
+  }
 }
 
 export async function getCurrentUser(token: string) {
@@ -39,7 +46,7 @@ export async function getCurrentUser(token: string) {
     token,
   })
 
-  return response.data
+  return normalizeCommunityUser(response.data) ?? response.data
 }
 
 export async function logout(token: string) {

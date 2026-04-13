@@ -2,14 +2,14 @@ import type { ApiPaginationMeta } from "@/lib/types"
 
 type QueryValue = string | number | boolean | null | undefined
 
-type ApiSuccessResponse<T> = {
+export type ApiSuccessResponse<T> = {
   success: true
   message: string | null
   data: T
   meta?: ApiPaginationMeta
 }
 
-type ApiErrorResponse = {
+export type ApiErrorResponse = {
   success: false
   message: string
   errors?: Record<string, string[]>
@@ -42,7 +42,7 @@ export class ApiError extends Error {
   }
 }
 
-function getApiBaseUrl() {
+export function getApiBaseUrl() {
   return (process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(
     /\/+$/,
     "",
@@ -64,8 +64,22 @@ function buildUrl(path: string, query?: Record<string, QueryValue>) {
   return url.toString()
 }
 
-function isPlainObject(value: ApiRequestOptions["body"]): value is Record<string, unknown> {
+function isPlainObject(
+  value: ApiRequestOptions["body"],
+): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !(value instanceof FormData)
+}
+
+function parseApiPayload(rawText: string) {
+  if (!rawText) {
+    return null
+  }
+
+  try {
+    return JSON.parse(rawText) as ApiSuccessResponse<unknown> | ApiErrorResponse
+  } catch {
+    return null
+  }
 }
 
 export async function requestApi<T>(
@@ -74,6 +88,8 @@ export async function requestApi<T>(
 ): Promise<ApiSuccessResponse<T>> {
   const headers = new Headers(options.headers)
   let body = options.body
+
+  headers.set("Accept", "application/json")
 
   if (options.token) {
     headers.set("Authorization", `Bearer ${options.token}`)
@@ -84,17 +100,21 @@ export async function requestApi<T>(
     body = JSON.stringify(body)
   }
 
-  const response = await fetch(buildUrl(path, options.query), {
-    method: options.method ?? "GET",
-    headers,
-    body: body ?? undefined,
-    cache: options.cache ?? "no-store",
-  })
+  let response: Response
+
+  try {
+    response = await fetch(buildUrl(path, options.query), {
+      method: options.method ?? "GET",
+      headers,
+      body: body ?? undefined,
+      cache: options.cache ?? "no-store",
+    })
+  } catch {
+    throw new ApiError("The API is unavailable right now.", 0)
+  }
 
   const rawText = await response.text()
-  const payload = rawText
-    ? (JSON.parse(rawText) as ApiSuccessResponse<T> | ApiErrorResponse)
-    : null
+  const payload = parseApiPayload(rawText)
   const validationErrors =
     payload !== null && "errors" in payload ? payload.errors : undefined
 
@@ -106,7 +126,7 @@ export async function requestApi<T>(
     )
   }
 
-  return payload
+  return payload as ApiSuccessResponse<T>
 }
 
 export function getErrorMessage(error: unknown) {

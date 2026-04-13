@@ -9,7 +9,7 @@ import type { Product, ProductCategory } from "@/lib/types"
 export async function getProductCategories(
   locale: Locale,
 ): Promise<ProductCategory[]> {
-  // TODO: Replace with a backend category endpoint when the commerce API is available.
+  // Intentionally mock-only until a real commerce API exists.
   return productCategoryRecords.map((category) => ({
     id: category.id,
     label: pickLocalizedValue(category.label, locale),
@@ -18,7 +18,7 @@ export async function getProductCategories(
 }
 
 export async function getProducts(locale: Locale): Promise<Product[]> {
-  // TODO: Replace with a backend product listing endpoint with pagination and inventory data.
+  // Intentionally mock-only until a real product listing endpoint exists.
   const categories = await getProductCategories(locale)
   const categoryMap = new Map(
     categories.map((category) => [category.id, category.label]),

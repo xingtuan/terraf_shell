@@ -13,6 +13,7 @@ type MaterialFactsSectionProps = {
   locale: Locale
   content: SiteMessages["home"]["materialFacts"]
   specs: MaterialSpec[]
+  sheetHref?: string
 }
 
 const specIcons = {
@@ -26,6 +27,7 @@ export function MaterialFactsSection({
   locale,
   content,
   specs,
+  sheetHref = `${getLocalizedHref(locale, "b2b")}#inquiry`,
 }: MaterialFactsSectionProps) {
   const { sectionRef, isVisible } = useSectionInView<HTMLElement>(0.2)
 
@@ -101,7 +103,7 @@ export function MaterialFactsSection({
                 </div>
               </div>
               <Button asChild variant="outline" className="w-full group">
-                <Link href={`${getLocalizedHref(locale, "b2b")}#inquiry`}>
+                <Link href={sheetHref}>
                   {content.sheetCta}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
