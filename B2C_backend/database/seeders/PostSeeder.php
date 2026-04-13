@@ -86,6 +86,7 @@ class PostSeeder extends Seeder
                     'comments_count' => $post->comments()->where('status', ContentStatus::Approved->value)->count(),
                     'likes_count' => $post->likes()->count(),
                     'favorites_count' => $post->favorites()->count(),
+                    'views_count' => rand(40, 240),
                 ]);
             });
 

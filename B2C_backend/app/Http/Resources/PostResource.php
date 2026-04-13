@@ -32,6 +32,7 @@ class PostResource extends JsonResource
             'is_featured' => (bool) $this->is_featured,
             'engagement_score' => (int) ($this->engagement_score ?? 0),
             'trending_score' => (int) ($this->trending_score ?? 0),
+            'views_count' => (int) ($this->views_count ?? 0),
             'support_enabled' => (bool) ($campaign?->support_enabled ?? false),
             'support_button_text' => $campaign?->support_button_text,
             'external_crowdfunding_url' => $campaign?->external_crowdfunding_url,

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AnalyticsController as AdminAnalyticsController;
 use App\Http\Controllers\Api\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Api\Admin\B2BLeadController as AdminB2BLeadController;
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
@@ -154,6 +155,7 @@ Route::prefix('admin')
         Route::delete('/tags/{tag}', [AdminTagController::class, 'destroy'])->whereNumber('tag');
 
         Route::middleware('role:admin')->group(function (): void {
+            Route::get('/analytics/overview', [AdminAnalyticsController::class, 'overview']);
             Route::patch('/posts/{post}/feature', [PostModerationController::class, 'updateFeaturedStatus'])->whereNumber('post');
             Route::get('/posts/{post}/funding-campaign', [AdminFundingCampaignController::class, 'show'])->whereNumber('post');
             Route::patch('/posts/{post}/funding-campaign', [AdminFundingCampaignController::class, 'update'])->whereNumber('post');

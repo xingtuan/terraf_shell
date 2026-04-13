@@ -36,6 +36,7 @@ class PostFactory extends Factory
             'is_featured' => false,
             'engagement_score' => 0,
             'trending_score' => 0,
+            'views_count' => 0,
             'featured_at' => null,
             'featured_by' => null,
             'published_at' => now(),

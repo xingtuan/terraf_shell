@@ -101,6 +101,7 @@ class PostService
             throw $this->notFound(Post::class, $identifier);
         }
 
+        $this->trackView($post, $viewer);
         $this->hydrateViewerState(collect([$post]), $viewer);
 
         return $post;
@@ -705,5 +706,19 @@ class PostService
     private function mediaDirectory(int $postId): string
     {
         return rtrim((string) config('community.idea_media.directory', 'ideas'), '/').'/'.$postId;
+    }
+
+    private function trackView(Post $post, ?User $viewer = null): void
+    {
+        if ($post->status !== ContentStatus::Approved->value) {
+            return;
+        }
+
+        if ($viewer !== null && ($viewer->canModerate() || $viewer->is($post->user))) {
+            return;
+        }
+
+        Post::query()->whereKey($post->id)->increment('views_count');
+        $post->views_count = (int) $post->views_count + 1;
     }
 }

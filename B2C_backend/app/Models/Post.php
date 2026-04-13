@@ -30,6 +30,7 @@ class Post extends Model
         'is_featured',
         'engagement_score',
         'trending_score',
+        'views_count',
         'featured_at',
         'featured_by',
         'published_at',
@@ -42,6 +43,7 @@ class Post extends Model
             'is_featured' => 'boolean',
             'engagement_score' => 'integer',
             'trending_score' => 'integer',
+            'views_count' => 'integer',
             'featured_at' => 'datetime',
             'published_at' => 'datetime',
         ];

@@ -33,6 +33,7 @@ Laravel API backend for the oyster-shell material showcase, creator idea submiss
 - Discovery: latest, hot, popular, trending, most liked, most discussed, featured concepts
 - Collaboration leads: business contacts, partnership inquiries, sample requests, university collaborations, and product development collaborations
 - Lightweight concept funding support through external crowdfunding campaigns
+- Analytics foundation for admin dashboards covering categories, activity, CTA sources, concept views, and funding-readiness signals
 - Internal admin panel for admins and moderators at `/admin`
 - Uploads: avatar upload, idea media upload, and CMS media upload
 - Search: post title/content search
@@ -264,6 +265,7 @@ Lead capture endpoints are rate-limited and support optional shared fields such 
 - `GET /api/admin/posts/ranking-formula`
 - `PATCH /api/admin/posts/{id}/status`
 - `PATCH /api/admin/posts/{id}/feature`
+- `GET /api/admin/analytics/overview`
 - `GET /api/admin/posts/{id}/funding-campaign`
 - `PATCH /api/admin/posts/{id}/funding-campaign`
 - `DELETE /api/admin/posts/{id}/funding-campaign`
@@ -972,6 +974,51 @@ Moderation-aware search by status as staff:
 GET /api/search/posts?q=shell&status=pending&creator_role=creator
 ```
 
+## Phase 10 Payload Examples
+
+Fetch the admin analytics overview:
+
+```text
+GET /api/admin/analytics/overview?limit=5
+```
+
+Example analytics response shape:
+
+```json
+{
+  "generated_at": "2026-04-13T00:00:00Z",
+  "summary": {
+    "total_concepts": 42,
+    "approved_concepts": 30,
+    "total_views": 1840,
+    "support_enabled_concepts": 4
+  },
+  "categories": {
+    "most_common": [],
+    "highest_engagement": []
+  },
+  "activity": {
+    "schools_or_companies": [],
+    "user_groups": []
+  },
+  "attention": {
+    "tracking": {
+      "concept_views_available": true,
+      "page_views_available": false,
+      "cta_sources_available": true
+    },
+    "most_viewed_concepts": [],
+    "best_performing_cta_sources": []
+  },
+  "funding": {
+    "readiness_formula": {
+      "formula": "(engagement_score) + (favorites_count * 3) + (views_count / 10) + featured_bonus + collab_bonus + support_bonus"
+    },
+    "most_likely_concepts": []
+  }
+}
+```
+
 ## Running Tests
 
 The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
@@ -1020,3 +1067,6 @@ vendor/bin/pint
 - `GET /api/posts` and `GET /api/search/posts` now share the same keyword, creator, profile, status, tag, category, featured, and sort filters
 - Search matches post text plus creator name, username, school/company, and region
 - Result ordering now uses stable `created_at` plus `id` tie-breaks for safer pagination under load
+- Post detail views now increment `posts.views_count` for public approved-concept views, which feeds the Phase 10 analytics summaries
+- CTA source analytics are derived from `inquiries.source_page` and ranked by high-intent lead volume
+- Funding-readiness signals are derived from engagement, favorites, concept views, featured status, collaboration openness, and existing support enablement
