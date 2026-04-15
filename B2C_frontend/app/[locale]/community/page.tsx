@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { PageIntro } from "@/components/page-intro"
 import { CommunityHub } from "@/components/community/community-hub"
 import { FinalCtaSection } from "@/components/sections/final-cta"
@@ -40,7 +42,9 @@ export default async function CommunityPage({
         content={messages.communityPage.ideas}
         ideas={ideas}
       />
-      <CommunityHub locale={locale} copy={communityCopy} />
+      <Suspense fallback={null}>
+        <CommunityHub locale={locale} copy={communityCopy} />
+      </Suspense>
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />
     </>
   )
