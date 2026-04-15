@@ -7,34 +7,33 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
 {
-    protected function validationData(): array
+    protected function prepareForValidation()
     {
         $data = $this->all();
 
         if (filled($data['email'] ?? null) || filled($data['password'] ?? null)) {
-            return $data;
+            return;
         }
 
         $raw = trim((string) $this->getContent());
 
         if ($raw === '') {
-            return $data;
+            return;
         }
 
         $decodedJson = json_decode($raw, true);
 
         if (is_array($decodedJson)) {
-            return array_merge($decodedJson, $data);
+            $this->merge($decodedJson);
+            return;
         }
 
         // Some clients may send urlencoded body with an unexpected content type.
         parse_str($raw, $decodedForm);
 
         if (is_array($decodedForm) && $decodedForm !== []) {
-            return array_merge($decodedForm, $data);
+            $this->merge($decodedForm);
         }
-
-        return $data;
     }
 
     public function authorize(): bool
