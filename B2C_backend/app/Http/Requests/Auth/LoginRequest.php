@@ -7,30 +7,34 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
 {
-    protected function prepareForValidation(): void
+    protected function validationData(): array
     {
-        // Fallback for clients/proxies that send JSON without a proper content type.
-        if ($this->filled('email') || $this->filled('password')) {
-            return;
+        $data = $this->all();
+
+        if (filled($data['email'] ?? null) || filled($data['password'] ?? null)) {
+            return $data;
         }
 
         $raw = trim((string) $this->getContent());
 
         if ($raw === '') {
-            return;
+            return $data;
         }
 
-        $decoded = json_decode($raw, true);
+        $decodedJson = json_decode($raw, true);
 
-        if (! is_array($decoded)) {
-            return;
+        if (is_array($decodedJson)) {
+            return array_merge($decodedJson, $data);
         }
 
-        $this->merge([
-            'email' => $decoded['email'] ?? $this->input('email'),
-            'password' => $decoded['password'] ?? $this->input('password'),
-            'device_name' => $decoded['device_name'] ?? $this->input('device_name'),
-        ]);
+        // Some clients may send urlencoded body with an unexpected content type.
+        parse_str($raw, $decodedForm);
+
+        if (is_array($decodedForm) && $decodedForm !== []) {
+            return array_merge($decodedForm, $data);
+        }
+
+        return $data;
     }
 
     public function authorize(): bool
