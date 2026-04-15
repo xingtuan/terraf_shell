@@ -3,6 +3,29 @@ import type { HomeSection, MaterialDetail, MaterialSpec } from "@/lib/types"
 
 type HomeMessages = SiteMessages["home"]
 
+function isLocalPreviewOrigin(href: string) {
+  try {
+    const url = new URL(href)
+
+    return url.hostname === "127.0.0.1" || url.hostname === "localhost"
+  } catch {
+    return false
+  }
+}
+
+function appendHrefSuffix(baseHref: string, search = "", hash = "") {
+  const url = new URL(baseHref, "https://shellfin.local")
+  const searchParams = new URLSearchParams(search)
+
+  searchParams.forEach((value, key) => {
+    url.searchParams.set(key, value)
+  })
+
+  url.hash = hash || url.hash
+
+  return `${url.pathname}${url.search}${url.hash}`
+}
+
 export function resolveCmsHref(
   locale: Locale,
   href?: string | null,
@@ -12,14 +35,22 @@ export function resolveCmsHref(
     return fallback ?? getLocalizedHref(locale)
   }
 
-  if (/^https?:\/\//i.test(href) && !href.includes("127.0.0.1:8000")) {
+  if (/^https?:\/\//i.test(href) && !isLocalPreviewOrigin(href)) {
     return href
   }
 
   let pathname = href
+  let search = ""
+  let hash = ""
 
   try {
-    pathname = new URL(href).pathname
+    const parsedUrl = /^https?:\/\//i.test(href)
+      ? new URL(href)
+      : new URL(href, "https://shellfin.local")
+
+    pathname = parsedUrl.pathname
+    search = parsedUrl.search
+    hash = parsedUrl.hash
   } catch {
     pathname = href
   }
@@ -27,15 +58,36 @@ export function resolveCmsHref(
   const normalized = pathname.replace(/^\/+|\/+$/g, "")
 
   if (!normalized) {
-    return fallback ?? getLocalizedHref(locale)
+    return appendHrefSuffix(fallback ?? getLocalizedHref(locale), search, hash)
   }
 
   if (normalized === "materials" || normalized.startsWith("materials/")) {
-    return getLocalizedHref(locale, "material")
+    return appendHrefSuffix(getLocalizedHref(locale, "material"), search, hash)
+  }
+
+  if (normalized === "posts" || normalized.startsWith("posts/")) {
+    const communityPath =
+      normalized === "posts"
+        ? "community"
+        : `community/${normalized.slice("posts/".length)}`
+
+    return appendHrefSuffix(getLocalizedHref(locale, communityPath), search, hash)
+  }
+
+  if (normalized === "users" || normalized.startsWith("users/")) {
+    const userId = normalized.split("/")[1]
+
+    if (userId) {
+      return appendHrefSuffix(
+        `${getLocalizedHref(locale, "community")}?user=${encodeURIComponent(userId)}`,
+        search,
+        hash,
+      )
+    }
   }
 
   if (normalized === "articles" || normalized.startsWith("articles/")) {
-    return getLocalizedHref(locale, normalized)
+    return appendHrefSuffix(getLocalizedHref(locale, normalized), search, hash)
   }
 
   if (
@@ -46,10 +98,14 @@ export function resolveCmsHref(
     normalized === "material" ||
     normalized.startsWith("community/")
   ) {
-    return getLocalizedHref(locale, normalized)
+    return appendHrefSuffix(getLocalizedHref(locale, normalized), search, hash)
   }
 
-  return fallback ?? getLocalizedHref(locale, normalized)
+  return appendHrefSuffix(
+    fallback ?? getLocalizedHref(locale, normalized),
+    search,
+    hash,
+  )
 }
 
 function buildSpecIndicator(spec: MaterialSpec) {

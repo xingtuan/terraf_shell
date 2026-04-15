@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 
 import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
 import { CommunityNotificationsPanel } from "@/components/community/community-notifications-panel"
@@ -55,6 +56,7 @@ function getCoverImage(post: CommunityPost) {
 }
 
 export function CommunityHub({ locale, copy }: CommunityHubProps) {
+  const searchParams = useSearchParams()
   const session = useAuthSession()
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [meta, setMeta] = useState<ApiPaginationMeta | null>(null)
@@ -65,6 +67,14 @@ export function CommunityHub({ locale, copy }: CommunityHubProps) {
   const [activeAction, setActiveAction] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
+
+  useEffect(() => {
+    const requestedUserId = Number(searchParams.get("user") ?? "")
+
+    if (Number.isInteger(requestedUserId) && requestedUserId > 0) {
+      setSelectedUserId(requestedUserId)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     if (!session.isReady) {

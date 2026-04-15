@@ -244,7 +244,7 @@
     "form": {
       "eyebrow": "启动项目",
       "title": "告诉我们你计划如何使用 Shellfin 颗粒或成品。",
-      "description": "该表单已连接到类型安全的模拟服务，并用明确的 TODO 标注了未来 CRM 或后端接入点。",
+      "description": "该表单现已直接连接 Laravel 后端，可提交真实询盘记录，同时保留简洁的前端交互流程。",
       "fields": {
         "name": "姓名",
         "company": "公司",
@@ -266,9 +266,9 @@
         "message": "请说明形态要求、目标市场、表面方向或认证需求。"
       },
       "submit": "发送询盘",
-      "success": "你的询盘已记录到模拟服务层。",
+      "success": "你的询盘已成功提交。",
       "referenceLabel": "编号",
-      "disclaimer": "当前提交流程使用模拟 API 服务，正式上线前应接入真实后端。"
+      "disclaimer": "提交内容会写入后端线索系统，并以默认状态保存供团队跟进。"
     }
   },
   "communityPage": {

@@ -63,6 +63,7 @@ export function CommentThread({
       {comments.map((comment) => (
         <div
           key={comment.id}
+          id={`comment-${comment.id}`}
           className={depth > 0 ? "border-l border-border/60 pl-5" : undefined}
         >
           <article className="rounded-3xl border border-border/60 bg-card p-5">

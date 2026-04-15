@@ -13,12 +13,19 @@ import {
 } from "@/components/ui/sheet"
 import { getErrorMessage } from "@/lib/api/client"
 import {
+  getUserComments,
+  getUserFollowers,
+  getUserFollowing,
   getUserPosts,
   getUserProfile,
   toggleFollowUser,
 } from "@/lib/api/users"
-import { getLocalizedHref, type Locale } from "@/lib/i18n"
-import type { CommunityPost, CommunityUser } from "@/lib/types"
+import { getIntlLocale, getLocalizedHref, type Locale } from "@/lib/i18n"
+import type {
+  CommunityComment,
+  CommunityPost,
+  CommunityUser,
+} from "@/lib/types"
 
 type CommunityUserSheetProps = {
   locale: Locale
@@ -29,6 +36,36 @@ type CommunityUserSheetProps = {
   onOpenChange: (open: boolean) => void
 }
 
+function formatDate(locale: Locale, value?: string | null) {
+  if (!value) {
+    return null
+  }
+
+  return new Intl.DateTimeFormat(getIntlLocale(locale), {
+    dateStyle: "medium",
+  }).format(new Date(value))
+}
+
+function getPostPreview(post: CommunityPost) {
+  const preview = (post.excerpt || post.content).trim()
+
+  if (preview.length <= 120) {
+    return preview
+  }
+
+  return `${preview.slice(0, 120)}...`
+}
+
+function getCommentPreview(comment: CommunityComment) {
+  const preview = comment.content.trim()
+
+  if (preview.length <= 140) {
+    return preview
+  }
+
+  return `${preview.slice(0, 140)}...`
+}
+
 export function CommunityUserSheet({
   locale,
   userId,
@@ -37,19 +74,36 @@ export function CommunityUserSheet({
   open,
   onOpenChange,
 }: CommunityUserSheetProps) {
+  const [activeUserId, setActiveUserId] = useState<number | null>(userId)
   const [user, setUser] = useState<CommunityUser | null>(null)
   const [posts, setPosts] = useState<CommunityPost[]>([])
+  const [comments, setComments] = useState<CommunityComment[]>([])
+  const [followers, setFollowers] = useState<CommunityUser[]>([])
+  const [following, setFollowing] = useState<CommunityUser[]>([])
   const [message, setMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
-    if (!open || userId === null) {
+    if (open) {
+      setActiveUserId(userId)
+    }
+  }, [open, userId])
+
+  useEffect(() => {
+    if (!open || activeUserId === null) {
+      if (!open) {
+        setUser(null)
+        setPosts([])
+        setComments([])
+        setFollowers([])
+        setFollowing([])
+      }
+
       return
     }
 
-    const activeUserId = userId
-
+    const selectedUserId = activeUserId
     let isCancelled = false
 
     async function loadUser() {
@@ -57,9 +111,18 @@ export function CommunityUserSheet({
       setMessage(null)
 
       try {
-        const [nextUser, nextPosts] = await Promise.all([
-          getUserProfile(activeUserId, token),
-          getUserPosts(activeUserId, { per_page: 3 }, token),
+        const [
+          nextUser,
+          nextPosts,
+          nextComments,
+          nextFollowers,
+          nextFollowing,
+        ] = await Promise.all([
+          getUserProfile(selectedUserId, token),
+          getUserPosts(selectedUserId, { per_page: 3 }, token),
+          getUserComments(selectedUserId, { per_page: 3 }, token),
+          getUserFollowers(selectedUserId, { per_page: 4 }, token),
+          getUserFollowing(selectedUserId, { per_page: 4 }, token),
         ])
 
         if (isCancelled) {
@@ -68,10 +131,16 @@ export function CommunityUserSheet({
 
         setUser(nextUser)
         setPosts(nextPosts.items)
+        setComments(nextComments.items)
+        setFollowers(nextFollowers.items)
+        setFollowing(nextFollowing.items)
       } catch (error) {
         if (!isCancelled) {
           setUser(null)
           setPosts([])
+          setComments([])
+          setFollowers([])
+          setFollowing([])
           setMessage(getErrorMessage(error))
         }
       } finally {
@@ -86,7 +155,7 @@ export function CommunityUserSheet({
     return () => {
       isCancelled = true
     }
-  }, [open, token, userId])
+  }, [activeUserId, open, token])
 
   const canFollow = Boolean(
     token && user && currentUserId && user.id !== currentUserId,
@@ -227,11 +296,115 @@ export function CommunityUserSheet({
                       >
                         <p className="font-medium text-foreground">{post.title}</p>
                         <p className="mt-2 text-sm text-muted-foreground">
-                          {post.excerpt || post.content.slice(0, 120)}
+                          {getPostPreview(post)}
                         </p>
                       </Link>
                     ))
                   )}
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-border/60 bg-card p-6">
+                <p className="text-sm uppercase tracking-[0.18em] text-primary">
+                  Recent comments
+                </p>
+                <div className="mt-4 space-y-4">
+                  {comments.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No visible comments for this profile yet.
+                    </p>
+                  ) : (
+                    comments.map((comment) =>
+                      comment.post ? (
+                        <Link
+                          key={comment.id}
+                          href={`${getLocalizedHref(locale, `community/${comment.post.slug}`)}#comment-${comment.id}`}
+                          className="block rounded-2xl bg-background p-4 transition-colors hover:bg-secondary/40"
+                          onClick={() => onOpenChange(false)}
+                        >
+                          <p className="font-medium text-foreground">
+                            {comment.post.title}
+                          </p>
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            {getCommentPreview(comment)}
+                          </p>
+                          {comment.created_at ? (
+                            <p className="mt-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                              {formatDate(locale, comment.created_at)}
+                            </p>
+                          ) : null}
+                        </Link>
+                      ) : null,
+                    )
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-border/60 bg-card p-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.18em] text-primary">
+                      Followers
+                    </p>
+                    <div className="mt-4 space-y-3">
+                      {followers.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          No followers to show yet.
+                        </p>
+                      ) : (
+                        followers.map((listedUser) => (
+                          <button
+                            key={listedUser.id}
+                            type="button"
+                            className="block w-full rounded-2xl bg-background p-4 text-left transition-colors hover:bg-secondary/40"
+                            onClick={() => {
+                              setActiveUserId(listedUser.id)
+                              setMessage(null)
+                            }}
+                          >
+                            <p className="font-medium text-foreground">
+                              {listedUser.name}
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              @{listedUser.username}
+                            </p>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.18em] text-primary">
+                      Following
+                    </p>
+                    <div className="mt-4 space-y-3">
+                      {following.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          This profile is not following anyone yet.
+                        </p>
+                      ) : (
+                        following.map((listedUser) => (
+                          <button
+                            key={listedUser.id}
+                            type="button"
+                            className="block w-full rounded-2xl bg-background p-4 text-left transition-colors hover:bg-secondary/40"
+                            onClick={() => {
+                              setActiveUserId(listedUser.id)
+                              setMessage(null)
+                            }}
+                          >
+                            <p className="font-medium text-foreground">
+                              {listedUser.name}
+                            </p>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              @{listedUser.username}
+                            </p>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </>

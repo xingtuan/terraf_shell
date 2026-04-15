@@ -27,6 +27,10 @@ function resolveNotificationHref(locale: Locale, notification: UserNotification)
     return getLocalizedHref(locale, `community/${notification.target.slug}`)
   }
 
+  if (notification.target && "username" in notification.target) {
+    return `${getLocalizedHref(locale, "community")}?user=${notification.target.id}`
+  }
+
   return getLocalizedHref(locale, "community")
 }
 

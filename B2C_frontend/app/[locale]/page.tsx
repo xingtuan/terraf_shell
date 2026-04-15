@@ -9,6 +9,7 @@ import { MaterialStorySection } from "@/components/sections/material-story"
 import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { getHomepageContent, getHomeSections, findHomeSection } from "@/lib/api/homepage"
 import { getFeaturedMaterial, getMaterial, getMaterialSpecs } from "@/lib/api/materials"
+import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildApplicationsContent,
@@ -31,10 +32,10 @@ const emptyHomepageContent: HomepageContent = {
   articles: [],
 }
 
-async function loadHomepageData() {
+async function loadHomepageData(apiBaseUrl: string) {
   const [homepageResult, sectionsResult] = await Promise.allSettled([
-    getHomepageContent(),
-    getHomeSections(),
+    getHomepageContent({ baseUrl: apiBaseUrl }),
+    getHomeSections({ baseUrl: apiBaseUrl }),
   ])
 
   return {
@@ -50,12 +51,13 @@ async function loadHomepageData() {
 async function loadPrimaryMaterial(
   section: HomeSection | null,
   homepage: HomepageContent,
+  apiBaseUrl: string,
 ) {
   const requestedSlug = section?.payload?.material_slug
 
   if (typeof requestedSlug === "string" && requestedSlug.trim()) {
     try {
-      return await getMaterial(requestedSlug)
+      return await getMaterial(requestedSlug, { baseUrl: apiBaseUrl })
     } catch {
       return null
     }
@@ -65,14 +67,14 @@ async function loadPrimaryMaterial(
 
   if (fallbackSlug) {
     try {
-      return await getMaterial(fallbackSlug)
+      return await getMaterial(fallbackSlug, { baseUrl: apiBaseUrl })
     } catch {
       // Continue to featured-material fallback.
     }
   }
 
   try {
-    return await getFeaturedMaterial()
+    return await getFeaturedMaterial({ baseUrl: apiBaseUrl })
   } catch {
     return null
   }
@@ -80,16 +82,24 @@ async function loadPrimaryMaterial(
 
 export default async function LocaleHomePage({ params }: HomePageProps) {
   const locale = await resolveLocale(params)
+  const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
-  const { homepage, homeSections } = await loadHomepageData()
-  const fallbackSpecs = await getMaterialSpecs(locale)
+  const { homepage, homeSections } = await loadHomepageData(apiBaseUrl)
 
   const heroSection = findHomeSection(homeSections, "hero")
   const scienceSection = findHomeSection(homeSections, "science_block")
   const articlesSection = findHomeSection(homeSections, "latest_updates")
-  const primaryMaterial = (await loadPrimaryMaterial(scienceSection, homepage)) as
+  const primaryMaterial = (await loadPrimaryMaterial(
+    scienceSection,
+    homepage,
+    apiBaseUrl,
+  )) as
     | MaterialDetail
     | null
+  const fallbackSpecs =
+    primaryMaterial?.specs.length
+      ? primaryMaterial.specs
+      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl })
 
   const heroContent = buildHeroContent(messages.home.hero, primaryMaterial, heroSection)
   const storyContent = buildMaterialStoryContent(

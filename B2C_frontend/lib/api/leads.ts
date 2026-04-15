@@ -36,6 +36,7 @@ const leadFieldMap = {
   collaboration_type: "type",
   collaboration_goal: "collaborationGoal",
   project_stage: "projectStage",
+  timeline: "timeline",
   material_interest: "materialInterest",
   quantity_estimate: "quantityEstimate",
   shipping_country: "shippingCountry",
@@ -69,18 +70,28 @@ function buildMetadata(payload: {
   }
 }
 
+function normalizeRequiredText(value: string) {
+  return value.trim()
+}
+
+function normalizeOptionalText(value?: string | null) {
+  const normalized = value?.trim()
+
+  return normalized ? normalized : null
+}
+
 function buildBaseLeadBody(payload: BaseLeadPayload) {
   return {
-    name: payload.name,
-    company_name: payload.companyName,
-    organization_type: payload.organizationType || null,
-    email: payload.email,
-    phone: payload.phone || null,
-    country: payload.country || null,
-    region: payload.region || null,
-    company_website: payload.companyWebsite || null,
-    job_title: payload.jobTitle || null,
-    message: payload.message,
+    name: normalizeRequiredText(payload.name),
+    company_name: normalizeRequiredText(payload.companyName),
+    organization_type: normalizeOptionalText(payload.organizationType),
+    email: normalizeRequiredText(payload.email),
+    phone: normalizeOptionalText(payload.phone),
+    country: normalizeOptionalText(payload.country),
+    region: normalizeOptionalText(payload.region),
+    company_website: normalizeOptionalText(payload.companyWebsite),
+    job_title: normalizeOptionalText(payload.jobTitle),
+    message: normalizeRequiredText(payload.message),
     source_page: buildSourcePage(payload),
     metadata: buildMetadata(payload),
   }

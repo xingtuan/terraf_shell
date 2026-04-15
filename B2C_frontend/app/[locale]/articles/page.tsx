@@ -2,6 +2,7 @@ import { PageIntro } from "@/components/page-intro"
 import { ArticleFeedSection } from "@/components/sections/article-feed"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { listArticles } from "@/lib/api/articles"
+import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
 import type { ArticleSummary } from "@/lib/types"
@@ -12,12 +13,16 @@ type ArticlesPageProps = {
 
 export default async function ArticlesPage({ params }: ArticlesPageProps) {
   const locale = await resolveLocale(params)
+  const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
 
   let articles: ArticleSummary[] = []
 
   try {
-    const response = await listArticles({ per_page: 12 })
+    const response = await listArticles(
+      { per_page: 12 },
+      { baseUrl: apiBaseUrl },
+    )
     articles = response.items
   } catch {
     articles = []

@@ -12,6 +12,10 @@ type ListMaterialsParams = {
   featured?: boolean
 }
 
+type ApiRequestOverrides = {
+  baseUrl?: string
+}
+
 function getFallbackSpecs(locale: Locale): MaterialSpec[] {
   return materialSpecRecords.map((spec) => ({
     id: spec.id,
@@ -22,27 +26,37 @@ function getFallbackSpecs(locale: Locale): MaterialSpec[] {
   }))
 }
 
-export async function listMaterials(params: ListMaterialsParams = {}) {
+export async function listMaterials(
+  params: ListMaterialsParams = {},
+  options: ApiRequestOverrides = {},
+) {
   const response = await requestApi<MaterialSummary[]>("/materials", {
     query: params,
+    baseUrl: options.baseUrl,
   })
 
   return ensureArray(response.data).map(normalizeMaterialSummary)
 }
 
-export async function getMaterial(identifier: string) {
+export async function getMaterial(
+  identifier: string,
+  options: ApiRequestOverrides = {},
+) {
   const response = await requestApi<MaterialDetail>(
     `/materials/${encodeURIComponent(identifier)}`,
+    {
+      baseUrl: options.baseUrl,
+    },
   )
 
   return normalizeMaterialDetail(response.data)
 }
 
-export async function getFeaturedMaterial() {
-  let materials = await listMaterials({ featured: true })
+export async function getFeaturedMaterial(options: ApiRequestOverrides = {}) {
+  let materials = await listMaterials({ featured: true }, options)
 
   if (materials.length === 0) {
-    materials = await listMaterials()
+    materials = await listMaterials({}, options)
   }
 
   const primaryMaterial = materials[0] ?? null
@@ -52,7 +66,7 @@ export async function getFeaturedMaterial() {
   }
 
   try {
-    return await getMaterial(primaryMaterial.slug)
+    return await getMaterial(primaryMaterial.slug, options)
   } catch {
     return {
       ...primaryMaterial,
@@ -63,9 +77,12 @@ export async function getFeaturedMaterial() {
   }
 }
 
-export async function getMaterialSpecs(locale: Locale): Promise<MaterialSpec[]> {
+export async function getMaterialSpecs(
+  locale: Locale,
+  options: ApiRequestOverrides = {},
+): Promise<MaterialSpec[]> {
   try {
-    const material = await getFeaturedMaterial()
+    const material = await getFeaturedMaterial(options)
 
     if (material?.specs.length) {
       return material.specs

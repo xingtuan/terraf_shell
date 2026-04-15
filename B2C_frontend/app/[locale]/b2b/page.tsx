@@ -7,6 +7,7 @@ import { CredibilitySection } from "@/components/sections/credibility"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { MaterialFactsSection } from "@/components/sections/material-facts"
 import { getFeaturedMaterial, getMaterialSpecs } from "@/lib/api/materials"
+import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildCredibilityContent,
@@ -20,16 +21,21 @@ type B2BPageProps = {
 
 export default async function B2BPage({ params }: B2BPageProps) {
   const locale = await resolveLocale(params)
+  const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
-  const fallbackSpecs = await getMaterialSpecs(locale)
 
   let material = null
 
   try {
-    material = await getFeaturedMaterial()
+    material = await getFeaturedMaterial({ baseUrl: apiBaseUrl })
   } catch {
     material = null
   }
+
+  const fallbackSpecs =
+    material?.specs.length
+      ? material.specs
+      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl })
 
   const intro = messages.b2bPage.intro
   const materialFactsContent = buildMaterialFactsContent(

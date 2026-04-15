@@ -1,14 +1,18 @@
+import { getApiBaseUrl } from "@/lib/api/client"
 import type { ApiPaginationMeta, MaterialSpecIcon } from "@/lib/types"
 
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:8000/api"
-
 function getApiOrigin() {
-  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(
-    /\/+$/,
-    "",
-  )
+  const apiBaseUrl = getApiBaseUrl()
 
-  return new URL(apiBaseUrl).origin
+  if (/^https?:\/\//i.test(apiBaseUrl)) {
+    return new URL(apiBaseUrl).origin
+  }
+
+  if (typeof window !== "undefined") {
+    return window.location.origin
+  }
+
+  return null
 }
 
 export function ensureArray<T>(value: T[] | null | undefined): T[] {
@@ -32,8 +36,18 @@ export function resolveApiUrl(url?: string | null) {
     return null
   }
 
+  if (/^https?:\/\//i.test(url)) {
+    return url
+  }
+
+  const apiOrigin = getApiOrigin()
+
+  if (!apiOrigin) {
+    return url
+  }
+
   try {
-    return new URL(url, `${getApiOrigin()}/`).toString()
+    return new URL(url, `${apiOrigin}/`).toString()
   } catch {
     return url
   }

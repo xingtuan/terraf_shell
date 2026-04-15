@@ -7,6 +7,7 @@ import { MaterialStorySection } from "@/components/sections/material-story"
 import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { PageIntro } from "@/components/page-intro"
 import { getFeaturedMaterial, getMaterialSpecs } from "@/lib/api/materials"
+import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildApplicationsContent,
@@ -22,16 +23,21 @@ type MaterialPageProps = {
 
 export default async function MaterialPage({ params }: MaterialPageProps) {
   const locale = await resolveLocale(params)
+  const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
-  const fallbackSpecs = await getMaterialSpecs(locale)
 
   let material = null
 
   try {
-    material = await getFeaturedMaterial()
+    material = await getFeaturedMaterial({ baseUrl: apiBaseUrl })
   } catch {
     material = null
   }
+
+  const fallbackSpecs =
+    material?.specs.length
+      ? material.specs
+      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl })
 
   const intro = messages.materialPage.intro
   const storyContent = buildMaterialStoryContent(

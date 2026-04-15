@@ -22,9 +22,10 @@ type ApiRequestOptions = {
   query?: Record<string, QueryValue>
   token?: string | null
   cache?: RequestCache
+  baseUrl?: string
 }
 
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:8000/api"
+const DEFAULT_API_BASE_URL = "/api"
 
 export class ApiError extends Error {
   status: number
@@ -42,16 +43,68 @@ export class ApiError extends Error {
   }
 }
 
-export function getApiBaseUrl() {
-  return (process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(
-    /\/+$/,
-    "",
-  )
+function isAbsoluteUrl(value: string) {
+  return /^https?:\/\//i.test(value)
 }
 
-function buildUrl(path: string, query?: Record<string, QueryValue>) {
+function appendQueryString(
+  url: string,
+  query?: Record<string, QueryValue>,
+) {
+  const searchParams = new URLSearchParams()
+
+  for (const [key, value] of Object.entries(query ?? {})) {
+    if (value === undefined || value === null || value === "") {
+      continue
+    }
+
+    searchParams.set(key, String(value))
+  }
+
+  const queryString = searchParams.toString()
+
+  return queryString ? `${url}?${queryString}` : url
+}
+
+function normalizeRelativeBaseUrl(value: string) {
+  const normalized = value.replace(/^\/+|\/+$/g, "")
+
+  return normalized ? `/${normalized}` : ""
+}
+
+export function getApiBaseUrl(override?: string) {
+  const resolvedBaseUrl = (
+    override ??
+    process.env.NEXT_PUBLIC_API_BASE_URL ??
+    DEFAULT_API_BASE_URL
+  ).trim()
+
+  if (!resolvedBaseUrl) {
+    return DEFAULT_API_BASE_URL
+  }
+
+  return resolvedBaseUrl.replace(/\/+$/, "")
+}
+
+function buildUrl(
+  path: string,
+  query?: Record<string, QueryValue>,
+  baseUrl?: string,
+) {
   const normalizedPath = path.replace(/^\/+/, "")
-  const url = new URL(normalizedPath, `${getApiBaseUrl()}/`)
+  const apiBaseUrl = getApiBaseUrl(baseUrl)
+
+  if (!isAbsoluteUrl(apiBaseUrl)) {
+    const relativeBaseUrl = normalizeRelativeBaseUrl(apiBaseUrl)
+    const relativePath = [relativeBaseUrl, normalizedPath]
+      .filter(Boolean)
+      .join("/")
+      .replace(/\/{2,}/g, "/")
+
+    return appendQueryString(relativePath.startsWith("/") ? relativePath : `/${relativePath}`, query)
+  }
+
+  const url = new URL(normalizedPath, `${apiBaseUrl}/`)
 
   for (const [key, value] of Object.entries(query ?? {})) {
     if (value === undefined || value === null || value === "") {
@@ -103,7 +156,7 @@ export async function requestApi<T>(
   let response: Response
 
   try {
-    response = await fetch(buildUrl(path, options.query), {
+    response = await fetch(buildUrl(path, options.query, options.baseUrl), {
       method: options.method ?? "GET",
       headers,
       body: body ?? undefined,

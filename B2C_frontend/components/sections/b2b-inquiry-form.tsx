@@ -31,6 +31,52 @@ type SubmissionState = {
 
 type FieldErrors = Partial<Record<LeadFormField, string>>
 
+const leadFieldMaxLengths: Partial<Record<LeadFormField, number>> = {
+  name: 100,
+  companyName: 150,
+  organizationType: 80,
+  email: 255,
+  phone: 40,
+  country: 120,
+  region: 120,
+  companyWebsite: 2048,
+  jobTitle: 120,
+  application: 150,
+  timeline: 120,
+  message: 5000,
+  collaborationGoal: 1000,
+  projectStage: 120,
+  materialInterest: 150,
+  quantityEstimate: 120,
+  shippingCountry: 120,
+  shippingRegion: 120,
+  shippingAddress: 500,
+  intendedUse: 1000,
+}
+
+const leadFieldLabels: Partial<Record<LeadFormField, string>> = {
+  name: "Name",
+  companyName: "Company",
+  organizationType: "Organization type",
+  email: "Email",
+  phone: "Phone",
+  country: "Country",
+  region: "Region",
+  companyWebsite: "Company website",
+  jobTitle: "Job title",
+  application: "Application",
+  timeline: "Target timeline",
+  message: "Project details",
+  collaborationGoal: "Collaboration goal",
+  projectStage: "Project stage",
+  materialInterest: "Material interest",
+  quantityEstimate: "Quantity estimate",
+  shippingCountry: "Shipping country",
+  shippingRegion: "Shipping region",
+  shippingAddress: "Shipping address",
+  intendedUse: "Intended use",
+}
+
 const leadTypeOptions: Array<{
   id: LeadFormType
   label: string
@@ -106,6 +152,20 @@ function createInitialValues(
   }
 }
 
+function validateMaxLength(
+  errors: FieldErrors,
+  field: LeadFormField,
+  value: string,
+) {
+  const maxLength = leadFieldMaxLengths[field]
+
+  if (!maxLength || value.trim().length <= maxLength) {
+    return
+  }
+
+  errors[field] = `${leadFieldLabels[field] ?? "This field"} must be ${maxLength} characters or fewer.`
+}
+
 function validateLeadForm(values: LeadFormValues): FieldErrors {
   const errors: FieldErrors = {}
 
@@ -123,11 +183,24 @@ function validateLeadForm(values: LeadFormValues): FieldErrors {
     errors.email = "Enter a valid email address."
   }
 
+  validateMaxLength(errors, "name", values.name)
+  validateMaxLength(errors, "companyName", values.companyName)
+  validateMaxLength(errors, "email", values.email)
+  validateMaxLength(errors, "phone", values.phone)
+  validateMaxLength(errors, "country", values.country)
+  validateMaxLength(errors, "region", values.region)
+  validateMaxLength(errors, "jobTitle", values.jobTitle)
+  validateMaxLength(errors, "message", values.message)
+
   if (values.companyWebsite.trim()) {
-    try {
-      new URL(values.companyWebsite)
-    } catch {
-      errors.companyWebsite = "Enter a valid website URL."
+    validateMaxLength(errors, "companyWebsite", values.companyWebsite)
+
+    if (!errors.companyWebsite) {
+      try {
+        new URL(values.companyWebsite)
+      } catch {
+        errors.companyWebsite = "Enter a valid website URL."
+      }
     }
   }
 
@@ -135,8 +208,13 @@ function validateLeadForm(values: LeadFormValues): FieldErrors {
     errors.message = "Project details are required."
   }
 
-  if (values.type === "inquiry" && !values.application.trim()) {
-    errors.application = "Application is required."
+  if (values.type === "inquiry") {
+    if (!values.application.trim()) {
+      errors.application = "Application is required."
+    }
+
+    validateMaxLength(errors, "application", values.application)
+    validateMaxLength(errors, "timeline", values.timeline)
   }
 
   if (
@@ -148,6 +226,8 @@ function validateLeadForm(values: LeadFormValues): FieldErrors {
     errors.organizationType = "Organization type is required."
   }
 
+  validateMaxLength(errors, "organizationType", values.organizationType)
+
   if (
     (values.type === "partnership_inquiry" ||
       values.type === "university_collaboration" ||
@@ -157,6 +237,9 @@ function validateLeadForm(values: LeadFormValues): FieldErrors {
     errors.collaborationGoal = "Collaboration goal is required."
   }
 
+  validateMaxLength(errors, "collaborationGoal", values.collaborationGoal)
+  validateMaxLength(errors, "projectStage", values.projectStage)
+
   if (values.type === "sample_request" && !values.materialInterest.trim()) {
     errors.materialInterest = "Material interest is required."
   }
@@ -164,6 +247,13 @@ function validateLeadForm(values: LeadFormValues): FieldErrors {
   if (values.type === "sample_request" && !values.intendedUse.trim()) {
     errors.intendedUse = "Intended use is required."
   }
+
+  validateMaxLength(errors, "materialInterest", values.materialInterest)
+  validateMaxLength(errors, "quantityEstimate", values.quantityEstimate)
+  validateMaxLength(errors, "shippingCountry", values.shippingCountry)
+  validateMaxLength(errors, "shippingRegion", values.shippingRegion)
+  validateMaxLength(errors, "shippingAddress", values.shippingAddress)
+  validateMaxLength(errors, "intendedUse", values.intendedUse)
 
   return errors
 }

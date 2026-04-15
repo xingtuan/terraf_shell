@@ -4,6 +4,7 @@ import { ArticleDetailContent } from "@/components/articles/article-detail"
 import { PageIntro } from "@/components/page-intro"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { getArticle } from "@/lib/api/articles"
+import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages, isValidLocale } from "@/lib/i18n"
 
 type ArticleDetailPageProps = {
@@ -20,12 +21,13 @@ export default async function ArticleDetailPage({
   }
 
   const locale = resolvedParams.locale
+  const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
 
   let article = null
 
   try {
-    article = await getArticle(resolvedParams.slug)
+    article = await getArticle(resolvedParams.slug, { baseUrl: apiBaseUrl })
   } catch {
     article = null
   }
