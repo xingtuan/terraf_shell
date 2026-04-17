@@ -31,7 +31,7 @@ class ReportsTable
                 TextColumn::make('reporter.name')
                     ->label('Reporter')
                     ->description(fn (Report $record): string => '@'.$record->reporter->username)
-                    ->searchable(['users.name', 'users.username']),
+                    ->searchable(['name', 'username']),
                 TextColumn::make('target_type')
                     ->label('Target type')
                     ->badge()

@@ -43,7 +43,7 @@ class CommentsTable
                         '@'.$record->user->username,
                         $record->user->profile?->school_or_company,
                     ])->filter()->implode(' · '))
-                    ->searchable(['users.name', 'users.username']),
+                    ->searchable(['name', 'username']),
                 TextColumn::make('parent_id')
                     ->label('Thread')
                     ->formatStateUsing(fn (?int $state): string => $state ? '#'.$state : 'Top-level'),

@@ -53,7 +53,7 @@ class PostsTable
                         $record->user->profile?->school_or_company,
                         $record->user->profile?->region,
                     ])->filter()->implode(' · '))
-                    ->searchable(['users.name', 'users.username'])
+                    ->searchable(['name', 'username'])
                     ->sortable(),
                 TextColumn::make('category.name')
                     ->label('Category')
