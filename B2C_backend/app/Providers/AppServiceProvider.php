@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\B2BLead;
 use App\Models\Comment;
+use App\Models\Inquiry;
 use App\Models\PartnershipInquiry;
 use App\Models\Post;
 use App\Models\Report;
@@ -37,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
             'comment' => Comment::class,
             'user' => User::class,
             'report' => Report::class,
+            'inquiry' => Inquiry::class,
             'b2b_lead' => B2BLead::class,
             'partnership_inquiry' => PartnershipInquiry::class,
             'sample_request' => SampleRequest::class,

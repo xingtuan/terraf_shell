@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\B2BLead;
 use App\Models\Comment;
+use App\Models\Inquiry;
 use App\Models\Post;
 use App\Models\Report;
 use App\Models\User;
@@ -42,6 +43,13 @@ class AuditSubjectSummary
                 'status' => $subject->status,
                 'target_type' => $subject->target_type,
                 'target_id' => $subject->target_id,
+            ],
+            $subject instanceof Inquiry => [
+                'type' => 'inquiry',
+                'id' => $subject->id,
+                'reference' => $subject->reference ?: sprintf('INQ-%06d', $subject->id),
+                'company_name' => $subject->company_name,
+                'status' => $subject->status,
             ],
             $subject instanceof B2BLead => [
                 'type' => 'b2b_lead',

@@ -168,6 +168,11 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
         return $this->hasMany(B2BLead::class, 'reviewed_by');
     }
 
+    public function assignedB2BLeads(): HasMany
+    {
+        return $this->hasMany(B2BLead::class, 'assigned_to');
+    }
+
     public function resolvedViolations(): HasMany
     {
         return $this->hasMany(UserViolation::class, 'resolved_by');

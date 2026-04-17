@@ -15,6 +15,10 @@ class AdminResourcesAccessTest extends TestCase
         $admin = User::factory()->admin()->create();
 
         $this->actingAs($admin)
+            ->get('/admin/enquiries')
+            ->assertOk();
+
+        $this->actingAs($admin)
             ->get('/admin/materials')
             ->assertOk();
 
@@ -35,6 +39,10 @@ class AdminResourcesAccessTest extends TestCase
     {
         $moderator = User::factory()->moderator()->create();
         $user = User::factory()->create();
+
+        $this->actingAs($moderator)
+            ->get('/admin/enquiries')
+            ->assertOk();
 
         $this->actingAs($moderator)
             ->get('/admin/users')
@@ -92,6 +100,10 @@ class AdminResourcesAccessTest extends TestCase
 
         $this->actingAs($creator)
             ->get('/admin/materials')
+            ->assertForbidden();
+
+        $this->actingAs($creator)
+            ->get('/admin/enquiries')
             ->assertForbidden();
 
         $this->actingAs($smePartner)

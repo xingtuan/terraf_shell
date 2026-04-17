@@ -38,6 +38,7 @@ class B2BLeadFactory extends Factory
             'source_page' => 'b2b:landing',
             'status' => B2BLeadStatus::New->value,
             'internal_notes' => null,
+            'assigned_to' => null,
             'reviewed_by' => null,
             'reviewed_at' => null,
             'metadata' => null,

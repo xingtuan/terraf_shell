@@ -32,6 +32,7 @@ class B2BLead extends Model
         'source_page',
         'status',
         'internal_notes',
+        'assigned_to',
         'reviewed_by',
         'reviewed_at',
         'metadata',
@@ -48,6 +49,11 @@ class B2BLead extends Model
     public function reviewer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
     }
 
     public function partnershipInquiry(): HasOne
