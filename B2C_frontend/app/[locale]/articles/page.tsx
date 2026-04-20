@@ -20,8 +20,8 @@ export default async function ArticlesPage({ params }: ArticlesPageProps) {
 
   try {
     const response = await listArticles(
-      { per_page: 12 },
-      { baseUrl: apiBaseUrl },
+      { per_page: 12, locale },
+      { baseUrl: apiBaseUrl, locale },
     )
     articles = response.items
   } catch {

@@ -208,6 +208,34 @@
       "secondaryCta": "浏览商店"
     }
   },
+  "material": {
+    "origin": {
+      "title": "材料起源",
+      "body": "Shellfin 始于被丢弃的牡蛎壳废弃物。回收后的贝壳经过净化与精制，制成富含矿物的颗粒，再通过压缩成型转化为高端产品。"
+    },
+    "properties": {
+      "weight": "比重 1.5-1.6，相比传统陶瓷 2.4 轻约 35%。",
+      "strength": "具备不易破损的高抗冲击表现，适合高频重复使用。",
+      "absorption": "吸水率 0.00%，有助于减少异味残留和细菌滋生。",
+      "antibacterial": "无需人工涂层即可提供天然弱碱性抗菌特性。",
+      "grip": "矿物防滑纹理在潮湿状态下也能保持稳定握持感。",
+      "otr": "OTR 500 cc/m²·day，兼具可呼吸性与阻湿表现。"
+    },
+    "process": {
+      "step1": "回收收集：从沿海加工链回收并筛选牡蛎壳废弃物。",
+      "step2": "热净化：在 200-700°C 范围内完成杀菌并形成矿物色调。",
+      "step3": "制粒：将净化后的贝壳矿物精制成 Shellfin 颗粒。",
+      "step4": "压缩成型：将颗粒成型为轻量且耐冲击的产品与表面材料。"
+    },
+    "certifications": {
+      "title": "认证与测试数据",
+      "waterAbsorption": "吸水率 0.00%",
+      "toxicityHeavyMetals": "毒性 / 重金属",
+      "acidResistance": "耐酸性",
+      "nonToxicFireproof": "无毒阻燃",
+      "otrData": "OTR 数据"
+    }
+  },
   "materialPage": {
     "intro": {
       "eyebrow": "材料",

@@ -7,25 +7,50 @@ export type JsonObject = {
 }
 
 export interface Product {
-  id: string
+  id: number
   slug: string
-  name: string
-  description: string
-  categoryId: string
-  categoryLabel: string
-  image: string
-  priceFrom: number
-  currency: "KRW"
-  priceLabel: string
-  availability: string
-  features: string[]
+  status?: string | null
   featured: boolean
+  category_id: number
+  category?: ProductCategory | null
+  name: string
+  short_description?: string | null
+  full_description?: string | null
+  features: string[]
+  availability_text?: string | null
+  cover_image_url?: string | null
+  gallery_images: ProductImage[]
+  sort_order?: number
+  price_from?: number | null
+  currency: string
+  inquiry_only: boolean
+  sample_request_enabled: boolean
+  published_at?: string | null
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 export interface ProductCategory {
-  id: string
-  label: string
-  description: string
+  id: number
+  slug: string
+  name: string
+  description?: string | null
+  sort_order?: number
+  is_active?: boolean
+  products_count?: number
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export interface ProductImage {
+  id: number
+  product_id?: number
+  alt_text?: string | null
+  caption?: string | null
+  media_url?: string | null
+  sort_order: number
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 export interface ApiPaginationMeta {

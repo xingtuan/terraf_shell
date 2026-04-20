@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Content;
 
+use App\Support\LocalizedContent;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ListPublishedArticlesRequest extends FormRequest
 {
@@ -20,6 +22,7 @@ class ListPublishedArticlesRequest extends FormRequest
         return [
             'category' => ['nullable', 'string', 'max:100'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'locale' => ['nullable', Rule::in(LocalizedContent::supportedLocales())],
         ];
     }
 }

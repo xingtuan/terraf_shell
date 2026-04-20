@@ -13,7 +13,7 @@ class TagSeeder extends Seeder
      */
     public function run(): void
     {
-        $tags = [
+        $obsoleteSeedSlugs = [
             'saas',
             'mobile',
             'webapp',
@@ -24,6 +24,17 @@ class TagSeeder extends Seeder
             'ai',
             'community',
             'growth',
+        ];
+
+        Tag::query()->whereIn('slug', $obsoleteSeedSlugs)->delete();
+
+        $tags = [
+            'oyster-shell',
+            'compression-moulding',
+            'eco-tableware',
+            'shellfin',
+            'lightweight',
+            'food-safe',
         ];
 
         foreach ($tags as $tag) {

@@ -1,5 +1,15 @@
 import type { LocalizedValue } from "@/lib/i18n"
 
+type ProductModel = "1.5 Lite" | "1.6 Heritage"
+type ProductFinish = "Glossy" | "Matte"
+type ProductColor = "Ocean Bone" | "Forged Ash"
+type ProductTechnique = "Original Pure" | "Precision Inlay" | "Driftwood Blend"
+type ProductCategory =
+  | "Tableware"
+  | "Planters"
+  | "Wellness & Interior"
+  | "Architectural"
+
 type RawCategoryRecord = {
   id: string
   label: LocalizedValue<string>
@@ -9,15 +19,17 @@ type RawCategoryRecord = {
 type RawProductRecord = {
   id: string
   slug: string
-  categoryId: string
-  image: string
-  priceFrom: number
-  currency: "KRW"
-  featured: boolean
-  availability: LocalizedValue<string>
   name: LocalizedValue<string>
   description: LocalizedValue<string>
-  features: LocalizedValue<string[]>
+  model: ProductModel
+  finish: ProductFinish
+  color: ProductColor
+  technique: ProductTechnique
+  category: ProductCategory
+  price: number
+  currency: "USD"
+  inStock: true
+  image: string
 }
 
 export const productCategoryRecords: RawCategoryRecord[] = [
@@ -29,154 +41,235 @@ export const productCategoryRecords: RawCategoryRecord[] = [
       zh: "餐具",
     },
     description: {
-      en: "Dining pieces shaped for everyday rituals and premium hospitality.",
-      ko: "일상 식탁과 프리미엄 호스피탈리티를 위한 다이닝 오브제.",
-      zh: "为日常餐桌与高端餐饮空间打造的用餐器物。",
+      en: "Plates, bowls, and service pieces shaped for premium dining.",
+      ko: "프리미엄 다이닝을 위한 플레이트, 볼, 서빙 피스입니다.",
+      zh: "面向高端用餐场景的盘、碗与服务器皿。",
     },
   },
   {
-    id: "home-objects",
+    id: "planters",
     label: {
-      en: "Home Objects",
-      ko: "홈 오브제",
-      zh: "家居物件",
+      en: "Planters",
+      ko: "플랜터",
+      zh: "花器",
     },
     description: {
-      en: "Quiet, tactile pieces that introduce the material story into the home.",
-      ko: "소재의 이야기를 집 안으로 가져오는 고요한 촉감의 오브제.",
-      zh: "以安静触感将材料故事带入居家的物件。",
+      en: "Lightweight planters with shell-mineral tactility for indoor and outdoor use.",
+      ko: "실내외 공간에 어울리는 경량 쉘 미네랄 플랜터입니다.",
+      zh: "兼具轻量与贝壳矿物质感的室内外花器。",
     },
   },
   {
-    id: "gift-sets",
+    id: "wellness-interior",
     label: {
-      en: "Gift Sets",
-      ko: "기프트 세트",
-      zh: "礼盒系列",
+      en: "Wellness & Interior",
+      ko: "웰니스 & 인테리어",
+      zh: "康养与家居",
     },
     description: {
-      en: "Curated sets for boutique retail, concept gifting, and special launches.",
-      ko: "부티크 리테일과 브랜드 출시를 위한 큐레이션 세트.",
-      zh: "适用于精品零售、品牌发布与概念赠礼的组合。",
+      en: "Trays and interior objects designed for calm rituals and wellness settings.",
+      ko: "차분한 리추얼과 웰니스 공간을 위한 트레이와 인테리어 오브제입니다.",
+      zh: "用于康养场景与静心日常的托盘及家居物件。",
+    },
+  },
+  {
+    id: "architectural",
+    label: {
+      en: "Architectural",
+      ko: "건축",
+      zh: "建筑",
+    },
+    description: {
+      en: "Compression-moulded panels and tiles for breathable, moisture-aware surfaces.",
+      ko: "통기성과 차습 특성을 고려한 압축성형 패널 및 타일입니다.",
+      zh: "兼顾可呼吸性与阻湿表现的压缩成型板材与砖面。",
     },
   },
 ]
 
 export const productRecords: RawProductRecord[] = [
   {
-    id: "tidal-dinner-plate",
-    slug: "tidal-dinner-plate",
-    categoryId: "tableware",
-    image: "/images/application-tableware.jpg",
-    priceFrom: 68000,
-    currency: "KRW",
-    featured: true,
-    availability: {
-      en: "Made in small runs",
-      ko: "소량 생산",
-      zh: "小批量制作",
-    },
+    id: "dinner-plate-lite-ocean-bone",
+    slug: "dinner-plate-lite-ocean-bone",
     name: {
-      en: "Tidal Dinner Plate",
-      ko: "타이달 디너 플레이트",
-      zh: "Tidal 晚餐盘",
+      en: "Dinner Plate - 1.5 Lite / Ocean Bone",
+      ko: "디너 플레이트 - 1.5 Lite / Ocean Bone",
+      zh: "晚餐盘 - 1.5 Lite / Ocean Bone",
     },
     description: {
-      en: "A refined dinner plate with a soft mineral edge and quiet shell luminosity.",
-      ko: "은은한 패각 광택과 부드러운 미네랄 엣지를 담은 디너 플레이트.",
-      zh: "带有柔和矿物边缘与低调贝壳光泽的晚餐盘。",
+      en: "A glossy lightweight dinner plate built for premium daily service.",
+      ko: "프리미엄 일상 식탁을 위한 글로시 경량 디너 플레이트입니다.",
+      zh: "适合高端日常餐桌的亮面轻量晚餐盘。",
     },
-    features: {
-      en: ["Shellfin composite", "Compress-moulded form", "Lighter carry weight"],
-      ko: ["쉘핀 복합 소재", "압축 성형", "가벼운 사용감"],
-      zh: ["Shellfin 复合材料", "压缩模塑", "更轻的使用重量"],
-    },
+    model: "1.5 Lite",
+    finish: "Glossy",
+    color: "Ocean Bone",
+    technique: "Original Pure",
+    category: "Tableware",
+    price: 45,
+    currency: "USD",
+    inStock: true,
+    image: "https://placehold.co/600x400?text=Shellfin+Dinner+Plate",
   },
   {
-    id: "harbor-serving-bowl",
-    slug: "harbor-serving-bowl",
-    categoryId: "tableware",
-    image: "/images/application-interior.jpg",
-    priceFrom: 92000,
-    currency: "KRW",
-    featured: true,
-    availability: {
-      en: "Available for hospitality packs",
-      ko: "호스피탈리티 패키지 가능",
-      zh: "可用于餐饮项目配套",
-    },
+    id: "side-plate-lite-forged-ash",
+    slug: "side-plate-lite-forged-ash",
     name: {
-      en: "Harbor Serving Bowl",
-      ko: "하버 서빙 볼",
-      zh: "Harbor 分享碗",
+      en: "Side Plate - 1.5 Lite / Forged Ash",
+      ko: "사이드 플레이트 - 1.5 Lite / Forged Ash",
+      zh: "边盘 - 1.5 Lite / Forged Ash",
     },
     description: {
-      en: "A generous serving bowl developed for premium dining rooms and boutique stays.",
-      ko: "프리미엄 다이닝과 부티크 숙소를 위해 개발된 넉넉한 서빙 볼.",
-      zh: "为高端餐饮与精品酒店开发的大容量分享碗。",
+      en: "A slim glossy side plate with a forged grey mineral tone.",
+      ko: "단조 회색 미네랄 톤을 가진 슬림한 글로시 사이드 플레이트입니다.",
+      zh: "带有锻灰矿物色调的纤薄亮面边盘。",
     },
-    features: {
-      en: ["Durable rim", "Warm matte finish", "Hospitality-ready sizing"],
-      ko: ["내구성 있는 림", "따뜻한 매트 마감", "호스피탈리티 규격"],
-      zh: ["耐用边缘", "温润哑光表面", "适配餐饮空间尺寸"],
-    },
+    model: "1.5 Lite",
+    finish: "Glossy",
+    color: "Forged Ash",
+    technique: "Precision Inlay",
+    category: "Tableware",
+    price: 48,
+    currency: "USD",
+    inStock: true,
+    image: "https://placehold.co/600x400?text=Shellfin+Side+Plate",
   },
   {
-    id: "shore-catchall",
-    slug: "shore-catchall",
-    categoryId: "home-objects",
-    image: "/images/material-texture.jpg",
-    priceFrom: 54000,
-    currency: "KRW",
-    featured: false,
-    availability: {
-      en: "Ready for online pre-order",
-      ko: "온라인 프리오더 가능",
-      zh: "可在线预订",
-    },
+    id: "coupe-bowl-heritage-ocean-bone",
+    slug: "coupe-bowl-heritage-ocean-bone",
     name: {
-      en: "Shore Catchall",
-      ko: "쇼어 캐치올",
-      zh: "Shore 收纳盘",
+      en: "Coupe Bowl - 1.6 Heritage / Ocean Bone",
+      ko: "쿠프 볼 - 1.6 Heritage / Ocean Bone",
+      zh: "浅口碗 - 1.6 Heritage / Ocean Bone",
     },
     description: {
-      en: "A compact tray for jewelry, keys, and quiet daily rituals.",
-      ko: "주얼리와 열쇠, 일상 소품을 위한 컴팩트 트레이.",
-      zh: "适合首饰、钥匙与日常小物的紧凑托盘。",
+      en: "A matte coupe bowl with a calm mineral texture for plated courses.",
+      ko: "플레이팅 코스에 어울리는 차분한 미네랄 텍스처의 매트 쿠프 볼입니다.",
+      zh: "适合精致摆盘的哑光矿物浅口碗。",
     },
-    features: {
-      en: ["Dense mineral touch", "Home styling accent", "Natural shell speckle"],
-      ko: ["밀도감 있는 촉감", "홈 스타일링 포인트", "자연스러운 패각 입자"],
-      zh: ["紧实矿物触感", "家居陈列点缀", "自然贝壳纹理颗粒"],
-    },
+    model: "1.6 Heritage",
+    finish: "Matte",
+    color: "Ocean Bone",
+    technique: "Original Pure",
+    category: "Tableware",
+    price: 62,
+    currency: "USD",
+    inStock: true,
+    image: "https://placehold.co/600x400?text=Shellfin+Coupe+Bowl",
   },
   {
-    id: "atelier-gift-set",
-    slug: "atelier-gift-set",
-    categoryId: "gift-sets",
-    image: "/images/application-retail.jpg",
-    priceFrom: 148000,
-    currency: "KRW",
-    featured: false,
-    availability: {
-      en: "Concept launch edition",
-      ko: "컨셉 런칭 에디션",
-      zh: "概念发布限量版",
-    },
+    id: "serving-bowl-heritage-forged-ash",
+    slug: "serving-bowl-heritage-forged-ash",
     name: {
-      en: "Atelier Gift Set",
-      ko: "아틀리에 기프트 세트",
-      zh: "Atelier 礼盒套组",
+      en: "Serving Bowl - 1.6 Heritage / Forged Ash",
+      ko: "서빙 볼 - 1.6 Heritage / Forged Ash",
+      zh: "分享碗 - 1.6 Heritage / Forged Ash",
     },
     description: {
-      en: "A pairing of signature objects designed for premium gifting and retail displays.",
-      ko: "프리미엄 기프트와 리테일 디스플레이를 위한 시그니처 오브제 세트.",
-      zh: "适用于高端赠礼与零售陈列的标志性组合。",
+      en: "A matte hospitality-scale serving bowl with higher impact resistance.",
+      ko: "높은 내충격성을 갖춘 호스피탈리티 스케일의 매트 서빙 볼입니다.",
+      zh: "适合餐饮服务场景、具备高抗冲击性的哑光分享碗。",
     },
-    features: {
-      en: ["Curated pairings", "Brand-ready packaging", "Limited seasonal release"],
-      ko: ["큐레이션 구성", "브랜드 패키징 대응", "시즌 한정 출시"],
-      zh: ["精选组合", "支持品牌化包装", "季节限定发售"],
+    model: "1.6 Heritage",
+    finish: "Matte",
+    color: "Forged Ash",
+    technique: "Driftwood Blend",
+    category: "Tableware",
+    price: 78,
+    currency: "USD",
+    inStock: true,
+    image: "https://placehold.co/600x400?text=Shellfin+Serving+Bowl",
+  },
+  {
+    id: "countertop-planter-heritage-ocean-bone",
+    slug: "countertop-planter-heritage-ocean-bone",
+    name: {
+      en: "Countertop Planter - 1.6 Heritage / Ocean Bone",
+      ko: "카운터탑 플랜터 - 1.6 Heritage / Ocean Bone",
+      zh: "台面花器 - 1.6 Heritage / Ocean Bone",
     },
+    description: {
+      en: "A matte planter that balances breathable OTR performance with a stable shell body.",
+      ko: "통기성과 안정적인 셸 바디를 함께 고려한 매트 플랜터입니다.",
+      zh: "兼顾透气表现与稳定壳体结构的哑光花器。",
+    },
+    model: "1.6 Heritage",
+    finish: "Matte",
+    color: "Ocean Bone",
+    technique: "Original Pure",
+    category: "Planters",
+    price: 85,
+    currency: "USD",
+    inStock: true,
+    image: "https://placehold.co/600x400?text=Shellfin+Planter",
+  },
+  {
+    id: "wellness-tray-lite-ocean-bone",
+    slug: "wellness-tray-lite-ocean-bone",
+    name: {
+      en: "Wellness Tray - 1.5 Lite / Ocean Bone",
+      ko: "웰니스 트레이 - 1.5 Lite / Ocean Bone",
+      zh: "康养托盘 - 1.5 Lite / Ocean Bone",
+    },
+    description: {
+      en: "A glossy tray for tea rituals, spa amenities, and bathroom styling.",
+      ko: "티 리추얼, 스파 어메니티, 욕실 스타일링에 맞는 글로시 트레이입니다.",
+      zh: "适合茶席、SPA 配件与浴室陈列的亮面托盘。",
+    },
+    model: "1.5 Lite",
+    finish: "Glossy",
+    color: "Ocean Bone",
+    technique: "Precision Inlay",
+    category: "Wellness & Interior",
+    price: 68,
+    currency: "USD",
+    inStock: true,
+    image: "https://placehold.co/600x400?text=Shellfin+Wellness+Tray",
+  },
+  {
+    id: "aroma-object-heritage-forged-ash",
+    slug: "aroma-object-heritage-forged-ash",
+    name: {
+      en: "Aroma Object - 1.6 Heritage / Forged Ash",
+      ko: "아로마 오브제 - 1.6 Heritage / Forged Ash",
+      zh: "香薰摆件 - 1.6 Heritage / Forged Ash",
+    },
+    description: {
+      en: "A matte interior object that highlights Shellfin's non-slip mineral touch.",
+      ko: "Shellfin 특유의 논슬립 미네랄 촉감을 강조한 매트 인테리어 오브제입니다.",
+      zh: "突出 Shellfin 防滑矿物触感的哑光家居摆件。",
+    },
+    model: "1.6 Heritage",
+    finish: "Matte",
+    color: "Forged Ash",
+    technique: "Driftwood Blend",
+    category: "Wellness & Interior",
+    price: 92,
+    currency: "USD",
+    inStock: true,
+    image: "https://placehold.co/600x400?text=Shellfin+Aroma+Object",
+  },
+  {
+    id: "panel-tile-heritage-forged-ash",
+    slug: "panel-tile-heritage-forged-ash",
+    name: {
+      en: "Panel Tile - 1.6 Heritage / Forged Ash",
+      ko: "패널 타일 - 1.6 Heritage / Forged Ash",
+      zh: "板材砖 - 1.6 Heritage / Forged Ash",
+    },
+    description: {
+      en: "A compression-moulded architectural tile developed for breathable, moisture-aware surfaces.",
+      ko: "통기성과 차습 특성을 고려한 압축성형 건축용 타일입니다.",
+      zh: "面向可呼吸、阻湿表面的压缩成型建筑砖面。",
+    },
+    model: "1.6 Heritage",
+    finish: "Matte",
+    color: "Forged Ash",
+    technique: "Precision Inlay",
+    category: "Architectural",
+    price: 120,
+    currency: "USD",
+    inStock: true,
+    image: "https://placehold.co/600x400?text=Shellfin+Panel+Tile",
   },
 ]

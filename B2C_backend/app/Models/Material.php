@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasLocalizedAttributes;
 use App\Models\Concerns\HasOptionalMediaUrl;
 use App\Models\Concerns\HasPublishStatus;
 use Database\Factories\MaterialFactory;
@@ -12,15 +13,28 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Material extends Model
 {
     /** @use HasFactory<MaterialFactory> */
-    use HasFactory, HasOptionalMediaUrl, HasPublishStatus;
+    use HasFactory, HasLocalizedAttributes, HasOptionalMediaUrl, HasPublishStatus;
 
-    protected $fillable = [
+    protected array $localizedAttributes = [
         'title',
-        'slug',
         'headline',
         'summary',
         'story_overview',
         'science_overview',
+    ];
+
+    protected $fillable = [
+        'title',
+        'title_translations',
+        'slug',
+        'headline',
+        'headline_translations',
+        'summary',
+        'summary_translations',
+        'story_overview',
+        'story_overview_translations',
+        'science_overview',
+        'science_overview_translations',
         'status',
         'is_featured',
         'sort_order',
@@ -32,6 +46,11 @@ class Material extends Model
     protected function casts(): array
     {
         return [
+            'title_translations' => 'array',
+            'headline_translations' => 'array',
+            'summary_translations' => 'array',
+            'story_overview_translations' => 'array',
+            'science_overview_translations' => 'array',
             'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];

@@ -29,7 +29,7 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   let material = null
 
   try {
-    material = await getFeaturedMaterial({ baseUrl: apiBaseUrl })
+    material = await getFeaturedMaterial({ baseUrl: apiBaseUrl, locale })
   } catch {
     material = null
   }
@@ -37,7 +37,7 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   const fallbackSpecs =
     material?.specs.length
       ? material.specs
-      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl })
+      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
 
   const intro = messages.materialPage.intro
   const storyContent = buildMaterialStoryContent(

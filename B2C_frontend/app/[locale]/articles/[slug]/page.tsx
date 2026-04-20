@@ -27,7 +27,10 @@ export default async function ArticleDetailPage({
   let article = null
 
   try {
-    article = await getArticle(resolvedParams.slug, { baseUrl: apiBaseUrl })
+    article = await getArticle(resolvedParams.slug, {
+      baseUrl: apiBaseUrl,
+      locale,
+    })
   } catch {
     article = null
   }

@@ -208,6 +208,34 @@
       "secondaryCta": "스토어 둘러보기"
     }
   },
+  "material": {
+    "origin": {
+      "title": "원료 스토리",
+      "body": "Shellfin은 버려지는 굴패각 폐기물에서 시작합니다. 수거된 패각은 정화와 정제를 거쳐 미네랄이 풍부한 펠릿으로 만들어지고, 다시 압축성형을 통해 프리미엄 제품으로 완성됩니다."
+    },
+    "properties": {
+      "weight": "비중 1.5-1.6으로 일반 도자기 2.4 대비 약 35% 가볍습니다.",
+      "strength": "반복 사용 환경에도 견디는 비파손 고내충격 소재입니다.",
+      "absorption": "흡수율 0.00%로 냄새 배임과 세균 번식 가능성을 줄입니다.",
+      "antibacterial": "인공 코팅 없이도 천연 약알칼리 항균 특성을 제공합니다.",
+      "grip": "젖은 상태에서도 미끄럽지 않은 미네랄 그립 텍스처를 유지합니다.",
+      "otr": "OTR 500 cc/m²·day로 통기성과 차습성을 함께 제공합니다."
+    },
+    "process": {
+      "step1": "수거: 해안 가공 공정에서 굴패각 폐기물을 회수하고 선별합니다.",
+      "step2": "열 정화: 200-700°C 구간에서 살균하며 미네랄 톤을 형성합니다.",
+      "step3": "펠릿화: 정제된 패각 미네랄을 Shellfin 펠릿으로 가공합니다.",
+      "step4": "압축성형: 펠릿을 가볍고 충격에 강한 제품과 표면재로 성형합니다."
+    },
+    "certifications": {
+      "title": "인증 및 시험 데이터",
+      "waterAbsorption": "흡수율 0.00%",
+      "toxicityHeavyMetals": "유해성 / 중금속",
+      "acidResistance": "내산성",
+      "nonToxicFireproof": "무독성 난연",
+      "otrData": "OTR 데이터"
+    }
+  },
   "materialPage": {
     "intro": {
       "eyebrow": "소재",

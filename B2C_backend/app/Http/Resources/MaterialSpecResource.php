@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\ResolvesLocalizedFields;
 use App\Models\MaterialSpec;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -9,6 +10,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin MaterialSpec */
 class MaterialSpecResource extends JsonResource
 {
+    use ResolvesLocalizedFields;
+
     /**
      * @return array<string, mixed>
      */
@@ -18,10 +21,13 @@ class MaterialSpecResource extends JsonResource
             'id' => $this->id,
             'material_id' => $this->material_id,
             'key' => $this->key,
-            'label' => $this->label,
-            'value' => $this->value,
+            'label' => $this->localizedString($request, 'label'),
+            'value' => $this->localizedString($request, 'value'),
             'unit' => $this->unit,
-            'detail' => $this->detail,
+            'detail' => $this->localizedString($request, 'detail'),
+            'label_translations' => $this->localizedStringSet('label'),
+            'value_translations' => $this->localizedStringSet('value'),
+            'detail_translations' => $this->localizedStringSet('detail'),
             'icon' => $this->icon,
             'status' => $this->status,
             'sort_order' => $this->sort_order,

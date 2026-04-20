@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\ResolvesLocalizedFields;
 use App\Models\Material;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -9,6 +10,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin Material */
 class MaterialResource extends JsonResource
 {
+    use ResolvesLocalizedFields;
+
     /**
      * @return array<string, mixed>
      */
@@ -16,12 +19,17 @@ class MaterialResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
+            'title' => $this->localizedString($request, 'title'),
             'slug' => $this->slug,
-            'headline' => $this->headline,
-            'summary' => $this->summary,
-            'story_overview' => $this->story_overview,
-            'science_overview' => $this->science_overview,
+            'headline' => $this->localizedString($request, 'headline'),
+            'summary' => $this->localizedString($request, 'summary'),
+            'story_overview' => $this->localizedString($request, 'story_overview'),
+            'science_overview' => $this->localizedString($request, 'science_overview'),
+            'title_translations' => $this->localizedStringSet('title'),
+            'headline_translations' => $this->localizedStringSet('headline'),
+            'summary_translations' => $this->localizedStringSet('summary'),
+            'story_overview_translations' => $this->localizedStringSet('story_overview'),
+            'science_overview_translations' => $this->localizedStringSet('science_overview'),
             'status' => $this->status,
             'is_featured' => (bool) $this->is_featured,
             'sort_order' => $this->sort_order,

@@ -2,11 +2,13 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import { formatProductPrice } from "@/lib/api/products"
+import { type Locale, type SiteMessages } from "@/lib/i18n"
 import {
-  getLocalizedHref,
-  type Locale,
-  type SiteMessages,
-} from "@/lib/i18n"
+  getProductDetailHref,
+  getProductInquiryHref,
+  getProductSampleRequestHref,
+} from "@/lib/product-links"
 import type { Product, ProductCategory } from "@/lib/types"
 
 type ProductGridSectionProps = {
@@ -15,6 +17,7 @@ type ProductGridSectionProps = {
   content: SiteMessages["storePage"]["grid"]
   products: Product[]
   categories: ProductCategory[]
+  hasError?: boolean
 }
 
 export function ProductGridSection({
@@ -23,6 +26,7 @@ export function ProductGridSection({
   content,
   products,
   categories,
+  hasError = false,
 }: ProductGridSectionProps) {
   return (
     <section id="products" className="bg-background py-24 lg:py-28">
@@ -43,7 +47,7 @@ export function ProductGridSection({
           {categories.map((category) => (
             <div key={category.id} className="rounded-2xl border border-border/60 bg-card p-6">
               <p className="mb-2 text-sm uppercase tracking-[0.18em] text-primary">
-                {category.label}
+                {category.name}
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {category.description}
@@ -51,6 +55,31 @@ export function ProductGridSection({
             </div>
           ))}
         </div>
+
+        {hasError ? (
+          <div className="mb-8 rounded-3xl border border-border/60 bg-card p-8">
+            <h3 className="font-serif text-2xl text-foreground">
+              Store data is temporarily unavailable.
+            </h3>
+            <p className="mt-3 max-w-2xl text-muted-foreground">
+              The product catalogue could not be loaded from the API. The rest of
+              the site is still available, and business inquiries can still be
+              submitted.
+            </p>
+          </div>
+        ) : null}
+
+        {products.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-border/70 bg-card p-8 text-center">
+            <h3 className="font-serif text-2xl text-foreground">
+              No published products are available yet.
+            </h3>
+            <p className="mt-3 text-muted-foreground">
+              When the admin publishes product records, they will appear here
+              automatically.
+            </p>
+          </div>
+        ) : null}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {products.map((product) => (
@@ -61,7 +90,7 @@ export function ProductGridSection({
               <div className="grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr]">
                 <div className="relative min-h-[320px]">
                   <Image
-                    src={product.image}
+                    src={product.cover_image_url || "/placeholder.jpg"}
                     alt={product.name}
                     fill
                     className="object-cover"
@@ -70,10 +99,12 @@ export function ProductGridSection({
                 <div className="flex flex-col p-8">
                   <div className="mb-4 flex items-center justify-between gap-4">
                     <span className="rounded-full bg-primary/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary">
-                      {product.categoryLabel}
+                      {product.category?.name || "Product"}
                     </span>
                     <span className="text-sm text-muted-foreground">
-                      {content.pricePrefix} {product.priceLabel}
+                      {product.inquiry_only || product.price_from === null
+                        ? "Inquiry only"
+                        : `${content.pricePrefix} ${formatProductPrice(product, locale)}`}
                     </span>
                   </div>
 
@@ -81,7 +112,7 @@ export function ProductGridSection({
                     {product.name}
                   </h3>
                   <p className="mb-6 leading-relaxed text-muted-foreground">
-                    {product.description}
+                    {product.short_description}
                   </p>
 
                   <div className="mb-6 flex flex-wrap gap-2">
@@ -101,14 +132,28 @@ export function ProductGridSection({
                         {content.availabilityLabel}
                       </p>
                       <p className="mt-1 text-sm text-foreground">
-                        {product.availability}
+                        {product.availability_text || "Available on inquiry"}
                       </p>
                     </div>
-                    <Button asChild variant="outline">
-                      <Link href={`${getLocalizedHref(locale, "contact")}#contact-form`}>
-                        {header.contact}
-                      </Link>
-                    </Button>
+                    <div className="flex flex-wrap gap-3">
+                      <Button asChild variant="outline">
+                        <Link href={getProductDetailHref(locale, product.slug)}>
+                          View details
+                        </Link>
+                      </Button>
+                      <Button asChild variant="outline">
+                        <Link href={getProductInquiryHref(locale, product)}>
+                          {header.contact}
+                        </Link>
+                      </Button>
+                      {product.sample_request_enabled ? (
+                        <Button asChild>
+                          <Link href={getProductSampleRequestHref(locale, product)}>
+                            {header.primaryCta}
+                          </Link>
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </div>

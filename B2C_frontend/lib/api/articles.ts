@@ -8,11 +8,13 @@ import type { ArticleDetail, ArticleSummary, PaginatedResult } from "@/lib/types
 
 type ApiRequestOverrides = {
   baseUrl?: string
+  locale?: string
 }
 
 export type ListArticlesParams = {
   category?: string
   per_page?: number
+  locale?: string
 }
 
 export async function listArticles(
@@ -48,6 +50,9 @@ export async function getArticle(
   const response = await requestApi<ArticleDetail>(
     `/articles/${encodeURIComponent(identifier)}`,
     {
+      query: {
+        locale: options.locale,
+      },
       baseUrl: options.baseUrl,
     },
   )

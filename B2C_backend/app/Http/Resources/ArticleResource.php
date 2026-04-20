@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\ResolvesLocalizedFields;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -9,6 +10,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin Article */
 class ArticleResource extends JsonResource
 {
+    use ResolvesLocalizedFields;
+
     /**
      * @return array<string, mixed>
      */
@@ -16,11 +19,15 @@ class ArticleResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
+            'title' => $this->localizedString($request, 'title'),
             'slug' => $this->slug,
-            'excerpt' => $this->excerpt,
-            'content' => $this->content,
-            'category' => $this->category,
+            'excerpt' => $this->localizedString($request, 'excerpt'),
+            'content' => $this->localizedString($request, 'content'),
+            'category' => $this->localizedString($request, 'category'),
+            'title_translations' => $this->localizedStringSet('title'),
+            'excerpt_translations' => $this->localizedStringSet('excerpt'),
+            'content_translations' => $this->localizedStringSet('content'),
+            'category_translations' => $this->localizedStringSet('category'),
             'status' => $this->status,
             'sort_order' => $this->sort_order,
             'media_url' => $this->media_url,

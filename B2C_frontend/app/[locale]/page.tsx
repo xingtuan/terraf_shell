@@ -10,7 +10,7 @@ import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { getHomepageContent, getHomeSections, findHomeSection } from "@/lib/api/homepage"
 import { getFeaturedMaterial, getMaterial, getMaterialSpecs } from "@/lib/api/materials"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
-import { getLocalizedHref, getMessages } from "@/lib/i18n"
+import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
 import {
   buildApplicationsContent,
   buildCredibilityContent,
@@ -32,10 +32,10 @@ const emptyHomepageContent: HomepageContent = {
   articles: [],
 }
 
-async function loadHomepageData(apiBaseUrl: string) {
+async function loadHomepageData(apiBaseUrl: string, locale: Locale) {
   const [homepageResult, sectionsResult] = await Promise.allSettled([
-    getHomepageContent({ baseUrl: apiBaseUrl }),
-    getHomeSections({ baseUrl: apiBaseUrl }),
+    getHomepageContent({ baseUrl: apiBaseUrl, locale }),
+    getHomeSections({ baseUrl: apiBaseUrl, locale }),
   ])
 
   return {
@@ -52,12 +52,13 @@ async function loadPrimaryMaterial(
   section: HomeSection | null,
   homepage: HomepageContent,
   apiBaseUrl: string,
+  locale: Locale,
 ) {
   const requestedSlug = section?.payload?.material_slug
 
   if (typeof requestedSlug === "string" && requestedSlug.trim()) {
     try {
-      return await getMaterial(requestedSlug, { baseUrl: apiBaseUrl })
+      return await getMaterial(requestedSlug, { baseUrl: apiBaseUrl, locale })
     } catch {
       return null
     }
@@ -67,14 +68,14 @@ async function loadPrimaryMaterial(
 
   if (fallbackSlug) {
     try {
-      return await getMaterial(fallbackSlug, { baseUrl: apiBaseUrl })
+      return await getMaterial(fallbackSlug, { baseUrl: apiBaseUrl, locale })
     } catch {
       // Continue to featured-material fallback.
     }
   }
 
   try {
-    return await getFeaturedMaterial({ baseUrl: apiBaseUrl })
+    return await getFeaturedMaterial({ baseUrl: apiBaseUrl, locale })
   } catch {
     return null
   }
@@ -84,7 +85,7 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
   const locale = await resolveLocale(params)
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
-  const { homepage, homeSections } = await loadHomepageData(apiBaseUrl)
+  const { homepage, homeSections } = await loadHomepageData(apiBaseUrl, locale)
 
   const heroSection = findHomeSection(homeSections, "hero")
   const scienceSection = findHomeSection(homeSections, "science_block")
@@ -93,13 +94,14 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
     scienceSection,
     homepage,
     apiBaseUrl,
+    locale,
   )) as
     | MaterialDetail
     | null
   const fallbackSpecs =
     primaryMaterial?.specs.length
       ? primaryMaterial.specs
-      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl })
+      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
 
   const heroContent = buildHeroContent(messages.home.hero, primaryMaterial, heroSection)
   const storyContent = buildMaterialStoryContent(

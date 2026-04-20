@@ -10,10 +10,12 @@ import type { MaterialDetail, MaterialSpec, MaterialSummary } from "@/lib/types"
 
 type ListMaterialsParams = {
   featured?: boolean
+  locale?: Locale
 }
 
 type ApiRequestOverrides = {
   baseUrl?: string
+  locale?: Locale
 }
 
 function getFallbackSpecs(locale: Locale): MaterialSpec[] {
@@ -45,6 +47,9 @@ export async function getMaterial(
   const response = await requestApi<MaterialDetail>(
     `/materials/${encodeURIComponent(identifier)}`,
     {
+      query: {
+        locale: options.locale,
+      },
       baseUrl: options.baseUrl,
     },
   )
@@ -53,10 +58,13 @@ export async function getMaterial(
 }
 
 export async function getFeaturedMaterial(options: ApiRequestOverrides = {}) {
-  let materials = await listMaterials({ featured: true }, options)
+  let materials = await listMaterials(
+    { featured: true, locale: options.locale },
+    options,
+  )
 
   if (materials.length === 0) {
-    materials = await listMaterials({}, options)
+    materials = await listMaterials({ locale: options.locale }, options)
   }
 
   const primaryMaterial = materials[0] ?? null
@@ -82,7 +90,7 @@ export async function getMaterialSpecs(
   options: ApiRequestOverrides = {},
 ): Promise<MaterialSpec[]> {
   try {
-    const material = await getFeaturedMaterial(options)
+    const material = await getFeaturedMaterial({ ...options, locale })
 
     if (material?.specs.length) {
       return material.specs

@@ -3,8 +3,10 @@ import { FinalCtaSection } from "@/components/sections/final-cta"
 import { ProductGridSection } from "@/components/sections/product-grid"
 import { PageIntro } from "@/components/page-intro"
 import { getProductCategories, getProducts } from "@/lib/api/products"
+import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
+import type { Product, ProductCategory } from "@/lib/types"
 
 type StorePageProps = {
   params: Promise<{ locale: string }>
@@ -12,12 +14,22 @@ type StorePageProps = {
 
 export default async function StorePage({ params }: StorePageProps) {
   const locale = await resolveLocale(params)
+  const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
   const intro = messages.storePage.intro
-  const [products, categories] = await Promise.all([
-    getProducts(locale),
-    getProductCategories(locale),
-  ])
+
+  let products: Product[] = []
+  let categories: ProductCategory[] = []
+  let hasError = false
+
+  try {
+    ;[products, categories] = await Promise.all([
+      getProducts(locale, {}, { baseUrl: apiBaseUrl }),
+      getProductCategories(locale, { baseUrl: apiBaseUrl }),
+    ])
+  } catch {
+    hasError = true
+  }
 
   return (
     <>
@@ -40,6 +52,7 @@ export default async function StorePage({ params }: StorePageProps) {
         content={messages.storePage.grid}
         products={products}
         categories={categories}
+        hasError={hasError}
       />
       <ApplicationsSection content={messages.home.applications} />
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />

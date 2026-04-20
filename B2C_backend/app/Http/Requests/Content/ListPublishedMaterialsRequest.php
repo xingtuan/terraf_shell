@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Content;
 
+use App\Support\LocalizedContent;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ListPublishedMaterialsRequest extends FormRequest
 {
@@ -19,6 +21,7 @@ class ListPublishedMaterialsRequest extends FormRequest
     {
         return [
             'featured' => ['nullable', 'boolean'],
+            'locale' => ['nullable', Rule::in(LocalizedContent::supportedLocales())],
         ];
     }
 }

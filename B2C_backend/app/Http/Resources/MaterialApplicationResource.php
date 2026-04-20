@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\ResolvesLocalizedFields;
 use App\Models\MaterialApplication;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -9,6 +10,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin MaterialApplication */
 class MaterialApplicationResource extends JsonResource
 {
+    use ResolvesLocalizedFields;
+
     /**
      * @return array<string, mixed>
      */
@@ -17,11 +20,16 @@ class MaterialApplicationResource extends JsonResource
         return [
             'id' => $this->id,
             'material_id' => $this->material_id,
-            'title' => $this->title,
-            'subtitle' => $this->subtitle,
-            'description' => $this->description,
-            'audience' => $this->audience,
-            'cta_label' => $this->cta_label,
+            'title' => $this->localizedString($request, 'title'),
+            'subtitle' => $this->localizedString($request, 'subtitle'),
+            'description' => $this->localizedString($request, 'description'),
+            'audience' => $this->localizedString($request, 'audience'),
+            'cta_label' => $this->localizedString($request, 'cta_label'),
+            'title_translations' => $this->localizedStringSet('title'),
+            'subtitle_translations' => $this->localizedStringSet('subtitle'),
+            'description_translations' => $this->localizedStringSet('description'),
+            'audience_translations' => $this->localizedStringSet('audience'),
+            'cta_label_translations' => $this->localizedStringSet('cta_label'),
             'cta_url' => $this->cta_url,
             'status' => $this->status,
             'sort_order' => $this->sort_order,

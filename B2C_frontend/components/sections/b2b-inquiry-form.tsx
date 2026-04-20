@@ -152,6 +152,12 @@ function createInitialValues(
   }
 }
 
+function normalizeSearchValue(value: string | null) {
+  const normalized = value?.trim()
+
+  return normalized ? normalized : null
+}
+
 function validateMaxLength(
   errors: FieldErrors,
   field: LeadFormField,
@@ -321,20 +327,51 @@ export function B2BInquiryFormSection({
     const nextType = isLeadFormType(leadTypeFromUrl)
       ? leadTypeFromUrl
       : defaultLeadType
+    const productSlug = normalizeSearchValue(searchParams.get("product"))
+    const productName = normalizeSearchValue(searchParams.get("productName"))
+    const productCategory = normalizeSearchValue(searchParams.get("category"))
 
-    setValues((currentValues) =>
-      currentValues.type === nextType
-        ? currentValues
-        : {
-            ...currentValues,
-            type: nextType,
-          },
-    )
+    setValues((currentValues) => {
+      const {
+        product_slug: _productSlug,
+        product_name: _productName,
+        product_category: _productCategory,
+        ...existingMetadata
+      } = currentValues.metadata ?? {}
+      const nextMetadata = {
+        ...existingMetadata,
+        ...(productSlug ? { product_slug: productSlug } : {}),
+        ...(productName ? { product_name: productName } : {}),
+        ...(productCategory ? { product_category: productCategory } : {}),
+      }
+
+      return {
+        ...currentValues,
+        type: nextType,
+        metadata: Object.keys(nextMetadata).length > 0 ? nextMetadata : undefined,
+        application:
+          currentValues.application.trim() !== ""
+            ? currentValues.application
+            : nextType === "inquiry"
+              ? productName || ""
+              : currentValues.application,
+        materialInterest:
+          currentValues.materialInterest.trim() !== ""
+            ? currentValues.materialInterest
+            : nextType === "sample_request"
+              ? productName || ""
+              : currentValues.materialInterest,
+      }
+    })
   }, [defaultLeadType, searchParams])
 
   const fields = content.fields
   const placeholders = content.placeholders
   const panelCopy = getPanelCopy(values.type)
+  const productContext =
+    typeof values.metadata?.product_name === "string"
+      ? values.metadata.product_name
+      : null
 
   function updateField(field: LeadFormField, value: string) {
     setValues((currentValues) => ({
@@ -403,6 +440,11 @@ export function B2BInquiryFormSection({
                 <p key={line}>{line}</p>
               ))}
             </div>
+            {productContext ? (
+              <div className="mt-6 rounded-2xl border border-border/60 bg-card px-4 py-3 text-sm text-foreground">
+                Product context: {productContext}
+              </div>
+            ) : null}
             <p className="mt-8 text-sm text-muted-foreground">
               {content.disclaimer}
             </p>

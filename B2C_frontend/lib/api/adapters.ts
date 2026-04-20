@@ -23,6 +23,9 @@ import type {
   MaterialSpec,
   MaterialStorySection,
   MaterialSummary,
+  Product,
+  ProductCategory,
+  ProductImage,
   NotificationTargetSummary,
   UserNotification,
 } from "@/lib/types"
@@ -110,6 +113,52 @@ export function normalizeArticleDetail(article: ArticleDetail): ArticleDetail {
   return {
     ...normalizeArticleSummary(article),
     content: article.content ?? "",
+  }
+}
+
+export function normalizeProductCategory(
+  category: ProductCategory,
+): ProductCategory {
+  return {
+    ...category,
+    slug: category.slug ?? "",
+    name: category.name ?? "",
+    description: category.description ?? null,
+  }
+}
+
+export function normalizeProductImage(image: ProductImage): ProductImage {
+  return {
+    ...image,
+    alt_text: image.alt_text ?? null,
+    caption: image.caption ?? null,
+    media_url: resolveApiUrl(image.media_url),
+    sort_order: image.sort_order ?? 0,
+  }
+}
+
+export function normalizeProduct(product: Product): Product {
+  return {
+    ...product,
+    slug: product.slug ?? "",
+    name: product.name ?? "",
+    short_description: product.short_description ?? null,
+    full_description: product.full_description ?? null,
+    features: ensureArray(product.features),
+    availability_text: product.availability_text ?? null,
+    cover_image_url: resolveApiUrl(product.cover_image_url),
+    category: product.category ? normalizeProductCategory(product.category) : null,
+    gallery_images: ensureArray(product.gallery_images).map(normalizeProductImage),
+    featured: Boolean(product.featured),
+    inquiry_only: Boolean(product.inquiry_only),
+    sample_request_enabled: Boolean(product.sample_request_enabled),
+    price_from:
+      typeof product.price_from === "number"
+        ? product.price_from
+        : product.price_from === null || product.price_from === undefined
+          ? null
+          : Number(product.price_from),
+    currency: product.currency ?? "USD",
   }
 }
 

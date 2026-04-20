@@ -14,6 +14,7 @@ import type {
 
 type ApiRequestOverrides = {
   baseUrl?: string
+  locale?: string
 }
 
 type HomepageApiPayload = {
@@ -26,6 +27,9 @@ export async function getHomepageContent(
   options: ApiRequestOverrides = {},
 ) {
   const response = await requestApi<HomepageApiPayload>("/homepage", {
+    query: {
+      locale: options.locale,
+    },
     baseUrl: options.baseUrl,
   })
 
@@ -40,6 +44,9 @@ export async function getHomepageContent(
 
 export async function getHomeSections(options: ApiRequestOverrides = {}) {
   const response = await requestApi<HomeSection[]>("/home-sections", {
+    query: {
+      locale: options.locale,
+    },
     baseUrl: options.baseUrl,
   })
 

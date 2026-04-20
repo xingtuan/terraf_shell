@@ -218,4 +218,63 @@ class MaterialCmsTest extends TestCase
             'status' => 'published',
         ])->assertForbidden();
     }
+
+    public function test_public_cms_endpoints_resolve_requested_locale_when_translations_exist(): void
+    {
+        Material::factory()->published()->create([
+            'slug' => 'localized-material',
+            'title' => 'English material',
+            'title_translations' => [
+                'en' => 'English material',
+                'ko' => 'KO material',
+                'zh' => 'ZH material',
+            ],
+            'headline' => 'English headline',
+            'headline_translations' => [
+                'en' => 'English headline',
+                'ko' => 'KO headline',
+                'zh' => 'ZH headline',
+            ],
+            'summary' => 'English summary',
+            'summary_translations' => [
+                'en' => 'English summary',
+                'ko' => 'KO summary',
+                'zh' => 'ZH summary',
+            ],
+        ]);
+
+        Article::factory()->published()->create([
+            'slug' => 'localized-article',
+            'title' => 'English article',
+            'title_translations' => [
+                'en' => 'English article',
+                'ko' => 'KO article',
+                'zh' => 'ZH article',
+            ],
+        ]);
+
+        HomeSection::factory()->published()->create([
+            'key' => 'localized_hero',
+            'title' => 'English section',
+            'title_translations' => [
+                'en' => 'English section',
+                'ko' => 'KO section',
+                'zh' => 'ZH section',
+            ],
+        ]);
+
+        $this->getJson('/api/materials?locale=ko')
+            ->assertOk()
+            ->assertJsonPath('data.0.title', 'KO material')
+            ->assertJsonPath('data.0.headline', 'KO headline')
+            ->assertJsonPath('data.0.summary', 'KO summary');
+
+        $this->getJson('/api/articles?locale=zh')
+            ->assertOk()
+            ->assertJsonPath('data.0.title', 'ZH article');
+
+        $this->getJson('/api/home-sections?locale=ko')
+            ->assertOk()
+            ->assertJsonPath('data.0.title', 'KO section');
+    }
 }

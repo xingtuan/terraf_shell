@@ -208,6 +208,34 @@
       "secondaryCta": "Browse the Store"
     }
   },
+  "material": {
+    "origin": {
+      "title": "Origin Story",
+      "body": "Shellfin begins with discarded oyster shell waste. The shells are collected, purified, refined into mineral-rich pellets, and compression-moulded into premium products."
+    },
+    "properties": {
+      "weight": "35% lighter than traditional ceramics, with specific gravity 1.5-1.6 versus 2.4.",
+      "strength": "Unbreakable high-impact resistance built for repeated commercial and daily use.",
+      "absorption": "0.00% water absorption rate, helping prevent odour retention and bacterial growth.",
+      "antibacterial": "Natural weak-alkaline antibacterial performance without artificial coating.",
+      "grip": "Mineral grip texture that stays non-slip even when wet.",
+      "otr": "OTR 500 cc/m²·day for breathable yet moisture-blocking performance."
+    },
+    "process": {
+      "step1": "Collection: oyster shell waste is recovered and sorted from coastal processing streams.",
+      "step2": "Thermal purification: shells are sterilized between 200-700°C and mineral tones are developed.",
+      "step3": "Pelletizing: purified shell minerals are refined into Shellfin pellets for stable batch production.",
+      "step4": "Compression moulding: pellets are formed into lightweight, high-impact products and surfaces."
+    },
+    "certifications": {
+      "title": "Certifications & Test Data",
+      "waterAbsorption": "Water Absorption 0.00%",
+      "toxicityHeavyMetals": "Toxicity / Heavy Metals",
+      "acidResistance": "Acid Resistance",
+      "nonToxicFireproof": "Non-Toxic Fireproof",
+      "otrData": "OTR Data"
+    }
+  },
   "materialPage": {
     "intro": {
       "eyebrow": "The Material",
@@ -221,14 +249,14 @@
     "intro": {
       "eyebrow": "B2C Store",
       "title": "Premium tableware and home objects shaped from oyster shell pellets.",
-      "description": "A mock storefront for Shellfin products, prepared for later commerce integration while already usable for browsing and category discovery.",
+      "description": "A live product catalogue connected to the backend API for browsing, discovery, and direct lead conversion.",
       "primaryCta": "Shop Featured Pieces",
       "secondaryCta": "Learn About the Material"
     },
     "grid": {
       "eyebrow": "Product Grid",
       "title": "Shellfin objects for dining, gifting, and calm interior rituals.",
-      "description": "The current catalogue uses mock data and service abstractions so a future backend can replace it without rebuilding the UI.",
+      "description": "Published products, categories, pricing, and availability now come from the backend product catalogue and admin panel.",
       "pricePrefix": "From",
       "availabilityLabel": "Availability"
     }
