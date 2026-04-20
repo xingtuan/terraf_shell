@@ -1,9 +1,9 @@
 import { Suspense } from "react"
 
 import { CommunityHub } from "@/components/community/community-hub"
-import { ContentBlockSection } from "@/components/sections/content-block"
-import { getPageContent } from "@/lib/api/content"
-import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { FinalCtaSection } from "@/components/sections/final-cta"
+import { CommunityIdeasSection } from "@/components/sections/community-ideas"
+import { getCommunityIdeas } from "@/lib/api/community"
 import { getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
 
@@ -19,15 +19,10 @@ export default async function CommunityPage({
   const locale = await resolveLocale(params)
   const resolvedSearchParams = await searchParams
   const messages = getMessages(locale)
-  const apiBaseUrl = await getServerApiBaseUrl()
-  const content = await getPageContent("community", locale, { baseUrl: apiBaseUrl })
+  const ideas = await getCommunityIdeas(locale)
 
   return (
     <>
-      <ContentBlockSection
-        title={content.intro?.title}
-        body={content.intro?.body}
-      />
       <Suspense fallback={null}>
         <CommunityHub
           locale={locale}
@@ -35,6 +30,12 @@ export default async function CommunityPage({
           initialQuery={resolvedSearchParams.q}
         />
       </Suspense>
+      <CommunityIdeasSection
+        locale={locale}
+        content={messages.communityPage.ideas}
+        ideas={ideas}
+      />
+      <FinalCtaSection locale={locale} content={messages.home.finalCta} />
     </>
   )
 }

@@ -3,15 +3,11 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Article;
-use App\Models\Certification;
 use App\Models\HomeSection;
 use App\Models\Material;
-use App\Models\MaterialProperty;
 use App\Models\MaterialApplication;
 use App\Models\MaterialSpec;
 use App\Models\MaterialStorySection;
-use App\Models\ProcessStep;
-use App\Models\SiteSection;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -24,7 +20,7 @@ class MaterialCmsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_public_content_endpoints_return_database_driven_shellfin_payloads_and_homepage_still_returns_published_content(): void
+    public function test_public_material_endpoint_returns_static_shellfin_payload_and_homepage_still_returns_published_content(): void
     {
         $material = Material::factory()->published()->create([
             'slug' => 'oyster-shell-material',
@@ -82,134 +78,21 @@ class MaterialCmsTest extends TestCase
             'title' => 'Draft update',
         ]);
 
-        SiteSection::query()->create([
-            'page' => 'home',
-            'section' => 'hero',
-            'locale' => 'en',
-            'title' => 'Updated hero title',
-            'subtitle' => 'Updated hero subtitle',
-            'cta_label' => 'Explore Collection',
-            'cta_url' => '/store',
-            'is_active' => true,
-            'sort_order' => 1,
-        ]);
-        SiteSection::query()->create([
-            'page' => 'material',
-            'section' => 'hero',
-            'locale' => 'en',
-            'title' => 'The Material',
-            'subtitle' => 'Shellfin is not ceramic. It is something entirely new.',
-            'is_active' => true,
-            'sort_order' => 1,
-        ]);
-        SiteSection::query()->create([
-            'page' => 'material',
-            'section' => 'origin',
-            'locale' => 'en',
-            'title' => 'Born from the Sea',
-            'body' => 'Oyster shells collected from coastal waste streams.',
-            'is_active' => true,
-            'sort_order' => 2,
-        ]);
-
-        foreach ([
-            [
-                'key' => 'weight',
-                'label' => 'Lightweight',
-                'value' => '1.5-1.6 specific gravity',
-                'comparison' => '35% lighter than ceramic (2.4)',
-                'sort_order' => 1,
-            ],
-            [
-                'key' => 'strength',
-                'label' => 'Impact Resistant',
-                'value' => 'Unbreakable integrity',
-                'comparison' => 'Overcomes ceramic chipping & cracking',
-                'sort_order' => 2,
-            ],
-            [
-                'key' => 'absorption',
-                'label' => 'Zero Absorption',
-                'value' => '0.00% water absorption',
-                'comparison' => 'No odour, no staining, no bacteria',
-                'sort_order' => 3,
-            ],
-            [
-                'key' => 'antibacterial',
-                'label' => 'Natural Antibacterial',
-                'value' => 'Weak alkaline inhibition',
-                'comparison' => 'No artificial coatings needed',
-                'sort_order' => 4,
-            ],
-            [
-                'key' => 'grip',
-                'label' => 'Mineral Grip',
-                'value' => 'Fine mineral texture surface',
-                'comparison' => 'Non-slip even when wet with soap',
-                'sort_order' => 5,
-            ],
-            [
-                'key' => 'otr',
-                'label' => 'Selective Flow',
-                'value' => 'OTR 500 cc/m2/day',
-                'comparison' => 'Breathable yet moisture-blocking',
-                'sort_order' => 6,
-            ],
-        ] as $property) {
-            MaterialProperty::query()->create([
-                ...$property,
-                'locale' => 'en',
-                'is_active' => true,
-            ]);
-        }
-
-        foreach ([
-            ['step_number' => 1, 'title' => 'Collection', 'body' => 'Step 1'],
-            ['step_number' => 2, 'title' => 'Thermal Purification', 'body' => 'Step 2'],
-            ['step_number' => 3, 'title' => 'Pelletisation', 'body' => 'Step 3'],
-            ['step_number' => 4, 'title' => 'Compression Moulding', 'body' => 'Step 4'],
-        ] as $step) {
-            ProcessStep::query()->create([
-                ...$step,
-                'locale' => 'en',
-                'is_active' => true,
-            ]);
-        }
-
-        foreach ([
-            ['key' => 'absorption', 'label' => 'Water Absorption Test', 'value' => '0.00%', 'sort_order' => 1],
-            ['key' => 'toxicity', 'label' => 'Toxicity Test', 'value' => 'Zero heavy metals, zero microplastics', 'sort_order' => 2],
-            ['key' => 'acid', 'label' => 'Acid/Corrosion Resistance', 'value' => 'No surface degradation', 'sort_order' => 3],
-            ['key' => 'fire', 'label' => 'Non-Toxic Fireproof', 'value' => 'Non-flammable, zero toxic gas', 'sort_order' => 4],
-            ['key' => 'otr', 'label' => 'OTR Data', 'value' => '500 cc/m2/day certified', 'sort_order' => 5],
-        ] as $certification) {
-            Certification::query()->create([
-                ...$certification,
-                'locale' => 'en',
-                'is_active' => true,
-            ]);
-        }
-
-        $this->getJson('/api/content/home')
-            ->assertOk()
-            ->assertJsonPath('success', true)
-            ->assertJsonPath('data.hero.title', 'Updated hero title')
-            ->assertJsonPath('data.hero.subtitle', 'Updated hero subtitle');
-
         $this->getJson('/api/materials')
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.sections.hero.title', 'The Material')
-            ->assertJsonPath('data.sections.origin.title', 'Born from the Sea')
-            ->assertJsonCount(4, 'data.process')
+            ->assertJsonPath('data.name', 'Shellfin')
+            ->assertJsonPath('data.tagline', "Ocean's Legacy, Crafted with Artisan Tech.")
+            ->assertJsonPath('data.origin', 'Recycled oyster shells collected from coastal waste streams')
+            ->assertJsonCount(4, 'data.process_steps')
             ->assertJsonCount(6, 'data.properties')
             ->assertJsonCount(5, 'data.certifications')
-            ->assertJsonPath('data.properties.0.key', 'weight')
-            ->assertJsonPath('data.process.3.step_number', 4);
+            ->assertJsonPath('data.models.0.id', 'lite_15')
+            ->assertJsonPath('data.colors.1.id', 'forged_ash');
 
         $this->getJson('/api/materials/oyster-shell-material')
             ->assertOk()
-            ->assertJsonPath('data.sections.hero.title', 'The Material');
+            ->assertJsonPath('data.name', 'Shellfin');
 
         $this->getJson('/api/home-sections')
             ->assertOk()
@@ -364,47 +247,5 @@ class MaterialCmsTest extends TestCase
         $this->getJson('/api/home-sections?locale=ko')
             ->assertOk()
             ->assertJsonPath('data.0.title', 'KO section');
-    }
-
-    public function test_new_content_endpoints_resolve_requested_locale_when_translations_exist(): void
-    {
-        SiteSection::query()->create([
-            'page' => 'home',
-            'section' => 'hero',
-            'locale' => 'en',
-            'title' => 'English hero',
-            'is_active' => true,
-        ]);
-        SiteSection::query()->create([
-            'page' => 'home',
-            'section' => 'hero',
-            'locale' => 'ko',
-            'title' => '[KO] Hero',
-            'is_active' => true,
-        ]);
-        MaterialProperty::query()->create([
-            'key' => 'weight',
-            'locale' => 'en',
-            'label' => 'Lightweight',
-            'value' => '1.5-1.6 specific gravity',
-            'comparison' => '35% lighter than ceramic (2.4)',
-            'is_active' => true,
-        ]);
-        MaterialProperty::query()->create([
-            'key' => 'weight',
-            'locale' => 'zh',
-            'label' => '[ZH] Lightweight',
-            'value' => '[ZH] 1.5-1.6 specific gravity',
-            'comparison' => '[ZH] 35% lighter than ceramic (2.4)',
-            'is_active' => true,
-        ]);
-
-        $this->getJson('/api/content/home?locale=ko')
-            ->assertOk()
-            ->assertJsonPath('data.hero.title', '[KO] Hero');
-
-        $this->getJson('/api/materials?locale=zh')
-            ->assertOk()
-            ->assertJsonPath('data.properties.0.label', '[ZH] Lightweight');
     }
 }
