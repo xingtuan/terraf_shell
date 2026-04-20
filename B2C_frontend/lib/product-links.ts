@@ -12,8 +12,8 @@ function buildLeadHref(
   url.searchParams.set("product", product.slug)
   url.searchParams.set("productName", product.name)
 
-  if (product.category?.name) {
-    url.searchParams.set("category", product.category.name)
+  if (product.category) {
+    url.searchParams.set("category", product.category)
   }
 
   return `${url.pathname}${url.search}#inquiry`

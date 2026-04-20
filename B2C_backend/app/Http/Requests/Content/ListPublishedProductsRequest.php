@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Content;
 
-use App\Support\LocalizedContent;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -20,10 +19,10 @@ class ListPublishedProductsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category' => ['nullable', 'string', 'max:120'],
-            'featured' => ['nullable', 'boolean'],
-            'sort' => ['nullable', Rule::in(['sort_order', 'newest'])],
-            'locale' => ['nullable', Rule::in(LocalizedContent::supportedLocales())],
+            'category' => ['nullable', Rule::in(['tableware', 'planters', 'wellness_interior', 'architectural'])],
+            'model' => ['nullable', Rule::in(['lite_15', 'heritage_16'])],
+            'color' => ['nullable', Rule::in(['ocean_bone', 'forged_ash'])],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
         ];
     }
 }

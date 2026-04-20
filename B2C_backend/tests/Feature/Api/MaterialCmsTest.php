@@ -20,7 +20,7 @@ class MaterialCmsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_public_material_and_homepage_endpoints_only_return_published_content(): void
+    public function test_public_material_endpoint_returns_static_shellfin_payload_and_homepage_still_returns_published_content(): void
     {
         $material = Material::factory()->published()->create([
             'slug' => 'oyster-shell-material',
@@ -80,15 +80,19 @@ class MaterialCmsTest extends TestCase
 
         $this->getJson('/api/materials')
             ->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.slug', 'oyster-shell-material');
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.name', 'Shellfin')
+            ->assertJsonPath('data.tagline', "Ocean's Legacy, Crafted with Artisan Tech.")
+            ->assertJsonPath('data.origin', 'Recycled oyster shells collected from coastal waste streams')
+            ->assertJsonCount(4, 'data.process_steps')
+            ->assertJsonCount(6, 'data.properties')
+            ->assertJsonCount(5, 'data.certifications')
+            ->assertJsonPath('data.models.0.id', 'lite_15')
+            ->assertJsonPath('data.colors.1.id', 'forged_ash');
 
         $this->getJson('/api/materials/oyster-shell-material')
             ->assertOk()
-            ->assertJsonPath('data.slug', 'oyster-shell-material')
-            ->assertJsonCount(1, 'data.specs')
-            ->assertJsonCount(1, 'data.story_sections')
-            ->assertJsonCount(1, 'data.applications');
+            ->assertJsonPath('data.name', 'Shellfin');
 
         $this->getJson('/api/home-sections')
             ->assertOk()
@@ -201,11 +205,6 @@ class MaterialCmsTest extends TestCase
         $this->deleteJson("/api/admin/home-sections/{$homeSectionId}")
             ->assertOk();
 
-        $this->getJson('/api/materials/premium-oyster-shell')
-            ->assertOk()
-            ->assertJsonCount(1, 'data.specs')
-            ->assertJsonCount(1, 'data.story_sections')
-            ->assertJsonCount(1, 'data.applications');
     }
 
     public function test_non_admin_users_cannot_manage_material_cms_modules(): void
@@ -219,30 +218,8 @@ class MaterialCmsTest extends TestCase
         ])->assertForbidden();
     }
 
-    public function test_public_cms_endpoints_resolve_requested_locale_when_translations_exist(): void
+    public function test_public_article_and_home_section_endpoints_resolve_requested_locale_when_translations_exist(): void
     {
-        Material::factory()->published()->create([
-            'slug' => 'localized-material',
-            'title' => 'English material',
-            'title_translations' => [
-                'en' => 'English material',
-                'ko' => 'KO material',
-                'zh' => 'ZH material',
-            ],
-            'headline' => 'English headline',
-            'headline_translations' => [
-                'en' => 'English headline',
-                'ko' => 'KO headline',
-                'zh' => 'ZH headline',
-            ],
-            'summary' => 'English summary',
-            'summary_translations' => [
-                'en' => 'English summary',
-                'ko' => 'KO summary',
-                'zh' => 'ZH summary',
-            ],
-        ]);
-
         Article::factory()->published()->create([
             'slug' => 'localized-article',
             'title' => 'English article',
@@ -262,12 +239,6 @@ class MaterialCmsTest extends TestCase
                 'zh' => 'ZH section',
             ],
         ]);
-
-        $this->getJson('/api/materials?locale=ko')
-            ->assertOk()
-            ->assertJsonPath('data.0.title', 'KO material')
-            ->assertJsonPath('data.0.headline', 'KO headline')
-            ->assertJsonPath('data.0.summary', 'KO summary');
 
         $this->getJson('/api/articles?locale=zh')
             ->assertOk()

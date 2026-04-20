@@ -14,7 +14,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductResource extends Resource
@@ -42,12 +41,6 @@ class ProductResource extends Resource
     public static function getRelations(): array
     {
         return [];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->with(['category', 'images']);
     }
 
     public static function canViewAny(): bool

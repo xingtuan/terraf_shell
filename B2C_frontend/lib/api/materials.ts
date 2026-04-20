@@ -1,88 +1,103 @@
-import {
-  normalizeMaterialDetail,
-  normalizeMaterialSummary,
-} from "@/lib/api/adapters"
 import { requestApi } from "@/lib/api/client"
-import { ensureArray, normalizeMaterialSpecIcon } from "@/lib/api/normalizers"
 import { materialSpecRecords } from "@/lib/data/materials"
 import { pickLocalizedValue, type Locale } from "@/lib/i18n"
-import type { MaterialDetail, MaterialSpec, MaterialSummary } from "@/lib/types"
-
-type ListMaterialsParams = {
-  featured?: boolean
-  locale?: Locale
-}
+import type { MaterialDetail, MaterialInfo, MaterialSpec } from "@/lib/types"
 
 type ApiRequestOverrides = {
   baseUrl?: string
   locale?: Locale
 }
 
+const materialIcons: Record<string, MaterialSpec["icon"]> = {
+  weight: "feather",
+  strength: "shield",
+  absorption: "badge",
+  antibacterial: "leaf",
+  grip: "shield",
+  otr: "badge",
+}
+
 function getFallbackSpecs(locale: Locale): MaterialSpec[] {
   return materialSpecRecords.map((spec) => ({
     id: spec.id,
-    icon: normalizeMaterialSpecIcon(spec.icon),
+    icon: spec.icon,
     label: pickLocalizedValue(spec.label, locale),
     value: pickLocalizedValue(spec.value, locale),
     detail: pickLocalizedValue(spec.detail, locale),
   }))
 }
 
-export async function listMaterials(
-  params: ListMaterialsParams = {},
-  options: ApiRequestOverrides = {},
-) {
-  const response = await requestApi<MaterialSummary[]>("/materials", {
-    query: params,
-    baseUrl: options.baseUrl,
-  })
-
-  return ensureArray(response.data).map(normalizeMaterialSummary)
+export function materialInfoToSpecs(material: MaterialInfo): MaterialSpec[] {
+  return material.properties.map((property, index) => ({
+    id: property.key,
+    key: property.key,
+    label: property.label,
+    value: property.value,
+    detail: property.vs,
+    icon: materialIcons[property.key] ?? "badge",
+    sort_order: index,
+  }))
 }
 
-export async function getMaterial(
-  identifier: string,
-  options: ApiRequestOverrides = {},
-) {
-  const response = await requestApi<MaterialDetail>(
-    `/materials/${encodeURIComponent(identifier)}`,
-    {
-      query: {
-        locale: options.locale,
-      },
-      baseUrl: options.baseUrl,
-    },
-  )
+export function materialInfoToDetail(material: MaterialInfo): MaterialDetail {
+  const specs = materialInfoToSpecs(material)
 
-  return normalizeMaterialDetail(response.data)
+  return {
+    id: 1,
+    title: material.name,
+    slug: "shellfin",
+    headline: material.tagline,
+    summary: material.origin,
+    story_overview: material.process_steps.map((step) => step.title).join(" -> "),
+    science_overview: material.certifications
+      .map((certification) => `${certification.label}: ${certification.value}`)
+      .join(" | "),
+    is_featured: true,
+    specs,
+    story_sections: material.process_steps.map((step, index) => ({
+      id: step.step,
+      title: step.title,
+      content: step.body,
+      sort_order: index,
+    })),
+    applications: [
+      ...material.models.map((model, index) => ({
+        id: `model-${model.id}`,
+        title: model.name,
+        subtitle: model.finish,
+        description: model.description,
+        sort_order: index,
+      })),
+      ...material.colors.map((color, index) => ({
+        id: `color-${color.id}`,
+        title: color.name,
+        subtitle: color.temp,
+        description: color.description,
+        sort_order: material.models.length + index,
+      })),
+    ].slice(0, 4),
+  }
+}
+
+export async function getMaterialInfo(options: ApiRequestOverrides = {}) {
+  return requestApi<MaterialInfo>("/materials", {
+    baseUrl: options.baseUrl,
+  })
 }
 
 export async function getFeaturedMaterial(options: ApiRequestOverrides = {}) {
-  let materials = await listMaterials(
-    { featured: true, locale: options.locale },
-    options,
-  )
+  const response = await getMaterialInfo(options)
 
-  if (materials.length === 0) {
-    materials = await listMaterials({ locale: options.locale }, options)
-  }
+  return materialInfoToDetail(response.data)
+}
 
-  const primaryMaterial = materials[0] ?? null
+export async function getMaterial(
+  _identifier: string,
+  options: ApiRequestOverrides = {},
+) {
+  const response = await getMaterialInfo(options)
 
-  if (!primaryMaterial) {
-    return null
-  }
-
-  try {
-    return await getMaterial(primaryMaterial.slug, options)
-  } catch {
-    return {
-      ...primaryMaterial,
-      specs: [],
-      story_sections: [],
-      applications: [],
-    } satisfies MaterialDetail
-  }
+  return materialInfoToDetail(response.data)
 }
 
 export async function getMaterialSpecs(
@@ -90,14 +105,10 @@ export async function getMaterialSpecs(
   options: ApiRequestOverrides = {},
 ): Promise<MaterialSpec[]> {
   try {
-    const material = await getFeaturedMaterial({ ...options, locale })
+    const response = await getMaterialInfo(options)
 
-    if (material?.specs.length) {
-      return material.specs
-    }
+    return materialInfoToSpecs(response.data)
   } catch {
-    // Build-time fallback keeps the page renderable when the local API is down.
+    return getFallbackSpecs(locale)
   }
-
-  return getFallbackSpecs(locale)
 }

@@ -140,25 +140,19 @@ export function normalizeProductImage(image: ProductImage): ProductImage {
 export function normalizeProduct(product: Product): Product {
   return {
     ...product,
-    slug: product.slug ?? "",
     name: product.name ?? "",
-    short_description: product.short_description ?? null,
-    full_description: product.full_description ?? null,
-    features: ensureArray(product.features),
-    availability_text: product.availability_text ?? null,
-    cover_image_url: resolveApiUrl(product.cover_image_url),
-    category: product.category ? normalizeProductCategory(product.category) : null,
-    gallery_images: ensureArray(product.gallery_images).map(normalizeProductImage),
-    featured: Boolean(product.featured),
-    inquiry_only: Boolean(product.inquiry_only),
-    sample_request_enabled: Boolean(product.sample_request_enabled),
-    price_from:
-      typeof product.price_from === "number"
-        ? product.price_from
-        : product.price_from === null || product.price_from === undefined
-          ? null
-          : Number(product.price_from),
-    currency: product.currency ?? "USD",
+    slug: product.slug ?? "",
+    category: product.category ?? "",
+    model: product.model ?? "",
+    finish: product.finish ?? "",
+    color: product.color ?? "",
+    technique: product.technique ?? "",
+    price_usd:
+      product.price_usd === null || product.price_usd === undefined
+        ? "0.00"
+        : String(product.price_usd),
+    in_stock: Boolean(product.in_stock),
+    image_url: resolveApiUrl(product.image_url),
   }
 }
 

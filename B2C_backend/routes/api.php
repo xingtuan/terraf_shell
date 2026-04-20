@@ -84,7 +84,7 @@ Route::get('/articles/{identifier}', [ArticleController::class, 'show']);
 Route::get('/product-categories', [PublicProductCategoryController::class, 'index']);
 Route::get('/products', [PublicProductController::class, 'index']);
 Route::get('/products/featured', [PublicProductController::class, 'featured']);
-Route::get('/products/{identifier}', [PublicProductController::class, 'show']);
+Route::get('/products/{slug}', [PublicProductController::class, 'show']);
 Route::middleware('throttle:leads')->group(function (): void {
     Route::post('/inquiries', [InquiryController::class, 'store']);
     Route::post('/business-contacts', [BusinessContactController::class, 'store']);

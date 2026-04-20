@@ -16,35 +16,33 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         $name = Str::title(fake()->unique()->words(3, true));
-        $shortDescription = fake()->paragraph();
-        $fullDescription = fake()->paragraphs(3, true);
-        $features = fake()->randomElements([
-            'Compress-moulded shell composite',
-            'Small-batch production',
-            'Premium tabletop finish',
-            'Suitable for hospitality programs',
-        ], rand(2, 4));
+        $category = fake()->randomElement(array_keys(Product::CATEGORY_OPTIONS));
+        $model = fake()->randomElement(array_keys(Product::MODEL_OPTIONS));
+        $finish = fake()->randomElement(array_keys(Product::FINISH_OPTIONS));
+        $color = fake()->randomElement(array_keys(Product::COLOR_OPTIONS));
+        $technique = fake()->randomElement(array_keys(Product::TECHNIQUE_OPTIONS));
+        $imageUrl = fake()->imageUrl(1200, 800, 'business', true);
 
         return [
             'category_id' => ProductCategory::factory(),
             'name' => $name,
-            'name_translations' => ['en' => $name],
-            'short_description' => $shortDescription,
-            'short_description_translations' => ['en' => $shortDescription],
-            'full_description' => $fullDescription,
-            'full_description_translations' => ['en' => $fullDescription],
-            'features' => $features,
-            'features_translations' => ['en' => $features],
-            'availability_text' => 'Made in small runs',
-            'availability_text_translations' => ['en' => 'Made in small runs'],
             'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(100, 9999),
+            'category' => $category,
+            'model' => $model,
+            'finish' => $finish,
+            'color' => $color,
+            'technique' => $technique,
             'status' => ProductStatus::Draft->value,
-            'featured' => false,
             'sort_order' => 0,
             'media_path' => null,
-            'media_url' => null,
-            'price_from' => fake()->randomFloat(2, 45, 280),
+            'media_url' => $imageUrl,
+            'image_url' => $imageUrl,
+            'price_from' => fake()->randomFloat(2, 28, 180),
+            'price_usd' => fake()->randomFloat(2, 28, 180),
             'currency' => 'USD',
+            'in_stock' => true,
+            'is_active' => true,
+            'featured' => false,
             'inquiry_only' => false,
             'sample_request_enabled' => true,
             'published_at' => null,
@@ -69,7 +67,6 @@ class ProductFactory extends Factory
     public function inquiryOnly(): static
     {
         return $this->state(fn (): array => [
-            'price_from' => null,
             'inquiry_only' => true,
         ]);
     }
@@ -78,6 +75,7 @@ class ProductFactory extends Factory
     {
         return $this->state(fn (): array => [
             'status' => ProductStatus::Archived->value,
+            'is_active' => false,
             'published_at' => null,
         ]);
     }

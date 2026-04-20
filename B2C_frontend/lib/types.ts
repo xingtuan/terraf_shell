@@ -8,24 +8,18 @@ export type JsonObject = {
 
 export interface Product {
   id: number
-  slug: string
-  status?: string | null
-  featured: boolean
-  category_id: number
-  category?: ProductCategory | null
   name: string
-  short_description?: string | null
-  full_description?: string | null
-  features: string[]
-  availability_text?: string | null
-  cover_image_url?: string | null
-  gallery_images: ProductImage[]
+  slug: string
+  category: string
+  model: string
+  finish: string
+  color: string
+  technique: string
+  price_usd: string
+  in_stock: boolean
+  image_url?: string | null
   sort_order?: number
-  price_from?: number | null
-  currency: string
-  inquiry_only: boolean
-  sample_request_enabled: boolean
-  published_at?: string | null
+  is_active?: boolean
   created_at?: string | null
   updated_at?: string | null
 }
@@ -144,6 +138,51 @@ export interface MaterialDetail extends MaterialSummary {
   specs: MaterialSpec[]
   story_sections: MaterialStorySection[]
   applications: MaterialApplication[]
+}
+
+export interface MaterialProcessStep {
+  step: number
+  title: string
+  body: string
+}
+
+export interface MaterialProperty {
+  key: string
+  label: string
+  value: string
+  vs: string
+}
+
+export interface MaterialCertification {
+  key: string
+  label: string
+  value: string
+}
+
+export interface MaterialModelInfo {
+  id: string
+  name: string
+  finish: string
+  gravity: number
+  description: string
+}
+
+export interface MaterialColorInfo {
+  id: string
+  temp: string
+  name: string
+  description: string
+}
+
+export interface MaterialInfo {
+  name: string
+  tagline: string
+  origin: string
+  process_steps: MaterialProcessStep[]
+  properties: MaterialProperty[]
+  certifications: MaterialCertification[]
+  models: MaterialModelInfo[]
+  colors: MaterialColorInfo[]
 }
 
 export interface ArticleSummary {

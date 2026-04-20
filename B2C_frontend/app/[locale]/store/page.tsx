@@ -2,31 +2,50 @@ import { ApplicationsSection } from "@/components/sections/applications"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { ProductGridSection } from "@/components/sections/product-grid"
 import { PageIntro } from "@/components/page-intro"
-import { getProductCategories, getProducts } from "@/lib/api/products"
+import { getProducts } from "@/lib/api/products"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
-import type { Product, ProductCategory } from "@/lib/types"
+import type { Product } from "@/lib/types"
 
 type StorePageProps = {
   params: Promise<{ locale: string }>
+  searchParams: Promise<{ category?: string | string[] }>
 }
 
-export default async function StorePage({ params }: StorePageProps) {
+const allowedCategories = new Set([
+  "tableware",
+  "planters",
+  "wellness_interior",
+  "architectural",
+])
+
+export default async function StorePage({
+  params,
+  searchParams,
+}: StorePageProps) {
   const locale = await resolveLocale(params)
+  const resolvedSearchParams = await searchParams
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
   const intro = messages.storePage.intro
 
+  const rawCategory = Array.isArray(resolvedSearchParams.category)
+    ? resolvedSearchParams.category[0]
+    : resolvedSearchParams.category
+  const activeCategory =
+    rawCategory && allowedCategories.has(rawCategory) ? rawCategory : undefined
+
   let products: Product[] = []
-  let categories: ProductCategory[] = []
   let hasError = false
 
   try {
-    ;[products, categories] = await Promise.all([
-      getProducts(locale, {}, { baseUrl: apiBaseUrl }),
-      getProductCategories(locale, { baseUrl: apiBaseUrl }),
-    ])
+    const response = await getProducts({
+      category: activeCategory,
+      per_page: 12,
+      baseUrl: apiBaseUrl,
+    })
+    products = response.data
   } catch {
     hasError = true
   }
@@ -51,7 +70,7 @@ export default async function StorePage({ params }: StorePageProps) {
         header={messages.header}
         content={messages.storePage.grid}
         products={products}
-        categories={categories}
+        activeCategory={activeCategory}
         hasError={hasError}
       />
       <ApplicationsSection content={messages.home.applications} />

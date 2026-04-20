@@ -12,6 +12,13 @@ type ProductDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>
 }
 
+const categoryLabels: Record<string, string> = {
+  tableware: "Tableware",
+  planters: "Planters",
+  wellness_interior: "Wellness & Interior",
+  architectural: "Architectural",
+}
+
 export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
@@ -29,9 +36,10 @@ export default async function ProductDetailPage({
   let hasError = false
 
   try {
-    product = await getProduct(resolvedParams.slug, locale, {
+    const response = await getProduct(resolvedParams.slug, {
       baseUrl: apiBaseUrl,
     })
+    product = response.data
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       notFound()
@@ -64,11 +72,10 @@ export default async function ProductDetailPage({
   return (
     <>
       <PageIntro
-        eyebrow={product.category?.name || "Product"}
+        eyebrow={categoryLabels[product.category] || "Product"}
         title={product.name}
         description={
-          product.short_description ||
-          "Review the full product details and connect to the relevant lead flow."
+          "Review the Shellfin product specification and connect to the relevant lead flow."
         }
         primaryAction={{
           label: "Back to store",

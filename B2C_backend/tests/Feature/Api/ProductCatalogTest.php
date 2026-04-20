@@ -2,10 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use App\Enums\ProductStatus;
 use App\Models\Product;
-use App\Models\ProductCategory;
-use App\Models\ProductImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,151 +10,117 @@ class ProductCatalogTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_public_product_endpoints_return_localized_published_catalog_content(): void
+    public function test_public_products_index_returns_paginated_shellfin_products_and_supports_filters(): void
     {
-        $category = ProductCategory::factory()->create([
-            'slug' => 'tableware',
-            'name' => 'Tableware',
-            'name_translations' => [
-                'en' => 'Tableware',
-                'ko' => 'KO Tableware',
-                'zh' => 'ZH Tableware',
-            ],
-            'description' => 'English category description',
-            'description_translations' => [
-                'en' => 'English category description',
-                'ko' => 'KO category description',
-                'zh' => 'ZH category description',
-            ],
+        Product::factory()->published()->create([
+            'name' => 'Dinner Plate - Lite / Ocean Bone',
+            'slug' => 'dinner-plate-lite-ocean-bone',
+            'category' => 'tableware',
+            'model' => 'lite_15',
+            'finish' => 'glossy',
+            'color' => 'ocean_bone',
+            'technique' => 'original_pure',
+            'price_usd' => 48.00,
+            'image_url' => 'https://placehold.co/600x400?text=Dinner+Plate',
+            'is_active' => true,
             'sort_order' => 1,
-        ]);
-
-        ProductCategory::factory()->inactive()->create([
-            'slug' => 'inactive-category',
-        ]);
-
-        $featuredProduct = Product::factory()
-            ->published()
-            ->featured()
-            ->create([
-                'category_id' => $category->id,
-                'slug' => 'tidal-dinner-plate',
-                'name' => 'Tidal Dinner Plate',
-                'name_translations' => [
-                    'en' => 'Tidal Dinner Plate',
-                    'ko' => 'KO Tidal Dinner Plate',
-                    'zh' => 'ZH Tidal Dinner Plate',
-                ],
-                'short_description' => 'English short description',
-                'short_description_translations' => [
-                    'en' => 'English short description',
-                    'ko' => 'KO short description',
-                    'zh' => 'ZH short description',
-                ],
-                'full_description' => 'English full description',
-                'full_description_translations' => [
-                    'en' => 'English full description',
-                    'ko' => 'KO full description',
-                    'zh' => 'ZH full description',
-                ],
-                'features' => ['English feature'],
-                'features_translations' => [
-                    'en' => ['English feature'],
-                    'ko' => ['KO feature'],
-                    'zh' => ['ZH feature'],
-                ],
-                'availability_text' => 'English availability',
-                'availability_text_translations' => [
-                    'en' => 'English availability',
-                    'ko' => 'KO availability',
-                    'zh' => 'ZH availability',
-                ],
-                'media_url' => 'https://example.com/cover.jpg',
-                'price_from' => 88.50,
-                'currency' => 'USD',
-                'sort_order' => 1,
-            ]);
-
-        ProductImage::factory()->create([
-            'product_id' => $featuredProduct->id,
-            'alt_text' => 'English alt text',
-            'alt_text_translations' => [
-                'en' => 'English alt text',
-                'ko' => 'KO alt text',
-                'zh' => 'ZH alt text',
-            ],
-            'caption' => 'English caption',
-            'caption_translations' => [
-                'en' => 'English caption',
-                'ko' => 'KO caption',
-                'zh' => 'ZH caption',
-            ],
-            'media_url' => 'https://example.com/gallery.jpg',
-            'sort_order' => 1,
-        ]);
-
-        Product::factory()->create([
-            'category_id' => $category->id,
-            'slug' => 'draft-product',
-        ]);
-
-        Product::factory()->archived()->create([
-            'category_id' => $category->id,
-            'slug' => 'archived-product',
-        ]);
-
-        $this->getJson('/api/product-categories?locale=ko')
-            ->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.slug', 'tableware')
-            ->assertJsonPath('data.0.name', 'KO Tableware');
-
-        $this->getJson('/api/products?locale=zh&featured=1')
-            ->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.slug', 'tidal-dinner-plate')
-            ->assertJsonPath('data.0.name', 'ZH Tidal Dinner Plate')
-            ->assertJsonPath('data.0.features.0', 'ZH feature');
-
-        $this->getJson('/api/products?category=tableware&locale=ko')
-            ->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.category.slug', 'tableware');
-
-        $this->getJson('/api/products/featured?locale=ko')
-            ->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.slug', 'tidal-dinner-plate');
-
-        $this->getJson('/api/products/tidal-dinner-plate?locale=ko')
-            ->assertOk()
-            ->assertJsonPath('data.slug', 'tidal-dinner-plate')
-            ->assertJsonPath('data.name', 'KO Tidal Dinner Plate')
-            ->assertJsonPath('data.short_description', 'KO short description')
-            ->assertJsonPath('data.full_description', 'KO full description')
-            ->assertJsonPath('data.availability_text', 'KO availability')
-            ->assertJsonPath('data.category.name', 'KO Tableware')
-            ->assertJsonCount(1, 'data.gallery_images')
-            ->assertJsonPath('data.gallery_images.0.alt_text', 'KO alt text');
-    }
-
-    public function test_products_in_inactive_categories_are_hidden_from_public_endpoints(): void
-    {
-        $inactiveCategory = ProductCategory::factory()->inactive()->create([
-            'slug' => 'hidden',
         ]);
 
         Product::factory()->published()->create([
-            'category_id' => $inactiveCategory->id,
+            'name' => 'Planter S - Heritage / Forged Ash',
+            'slug' => 'planter-s-heritage-forged-ash',
+            'category' => 'planters',
+            'model' => 'heritage_16',
+            'finish' => 'matte',
+            'color' => 'forged_ash',
+            'technique' => 'original_pure',
+            'price_usd' => 55.00,
+            'image_url' => 'https://placehold.co/600x400?text=Planter+S',
+            'is_active' => true,
+            'sort_order' => 2,
+        ]);
+
+        Product::factory()->archived()->create([
+            'name' => 'Hidden Product',
             'slug' => 'hidden-product',
-            'status' => ProductStatus::Published->value,
+            'category' => 'tableware',
+            'model' => 'lite_15',
+            'finish' => 'glossy',
+            'color' => 'ocean_bone',
+            'technique' => 'original_pure',
+            'price_usd' => 20.00,
+            'is_active' => false,
+        ]);
+
+        $this->getJson('/api/products?category=tableware&model=lite_15&color=ocean_bone&per_page=12')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 12)
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.name', 'Dinner Plate - Lite / Ocean Bone')
+            ->assertJsonPath('data.0.slug', 'dinner-plate-lite-ocean-bone')
+            ->assertJsonPath('data.0.category', 'tableware')
+            ->assertJsonPath('data.0.model', 'lite_15')
+            ->assertJsonPath('data.0.finish', 'glossy')
+            ->assertJsonPath('data.0.color', 'ocean_bone')
+            ->assertJsonPath('data.0.technique', 'original_pure')
+            ->assertJsonPath('data.0.price_usd', '48.00')
+            ->assertJsonPath('data.0.in_stock', true)
+            ->assertJsonPath('data.0.image_url', 'https://placehold.co/600x400?text=Dinner+Plate');
+    }
+
+    public function test_public_product_show_returns_requested_active_product(): void
+    {
+        $product = Product::factory()->published()->create([
+            'name' => 'Wall Panel Sample',
+            'slug' => 'wall-panel-sample',
+            'category' => 'architectural',
+            'model' => 'heritage_16',
+            'finish' => 'matte',
+            'color' => 'forged_ash',
+            'technique' => 'original_pure',
+            'price_usd' => 120.00,
+            'image_url' => 'https://placehold.co/600x400?text=Wall+Panel+Sample',
+            'is_active' => true,
+            'in_stock' => true,
+        ]);
+
+        $this->getJson("/api/products/{$product->slug}")
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.id', $product->id)
+            ->assertJsonPath('data.name', 'Wall Panel Sample')
+            ->assertJsonPath('data.slug', 'wall-panel-sample')
+            ->assertJsonPath('data.category', 'architectural')
+            ->assertJsonPath('data.model', 'heritage_16')
+            ->assertJsonPath('data.finish', 'matte')
+            ->assertJsonPath('data.color', 'forged_ash')
+            ->assertJsonPath('data.technique', 'original_pure')
+            ->assertJsonPath('data.price_usd', '120.00')
+            ->assertJsonPath('data.in_stock', true)
+            ->assertJsonPath('data.image_url', 'https://placehold.co/600x400?text=Wall+Panel+Sample');
+    }
+
+    public function test_inactive_products_are_hidden_from_public_endpoints(): void
+    {
+        Product::factory()->published()->create([
+            'slug' => 'inactive-shellfin-product',
+            'category' => 'tableware',
+            'model' => 'lite_15',
+            'finish' => 'glossy',
+            'color' => 'ocean_bone',
+            'technique' => 'original_pure',
+            'price_usd' => 48.00,
+            'is_active' => false,
         ]);
 
         $this->getJson('/api/products')
             ->assertOk()
             ->assertJsonCount(0, 'data');
 
-        $this->getJson('/api/products/hidden-product')
+        $this->getJson('/api/products/inactive-shellfin-product')
             ->assertNotFound();
     }
 }

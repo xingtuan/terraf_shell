@@ -6,15 +6,12 @@ import { MaterialFactsSection } from "@/components/sections/material-facts"
 import { MaterialStorySection } from "@/components/sections/material-story"
 import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { PageIntro } from "@/components/page-intro"
-import { getFeaturedMaterial, getMaterialSpecs } from "@/lib/api/materials"
+import {
+  getMaterialInfo,
+  materialInfoToSpecs,
+} from "@/lib/api/materials"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
-import {
-  buildApplicationsContent,
-  buildCredibilityContent,
-  buildMaterialFactsContent,
-  buildMaterialStoryContent,
-} from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
 
 type MaterialPageProps = {
@@ -26,44 +23,86 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
 
-  let material = null
+  let materialInfo = null
 
   try {
-    material = await getFeaturedMaterial({ baseUrl: apiBaseUrl, locale })
+    const response = await getMaterialInfo({ baseUrl: apiBaseUrl })
+    materialInfo = response.data
   } catch {
-    material = null
+    materialInfo = null
   }
 
-  const fallbackSpecs =
-    material?.specs.length
-      ? material.specs
-      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
-
   const intro = messages.materialPage.intro
-  const storyContent = buildMaterialStoryContent(
-    messages.home.materialStory,
-    material,
-  )
-  const applicationsContent = buildApplicationsContent(
-    messages.home.applications,
-    material,
-  )
-  const materialFactsContent = buildMaterialFactsContent(
-    messages.home.materialFacts,
-    material,
-    null,
-  )
-  const credibilityContent = buildCredibilityContent(
-    messages.home.credibility,
-    material,
-  )
+  const specs = materialInfo ? materialInfoToSpecs(materialInfo) : []
+  const whyItMattersContent = materialInfo
+    ? {
+        ...messages.home.whyItMatters,
+        title: materialInfo.tagline,
+        cards: materialInfo.properties.slice(0, 3).map((property) => ({
+          title: property.label,
+          description: `${property.value}. ${property.vs}`,
+        })),
+        stats: [
+          materialInfo.origin,
+          materialInfo.models
+            .map((model) => `${model.name} (${model.finish}): ${model.description}`)
+            .join(" "),
+          materialInfo.colors
+            .map((color) => `${color.name} (${color.temp}): ${color.description}`)
+            .join(" "),
+        ],
+      }
+    : messages.home.whyItMatters
+  const storyContent = materialInfo
+    ? {
+        ...messages.home.materialStory,
+        title: materialInfo.tagline,
+        steps: materialInfo.process_steps.map((step) => ({
+          number: String(step.step).padStart(2, "0"),
+          title: step.title,
+          description: step.body,
+        })),
+      }
+    : messages.home.materialStory
+  const materialFactsContent = materialInfo
+    ? {
+        ...messages.home.materialFacts,
+        title: materialInfo.tagline,
+        sheetTitle: `${materialInfo.name} Material Sheet`,
+        sheetDescription: materialInfo.certifications
+          .map((certification) => `${certification.label}: ${certification.value}`)
+          .join(" / "),
+        infoCards: [
+          {
+            label: "Models",
+            value: materialInfo.models.map((model) => model.name).join(", "),
+          },
+          {
+            label: "Colors",
+            value: materialInfo.colors.map((color) => color.name).join(", "),
+          },
+        ],
+        note: materialInfo.origin,
+      }
+    : messages.home.materialFacts
+  const credibilityContent = materialInfo
+    ? {
+        ...messages.home.credibility,
+        title: materialInfo.tagline,
+        benefits: materialInfo.certifications.map((certification) => certification.value),
+        features: materialInfo.certifications.map((certification) => ({
+          title: certification.label,
+          description: certification.value,
+        })),
+      }
+    : messages.home.credibility
 
   return (
     <>
       <PageIntro
         eyebrow={intro.eyebrow}
-        title={material?.headline || intro.title}
-        description={material?.summary || intro.description}
+        title={materialInfo?.tagline || intro.title}
+        description={materialInfo?.origin || intro.description}
         primaryAction={{
           label: intro.primaryCta,
           href: `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
@@ -73,13 +112,13 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
           href: getLocalizedHref(locale, "contact"),
         }}
       />
-      <WhyItMattersSection content={messages.home.whyItMatters} />
+      <WhyItMattersSection content={whyItMattersContent} />
       <MaterialStorySection content={storyContent} />
-      <ApplicationsSection content={applicationsContent} />
+      <ApplicationsSection content={messages.home.applications} />
       <MaterialFactsSection
         locale={locale}
         content={materialFactsContent}
-        specs={material?.specs.length ? material.specs : fallbackSpecs}
+        specs={specs}
         sheetHref={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}
       />
       <CredibilitySection content={credibilityContent} />
