@@ -23,6 +23,7 @@ type ApiRequestOptions = {
   token?: string | null
   cache?: RequestCache
   baseUrl?: string
+  credentials?: RequestCredentials
 }
 
 const DEFAULT_API_BASE_URL = "/api"
@@ -161,6 +162,7 @@ export async function requestApi<T>(
       headers,
       body: body ?? undefined,
       cache: options.cache ?? "no-store",
+      credentials: options.credentials ?? "include",
     })
   } catch {
     throw new ApiError("The API is unavailable right now.", 0)

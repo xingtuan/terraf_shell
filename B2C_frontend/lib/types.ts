@@ -24,6 +24,87 @@ export interface Product {
   updated_at?: string | null
 }
 
+export interface CartSummaryItem {
+  product_id: number
+  quantity: number
+  unit_price_usd: string
+  line_total: string
+  product: Product | null
+}
+
+export interface CartSummary {
+  id: number
+  item_count: number
+  subtotal_usd: string
+  items: CartSummaryItem[]
+}
+
+export interface Address {
+  id: number
+  user_id?: number
+  label?: string | null
+  recipient_name: string
+  phone?: string | null
+  address_line1: string
+  address_line2?: string | null
+  city: string
+  state_province?: string | null
+  postal_code?: string | null
+  country: string
+  is_default: boolean
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+export type StoreOrderStatus =
+  | "pending"
+  | "confirmed"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+
+export type StoreOrderPaymentStatus = "unpaid" | "paid" | "refunded"
+
+export interface ShippingAddressSnapshot {
+  name: string
+  phone?: string | null
+  address_line1: string
+  address_line2?: string | null
+  city: string
+  state_province?: string | null
+  postal_code?: string | null
+  country: string
+}
+
+export interface StoreOrderItem {
+  product_id: number
+  product_name: string
+  product_sku?: string | null
+  quantity: number
+  unit_price_usd: string
+  subtotal_usd: string
+  product?: Product | null
+}
+
+export interface StoreOrder {
+  order_number: string
+  status: StoreOrderStatus
+  payment_status: StoreOrderPaymentStatus
+  subtotal_usd: string
+  shipping_usd: string
+  total_usd: string
+  currency?: string
+  shipping_address: ShippingAddressSnapshot
+  customer_note?: string | null
+  items: StoreOrderItem[]
+  created_at?: string | null
+  confirmed_at?: string | null
+  shipped_at?: string | null
+  delivered_at?: string | null
+  cancelled_at?: string | null
+}
+
 export interface ProductCategory {
   id: number
   slug: string

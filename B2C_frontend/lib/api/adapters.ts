@@ -23,10 +23,16 @@ import type {
   MaterialSpec,
   MaterialStorySection,
   MaterialSummary,
+  Address,
+  CartSummary,
+  CartSummaryItem,
   Product,
   ProductCategory,
   ProductImage,
   NotificationTargetSummary,
+  ShippingAddressSnapshot,
+  StoreOrder,
+  StoreOrderItem,
   UserNotification,
 } from "@/lib/types"
 
@@ -153,6 +159,96 @@ export function normalizeProduct(product: Product): Product {
         : String(product.price_usd),
     in_stock: Boolean(product.in_stock),
     image_url: resolveApiUrl(product.image_url),
+  }
+}
+
+export function normalizeCartSummaryItem(item: CartSummaryItem): CartSummaryItem {
+  return {
+    ...item,
+    quantity: Number(item.quantity ?? 0),
+    unit_price_usd:
+      item.unit_price_usd === null || item.unit_price_usd === undefined
+        ? "0.00"
+        : String(item.unit_price_usd),
+    line_total:
+      item.line_total === null || item.line_total === undefined
+        ? "0.00"
+        : String(item.line_total),
+    product: item.product ? normalizeProduct(item.product) : null,
+  }
+}
+
+export function normalizeCartSummary(cart: CartSummary): CartSummary {
+  return {
+    ...cart,
+    id: Number(cart.id ?? 0),
+    item_count: Number(cart.item_count ?? 0),
+    subtotal_usd:
+      cart.subtotal_usd === null || cart.subtotal_usd === undefined
+        ? "0.00"
+        : String(cart.subtotal_usd),
+    items: ensureArray(cart.items).map(normalizeCartSummaryItem),
+  }
+}
+
+export function normalizeAddress(address: Address): Address {
+  return {
+    ...address,
+    label: address.label ?? null,
+    phone: address.phone ?? null,
+    address_line2: address.address_line2 ?? null,
+    state_province: address.state_province ?? null,
+    postal_code: address.postal_code ?? null,
+    is_default: Boolean(address.is_default),
+  }
+}
+
+function normalizeShippingAddress(
+  address: ShippingAddressSnapshot,
+): ShippingAddressSnapshot {
+  return {
+    ...address,
+    phone: address.phone ?? null,
+    address_line2: address.address_line2 ?? null,
+    state_province: address.state_province ?? null,
+    postal_code: address.postal_code ?? null,
+  }
+}
+
+export function normalizeStoreOrderItem(item: StoreOrderItem): StoreOrderItem {
+  return {
+    ...item,
+    product_sku: item.product_sku ?? null,
+    quantity: Number(item.quantity ?? 0),
+    unit_price_usd:
+      item.unit_price_usd === null || item.unit_price_usd === undefined
+        ? "0.00"
+        : String(item.unit_price_usd),
+    subtotal_usd:
+      item.subtotal_usd === null || item.subtotal_usd === undefined
+        ? "0.00"
+        : String(item.subtotal_usd),
+    product: item.product ? normalizeProduct(item.product) : null,
+  }
+}
+
+export function normalizeStoreOrder(order: StoreOrder): StoreOrder {
+  return {
+    ...order,
+    subtotal_usd:
+      order.subtotal_usd === null || order.subtotal_usd === undefined
+        ? "0.00"
+        : String(order.subtotal_usd),
+    shipping_usd:
+      order.shipping_usd === null || order.shipping_usd === undefined
+        ? "0.00"
+        : String(order.shipping_usd),
+    total_usd:
+      order.total_usd === null || order.total_usd === undefined
+        ? "0.00"
+        : String(order.total_usd),
+    shipping_address: normalizeShippingAddress(order.shipping_address),
+    items: ensureArray(order.items).map(normalizeStoreOrderItem),
   }
 }
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { AppProviders } from "@/components/app-providers"
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { LocaleHtmlSync } from "@/components/locale-html-sync"
@@ -44,13 +45,15 @@ export default async function LocaleLayout({
   return (
     <>
       <LocaleHtmlSync locale={locale} />
-      <Header
-        locale={locale}
-        header={messages.header}
-        languageSwitcher={messages.languageSwitcher}
-      />
-      <main className="min-h-screen">{children}</main>
-      <Footer locale={locale} header={messages.header} footer={messages.footer} />
+      <AppProviders>
+        <Header
+          locale={locale}
+          header={messages.header}
+          languageSwitcher={messages.languageSwitcher}
+        />
+        <main className="min-h-screen">{children}</main>
+        <Footer locale={locale} header={messages.header} footer={messages.footer} />
+      </AppProviders>
     </>
   )
 }

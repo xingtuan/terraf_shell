@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 
 import type { LoginPayload, RegisterPayload } from "@/lib/api/auth"
 import { getErrorMessage } from "@/lib/api/client"
@@ -42,6 +43,9 @@ type CommunityAuthPanelProps = {
   onRegister: (payload: RegisterPayload) => Promise<CommunityUser>
   onLogout: () => Promise<void>
   onRefresh: () => Promise<CommunityUser | null>
+  redirectAfterLogin?: string
+  context?: "community" | "store"
+  onSuccess?: () => void
 }
 
 export function CommunityAuthPanel({
@@ -53,10 +57,15 @@ export function CommunityAuthPanel({
   onRegister,
   onLogout,
   onRefresh,
+  redirectAfterLogin,
+  context = "community",
+  onSuccess,
 }: CommunityAuthPanelProps) {
+  const router = useRouter()
   const [mode, setMode] = useState<"login" | "register">("login")
   const [message, setMessage] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const headline = context === "store" ? "Sign in to continue" : copy.title
 
   if (!isReady) {
     return (
@@ -135,7 +144,7 @@ export function CommunityAuthPanel({
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-sm uppercase tracking-[0.18em] text-primary">
-            {copy.title}
+            {headline}
           </p>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             {copy.description}
@@ -188,9 +197,17 @@ export function CommunityAuthPanel({
             }
 
             startTransition(() => {
-              void onLogin(payload).catch((error) => {
-                setMessage(getErrorMessage(error))
-              })
+              void onLogin(payload)
+                .then(() => {
+                  onSuccess?.()
+
+                  if (redirectAfterLogin) {
+                    router.push(redirectAfterLogin)
+                  }
+                })
+                .catch((error) => {
+                  setMessage(getErrorMessage(error))
+                })
             })
           }}
         >
@@ -239,9 +256,17 @@ export function CommunityAuthPanel({
             }
 
             startTransition(() => {
-              void onRegister(payload).catch((error) => {
-                setMessage(getErrorMessage(error))
-              })
+              void onRegister(payload)
+                .then(() => {
+                  onSuccess?.()
+
+                  if (redirectAfterLogin) {
+                    router.push(redirectAfterLogin)
+                  }
+                })
+                .catch((error) => {
+                  setMessage(getErrorMessage(error))
+                })
             })
           }}
         >

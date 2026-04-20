@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation"
 
 import { ApiError } from "@/lib/api/client"
-import { getProduct } from "@/lib/api/products"
+import { getProduct, getProducts } from "@/lib/api/products"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages, isValidLocale } from "@/lib/i18n"
 import { PageIntro } from "@/components/page-intro"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { ProductDetailContent } from "@/components/store/product-detail-content"
+import type { Product } from "@/lib/types"
 
 type ProductDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>
@@ -32,7 +33,8 @@ export default async function ProductDetailPage({
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
 
-  let product = null
+  let product: Product | null = null
+  let relatedProducts: Product[] = []
   let hasError = false
 
   try {
@@ -40,6 +42,16 @@ export default async function ProductDetailPage({
       baseUrl: apiBaseUrl,
     })
     product = response.data
+
+    const relatedResponse = await getProducts({
+      category: response.data.category,
+      per_page: 4,
+      baseUrl: apiBaseUrl,
+    })
+
+    relatedProducts = relatedResponse.data
+      .filter((candidate) => candidate.slug !== response.data.slug)
+      .slice(0, 3)
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       notFound()
@@ -75,7 +87,7 @@ export default async function ProductDetailPage({
         eyebrow={categoryLabels[product.category] || "Product"}
         title={product.name}
         description={
-          "Review the Shellfin product specification and connect to the relevant lead flow."
+          "Review the Shellfin product specification, add it to your cart, and continue into the shared account checkout flow."
         }
         primaryAction={{
           label: "Back to store",
@@ -88,8 +100,8 @@ export default async function ProductDetailPage({
       />
       <ProductDetailContent
         locale={locale}
-        header={messages.header}
         product={product}
+        relatedProducts={relatedProducts}
       />
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />
     </>

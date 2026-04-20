@@ -1,6 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import {
+  createElement,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react"
 
 import {
   getCurrentUser,
@@ -11,14 +19,33 @@ import {
   type RegisterPayload,
 } from "@/lib/api/auth"
 import { ApiError } from "@/lib/api/client"
+import { mergeGuestCart } from "@/lib/api/cart"
 import {
   clearStoredAuthToken,
   getStoredAuthToken,
   setStoredAuthToken,
 } from "@/lib/auth/token-storage"
+import { clearCartSessionKey, getCartSessionKey } from "@/lib/cart/session"
 import type { CommunityUser } from "@/lib/types"
 
-export function useAuthSession() {
+type AuthSessionValue = {
+  token: string | null
+  user: CommunityUser | null
+  isReady: boolean
+  isLoadingUser: boolean
+  login: (payload: LoginPayload) => Promise<CommunityUser>
+  register: (payload: RegisterPayload) => Promise<CommunityUser>
+  logout: () => Promise<void>
+  refreshUser: () => Promise<CommunityUser | null>
+}
+
+const AuthSessionContext = createContext<AuthSessionValue | null>(null)
+
+type AuthSessionProviderProps = {
+  children: ReactNode
+}
+
+export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
   const [token, setToken] = useState<string | null>(null)
   const [user, setUser] = useState<CommunityUser | null>(null)
   const [isReady, setIsReady] = useState(false)
@@ -77,26 +104,41 @@ export function useAuthSession() {
     }
   }
 
+  async function finalizeAuthenticatedSession(
+    nextToken: string,
+    fallbackUser: CommunityUser,
+  ) {
+    const guestCartSessionKey = getCartSessionKey()
+
+    if (guestCartSessionKey) {
+      try {
+        await mergeGuestCart(guestCartSessionKey, nextToken)
+        clearCartSessionKey()
+      } catch {
+        // If cart merge fails, the user session should still succeed.
+      }
+    }
+
+    const nextUser = await getCurrentUser(nextToken).catch(() => fallbackUser)
+
+    setStoredAuthToken(nextToken)
+    setToken(nextToken)
+    setUser(nextUser)
+    setIsReady(true)
+
+    return nextUser
+  }
+
   async function loginWithCredentials(payload: LoginPayload) {
     const session = await login(payload)
 
-    setStoredAuthToken(session.token)
-    setToken(session.token)
-    setUser(session.user)
-    setIsReady(true)
-
-    return session.user
+    return finalizeAuthenticatedSession(session.token, session.user)
   }
 
   async function registerWithCredentials(payload: RegisterPayload) {
     const session = await register(payload)
 
-    setStoredAuthToken(session.token)
-    setToken(session.token)
-    setUser(session.user)
-    setIsReady(true)
-
-    return session.user
+    return finalizeAuthenticatedSession(session.token, session.user)
   }
 
   async function logoutCurrentUser() {
@@ -116,14 +158,29 @@ export function useAuthSession() {
     setIsReady(true)
   }
 
-  return {
-    token,
-    user,
-    isReady,
-    isLoadingUser,
-    login: loginWithCredentials,
-    register: registerWithCredentials,
-    logout: logoutCurrentUser,
-    refreshUser,
+  const value = useMemo<AuthSessionValue>(
+    () => ({
+      token,
+      user,
+      isReady,
+      isLoadingUser,
+      login: loginWithCredentials,
+      register: registerWithCredentials,
+      logout: logoutCurrentUser,
+      refreshUser,
+    }),
+    [token, user, isReady, isLoadingUser],
+  )
+
+  return createElement(AuthSessionContext.Provider, { value }, children)
+}
+
+export function useAuthSession() {
+  const context = useContext(AuthSessionContext)
+
+  if (!context) {
+    throw new Error("useAuthSession must be used within AuthSessionProvider.")
   }
+
+  return context
 }

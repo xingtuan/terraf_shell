@@ -18,9 +18,11 @@ use App\Http\Controllers\Api\Admin\SystemAnnouncementController;
 use App\Http\Controllers\Api\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Api\Admin\UserModerationController;
 use App\Http\Controllers\Api\ArticleController;
+use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BusinessContactController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CommentLikeController;
 use App\Http\Controllers\Api\FavoriteController;
@@ -30,6 +32,7 @@ use App\Http\Controllers\Api\HomeSectionController;
 use App\Http\Controllers\Api\InquiryController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PartnershipInquiryController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\PostLikeController;
@@ -64,6 +67,7 @@ Route::prefix('auth')->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
         Route::patch('/profile', [ProfileController::class, 'update']);
+        Route::put('/profile', [ProfileController::class, 'update']);
         Route::post('/email/verification-notification', [AuthController::class, 'resendVerificationEmail'])
             ->middleware('throttle:verification');
     });
@@ -85,6 +89,15 @@ Route::get('/product-categories', [PublicProductCategoryController::class, 'inde
 Route::get('/products', [PublicProductController::class, 'index']);
 Route::get('/products/featured', [PublicProductController::class, 'featured']);
 Route::get('/products/{slug}', [PublicProductController::class, 'show']);
+Route::prefix('cart')->group(function (): void {
+    Route::get('/', [CartController::class, 'show']);
+    Route::post('/items', [CartController::class, 'addItem']);
+    Route::patch('/items/{productId}', [CartController::class, 'updateItem']);
+    Route::delete('/items/{productId}', [CartController::class, 'removeItem']);
+    Route::delete('/', [CartController::class, 'clear']);
+    Route::post('/merge', [CartController::class, 'merge'])
+        ->middleware('auth:sanctum');
+});
 Route::middleware('throttle:leads')->group(function (): void {
     Route::post('/inquiries', [InquiryController::class, 'store']);
     Route::post('/business-contacts', [BusinessContactController::class, 'store']);
@@ -105,6 +118,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->whereNumber('notification');
+    Route::apiResource('orders', OrderController::class)
+        ->only(['index', 'show', 'store', 'destroy'])
+        ->parameters(['orders' => 'orderNumber']);
+    Route::apiResource('addresses', AddressController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+    Route::post('addresses/{id}/default', [AddressController::class, 'setDefault']);
 });
 
 Route::middleware(['auth:sanctum', 'not_banned'])->group(function (): void {

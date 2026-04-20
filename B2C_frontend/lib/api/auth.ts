@@ -17,6 +17,19 @@ export type RegisterPayload = {
   device_name?: string
 }
 
+export type UpdateProfilePayload = {
+  name?: string
+  username?: string
+  email?: string
+  bio?: string
+  location?: string
+  website?: string
+  school_or_company?: string
+  region?: string
+  portfolio_url?: string
+  open_to_collab?: boolean
+}
+
 export async function login(payload: LoginPayload) {
   const response = await requestApi<AuthSessionPayload>("/auth/login", {
     method: "POST",
@@ -54,4 +67,14 @@ export async function logout(token: string) {
     method: "POST",
     token,
   })
+}
+
+export async function updateProfile(payload: UpdateProfilePayload, token: string) {
+  const response = await requestApi<CommunityUser>("/auth/profile", {
+    method: "PUT",
+    token,
+    body: payload,
+  })
+
+  return normalizeCommunityUser(response.data) ?? response.data
 }

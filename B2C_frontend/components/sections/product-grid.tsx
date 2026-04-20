@@ -1,14 +1,8 @@
-import Image from "next/image"
 import Link from "next/link"
 
+import { ProductCard } from "@/components/store/ProductCard"
 import { Button } from "@/components/ui/button"
-import { formatProductPrice } from "@/lib/api/products"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
-import {
-  getProductDetailHref,
-  getProductInquiryHref,
-  getProductSampleRequestHref,
-} from "@/lib/product-links"
 import type { Product } from "@/lib/types"
 
 type ProductGridSectionProps = {
@@ -28,34 +22,6 @@ const categoryOptions = [
   { value: "architectural", label: "Architectural" },
 ] as const
 
-const categoryLabels: Record<string, string> = {
-  tableware: "Tableware",
-  planters: "Planters",
-  wellness_interior: "Wellness & Interior",
-  architectural: "Architectural",
-}
-
-const modelLabels: Record<string, string> = {
-  lite_15: "1.5 Lite",
-  heritage_16: "1.6 Heritage",
-}
-
-const finishLabels: Record<string, string> = {
-  glossy: "Glossy",
-  matte: "Matte",
-}
-
-const colorLabels: Record<string, string> = {
-  ocean_bone: "Ocean Bone",
-  forged_ash: "Forged Ash",
-}
-
-const techniqueLabels: Record<string, string> = {
-  original_pure: "Original Pure",
-  precision_inlay: "Precision Inlay",
-  driftwood_blend: "Driftwood Blend",
-}
-
 function buildCategoryHref(locale: Locale, category?: string | null) {
   const url = new URL(getLocalizedHref(locale, "store"), "https://shellfin.local")
 
@@ -70,7 +36,7 @@ function buildCategoryHref(locale: Locale, category?: string | null) {
 
 export function ProductGridSection({
   locale,
-  header,
+  header: _header,
   content,
   products,
   activeCategory = null,
@@ -135,85 +101,9 @@ export function ProductGridSection({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {products.map((product) => (
-            <article
-              key={product.id}
-              className="overflow-hidden rounded-3xl border border-border/60 bg-card"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-[1.05fr_0.95fr]">
-                <div className="relative min-h-[320px]">
-                  <Image
-                    src={product.image_url || "/placeholder.jpg"}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex flex-col p-8">
-                  <div className="mb-4 flex items-center justify-between gap-4">
-                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary">
-                      {categoryLabels[product.category] || product.category}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {content.pricePrefix} {formatProductPrice(product, locale)}
-                    </span>
-                  </div>
-
-                  <h3 className="mb-3 font-serif text-2xl text-foreground">
-                    {product.name}
-                  </h3>
-                  <p className="mb-6 leading-relaxed text-muted-foreground">
-                    {[
-                      modelLabels[product.model] || product.model,
-                      finishLabels[product.finish] || product.finish,
-                      colorLabels[product.color] || product.color,
-                    ].join(" / ")}
-                  </p>
-
-                  <div className="mb-6 flex flex-wrap gap-2">
-                    {[techniqueLabels[product.technique] || product.technique].map(
-                      (feature) => (
-                        <span
-                          key={feature}
-                          className="rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground"
-                        >
-                          {feature}
-                        </span>
-                      ),
-                    )}
-                  </div>
-
-                  <div className="mt-auto flex flex-col gap-4 border-t border-border/70 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                        {content.availabilityLabel}
-                      </p>
-                      <p className="mt-1 text-sm text-foreground">
-                        {product.in_stock ? "In stock" : "Available on inquiry"}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-3">
-                      <Button asChild variant="outline">
-                        <Link href={getProductDetailHref(locale, product.slug)}>
-                          View details
-                        </Link>
-                      </Button>
-                      <Button asChild variant="outline">
-                        <Link href={getProductInquiryHref(locale, product)}>
-                          {header.contact}
-                        </Link>
-                      </Button>
-                      <Button asChild>
-                        <Link href={getProductSampleRequestHref(locale, product)}>
-                          {header.primaryCta}
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </article>
+            <ProductCard key={product.id} locale={locale} product={product} />
           ))}
         </div>
       </div>

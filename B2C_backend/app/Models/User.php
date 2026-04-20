@@ -63,6 +63,21 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
         return $this->hasOne(Profile::class);
     }
 
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    public function cart(): HasOne
+    {
+        return $this->hasOne(Cart::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);

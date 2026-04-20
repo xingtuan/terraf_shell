@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, X } from "lucide-react"
 
+import { UserNav } from "@/components/layout/UserNav"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Button } from "@/components/ui/button"
 import {
@@ -95,6 +96,7 @@ export function Header({ locale, header, languageSwitcher }: HeaderProps) {
               locale={locale}
               content={languageSwitcher}
             />
+            <UserNav locale={locale} />
             <Button asChild className="px-6">
               <Link href={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}>
                 {header.primaryCta}
@@ -139,6 +141,9 @@ export function Header({ locale, header, languageSwitcher }: HeaderProps) {
               content={languageSwitcher}
               className="w-fit"
             />
+            <div className="w-fit">
+              <UserNav locale={locale} />
+            </div>
             <Button asChild className="w-full">
               <Link href={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}>
                 {header.primaryCta}
