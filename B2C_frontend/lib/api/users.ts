@@ -13,13 +13,28 @@ import type {
   PaginatedResult,
 } from "@/lib/types"
 
+type UserIdentifier = string | number
+
 type ListUserContentParams = {
+  page?: number
   per_page?: number
-  sort?: "latest" | "hot" | "popular" | "trending" | "most_liked" | "most_commented" | "most_discussed"
+  sort?:
+    | "latest"
+    | "hot"
+    | "popular"
+    | "trending"
+    | "most_liked"
+    | "most_commented"
+    | "most_discussed"
 }
 
 type ListUserRelationsParams = {
+  page?: number
   per_page?: number
+}
+
+function buildUserPath(identifier: UserIdentifier) {
+  return `/users/${encodeURIComponent(String(identifier))}`
 }
 
 async function getPaginatedPosts(
@@ -75,8 +90,11 @@ async function getPaginatedUsers(
   }
 }
 
-export async function getUserProfile(userId: number, token?: string | null) {
-  const response = await requestApi<CommunityUser>(`/users/${userId}`, {
+export async function getUserProfile(
+  username: UserIdentifier,
+  token?: string | null,
+) {
+  const response = await requestApi<CommunityUser>(buildUserPath(username), {
     token,
   })
 
@@ -84,46 +102,70 @@ export async function getUserProfile(userId: number, token?: string | null) {
 }
 
 export async function getUserPosts(
-  userId: number,
-  params: ListUserContentParams = {},
+  username: UserIdentifier,
+  pageOrParams: number | ListUserContentParams = {},
   token?: string | null,
 ) {
-  return getPaginatedPosts(`/users/${userId}/posts`, params, token)
+  const params =
+    typeof pageOrParams === "number"
+      ? ({ page: pageOrParams } satisfies ListUserContentParams)
+      : pageOrParams
+
+  return getPaginatedPosts(`${buildUserPath(username)}/posts`, params, token)
 }
 
 export async function getUserComments(
-  userId: number,
+  username: UserIdentifier,
   params: ListUserContentParams = {},
   token?: string | null,
 ) {
-  return getPaginatedComments(`/users/${userId}/comments`, params, token)
+  return getPaginatedComments(`${buildUserPath(username)}/comments`, params, token)
 }
 
 export async function getUserFollowers(
-  userId: number,
+  username: UserIdentifier,
   params: ListUserRelationsParams = {},
   token?: string | null,
 ) {
-  return getPaginatedUsers(`/users/${userId}/followers`, params, token)
+  return getPaginatedUsers(`${buildUserPath(username)}/followers`, params, token)
 }
 
 export async function getUserFollowing(
-  userId: number,
+  username: UserIdentifier,
   params: ListUserRelationsParams = {},
   token?: string | null,
 ) {
-  return getPaginatedUsers(`/users/${userId}/following`, params, token)
+  return getPaginatedUsers(`${buildUserPath(username)}/following`, params, token)
+}
+
+export async function followUser(username: UserIdentifier, token: string) {
+  const response = await requestApi<FollowStatePayload>(
+    `${buildUserPath(username)}/follow`,
+    {
+      method: "POST",
+      token,
+    },
+  )
+
+  return response.data
+}
+
+export async function unfollowUser(username: UserIdentifier, token: string) {
+  const response = await requestApi<FollowStatePayload>(
+    `${buildUserPath(username)}/follow`,
+    {
+      method: "DELETE",
+      token,
+    },
+  )
+
+  return response.data
 }
 
 export async function toggleFollowUser(
-  userId: number,
+  username: UserIdentifier,
   isFollowing: boolean,
   token: string,
 ) {
-  const response = await requestApi<FollowStatePayload>(`/users/${userId}/follow`, {
-    method: isFollowing ? "DELETE" : "POST",
-    token,
-  })
-
-  return response.data
+  return isFollowing ? unfollowUser(username, token) : followUser(username, token)
 }

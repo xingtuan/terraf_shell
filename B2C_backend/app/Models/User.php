@@ -323,4 +323,19 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
     {
         return $this->reportsReceivedQuery()->count();
     }
+
+    public function resolveRouteBinding($value, $field = null): ?static
+    {
+        $query = $this->newQuery();
+
+        if ($field !== null) {
+            return $query->where($field, $value)->firstOrFail();
+        }
+
+        if (is_numeric($value)) {
+            return $query->whereKey((int) $value)->firstOrFail();
+        }
+
+        return $query->where('username', $value)->firstOrFail();
+    }
 }

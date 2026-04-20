@@ -77,6 +77,12 @@ class PostInfolist
                         TextEntry::make('excerpt')
                             ->placeholder('No excerpt available.')
                             ->columnSpanFull(),
+                        TextEntry::make('funding_url')
+                            ->label('Funding URL')
+                            ->placeholder('No funding link attached.')
+                            ->url(fn (?string $state): ?string => filled($state) ? $state : null)
+                            ->openUrlInNewTab()
+                            ->columnSpanFull(),
                         TextEntry::make('content')
                             ->columnSpanFull(),
                     ]),

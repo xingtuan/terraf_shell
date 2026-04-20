@@ -1,0 +1,74 @@
+import { getIntlLocale, type Locale } from "@/lib/i18n"
+import type { CommunityComment, CommunityPost, CommunityUser } from "@/lib/types"
+
+export function formatCommunityDate(
+  locale: Locale,
+  value?: string | null,
+  options?: Intl.DateTimeFormatOptions,
+) {
+  if (!value) {
+    return null
+  }
+
+  return new Intl.DateTimeFormat(getIntlLocale(locale), {
+    dateStyle: "medium",
+    timeStyle: "short",
+    ...options,
+  }).format(new Date(value))
+}
+
+export function getCommunityUserName(user?: CommunityUser | null) {
+  return user?.name ?? user?.username ?? "Community member"
+}
+
+export function getCommunityUserInitials(user?: CommunityUser | null) {
+  const source = user?.name?.trim() || user?.username?.trim() || "CM"
+  const parts = source.split(/\s+/).filter(Boolean)
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+
+  return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase()
+}
+
+export function getCommunityPostPreview(post: CommunityPost, maxLength = 220) {
+  const preview = (post.excerpt ?? post.content ?? "").trim()
+
+  if (preview.length <= maxLength) {
+    return preview
+  }
+
+  return `${preview.slice(0, maxLength)}...`
+}
+
+export function getCommunityCommentPreview(
+  comment: CommunityComment,
+  maxLength = 140,
+) {
+  const preview = comment.content.trim()
+
+  if (preview.length <= maxLength) {
+    return preview
+  }
+
+  return `${preview.slice(0, maxLength)}...`
+}
+
+export function getCommunityPostCoverImage(post: CommunityPost) {
+  return (
+    post.images[0]?.thumbnail_url ??
+    post.images[0]?.preview_url ??
+    post.images[0]?.url ??
+    "/placeholder.jpg"
+  )
+}
+
+export function getCommunitySupportUrl(post: CommunityPost) {
+  return (
+    post.funding_url ??
+    post.funding_campaign?.external_crowdfunding_url ??
+    post.external_crowdfunding_url ??
+    null
+  )
+}

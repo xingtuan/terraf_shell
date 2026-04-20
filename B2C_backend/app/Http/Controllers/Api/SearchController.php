@@ -10,6 +10,11 @@ use Illuminate\Http\JsonResponse;
 
 class SearchController extends Controller
 {
+    public function index(SearchPostsRequest $request, SearchService $searchService): JsonResponse
+    {
+        return $this->posts($request, $searchService);
+    }
+
     public function posts(SearchPostsRequest $request, SearchService $searchService): JsonResponse
     {
         $posts = $searchService->searchPosts(

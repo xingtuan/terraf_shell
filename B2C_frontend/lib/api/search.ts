@@ -5,6 +5,7 @@ import type { CommunityPost, SearchResultShape } from "@/lib/types"
 
 export type SearchPostsParams = {
   q: string
+  type?: "posts"
   per_page?: number
 }
 
@@ -12,8 +13,11 @@ export async function searchPosts(
   params: SearchPostsParams,
   token?: string | null,
 ): Promise<SearchResultShape> {
-  const response = await requestApi<CommunityPost[]>("/search/posts", {
-    query: params,
+  const response = await requestApi<CommunityPost[]>("/search", {
+    query: {
+      type: "posts",
+      ...params,
+    },
     token,
   })
 

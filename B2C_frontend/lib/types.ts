@@ -448,6 +448,7 @@ export interface CommunityPost {
   slug: string
   content: string
   excerpt?: string | null
+  funding_url?: string | null
   status: string
   is_pinned: boolean
   is_featured: boolean

@@ -93,26 +93,30 @@ Route::middleware('throttle:leads')->group(function (): void {
     Route::post('/university-collaborations', [PartnershipInquiryController::class, 'storeUniversity']);
     Route::post('/product-development-collaborations', [PartnershipInquiryController::class, 'storeProductDevelopment']);
 });
-Route::get('/users/{user}/posts', [UserController::class, 'posts'])->whereNumber('user');
-Route::get('/users/{user}/comments', [UserController::class, 'comments'])->whereNumber('user');
-Route::get('/users/{user}/followers', [UserController::class, 'followers'])->whereNumber('user');
-Route::get('/users/{user}/following', [UserController::class, 'following'])->whereNumber('user');
-Route::get('/users/{user}', [UserController::class, 'show'])->whereNumber('user');
+Route::get('/users/{user}/posts', [UserController::class, 'posts']);
+Route::get('/users/{user}/comments', [UserController::class, 'comments']);
+Route::get('/users/{user}/followers', [UserController::class, 'followers']);
+Route::get('/users/{user}/following', [UserController::class, 'following']);
+Route::get('/users/{user}', [UserController::class, 'show']);
+Route::get('/search', [SearchController::class, 'index']);
 Route::get('/search/posts', [SearchController::class, 'posts']);
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->whereNumber('notification');
 });
 
 Route::middleware(['auth:sanctum', 'not_banned'])->group(function (): void {
     Route::post('/posts', [PostController::class, 'store']);
     Route::patch('/posts/{post}', [PostController::class, 'update'])->whereNumber('post');
+    Route::put('/posts/{post}', [PostController::class, 'update'])->whereNumber('post');
     Route::delete('/posts/{post}', [PostController::class, 'destroy'])->whereNumber('post');
 
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->whereNumber('post');
     Route::post('/comments/{comment}/reply', [CommentController::class, 'reply'])->whereNumber('comment');
     Route::patch('/comments/{comment}', [CommentController::class, 'update'])->whereNumber('comment');
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])->whereNumber('comment');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->whereNumber('comment');
 
     Route::post('/posts/{post}/like', [PostLikeController::class, 'store'])->whereNumber('post');
@@ -123,8 +127,8 @@ Route::middleware(['auth:sanctum', 'not_banned'])->group(function (): void {
     Route::post('/posts/{post}/favorite', [FavoriteController::class, 'store'])->whereNumber('post');
     Route::delete('/posts/{post}/favorite', [FavoriteController::class, 'destroy'])->whereNumber('post');
 
-    Route::post('/users/{user}/follow', [FollowController::class, 'store'])->whereNumber('user');
-    Route::delete('/users/{user}/follow', [FollowController::class, 'destroy'])->whereNumber('user');
+    Route::post('/users/{user}/follow', [FollowController::class, 'store']);
+    Route::delete('/users/{user}/follow', [FollowController::class, 'destroy']);
 
     Route::post('/reports', [ReportController::class, 'store']);
 });

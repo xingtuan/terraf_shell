@@ -112,6 +112,17 @@ class NotificationService
             ->count();
     }
 
+    public function markAllAsRead(User $user): int
+    {
+        return UserNotification::query()
+            ->where('recipient_user_id', $user->id)
+            ->where('is_read', false)
+            ->update([
+                'is_read' => true,
+                'read_at' => now(),
+            ]);
+    }
+
     public function notifyPostLiked(Post $post, User $actor): void
     {
         $post->loadMissing('user');

@@ -32,13 +32,15 @@ class UpdatePostRequest extends FormRequest
         $maxExternalLinks = (int) config('community.idea_media.max_external_links', 4);
 
         return [
-            'title' => ['sometimes', 'required', 'string', 'max:200'],
-            'content' => ['sometimes', 'required', 'string'],
+            'title' => ['sometimes', 'required', 'string', 'max:100'],
+            'content' => ['sometimes', 'required', 'string', 'min:20'],
             'excerpt' => ['nullable', 'string', 'max:400'],
+            'funding_url' => ['nullable', 'url', 'max:2048'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'tags' => ['nullable', 'string', 'max:255'],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
-            'images' => ['nullable', 'array', 'max:6'],
+            'images' => ['nullable', 'array', 'max:4'],
             'images.*' => ['image', 'max:'.$maxFileSize],
             'image_alts' => ['nullable', 'array'],
             'image_alts.*' => ['nullable', 'string', 'max:150'],

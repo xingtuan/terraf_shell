@@ -1,520 +1,197 @@
 "use client"
 
-import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useEffectEvent, useState } from "react"
 import { useSearchParams } from "next/navigation"
 
-import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
-import { CommunityNotificationsPanel } from "@/components/community/community-notifications-panel"
-import { CommunityPostComposer } from "@/components/community/community-post-composer"
-import { CommunityPostEditorDialog } from "@/components/community/community-post-editor-dialog"
-import { CommunityReportDialog } from "@/components/community/community-report-dialog"
-import { CommunityUserSheet } from "@/components/community/community-user-sheet"
+import { PostCard } from "@/components/community/PostCard"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { getErrorMessage } from "@/lib/api/client"
-import { togglePostFavorite, togglePostLike } from "@/lib/api/interactions"
-import { deletePost, listPosts } from "@/lib/api/posts"
-import { searchPosts } from "@/lib/api/search"
-import type { CommunityCopy } from "@/lib/community-copy"
-import { getLocalizedHref, getIntlLocale, type Locale } from "@/lib/i18n"
+import { listPosts } from "@/lib/api/posts"
+import { COMMUNITY_POSTS_REFRESH_EVENT } from "@/lib/community-events"
+import { type Locale, type SiteMessages } from "@/lib/i18n"
 import type { ApiPaginationMeta, CommunityPost } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 
 type CommunityHubProps = {
   locale: Locale
-  copy: CommunityCopy
+  messages: SiteMessages["community"]
+  initialQuery?: string
 }
 
-function formatDate(locale: Locale, value?: string | null) {
-  if (!value) {
-    return "Unknown date"
-  }
-
-  return new Intl.DateTimeFormat(getIntlLocale(locale), {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value))
-}
-
-function getPostPreview(post: CommunityPost) {
-  const rawPreview = (post.excerpt ?? post.content ?? "").trim()
-
-  if (rawPreview.length <= 220) {
-    return rawPreview
-  }
-
-  return `${rawPreview.slice(0, 220)}...`
-}
-
-function getAuthorName(post: CommunityPost) {
-  return post.user?.name ?? post.user?.username ?? "Community member"
-}
-
-function getCoverImage(post: CommunityPost) {
-  return post.images[0]?.url ?? "/placeholder.jpg"
-}
-
-export function CommunityHub({ locale, copy }: CommunityHubProps) {
+export function CommunityHub({
+  locale,
+  messages,
+  initialQuery,
+}: CommunityHubProps) {
   const searchParams = useSearchParams()
   const session = useAuthSession()
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [meta, setMeta] = useState<ApiPaginationMeta | null>(null)
   const [sort, setSort] = useState<"latest" | "hot">("latest")
-  const [refreshTick, setRefreshTick] = useState(0)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isLoadingPosts, setIsLoadingPosts] = useState(false)
-  const [activeAction, setActiveAction] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
 
-  useEffect(() => {
-    const requestedUserId = Number(searchParams.get("user") ?? "")
+  const query = (searchParams.get("q") ?? initialQuery ?? "").trim()
 
-    if (Number.isInteger(requestedUserId) && requestedUserId > 0) {
-      setSelectedUserId(requestedUserId)
-    }
-  }, [searchParams])
-
-  useEffect(() => {
+  const loadPosts = useEffectEvent(async () => {
     if (!session.isReady) {
       return
     }
 
-    let isCancelled = false
+    setIsLoading(true)
+    setMessage(null)
 
-    async function loadFeed() {
-      setIsLoadingPosts(true)
-      setMessage(null)
-
-      try {
-        if (searchQuery.trim().length >= 2) {
-          const response = await searchPosts(
-            {
-              q: searchQuery.trim(),
+    try {
+      const response = await listPosts(
+        query
+          ? {
+              search: query,
+              sort,
               per_page: 12,
-            },
-            session.token,
-          )
-
-          if (isCancelled) {
-            return
-          }
-
-          setPosts(response.posts)
-          setMeta(response.meta)
-        } else {
-          const response = await listPosts(
-            {
+            }
+          : {
               sort,
               per_page: 12,
             },
-            session.token,
-          )
-
-          if (isCancelled) {
-            return
-          }
-
-          setPosts(response.posts)
-          setMeta(response.meta)
-        }
-      } catch (error) {
-        if (!isCancelled) {
-          setMessage(getErrorMessage(error))
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsLoadingPosts(false)
-        }
-      }
-    }
-
-    void loadFeed()
-
-    return () => {
-      isCancelled = true
-    }
-  }, [
-    refreshTick,
-    searchQuery,
-    session.isReady,
-    session.token,
-    session.user?.id,
-    sort,
-  ])
-
-  async function handleLikeToggle(post: CommunityPost) {
-    if (!session.token) {
-      setMessage(copy.actions.signInToInteract)
-      return
-    }
-
-    setActiveAction(`like-${post.id}`)
-    setMessage(null)
-
-    try {
-      const payload = await togglePostLike(post.id, post.is_liked, session.token)
-
-      setPosts((currentPosts) =>
-        currentPosts.map((currentPost) =>
-          currentPost.id === post.id
-            ? {
-                ...currentPost,
-                likes_count: payload.likes_count,
-                is_liked: payload.is_liked,
-              }
-            : currentPost,
-        ),
-      )
-    } catch (error) {
-      setMessage(getErrorMessage(error))
-    } finally {
-      setActiveAction(null)
-    }
-  }
-
-  async function handleFavoriteToggle(post: CommunityPost) {
-    if (!session.token) {
-      setMessage(copy.actions.signInToInteract)
-      return
-    }
-
-    setActiveAction(`favorite-${post.id}`)
-    setMessage(null)
-
-    try {
-      const payload = await togglePostFavorite(
-        post.id,
-        post.is_favorited,
         session.token,
       )
 
-      setPosts((currentPosts) =>
-        currentPosts.map((currentPost) =>
-          currentPost.id === post.id
-            ? {
-                ...currentPost,
-                favorites_count: payload.favorites_count,
-                is_favorited: payload.is_favorited,
-              }
-            : currentPost,
-        ),
-      )
+      setPosts(response.posts)
+      setMeta(response.meta)
     } catch (error) {
       setMessage(getErrorMessage(error))
+      setPosts([])
+      setMeta(null)
     } finally {
-      setActiveAction(null)
+      setIsLoading(false)
     }
-  }
+  })
+
+  useEffect(() => {
+    void loadPosts()
+  }, [loadPosts, query, session.isReady, session.token, session.user?.id, sort])
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      void loadPosts()
+    }
+
+    window.addEventListener(COMMUNITY_POSTS_REFRESH_EVENT, handleRefresh)
+
+    return () => {
+      window.removeEventListener(COMMUNITY_POSTS_REFRESH_EVENT, handleRefresh)
+    }
+  }, [loadPosts])
 
   return (
-    <section id="posts" className="bg-background py-24 lg:py-28">
+    <section className="bg-background py-14 lg:py-16">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.3fr_0.7fr]">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="mb-4 text-sm uppercase tracking-[0.2em] text-primary">
-              {copy.hub.eyebrow}
+            <p className="text-sm uppercase tracking-[0.2em] text-primary">
+              {messages.feed.eyebrow}
             </p>
-            <h2 className="mb-5 font-serif text-3xl leading-tight text-foreground md:text-4xl lg:text-5xl">
-              {copy.hub.title}
-            </h2>
-            <p className="max-w-3xl text-lg leading-relaxed text-muted-foreground">
-              {copy.hub.description}
+            <h1 className="mt-4 font-serif text-3xl leading-tight text-foreground md:text-4xl">
+              {query
+                ? `${messages.feed.resultsTitlePrefix} ${query}`
+                : messages.feed.title}
+            </h1>
+            <p className="mt-3 max-w-3xl text-lg text-muted-foreground">
+              {query ? messages.feed.resultsDescription : messages.feed.description}
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button
-                type="button"
-                variant={sort === "latest" ? "default" : "outline"}
-                onClick={() => setSort("latest")}
-              >
-                {copy.hub.latestSort}
-              </Button>
-              <Button
-                type="button"
-                variant={sort === "hot" ? "default" : "outline"}
-                onClick={() => setSort("hot")}
-              >
-                {copy.hub.hotSort}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setRefreshTick((currentTick) => currentTick + 1)}
-              >
-                {copy.hub.refresh}
-              </Button>
-            </div>
           </div>
 
-          <div className="space-y-6">
-            <div id="community-access">
-              <CommunityAuthPanel
-                copy={copy.auth}
-                user={session.user}
-                isReady={session.isReady}
-                isLoadingUser={session.isLoadingUser}
-                onLogin={session.login}
-                onRegister={session.register}
-                onLogout={session.logout}
-                onRefresh={session.refreshUser}
-              />
-            </div>
-
-            <CommunityNotificationsPanel locale={locale} token={session.token} />
-
-            <div className="rounded-3xl border border-border/60 bg-card p-7">
-              <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                {copy.hub.backendStatusTitle}
-              </p>
-              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                {copy.hub.backendStatusDescription}
-              </p>
-              <div className="mt-5 space-y-2 text-sm text-muted-foreground">
-                <p>
-                  {copy.hub.totalLabel}: {meta?.total ?? posts.length}
-                </p>
-                <p>{copy.hub.loginHint}</p>
-              </div>
-            </div>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              type="button"
+              variant={sort === "latest" ? "default" : "outline"}
+              onClick={() => setSort("latest")}
+            >
+              {messages.feed.latest}
+            </Button>
+            <Button
+              type="button"
+              variant={sort === "hot" ? "default" : "outline"}
+              onClick={() => setSort("hot")}
+            >
+              {messages.feed.hot}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                void loadPosts()
+              }}
+            >
+              {messages.feed.refresh}
+            </Button>
           </div>
         </div>
 
-        <div className="mt-10 space-y-6">
-          <CommunityPostComposer
-            token={session.token}
-            onCreated={(post) => {
-              setPosts((currentPosts) => [post, ...currentPosts])
-              setMeta((currentMeta) =>
-                currentMeta
-                  ? {
-                      ...currentMeta,
-                      total: currentMeta.total + 1,
-                    }
-                  : currentMeta,
-              )
-            }}
-            onMessage={setMessage}
-          />
-
-          <div className="rounded-3xl border border-border/60 bg-card p-6">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center">
-              <Input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search posts"
-                className="md:max-w-sm"
-              />
-              <p className="text-sm text-muted-foreground">
-                Search uses `/api/search/posts` when the query has at least two characters.
-              </p>
-            </div>
-          </div>
-        </div>
+        {meta ? (
+          <p className="mt-6 text-sm text-muted-foreground">
+            {messages.feed.total.replace("{count}", String(meta.total))}
+          </p>
+        ) : null}
 
         {message ? (
-          <div className="mt-10 rounded-2xl border border-border/60 bg-card px-5 py-4 text-sm text-foreground">
+          <div className="mt-8 rounded-2xl border border-border/60 bg-card px-5 py-4 text-sm text-foreground">
             {message}
           </div>
         ) : null}
 
-        {session.isReady && isLoadingPosts ? (
-          <div className="mt-12 rounded-3xl border border-border/60 bg-card p-7 text-muted-foreground">
-            {copy.hub.loading}
+        {isLoading ? (
+          <div className="mt-10 rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+            {messages.feed.loading}
           </div>
         ) : null}
 
-        {session.isReady && !isLoadingPosts && posts.length === 0 ? (
-          <div className="mt-12 rounded-3xl border border-border/60 bg-card p-8">
-            <h3 className="font-serif text-2xl text-foreground">
-              {copy.hub.emptyTitle}
-            </h3>
+        {!isLoading && posts.length === 0 ? (
+          <div className="mt-10 rounded-[2rem] border border-border/60 bg-card p-8">
+            <h2 className="font-serif text-2xl text-foreground">
+              {query ? messages.feed.noResultsTitle : messages.feed.emptyTitle}
+            </h2>
             <p className="mt-3 max-w-2xl text-muted-foreground">
-              {copy.hub.emptyDescription}
+              {query ? messages.feed.noResults : messages.feed.emptyDescription}
             </p>
           </div>
         ) : null}
 
-        {session.isReady && posts.length > 0 ? (
-          <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {posts.length > 0 ? (
+          <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
             {posts.map((post) => (
-              <article
+              <PostCard
                 key={post.id}
-                className="overflow-hidden rounded-3xl border border-border/60 bg-card"
-              >
-                <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
-                  <img
-                    src={getCoverImage(post)}
-                    alt={post.images[0]?.alt_text ?? post.title}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="p-7">
-                  <div className="mb-4 flex flex-wrap items-center gap-2">
-                    {post.category ? (
-                      <span className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary">
-                        {post.category.name}
-                      </span>
-                    ) : null}
-                    {post.is_featured ? (
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
-                        Featured
-                      </span>
-                    ) : null}
-                    {post.is_pinned ? (
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
-                        Pinned
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <Link
-                    href={getLocalizedHref(locale, `community/${post.slug}`)}
-                    className="font-serif text-2xl text-foreground transition-colors hover:text-primary"
-                  >
-                    {post.title}
-                  </Link>
-
-                  <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                    <button
-                      type="button"
-                      className="font-medium text-foreground transition-colors hover:text-primary"
-                      onClick={() => setSelectedUserId(post.user?.id ?? null)}
-                    >
-                      {getAuthorName(post)}
-                    </button>
-                    <span>/</span>
-                    <span>{formatDate(locale, post.created_at)}</span>
-                  </div>
-
-                  <p className="mt-5 leading-relaxed text-muted-foreground">
-                    {getPostPreview(post)}
-                  </p>
-
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground"
-                      >
-                        #{tag.name}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-border/70 pt-6">
-                    <Button
-                      type="button"
-                      variant={post.is_liked ? "default" : "outline"}
-                      size="sm"
-                      disabled={!session.user || activeAction === `like-${post.id}`}
-                      onClick={() => {
-                        void handleLikeToggle(post)
-                      }}
-                    >
-                      {post.is_liked ? copy.actions.unlike : copy.actions.like} -{" "}
-                      {post.likes_count}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={post.is_favorited ? "default" : "outline"}
-                      size="sm"
-                      disabled={
-                        !session.user || activeAction === `favorite-${post.id}`
-                      }
-                      onClick={() => {
-                        void handleFavoriteToggle(post)
-                      }}
-                    >
-                      {post.is_favorited
-                        ? copy.actions.unfavorite
-                        : copy.actions.favorite}{" "}
-                      - {post.favorites_count}
-                    </Button>
-                    <span className="text-sm text-muted-foreground">
-                      {copy.actions.comments}: {post.comments_count}
-                    </span>
-                    <Button asChild variant="ghost" size="sm">
-                      <Link href={getLocalizedHref(locale, `community/${post.slug}`)}>
-                        {copy.hub.readMore}
-                      </Link>
-                    </Button>
-                    {session.token ? (
-                      <CommunityReportDialog
-                        token={session.token}
-                        targetType="post"
-                        targetId={post.id}
-                        onReported={setMessage}
-                      />
-                    ) : null}
-                    {session.token && post.can_edit ? (
-                      <CommunityPostEditorDialog
-                        post={post}
-                        token={session.token}
-                        onSaved={(updatedPost) => {
-                          setPosts((currentPosts) =>
-                            currentPosts.map((currentPost) =>
-                              currentPost.id === updatedPost.id
-                                ? updatedPost
-                                : currentPost,
-                            ),
-                          )
-                          setMessage("Post updated successfully.")
-                        }}
-                      />
-                    ) : null}
-                    {session.token && post.can_delete ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (!session.token) {
-                            return
-                          }
-
-                          if (!window.confirm("Delete this post?")) {
-                            return
-                          }
-
-                          void deletePost(post.id, session.token)
-                            .then(() => {
-                              setPosts((currentPosts) =>
-                                currentPosts.filter(
-                                  (currentPost) => currentPost.id !== post.id,
-                                ),
-                              )
-                              setMessage("Post deleted successfully.")
-                            })
-                            .catch((error) => {
-                              setMessage(getErrorMessage(error))
-                            })
-                        }}
-                      >
-                        Delete
-                      </Button>
-                    ) : null}
-                  </div>
-                </div>
-              </article>
+                locale={locale}
+                post={post}
+                messages={messages}
+                token={session.token}
+                currentUserId={session.user?.id}
+                onUpdated={(updatedPost) => {
+                  setPosts((currentPosts) =>
+                    currentPosts.map((currentPost) =>
+                      currentPost.id === updatedPost.id ? updatedPost : currentPost,
+                    ),
+                  )
+                }}
+                onDeleted={(postId) => {
+                  setPosts((currentPosts) =>
+                    currentPosts.filter((currentPost) => currentPost.id !== postId),
+                  )
+                  setMeta((currentMeta) =>
+                    currentMeta
+                      ? {
+                          ...currentMeta,
+                          total: Math.max(0, currentMeta.total - 1),
+                        }
+                      : currentMeta,
+                  )
+                }}
+              />
             ))}
           </div>
         ) : null}
       </div>
-
-      <CommunityUserSheet
-        locale={locale}
-        userId={selectedUserId}
-        currentUserId={session.user?.id}
-        token={session.token}
-        open={selectedUserId !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelectedUserId(null)
-          }
-        }}
-      />
     </section>
   )
 }

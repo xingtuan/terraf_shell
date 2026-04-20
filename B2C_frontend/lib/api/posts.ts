@@ -14,9 +14,11 @@ import type {
 
 export type ListPostsParams = {
   q?: string
+  search?: string
   category_id?: number
   category?: string
   user_id?: number
+  liked_by?: string
   tag?: string
   featured?: boolean
   pinned?: boolean
@@ -32,12 +34,74 @@ export type ListPostsParams = {
   per_page?: number
 }
 
-export type UpsertPostPayload = {
+export type PostFormPayload = {
   title: string
-  content: string
-  excerpt?: string
   category_id?: number | null
+  tags?: string
+  content: string
+  funding_url?: string | null
+  images?: File[]
+  excerpt?: string
   tag_ids?: number[]
+}
+
+export type UpsertPostPayload = PostFormPayload
+
+function buildPostBody(payload: Partial<PostFormPayload>) {
+  const hasImages = Array.isArray(payload.images) && payload.images.length > 0
+
+  if (!hasImages) {
+    return {
+      ...(payload.title !== undefined ? { title: payload.title } : {}),
+      ...(payload.category_id !== undefined
+        ? { category_id: payload.category_id }
+        : {}),
+      ...(payload.tags !== undefined ? { tags: payload.tags } : {}),
+      ...(payload.content !== undefined ? { content: payload.content } : {}),
+      ...(payload.funding_url !== undefined
+        ? { funding_url: payload.funding_url }
+        : {}),
+      ...(payload.excerpt !== undefined ? { excerpt: payload.excerpt } : {}),
+      ...(payload.tag_ids !== undefined ? { tag_ids: payload.tag_ids } : {}),
+    }
+  }
+
+  const form = new FormData()
+
+  if (payload.title !== undefined) {
+    form.append("title", payload.title)
+  }
+
+  if (payload.category_id !== undefined) {
+    form.append(
+      "category_id",
+      payload.category_id === null ? "" : String(payload.category_id),
+    )
+  }
+
+  if (payload.tags !== undefined) {
+    form.append("tags", payload.tags ?? "")
+  }
+
+  if (payload.content !== undefined) {
+    form.append("content", payload.content)
+  }
+
+  if (payload.funding_url !== undefined) {
+    form.append("funding_url", payload.funding_url ?? "")
+  }
+
+  if (payload.excerpt !== undefined) {
+    form.append("excerpt", payload.excerpt ?? "")
+  }
+
+  if (payload.tag_ids) {
+    payload.tag_ids.forEach((tagId) => form.append("tag_ids[]", String(tagId)))
+  }
+
+  payload.images?.forEach((image) => form.append("images[]", image))
+
+  return form
 }
 
 export async function listPosts(
@@ -68,11 +132,11 @@ export async function getPost(identifier: string, token?: string | null) {
   return normalizeCommunityPost(response.data)
 }
 
-export async function createPost(payload: UpsertPostPayload, token: string) {
+export async function createPost(payload: PostFormPayload, token: string) {
   const response = await requestApi<CommunityPost>("/posts", {
     method: "POST",
     token,
-    body: payload,
+    body: buildPostBody(payload),
   })
 
   return normalizeCommunityPost(response.data)
@@ -80,13 +144,13 @@ export async function createPost(payload: UpsertPostPayload, token: string) {
 
 export async function updatePost(
   postId: number,
-  payload: Partial<UpsertPostPayload>,
+  payload: Partial<PostFormPayload>,
   token: string,
 ) {
   const response = await requestApi<CommunityPost>(`/posts/${postId}`, {
-    method: "PATCH",
+    method: "PUT",
     token,
-    body: payload,
+    body: buildPostBody(payload),
   })
 
   return normalizeCommunityPost(response.data)

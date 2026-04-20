@@ -10,6 +10,7 @@ use App\Models\UserNotification;
 use App\Services\NotificationService;
 use App\Support\PaginatesResources;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
@@ -44,5 +45,14 @@ class NotificationController extends Controller
             new UserNotificationResource($notification),
             'Notification marked as read.'
         );
+    }
+
+    public function markAllRead(Request $request, NotificationService $notificationService): JsonResponse
+    {
+        $markedCount = $notificationService->markAllAsRead($request->user());
+
+        return $this->successResponse([
+            'marked_count' => $markedCount,
+        ], 'Notifications marked as read.');
     }
 }

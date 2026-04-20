@@ -1,24 +1,24 @@
-import { CommunityPostDetail } from "@/components/community/community-post-detail"
+import { CommunityProfilePage } from "@/components/community/community-profile-page"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
 
-type CommunityPostPageProps = {
-  params: Promise<{ locale: string; slug: string }>
+type CommunityProfileRoutePageProps = {
+  params: Promise<{ locale: string; username: string }>
 }
 
-export default async function CommunityPostPage({
+export default async function CommunityProfileRoutePage({
   params,
-}: CommunityPostPageProps) {
+}: CommunityProfileRoutePageProps) {
   const locale = await resolveLocale(params)
   const resolvedParams = await params
   const messages = getMessages(locale)
 
   return (
     <>
-      <CommunityPostDetail
+      <CommunityProfilePage
         locale={locale}
-        slug={resolvedParams.slug}
+        username={resolvedParams.username}
         messages={messages.community}
       />
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />

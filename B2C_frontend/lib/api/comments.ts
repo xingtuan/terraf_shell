@@ -55,7 +55,7 @@ export async function updateComment(
   token: string,
 ) {
   const response = await requestApi<CommunityComment>(`/comments/${commentId}`, {
-    method: "PATCH",
+    method: "PUT",
     token,
     body: { content } satisfies CommentPayload,
   })

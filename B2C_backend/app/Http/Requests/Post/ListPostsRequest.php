@@ -24,9 +24,11 @@ class ListPostsRequest extends FormRequest
     {
         return [
             'q' => ['nullable', 'string', 'min:2', 'max:100'],
+            'search' => ['nullable', 'string', 'min:2', 'max:100'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'category' => ['nullable', 'string', 'max:120'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'liked_by' => ['nullable', 'string', 'max:30'],
             'creator' => ['nullable', 'string', 'max:120'],
             'creator_role' => ['nullable', Rule::in(UserRole::values())],
             'school_or_company' => ['nullable', 'string', 'max:160'],

@@ -25,6 +25,7 @@ class Post extends Model
         'slug',
         'content',
         'excerpt',
+        'funding_url',
         'status',
         'is_pinned',
         'is_featured',

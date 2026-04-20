@@ -69,6 +69,12 @@ class PostForm
                                     ->rows(4)
                                     ->helperText('Leave blank to generate an excerpt from the content.')
                                     ->columnSpanFull(),
+                                TextInput::make('funding_url')
+                                    ->label('Funding URL')
+                                    ->url()
+                                    ->maxLength(2048)
+                                    ->placeholder('https://www.gofundme.com/... or https://www.kickstarter.com/...')
+                                    ->columnSpanFull(),
                                 Textarea::make('content')
                                     ->required()
                                     ->rows(16)

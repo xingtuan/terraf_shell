@@ -4,13 +4,37 @@ import { useState, useTransition } from "react"
 
 import type { LoginPayload, RegisterPayload } from "@/lib/api/auth"
 import { getErrorMessage } from "@/lib/api/client"
-import type { CommunityCopy } from "@/lib/community-copy"
 import type { CommunityUser } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
+export type CommunityAuthCopy = {
+  title: string
+  description: string
+  loginTab: string
+  registerTab: string
+  loadingSession: string
+  currentUser: string
+  signedInAs: string
+  logout: string
+  refreshProfile: string
+  email: string
+  password: string
+  name: string
+  username: string
+  confirmPassword: string
+  loginSubmit: string
+  registerSubmit: string
+  guestHint: string
+  refreshSuccess: string
+  emailPlaceholder: string
+  passwordPlaceholder: string
+  namePlaceholder: string
+  usernamePlaceholder: string
+}
+
 type CommunityAuthPanelProps = {
-  copy: CommunityCopy["auth"]
+  copy: CommunityAuthCopy
   user: CommunityUser | null
   isReady: boolean
   isLoadingUser: boolean
@@ -76,7 +100,7 @@ export function CommunityAuthPanel({
               startTransition(() => {
                 void onRefresh()
                   .then(() => {
-                    setMessage("Profile refreshed from /api/auth/me.")
+                    setMessage(copy.refreshSuccess)
                   })
                   .catch((error) => {
                     setMessage(getErrorMessage(error))
@@ -175,7 +199,7 @@ export function CommunityAuthPanel({
             <Input
               name="email"
               type="email"
-              placeholder="jane@example.com"
+              placeholder={copy.emailPlaceholder}
               required
             />
           </label>
@@ -184,7 +208,7 @@ export function CommunityAuthPanel({
             <Input
               name="password"
               type="password"
-              placeholder="password123"
+              placeholder={copy.passwordPlaceholder}
               required
             />
           </label>
@@ -224,11 +248,15 @@ export function CommunityAuthPanel({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="space-y-2">
               <span className="text-sm text-foreground">{copy.name}</span>
-              <Input name="name" placeholder="Jane Doe" required />
+              <Input name="name" placeholder={copy.namePlaceholder} required />
             </label>
             <label className="space-y-2">
               <span className="text-sm text-foreground">{copy.username}</span>
-              <Input name="username" placeholder="janedoe" required />
+              <Input
+                name="username"
+                placeholder={copy.usernamePlaceholder}
+                required
+              />
             </label>
           </div>
           <label className="space-y-2">
@@ -236,7 +264,7 @@ export function CommunityAuthPanel({
             <Input
               name="email"
               type="email"
-              placeholder="jane@example.com"
+              placeholder={copy.emailPlaceholder}
               required
             />
           </label>
@@ -246,7 +274,7 @@ export function CommunityAuthPanel({
               <Input
                 name="password"
                 type="password"
-                placeholder="password123"
+                placeholder={copy.passwordPlaceholder}
                 required
               />
             </label>
@@ -257,7 +285,7 @@ export function CommunityAuthPanel({
               <Input
                 name="password_confirmation"
                 type="password"
-                placeholder="password123"
+                placeholder={copy.passwordPlaceholder}
                 required
               />
             </label>

@@ -7,13 +7,14 @@ import type {
   UserNotification,
 } from "@/lib/types"
 
-export type ListNotificationsParams = {
+export type NotificationParams = {
+  page?: number
   per_page?: number
 }
 
-export async function listNotifications(
-  token: string,
-  params: ListNotificationsParams = {},
+export async function getNotifications(
+  params: NotificationParams = {},
+  token?: string | null,
 ): Promise<PaginatedResult<UserNotification, NotificationPaginationMeta>> {
   const response = await requestApi<UserNotification[]>("/notifications", {
     token,
@@ -30,6 +31,25 @@ export async function listNotifications(
         ?.unread_count,
     },
   }
+}
+
+export async function listNotifications(
+  token: string,
+  params: NotificationParams = {},
+) {
+  return getNotifications(params, token)
+}
+
+export async function markAllNotificationsRead(token: string) {
+  const response = await requestApi<{ marked_count: number }>(
+    "/notifications/read-all",
+    {
+      method: "POST",
+      token,
+    },
+  )
+
+  return response.data
 }
 
 export async function markNotificationRead(

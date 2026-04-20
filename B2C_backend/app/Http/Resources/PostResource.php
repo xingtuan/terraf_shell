@@ -27,6 +27,7 @@ class PostResource extends JsonResource
             'slug' => $this->slug,
             'content' => $this->content,
             'excerpt' => $this->excerpt,
+            'funding_url' => $this->funding_url,
             'status' => $this->status,
             'is_pinned' => (bool) $this->is_pinned,
             'is_featured' => (bool) $this->is_featured,

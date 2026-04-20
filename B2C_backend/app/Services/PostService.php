@@ -11,6 +11,7 @@ use App\Models\Favorite;
 use App\Models\IdeaMedia;
 use App\Models\Post;
 use App\Models\PostLike;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -48,6 +49,7 @@ class PostService
         $this->applyKeywordSearch($query, $filters);
         $this->applyCategoryFilter($query, $filters);
         $this->applyCreatorFilter($query, $filters);
+        $this->applyLikedByFilter($query, $filters);
         $this->applyProfileFilters($query, $filters);
 
         if (! empty($filters['user_id'])) {
@@ -120,13 +122,14 @@ class PostService
                 'slug' => $this->uniqueSlug($data['title']),
                 'content' => $data['content'],
                 'excerpt' => $data['excerpt'] ?? Str::limit(strip_tags($data['content']), 180),
+                'funding_url' => $data['funding_url'] ?? null,
                 'status' => $status,
                 'is_pinned' => $isAdmin ? (bool) ($data['is_pinned'] ?? false) : false,
                 'is_featured' => $isAdmin ? (bool) ($data['is_featured'] ?? false) : false,
                 'published_at' => $status === ContentStatus::Approved->value ? now() : null,
             ]);
 
-            $post->tags()->sync($data['tag_ids'] ?? []);
+            $this->syncTags($post, $data);
             $this->syncMedia($post, $data);
             $post = $this->postRankingService->refreshScores($post);
             $this->governanceService->flagSensitiveContent(
@@ -156,8 +159,9 @@ class PostService
             $post->fill([
                 'title' => $data['title'] ?? $post->title,
                 'content' => $data['content'] ?? $post->content,
-                'excerpt' => $data['excerpt'] ?? $post->excerpt,
-                'category_id' => $data['category_id'] ?? $post->category_id,
+                'excerpt' => array_key_exists('excerpt', $data) ? $data['excerpt'] : $post->excerpt,
+                'category_id' => array_key_exists('category_id', $data) ? $data['category_id'] : $post->category_id,
+                'funding_url' => array_key_exists('funding_url', $data) ? $data['funding_url'] : $post->funding_url,
             ]);
 
             if ($user->isAdmin()) {
@@ -177,8 +181,8 @@ class PostService
 
             $post->save();
 
-            if (array_key_exists('tag_ids', $data)) {
-                $post->tags()->sync($data['tag_ids'] ?? []);
+            if (array_key_exists('tag_ids', $data) || array_key_exists('tags', $data)) {
+                $this->syncTags($post, $data);
             }
 
             $this->syncMedia($post, $data);
@@ -335,11 +339,11 @@ class PostService
 
     private function applyKeywordSearch($query, array $filters): void
     {
-        if (empty($filters['q'])) {
+        $term = trim((string) ($filters['q'] ?? $filters['search'] ?? ''));
+
+        if ($term === '') {
             return;
         }
-
-        $term = trim((string) $filters['q']);
 
         $query->where(function ($searchQuery) use ($term): void {
             $this->applyCaseInsensitiveLike($searchQuery, ['title', 'content', 'excerpt'], $term);
@@ -367,6 +371,19 @@ class PostService
                 $profileQuery->where('region', 'like', '%'.$filters['region'].'%');
             });
         }
+    }
+
+    private function applyLikedByFilter($query, array $filters): void
+    {
+        if (empty($filters['liked_by'])) {
+            return;
+        }
+
+        $likedBy = (string) $filters['liked_by'];
+
+        $query->whereHas('likes.user', function ($userQuery) use ($likedBy): void {
+            $userQuery->where('username', $likedBy);
+        });
     }
 
     private function applySort($query, ?string $sort): void
@@ -457,6 +474,43 @@ class PostService
         }
 
         return $slug;
+    }
+
+    private function syncTags(Post $post, array $data): void
+    {
+        if (array_key_exists('tags', $data)) {
+            $post->tags()->sync($this->resolveTagIdsFromString((string) ($data['tags'] ?? '')));
+
+            return;
+        }
+
+        $post->tags()->sync($data['tag_ids'] ?? []);
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function resolveTagIdsFromString(string $tags): array
+    {
+        return collect(explode(',', $tags))
+            ->map(static fn (string $tag): string => trim($tag))
+            ->filter()
+            ->unique()
+            ->values()
+            ->map(function (string $tag): int {
+                $normalizedName = Str::limit($tag, 120, '');
+                $slug = Str::slug($normalizedName);
+
+                if ($slug === '') {
+                    $slug = 'tag-'.Str::lower(Str::random(8));
+                }
+
+                return Tag::query()->firstOrCreate(
+                    ['slug' => $slug],
+                    ['name' => $normalizedName]
+                )->id;
+            })
+            ->all();
     }
 
     private function perPage(null|int|string $requested): int
