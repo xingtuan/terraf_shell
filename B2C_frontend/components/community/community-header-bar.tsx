@@ -24,16 +24,19 @@ import {
 import { dispatchCommunityPostsRefresh } from "@/lib/community-events"
 import { getCommunityUserInitials } from "@/lib/community-ui"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
+import type { SiteSection } from "@/lib/types/content"
 import { useAuthSession } from "@/hooks/use-auth-session"
 
 type CommunityHeaderBarProps = {
   locale: Locale
   messages: SiteMessages["community"]
+  heroSection?: SiteSection | null
 }
 
 export function CommunityHeaderBar({
   locale,
   messages,
+  heroSection,
 }: CommunityHeaderBarProps) {
   const router = useRouter()
   const session = useAuthSession()
@@ -48,10 +51,10 @@ export function CommunityHeaderBar({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                {messages.layout.title}
+                {heroSection?.title ?? messages.layout.title}
               </p>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                {messages.layout.description}
+                {heroSection?.subtitle ?? messages.layout.description}
               </p>
             </div>
 

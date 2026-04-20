@@ -20,6 +20,10 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PostSeeder::class,
             MaterialContentSeeder::class,
+            SiteSectionSeeder::class,
+            MaterialPropertySeeder::class,
+            ProcessStepSeeder::class,
+            CertificationSeeder::class,
             ProductSeeder::class,
         ]);
     }
