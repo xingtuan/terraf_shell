@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use App\Support\StorageUrl;
 use Database\Factories\ProfileFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class Profile extends Model
 {
@@ -43,8 +43,7 @@ class Profile extends Model
                 return;
             }
 
-            $profile->avatar_url = Storage::disk((string) config('community.uploads.disk'))
-                ->url($profile->avatar_path);
+            $profile->avatar_url = StorageUrl::resolve($profile->avatar_path);
         });
     }
 

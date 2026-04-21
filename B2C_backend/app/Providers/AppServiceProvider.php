@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Filesystem\AzureFilesystemAdapter as LaravelAzureFilesystemAdapter;
 use App\Models\B2BLead;
 use App\Models\Comment;
 use App\Models\Inquiry;
@@ -14,7 +15,11 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Common\Internal\StorageServiceSettings;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +38,48 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $buildAzureConnectionString = static function (array $config): string {
+            $accountName = trim((string) ($config['name'] ?? ''));
+            $accountKey = trim((string) ($config['key'] ?? ''));
+            $serviceUrl = trim((string) ($config['storage_url'] ?? ''));
+            $protocol = parse_url($serviceUrl, PHP_URL_SCHEME) ?: 'https';
+
+            $connectionString = sprintf(
+                'DefaultEndpointsProtocol=%s;AccountName=%s;AccountKey=%s',
+                $protocol,
+                $accountName,
+                $accountKey
+            );
+
+            if ($serviceUrl !== '') {
+                $connectionString .= ';BlobEndpoint='.rtrim($serviceUrl, '/');
+            }
+
+            return $connectionString.';';
+        };
+
+        Storage::extend('azure', function ($app, array $config) use ($buildAzureConnectionString) {
+            $connectionString = $buildAzureConnectionString($config);
+            $client = BlobRestProxy::createBlobService($connectionString);
+            $serviceSettings = StorageServiceSettings::createFromConnectionString($connectionString);
+
+            $adapter = new AzureBlobStorageAdapter(
+                $client,
+                (string) $config['container'],
+                (string) ($config['prefix'] ?? ''),
+                null,
+                5000,
+                AzureBlobStorageAdapter::ON_VISIBILITY_IGNORE,
+                $serviceSettings
+            );
+
+            return new LaravelAzureFilesystemAdapter(
+                $this->createFlysystem($adapter, $config),
+                $adapter,
+                $config
+            );
+        });
+
         Relation::enforceMorphMap([
             'post' => Post::class,
             'comment' => Comment::class,

@@ -24,7 +24,7 @@ return [
     | may even configure multiple disks for the same driver. Examples for
     | most supported storage drivers are configured here for reference.
     |
-    | Supported drivers: "local", "ftp", "sftp", "s3"
+    | Supported drivers: "local", "ftp", "sftp", "s3", "azure"
     |
     */
 
@@ -56,6 +56,20 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => false,
+            'report' => false,
+        ],
+
+        'azure' => [
+            'driver' => 'azure',
+            'name' => env('AZURE_STORAGE_NAME'),
+            'key' => env('AZURE_STORAGE_KEY'),
+            'container' => env('AZURE_STORAGE_CONTAINER', 'uploads'),
+            'prefix' => null,
+            'storage_url' => env('AZURE_STORAGE_URL'),
+            'url' => env('AZURE_STORAGE_URL')
+                ? rtrim((string) env('AZURE_STORAGE_URL'), '/').'/'.env('AZURE_STORAGE_CONTAINER', 'uploads')
+                : null,
             'throw' => false,
             'report' => false,
         ],

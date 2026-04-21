@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\Admin\AnalyticsController as AdminAnalyticsController;
 use App\Http\Controllers\Api\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Api\Admin\B2BLeadController as AdminB2BLeadController;
@@ -18,11 +19,10 @@ use App\Http\Controllers\Api\Admin\SystemAnnouncementController;
 use App\Http\Controllers\Api\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Api\Admin\UserModerationController;
 use App\Http\Controllers\Api\ArticleController;
-use App\Http\Controllers\Api\AddressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BusinessContactController;
-use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CommentLikeController;
 use App\Http\Controllers\Api\FavoriteController;
@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SampleRequestController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -114,7 +115,13 @@ Route::get('/users/{user}', [UserController::class, 'show']);
 Route::get('/search', [SearchController::class, 'index']);
 Route::get('/search/posts', [SearchController::class, 'posts']);
 
+if ((bool) config('community.uploads.allow_guest_upload', false)) {
+    Route::post('/media/upload/guest', [UploadController::class, 'upload']);
+}
+
 Route::middleware('auth:sanctum')->group(function (): void {
+    Route::post('/media/upload', [UploadController::class, 'upload']);
+    Route::delete('/media', [UploadController::class, 'destroy']);
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->whereNumber('notification');

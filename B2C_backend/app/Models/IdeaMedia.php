@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\IdeaMediaKind;
 use App\Enums\IdeaMediaSourceType;
 use App\Enums\IdeaMediaType;
+use App\Support\StorageUrl;
 use Database\Factories\IdeaMediaFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -83,7 +84,7 @@ class IdeaMedia extends Model
             $media->original_name = $media->original_name ?: $media->file_name;
             $media->media_type = $media->media_type ?: self::inferMediaTypeFromExtension($media->extension)->value;
             $media->kind = $media->kind ?: IdeaMediaKind::defaultForType($media->mediaType())->value;
-            $media->url = Storage::disk($media->disk)->url($media->path);
+            $media->url = StorageUrl::resolve($media->path, $media->disk);
             $media->preview_url = $media->isImage() ? ($media->preview_url ?: $media->url) : null;
             $media->thumbnail_url = $media->isImage() ? ($media->thumbnail_url ?: $media->url) : null;
         });

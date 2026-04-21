@@ -15,7 +15,8 @@ return [
         'trending_recency_boost_hours' => 168,
     ],
     'uploads' => [
-        'disk' => env('COMMUNITY_UPLOAD_DISK', env('FILESYSTEM_DISK', 's3')),
+        'disk' => env('COMMUNITY_UPLOAD_DISK', env('FILESYSTEM_DISK', 'azure')),
+        'allow_guest_upload' => (bool) env('ALLOW_GUEST_UPLOAD', false),
     ],
     'idea_media' => [
         'directory' => env('IDEA_MEDIA_DIRECTORY', 'ideas'),

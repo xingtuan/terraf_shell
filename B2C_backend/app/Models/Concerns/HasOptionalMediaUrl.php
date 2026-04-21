@@ -2,7 +2,7 @@
 
 namespace App\Models\Concerns;
 
-use Illuminate\Support\Facades\Storage;
+use App\Support\StorageUrl;
 
 trait HasOptionalMediaUrl
 {
@@ -10,11 +10,12 @@ trait HasOptionalMediaUrl
     {
         static::saving(function ($model): void {
             if (blank($model->media_path)) {
+                $model->media_url = null;
+
                 return;
             }
 
-            $model->media_url = Storage::disk((string) config('community.uploads.disk'))
-                ->url($model->media_path);
+            $model->media_url = StorageUrl::resolve($model->media_path);
         });
     }
 }
