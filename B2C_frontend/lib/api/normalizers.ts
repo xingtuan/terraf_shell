@@ -1,7 +1,27 @@
 import { getApiBaseUrl } from "@/lib/api/client"
 import type { ApiPaginationMeta, MaterialSpecIcon } from "@/lib/types"
 
+function getConfiguredMediaOrigin() {
+  const mediaBaseUrl = process.env.NEXT_PUBLIC_MEDIA_BASE_URL?.trim()
+
+  if (mediaBaseUrl && /^https?:\/\//i.test(mediaBaseUrl)) {
+    try {
+      return new URL(mediaBaseUrl).origin
+    } catch {
+      return null
+    }
+  }
+
+  return null
+}
+
 function getApiOrigin() {
+  const configuredMediaOrigin = getConfiguredMediaOrigin()
+
+  if (configuredMediaOrigin) {
+    return configuredMediaOrigin
+  }
+
   const apiBaseUrl = getApiBaseUrl()
 
   if (/^https?:\/\//i.test(apiBaseUrl)) {
