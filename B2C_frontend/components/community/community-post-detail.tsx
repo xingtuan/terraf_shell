@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { MoreHorizontal } from "lucide-react"
-import { useEffect, useEffectEvent, useState, type FormEvent } from "react"
+import { useEffect, useEffectEvent, useState, type FormEvent, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
 import { CommentThread } from "@/components/community/comment-thread"
@@ -46,6 +47,8 @@ type CommunityPostDetailProps = {
   locale: Locale
   slug: string
   messages: SiteMessages["community"]
+  initialPost?: CommunityPost | null
+  children?: ReactNode
 }
 
 function updateCommentTree(
@@ -69,10 +72,12 @@ export function CommunityPostDetail({
   locale,
   slug,
   messages,
+  initialPost = null,
+  children,
 }: CommunityPostDetailProps) {
   const router = useRouter()
   const session = useAuthSession()
-  const [post, setPost] = useState<CommunityPost | null>(null)
+  const [post, setPost] = useState<CommunityPost | null>(initialPost)
   const [comments, setComments] = useState<CommunityComment[]>([])
   const [commentText, setCommentText] = useState("")
   const [message, setMessage] = useState<string | null>(null)
@@ -92,7 +97,7 @@ export function CommunityPostDetail({
     setMessage(null)
 
     try {
-      const nextPost = await getPost(slug, session.token)
+      const nextPost = await getPost(slug, { token: session.token })
       setPost(nextPost)
       setIsLoadingComments(true)
 
@@ -209,13 +214,20 @@ export function CommunityPostDetail({
         {post ? (
           <>
             <article className="overflow-hidden rounded-[2rem] border border-border/60 bg-card">
-              <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
-                <img
-                  src={getCommunityPostCoverImage(post)}
-                  alt={post.images[0]?.alt_text ?? post.title}
-                  className="h-full w-full object-cover"
-                />
-              </div>
+              {(post.cover_image_url ||
+                post.images[0]?.url ||
+                post.media?.some((item) => item.media_type === "image")) ? (
+                <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                  <Image
+                    src={getCommunityPostCoverImage(post)}
+                    alt={post.images[0]?.alt_text ?? post.title}
+                    fill
+                    unoptimized
+                    sizes="(min-width: 1280px) 1152px, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+              ) : null}
               <div className="space-y-8 p-8">
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                   <div className="space-y-5">
@@ -295,10 +307,8 @@ export function CommunityPostDetail({
                   </p>
                   <p>
                     <span className="text-foreground">{messages.post.published}:</span>{" "}
-                    {formatCommunityDate(
-                      locale,
-                      post.published_at ?? post.created_at,
-                    ) ?? ""}
+                    {formatCommunityDate(locale, post.published_at ?? post.created_at) ?? ""}
+                    {post.reading_time ? ` | ${post.reading_time} min read` : ""}
                   </p>
                   <p>
                     <span className="text-foreground">{messages.post.status}:</span>{" "}
@@ -306,9 +316,13 @@ export function CommunityPostDetail({
                   </p>
                 </div>
 
-                <div className="whitespace-pre-wrap leading-8 text-foreground">
-                  {post.content}
-                </div>
+                {children ? (
+                  <div className="leading-8 text-foreground">{children}</div>
+                ) : (
+                  <div className="whitespace-pre-wrap leading-8 text-foreground">
+                    {post.content}
+                  </div>
+                )}
 
                 {post.tags.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
@@ -591,6 +605,7 @@ export function CommunityPostDetail({
         onSuccess={(updatedPost) => {
           setPost(updatedPost)
           setMessage(messages.post.updatedPost)
+          router.refresh()
         }}
       />
 

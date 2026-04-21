@@ -10,6 +10,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin Post */
 class PostResource extends JsonResource
 {
+    private bool $includeDetailFields = false;
+
+    public function includeDetailFields(): self
+    {
+        $this->includeDetailFields = true;
+
+        return $this;
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -26,8 +35,12 @@ class PostResource extends JsonResource
             'title' => $this->title,
             'slug' => $this->slug,
             'content' => $this->content,
+            'content_json' => $this->when($this->includeDetailFields, $this->content_json),
             'excerpt' => $this->excerpt,
             'funding_url' => $this->funding_url,
+            'cover_image_url' => $this->coverImageUrl(),
+            'cover_image_path' => $this->when($this->includeDetailFields, $this->cover_image_path),
+            'reading_time' => (int) ($this->reading_time ?? 0),
             'status' => $this->status,
             'is_pinned' => (bool) $this->is_pinned,
             'is_featured' => (bool) $this->is_featured,

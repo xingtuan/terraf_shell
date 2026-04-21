@@ -112,6 +112,7 @@ class PostService
     public function create(User $user, array $data): Post
     {
         return DB::transaction(function () use ($user, $data): Post {
+            $data = $this->preparePostData($data);
             $isAdmin = $user->isAdmin();
             $status = $isAdmin ? ContentStatus::Approved->value : ContentStatus::Pending->value;
 
@@ -121,8 +122,12 @@ class PostService
                 'title' => $data['title'],
                 'slug' => $this->uniqueSlug($data['title']),
                 'content' => $data['content'],
-                'excerpt' => $data['excerpt'] ?? Str::limit(strip_tags($data['content']), 180),
+                'content_json' => $data['content_json'] ?? null,
+                'excerpt' => $data['excerpt'] ?? null,
                 'funding_url' => $data['funding_url'] ?? null,
+                'cover_image_url' => $data['cover_image_url'] ?? null,
+                'cover_image_path' => $data['cover_image_path'] ?? null,
+                'reading_time' => $data['reading_time'] ?? 0,
                 'status' => $status,
                 'is_pinned' => $isAdmin ? (bool) ($data['is_pinned'] ?? false) : false,
                 'is_featured' => $isAdmin ? (bool) ($data['is_featured'] ?? false) : false,
@@ -150,7 +155,12 @@ class PostService
     public function update(User $user, Post $post, array $data): Post
     {
         return DB::transaction(function () use ($user, $post, $data): Post {
+            $data = $this->preparePostData($data, $post);
             $wasFeatured = (bool) $post->is_featured;
+            $previousCoverImagePath = $post->cover_image_path;
+            $nextCoverImagePath = array_key_exists('cover_image_path', $data)
+                ? $data['cover_image_path']
+                : $post->cover_image_path;
 
             if (array_key_exists('title', $data) && $data['title'] !== $post->title) {
                 $post->slug = $this->uniqueSlug($data['title'], $post->id);
@@ -159,9 +169,13 @@ class PostService
             $post->fill([
                 'title' => $data['title'] ?? $post->title,
                 'content' => $data['content'] ?? $post->content,
+                'content_json' => array_key_exists('content_json', $data) ? $data['content_json'] : $post->content_json,
                 'excerpt' => array_key_exists('excerpt', $data) ? $data['excerpt'] : $post->excerpt,
                 'category_id' => array_key_exists('category_id', $data) ? $data['category_id'] : $post->category_id,
                 'funding_url' => array_key_exists('funding_url', $data) ? $data['funding_url'] : $post->funding_url,
+                'cover_image_url' => array_key_exists('cover_image_url', $data) ? $data['cover_image_url'] : $post->cover_image_url,
+                'cover_image_path' => $nextCoverImagePath,
+                'reading_time' => $data['reading_time'] ?? $post->reading_time,
             ]);
 
             if ($user->isAdmin()) {
@@ -200,6 +214,16 @@ class PostService
 
             if ($user->isAdmin() && ! $wasFeatured && $post->is_featured) {
                 $this->notificationService->notifyPostFeatured($post, $user);
+            }
+
+            if (
+                array_key_exists('cover_image_path', $data)
+                && filled($previousCoverImagePath)
+                && $previousCoverImagePath !== $nextCoverImagePath
+            ) {
+                DB::afterCommit(function () use ($previousCoverImagePath): void {
+                    $this->mediaService->delete($previousCoverImagePath);
+                });
             }
 
             return $this->reload($post, $user);
@@ -479,7 +503,7 @@ class PostService
     private function syncTags(Post $post, array $data): void
     {
         if (array_key_exists('tags', $data)) {
-            $post->tags()->sync($this->resolveTagIdsFromString((string) ($data['tags'] ?? '')));
+            $post->tags()->sync($this->resolveTagIds($data['tags'] ?? []));
 
             return;
         }
@@ -490,9 +514,12 @@ class PostService
     /**
      * @return array<int, int>
      */
-    private function resolveTagIdsFromString(string $tags): array
+    private function resolveTagIds(array|string $tags): array
     {
-        return collect(explode(',', $tags))
+        $values = is_array($tags) ? $tags : explode(',', $tags);
+
+        return collect($values)
+            ->filter(static fn (mixed $tag): bool => is_string($tag))
             ->map(static fn (string $tag): string => trim($tag))
             ->filter()
             ->unique()
@@ -774,5 +801,111 @@ class PostService
 
         Post::query()->whereKey($post->id)->increment('views_count');
         $post->views_count = (int) $post->views_count + 1;
+    }
+
+    private function preparePostData(array $data, ?Post $post = null): array
+    {
+        $contentChanged = array_key_exists('content', $data) || array_key_exists('content_json', $data);
+        $contentJson = $this->normalizeContentJson($data['content_json'] ?? null);
+        $plainTextFromJson = $contentJson !== null
+            ? $this->extractPlainTextFromContentJson($contentJson)
+            : null;
+
+        if (array_key_exists('content_json', $data)) {
+            $data['content_json'] = $contentJson;
+        }
+
+        if (array_key_exists('content', $data)) {
+            $data['content'] = trim((string) $data['content']);
+        } elseif ($plainTextFromJson !== null) {
+            $data['content'] = $plainTextFromJson;
+        }
+
+        $effectiveContent = (string) ($data['content'] ?? $post?->content ?? '');
+        $effectivePlainText = $plainTextFromJson ?? $this->normalizePlainText($effectiveContent);
+
+        if (array_key_exists('excerpt', $data) && is_string($data['excerpt'])) {
+            $data['excerpt'] = trim($data['excerpt']);
+        }
+
+        if (array_key_exists('excerpt', $data) && ! filled($data['excerpt'])) {
+            $data['excerpt'] = $this->generateExcerpt($effectivePlainText);
+        } elseif ($post === null || $contentChanged) {
+            $data['excerpt'] = $this->generateExcerpt($effectivePlainText);
+        }
+
+        if ($post === null || $contentChanged || array_key_exists('reading_time', $data)) {
+            $data['reading_time'] = $this->estimateReadingTime($effectivePlainText);
+        }
+
+        return $data;
+    }
+
+    private function normalizeContentJson(mixed $value): ?array
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $decoded = json_decode($value, true);
+
+        return is_array($decoded) ? $decoded : null;
+    }
+
+    private function extractPlainTextFromContentJson(array $document): string
+    {
+        $segments = [];
+        $this->collectTextNodes($document, $segments);
+
+        return $this->normalizePlainText(implode(' ', $segments));
+    }
+
+    /**
+     * @param  array<int, string>  $segments
+     */
+    private function collectTextNodes(mixed $node, array &$segments): void
+    {
+        if (! is_array($node)) {
+            return;
+        }
+
+        if (isset($node['text']) && is_string($node['text'])) {
+            $segments[] = $node['text'];
+        }
+
+        foreach ($node as $value) {
+            if (is_array($value)) {
+                $this->collectTextNodes($value, $segments);
+            }
+        }
+    }
+
+    private function normalizePlainText(string $value): string
+    {
+        return Str::of(strip_tags($value))
+            ->squish()
+            ->value();
+    }
+
+    private function generateExcerpt(string $plainText): string
+    {
+        return Str::limit($plainText, 160, '');
+    }
+
+    private function estimateReadingTime(string $plainText): int
+    {
+        $words = collect(preg_split('/\s+/u', trim($plainText)) ?: [])
+            ->filter(static fn (string $word): bool => $word !== '')
+            ->count();
+
+        return max(1, (int) ceil($words / 200));
     }
 }

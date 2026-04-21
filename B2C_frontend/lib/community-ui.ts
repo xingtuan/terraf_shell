@@ -56,10 +56,21 @@ export function getCommunityCommentPreview(
 }
 
 export function getCommunityPostCoverImage(post: CommunityPost) {
+  const mediaImage = post.media?.find(
+    (item) =>
+      item.media_type === "image" ||
+      item.kind?.includes("image") ||
+      item.is_image,
+  )
+
   return (
+    post.cover_image_url ??
     post.images[0]?.thumbnail_url ??
     post.images[0]?.preview_url ??
     post.images[0]?.url ??
+    mediaImage?.thumbnail_url ??
+    mediaImage?.preview_url ??
+    mediaImage?.url ??
     "/placeholder.jpg"
   )
 }

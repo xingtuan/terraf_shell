@@ -5,6 +5,7 @@ namespace App\Http\Requests\Post;
 use App\Enums\IdeaMediaKind;
 use App\Enums\IdeaMediaType;
 use App\Models\Post;
+use App\Rules\ValidTiptapDocument;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
@@ -30,11 +31,15 @@ class StorePostRequest extends FormRequest
 
         return [
             'title' => ['required', 'string', 'max:100'],
-            'content' => ['required', 'string', 'min:20'],
-            'excerpt' => ['nullable', 'string', 'max:400'],
+            'content' => ['nullable', 'string', 'min:20', 'required_without:content_json'],
+            'content_json' => ['nullable', 'string', new ValidTiptapDocument()],
+            'excerpt' => ['nullable', 'string', 'max:500'],
             'funding_url' => ['nullable', 'url', 'max:2048'],
+            'cover_image_url' => ['nullable', 'url', 'max:2048'],
+            'cover_image_path' => ['nullable', 'string', 'max:1024'],
+            'reading_time' => ['nullable', 'integer', 'min:0', 'max:999'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'tags' => ['nullable', 'string', 'max:255'],
+            'tags' => [$this->tagsRule()],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
             'images' => ['nullable', 'array', 'max:4'],
@@ -112,5 +117,36 @@ class StorePostRequest extends FormRequest
                 );
             }
         }
+    }
+
+    private function tagsRule(): ValidationRule|\Closure|string
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            if ($value === null || $value === '') {
+                return;
+            }
+
+            if (is_string($value)) {
+                if (mb_strlen($value) > 255) {
+                    $fail('The '.$attribute.' field must not be greater than 255 characters.');
+                }
+
+                return;
+            }
+
+            if (! is_array($value)) {
+                $fail('The '.$attribute.' field must be a string or an array.');
+
+                return;
+            }
+
+            foreach ($value as $tag) {
+                if (! is_string($tag) || trim($tag) === '' || mb_strlen($tag) > 120) {
+                    $fail('Each tag must be a non-empty string with a maximum length of 120 characters.');
+
+                    return;
+                }
+            }
+        };
     }
 }

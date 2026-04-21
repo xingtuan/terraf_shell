@@ -29,7 +29,7 @@ class PostController extends Controller
         $post = $postService->create($request->user(), $request->validated());
 
         return $this->successResponse(
-            new PostResource($post),
+            (new PostResource($post))->includeDetailFields(),
             'Post created successfully.',
             201
         );
@@ -39,7 +39,7 @@ class PostController extends Controller
     {
         $post = $postService->findForDisplay($identifier, $request->user());
 
-        return $this->successResponse(new PostResource($post));
+        return $this->successResponse((new PostResource($post))->includeDetailFields());
     }
 
     public function update(UpdatePostRequest $request, Post $post, PostService $postService): JsonResponse
@@ -47,7 +47,7 @@ class PostController extends Controller
         $post = $postService->update($request->user(), $post, $request->validated());
 
         return $this->successResponse(
-            new PostResource($post),
+            (new PostResource($post))->includeDetailFields(),
             'Post updated successfully.'
         );
     }

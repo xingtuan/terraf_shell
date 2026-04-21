@@ -24,8 +24,12 @@ class Post extends Model
         'title',
         'slug',
         'content',
+        'content_json',
         'excerpt',
         'funding_url',
+        'cover_image_url',
+        'cover_image_path',
+        'reading_time',
         'status',
         'is_pinned',
         'is_featured',
@@ -40,8 +44,10 @@ class Post extends Model
     protected function casts(): array
     {
         return [
+            'content_json' => 'array',
             'is_pinned' => 'boolean',
             'is_featured' => 'boolean',
+            'reading_time' => 'integer',
             'engagement_score' => 'integer',
             'trending_score' => 'integer',
             'views_count' => 'integer',
@@ -135,6 +141,10 @@ class Post extends Model
 
     public function coverImageUrl(): ?string
     {
+        if (filled($this->cover_image_url)) {
+            return $this->cover_image_url;
+        }
+
         $image = $this->relationLoaded('media')
             ? $this->media->first(fn (IdeaMedia $media): bool => $media->isImage())
             : $this->media()->ordered()->get()->first(fn (IdeaMedia $media): bool => $media->isImage());

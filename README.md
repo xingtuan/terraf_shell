@@ -1,3 +1,4 @@
+<<<<<<< ours
 # Shellfin / terraf 项目说明
 
 ## 1. 项目概述
@@ -66,16 +67,83 @@
 ---
 
 ## 3. 技术栈
+=======
+# terraf / Shellfin Monorepo
+
+一个前后端分离的仓库，包含：
+
+- `B2C_frontend/`：基于 Next.js 16 的官网、商城、文章、账户与社区前端
+- `B2C_backend/`：基于 Laravel 13 的 REST API、后台管理、内容 CMS、社区与订单后端
+
+项目围绕 Shellfin 的品牌官网、材料叙事、商品目录、B2B 线索收集和社区互动展开，同时保留了继续扩展为更完整商业系统的结构。
+
+## 当前状态
+
+当前仓库已经不是单纯的静态官网脚手架，真实接入的能力包括：
+
+- 官网内容页：首页、材料页、文章页、B2B、联系页
+- 商品能力：商品列表、详情、购物车、地址、订单
+- 社区能力：注册登录、个人资料、帖子、评论、点赞、收藏、关注、通知、搜索、举报
+- 管理后台：Filament 管理面板、内容管理、分类标签、审核治理、B2B 线索、分析面板
+- 媒体上传：后端统一媒体上传接口，默认使用 Azure Blob Storage，也支持本地 `public` 磁盘回退
+
+仍然需要注意的点：
+
+- 前端中仍保留少量 `lib/data/*` 和部分 mock/fallback 逻辑
+- 材料详情接口目前更接近品牌定制的静态结构输出，而不是完整的通用材料 CMS API
+- 社区上传客户端已提供，但是否在所有 UI 入口启用，取决于具体页面实现
+
+## 仓库结构
+
+```text
+.
+├─ B2C_frontend/          # Next.js 16 前端
+│  ├─ app/                # App Router 页面
+│  ├─ components/         # 页面区块、社区组件、UI 组件
+│  ├─ hooks/              # 前端 hooks
+│  ├─ lib/
+│  │  ├─ api/             # API 请求封装
+│  │  ├─ auth/            # token 存储
+│  │  ├─ data/            # fallback / mock 数据
+│  │  └─ types.ts         # 前端类型
+│  ├─ messages/           # 多语言文案
+│  └─ public/             # 静态资源
+├─ B2C_backend/           # Laravel 13 后端
+│  ├─ app/
+│  │  ├─ Http/            # Controllers / Requests / Resources
+│  │  ├─ Models/          # Eloquent 模型
+│  │  ├─ Services/        # 业务服务层
+│  │  ├─ Policies/        # 授权策略
+│  │  ├─ Filament/        # 管理后台资源
+│  │  ├─ Filesystem/      # 自定义 Azure 文件系统适配
+│  │  └─ Support/         # 响应与工具类
+│  ├─ config/             # Laravel 配置
+│  ├─ database/           # migrations / factories / seeders
+│  ├─ routes/             # API 路由
+│  └─ tests/              # Feature 测试
+└─ README.md              # 仓库总说明
+```
+
+## 技术栈
+>>>>>>> theirs
 
 ### 前端
 
 - Next.js 16
 - React 19
+<<<<<<< ours
 - TypeScript
 - Tailwind CSS 4
 - Radix UI / shadcn 风格组件
 - `next/font` 字体加载
 - Vercel Analytics
+=======
+- TypeScript 5
+- Tailwind CSS 4
+- Radix UI
+- lucide-react
+- XMLHttpRequest + fetch 原生 API 调用
+>>>>>>> theirs
 
 ### 后端
 
@@ -83,6 +151,7 @@
 - Laravel 13
 - Laravel Sanctum
 - Filament 5
+<<<<<<< ours
 - 队列 Job（通知异步创建）
 - MySQL（默认环境模板）
 - Redis（默认环境模板中的缓存/队列）
@@ -154,11 +223,101 @@
 - `/[locale]/contact`：联系页
 
 当前支持语言：
+=======
+- MySQL
+- Redis
+- Azure Blob Storage
+- 本地 `public` 磁盘回退
+
+## 主要模块
+
+### 官网与内容
+
+- 首页聚合内容：`GET /api/homepage`
+- 材料展示：`GET /api/materials`、`GET /api/materials/{identifier}`
+- 文章：`GET /api/articles`、`GET /api/articles/{identifier}`
+- 后台 CMS：`materials`、`material-specs`、`material-story-sections`、`material-applications`、`articles`、`home-sections`
+
+### 商城
+
+- 商品分类：`GET /api/product-categories`
+- 商品列表与详情：`GET /api/products`、`GET /api/products/{slug}`
+- 购物车：`/api/cart`
+- 地址：`/api/addresses`
+- 订单：`/api/orders`
+
+### 社区
+
+- 认证：`/api/auth/*`
+- 帖子：`/api/posts`
+- 评论：`/api/posts/{post}/comments`、`/api/comments/{comment}/reply`
+- 点赞 / 收藏 / 关注
+- 通知：`/api/notifications`
+- 搜索：`/api/search`、`/api/search/posts`
+- 举报：`POST /api/reports`
+
+### 上传与媒体
+
+新增统一媒体上传接口：
+
+- `POST /api/media/upload`
+- `DELETE /api/media`
+- `POST /api/media/upload/guest`，受 `ALLOW_GUEST_UPLOAD` 控制
+
+后端媒体能力包括：
+
+- 默认磁盘为 `azure`
+- 本地开发可切换到 `public`
+- 按 MIME 自动归类到 `images / videos / audios / documents / others`
+- 路径格式：`{type}/{category}/{YYYY/MM}/{uuid}.{ext}`
+- 新增 `media_files` 表记录 `path / url / type / mime / size / owner`
+
+### 管理后台
+
+后台路径：
+
+- `/admin`
+
+主要能力：
+
+- 帖子 / 评论审核
+- 分类 / 标签管理
+- 用户角色与封禁管理
+- 违规记录、审计日志、举报处理
+- B2B 线索查看与导出
+- 内容 CMS 管理
+- 分析总览
+
+## 前端页面概览
+
+前端当前主要路由包括：
+
+- `/[locale]`
+- `/[locale]/material`
+- `/[locale]/articles`
+- `/[locale]/articles/[slug]`
+- `/[locale]/store`
+- `/[locale]/store/[slug]`
+- `/[locale]/store/checkout`
+- `/[locale]/store/orders`
+- `/[locale]/store/orders/[orderNumber]`
+- `/[locale]/account`
+- `/[locale]/account/profile`
+- `/[locale]/account/addresses`
+- `/[locale]/b2b`
+- `/[locale]/contact`
+- `/[locale]/community`
+- `/[locale]/community/[slug]`
+- `/[locale]/community/profile/[username]`
+
+多语言目前支持：
+>>>>>>> theirs
 
 - `en`
 - `ko`
 - `zh`
 
+<<<<<<< ours
 多语言相关逻辑集中在：
 
 - `B2C_frontend/lib/i18n.ts`
@@ -399,11 +558,51 @@ Laravel 后端采用典型的“薄控制器 + 服务层 + Resource”结构。
 ```
 
 ### 分页响应
+=======
+## 关键数据流
+
+### 前端 API 调用
+
+前端统一请求入口在：
+
+- `B2C_frontend/lib/api/client.ts`
+
+已经存在的主要 API 模块：
+
+- `auth.ts`
+- `products.ts`
+- `cart.ts`
+- `orders.ts`
+- `addresses.ts`
+- `materials.ts`
+- `articles.ts`
+- `homepage.ts`
+- `posts.ts`
+- `comments.ts`
+- `interactions.ts`
+- `notifications.ts`
+- `search.ts`
+- `users.ts`
+- `leads.ts`
+- `media.ts`
+
+### 后端分层
+
+后端遵循：
+
+- 薄 Controller
+- Form Request 做校验
+- Service 承载业务逻辑
+- Resource 输出统一响应结构
+
+统一响应格式：
+>>>>>>> theirs
 
 ```json
 {
   "success": true,
   "message": null,
+<<<<<<< ours
   "data": [],
   "meta": {
     "current_page": 1,
@@ -415,17 +614,29 @@ Laravel 后端采用典型的“薄控制器 + 服务层 + Resource”结构。
 ```
 
 ### 错误响应
+=======
+  "data": {}
+}
+```
+
+校验失败格式：
+>>>>>>> theirs
 
 ```json
 {
   "success": false,
+<<<<<<< ours
   "message": "Error summary",
+=======
+  "message": "The given data was invalid.",
+>>>>>>> theirs
   "errors": {
     "field": ["reason"]
   }
 }
 ```
 
+<<<<<<< ours
 ### 6.4 后端鉴权方式
 
 后端对前端 API 使用的是 **Sanctum token 鉴权**：
@@ -723,11 +934,43 @@ CommunityHub / CommunityPostDetail
 
 - Node.js 20+
 - pnpm
+=======
+## 媒体存储说明
+
+后端当前默认使用 Azure Blob Storage。
+
+`.env.example` 中新增的关键变量：
+
+```env
+FILESYSTEM_DISK=azure
+COMMUNITY_UPLOAD_DISK=azure
+AZURE_STORAGE_NAME=your-storage-account-name
+AZURE_STORAGE_KEY=your-storage-account-key
+AZURE_STORAGE_CONTAINER=uploads
+AZURE_STORAGE_URL=https://your-storage-account-name.blob.core.windows.net
+ALLOW_GUEST_UPLOAD=false
+```
+
+本地无 Azure 凭证时，可切回：
+
+```env
+FILESYSTEM_DISK=public
+COMMUNITY_UPLOAD_DISK=public
+```
+
+## 本地开发
+
+### 环境要求
+
+- Node.js 20+
+- pnpm 或 Corepack
+>>>>>>> theirs
 - PHP 8.3+
 - Composer
 - MySQL
 - Redis
 
+<<<<<<< ours
 如果只是快速本地跑通，也可以把后端改成更轻量的本地配置：
 
 - `QUEUE_CONNECTION=sync`
@@ -737,33 +980,49 @@ CommunityHub / CommunityPostDetail
 - `COMMUNITY_UPLOAD_DISK=public`
 
 ### 10.2 启动后端
+=======
+### 启动后端
+>>>>>>> theirs
 
 ```bash
 cd B2C_backend
 composer install
+<<<<<<< ours
 copy .env.example .env
+=======
+cp .env.example .env
+>>>>>>> theirs
 php artisan key:generate
 php artisan migrate --seed
 php artisan serve
 ```
 
+<<<<<<< ours
 如果你需要异步通知正常入库，再开一个终端：
+=======
+如果需要队列：
+>>>>>>> theirs
 
 ```bash
 cd B2C_backend
 php artisan queue:work
 ```
 
+<<<<<<< ours
 本地默认地址：
 
 - API：`http://127.0.0.1:8000`
 - Admin：`http://127.0.0.1:8000/admin`
 
 ### 10.3 启动前端
+=======
+### 启动前端
+>>>>>>> theirs
 
 ```bash
 cd B2C_frontend
 corepack pnpm install
+<<<<<<< ours
 copy .env.example .env.local
 corepack pnpm dev
 ```
@@ -775,11 +1034,19 @@ corepack pnpm dev
 ### 10.4 关键环境变量
 
 ### 前端
+=======
+cp .env.example .env.local
+corepack pnpm dev
+```
+
+前端默认 `NEXT_PUBLIC_API_BASE_URL=/api`。如果本地前后端分开跑且没有反向代理，改成绝对地址：
+>>>>>>> theirs
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api
 ```
 
+<<<<<<< ours
 ### 后端
 
 重点变量包括：
@@ -887,3 +1154,48 @@ php artisan test
 这个仓库当前最准确的定位是：
 
 **一个以 Shellfin 品牌官网为外壳、以 Laravel 社区与询盘能力为中台、并带有可扩展管理后台的前后端分离项目。**
+=======
+## 常用命令
+
+### 后端
+
+```bash
+composer test
+php artisan test
+vendor/bin/pint
+```
+
+### 前端
+
+```bash
+corepack pnpm dev
+corepack pnpm build
+npx tsc --noEmit
+```
+
+## 测试覆盖
+
+后端 `tests/Feature/Api` 已覆盖的方向包括：
+
+- 认证与个人资料
+- 商品目录
+- 购物车与订单
+- 社区帖子与评论
+- 社区互动与通知
+- 搜索与发现
+- B2B 线索
+- CMS 内容
+- 审核与治理
+- 媒体上传
+
+## 文档入口
+
+如果只想看单独模块：
+
+- [B2C_frontend/README.md](./B2C_frontend/README.md)
+- [B2C_backend/README.md](./B2C_backend/README.md)
+
+## 一句话总结
+
+这是一个已经具备“品牌官网 + 商品目录 + 社区 + 管理后台 + Azure 媒体存储”基础能力的 monorepo，而不是单纯的展示型落地页项目。
+>>>>>>> theirs

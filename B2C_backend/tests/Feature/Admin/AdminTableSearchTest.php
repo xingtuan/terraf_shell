@@ -57,10 +57,17 @@ class AdminTableSearchTest extends TestCase
             'username' => 'alice_stone',
         ]);
 
-        $matchingComment = Comment::factory()->for($matchingAuthor)->create([
+        $matchingPost = Post::factory()->create([
+            'title' => 'Alpha concept',
+        ]);
+        $nonMatchingPost = Post::factory()->create([
+            'title' => 'Beta concept',
+        ]);
+
+        $matchingComment = Comment::factory()->for($matchingAuthor)->for($matchingPost)->create([
             'content' => 'Thoughtful feedback on the roadmap.',
         ]);
-        $nonMatchingComment = Comment::factory()->for($nonMatchingAuthor)->create([
+        $nonMatchingComment = Comment::factory()->for($nonMatchingAuthor)->for($nonMatchingPost)->create([
             'content' => 'Another note for review.',
         ]);
 

@@ -528,8 +528,12 @@ export interface CommunityPost {
   title: string
   slug: string
   content: string
+  content_json?: JsonObject | null
   excerpt?: string | null
   funding_url?: string | null
+  cover_image_url?: string | null
+  cover_image_path?: string | null
+  reading_time?: number
   status: string
   is_pinned: boolean
   is_featured: boolean

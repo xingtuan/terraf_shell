@@ -12,6 +12,10 @@ import type {
   CommunityTag,
 } from "@/lib/types"
 
+type ApiRequestOverrides = {
+  baseUrl?: string
+}
+
 export type ListPostsParams = {
   page?: number
   q?: string
@@ -38,11 +42,14 @@ export type ListPostsParams = {
 export type PostFormPayload = {
   title: string
   category_id?: number | null
-  tags?: string
+  tags?: string | string[]
   content: string
+  content_json?: string | null
   funding_url?: string | null
   images?: File[]
-  excerpt?: string
+  excerpt?: string | null
+  cover_image_url?: string | null
+  cover_image_path?: string | null
   tag_ids?: number[]
 }
 
@@ -59,10 +66,19 @@ function buildPostBody(payload: Partial<PostFormPayload>) {
         : {}),
       ...(payload.tags !== undefined ? { tags: payload.tags } : {}),
       ...(payload.content !== undefined ? { content: payload.content } : {}),
+      ...(payload.content_json !== undefined
+        ? { content_json: payload.content_json }
+        : {}),
       ...(payload.funding_url !== undefined
         ? { funding_url: payload.funding_url }
         : {}),
       ...(payload.excerpt !== undefined ? { excerpt: payload.excerpt } : {}),
+      ...(payload.cover_image_url !== undefined
+        ? { cover_image_url: payload.cover_image_url }
+        : {}),
+      ...(payload.cover_image_path !== undefined
+        ? { cover_image_path: payload.cover_image_path }
+        : {}),
       ...(payload.tag_ids !== undefined ? { tag_ids: payload.tag_ids } : {}),
     }
   }
@@ -81,11 +97,19 @@ function buildPostBody(payload: Partial<PostFormPayload>) {
   }
 
   if (payload.tags !== undefined) {
-    form.append("tags", payload.tags ?? "")
+    if (Array.isArray(payload.tags)) {
+      payload.tags.forEach((tag) => form.append("tags[]", tag))
+    } else {
+      form.append("tags", payload.tags ?? "")
+    }
   }
 
   if (payload.content !== undefined) {
     form.append("content", payload.content)
+  }
+
+  if (payload.content_json !== undefined) {
+    form.append("content_json", payload.content_json ?? "")
   }
 
   if (payload.funding_url !== undefined) {
@@ -94,6 +118,14 @@ function buildPostBody(payload: Partial<PostFormPayload>) {
 
   if (payload.excerpt !== undefined) {
     form.append("excerpt", payload.excerpt ?? "")
+  }
+
+  if (payload.cover_image_url !== undefined) {
+    form.append("cover_image_url", payload.cover_image_url ?? "")
+  }
+
+  if (payload.cover_image_path !== undefined) {
+    form.append("cover_image_path", payload.cover_image_path ?? "")
   }
 
   if (payload.tag_ids) {
@@ -122,11 +154,19 @@ export async function listPosts(
   }
 }
 
-export async function getPost(identifier: string, token?: string | null) {
+type GetPostOptions = ApiRequestOverrides & {
+  token?: string | null
+}
+
+export async function getPost(
+  identifier: string,
+  options: GetPostOptions = {},
+) {
   const response = await requestApi<CommunityPost>(
     `/posts/${encodeURIComponent(identifier)}`,
     {
-      token,
+      token: options.token,
+      baseUrl: options.baseUrl,
     },
   )
 

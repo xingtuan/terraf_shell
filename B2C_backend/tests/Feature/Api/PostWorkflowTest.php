@@ -5,6 +5,8 @@ namespace Tests\Feature\Api;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -70,5 +72,83 @@ class PostWorkflowTest extends TestCase
 
         $this->assertTrue($titles->contains('Visible post'));
         $this->assertFalse($titles->contains('Hidden post'));
+    }
+
+    public function test_post_creation_can_store_tiptap_content_and_derive_search_fields(): void
+    {
+        $admin = User::factory()->admin()->create();
+        Sanctum::actingAs($admin);
+
+        $contentJson = json_encode([
+            'type' => 'doc',
+            'content' => [
+                [
+                    'type' => 'heading',
+                    'attrs' => ['level' => 1],
+                    'content' => [
+                        ['type' => 'text', 'text' => 'Oyster shell stool'],
+                    ],
+                ],
+                [
+                    'type' => 'paragraph',
+                    'content' => [
+                        ['type' => 'text', 'text' => 'This concept uses reclaimed shell material for premium seating prototypes.'],
+                    ],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $response = $this->postJson('/api/posts', [
+            'title' => 'Rich editor concept',
+            'content_json' => $contentJson,
+            'tags' => ['shell', 'furniture'],
+        ]);
+
+        $response
+            ->assertCreated()
+            ->assertJsonPath('data.status', 'approved')
+            ->assertJsonPath('data.content', 'Oyster shell stool This concept uses reclaimed shell material for premium seating prototypes.')
+            ->assertJsonPath('data.excerpt', 'Oyster shell stool This concept uses reclaimed shell material for premium seating prototypes.')
+            ->assertJsonPath('data.reading_time', 1)
+            ->assertJsonPath('data.content_json.type', 'doc');
+
+        $postId = $response->json('data.id');
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $postId,
+            'content' => 'Oyster shell stool This concept uses reclaimed shell material for premium seating prototypes.',
+            'reading_time' => 1,
+        ]);
+
+        $indexResponse = $this->getJson('/api/posts');
+        $this->assertArrayNotHasKey('content_json', $indexResponse->json('data.0'));
+    }
+
+    public function test_post_update_deletes_replaced_cover_image_after_commit(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $oldPath = 'images/community/2026/04/old-cover.jpg';
+        Storage::disk('public')->put($oldPath, 'cover');
+
+        $post = Post::factory()->create([
+            'user_id' => $user->id,
+            'cover_image_url' => 'https://example.com/old-cover.jpg',
+            'cover_image_path' => $oldPath,
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $this->patchJson("/api/posts/{$post->id}", [
+            'cover_image_url' => 'https://example.com/new-cover.jpg',
+            'cover_image_path' => 'images/community/2026/04/new-cover.jpg',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.cover_image_url', 'https://example.com/new-cover.jpg')
+            ->assertJsonPath('data.cover_image_path', 'images/community/2026/04/new-cover.jpg');
+
+        Storage::disk('public')->assertMissing($oldPath);
     }
 }
