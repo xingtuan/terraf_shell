@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 
 import { PostCard } from "@/components/community/PostCard"
 import { Button } from "@/components/ui/button"
+import { checkThrottle, ThrottleError } from "@/lib/api/request-throttle"
 import { getErrorMessage } from "@/lib/api/client"
 import { listPosts } from "@/lib/api/posts"
 import { COMMUNITY_POSTS_REFRESH_EVENT } from "@/lib/community-events"
@@ -30,6 +31,7 @@ export function CommunityHub({
   const [sort, setSort] = useState<"latest" | "hot">("latest")
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [throttleCountdown, setThrottleCountdown] = useState<number | null>(null)
 
   const query = (searchParams.get("q") ?? initialQuery ?? "").trim()
 
@@ -38,8 +40,31 @@ export function CommunityHub({
       return
     }
 
+    // Check throttle before making request
+    const throttleCheck = checkThrottle("/posts")
+    if (!throttleCheck.allowed) {
+      const waitSeconds = Math.ceil(throttleCheck.waitTime / 1000)
+      setMessage(messages.feed.requestTooFast)
+      setThrottleCountdown(waitSeconds)
+      
+      // Countdown timer
+      const interval = setInterval(() => {
+        setThrottleCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            clearInterval(interval)
+            setThrottleCountdown(null)
+            return null
+          }
+          return prev - 1
+        })
+      }, 1000)
+      
+      return
+    }
+
     setIsLoading(true)
     setMessage(null)
+    setThrottleCountdown(null)
 
     try {
       const response = await listPosts(
@@ -59,7 +84,10 @@ export function CommunityHub({
       setPosts(response.posts)
       setMeta(response.meta)
     } catch (error) {
-      setMessage(getErrorMessage(error))
+      const errorMessage = error instanceof ThrottleError
+        ? messages.feed.requestTooFast
+        : getErrorMessage(error)
+      setMessage(errorMessage)
       setPosts([])
       setMeta(null)
     } finally {
@@ -68,8 +96,12 @@ export function CommunityHub({
   })
 
   useEffect(() => {
+    if (!session.isReady) {
+      return
+    }
+
     void loadPosts()
-  }, [loadPosts, query, session.isReady, session.token, session.user?.id, sort])
+  }, [query, sort, session.isReady])
 
   useEffect(() => {
     const handleRefresh = () => {
@@ -136,7 +168,18 @@ export function CommunityHub({
 
         {message ? (
           <div className="mt-8 rounded-2xl border border-border/60 bg-card px-5 py-4 text-sm text-foreground">
-            {message}
+            <p>{message}</p>
+            {throttleCountdown !== null && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                {messages.feed.retryIn.replace(
+                  "{seconds}",
+                  String(throttleCountdown),
+                ).replace(
+                  "{plural}",
+                  throttleCountdown === 1 ? "" : "s",
+                )}
+              </p>
+            )}
           </div>
         ) : null}
 

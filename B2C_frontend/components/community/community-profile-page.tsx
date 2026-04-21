@@ -80,8 +80,12 @@ export function CommunityProfilePage({
   })
 
   useEffect(() => {
+    if (!session.isReady) {
+      return
+    }
+
     void loadProfile()
-  }, [loadProfile, session.isReady, session.token, session.user?.id, username])
+  }, [session.isReady, username])
 
   const isOwnProfile = session.user?.username === username
 

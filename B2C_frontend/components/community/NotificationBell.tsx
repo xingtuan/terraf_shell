@@ -150,7 +150,7 @@ export function NotificationBell({
     return () => {
       window.clearInterval(intervalId)
     }
-  }, [loadNotifications, token])
+  }, [token])
 
   if (!token) {
     return null

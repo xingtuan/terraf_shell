@@ -406,7 +406,9 @@
       "emptyDescription": "The community is ready. Share the first Shellfin idea to get the conversation started.",
       "noResultsTitle": "No results found",
       "noResults": "Try a different keyword or browse the latest community posts instead.",
-      "readMore": "Read more"
+      "readMore": "Read more",
+      "requestTooFast": "Requests are coming too fast. Please wait a moment before trying again.",
+      "retryIn": "Please try again in {seconds} second{plural}."
     },
     "form": {
       "createTitle": "Upload Design Idea",

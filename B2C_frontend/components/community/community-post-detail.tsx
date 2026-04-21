@@ -115,8 +115,12 @@ export function CommunityPostDetail({
   })
 
   useEffect(() => {
+    if (!session.isReady) {
+      return
+    }
+
     void loadDetail()
-  }, [loadDetail, session.isReady, session.token, session.user?.id, slug])
+  }, [session.isReady, slug])
 
   async function refreshComments(postId: number) {
     setIsLoadingComments(true)
