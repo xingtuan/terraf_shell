@@ -13,6 +13,7 @@ import type {
 } from "@/lib/types"
 
 export type ListPostsParams = {
+  page?: number
   q?: string
   search?: string
   category_id?: number

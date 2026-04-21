@@ -71,15 +71,7 @@ export function CommunityHeaderBar({
                   token={session.token}
                   messages={messages.notifications}
                 />
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsAuthOpen(true)}
-                >
-                  {messages.layout.signIn}
-                </Button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
