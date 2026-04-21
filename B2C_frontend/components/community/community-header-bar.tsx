@@ -1,13 +1,11 @@
 "use client"
 
 import { Suspense, useState } from "react"
-import { useRouter } from "next/navigation"
 
 import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
 import { CommunitySearch } from "@/components/community/CommunitySearch"
 import { CreatePostPanel } from "@/components/community/CreatePostPanel"
 import { NotificationBell } from "@/components/community/NotificationBell"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -15,15 +13,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { dispatchCommunityPostsRefresh } from "@/lib/community-events"
-import { getCommunityUserInitials } from "@/lib/community-ui"
-import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
+import { type Locale, type SiteMessages } from "@/lib/i18n"
 import { useAuthSession } from "@/hooks/use-auth-session"
 
 type CommunityHeaderBarProps = {
@@ -35,7 +26,6 @@ export function CommunityHeaderBar({
   locale,
   messages,
 }: CommunityHeaderBarProps) {
-  const router = useRouter()
   const session = useAuthSession()
   const currentUser = session.user
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -76,57 +66,11 @@ export function CommunityHeaderBar({
               </Button>
 
               {currentUser ? (
-                <div className="flex items-center gap-3">
-                  <NotificationBell
-                    locale={locale}
-                    token={session.token}
-                    messages={messages.notifications}
-                  />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        type="button"
-                        className="flex items-center gap-3 rounded-full border border-border/60 bg-card px-3 py-2 text-left transition-colors hover:bg-muted"
-                      >
-                        <Avatar className="size-9 border border-border/60">
-                          <AvatarImage src={currentUser.avatar_url ?? undefined} />
-                          <AvatarFallback>
-                            {getCommunityUserInitials(currentUser)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="hidden sm:block">
-                          <p className="text-sm font-medium text-foreground">
-                            {currentUser.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            @{currentUser.username}
-                          </p>
-                        </div>
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onSelect={() => {
-                          router.push(
-                            getLocalizedHref(
-                              locale,
-                              `community/profile/${currentUser.username}`,
-                            ),
-                          )
-                        }}
-                      >
-                        {messages.layout.viewProfile}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onSelect={() => {
-                          void session.logout()
-                        }}
-                      >
-                        {messages.layout.logout}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                <NotificationBell
+                  locale={locale}
+                  token={session.token}
+                  messages={messages.notifications}
+                />
               ) : (
                 <Button
                   type="button"
