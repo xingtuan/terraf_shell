@@ -1,24 +1,14 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
+import Image from "next/image"
 import { MoreHorizontal } from "lucide-react"
-import { useEffect, useEffectEvent, useState, type FormEvent } from "react"
+import { useEffect, useEffectEvent, useState, type FormEvent, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
 import { CommentThread } from "@/components/community/comment-thread"
 import { CreatePostPanel } from "@/components/community/CreatePostPanel"
-import { PostRenderer } from "@/components/community/PostRenderer"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,9 +21,9 @@ import { Textarea } from "@/components/ui/textarea"
 import {
   createComment,
   deleteComment,
-  editComment,
   listComments,
   replyToComment,
+  updateComment,
 } from "@/lib/api/comments"
 import { getErrorMessage } from "@/lib/api/client"
 import {
@@ -46,7 +36,6 @@ import {
   formatCommunityDate,
   getCommunityPostCoverImage,
   getCommunitySupportUrl,
-  getCommunityTaxonomyName,
   getCommunityUserInitials,
   getCommunityUserName,
 } from "@/lib/community-ui"
@@ -59,6 +48,7 @@ type CommunityPostDetailProps = {
   slug: string
   messages: SiteMessages["community"]
   initialPost?: CommunityPost | null
+  children?: ReactNode
 }
 
 function updateCommentTree(
@@ -78,71 +68,12 @@ function updateCommentTree(
   })
 }
 
-function countApprovedComments(comments: CommunityComment[]): number {
-  return comments.reduce(
-    (total, comment) =>
-      total +
-      (comment.status === "approved" ? 1 : 0) +
-      countApprovedComments(comment.replies),
-    0,
-  )
-}
-
-function findCommentById(
-  comments: CommunityComment[],
-  commentId: number,
-): CommunityComment | null {
-  for (const comment of comments) {
-    if (comment.id === commentId) {
-      return comment
-    }
-
-    const nestedMatch = findCommentById(comment.replies, commentId)
-
-    if (nestedMatch) {
-      return nestedMatch
-    }
-  }
-
-  return null
-}
-
-function removeCommentFromTree(
-  comments: CommunityComment[],
-  commentId: number,
-): CommunityComment[] {
-  let removed = false
-
-  const nextComments = comments.flatMap((comment) => {
-    if (comment.id === commentId) {
-      removed = true
-      return []
-    }
-
-    const nextReplies = removeCommentFromTree(comment.replies, commentId)
-
-    if (nextReplies !== comment.replies) {
-      removed = true
-
-      return [
-        {
-          ...comment,
-          replies: nextReplies,
-        },
-      ]
-    }
-
-    return [comment]
-  })
-
-  return removed ? nextComments : comments
-}
-
 export function CommunityPostDetail({
   locale,
   slug,
   messages,
   initialPost = null,
+  children,
 }: CommunityPostDetailProps) {
   const router = useRouter()
   const session = useAuthSession()
@@ -194,7 +125,20 @@ export function CommunityPostDetail({
     }
 
     void loadDetail()
-  }, [loadDetail, session.isReady, slug])
+  }, [session.isReady, slug])
+
+  async function refreshComments(postId: number) {
+    setIsLoadingComments(true)
+
+    try {
+      const nextComments = await listComments(postId, session.token)
+      setComments(nextComments)
+    } catch (error) {
+      setMessage(getErrorMessage(error))
+    } finally {
+      setIsLoadingComments(false)
+    }
+  }
 
   async function handleCommentSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -290,7 +234,7 @@ export function CommunityPostDetail({
                     <div className="flex flex-wrap gap-2">
                       {post.category ? (
                         <span className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary">
-                          {getCommunityTaxonomyName(post.category, locale)}
+                          {post.category.name}
                         </span>
                       ) : null}
                       <span className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
@@ -359,9 +303,7 @@ export function CommunityPostDetail({
                   </p>
                   <p>
                     <span className="text-foreground">{messages.post.category}:</span>{" "}
-                    {post.category
-                      ? getCommunityTaxonomyName(post.category, locale)
-                      : messages.post.uncategorized}
+                    {post.category?.name ?? messages.post.uncategorized}
                   </p>
                   <p>
                     <span className="text-foreground">{messages.post.published}:</span>{" "}
@@ -374,12 +316,13 @@ export function CommunityPostDetail({
                   </p>
                 </div>
 
-                <div className="leading-8 text-foreground">
-                  <PostRenderer
-                    contentJson={post.content_json}
-                    content={post.content}
-                  />
-                </div>
+                {children ? (
+                  <div className="leading-8 text-foreground">{children}</div>
+                ) : (
+                  <div className="whitespace-pre-wrap leading-8 text-foreground">
+                    {post.content}
+                  </div>
+                )}
 
                 {post.tags.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
@@ -388,7 +331,7 @@ export function CommunityPostDetail({
                         key={tag.id}
                         className="rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground"
                       >
-                        #{getCommunityTaxonomyName(tag, locale)}
+                        #{tag.name}
                       </span>
                     ))}
                   </div>
@@ -428,7 +371,7 @@ export function CommunityPostDetail({
                         })
                     }}
                   >
-                    {post.is_liked ? messages.post.unlike : messages.post.like}{" "}
+                    {post.is_liked ? messages.post.unlike : messages.post.like} ·{" "}
                     {post.likes_count}
                   </Button>
                   <Button
@@ -471,7 +414,7 @@ export function CommunityPostDetail({
                     {post.is_favorited
                       ? messages.post.unfavorite
                       : messages.post.favorite}{" "}
-                    {post.favorites_count}
+                    · {post.favorites_count}
                   </Button>
                   <span className="text-sm text-muted-foreground">
                     {messages.post.comments}: {post.comments_count}
@@ -578,54 +521,16 @@ export function CommunityPostDetail({
                         throw new Error(messages.post.loginToComment)
                       }
 
-                      const existingComment = findCommentById(comments, commentId)
-
-                      if (!existingComment) {
-                        throw new Error(messages.post.unavailable)
-                      }
-
                       setActiveAction(`comment-update-${commentId}`)
 
                       try {
-                        const updatedComment = await editComment(
-                          commentId,
-                          content,
-                          session.token,
-                        )
-
+                        await updateComment(commentId, content, session.token)
                         setComments((currentComments) =>
                           updateCommentTree(currentComments, commentId, (comment) => ({
                             ...comment,
-                            ...updatedComment,
-                            replies: comment.replies,
+                            content,
                           })),
                         )
-
-                        setPost((currentPost) => {
-                          if (!currentPost) {
-                            return currentPost
-                          }
-
-                          const countDelta =
-                            existingComment.status === updatedComment.status
-                              ? 0
-                              : existingComment.status === "approved"
-                                ? -1
-                                : updatedComment.status === "approved"
-                                  ? 1
-                                  : 0
-
-                          return countDelta === 0
-                            ? currentPost
-                            : {
-                                ...currentPost,
-                                comments_count: Math.max(
-                                  0,
-                                  currentPost.comments_count + countDelta,
-                                ),
-                              }
-                        })
-
                         setMessage(messages.post.updatedComment)
                       } catch (error) {
                         setMessage(getErrorMessage(error))
@@ -635,39 +540,17 @@ export function CommunityPostDetail({
                       }
                     }}
                     onDelete={async (commentId) => {
-                      if (!session.token) {
+                      if (!post || !session.token) {
                         setMessage(messages.post.loginToComment)
                         return
                       }
-
-                      const deletedComment = findCommentById(comments, commentId)
-                      const approvedCommentsToRemove = deletedComment
-                        ? countApprovedComments([deletedComment])
-                        : 0
 
                       setActiveAction(`comment-delete-${commentId}`)
 
                       try {
                         await deleteComment(commentId, session.token)
-                        setComments((currentComments) =>
-                          removeCommentFromTree(currentComments, commentId),
-                        )
-                        setPost((currentPost) => {
-                          if (
-                            !currentPost ||
-                            approvedCommentsToRemove === 0
-                          ) {
-                            return currentPost
-                          }
-
-                          return {
-                            ...currentPost,
-                            comments_count: Math.max(
-                              0,
-                              currentPost.comments_count - approvedCommentsToRemove,
-                            ),
-                          }
-                        })
+                        await refreshComments(post.id)
+                        await loadDetail()
                         setMessage(messages.post.deletedComment)
                       } catch (error) {
                         setMessage(getErrorMessage(error))
@@ -722,6 +605,7 @@ export function CommunityPostDetail({
         onSuccess={(updatedPost) => {
           setPost(updatedPost)
           setMessage(messages.post.updatedPost)
+          router.refresh()
         }}
       />
 

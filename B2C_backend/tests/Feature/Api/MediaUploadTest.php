@@ -35,12 +35,11 @@ class MediaUploadTest extends TestCase
 
         $path = (string) $uploadResponse->json('data.path');
         $url = (string) $uploadResponse->json('data.url');
-        $urlPath = (string) parse_url($url, PHP_URL_PATH);
 
         Storage::disk('public')->assertExists($path);
-        $this->assertStringStartsWith('/media/files/public/', $urlPath);
+        $this->assertStringStartsWith('/media/files/public/', $url);
 
-        $response = $this->get($urlPath)
+        $response = $this->get($url)
             ->assertOk();
 
         $cacheControl = (string) $response->headers->get('cache-control');

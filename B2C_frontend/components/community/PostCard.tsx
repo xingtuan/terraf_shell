@@ -22,7 +22,6 @@ import {
   getCommunityPostCoverImage,
   getCommunityPostPreview,
   getCommunitySupportUrl,
-  getCommunityTaxonomyName,
   getCommunityUserInitials,
   getCommunityUserName,
 } from "@/lib/community-ui"
@@ -128,7 +127,7 @@ export function PostCard({
             <div className="flex flex-wrap items-center gap-2">
               {post.category ? (
                 <span className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary">
-                  {getCommunityTaxonomyName(post.category, locale)}
+                  {post.category.name}
                 </span>
               ) : null}
               {post.is_featured ? (
@@ -213,7 +212,7 @@ export function PostCard({
                   key={tag.id}
                   className="rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground"
                 >
-                  #{getCommunityTaxonomyName(tag, locale)}
+                  #{tag.name}
                 </span>
               ))}
             </div>

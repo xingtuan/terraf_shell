@@ -10,10 +10,7 @@ import {
   listCategories,
   updatePost,
 } from "@/lib/api/posts"
-import {
-  getCommunityPostCoverImage,
-  getCommunityTaxonomyName,
-} from "@/lib/community-ui"
+import { getCommunityPostCoverImage } from "@/lib/community-ui"
 import { createRichTextDocumentFromText } from "@/lib/community-rich-text"
 import type { Locale, SiteMessages } from "@/lib/i18n"
 import type { CommunityCategory, CommunityPost } from "@/lib/types"
@@ -378,7 +375,7 @@ export function CreatePostPanel({
                 <SelectContent>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={String(category.id)}>
-                      {getCommunityTaxonomyName(category, locale)}
+                      {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

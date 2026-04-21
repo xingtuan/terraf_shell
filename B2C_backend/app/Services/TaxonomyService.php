@@ -71,8 +71,6 @@ class TaxonomyService
     {
         return Category::query()->create([
             'name' => $data['name'],
-            'name_ko' => $data['name_ko'] ?? null,
-            'name_zh' => $data['name_zh'] ?? null,
             'slug' => $this->uniqueCategorySlug($data['slug'] ?? $data['name']),
             'description' => $data['description'] ?? null,
             'is_active' => $data['is_active'] ?? true,
@@ -84,8 +82,6 @@ class TaxonomyService
     {
         $category->fill([
             'name' => $data['name'] ?? $category->name,
-            'name_ko' => $data['name_ko'] ?? $category->name_ko,
-            'name_zh' => $data['name_zh'] ?? $category->name_zh,
             'description' => $data['description'] ?? $category->description,
             'is_active' => $data['is_active'] ?? $category->is_active,
             'sort_order' => $data['sort_order'] ?? $category->sort_order,
@@ -109,8 +105,6 @@ class TaxonomyService
     {
         return Tag::query()->create([
             'name' => $data['name'],
-            'name_ko' => $data['name_ko'] ?? null,
-            'name_zh' => $data['name_zh'] ?? null,
             'slug' => $this->uniqueTagSlug($data['slug'] ?? $data['name']),
         ])->fresh();
     }
@@ -119,8 +113,6 @@ class TaxonomyService
     {
         $tag->fill([
             'name' => $data['name'] ?? $tag->name,
-            'name_ko' => $data['name_ko'] ?? $tag->name_ko,
-            'name_zh' => $data['name_zh'] ?? $tag->name_zh,
         ]);
 
         if (array_key_exists('slug', $data) || array_key_exists('name', $data)) {

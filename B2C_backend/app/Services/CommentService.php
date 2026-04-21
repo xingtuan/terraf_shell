@@ -121,7 +121,7 @@ class CommentService
         return DB::transaction(function () use ($comment, $user, $data): Comment {
             $comment->loadMissing(['post', 'user.profile', 'post.user.profile']);
             $previousStatus = $comment->status;
-            $comment->content = $this->resolveContent($data);
+            $comment->content = $data['content'];
 
             if (! $user->isAdmin()) {
                 $comment->status = ContentStatus::Pending->value;
@@ -212,10 +212,5 @@ class CommentService
     private function notFound(string $model, int|string $id): ModelNotFoundException
     {
         return (new ModelNotFoundException)->setModel($model, [$id]);
-    }
-
-    private function resolveContent(array $data): string
-    {
-        return (string) ($data['body'] ?? $data['content'] ?? '');
     }
 }
