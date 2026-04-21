@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Enums\ProductStatus;
 use App\Models\Concerns\HasLocalizedAttributes;
 use App\Models\Concerns\HasOptionalMediaUrl;
+use App\Support\StorageUrl;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -128,12 +130,15 @@ class Product extends Model
                 $product->currency = 'USD';
             }
 
-            if (filled($product->image_url) && blank($product->media_url)) {
-                $product->media_url = $product->image_url;
+            $rawMediaUrl = $product->getAttributes()['media_url'] ?? null;
+            $rawImageUrl = $product->getAttributes()['image_url'] ?? null;
+
+            if (filled($rawImageUrl) && blank($product->media_path) && blank($rawMediaUrl)) {
+                $product->media_url = $rawImageUrl;
             }
 
-            if (filled($product->media_url) && blank($product->image_url)) {
-                $product->image_url = $product->media_url;
+            if (filled($rawMediaUrl) && blank($rawImageUrl)) {
+                $product->image_url = $rawMediaUrl;
             }
 
             if ($product->is_active) {
@@ -155,6 +160,13 @@ class Product extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', ProductStatus::Published->value);
+    }
+
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value, array $attributes): ?string => StorageUrl::resolve($attributes['media_path'] ?? null) ?? $value,
+        );
     }
 
     public function scopeActive(Builder $query): Builder

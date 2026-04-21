@@ -14,6 +14,40 @@ class MediaUploadTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_uploaded_media_url_is_publicly_resolvable_on_local_disks(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $uploadResponse = $this->post('/api/media/upload', [
+            'file' => UploadedFile::fake()->image('render.png'),
+            'category' => 'community',
+        ], [
+            'Accept' => 'application/json',
+        ]);
+
+        $uploadResponse
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $path = (string) $uploadResponse->json('data.path');
+        $url = (string) $uploadResponse->json('data.url');
+
+        Storage::disk('public')->assertExists($path);
+        $this->assertStringStartsWith('/media/files/public/', $url);
+
+        $response = $this->get($url)
+            ->assertOk();
+
+        $cacheControl = (string) $response->headers->get('cache-control');
+
+        $this->assertStringContainsString('public', $cacheControl);
+        $this->assertStringContainsString('max-age=31536000', $cacheControl);
+    }
+
     public function test_authenticated_user_can_upload_and_delete_media_files(): void
     {
         Config::set('community.uploads.disk', 'public');

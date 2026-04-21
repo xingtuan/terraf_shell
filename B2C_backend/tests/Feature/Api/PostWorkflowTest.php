@@ -146,7 +146,7 @@ class PostWorkflowTest extends TestCase
             'cover_image_path' => 'images/community/2026/04/new-cover.jpg',
         ])
             ->assertOk()
-            ->assertJsonPath('data.cover_image_url', 'https://example.com/new-cover.jpg')
+            ->assertJsonPath('data.cover_image_url', '/media/files/public/images/community/2026/04/new-cover.jpg')
             ->assertJsonPath('data.cover_image_path', 'images/community/2026/04/new-cover.jpg');
 
         Storage::disk('public')->assertMissing($oldPath);

@@ -13,6 +13,7 @@ use App\Models\Post;
 use App\Models\PostLike;
 use App\Models\Tag;
 use App\Models\User;
+use App\Support\StorageUrl;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -836,6 +837,16 @@ class PostService
 
         if ($post === null || $contentChanged || array_key_exists('reading_time', $data)) {
             $data['reading_time'] = $this->estimateReadingTime($effectivePlainText);
+        }
+
+        if (array_key_exists('cover_image_path', $data)) {
+            $coverImagePath = is_string($data['cover_image_path']) ? trim($data['cover_image_path']) : null;
+
+            $data['cover_image_path'] = $coverImagePath !== '' ? $coverImagePath : null;
+
+            if ($data['cover_image_path'] !== null) {
+                $data['cover_image_url'] = StorageUrl::publicResolve($data['cover_image_path']);
+            }
         }
 
         return $data;

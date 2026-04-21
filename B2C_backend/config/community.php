@@ -17,6 +17,10 @@ return [
     'uploads' => [
         'disk' => env('COMMUNITY_UPLOAD_DISK', env('FILESYSTEM_DISK', 'azure')),
         'allow_guest_upload' => (bool) env('ALLOW_GUEST_UPLOAD', false),
+        'azure' => [
+            'use_sas_urls' => (bool) env('AZURE_STORAGE_USE_SAS_URLS', true),
+            'signed_url_ttl_minutes' => (int) env('AZURE_STORAGE_SAS_URL_TTL_MINUTES', 10080),
+        ],
     ],
     'idea_media' => [
         'directory' => env('IDEA_MEDIA_DIRECTORY', 'ideas'),

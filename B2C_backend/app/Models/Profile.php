@@ -43,8 +43,15 @@ class Profile extends Model
                 return;
             }
 
-            $profile->avatar_url = StorageUrl::resolve($profile->avatar_path);
+            $profile->avatar_url = StorageUrl::publicResolve($profile->avatar_path);
         });
+    }
+
+    protected function avatarUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value, array $attributes): ?string => StorageUrl::resolve($attributes['avatar_path'] ?? null) ?? $value,
+        );
     }
 
     protected function region(): Attribute

@@ -8,6 +8,7 @@ use App\Enums\IdeaMediaType;
 use App\Support\StorageUrl;
 use Database\Factories\IdeaMediaFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -84,9 +85,11 @@ class IdeaMedia extends Model
             $media->original_name = $media->original_name ?: $media->file_name;
             $media->media_type = $media->media_type ?: self::inferMediaTypeFromExtension($media->extension)->value;
             $media->kind = $media->kind ?: IdeaMediaKind::defaultForType($media->mediaType())->value;
-            $media->url = StorageUrl::resolve($media->path, $media->disk);
-            $media->preview_url = $media->isImage() ? ($media->preview_url ?: $media->url) : null;
-            $media->thumbnail_url = $media->isImage() ? ($media->thumbnail_url ?: $media->url) : null;
+            $publicUrl = StorageUrl::publicResolve($media->path, $media->disk);
+
+            $media->url = $publicUrl;
+            $media->preview_url = $media->isImage() ? (($media->getAttributes()['preview_url'] ?? null) ?: $publicUrl) : null;
+            $media->thumbnail_url = $media->isImage() ? (($media->getAttributes()['thumbnail_url'] ?? null) ?: $publicUrl) : null;
         });
 
         static::deleting(function (self $media): void {
@@ -107,6 +110,27 @@ class IdeaMedia extends Model
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('id');
+    }
+
+    protected function url(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value, array $attributes): ?string => $this->resolvedSignedUrl($attributes) ?? $value,
+        );
+    }
+
+    protected function previewUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value, array $attributes): ?string => $this->resolvedSignedUrl($attributes, true) ?? $value,
+        );
+    }
+
+    protected function thumbnailUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value, array $attributes): ?string => $this->resolvedSignedUrl($attributes, true) ?? $value,
+        );
     }
 
     public function sourceTypeValue(): string
@@ -143,5 +167,31 @@ class IdeaMedia extends Model
         }
 
         return IdeaMediaType::Document;
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private function resolvedSignedUrl(array $attributes, bool $imageOnly = false): ?string
+    {
+        $sourceType = (string) ($attributes['source_type'] ?? '');
+
+        if ($sourceType === IdeaMediaSourceType::ExternalUrl->value) {
+            return $imageOnly ? null : (($attributes['external_url'] ?? null) ?: ($attributes['url'] ?? null));
+        }
+
+        $path = $attributes['path'] ?? null;
+
+        if (blank($path)) {
+            return $attributes['url'] ?? null;
+        }
+
+        $mediaType = IdeaMediaType::tryFrom((string) ($attributes['media_type'] ?? ''));
+
+        if ($imageOnly && $mediaType !== IdeaMediaType::Image) {
+            return null;
+        }
+
+        return StorageUrl::resolve((string) $path, $attributes['disk'] ?? null);
     }
 }

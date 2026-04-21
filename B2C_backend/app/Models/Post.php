@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ContentStatus;
+use App\Support\StorageUrl;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -141,6 +142,10 @@ class Post extends Model
 
     public function coverImageUrl(): ?string
     {
+        if (filled($this->cover_image_path)) {
+            return StorageUrl::resolve($this->cover_image_path);
+        }
+
         if (filled($this->cover_image_url)) {
             return $this->cover_image_url;
         }

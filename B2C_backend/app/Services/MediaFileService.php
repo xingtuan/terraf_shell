@@ -29,7 +29,7 @@ class MediaFileService
                 'user_id' => $user?->id,
                 'original_name' => $stored['original_name'],
                 'path' => $stored['path'],
-                'url' => $stored['url'],
+                'url' => $this->mediaService->publicUrl($stored['path']),
                 'type' => $stored['type'],
                 'mime_type' => $stored['mime'],
                 'size' => $stored['size'],

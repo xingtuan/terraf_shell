@@ -146,6 +146,14 @@ class MediaService
     }
 
     /**
+     * Resolve a stable public URL for a stored path.
+     */
+    public function publicUrl(string $path): string
+    {
+        return (string) StorageUrl::publicResolve($path, $this->disk());
+    }
+
+    /**
      * Determine the type folder for a file upload.
      */
     private function type(string $mime, UploadedFile $file): string
