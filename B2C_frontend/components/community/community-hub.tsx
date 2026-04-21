@@ -313,19 +313,16 @@ export function CommunityHub({
             >
               {messages.feed.refresh}
             </Button>
+            {meta ? (
+              <p className="ml-auto self-center text-sm text-muted-foreground">
+                {messages.feed.showing
+                  .replace("{from}", String(from))
+                  .replace("{to}", String(to))
+                  .replace("{total}", String(meta.total))}
+              </p>
+            ) : null}
           </div>
         </div>
-
-        {meta ? (
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
-            <p>
-              {messages.feed.showing
-                .replace("{from}", String(from))
-                .replace("{to}", String(to))
-                .replace("{total}", String(meta.total))}
-            </p>
-          </div>
-        ) : null}
 
         {message ? (
           <div className="mt-8 rounded-2xl border border-border/60 bg-card px-5 py-4 text-sm text-foreground">
