@@ -181,7 +181,7 @@ export function CommunityHub({
   return (
     <section className="bg-background py-14 lg:py-16">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-6">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-primary">
               {messages.feed.eyebrow}
@@ -191,9 +191,6 @@ export function CommunityHub({
                 ? `${messages.feed.resultsTitlePrefix} ${query}`
                 : messages.feed.title}
             </h1>
-            <p className="mt-3 max-w-3xl text-lg text-muted-foreground">
-              {query ? messages.feed.resultsDescription : messages.feed.description}
-            </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -256,24 +253,6 @@ export function CommunityHub({
                       {tag.name}
                     </SelectItem>
                   ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-full sm:w-40">
-              <Select
-                value={perPage}
-                onValueChange={(value) => {
-                  setPerPage(value)
-                  setPage(1)
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={messages.feed.perPage} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="6">6 / {messages.feed.perPage}</SelectItem>
-                  <SelectItem value="12">12 / {messages.feed.perPage}</SelectItem>
-                  <SelectItem value="24">24 / {messages.feed.perPage}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -385,6 +364,24 @@ export function CommunityHub({
 
             {meta && pageCount > 1 ? (
               <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+                <div className="w-full sm:w-40">
+                  <Select
+                    value={perPage}
+                    onValueChange={(value) => {
+                      setPerPage(value)
+                      setPage(1)
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={messages.feed.perPage} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="6">6 / {messages.feed.perPage}</SelectItem>
+                      <SelectItem value="12">12 / {messages.feed.perPage}</SelectItem>
+                      <SelectItem value="24">24 / {messages.feed.perPage}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button
                   type="button"
                   variant="outline"
