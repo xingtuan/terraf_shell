@@ -51,7 +51,7 @@ class StorageUrl
             return route('media.files.show', [
                 'disk' => $resolvedDisk,
                 'path' => ltrim($path, '/'),
-            ], false);
+            ], true);
         }
 
         return Storage::disk($resolvedDisk)->url($path);
