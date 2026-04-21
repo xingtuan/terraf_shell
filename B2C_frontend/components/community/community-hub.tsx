@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 
 import { PostCard } from "@/components/community/PostCard"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -47,6 +48,7 @@ export function CommunityHub({
   const [selectedTag, setSelectedTag] = useState("all")
   const [perPage, setPerPage] = useState("12")
   const [page, setPage] = useState(1)
+  const [jumpPageInput, setJumpPageInput] = useState("1")
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [throttleCountdown, setThrottleCountdown] = useState<number | null>(null)
@@ -157,17 +159,35 @@ export function CommunityHub({
     }
   }, [loadPosts])
 
+  useEffect(() => {
+    setJumpPageInput(String(page))
+  }, [page])
+
   const pageCount = meta?.last_page ?? 1
   const canGoPrevious = page > 1
   const canGoNext = page < pageCount
   const visiblePages = (() => {
-    const pages: number[] = []
-    const start = Math.max(1, page - 2)
-    const end = Math.min(pageCount, page + 2)
+    if (pageCount <= 7) {
+      return Array.from({ length: pageCount }, (_, index) => index + 1)
+    }
 
-    for (let currentPage = start; currentPage <= end; currentPage += 1) {
+    const middleStart = Math.max(2, page - 1)
+    const middleEnd = Math.min(pageCount - 1, page + 1)
+    const pages: Array<number | "left-ellipsis" | "right-ellipsis"> = [1]
+
+    if (middleStart > 2) {
+      pages.push("left-ellipsis")
+    }
+
+    for (let currentPage = middleStart; currentPage <= middleEnd; currentPage += 1) {
       pages.push(currentPage)
     }
+
+    if (middleEnd < pageCount - 1) {
+      pages.push("right-ellipsis")
+    }
+
+    pages.push(pageCount)
 
     return pages
   })()
@@ -177,6 +197,18 @@ export function CommunityHub({
     meta && meta.total > 0
       ? Math.min(meta.total, meta.current_page * meta.per_page)
       : 0
+
+  function handleJumpToPage() {
+    const parsedPage = Number.parseInt(jumpPageInput, 10)
+
+    if (Number.isNaN(parsedPage)) {
+      setJumpPageInput(String(page))
+      return
+    }
+
+    const clampedPage = Math.min(pageCount, Math.max(1, parsedPage))
+    setPage(clampedPage)
+  }
 
   return (
     <section className="bg-background py-14 lg:py-16">
@@ -191,6 +223,9 @@ export function CommunityHub({
                 ? `${messages.feed.resultsTitlePrefix} ${query}`
                 : messages.feed.title}
             </h1>
+            <p className="mt-3 max-w-3xl text-lg text-muted-foreground">
+              {query ? messages.feed.resultsDescription : messages.feed.description}
+            </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
@@ -283,7 +318,6 @@ export function CommunityHub({
 
         {meta ? (
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
-            <p>{messages.feed.total.replace("{count}", String(meta.total))}</p>
             <p>
               {messages.feed.showing
                 .replace("{from}", String(from))
@@ -388,6 +422,18 @@ export function CommunityHub({
                   disabled={!canGoPrevious}
                   onClick={() => {
                     if (canGoPrevious) {
+                      setPage(1)
+                    }
+                  }}
+                >
+                  {messages.feed.firstPage}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!canGoPrevious}
+                  onClick={() => {
+                    if (canGoPrevious) {
                       setPage((currentPage) => currentPage - 1)
                     }
                   }}
@@ -395,17 +441,30 @@ export function CommunityHub({
                   {messages.feed.previousPage}
                 </Button>
 
-                {visiblePages.map((pageNumber) => (
-                  <Button
-                    key={pageNumber}
-                    type="button"
-                    variant={pageNumber === page ? "default" : "outline"}
-                    className="min-w-10"
-                    onClick={() => setPage(pageNumber)}
-                  >
-                    {pageNumber}
-                  </Button>
-                ))}
+                {visiblePages.map((pageItem) => {
+                  if (pageItem === "left-ellipsis" || pageItem === "right-ellipsis") {
+                    return (
+                      <span
+                        key={pageItem}
+                        className="flex h-10 min-w-10 items-center justify-center px-2 text-muted-foreground"
+                      >
+                        ...
+                      </span>
+                    )
+                  }
+
+                  return (
+                    <Button
+                      key={pageItem}
+                      type="button"
+                      variant={pageItem === page ? "default" : "outline"}
+                      className="min-w-10"
+                      onClick={() => setPage(pageItem)}
+                    >
+                      {pageItem}
+                    </Button>
+                  )
+                })}
 
                 <Button
                   type="button"
@@ -419,6 +478,48 @@ export function CommunityHub({
                 >
                   {messages.feed.nextPage}
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!canGoNext}
+                  onClick={() => {
+                    if (canGoNext) {
+                      setPage(pageCount)
+                    }
+                  }}
+                >
+                  {messages.feed.lastPage}
+                </Button>
+                <div className="flex w-full items-center justify-center gap-2 sm:w-auto">
+                  <span className="text-sm text-muted-foreground">
+                    {messages.feed.jumpToPage}
+                  </span>
+                  <Input
+                    value={jumpPageInput}
+                    onChange={(event) => {
+                      const value = event.target.value
+
+                      if (value === "" || /^\d+$/.test(value)) {
+                        setJumpPageInput(value)
+                      }
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault()
+                        handleJumpToPage()
+                      }
+                    }}
+                    inputMode="numeric"
+                    className="h-10 w-20"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleJumpToPage}
+                  >
+                    {messages.feed.goToPage}
+                  </Button>
+                </div>
               </div>
             ) : null}
           </>
