@@ -19,6 +19,8 @@ class TagResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'name_ko' => $this->name_ko,
+            'name_zh' => $this->name_zh,
             'slug' => $this->slug,
             'posts_count' => $this->when(isset($this->posts_count), (int) $this->posts_count),
         ];

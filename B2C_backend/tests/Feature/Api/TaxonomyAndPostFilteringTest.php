@@ -18,6 +18,8 @@ class TaxonomyAndPostFilteringTest extends TestCase
     {
         $activeCategory = Category::factory()->create([
             'name' => 'Hardware',
+            'name_ko' => '하드웨어',
+            'name_zh' => '硬件',
             'slug' => 'hardware',
             'is_active' => true,
             'sort_order' => 1,
@@ -30,6 +32,8 @@ class TaxonomyAndPostFilteringTest extends TestCase
 
         $tag = Tag::factory()->create([
             'name' => 'laravel',
+            'name_ko' => '라라벨',
+            'name_zh' => 'Laravel',
             'slug' => 'laravel',
         ]);
 
@@ -37,13 +41,17 @@ class TaxonomyAndPostFilteringTest extends TestCase
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $activeCategory->id)
-            ->assertJsonPath('data.0.slug', 'hardware');
+            ->assertJsonPath('data.0.slug', 'hardware')
+            ->assertJsonPath('data.0.name_ko', '하드웨어')
+            ->assertJsonPath('data.0.name_zh', '硬件');
 
         $this->getJson('/api/tags')
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $tag->id)
-            ->assertJsonPath('data.0.slug', 'laravel');
+            ->assertJsonPath('data.0.slug', 'laravel')
+            ->assertJsonPath('data.0.name_ko', '라라벨')
+            ->assertJsonPath('data.0.name_zh', 'Laravel');
     }
 
     public function test_posts_index_supports_category_tag_featured_and_hot_filters(): void

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Tag;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class TagSeeder extends Seeder
 {
@@ -13,34 +12,36 @@ class TagSeeder extends Seeder
      */
     public function run(): void
     {
-        $obsoleteSeedSlugs = [
-            'saas',
-            'mobile',
-            'webapp',
-            'developer-tools',
-            'automation',
-            'productivity',
-            'design-system',
-            'ai',
-            'community',
-            'growth',
-        ];
-
-        Tag::query()->whereIn('slug', $obsoleteSeedSlugs)->delete();
-
         $tags = [
-            'oyster-shell',
-            'compression-moulding',
-            'eco-tableware',
             'shellfin',
-            'lightweight',
-            'food-safe',
+            'oyster-shell',
+            'bioplastic',
+            'eco-design',
+            'zero-waste',
+            'tableware',
+            'packaging',
+            'concept-art',
+            'prototype',
+            'funding',
+            'b2b',
+            'raw-material',
+            'terrafin',
+            'sustainable',
+            'upcycling',
         ];
+
+        Tag::query()
+            ->whereNotIn('slug', $tags)
+            ->delete();
 
         foreach ($tags as $tag) {
             Tag::query()->updateOrCreate(
-                ['slug' => Str::slug($tag)],
-                ['name' => $tag]
+                ['slug' => $tag],
+                [
+                    'name' => $tag,
+                    'name_ko' => null,
+                    'name_zh' => null,
+                ]
             );
         }
     }

@@ -235,8 +235,15 @@ class PostService
     {
         DB::transaction(function () use ($post): void {
             $post->loadMissing('media');
+            $coverImagePath = $post->cover_image_path;
 
             $post->delete();
+
+            if (filled($coverImagePath)) {
+                DB::afterCommit(function () use ($coverImagePath): void {
+                    $this->mediaService->delete($coverImagePath);
+                });
+            }
         });
     }
 

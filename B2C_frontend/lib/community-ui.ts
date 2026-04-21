@@ -1,5 +1,11 @@
 import { getIntlLocale, type Locale } from "@/lib/i18n"
-import type { CommunityComment, CommunityPost, CommunityUser } from "@/lib/types"
+import type {
+  CommunityCategory,
+  CommunityComment,
+  CommunityPost,
+  CommunityTag,
+  CommunityUser,
+} from "@/lib/types"
 
 export function formatCommunityDate(
   locale: Locale,
@@ -30,6 +36,25 @@ export function getCommunityUserInitials(user?: CommunityUser | null) {
   }
 
   return `${parts[0]?.[0] ?? ""}${parts[1]?.[0] ?? ""}`.toUpperCase()
+}
+
+export function getCommunityTaxonomyName(
+  item: CommunityCategory | CommunityTag | null | undefined,
+  locale: Locale,
+) {
+  if (!item) {
+    return ""
+  }
+
+  if (locale === "ko" && item.name_ko?.trim()) {
+    return item.name_ko
+  }
+
+  if (locale === "zh" && item.name_zh?.trim()) {
+    return item.name_zh
+  }
+
+  return item.name
 }
 
 export function getCommunityPostPreview(post: CommunityPost, maxLength = 220) {

@@ -7,6 +7,10 @@ type CommentPayload = {
   content: string
 }
 
+type EditCommentPayload = {
+  body: string
+}
+
 export async function listComments(postId: number, token?: string | null) {
   const response = await requestApi<CommunityComment[]>(
     `/posts/${postId}/comments`,
@@ -49,18 +53,26 @@ export async function replyToComment(
   return normalizeCommunityComment(response.data)
 }
 
-export async function updateComment(
+export async function editComment(
   commentId: number,
-  content: string,
+  body: string,
   token: string,
 ) {
   const response = await requestApi<CommunityComment>(`/comments/${commentId}`, {
     method: "PUT",
     token,
-    body: { content } satisfies CommentPayload,
+    body: { body } satisfies EditCommentPayload,
   })
 
   return normalizeCommunityComment(response.data)
+}
+
+export async function updateComment(
+  commentId: number,
+  content: string,
+  token: string,
+) {
+  return editComment(commentId, content, token)
 }
 
 export async function deleteComment(commentId: number, token: string) {

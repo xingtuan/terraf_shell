@@ -290,7 +290,10 @@ export function normalizeCommunityCategory(
   return {
     ...category,
     name: category.name ?? "",
+    name_ko: category.name_ko ?? null,
+    name_zh: category.name_zh ?? null,
     slug: category.slug ?? "",
+    description: category.description ?? null,
   }
 }
 
@@ -298,6 +301,8 @@ export function normalizeCommunityTag(tag: CommunityTag): CommunityTag {
   return {
     ...tag,
     name: tag.name ?? "",
+    name_ko: tag.name_ko ?? null,
+    name_zh: tag.name_zh ?? null,
     slug: tag.slug ?? "",
   }
 }

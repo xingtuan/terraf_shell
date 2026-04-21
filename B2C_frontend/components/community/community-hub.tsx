@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useEffectEvent, useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { PostCard } from "@/components/community/PostCard"
 import { Button } from "@/components/ui/button"
@@ -13,10 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { checkThrottle, ThrottleError } from "@/lib/api/request-throttle"
 import { getErrorMessage } from "@/lib/api/client"
 import { listCategories, listPosts, listTags } from "@/lib/api/posts"
+import { checkThrottle, ThrottleError } from "@/lib/api/request-throttle"
 import { COMMUNITY_POSTS_REFRESH_EVENT } from "@/lib/community-events"
+import { getCommunityTaxonomyName } from "@/lib/community-ui"
 import { type Locale, type SiteMessages } from "@/lib/i18n"
 import type {
   ApiPaginationMeta,
@@ -37,6 +38,8 @@ export function CommunityHub({
   messages,
   initialQuery,
 }: CommunityHubProps) {
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const session = useAuthSession()
   const [posts, setPosts] = useState<CommunityPost[]>([])
@@ -44,8 +47,7 @@ export function CommunityHub({
   const [sort, setSort] = useState<"latest" | "hot">("latest")
   const [categories, setCategories] = useState<CommunityCategory[]>([])
   const [tags, setTags] = useState<CommunityTag[]>([])
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedTag, setSelectedTag] = useState("all")
+  const [isTaxonomyReady, setIsTaxonomyReady] = useState(false)
   const [perPage, setPerPage] = useState("12")
   const [page, setPage] = useState(1)
   const [jumpPageInput, setJumpPageInput] = useState("1")
@@ -54,31 +56,38 @@ export function CommunityHub({
   const [throttleCountdown, setThrottleCountdown] = useState<number | null>(null)
 
   const query = (searchParams.get("q") ?? initialQuery ?? "").trim()
+  const selectedCategorySlug =
+    (searchParams.get("category") ?? "all").trim() || "all"
+  const selectedTagSlug = (searchParams.get("tag") ?? "all").trim() || "all"
+  const selectedCategoryId =
+    categories.find((category) => category.slug === selectedCategorySlug)?.id ??
+    null
 
   const loadPosts = useEffectEvent(async () => {
-    if (!session.isReady) {
+    if (!session.isReady || !isTaxonomyReady) {
       return
     }
 
-    // Check throttle before making request
     const throttleCheck = checkThrottle("/posts")
+
     if (!throttleCheck.allowed) {
       const waitSeconds = Math.ceil(throttleCheck.waitTime / 1000)
       setMessage(messages.feed.requestTooFast)
       setThrottleCountdown(waitSeconds)
-      
-      // Countdown timer
+
       const interval = setInterval(() => {
-        setThrottleCountdown((prev) => {
-          if (prev === null || prev <= 1) {
+        setThrottleCountdown((previousCountdown) => {
+          if (previousCountdown === null || previousCountdown <= 1) {
             clearInterval(interval)
             setThrottleCountdown(null)
+
             return null
           }
-          return prev - 1
+
+          return previousCountdown - 1
         })
       }, 1000)
-      
+
       return
     }
 
@@ -90,8 +99,8 @@ export function CommunityHub({
       const response = await listPosts(
         {
           ...(query ? { search: query } : {}),
-          ...(selectedCategory !== "all" ? { category: selectedCategory } : {}),
-          ...(selectedTag !== "all" ? { tag: selectedTag } : {}),
+          ...(selectedCategoryId !== null ? { category_id: selectedCategoryId } : {}),
+          ...(selectedTagSlug !== "all" ? { tag: selectedTagSlug } : {}),
           sort,
           page,
           per_page: Number(perPage),
@@ -102,9 +111,11 @@ export function CommunityHub({
       setPosts(response.posts)
       setMeta(response.meta)
     } catch (error) {
-      const errorMessage = error instanceof ThrottleError
-        ? messages.feed.requestTooFast
-        : getErrorMessage(error)
+      const errorMessage =
+        error instanceof ThrottleError
+          ? messages.feed.requestTooFast
+          : getErrorMessage(error)
+
       setMessage(errorMessage)
       setPosts([])
       setMeta(null)
@@ -119,10 +130,22 @@ export function CommunityHub({
     }
 
     void loadPosts()
-  }, [query, sort, page, perPage, selectedCategory, selectedTag, session.isReady])
+  }, [
+    isTaxonomyReady,
+    loadPosts,
+    page,
+    perPage,
+    query,
+    selectedCategoryId,
+    selectedTagSlug,
+    session.isReady,
+    sort,
+  ])
 
   useEffect(() => {
     let isCancelled = false
+
+    setIsTaxonomyReady(false)
 
     void Promise.all([listCategories(), listTags()])
       .then(([nextCategories, nextTags]) => {
@@ -141,11 +164,20 @@ export function CommunityHub({
         setCategories([])
         setTags([])
       })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsTaxonomyReady(true)
+        }
+      })
 
     return () => {
       isCancelled = true
     }
   }, [])
+
+  useEffect(() => {
+    setPage(1)
+  }, [query, selectedCategorySlug, selectedTagSlug])
 
   useEffect(() => {
     const handleRefresh = () => {
@@ -166,6 +198,12 @@ export function CommunityHub({
   const pageCount = meta?.last_page ?? 1
   const canGoPrevious = page > 1
   const canGoNext = page < pageCount
+  const from =
+    meta && meta.total > 0 ? (meta.current_page - 1) * meta.per_page + 1 : 0
+  const to =
+    meta && meta.total > 0
+      ? Math.min(meta.total, meta.current_page * meta.per_page)
+      : 0
   const visiblePages = (() => {
     if (pageCount <= 7) {
       return Array.from({ length: pageCount }, (_, index) => index + 1)
@@ -179,7 +217,11 @@ export function CommunityHub({
       pages.push("left-ellipsis")
     }
 
-    for (let currentPage = middleStart; currentPage <= middleEnd; currentPage += 1) {
+    for (
+      let currentPage = middleStart;
+      currentPage <= middleEnd;
+      currentPage += 1
+    ) {
       pages.push(currentPage)
     }
 
@@ -191,12 +233,6 @@ export function CommunityHub({
 
     return pages
   })()
-  const from =
-    meta && meta.total > 0 ? (meta.current_page - 1) * meta.per_page + 1 : 0
-  const to =
-    meta && meta.total > 0
-      ? Math.min(meta.total, meta.current_page * meta.per_page)
-      : 0
 
   function handleJumpToPage() {
     const parsedPage = Number.parseInt(jumpPageInput, 10)
@@ -208,6 +244,28 @@ export function CommunityHub({
 
     const clampedPage = Math.min(pageCount, Math.max(1, parsedPage))
     setPage(clampedPage)
+  }
+
+  function updateFilterParams(nextCategorySlug: string, nextTagSlug: string) {
+    const nextParams = new URLSearchParams(searchParams.toString())
+
+    if (nextCategorySlug === "all") {
+      nextParams.delete("category")
+    } else {
+      nextParams.set("category", nextCategorySlug)
+    }
+
+    if (nextTagSlug === "all") {
+      nextParams.delete("tag")
+    } else {
+      nextParams.set("tag", nextTagSlug)
+    }
+
+    const nextQuery = nextParams.toString()
+
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    })
   }
 
   return (
@@ -249,61 +307,6 @@ export function CommunityHub({
             >
               {messages.feed.hot}
             </Button>
-            <div className="w-full sm:w-48">
-              <Select
-                value={selectedCategory}
-                onValueChange={(value) => {
-                  setSelectedCategory(value)
-                  setPage(1)
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={messages.feed.categoryFilter} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{messages.feed.allCategories}</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.slug}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="w-full sm:w-48">
-              <Select
-                value={selectedTag}
-                onValueChange={(value) => {
-                  setSelectedTag(value)
-                  setPage(1)
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={messages.feed.tagFilter} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{messages.feed.allTags}</SelectItem>
-                  {tags.map((tag) => (
-                    <SelectItem key={tag.id} value={tag.slug}>
-                      {tag.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            {(selectedCategory !== "all" || selectedTag !== "all") ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setSelectedCategory("all")
-                  setSelectedTag("all")
-                  setPage(1)
-                }}
-              >
-                {messages.feed.clearFilters}
-              </Button>
-            ) : null}
             <Button
               type="button"
               variant="ghost"
@@ -322,6 +325,83 @@ export function CommunityHub({
               </p>
             ) : null}
           </div>
+
+          <div className="rounded-[1.75rem] border border-border/60 bg-card/70 p-4">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div className="min-w-0 flex-1 overflow-x-auto pb-1">
+                <div className="flex w-max items-center gap-2">
+                  <button
+                    type="button"
+                    className={`shrink-0 rounded-full border px-4 py-2 text-sm transition-colors ${
+                      selectedCategorySlug === "all"
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border/70 bg-background text-foreground hover:bg-muted"
+                    }`}
+                    onClick={() => {
+                      setPage(1)
+                      updateFilterParams("all", selectedTagSlug)
+                    }}
+                  >
+                    {messages.feed.all}
+                  </button>
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      type="button"
+                      className={`shrink-0 rounded-full border px-4 py-2 text-sm transition-colors ${
+                        selectedCategorySlug === category.slug
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border/70 bg-background text-foreground hover:bg-muted"
+                      }`}
+                      onClick={() => {
+                        setPage(1)
+                        updateFilterParams(category.slug, selectedTagSlug)
+                      }}
+                    >
+                      {getCommunityTaxonomyName(category, locale)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="w-full sm:w-56">
+                  <Select
+                    value={selectedTagSlug}
+                    onValueChange={(value) => {
+                      setPage(1)
+                      updateFilterParams(selectedCategorySlug, value)
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={messages.feed.tagFilter} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{messages.feed.allTags}</SelectItem>
+                      {tags.map((tag) => (
+                        <SelectItem key={tag.id} value={tag.slug}>
+                          {getCommunityTaxonomyName(tag, locale)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {(selectedCategorySlug !== "all" || selectedTagSlug !== "all") ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setPage(1)
+                      updateFilterParams("all", "all")
+                    }}
+                  >
+                    {messages.feed.clearFilters}
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          </div>
         </div>
 
         {message ? (
@@ -329,13 +409,9 @@ export function CommunityHub({
             <p>{message}</p>
             {throttleCountdown !== null && (
               <p className="mt-2 text-xs text-muted-foreground">
-                {messages.feed.retryIn.replace(
-                  "{seconds}",
-                  String(throttleCountdown),
-                ).replace(
-                  "{plural}",
-                  throttleCountdown === 1 ? "" : "s",
-                )}
+                {messages.feed.retryIn
+                  .replace("{seconds}", String(throttleCountdown))
+                  .replace("{plural}", throttleCountdown === 1 ? "" : "s")}
               </p>
             )}
           </div>

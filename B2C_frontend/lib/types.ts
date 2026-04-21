@@ -458,6 +458,8 @@ export interface CommunityUser {
 export interface CommunityCategory {
   id: number
   name: string
+  name_ko?: string | null
+  name_zh?: string | null
   slug: string
   description?: string | null
   is_active?: boolean
@@ -468,6 +470,8 @@ export interface CommunityCategory {
 export interface CommunityTag {
   id: number
   name: string
+  name_ko?: string | null
+  name_zh?: string | null
   slug: string
   posts_count?: number
 }

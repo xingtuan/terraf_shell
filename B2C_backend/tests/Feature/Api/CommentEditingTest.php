@@ -30,7 +30,7 @@ class CommentEditingTest extends TestCase
         Sanctum::actingAs($user);
 
         $this->patchJson("/api/comments/{$comment->id}", [
-            'content' => 'Updated comment text',
+            'body' => 'Updated comment text',
         ])->assertOk()
             ->assertJsonPath('data.content', 'Updated comment text')
             ->assertJsonPath('data.status', 'pending')
@@ -66,7 +66,7 @@ class CommentEditingTest extends TestCase
         Sanctum::actingAs($admin);
 
         $this->patchJson("/api/comments/{$comment->id}", [
-            'content' => 'Admin edited comment',
+            'body' => 'Admin edited comment',
         ])->assertOk()
             ->assertJsonPath('data.status', 'approved');
 
@@ -87,7 +87,56 @@ class CommentEditingTest extends TestCase
         Sanctum::actingAs($otherUser);
 
         $this->patchJson("/api/comments/{$comment->id}", [
-            'content' => 'Unauthorized update',
+            'body' => 'Unauthorized update',
         ])->assertForbidden();
+    }
+
+    public function test_comment_owner_and_admin_can_delete_but_other_users_cannot(): void
+    {
+        $owner = User::factory()->create();
+        $admin = User::factory()->admin()->create();
+        $otherUser = User::factory()->create();
+        $post = Post::factory()->create([
+            'comments_count' => 2,
+            'status' => 'approved',
+        ]);
+        $ownerComment = Comment::factory()->create([
+            'post_id' => $post->id,
+            'user_id' => $owner->id,
+            'status' => 'approved',
+        ]);
+        $otherComment = Comment::factory()->create([
+            'post_id' => $post->id,
+            'user_id' => $otherUser->id,
+            'status' => 'approved',
+        ]);
+
+        Sanctum::actingAs($otherUser);
+
+        $this->deleteJson("/api/comments/{$ownerComment->id}")
+            ->assertForbidden();
+
+        Sanctum::actingAs($owner);
+
+        $this->deleteJson("/api/comments/{$ownerComment->id}")
+            ->assertOk();
+
+        Sanctum::actingAs($admin);
+
+        $this->deleteJson("/api/comments/{$otherComment->id}")
+            ->assertOk();
+
+        $this->assertDatabaseMissing('comments', [
+            'id' => $ownerComment->id,
+        ]);
+
+        $this->assertDatabaseMissing('comments', [
+            'id' => $otherComment->id,
+        ]);
+
+        $this->assertDatabaseHas('posts', [
+            'id' => $post->id,
+            'comments_count' => 0,
+        ]);
     }
 }

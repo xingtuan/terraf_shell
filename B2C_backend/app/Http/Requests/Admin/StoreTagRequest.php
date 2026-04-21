@@ -22,6 +22,8 @@ class StoreTagRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:120', Rule::unique('tags', 'name')],
+            'name_ko' => ['nullable', 'string', 'max:120'],
+            'name_zh' => ['nullable', 'string', 'max:120'],
             'slug' => ['nullable', 'string', 'max:120', Rule::unique('tags', 'slug')],
         ];
     }

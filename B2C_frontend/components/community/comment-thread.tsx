@@ -67,7 +67,7 @@ export function CommentThread({
             id={`comment-${comment.id}`}
             className={depth > 0 ? "border-l border-border/60 pl-5" : undefined}
           >
-            <article className="rounded-[1.75rem] border border-border/60 bg-card p-5">
+            <article className="group rounded-[1.75rem] border border-border/60 bg-card p-5">
               <div className="flex items-start justify-between gap-4">
                 <Link
                   href={getLocalizedHref(
@@ -113,7 +113,7 @@ export function CommentThread({
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className="rounded-full border border-border/60 p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        className="rounded-full border border-border/60 p-2 text-muted-foreground opacity-100 transition-[color,background-color,opacity] hover:bg-muted hover:text-foreground sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
                         aria-label={messages.edit}
                       >
                         <MoreHorizontal className="size-4" />
@@ -206,7 +206,7 @@ export function CommentThread({
                     void onLike(comment.id, comment.is_liked)
                   }}
                 >
-                  {comment.is_liked ? messages.unlike : messages.like} ·{" "}
+                  {comment.is_liked ? messages.unlike : messages.like}{" "}
                   {comment.likes_count}
                 </Button>
 

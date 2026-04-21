@@ -1,5 +1,4 @@
 import { CommunityPostDetail } from "@/components/community/community-post-detail"
-import { PostRenderer } from "@/components/community/PostRenderer"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { getPost } from "@/lib/api/posts"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
@@ -35,14 +34,7 @@ export default async function CommunityPostPage({
         slug={resolvedParams.slug}
         messages={messages.community}
         initialPost={initialPost}
-      >
-        {initialPost ? (
-          <PostRenderer
-            contentJson={initialPost.content_json}
-            content={initialPost.content}
-          />
-        ) : null}
-      </CommunityPostDetail>
+      />
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />
     </>
   )
