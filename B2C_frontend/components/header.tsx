@@ -53,13 +53,13 @@ export function Header({ locale, header, languageSwitcher }: HeaderProps) {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-500",
+        "fixed inset-x-0 top-0 z-50 border-b transition-all duration-500",
         isScrolled
-          ? "border-b border-border/50 bg-background/94 backdrop-blur-md"
-          : "bg-transparent",
+          ? "border-border/70 bg-background/98 shadow-[0_10px_30px_-20px_hsl(var(--foreground)/0.45)] backdrop-blur-xl"
+          : "border-border/40 bg-background/88 shadow-[0_8px_24px_-18px_hsl(var(--foreground)/0.35)] backdrop-blur-md",
       )}
     >
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10">
         <div className="flex h-20 items-center justify-between gap-4">
           <Link href={getLocalizedHref(locale)} className="flex items-center">
             <span className="font-serif text-2xl tracking-[0.28em] text-foreground">
@@ -125,7 +125,7 @@ export function Header({ locale, header, languageSwitcher }: HeaderProps) {
           isMobileMenuOpen ? "visible opacity-100" : "invisible opacity-0",
         )}
       >
-        <nav className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8">
+        <nav className="flex w-full flex-col gap-6 px-6 py-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
