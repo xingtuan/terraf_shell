@@ -5,10 +5,12 @@ namespace Tests\Feature\Api;
 use App\Enums\ContentStatus;
 use App\Enums\NotificationType;
 use App\Enums\UserRole;
+use App\Jobs\CreateUserNotificationJob;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\UserNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -211,6 +213,36 @@ class NotificationPhaseFiveTest extends TestCase
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.data.reason', 'Needs stronger technical detail.');
+    }
+
+    public function test_post_approval_creates_notification_without_queuing_a_job(): void
+    {
+        Queue::fake();
+
+        $creator = User::factory()->create();
+        $admin = User::factory()->admin()->create();
+        $post = Post::factory()->pending()->create([
+            'user_id' => $creator->id,
+            'title' => 'Queueless Approval',
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $this->patchJson("/api/admin/posts/{$post->id}/status", [
+            'status' => ContentStatus::Approved->value,
+            'reason' => 'Approved without queue infrastructure.',
+        ])->assertOk();
+
+        Queue::assertNotPushed(CreateUserNotificationJob::class);
+
+        $this->assertDatabaseHas('notifications', [
+            'recipient_user_id' => $creator->id,
+            'actor_user_id' => $admin->id,
+            'type' => NotificationType::SubmissionApproved->value,
+            'target_type' => 'post',
+            'target_id' => $post->id,
+            'title' => 'Concept approved',
+        ]);
     }
 
     public function test_comment_and_reply_notifications_are_sent_when_content_is_approved(): void

@@ -4,13 +4,13 @@ namespace App\Services;
 
 use App\Enums\AccountStatus;
 use App\Enums\NotificationType;
-use App\Jobs\CreateUserNotificationJob;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\UserNotification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class NotificationService
@@ -28,17 +28,19 @@ class NotificationService
 
         $payload = $this->normalizePayload($type, $data);
 
-        CreateUserNotificationJob::dispatch(
-            $recipient->id,
-            $actor?->id,
-            $type->value,
-            $payload['title'],
-            $payload['body'],
-            $payload['action_url'],
-            $target?->getMorphClass(),
-            $target?->getKey(),
-            $payload['data']
-        )->afterCommit();
+        DB::afterCommit(function () use ($recipient, $actor, $type, $payload, $target): void {
+            $this->createRecord(
+                $recipient->id,
+                $actor?->id,
+                $type->value,
+                $payload['title'],
+                $payload['body'],
+                $payload['action_url'],
+                $target?->getMorphClass(),
+                $target?->getKey(),
+                $payload['data']
+            );
+        });
     }
 
     public function createRecord(
