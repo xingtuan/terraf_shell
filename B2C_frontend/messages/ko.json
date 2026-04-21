@@ -482,6 +482,8 @@
       "noCommentsTitle": "?? ??? ????",
       "noCommentsDescription": "? ?? ??? ??? ??? ???.",
       "reply": "??",
+      "postReply": "\uB2F5\uAE00 \uB2EC\uAE30",
+      "showMoreReplies": "\uB2F5\uAE00 {count}\uAC1C \uB354 \uBCF4\uAE30",
       "edit": "??",
       "delete": "??",
       "cancel": "??",

@@ -17,6 +17,46 @@ export function formatCommunityDate(
   }).format(new Date(value))
 }
 
+export function formatCommunityRelativeTime(
+  locale: Locale,
+  value?: string | null,
+) {
+  if (!value) {
+    return null
+  }
+
+  const timestamp = new Date(value).getTime()
+
+  if (Number.isNaN(timestamp)) {
+    return null
+  }
+
+  const diffSeconds = Math.round((timestamp - Date.now()) / 1000)
+  const ranges = [
+    { unit: "year" as const, seconds: 60 * 60 * 24 * 365 },
+    { unit: "month" as const, seconds: 60 * 60 * 24 * 30 },
+    { unit: "week" as const, seconds: 60 * 60 * 24 * 7 },
+    { unit: "day" as const, seconds: 60 * 60 * 24 },
+    { unit: "hour" as const, seconds: 60 * 60 },
+    { unit: "minute" as const, seconds: 60 },
+  ]
+
+  const formatter = new Intl.RelativeTimeFormat(getIntlLocale(locale), {
+    numeric: "auto",
+  })
+
+  for (const range of ranges) {
+    if (Math.abs(diffSeconds) >= range.seconds) {
+      return formatter.format(
+        Math.round(diffSeconds / range.seconds),
+        range.unit,
+      )
+    }
+  }
+
+  return formatter.format(diffSeconds, "second")
+}
+
 export function getCommunityUserName(user?: CommunityUser | null) {
   return user?.name ?? user?.username ?? "Community member"
 }

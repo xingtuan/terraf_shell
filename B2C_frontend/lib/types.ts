@@ -579,13 +579,15 @@ export interface CommunityComment {
   id: number
   post_id: number
   parent_id?: number | null
+  body?: string
   content: string
   status: string
   likes_count: number
   is_liked: boolean
   user?: CommunityUser | null
   post?: CommunityCommentPostSummary | null
-  replies: CommunityComment[]
+  replies_count?: number
+  replies?: CommunityComment[]
   can_edit: boolean
   can_delete: boolean
   created_at?: string | null

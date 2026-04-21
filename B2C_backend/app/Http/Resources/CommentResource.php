@@ -20,6 +20,7 @@ class CommentResource extends JsonResource
             'id' => $this->id,
             'post_id' => $this->post_id,
             'parent_id' => $this->parent_id,
+            'body' => $this->content,
             'content' => $this->content,
             'status' => $this->status,
             'likes_count' => (int) $this->likes_count,
@@ -30,6 +31,9 @@ class CommentResource extends JsonResource
                 'title' => $this->post->title,
                 'slug' => $this->post->slug,
             ]),
+            'replies_count' => $this->relationLoaded('replies')
+                ? $this->replies->count()
+                : (int) ($this->replies_count ?? 0),
             'replies' => CommentResource::collection($this->whenLoaded('replies')),
             'can_edit' => $request->user()?->can('update', $this->resource) ?? false,
             'can_delete' => $request->user()?->can('delete', $this->resource) ?? false,

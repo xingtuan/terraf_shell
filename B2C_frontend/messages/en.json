@@ -482,6 +482,8 @@
       "noCommentsTitle": "No comments yet",
       "noCommentsDescription": "Start the discussion by posting the first comment.",
       "reply": "Reply",
+      "postReply": "Post reply",
+      "showMoreReplies": "Show {count} more replies",
       "edit": "Edit",
       "delete": "Delete",
       "cancel": "Cancel",

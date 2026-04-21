@@ -482,6 +482,8 @@
       "noCommentsTitle": "?????",
       "noCommentsDescription": "???????????????",
       "reply": "??",
+      "postReply": "\u53D1\u5E03\u56DE\u590D",
+      "showMoreReplies": "\u67E5\u770B\u5176\u4F59 {count} \u6761\u56DE\u590D",
       "edit": "??",
       "delete": "??",
       "cancel": "??",

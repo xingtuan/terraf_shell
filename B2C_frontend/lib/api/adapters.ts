@@ -363,11 +363,15 @@ export function normalizeCommunityPost(post: CommunityPost): CommunityPost {
 export function normalizeCommunityComment(
   comment: CommunityComment,
 ): CommunityComment {
+  const replies = ensureArray(comment.replies).map(normalizeCommunityComment)
+
   return {
     ...comment,
-    content: comment.content ?? "",
+    body: comment.body ?? comment.content ?? "",
+    content: comment.content ?? comment.body ?? "",
     user: normalizeCommunityUser(comment.user),
-    replies: ensureArray(comment.replies).map(normalizeCommunityComment),
+    replies_count: Number(comment.replies_count ?? replies.length),
+    replies,
     can_edit: Boolean(comment.can_edit),
     can_delete: Boolean(comment.can_delete),
     is_liked: Boolean(comment.is_liked),

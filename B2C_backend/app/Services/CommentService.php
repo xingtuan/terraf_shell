@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CommentService
 {
@@ -51,21 +52,28 @@ class CommentService
 
     public function create(Post $post, User $user, array $data): Comment
     {
+        $parent = $this->resolveParent($post, $user, $data['parent_id'] ?? null);
+
         if ($post->status !== ContentStatus::Approved->value && ! $user->isAdmin() && $post->user_id !== $user->id) {
             throw $this->notFound(Post::class, $post->id);
         }
 
-        return DB::transaction(function () use ($post, $user, $data): Comment {
+        return DB::transaction(function () use ($post, $user, $data, $parent): Comment {
             $comment = Comment::query()->create([
                 'post_id' => $post->id,
                 'user_id' => $user->id,
-                'content' => $data['content'],
+                'parent_id' => $parent?->id,
+                'content' => $this->resolveContent($data),
                 'status' => $user->isAdmin() ? ContentStatus::Approved->value : ContentStatus::Pending->value,
             ]);
 
             if ($comment->status === ContentStatus::Approved->value) {
                 $post->increment('comments_count');
-                $this->notificationService->notifyCommentCreated($post, $comment, $user);
+                if ($parent !== null) {
+                    $this->notificationService->notifyReplyCreated($parent, $comment, $user);
+                } else {
+                    $this->notificationService->notifyCommentCreated($post, $comment, $user);
+                }
             }
 
             $this->governanceService->flagSensitiveContent(
@@ -89,31 +97,10 @@ class CommentService
             throw $this->notFound(Comment::class, $parent->id);
         }
 
-        return DB::transaction(function () use ($parent, $user, $data): Comment {
-            $reply = Comment::query()->create([
-                'post_id' => $parent->post_id,
-                'user_id' => $user->id,
-                'parent_id' => $parent->id,
-                'content' => $data['content'],
-                'status' => $user->isAdmin() ? ContentStatus::Approved->value : ContentStatus::Pending->value,
-            ]);
-
-            if ($reply->status === ContentStatus::Approved->value) {
-                $parent->post->increment('comments_count');
-                $this->notificationService->notifyReplyCreated($parent, $reply, $user);
-            }
-
-            $this->governanceService->flagSensitiveContent(
-                $user,
-                ['content' => $reply->content],
-                'comment',
-                $reply
-            );
-
-            $this->postRankingService->refreshScores($parent->post->fresh());
-
-            return $this->reload($reply, $user);
-        });
+        return $this->create($parent->post, $user, [
+            ...$data,
+            'parent_id' => $parent->id,
+        ]);
     }
 
     public function update(Comment $comment, User $user, array $data): Comment
@@ -194,19 +181,40 @@ class CommentService
         $grouped = $comments->groupBy('parent_id');
         $availableIds = $comments->pluck('id')->flip();
 
-        $attachReplies = function (Comment $comment) use (&$attachReplies, $grouped): void {
-            $replies = $grouped->get($comment->id, collect())->values();
-            $replies->each($attachReplies);
-            $comment->setRelation('replies', $replies);
-        };
-
         $roots = $comments
             ->filter(fn (Comment $comment): bool => $comment->parent_id === null || ! $availableIds->has($comment->parent_id))
             ->values();
 
-        $roots->each($attachReplies);
+        $roots->each(function (Comment $comment) use ($grouped): void {
+            $replies = $grouped->get($comment->id, collect())->values();
+            $replies->each(fn (Comment $reply) => $reply->setRelation('replies', collect()));
+            $comment->setRelation('replies', $replies);
+        });
 
         return $roots;
+    }
+
+    private function resolveParent(Post $post, User $user, int|string|null $parentId): ?Comment
+    {
+        if ($parentId === null || $parentId === '') {
+            return null;
+        }
+
+        $parent = Comment::query()
+            ->where('post_id', $post->id)
+            ->find($parentId);
+
+        if ($parent === null || ! $parent->isVisibleTo($user)) {
+            throw $this->notFound(Comment::class, $parentId);
+        }
+
+        if ($parent->parent_id !== null) {
+            throw ValidationException::withMessages([
+                'parent_id' => 'Replies can only be nested one level deep.',
+            ]);
+        }
+
+        return $parent;
     }
 
     private function notFound(string $model, int|string $id): ModelNotFoundException
