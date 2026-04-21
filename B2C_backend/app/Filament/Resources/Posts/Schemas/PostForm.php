@@ -98,7 +98,7 @@ class PostForm
                                     ->required()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('posts')
-                                    ->visibility('public')
+                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
                                     ->imagePreviewHeight('140'),
                                 TextInput::make('alt_text')
                                     ->label('Alt text')

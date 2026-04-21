@@ -68,7 +68,7 @@ class UserForm
                                     ->image()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('avatars')
-                                    ->visibility('public')
+                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
                                     ->imagePreviewHeight('140')
                                     ->avatar(),
                                 Textarea::make('bio')

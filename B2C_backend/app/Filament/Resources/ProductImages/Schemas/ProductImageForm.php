@@ -37,7 +37,7 @@ class ProductImageForm
                                     ->required()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('cms/products/gallery')
-                                    ->visibility('public')
+                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
                                     ->columnSpanFull(),
                             ]),
                     ]),

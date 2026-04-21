@@ -44,7 +44,7 @@ class MaterialForm
                                     ->image()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('cms/materials')
-                                    ->visibility('public'),
+                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
                                 TextInput::make('media_url')
                                     ->label('External media URL')
                                     ->url(),

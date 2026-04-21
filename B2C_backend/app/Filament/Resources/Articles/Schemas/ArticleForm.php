@@ -44,7 +44,7 @@ class ArticleForm
                                     ->image()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('cms/articles')
-                                    ->visibility('public')
+                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
                                     ->disabled(),
