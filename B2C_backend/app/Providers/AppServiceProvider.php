@@ -11,12 +11,15 @@ use App\Models\Post;
 use App\Models\Report;
 use App\Models\SampleRequest;
 use App\Models\User;
+use App\Support\StorageDiskResolver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\AwsS3V3\PortableVisibilityConverter as AwsS3PortableVisibilityConverter;
 use League\Flysystem\AzureBlobStorage\AzureBlobStorageAdapter;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Common\Internal\StorageServiceSettings;
@@ -38,6 +41,46 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $resolver = new StorageDiskResolver(
+            (array) config('filesystems.disks', []),
+            class_exists(AwsS3PortableVisibilityConverter::class),
+            class_exists(AzureBlobStorageAdapter::class)
+        );
+
+        $configuredDefaultDisk = (string) config('filesystems.default', 'local');
+        $configuredUploadDisk = (string) config('community.uploads.disk', $configuredDefaultDisk);
+        $configuredLivewireDisk = trim((string) config('livewire.temporary_file_upload.disk', ''));
+
+        $effectiveUploadDisk = $resolver->resolve($configuredUploadDisk, [$configuredDefaultDisk]);
+        $effectiveDefaultDisk = $resolver->resolve($configuredDefaultDisk, [$effectiveUploadDisk]);
+        $effectiveLivewireDisk = $configuredLivewireDisk !== ''
+            ? $resolver->resolve($configuredLivewireDisk, [$effectiveUploadDisk])
+            : $effectiveUploadDisk;
+
+        config([
+            'filesystems.default' => $effectiveDefaultDisk,
+            'community.uploads.disk' => $effectiveUploadDisk,
+            'livewire.temporary_file_upload.disk' => $effectiveLivewireDisk,
+        ]);
+
+        $adjustments = array_filter([
+            $configuredDefaultDisk !== $effectiveDefaultDisk
+                ? sprintf('default: %s -> %s', $configuredDefaultDisk, $effectiveDefaultDisk)
+                : null,
+            $configuredUploadDisk !== $effectiveUploadDisk
+                ? sprintf('community: %s -> %s', $configuredUploadDisk, $effectiveUploadDisk)
+                : null,
+            $configuredLivewireDisk !== '' && $configuredLivewireDisk !== $effectiveLivewireDisk
+                ? sprintf('livewire: %s -> %s', $configuredLivewireDisk, $effectiveLivewireDisk)
+                : null,
+        ]);
+
+        if ($adjustments !== []) {
+            Log::warning('Adjusted runtime storage disk configuration.', [
+                'adjustments' => array_values($adjustments),
+            ]);
+        }
+
         $buildAzureConnectionString = static function (array $config): string {
             $accountName = trim((string) ($config['name'] ?? ''));
             $accountKey = trim((string) ($config['key'] ?? ''));
