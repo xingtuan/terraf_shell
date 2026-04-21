@@ -38,7 +38,15 @@ class AzureFilesystemAdapter extends LaravelFilesystemAdapter
         $adapter = $this->getAdapter();
 
         if (method_exists($adapter, 'temporaryUrl')) {
-            return $adapter->temporaryUrl($path, $expiration, $options);
+            $expirationDate = $expiration instanceof \DateTimeInterface
+                ? $expiration
+                : \Illuminate\Support\Carbon::parse($expiration);
+
+            return $adapter->temporaryUrl(
+                $path, 
+                $expirationDate, 
+                new \League\Flysystem\Config($options)
+            );
         }
 
         $config = $this->getConfig();
