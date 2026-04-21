@@ -25,7 +25,7 @@ class AzureFilesystemAdapter extends LaravelFilesystemAdapter
      */
     public function providesTemporaryUrls(): bool
     {
-        return method_exists($this->getAdapter(), 'temporaryUrl') || parent::providesTemporaryUrls();
+        return true;
     }
 
     /**
@@ -41,6 +41,44 @@ class AzureFilesystemAdapter extends LaravelFilesystemAdapter
             return $adapter->temporaryUrl($path, $expiration, $options);
         }
 
-        return parent::temporaryUrl($path, $expiration, $options);
+        $config = $this->getConfig();
+        $accountName = $config['name'] ?? '';
+        $accountKey = $config['key'] ?? '';
+        $container = $config['container'] ?? '';
+        
+        if ($accountName === '' || $accountKey === '' || $container === '') {
+            throw new \RuntimeException('Azure storage account name, key, and container are required to generate temporary URLs.');
+        }
+
+        $helper = new \MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper(
+            $accountName, 
+            $accountKey
+        );
+
+        $expirationDate = $expiration instanceof \DateTimeInterface
+            ? $expiration
+            : \Illuminate\Support\Carbon::parse($expiration);
+
+        $expiry = $expirationDate->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s\Z');
+        
+        $queryString = $helper->generateBlobServiceSharedAccessSignatureToken(
+            'b',
+            $container . '/' . ltrim($path, '/'),
+            'r',
+            $expiry,
+            '',      // start
+            '',      // ip
+            'https'  // protocol
+        );
+
+        $baseUrl = $config['url'] ?? null;
+        
+        if (is_string($baseUrl) && $baseUrl !== '') {
+            return rtrim($baseUrl, '/') . '/' . ltrim($path, '/') . '?' . $queryString;
+        }
+
+        // Fallback if 'url' config is not explicitly set
+        $fallbackUrl = "https://{$accountName}.blob.core.windows.net/{$container}";
+        return $fallbackUrl . '/' . ltrim($path, '/') . '?' . $queryString;
     }
 }
