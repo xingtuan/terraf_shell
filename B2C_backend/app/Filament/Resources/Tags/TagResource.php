@@ -25,11 +25,15 @@ class TagResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Taxonomy';
+    protected static string|\UnitEnum|null $navigationGroup = 'Community';
 
-    protected static ?string $navigationLabel = 'Tags';
+    protected static ?string $navigationLabel = 'Concept Tags';
 
-    protected static ?int $navigationSort = 20;
+    protected static ?string $modelLabel = 'Concept tag';
+
+    protected static ?string $pluralModelLabel = 'Concept tags';
+
+    protected static ?int $navigationSort = 70;
 
     protected static ?string $recordTitleAttribute = 'name';
 

@@ -2,7 +2,8 @@
 
 namespace App\Filament\Resources\B2BLeads;
 
-use App\Filament\Resources\B2BLeads\Pages\CreateB2BLead;
+use App\Enums\B2BLeadStatus;
+use App\Enums\B2BLeadType;
 use App\Filament\Resources\B2BLeads\Pages\EditB2BLead;
 use App\Filament\Resources\B2BLeads\Pages\ListB2BLeads;
 use App\Filament\Resources\B2BLeads\Pages\ViewB2BLead;
@@ -25,11 +26,15 @@ class B2BLeadResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Growth';
+    protected static string|\UnitEnum|null $navigationGroup = 'Leads / Growth';
 
-    protected static ?string $navigationLabel = 'B2B Leads';
+    protected static ?string $navigationLabel = 'Partnership & Sample Leads';
 
-    protected static ?int $navigationSort = 10;
+    protected static ?string $modelLabel = 'B2B lead';
+
+    protected static ?string $pluralModelLabel = 'B2B leads';
+
+    protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema
     {
@@ -56,7 +61,7 @@ class B2BLeadResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['reviewer.profile', 'partnershipInquiry', 'sampleRequest']);
+            ->with(['assignee.profile', 'reviewer.profile', 'partnershipInquiry', 'sampleRequest']);
     }
 
     public static function canViewAny(): bool
@@ -89,11 +94,28 @@ class B2BLeadResource extends Resource
         return false;
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::query()
+            ->where('lead_type', '!=', B2BLeadType::BusinessContact->value)
+            ->whereIn('status', [
+                B2BLeadStatus::New->value,
+                B2BLeadStatus::InReview->value,
+            ])
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => ListB2BLeads::route('/'),
-            'create' => CreateB2BLead::route('/create'),
             'view' => ViewB2BLead::route('/{record}'),
             'edit' => EditB2BLead::route('/{record}/edit'),
         ];

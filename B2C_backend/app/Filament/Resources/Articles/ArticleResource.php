@@ -28,7 +28,7 @@ class ArticleResource extends Resource
 
     protected static ?string $navigationLabel = 'Articles';
 
-    protected static ?int $navigationSort = 50;
+    protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema
     {

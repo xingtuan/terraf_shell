@@ -25,11 +25,15 @@ class CategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Taxonomy';
+    protected static string|\UnitEnum|null $navigationGroup = 'Community';
 
-    protected static ?string $navigationLabel = 'Categories';
+    protected static ?string $navigationLabel = 'Concept Categories';
 
-    protected static ?int $navigationSort = 10;
+    protected static ?string $modelLabel = 'Concept category';
+
+    protected static ?string $pluralModelLabel = 'Concept categories';
+
+    protected static ?int $navigationSort = 60;
 
     protected static ?string $recordTitleAttribute = 'name';
 

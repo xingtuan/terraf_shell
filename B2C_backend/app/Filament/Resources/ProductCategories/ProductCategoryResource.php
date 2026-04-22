@@ -22,11 +22,15 @@ class ProductCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = 'Store';
 
     protected static ?string $navigationLabel = 'Product Categories';
 
-    protected static ?int $navigationSort = 55;
+    protected static ?string $modelLabel = 'Product category';
+
+    protected static ?string $pluralModelLabel = 'Product categories';
+
+    protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema
     {

@@ -28,7 +28,7 @@ class HomeSectionResource extends Resource
 
     protected static ?string $navigationLabel = 'Homepage Sections';
 
-    protected static ?int $navigationSort = 60;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {

@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class ProductCategoriesTable
@@ -16,9 +17,8 @@ class ProductCategoriesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
+                    ->searchable()
+                    ->description(fn ($record): string => $record->slug),
                 TextColumn::make('products_count')
                     ->counts('products')
                     ->label('Products'),
@@ -31,6 +31,10 @@ class ProductCategoriesTable
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable(),
+            ])
+            ->filters([
+                TernaryFilter::make('is_active')
+                    ->label('Active'),
             ])
             ->recordActions([
                 EditAction::make(),

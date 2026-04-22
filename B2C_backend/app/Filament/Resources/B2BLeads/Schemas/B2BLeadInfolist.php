@@ -60,6 +60,9 @@ class B2BLeadInfolist
                         TextEntry::make('internal_notes')
                             ->placeholder('No internal notes yet.')
                             ->columnSpanFull(),
+                        TextEntry::make('assignee.name')
+                            ->label('Owner')
+                            ->placeholder('Unassigned.'),
                         TextEntry::make('reviewer.name')
                             ->label('Reviewed by')
                             ->placeholder('Unassigned.'),

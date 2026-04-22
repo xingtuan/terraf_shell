@@ -27,9 +27,9 @@ class IdeaMediaResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Community';
 
-    protected static ?string $navigationLabel = 'Idea Media';
+    protected static ?string $navigationLabel = 'Concept Media';
 
-    protected static ?int $navigationSort = 40;
+    protected static ?int $navigationSort = 50;
 
     public static function form(Schema $schema): Schema
     {

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\UserNotifications\Pages;
 
 use App\Filament\Resources\UserNotifications\UserNotificationResource;
-use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewUserNotification extends ViewRecord
@@ -12,8 +11,6 @@ class ViewUserNotification extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        return [
-            EditAction::make(),
-        ];
+        return [];
     }
 }

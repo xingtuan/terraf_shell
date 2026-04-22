@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Reports;
 
+use App\Enums\ReportStatus;
 use App\Filament\Resources\Comments\CommentResource as CommentAdminResource;
 use App\Filament\Resources\Posts\PostResource as PostAdminResource;
 use App\Filament\Resources\Reports\Pages\EditReport;
@@ -31,7 +32,7 @@ class ReportResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Moderation';
+    protected static string|\UnitEnum|null $navigationGroup = 'Governance';
 
     protected static ?string $navigationLabel = 'Reports';
 
@@ -94,6 +95,20 @@ class ReportResource extends Resource
     public static function canDeleteAny(): bool
     {
         return false;
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::query()
+            ->where('status', ReportStatus::Pending->value)
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
     }
 
     public static function targetTypeOptions(): array

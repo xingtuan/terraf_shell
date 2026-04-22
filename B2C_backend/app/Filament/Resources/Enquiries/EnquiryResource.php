@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Enquiries;
 
+use App\Enums\B2BLeadStatus;
 use App\Filament\Resources\Enquiries\Pages\EditEnquiry;
 use App\Filament\Resources\Enquiries\Pages\ListEnquiries;
 use App\Filament\Resources\Enquiries\Pages\ViewEnquiry;
@@ -24,13 +25,13 @@ class EnquiryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Growth';
+    protected static string|\UnitEnum|null $navigationGroup = 'Leads / Growth';
 
-    protected static ?string $navigationLabel = 'Enquiries';
+    protected static ?string $navigationLabel = 'General Enquiries';
 
-    protected static ?string $modelLabel = 'Enquiry';
+    protected static ?string $modelLabel = 'General enquiry';
 
-    protected static ?string $pluralModelLabel = 'Enquiries';
+    protected static ?string $pluralModelLabel = 'General enquiries';
 
     protected static ?string $slug = 'enquiries';
 
@@ -90,6 +91,23 @@ class EnquiryResource extends Resource
     public static function canDeleteAny(): bool
     {
         return false;
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::query()
+            ->whereIn('status', [
+                B2BLeadStatus::New->value,
+                B2BLeadStatus::InReview->value,
+            ])
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
     }
 
     public static function getPages(): array

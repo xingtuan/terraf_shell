@@ -28,12 +28,21 @@ class MaterialInfolist
                 TextEntry::make('status'),
                 IconEntry::make('is_featured')
                     ->boolean(),
+                TextEntry::make('specs_count')
+                    ->label('Specifications')
+                    ->numeric(),
+                TextEntry::make('story_sections_count')
+                    ->label('Story sections')
+                    ->numeric(),
+                TextEntry::make('applications_count')
+                    ->label('Applications')
+                    ->numeric(),
                 TextEntry::make('sort_order')
                     ->numeric(),
-                TextEntry::make('media_path')
-                    ->placeholder('-'),
                 TextEntry::make('media_url')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->url(fn (?string $state): ?string => $state)
+                    ->openUrlInNewTab(),
                 TextEntry::make('published_at')
                     ->dateTime()
                     ->placeholder('-'),

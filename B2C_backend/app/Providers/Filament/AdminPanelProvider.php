@@ -2,9 +2,13 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Widgets\AnalyticsSnapshot;
-use App\Filament\Widgets\CommunityStatsOverview;
+use App\Filament\Widgets\ContentOverview;
+use App\Filament\Widgets\LeadOperationsOverview;
+use App\Filament\Widgets\ModerationOverview;
 use App\Filament\Widgets\RecentActivity;
+use App\Filament\Widgets\RecentLeads;
+use App\Filament\Widgets\RecentOrders;
+use App\Filament\Widgets\StoreOverview;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Product Community Admin')
+            ->brandName('Shellfin Operations')
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -39,9 +43,21 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            ->navigationGroups([
+                'Store',
+                'Leads / Growth',
+                'Content',
+                'Community',
+                'Governance',
+                'Insights',
+            ])
             ->widgets([
-                CommunityStatsOverview::class,
-                AnalyticsSnapshot::class,
+                StoreOverview::class,
+                LeadOperationsOverview::class,
+                ContentOverview::class,
+                ModerationOverview::class,
+                RecentOrders::class,
+                RecentLeads::class,
                 RecentActivity::class,
             ])
             ->middleware([

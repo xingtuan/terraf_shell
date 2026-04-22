@@ -38,6 +38,10 @@ class B2BLeadResource extends JsonResource
             'partnership_inquiry' => new PartnershipInquiryResource($this->whenLoaded('partnershipInquiry')),
             'sample_request' => new SampleRequestResource($this->whenLoaded('sampleRequest')),
             'internal_notes' => $this->when($canSeeAdminFields, $this->internal_notes),
+            'assignee' => $this->when(
+                $canSeeAdminFields && $this->relationLoaded('assignee') && $this->assignee !== null,
+                fn (): UserResource => new UserResource($this->assignee)
+            ),
             'reviewed_by' => $this->when(
                 $canSeeAdminFields && $this->relationLoaded('reviewer') && $this->reviewer !== null,
                 fn (): UserResource => new UserResource($this->reviewer)

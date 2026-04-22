@@ -188,18 +188,44 @@ class Product extends Model
     protected static function booted(): void
     {
         static::saving(function (self $product): void {
-            if (filled($product->category) && isset(self::CATEGORY_OPTIONS[$product->category])) {
+            $category = null;
+            $categoryFromRelation = null;
+            $resolvedCategory = self::normalizeCategoryValue($product->category);
+
+            if (filled($product->category_id)) {
+                $category = ProductCategory::query()->find($product->category_id);
+                $categoryFromRelation = self::normalizeCategoryValue($category?->slug);
+
+                if ($product->isDirty('category_id') && ($categoryFromRelation !== null)) {
+                    $resolvedCategory = $categoryFromRelation;
+                } else {
+                    $resolvedCategory ??= $categoryFromRelation;
+                }
+            }
+
+            if (($category === null) && filled($product->category)) {
+                $categorySlug = $resolvedCategory ?? Str::slug((string) $product->category);
+                $categoryLabel = self::labelForOption(self::CATEGORY_OPTIONS, $resolvedCategory ?? $categorySlug)
+                    ?? Str::headline((string) $product->category);
+
                 $category = ProductCategory::query()->firstOrCreate(
-                    ['slug' => $product->category],
+                    ['slug' => $categorySlug],
                     [
-                        'name' => self::CATEGORY_OPTIONS[$product->category],
-                        'description' => self::CATEGORY_OPTIONS[$product->category].' category for the Shellfin catalog.',
+                        'name' => $categoryLabel,
+                        'description' => $categoryLabel.' category for the Shellfin catalog.',
                         'is_active' => true,
                     ],
                 );
-
-                $product->category_id = $category->id;
             }
+
+            if ($category !== null) {
+                $product->category_id = $category->id;
+                $categoryFromRelation ??= self::normalizeCategoryValue($category->slug);
+            }
+
+            $product->category = $resolvedCategory
+                ?? $categoryFromRelation
+                ?? 'tableware';
 
             if (blank($product->sku) && filled($product->slug)) {
                 $product->sku = self::normalizeSku((string) $product->slug);
@@ -399,6 +425,27 @@ class Product extends Model
         }
 
         return $options[$value] ?? Str::headline($value);
+    }
+
+    public static function normalizeCategoryValue(?string $value): ?string
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        $normalized = Str::slug(trim($value), '_');
+
+        if (isset(self::CATEGORY_OPTIONS[$normalized])) {
+            return $normalized;
+        }
+
+        return match ($normalized) {
+            'wellness_interior',
+            'wellness_interiors',
+            'home_objects',
+            'gift_sets' => 'wellness_interior',
+            default => null,
+        };
     }
 
     private static function normalizeStockStatus(?string $stockStatus, ?int $stockQuantity, bool $inStock): string

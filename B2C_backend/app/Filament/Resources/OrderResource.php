@@ -8,9 +8,11 @@ use App\Filament\Resources\OrderResource\Pages\EditOrder;
 use App\Filament\Resources\OrderResource\Pages\ListOrders;
 use App\Filament\Resources\OrderResource\Pages\ViewOrder;
 use App\Filament\Resources\Users\UserResource as UserFilamentResource;
+use App\Filament\Support\PanelAccess;
 use App\Models\Order;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Section;
@@ -19,6 +21,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -39,7 +42,7 @@ class OrderResource extends Resource
 
     protected static ?string $navigationLabel = 'Orders';
 
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
     {
@@ -50,6 +53,16 @@ class OrderResource extends Resource
                         Placeholder::make('order_number')
                             ->label('Order Number')
                             ->content(fn (Order $record): string => $record->order_number),
+                        Placeholder::make('payment_method')
+                            ->label('Payment Method')
+                            ->content(fn (Order $record): string => $record->payment_method ?: 'Not captured'),
+                        Placeholder::make('payment_reference')
+                            ->label('Payment Reference')
+                            ->content(fn (Order $record): string => $record->payment_reference ?: 'Not captured'),
+                        Placeholder::make('customer_note_summary')
+                            ->label('Customer Note')
+                            ->content(fn (Order $record): string => $record->customer_note ?: 'No customer note.')
+                            ->columnSpanFull(),
                         Select::make('status')
                             ->options(OrderStatus::options())
                             ->required(),
@@ -89,7 +102,7 @@ class OrderResource extends Resource
                     ->schema([
                         TextEntry::make('user.name')
                             ->label('Name')
-                            ->url(fn (Order $record): string => UserFilamentResource::getUrl('view', ['record' => $record->user]))
+                            ->url(fn (Order $record): ?string => $record->user ? UserFilamentResource::getUrl('view', ['record' => $record->user]) : null)
                             ->placeholder('-'),
                         TextEntry::make('user.email')
                             ->label('Email')
@@ -111,6 +124,15 @@ class OrderResource extends Resource
                         TextEntry::make('shipping_postal_code')
                             ->placeholder('-'),
                         TextEntry::make('shipping_country'),
+                    ])
+                    ->columns(2),
+                InfolistSection::make('Payment')
+                    ->schema([
+                        TextEntry::make('payment_method')
+                            ->placeholder('-'),
+                        TextEntry::make('payment_reference')
+                            ->placeholder('-')
+                            ->copyable(),
                     ])
                     ->columns(2),
                 InfolistSection::make('Order Items')
@@ -145,7 +167,11 @@ class OrderResource extends Resource
                     ->columns(3),
                 InfolistSection::make('Admin Note')
                     ->schema([
+                        TextEntry::make('customer_note')
+                            ->label('Customer note')
+                            ->placeholder('-'),
                         TextEntry::make('admin_note')
+                            ->label('Internal note')
                             ->placeholder('-'),
                     ]),
                 InfolistSection::make('Timeline')
@@ -179,11 +205,18 @@ class OrderResource extends Resource
             ->columns([
                 TextColumn::make('order_number')
                     ->searchable()
-                    ->copyable(),
+                    ->copyable()
+                    ->description(fn (Order $record): string => collect([
+                        $record->payment_method ?: null,
+                        $record->payment_reference ?: null,
+                    ])->filter()->implode(' | ')),
                 TextColumn::make('user.name')
                     ->label('Customer')
                     ->searchable()
-                    ->description(fn (Order $record): string => $record->user?->email ?? '-'),
+                    ->description(fn (Order $record): string => collect([
+                        $record->user?->email,
+                        $record->shipping_country,
+                    ])->filter()->implode(' | ') ?: '-'),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->label() : (OrderStatus::tryFrom((string) $state)?->label() ?? (string) $state))
@@ -198,15 +231,47 @@ class OrderResource extends Resource
                 TextColumn::make('items_count')
                     ->label('Items')
                     ->numeric(),
+                TextColumn::make('shipping_country')
+                    ->label('Ship to')
+                    ->toggleable(),
+                TextColumn::make('customer_note')
+                    ->label('Customer note')
+                    ->limit(40)
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
+                Filter::make('open_fulfilment')
+                    ->label('Open fulfilment')
+                    ->query(fn (Builder $query): Builder => $query->whereIn('status', [
+                        OrderStatus::Pending->value,
+                        OrderStatus::Confirmed->value,
+                        OrderStatus::Processing->value,
+                        OrderStatus::Shipped->value,
+                    ])),
                 SelectFilter::make('status')
                     ->options(OrderStatus::options()),
                 SelectFilter::make('payment_status')
                     ->options(OrderPaymentStatus::options()),
+                SelectFilter::make('shipping_country')
+                    ->label('Ship to country')
+                    ->options(fn (): array => Order::query()
+                        ->whereNotNull('shipping_country')
+                        ->select('shipping_country')
+                        ->distinct()
+                        ->orderBy('shipping_country')
+                        ->pluck('shipping_country', 'shipping_country')
+                        ->all()),
+                SelectFilter::make('payment_method')
+                    ->options(fn (): array => Order::query()
+                        ->whereNotNull('payment_method')
+                        ->select('payment_method')
+                        ->distinct()
+                        ->orderBy('payment_method')
+                        ->pluck('payment_method', 'payment_method')
+                        ->all()),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
@@ -227,9 +292,9 @@ class OrderResource extends Resource
                     }),
             ])
             ->recordActions([
-                \Filament\Actions\ViewAction::make(),
+                ViewAction::make(),
                 Action::make('changeStatus')
-                    ->label('Change Status')
+                    ->label('Update Status')
                     ->form([
                         Select::make('status')
                             ->options([
@@ -240,6 +305,9 @@ class OrderResource extends Resource
                                 OrderStatus::Cancelled->value => OrderStatus::Cancelled->label(),
                             ])
                             ->required(),
+                    ])
+                    ->fillForm(fn (Order $record): array => [
+                        'status' => $record->status instanceof OrderStatus ? $record->status->value : (string) $record->status,
                     ])
                     ->action(function (Order $record, array $data): void {
                         $status = OrderStatus::from($data['status']);
@@ -262,6 +330,11 @@ class OrderResource extends Resource
                         }
 
                         $record->forceFill($payload)->save();
+
+                        Notification::make()
+                            ->title('Order status updated.')
+                            ->success()
+                            ->send();
                     }),
             ]);
     }
@@ -269,6 +342,21 @@ class OrderResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with(['user', 'items.product']);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return PanelAccess::isAdmin();
+    }
+
+    public static function canView(Model $record): bool
+    {
+        return PanelAccess::isAdmin();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return PanelAccess::isAdmin();
     }
 
     public static function canCreate(): bool
@@ -288,9 +376,21 @@ class OrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = static::getModel()::query()->where('status', OrderStatus::Pending->value)->count();
+        $count = static::getModel()::query()
+            ->whereIn('status', [
+                OrderStatus::Pending->value,
+                OrderStatus::Confirmed->value,
+                OrderStatus::Processing->value,
+                OrderStatus::Shipped->value,
+            ])
+            ->count();
 
         return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'warning';
     }
 
     public static function getPages(): array

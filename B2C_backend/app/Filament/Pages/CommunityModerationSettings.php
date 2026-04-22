@@ -24,7 +24,7 @@ class CommunityModerationSettings extends Page
 
     protected static ?string $navigationLabel = 'Moderation Settings';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = 'Governance';
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-adjustments-horizontal';
 

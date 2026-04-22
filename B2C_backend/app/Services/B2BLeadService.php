@@ -66,7 +66,7 @@ class B2BLeadService
     public function listForAdmin(array $filters): LengthAwarePaginator
     {
         $query = B2BLead::query()
-            ->with(['reviewer.profile', 'partnershipInquiry', 'sampleRequest'])
+            ->with(['assignee.profile', 'reviewer.profile', 'partnershipInquiry', 'sampleRequest'])
             ->orderByDesc('created_at')
             ->orderByDesc('id');
 
@@ -81,6 +81,9 @@ class B2BLeadService
     {
         return DB::transaction(function () use ($lead, $data, $admin): B2BLead {
             $changes = [];
+            $nextAssignedTo = array_key_exists('assigned_to', $data)
+                ? (filled($data['assigned_to']) ? (int) $data['assigned_to'] : null)
+                : $lead->assigned_to;
 
             if (array_key_exists('status', $data) && $data['status'] !== $lead->status) {
                 $changes['status'] = [
@@ -95,23 +98,36 @@ class B2BLeadService
                 $lead->internal_notes = $data['internal_notes'];
             }
 
+            if (array_key_exists('assigned_to', $data) && $nextAssignedTo !== $lead->assigned_to) {
+                $changes['assigned_to'] = [
+                    'from' => $lead->assigned_to,
+                    'to' => $nextAssignedTo,
+                ];
+                $lead->assigned_to = $nextAssignedTo;
+            }
+
+            if ($changes === []) {
+                return $this->loadLead($lead);
+            }
+
             $lead->reviewed_by = $admin->id;
             $lead->reviewed_at = now();
             $lead->save();
 
-            if ($changes !== []) {
-                $description = isset($changes['status'])
-                    ? 'B2B lead status updated.'
-                    : 'B2B lead notes updated.';
+            $description = match (true) {
+                count($changes) > 1 => 'B2B lead review updated.',
+                isset($changes['status']) => 'B2B lead status updated.',
+                isset($changes['assigned_to']) => 'B2B lead owner updated.',
+                default => 'B2B lead notes updated.',
+            };
 
-                $this->governanceService->recordAdminAction(
-                    $admin,
-                    'b2b_lead.updated',
-                    $description,
-                    $changes,
-                    $lead
-                );
-            }
+            $this->governanceService->recordAdminAction(
+                $admin,
+                'b2b_lead.updated',
+                $description,
+                $changes,
+                $lead
+            );
 
             return $this->loadLead($lead);
         });
@@ -119,7 +135,7 @@ class B2BLeadService
 
     public function loadLead(B2BLead $lead): B2BLead
     {
-        return $lead->load(['reviewer.profile', 'partnershipInquiry', 'sampleRequest']);
+        return $lead->load(['assignee.profile', 'reviewer.profile', 'partnershipInquiry', 'sampleRequest']);
     }
 
     public function exportForAdmin(array $filters): StreamedResponse
@@ -272,6 +288,10 @@ class B2BLeadService
 
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
+        }
+
+        if (array_key_exists('assigned_to', $filters) && filled($filters['assigned_to'])) {
+            $query->where('assigned_to', (int) $filters['assigned_to']);
         }
 
         if (! empty($filters['country'])) {

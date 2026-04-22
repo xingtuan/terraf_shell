@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\UserNotifications;
 
-use App\Filament\Resources\UserNotifications\Pages\CreateUserNotification;
-use App\Filament\Resources\UserNotifications\Pages\EditUserNotification;
 use App\Filament\Resources\UserNotifications\Pages\ListUserNotifications;
 use App\Filament\Resources\UserNotifications\Pages\ViewUserNotification;
 use App\Filament\Resources\UserNotifications\Schemas\UserNotificationForm;
@@ -25,11 +23,11 @@ class UserNotificationResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'System';
+    protected static string|\UnitEnum|null $navigationGroup = 'Community';
 
-    protected static ?string $navigationLabel = 'Notifications';
+    protected static ?string $navigationLabel = 'Announcements';
 
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 80;
 
     public static function form(Schema $schema): Schema
     {
@@ -94,9 +92,7 @@ class UserNotificationResource extends Resource
     {
         return [
             'index' => ListUserNotifications::route('/'),
-            'create' => CreateUserNotification::route('/create'),
             'view' => ViewUserNotification::route('/{record}'),
-            'edit' => EditUserNotification::route('/{record}/edit'),
         ];
     }
 }

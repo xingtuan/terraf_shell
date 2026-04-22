@@ -25,14 +25,14 @@ class EnquiriesTable
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
-                TextColumn::make('id')
-                    ->sortable(),
-                TextColumn::make('name')
-                    ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email')
+                TextColumn::make('reference')
                     ->searchable()
                     ->copyable(),
+                TextColumn::make('email')
+                    ->label('Contact')
+                    ->searchable()
+                    ->copyable()
+                    ->description(fn (Inquiry $record): string => collect([$record->name, $record->phone])->filter()->implode(' | ')),
                 TextColumn::make('company_name')
                     ->label('Company / Organization')
                     ->searchable()
@@ -41,25 +41,28 @@ class EnquiriesTable
                         $record->country,
                         $record->region,
                     ])->filter()->implode(' | ')),
-                TextColumn::make('inquiry_type')
-                    ->label('Enquiry Type')
-                    ->badge()
-                    ->sortable()
-                    ->searchable(),
                 TextColumn::make('message')
                     ->label('Subject')
                     ->state(fn (Inquiry $record): string => $record->subject)
+                    ->description(fn (Inquiry $record): string => collect([
+                        $record->inquiry_type ?: 'General enquiry',
+                        $record->source_page,
+                    ])->filter()->implode(' | '))
                     ->searchable()
-                    ->limit(50),
+                    ->wrap()
+                    ->limit(70),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->color() ?? 'gray')
                     ->sortable(),
                 TextColumn::make('assignee.name')
-                    ->label('Assigned Admin')
+                    ->label('Owner')
                     ->placeholder('Unassigned')
                     ->toggleable(),
+                TextColumn::make('source_page')
+                    ->label('Source')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label('Submitted')
                     ->dateTime()
@@ -70,7 +73,7 @@ class EnquiriesTable
                     ->options(B2BLeadStatus::enquiryOptions()),
                 SelectFilter::make('assigned_to')
                     ->relationship('assignee', 'name')
-                    ->label('Assigned Admin')
+                    ->label('Owner')
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('inquiry_type')

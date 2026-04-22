@@ -25,11 +25,11 @@ class FundingCampaignResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Growth';
+    protected static string|\UnitEnum|null $navigationGroup = 'Community';
 
     protected static ?string $navigationLabel = 'Funding Campaigns';
 
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 90;
 
     public static function form(Schema $schema): Schema
     {

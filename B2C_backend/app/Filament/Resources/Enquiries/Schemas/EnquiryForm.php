@@ -65,7 +65,7 @@ class EnquiryForm
                                     ->options(B2BLeadStatus::enquiryOptions())
                                     ->required(),
                                 Select::make('assigned_to')
-                                    ->label('Assigned admin')
+                                    ->label('Assigned owner')
                                     ->options(fn (): array => User::query()
                                         ->whereIn('role', [UserRole::Admin->value, UserRole::Moderator->value])
                                         ->orderBy('name')

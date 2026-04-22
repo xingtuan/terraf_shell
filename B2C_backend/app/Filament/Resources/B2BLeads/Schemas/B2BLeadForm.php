@@ -4,7 +4,9 @@ namespace App\Filament\Resources\B2BLeads\Schemas;
 
 use App\Enums\B2BLeadStatus;
 use App\Enums\B2BLeadType;
+use App\Enums\UserRole;
 use App\Models\B2BLead;
+use App\Models\User;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -89,12 +91,25 @@ class B2BLeadForm
                     ]),
                 Section::make('Admin Review')
                     ->schema([
-                        Select::make('status')
-                            ->options(B2BLeadStatus::options())
-                            ->required(),
-                        Textarea::make('internal_notes')
-                            ->rows(6)
-                            ->columnSpanFull(),
+                        Grid::make(2)
+                            ->schema([
+                                Select::make('status')
+                                    ->options(B2BLeadStatus::options())
+                                    ->required(),
+                                Select::make('assigned_to')
+                                    ->label('Assigned owner')
+                                    ->options(fn (): array => User::query()
+                                        ->whereIn('role', [UserRole::Admin->value, UserRole::Moderator->value])
+                                        ->orderBy('name')
+                                        ->pluck('name', 'id')
+                                        ->all())
+                                    ->placeholder('Unassigned')
+                                    ->searchable()
+                                    ->preload(),
+                                Textarea::make('internal_notes')
+                                    ->rows(6)
+                                    ->columnSpanFull(),
+                            ]),
                     ]),
             ]);
     }

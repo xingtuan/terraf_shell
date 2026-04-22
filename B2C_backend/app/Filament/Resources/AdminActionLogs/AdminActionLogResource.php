@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\AdminActionLogs;
 
-use App\Filament\Resources\AdminActionLogs\Pages\CreateAdminActionLog;
-use App\Filament\Resources\AdminActionLogs\Pages\EditAdminActionLog;
 use App\Filament\Resources\AdminActionLogs\Pages\ListAdminActionLogs;
 use App\Filament\Resources\AdminActionLogs\Pages\ViewAdminActionLog;
 use App\Filament\Resources\AdminActionLogs\Schemas\AdminActionLogForm;
@@ -25,11 +23,11 @@ class AdminActionLogResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Governance';
+    protected static string|\UnitEnum|null $navigationGroup = 'Insights';
 
     protected static ?string $navigationLabel = 'Admin Action Logs';
 
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema
     {
@@ -94,9 +92,7 @@ class AdminActionLogResource extends Resource
     {
         return [
             'index' => ListAdminActionLogs::route('/'),
-            'create' => CreateAdminActionLog::route('/create'),
             'view' => ViewAdminActionLog::route('/{record}'),
-            'edit' => EditAdminActionLog::route('/{record}/edit'),
         ];
     }
 }

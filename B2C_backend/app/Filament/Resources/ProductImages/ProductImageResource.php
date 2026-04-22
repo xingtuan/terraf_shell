@@ -21,9 +21,11 @@ class ProductImageResource extends Resource
 {
     protected static ?string $model = ProductImage::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = 'Store';
 
     protected static ?string $navigationLabel = 'Product Media';
 

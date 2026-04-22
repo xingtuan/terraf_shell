@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Materials\Tables;
 
 use App\Enums\PublishStatus;
+use App\Models\Material;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -22,17 +23,19 @@ class MaterialsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('sort_order')
             ->columns([
                 ImageColumn::make('media_url')
                     ->label('Media')
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Material'),
                 TextColumn::make('title')
-                    ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
+                    ->searchable()
+                    ->description(fn (Material $record): string => $record->slug),
                 TextColumn::make('headline')
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(60)
+                    ->toggleable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => PublishStatus::tryFrom($state)?->label() ?? $state)
@@ -40,24 +43,28 @@ class MaterialsTable
                 IconColumn::make('is_featured')
                     ->label('Featured')
                     ->boolean(),
+                TextColumn::make('specs_count')
+                    ->label('Specs')
+                    ->badge()
+                    ->color('info'),
+                TextColumn::make('story_sections_count')
+                    ->label('Story')
+                    ->badge()
+                    ->color('warning'),
+                TextColumn::make('applications_count')
+                    ->label('Applications')
+                    ->badge()
+                    ->color('success'),
                 TextColumn::make('sort_order')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('media_path')
-                    ->searchable(),
-                TextColumn::make('media_url')
-                    ->searchable(),
                 TextColumn::make('published_at')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('status')

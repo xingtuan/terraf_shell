@@ -57,7 +57,7 @@ class EnquiryInfolist
                             ->placeholder('No internal notes yet.')
                             ->columnSpanFull(),
                         TextEntry::make('assignee.name')
-                            ->label('Assigned admin')
+                            ->label('Owner')
                             ->placeholder('Unassigned.'),
                         TextEntry::make('reviewer.name')
                             ->label('Reviewed by')

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\AdminActionLogs\Pages;
 
 use App\Filament\Resources\AdminActionLogs\AdminActionLogResource;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListAdminActionLogs extends ListRecords
@@ -12,8 +11,6 @@ class ListAdminActionLogs extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make(),
-        ];
+        return [];
     }
 }
