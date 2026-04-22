@@ -1,17 +1,14 @@
 "use client"
 
-import { useEffect, useEffectEvent, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useEffectEvent, useMemo, useState } from "react"
 import Link from "next/link"
 
-import { deleteAddress, listAddresses } from "@/lib/api/addresses"
-import { getOrders } from "@/lib/api/orders"
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
-import { EditProfileModal } from "@/components/community/EditProfileModal"
 import { FollowButton } from "@/components/community/FollowButton"
 import { PostCard } from "@/components/community/PostCard"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getAccountCopy } from "@/lib/account-copy"
 import { getErrorMessage } from "@/lib/api/client"
 import {
   getUserComments,
@@ -20,12 +17,10 @@ import {
   getUserProfile,
 } from "@/lib/api/users"
 import { COMMUNITY_POSTS_REFRESH_EVENT } from "@/lib/community-events"
-import { getIntlLocale, getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
+import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type {
-  Address,
   CommunityComment,
   CommunityPost,
-  StoreOrder,
   UserProfile,
 } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
@@ -42,7 +37,7 @@ function formatMonthYear(locale: Locale, value?: string | null) {
     return null
   }
 
-  return new Intl.DateTimeFormat(getIntlLocale(locale), {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : locale, {
     month: "long",
     year: "numeric",
   }).format(new Date(value))
@@ -53,7 +48,7 @@ function formatProfileDate(locale: Locale, value?: string | null) {
     return null
   }
 
-  return new Intl.DateTimeFormat(getIntlLocale(locale), {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -79,31 +74,14 @@ function getBannerStyle(profile?: UserProfile | null) {
   }
 }
 
-function statusClasses(status: StoreOrder["status"]) {
-  switch (status) {
-    case "confirmed":
-      return "bg-sky-100 text-sky-700"
-    case "processing":
-      return "bg-amber-100 text-amber-700"
-    case "shipped":
-      return "bg-violet-100 text-violet-700"
-    case "delivered":
-      return "bg-emerald-100 text-emerald-700"
-    case "cancelled":
-      return "bg-red-100 text-red-700"
-    default:
-      return "bg-muted text-foreground"
-  }
-}
-
 export function CommunityProfilePage({
   locale,
   username,
   messages,
   initialProfile = null,
 }: CommunityProfilePageProps) {
-  const router = useRouter()
   const session = useAuthSession()
+  const accountCopy = getAccountCopy(locale)
   const [activeUsername, setActiveUsername] = useState(
     initialProfile?.username ?? username,
   )
@@ -111,8 +89,6 @@ export function CommunityProfilePage({
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [comments, setComments] = useState<CommunityComment[]>([])
   const [favorites, setFavorites] = useState<CommunityPost[]>([])
-  const [recentOrders, setRecentOrders] = useState<StoreOrder[]>([])
-  const [addresses, setAddresses] = useState<Address[]>([])
   const [postsTotal, setPostsTotal] = useState(initialProfile?.posts_count ?? 0)
   const [commentsTotal, setCommentsTotal] = useState(
     initialProfile?.comments_count ?? 0,
@@ -123,8 +99,6 @@ export function CommunityProfilePage({
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
   const [isLoadingComments, setIsLoadingComments] = useState(true)
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(true)
-  const [isLoadingAccount, setIsLoadingAccount] = useState(false)
-  const [isEditOpen, setIsEditOpen] = useState(false)
 
   const loadProfile = useEffectEvent(async () => {
     setIsLoadingProfile(true)
@@ -132,9 +106,9 @@ export function CommunityProfilePage({
     try {
       const nextProfile = await getUserProfile(activeUsername, session.token)
       setProfile(nextProfile)
-    } catch (error) {
+    } catch (loadError) {
       setProfile(null)
-      setMessage(getErrorMessage(error))
+      setMessage(getErrorMessage(loadError))
     } finally {
       setIsLoadingProfile(false)
     }
@@ -151,10 +125,10 @@ export function CommunityProfilePage({
       )
       setPosts(nextPosts.items)
       setPostsTotal(nextPosts.meta.total)
-    } catch (error) {
+    } catch (loadError) {
       setPosts([])
       setPostsTotal(0)
-      setMessage(getErrorMessage(error))
+      setMessage(getErrorMessage(loadError))
     } finally {
       setIsLoadingPosts(false)
     }
@@ -170,9 +144,9 @@ export function CommunityProfilePage({
         session.token,
       )
       setFavorites(nextFavorites.items)
-    } catch (error) {
+    } catch (loadError) {
       setFavorites([])
-      setMessage(getErrorMessage(error))
+      setMessage(getErrorMessage(loadError))
     } finally {
       setIsLoadingFavorites(false)
     }
@@ -189,38 +163,12 @@ export function CommunityProfilePage({
       )
       setComments(nextComments.items)
       setCommentsTotal(nextComments.meta.total)
-    } catch (error) {
+    } catch (loadError) {
       setComments([])
       setCommentsTotal(0)
-      setMessage(getErrorMessage(error))
+      setMessage(getErrorMessage(loadError))
     } finally {
       setIsLoadingComments(false)
-    }
-  })
-
-  const loadAccount = useEffectEvent(async () => {
-    if (!session.token || !session.user || session.user.username !== activeUsername) {
-      setRecentOrders([])
-      setAddresses([])
-      setIsLoadingAccount(false)
-      return
-    }
-
-    setIsLoadingAccount(true)
-
-    try {
-      const [ordersResponse, nextAddresses] = await Promise.all([
-        getOrders(session.token, 1, 3),
-        listAddresses(session.token),
-      ])
-      setRecentOrders(ordersResponse.items)
-      setAddresses(nextAddresses)
-    } catch (error) {
-      setRecentOrders([])
-      setAddresses([])
-      setMessage(getErrorMessage(error))
-    } finally {
-      setIsLoadingAccount(false)
     }
   })
 
@@ -238,22 +186,12 @@ export function CommunityProfilePage({
     }
 
     setMessage(null)
-    void Promise.all([
-      loadProfile(),
-      loadPosts(),
-      loadComments(),
-      loadFavorites(),
-      loadAccount(),
-    ])
-  }, [session.isReady, session.token, activeUsername])
+    void Promise.all([loadProfile(), loadPosts(), loadComments(), loadFavorites()])
+  }, [activeUsername, loadComments, loadFavorites, loadPosts, loadProfile, session.isReady, session.token])
 
   useEffect(() => {
     const handleRefresh = () => {
-      if (!profile || session.user?.id !== profile.id) {
-        return
-      }
-
-      void Promise.all([loadProfile(), loadPosts(), loadComments(), loadAccount()])
+      void Promise.all([loadProfile(), loadPosts(), loadComments(), loadFavorites()])
     }
 
     window.addEventListener(COMMUNITY_POSTS_REFRESH_EVENT, handleRefresh)
@@ -261,7 +199,7 @@ export function CommunityProfilePage({
     return () => {
       window.removeEventListener(COMMUNITY_POSTS_REFRESH_EVENT, handleRefresh)
     }
-  }, [loadAccount, loadComments, loadPosts, loadProfile, profile, session.user?.id])
+  }, [loadComments, loadFavorites, loadPosts, loadProfile])
 
   function syncPost(updatedPost: CommunityPost) {
     setPosts((currentPosts) =>
@@ -302,507 +240,387 @@ export function CommunityProfilePage({
     ? commentsTotal
     : (profile?.comments_count ?? commentsTotal)
 
-  async function handleDeleteAddress(addressId: number) {
-    if (!session.token) {
-      return
-    }
-
-    if (!window.confirm(messages.profile.deleteAddressConfirm)) {
-      return
-    }
-
-    try {
-      await deleteAddress(addressId, session.token)
-      setAddresses((currentAddresses) =>
-        currentAddresses.filter((address) => address.id !== addressId),
-      )
-    } catch (error) {
-      setMessage(getErrorMessage(error))
-    }
-  }
+  const publicDetails = useMemo(
+    () =>
+      [
+        {
+          label: accountCopy.profile.locationLabel,
+          value: profile?.profile?.location,
+        },
+        {
+          label: accountCopy.profile.regionLabel,
+          value: profile?.profile?.region,
+        },
+        {
+          label: accountCopy.profile.organizationLabel,
+          value: profile?.profile?.school_or_company,
+        },
+      ].filter(
+        (item): item is { label: string; value: string } => Boolean(item.value),
+      ),
+    [
+      accountCopy.profile.locationLabel,
+      accountCopy.profile.organizationLabel,
+      accountCopy.profile.regionLabel,
+      profile?.profile?.location,
+      profile?.profile?.region,
+      profile?.profile?.school_or_company,
+    ],
+  )
 
   return (
-    <>
-      <section className="bg-background py-14 lg:py-16">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          {message ? (
-            <div className="mb-8 rounded-2xl border border-border/60 bg-card px-5 py-4 text-sm text-foreground">
-              {message}
-            </div>
-          ) : null}
+    <section className="bg-background py-14 lg:py-16">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        {message ? (
+          <div className="mb-8 rounded-2xl border border-border/60 bg-card px-5 py-4 text-sm text-foreground">
+            {message}
+          </div>
+        ) : null}
 
-          {isLoadingProfile && !profile ? (
-            <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-              {messages.profile.loading}
-            </div>
-          ) : null}
+        {isLoadingProfile && !profile ? (
+          <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+            {messages.profile.loading}
+          </div>
+        ) : null}
 
-          {!isLoadingProfile && !profile ? (
-            <div className="rounded-[2rem] border border-border/60 bg-card p-8">
-              <h1 className="font-serif text-3xl text-foreground">
-                {messages.profile.notFound}
-              </h1>
-            </div>
-          ) : null}
+        {!isLoadingProfile && !profile ? (
+          <div className="rounded-[2rem] border border-border/60 bg-card p-8">
+            <h1 className="font-serif text-3xl text-foreground">
+              {messages.profile.notFound}
+            </h1>
+          </div>
+        ) : null}
 
-          {profile ? (
-            <>
-              <article className="overflow-hidden rounded-[2rem] border border-border/60 bg-card">
-                <div
-                  className="h-44 w-full border-b border-border/40"
-                  style={getBannerStyle(profile)}
-                />
+        {profile ? (
+          <>
+            <article className="overflow-hidden rounded-[2rem] border border-border/60 bg-card">
+              <div
+                className="h-44 w-full border-b border-border/40"
+                style={getBannerStyle(profile)}
+              />
 
-                <div className="relative px-6 pb-8 sm:px-8">
-                  <div className="-mt-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                    <div className="flex flex-col gap-5 sm:flex-row sm:items-end">
-                      <CommunityUserAvatar
-                        user={profile}
-                        className="size-24 border-4 border-background shadow-lg"
-                        fallbackClassName="text-xl"
-                        sizes="96px"
-                      />
+              <div className="relative px-6 pb-8 sm:px-8">
+                <div className="-mt-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-end">
+                    <CommunityUserAvatar
+                      user={profile}
+                      className="size-24 border-4 border-background shadow-lg"
+                      fallbackClassName="text-xl"
+                      sizes="96px"
+                    />
 
-                      <div className="space-y-3">
-                        <div className="space-y-2">
-                          <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                            @{profile.username}
-                          </p>
-                          <h1 className="font-serif text-4xl text-foreground">
-                            {profile.name}
-                          </h1>
-                        </div>
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <p className="text-sm uppercase tracking-[0.18em] text-primary">
+                          @{profile.username}
+                        </p>
+                        <h1 className="font-serif text-4xl text-foreground">
+                          {profile.name}
+                        </h1>
+                      </div>
 
-                        {profile.bio ? (
-                          <p className="max-w-2xl leading-relaxed text-muted-foreground">
-                            {profile.bio}
-                          </p>
+                      {profile.bio ? (
+                        <p className="max-w-2xl leading-relaxed text-muted-foreground">
+                          {profile.bio}
+                        </p>
+                      ) : null}
+
+                      <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+                        {memberSince ? (
+                          <span>
+                            {messages.profile.memberSince.replace(
+                              "{date}",
+                              memberSince,
+                            )}
+                          </span>
                         ) : null}
-
-                        <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                          {memberSince ? (
-                            <span>
-                              {messages.profile.memberSince.replace(
-                                "{date}",
-                                memberSince,
-                              )}
-                            </span>
-                          ) : null}
-                        </div>
                       </div>
                     </div>
+                  </div>
 
-                    {session.isReady ? (
-                      isOwnProfile ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setIsEditOpen(true)}
-                        >
-                          {messages.profile.editProfile}
-                        </Button>
-                      ) : (
-                        <FollowButton
-                          userId={profile.id}
-                          initialIsFollowing={profile.is_following}
-                          followerCount={profile.followers_count ?? 0}
-                          onChange={({ isFollowing, followerCount }) => {
-                            setProfile((currentProfile) =>
-                              currentProfile
-                                ? {
-                                    ...currentProfile,
-                                    is_following: isFollowing,
-                                    followers_count: followerCount,
-                                  }
-                                : currentProfile,
-                            )
-                          }}
-                        />
-                      )
+                  {session.isReady ? (
+                    isOwnProfile ? (
+                      <Button asChild variant="outline">
+                        <Link href={getLocalizedHref(locale, "account")}>
+                          {accountCopy.publicProfile.manageAccount}
+                        </Link>
+                      </Button>
+                    ) : (
+                      <FollowButton
+                        userId={profile.id}
+                        initialIsFollowing={profile.is_following}
+                        followerCount={profile.followers_count ?? 0}
+                        onChange={({ isFollowing, followerCount }) => {
+                          setProfile((currentProfile) =>
+                            currentProfile
+                              ? {
+                                  ...currentProfile,
+                                  is_following: isFollowing,
+                                  followers_count: followerCount,
+                                }
+                              : currentProfile,
+                          )
+                        }}
+                      />
+                    )
+                  ) : null}
+                </div>
+
+                <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="rounded-[1.5rem] bg-background p-5">
+                    <p className="text-sm text-muted-foreground">
+                      {messages.profile.postsCount}
+                    </p>
+                    <p className="mt-2 text-2xl text-foreground">
+                      {visiblePostsCount}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.5rem] bg-background p-5">
+                    <p className="text-sm text-muted-foreground">
+                      {messages.profile.commentsCount}
+                    </p>
+                    <p className="mt-2 text-2xl text-foreground">
+                      {visibleCommentsCount}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.5rem] bg-background p-5">
+                    <p className="text-sm text-muted-foreground">
+                      {messages.profile.followers}
+                    </p>
+                    <p className="mt-2 text-2xl text-foreground">
+                      {profile.followers_count ?? 0}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.5rem] bg-background p-5">
+                    <p className="text-sm text-muted-foreground">
+                      {messages.profile.following}
+                    </p>
+                    <p className="mt-2 text-2xl text-foreground">
+                      {profile.following_count ?? 0}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8 rounded-[1.5rem] bg-background p-6">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div>
+                      <p className="text-sm uppercase tracking-[0.18em] text-primary">
+                        {accountCopy.publicProfile.detailsTitle}
+                      </p>
+                      <h2 className="mt-3 font-serif text-3xl text-foreground">
+                        {accountCopy.publicProfile.detailsTitle}
+                      </h2>
+                      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                        {accountCopy.publicProfile.detailsDescription}
+                      </p>
+                    </div>
+                    {isOwnProfile ? (
+                      <Button asChild variant="outline">
+                        <Link href={getLocalizedHref(locale, "account/profile")}>
+                          {accountCopy.publicProfile.completeProfile}
+                        </Link>
+                      </Button>
                     ) : null}
                   </div>
 
-                  <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-[1.5rem] bg-background p-5">
-                      <p className="text-sm text-muted-foreground">
-                        {messages.profile.postsCount}
-                      </p>
-                      <p className="mt-2 text-2xl text-foreground">
-                        {visiblePostsCount}
-                      </p>
-                    </div>
-                    <div className="rounded-[1.5rem] bg-background p-5">
-                      <p className="text-sm text-muted-foreground">
-                        {messages.profile.commentsCount}
-                      </p>
-                      <p className="mt-2 text-2xl text-foreground">
-                        {visibleCommentsCount}
-                      </p>
-                    </div>
-                    <div className="rounded-[1.5rem] bg-background p-5">
-                      <p className="text-sm text-muted-foreground">
-                        {messages.profile.followers}
-                      </p>
-                      <p className="mt-2 text-2xl text-foreground">
-                        {profile.followers_count ?? 0}
-                      </p>
-                    </div>
-                    <div className="rounded-[1.5rem] bg-background p-5">
-                      <p className="text-sm text-muted-foreground">
-                        {messages.profile.following}
-                      </p>
-                      <p className="mt-2 text-2xl text-foreground">
-                        {profile.following_count ?? 0}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </article>
-
-              <Tabs
-                value={activeTab}
-                onValueChange={setActiveTab}
-                className="mt-10"
-              >
-                <TabsList>
-                  <TabsTrigger value="posts">{messages.profile.posts}</TabsTrigger>
-                  <TabsTrigger value="comments">
-                    {messages.profile.comments}
-                  </TabsTrigger>
-                  <TabsTrigger value="favorites">
-                    {messages.profile.favorites}
-                  </TabsTrigger>
-                  {isOwnProfile ? (
-                    <TabsTrigger value="account">
-                      {messages.profile.account}
-                    </TabsTrigger>
-                  ) : null}
-                </TabsList>
-
-                <TabsContent value="posts" className="mt-6">
-                  {isLoadingPosts ? (
-                    <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                      {messages.profile.loadingPosts}
-                    </div>
-                  ) : posts.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                      {posts.map((post) => (
-                        <PostCard
-                          key={post.id}
-                          locale={locale}
-                          post={post}
-                          messages={messages}
-                          token={session.token}
-                          currentUserId={session.user?.id}
-                          onUpdated={syncPost}
-                          onDeleted={removePost}
-                        />
+                  {publicDetails.length > 0 ||
+                  profile.profile?.website ||
+                  profile.profile?.portfolio_url ||
+                  profile.profile?.open_to_collab ? (
+                    <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                      {publicDetails.map((detail) => (
+                        <div
+                          key={detail.label}
+                          className="rounded-[1.25rem] border border-border/60 bg-card p-4"
+                        >
+                          <p className="text-sm text-muted-foreground">{detail.label}</p>
+                          <p className="mt-2 text-foreground">{detail.value}</p>
+                        </div>
                       ))}
+                      {profile.profile?.website ? (
+                        <div className="rounded-[1.25rem] border border-border/60 bg-card p-4">
+                          <p className="text-sm text-muted-foreground">
+                            {accountCopy.profile.websiteLabel}
+                          </p>
+                          <Link
+                            href={profile.profile.website}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-2 block break-all text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+                          >
+                            {profile.profile.website}
+                          </Link>
+                        </div>
+                      ) : null}
+                      {profile.profile?.portfolio_url ? (
+                        <div className="rounded-[1.25rem] border border-border/60 bg-card p-4">
+                          <p className="text-sm text-muted-foreground">
+                            {accountCopy.profile.portfolioLabel}
+                          </p>
+                          <Link
+                            href={profile.profile.portfolio_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-2 block break-all text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline"
+                          >
+                            {profile.profile.portfolio_url}
+                          </Link>
+                        </div>
+                      ) : null}
+                      {profile.profile?.open_to_collab ? (
+                        <div className="rounded-[1.25rem] border border-border/60 bg-card p-4">
+                          <p className="text-sm text-muted-foreground">
+                            {accountCopy.profile.collaborationLabel}
+                          </p>
+                          <p className="mt-2 text-foreground">
+                            {accountCopy.profile.collaborationLabel}
+                          </p>
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
-                    <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                      {messages.profile.noPosts}
+                    <div className="mt-6 rounded-[1.5rem] border border-dashed border-border/60 bg-card p-6 text-center">
+                      <p className="text-sm text-muted-foreground">
+                        {accountCopy.publicProfile.noDetails}
+                      </p>
                     </div>
                   )}
-                </TabsContent>
+                </div>
+              </div>
+            </article>
 
-                <TabsContent value="comments" className="mt-6">
-                  {isLoadingComments ? (
-                    <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                      {messages.profile.loadingComments}
-                    </div>
-                  ) : comments.length > 0 ? (
-                    <div className="space-y-4">
-                      {comments.map((comment) => {
-                        const commentHref = comment.post?.slug
-                          ? getLocalizedHref(
-                              locale,
-                              `community/${comment.post.slug}#comment-${comment.id}`,
-                            )
-                          : null
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-10">
+              <TabsList>
+                <TabsTrigger value="posts">{messages.profile.posts}</TabsTrigger>
+                <TabsTrigger value="comments">{messages.profile.comments}</TabsTrigger>
+                <TabsTrigger value="favorites">
+                  {messages.profile.favorites}
+                </TabsTrigger>
+              </TabsList>
 
-                        return (
-                          <article
-                            key={comment.id}
-                            className="rounded-[1.75rem] border border-border/60 bg-card p-6"
-                          >
-                            <div className="flex flex-wrap items-start justify-between gap-4">
-                              <div className="space-y-2">
-                                {commentHref ? (
-                                  <Link
-                                    href={commentHref}
-                                    className="font-medium text-foreground transition-colors hover:text-primary"
-                                  >
-                                    {comment.post?.title}
-                                  </Link>
-                                ) : (
-                                  <p className="font-medium text-foreground">
-                                    {messages.profile.commentWithoutPost}
-                                  </p>
-                                )}
+              <TabsContent value="posts" className="mt-6">
+                {isLoadingPosts ? (
+                  <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+                    {messages.profile.loadingPosts}
+                  </div>
+                ) : posts.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {posts.map((post) => (
+                      <PostCard
+                        key={post.id}
+                        locale={locale}
+                        post={post}
+                        messages={messages}
+                        token={session.token}
+                        currentUserId={session.user?.id}
+                        onUpdated={syncPost}
+                        onDeleted={removePost}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+                    {messages.profile.noPosts}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="comments" className="mt-6">
+                {isLoadingComments ? (
+                  <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+                    {messages.profile.loadingComments}
+                  </div>
+                ) : comments.length > 0 ? (
+                  <div className="space-y-4">
+                    {comments.map((comment) => {
+                      const commentHref = comment.post?.slug
+                        ? getLocalizedHref(
+                            locale,
+                            `community/${comment.post.slug}#comment-${comment.id}`,
+                          )
+                        : null
+
+                      return (
+                        <article
+                          key={comment.id}
+                          className="rounded-[1.75rem] border border-border/60 bg-card p-6"
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-4">
+                            <div className="space-y-2">
+                              {commentHref ? (
+                                <Link
+                                  href={commentHref}
+                                  className="font-medium text-foreground transition-colors hover:text-primary"
+                                >
+                                  {comment.post?.title}
+                                </Link>
+                              ) : (
+                                <p className="font-medium text-foreground">
+                                  {messages.profile.commentWithoutPost}
+                                </p>
+                              )}
                               <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                                <span>
-                                  {comment.created_at
-                                    ? formatProfileDate(locale, comment.created_at) ??
-                                      " "
-                                    : " "}
-                                </span>
+                                <span>{formatProfileDate(locale, comment.created_at)}</span>
                                 <span>
                                   {messages.post.likesLabel.replace(
                                     "{count}",
                                     String(comment.likes_count),
                                   )}
                                 </span>
-                                {comment.status !== "approved" ? (
-                                  <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-primary">
-                                    {comment.status === "rejected" ? messages.post.rejectedBadge : messages.post.pendingBadge}
-                                  </span>
-                                ) : null}
-                              </div>
-                              </div>
-                              {commentHref ? (
-                                <Button asChild variant="ghost" size="sm">
-                                  <Link href={commentHref}>
-                                    {messages.profile.openComment}
-                                  </Link>
-                                </Button>
-                              ) : null}
-                            </div>
-                            <p className="mt-4 whitespace-pre-wrap leading-relaxed text-foreground">
-                              {comment.content}
-                            </p>
-                          </article>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                      {messages.profile.noComments}
-                    </div>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="favorites" className="mt-6">
-                  {isLoadingFavorites ? (
-                    <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                      {messages.profile.loadingFavorites}
-                    </div>
-                  ) : favorites.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                      {favorites.map((post) => (
-                        <PostCard
-                          key={post.id}
-                          locale={locale}
-                          post={post}
-                          messages={messages}
-                          token={session.token}
-                          currentUserId={session.user?.id}
-                          onUpdated={syncPost}
-                          onDeleted={removePost}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                      {messages.profile.noFavorites}
-                    </div>
-                  )}
-                </TabsContent>
-
-                {isOwnProfile ? (
-                  <TabsContent value="account" className="mt-6">
-                    {isLoadingAccount ? (
-                      <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                        {messages.profile.loadingAccount}
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-                        <section className="rounded-[2rem] border border-border/60 bg-card p-8">
-                          <div className="flex items-end justify-between gap-4">
-                            <div>
-                              <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                                {messages.profile.recentOrders}
-                              </p>
-                              <h2 className="mt-3 font-serif text-3xl text-foreground">
-                                {messages.profile.latestActivity}
-                              </h2>
-                            </div>
-                            <Button asChild variant="outline">
-                              <Link href={getLocalizedHref(locale, "store/orders")}>
-                                {messages.profile.viewAllOrders}
-                              </Link>
-                            </Button>
-                          </div>
-
-                          <div className="mt-6 space-y-4">
-                            {recentOrders.length === 0 ? (
-                              <p className="text-sm text-muted-foreground">
-                                {messages.profile.noOrders}
-                              </p>
-                            ) : (
-                              recentOrders.map((order) => (
-                                <div
-                                  key={order.order_number}
-                                  className="rounded-3xl border border-border/60 p-5"
-                                >
-                                  <div className="flex flex-wrap items-center justify-between gap-4">
-                                    <div>
-                                      <p className="font-medium text-foreground">
-                                        {order.order_number}
-                                      </p>
-                                      <p className="mt-1 text-sm text-muted-foreground">
-                                        {order.created_at
-                                          ? new Date(order.created_at).toLocaleDateString(
-                                              getIntlLocale(locale),
-                                            )
-                                          : " "}
-                                      </p>
-                                    </div>
-                                    <span
-                                      className={`rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${statusClasses(order.status)}`}
-                                    >
-                                      {order.status}
-                                    </span>
-                                  </div>
-                                </div>
-                              ))
-                            )}
-                          </div>
-                        </section>
-
-                        <div className="space-y-8">
-                          <section className="rounded-[2rem] border border-border/60 bg-card p-8">
-                            <div className="flex items-end justify-between gap-4">
-                              <div>
-                                <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                                  {messages.profile.account}
-                                </p>
-                                <h2 className="mt-3 font-serif text-3xl text-foreground">
-                                  {messages.profile.accountOverview}
-                                </h2>
                               </div>
                             </div>
-
-                            <div className="mt-6 space-y-3 text-sm text-muted-foreground">
-                              <p>
-                                <span className="text-foreground">
-                                  {messages.profile.nameLabel}:
-                                </span>{" "}
-                                {profile.name}
-                              </p>
-                              <p>
-                                <span className="text-foreground">
-                                  {messages.profile.emailLabel}:
-                                </span>{" "}
-                                {session.user?.email ?? profile.email ?? " "}
-                              </p>
-                            </div>
-                          </section>
-
-                          <section className="rounded-[2rem] border border-border/60 bg-card p-8">
-                            <div className="flex items-end justify-between gap-4">
-                              <div>
-                                <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                                  {messages.profile.savedAddresses}
-                                </p>
-                                <h2 className="mt-3 font-serif text-3xl text-foreground">
-                                  {messages.profile.shippingBook}
-                                </h2>
-                              </div>
-                              <Button asChild variant="outline">
-                                <Link href={getLocalizedHref(locale, "account/addresses")}>
-                                  {messages.profile.addNewAddress}
+                            {commentHref ? (
+                              <Button asChild variant="ghost" size="sm">
+                                <Link href={commentHref}>
+                                  {messages.profile.openComment}
                                 </Link>
                               </Button>
-                            </div>
+                            ) : null}
+                          </div>
+                          <p className="mt-4 whitespace-pre-wrap leading-relaxed text-foreground">
+                            {comment.content}
+                          </p>
+                        </article>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+                    {messages.profile.noComments}
+                  </div>
+                )}
+              </TabsContent>
 
-                            <div className="mt-6 space-y-4">
-                              {addresses.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">
-                                  {messages.profile.noAddresses}
-                                </p>
-                              ) : (
-                                addresses.map((address) => (
-                                  <div
-                                    key={address.id}
-                                    className="rounded-3xl border border-border/60 p-5"
-                                  >
-                                    <div className="flex flex-wrap items-center justify-between gap-4">
-                                      <div>
-                                        <div className="flex flex-wrap items-center gap-3">
-                                          <p className="font-medium text-foreground">
-                                            {address.label || address.recipient_name}
-                                          </p>
-                                          {address.is_default ? (
-                                            <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-primary">
-                                              {messages.profile.defaultAddress}
-                                            </span>
-                                          ) : null}
-                                        </div>
-                                        <p className="mt-2 text-sm text-muted-foreground">
-                                          {address.recipient_name}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                          {address.city}, {address.country}
-                                        </p>
-                                      </div>
-                                      <div className="flex gap-3">
-                                        <Button asChild variant="outline" size="sm">
-                                          <Link
-                                            href={getLocalizedHref(locale, "account/addresses")}
-                                          >
-                                            {messages.profile.editAddress}
-                                          </Link>
-                                        </Button>
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => {
-                                            void handleDeleteAddress(address.id)
-                                          }}
-                                        >
-                                          {messages.profile.deleteAddress}
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))
-                              )}
-                            </div>
-                          </section>
-                        </div>
-                      </div>
-                    )}
-                  </TabsContent>
-                ) : null}
-              </Tabs>
-            </>
-          ) : null}
-        </div>
-      </section>
-
-      {profile && isEditOpen ? (
-        <EditProfileModal
-          user={profile}
-          onClose={() => setIsEditOpen(false)}
-          onSave={(updatedProfile) => {
-            const previousUsername = activeUsername
-
-            setProfile(updatedProfile)
-            setActiveUsername(updatedProfile.username)
-            setMessage(messages.profile.profileUpdated)
-            setIsEditOpen(false)
-            void session.refreshUser().catch(() => null)
-
-            if (updatedProfile.username !== previousUsername) {
-              router.replace(
-                getLocalizedHref(locale, `community/u/${updatedProfile.username}`),
-              )
-            }
-          }}
-        />
-      ) : null}
-    </>
+              <TabsContent value="favorites" className="mt-6">
+                {isLoadingFavorites ? (
+                  <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+                    {messages.profile.loadingFavorites}
+                  </div>
+                ) : favorites.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {favorites.map((post) => (
+                      <PostCard
+                        key={post.id}
+                        locale={locale}
+                        post={post}
+                        messages={messages}
+                        token={session.token}
+                        currentUserId={session.user?.id}
+                        onUpdated={syncPost}
+                        onDeleted={removePost}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+                    {messages.profile.noFavorites}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </>
+        ) : null}
+      </div>
+    </section>
   )
 }

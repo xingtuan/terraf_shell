@@ -127,7 +127,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
       )
 
       await loadCart()
-      router.push(getLocalizedHref(locale, `store/orders/${order.order_number}`))
+      router.push(getLocalizedHref(locale, `account/orders/${order.order_number}`))
     } catch (error) {
       if (error instanceof ApiError) {
         setFieldErrors(error.errors ?? {})

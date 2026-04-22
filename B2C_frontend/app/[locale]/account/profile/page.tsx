@@ -1,6 +1,4 @@
-import { redirect } from "next/navigation"
-
-import { getLocalizedHref } from "@/lib/i18n"
+import { AccountProfilePage as AccountProfileScreen } from "@/components/account/account-profile-page"
 import { resolveLocale } from "@/lib/resolve-locale"
 
 type AccountProfilePageProps = {
@@ -12,5 +10,5 @@ export default async function AccountProfilePage({
 }: AccountProfilePageProps) {
   const locale = await resolveLocale(params)
 
-  redirect(getLocalizedHref(locale, "account"))
+  return <AccountProfileScreen locale={locale} />
 }

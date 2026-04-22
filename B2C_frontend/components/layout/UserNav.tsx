@@ -59,19 +59,14 @@ export function UserNav({ locale }: UserNavProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onSelect={() => {
-              router.push(
-                getLocalizedHref(
-                  locale,
-                  `community/u/${session.user?.username ?? ""}`,
-                ),
-              )
+              router.push(getLocalizedHref(locale, "account"))
             }}
           >
             {t.myAccount}
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {
-              router.push(getLocalizedHref(locale, "store/orders"))
+              router.push(getLocalizedHref(locale, "account/orders"))
             }}
           >
             {t.myOrders}
