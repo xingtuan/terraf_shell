@@ -75,18 +75,18 @@ export function ProductGridSection({
     <section id="catalogue" className="bg-background py-24 lg:py-28">
       <div className="mx-auto max-w-7xl space-y-10 px-6 lg:px-8">
         <div className="max-w-3xl">
-          <p className="mb-4 text-sm uppercase tracking-[0.2em] text-primary">
+          <p className="mb-4 text-sm uppercase tracking-[0.2em] text-primary animate-fade-in opacity-0">
             {content.eyebrow}
           </p>
-          <h2 className="mb-5 font-serif text-3xl leading-tight text-foreground md:text-4xl lg:text-5xl">
+          <h2 className="mb-5 font-serif text-3xl leading-tight text-foreground md:text-4xl lg:text-5xl animate-fade-in-up opacity-0 animation-delay-100">
             {content.title}
           </h2>
-          <p className="text-lg leading-relaxed text-muted-foreground">
+          <p className="text-lg leading-relaxed text-muted-foreground animate-fade-in-up opacity-0 animation-delay-200">
             {content.description}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 animate-fade-in-up opacity-0 animation-delay-300">
           <span className="text-sm uppercase tracking-[0.18em] text-muted-foreground">
             {content.categoryQuickFilterLabel}
           </span>

@@ -1,7 +1,6 @@
 import { ApplicationsSection } from "@/components/sections/applications"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { ProductGridSection } from "@/components/sections/product-grid"
-import { PageIntro } from "@/components/page-intro"
 import { getProducts } from "@/lib/api/products"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
@@ -22,7 +21,6 @@ export default async function StorePage({
   const resolvedSearchParams = await searchParams
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
-  const intro = messages.storePage.intro
   const filters = parseStoreCatalogFilters(resolvedSearchParams)
 
   let catalogue: ProductCatalogResult | null = null
@@ -51,19 +49,6 @@ export default async function StorePage({
 
   return (
     <>
-      <PageIntro
-        eyebrow={intro.eyebrow}
-        title={intro.title}
-        description={intro.description}
-        primaryAction={{
-          label: intro.primaryCta,
-          href: `${getLocalizedHref(locale, "store")}#catalogue`,
-        }}
-        secondaryAction={{
-          label: intro.secondaryCta,
-          href: getLocalizedHref(locale, "material"),
-        }}
-      />
       <ProductGridSection
         locale={locale}
         content={messages.storePage.grid}
