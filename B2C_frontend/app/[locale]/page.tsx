@@ -1,11 +1,14 @@
 import { ArticleFeedSection } from "@/components/sections/article-feed"
 import { ApplicationsSection } from "@/components/sections/applications"
+import { AudiencePathsSection } from "@/components/sections/audience-paths"
+import { BusinessPillarsSection } from "@/components/sections/business-pillars"
 import { CollaborationSection } from "@/components/sections/collaboration"
 import { CredibilitySection } from "@/components/sections/credibility"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { HeroSection } from "@/components/sections/hero"
 import { MaterialFactsSection } from "@/components/sections/material-facts"
 import { MaterialStorySection } from "@/components/sections/material-story"
+import { OpenSourceLegacySection } from "@/components/sections/open-source-legacy"
 import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { getHomepageContent, getHomeSections, findHomeSection } from "@/lib/api/homepage"
 import { getFeaturedMaterial, getMaterial, getMaterialSpecs } from "@/lib/api/materials"
@@ -133,8 +136,11 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
           getLocalizedHref(locale, "material"),
         )}
       />
+      <AudiencePathsSection locale={locale} content={messages.home.audiencePaths} />
+      <BusinessPillarsSection content={messages.home.businessPillars} />
       <WhyItMattersSection content={messages.home.whyItMatters} />
       <MaterialStorySection content={storyContent} />
+      <OpenSourceLegacySection content={messages.home.openSourceLegacy} />
       <ApplicationsSection content={applicationsContent} />
       <MaterialFactsSection
         locale={locale}

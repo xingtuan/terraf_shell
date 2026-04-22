@@ -3,7 +3,9 @@ import { CollaborationSection } from "@/components/sections/collaboration"
 import { CredibilitySection } from "@/components/sections/credibility"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { MaterialFactsSection } from "@/components/sections/material-facts"
+import { MaterialFamilySection } from "@/components/sections/material-family"
 import { MaterialStorySection } from "@/components/sections/material-story"
+import { OpenSourceLegacySection } from "@/components/sections/open-source-legacy"
 import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { PageIntro } from "@/components/page-intro"
 import {
@@ -112,8 +114,10 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
           href: getLocalizedHref(locale, "contact"),
         }}
       />
+      <MaterialFamilySection locale={locale} content={messages.home.materialFamily} />
       <WhyItMattersSection content={whyItMattersContent} />
       <MaterialStorySection content={storyContent} />
+      <OpenSourceLegacySection content={messages.home.openSourceLegacy} />
       <ApplicationsSection content={messages.home.applications} />
       <MaterialFactsSection
         locale={locale}

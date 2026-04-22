@@ -19,7 +19,7 @@ const indicatorIcons = [Leaf, Shield, Waves]
 export function HeroSection({
   locale,
   content,
-  primaryHref = getLocalizedHref(locale, "store"),
+  primaryHref = getLocalizedHref(locale, "material"),
   secondaryHref = getLocalizedHref(locale, "b2b"),
 }: HeroSectionProps) {
   return (
