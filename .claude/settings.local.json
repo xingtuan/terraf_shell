@@ -14,7 +14,11 @@
       "Bash(php -l app/Filament/Widgets/RecentActivity.php)",
       "Bash(php -l app/Filament/Widgets/StoreOverview.php)",
       "Bash(php -l app/Filament/Widgets/LeadOperationsOverview.php)",
-      "Bash(php -l resources/views/filament/widgets/analytics-snapshot.blade.php)"
+      "Bash(php -l resources/views/filament/widgets/analytics-snapshot.blade.php)",
+      "Bash(cat tailwind.config.js)",
+      "Bash(cat tailwind.config.ts)",
+      "Bash(ls resources/css/)",
+      "Bash(cat resources/css/filament/admin/theme.css)"
     ]
   }
 }
