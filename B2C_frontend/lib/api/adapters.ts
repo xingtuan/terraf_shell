@@ -28,6 +28,7 @@ import type {
   CartSummary,
   CartSummaryItem,
   Product,
+  ProductAppliedFilterChip,
   ProductCatalogMeta,
   ProductCategory,
   ProductFacetOption,
@@ -313,6 +314,16 @@ function normalizeProductFacetOption(option: ProductFacetOption): ProductFacetOp
   }
 }
 
+function normalizeProductAppliedFilterChip(
+  chip: ProductAppliedFilterChip,
+): ProductAppliedFilterChip {
+  return {
+    key: chip.key ?? "",
+    value: chip.value ?? "",
+    display: chip.display ?? chip.value ?? "",
+  }
+}
+
 export function normalizeProductCatalogMeta(
   meta: Partial<ProductCatalogMeta> | undefined,
 ): ProductCatalogMeta {
@@ -348,6 +359,9 @@ export function normalizeProductCatalogMeta(
         key,
         String(value),
       ]),
+    ),
+    applied_filter_chips: ensureArray(meta?.applied_filter_chips).map(
+      normalizeProductAppliedFilterChip,
     ),
   }
 }

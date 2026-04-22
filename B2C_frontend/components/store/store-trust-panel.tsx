@@ -18,9 +18,6 @@ export function StoreTrustPanel({ content }: StoreTrustPanelProps) {
 
       <div className="mt-8 grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-3xl border border-border/60 bg-background p-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-muted-foreground">
-            Why it converts
-          </p>
           <div className="mt-5 space-y-4">
             {content.benefits.map((benefit) => (
               <div key={benefit} className="flex gap-3">

@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 
+import { ProductAvailabilityBadge } from "@/components/store/ProductAvailabilityBadge"
 import { ProductGallery } from "@/components/store/ProductGallery"
 import { ProductCard } from "@/components/store/ProductCard"
+import { ProductSpecificationGrid } from "@/components/store/ProductSpecificationGrid"
 import { Button } from "@/components/ui/button"
 import {
   formatCurrencyAmount,
@@ -15,6 +17,11 @@ import {
   getProductInquiryHref,
   getProductSampleRequestHref,
 } from "@/lib/product-links"
+import {
+  getProductAvailabilitySummary,
+  getProductQuantityLimit,
+  supportsProjectEnquiry,
+} from "@/lib/store/product-display"
 import type { Product } from "@/lib/types"
 import { useCart } from "@/hooks/useCart"
 
@@ -23,29 +30,59 @@ type ProductDetailContentProps = {
   product: Product
 }
 
-function stockTone(product: Product) {
-  switch (product.stock_status) {
-    case "low_stock":
-      return "bg-amber-100 text-amber-700"
-    case "sold_out":
-      return "bg-red-100 text-red-700"
-    case "preorder":
-    case "made_to_order":
-      return "bg-sky-100 text-sky-700"
-    default:
-      return "bg-emerald-100 text-emerald-700"
-  }
-}
-
 export function ProductDetailContent({
   locale,
   product,
 }: ProductDetailContentProps) {
   const { addItem } = useCart()
   const t = getMessages(locale).productDetail
-  const [quantity, setQuantity] = useState(1)
   const relatedProducts = product.related_products ?? []
-  const highlightedSpecs = product.specifications?.slice(0, 6) ?? []
+  const maxQuantity = getProductQuantityLimit(product)
+  const [quantity, setQuantity] = useState(1)
+
+  useEffect(() => {
+    setQuantity((currentQuantity) =>
+      Math.min(Math.max(currentQuantity, 1), maxQuantity),
+    )
+  }, [maxQuantity, product.id])
+
+  const supportCards = useMemo(
+    () =>
+      [
+        supportsProjectEnquiry(product)
+          ? {
+              title: t.bulkEnquiryTitle,
+              description: t.bulkEnquiryDescription,
+              label: t.bulkEnquiryAction,
+              href: getProductInquiryHref(locale, product),
+            }
+          : null,
+        product.sample_request_enabled
+          ? {
+              title: t.requestSampleTitle,
+              description: t.requestSampleDescription,
+              label: t.requestSampleAction,
+              href: getProductSampleRequestHref(locale, product),
+            }
+          : null,
+        {
+          title: t.materialReviewTitle,
+          description: t.materialReviewDescription,
+          label: t.materialReviewAction,
+          href: getLocalizedHref(locale, "material"),
+        },
+      ].filter(
+        (
+          card,
+        ): card is {
+          title: string
+          description: string
+          label: string
+          href: string
+        } => Boolean(card),
+      ),
+    [locale, product, t],
+  )
 
   return (
     <section className="bg-background py-20 lg:py-24">
@@ -64,6 +101,11 @@ export function ProductDetailContent({
               {product.model_label ? (
                 <span className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
                   {product.model_label}
+                </span>
+              ) : null}
+              {product.finish_label ? (
+                <span className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  {product.finish_label}
                 </span>
               ) : null}
               {product.color_label ? (
@@ -111,18 +153,13 @@ export function ProductDetailContent({
                     ) : null}
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${stockTone(
-                        product,
-                      )}`}
-                    >
-                      {product.stock_status_label || "Availability"}
+                    <ProductAvailabilityBadge
+                      product={product}
+                      fallbackLabel={t.availabilityLabel}
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {getProductAvailabilitySummary(product, t.defaultAvailability)}
                     </span>
-                    {product.lead_time ? (
-                      <span className="text-sm text-muted-foreground">
-                        {product.lead_time}
-                      </span>
-                    ) : null}
                   </div>
                 </div>
 
@@ -140,29 +177,33 @@ export function ProductDetailContent({
               </div>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <div className="flex items-center rounded-full border border-border/70">
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-foreground transition-colors hover:bg-muted"
-                    onClick={() =>
-                      setQuantity((currentValue) => Math.max(1, currentValue - 1))
-                    }
-                  >
-                    -
-                  </button>
-                  <span className="min-w-10 text-center text-sm font-medium">
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-foreground transition-colors hover:bg-muted"
-                    onClick={() =>
-                      setQuantity((currentValue) => Math.min(10, currentValue + 1))
-                    }
-                  >
-                    +
-                  </button>
-                </div>
+                {product.can_add_to_cart ? (
+                  <div className="flex items-center rounded-full border border-border/70">
+                    <button
+                      type="button"
+                      className="px-4 py-2 text-foreground transition-colors hover:bg-muted"
+                      onClick={() =>
+                        setQuantity((currentValue) => Math.max(1, currentValue - 1))
+                      }
+                    >
+                      -
+                    </button>
+                    <span className="min-w-10 text-center text-sm font-medium">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      className="px-4 py-2 text-foreground transition-colors hover:bg-muted"
+                      onClick={() =>
+                        setQuantity((currentValue) =>
+                          Math.min(maxQuantity, currentValue + 1),
+                        )
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
+                ) : null}
 
                 {product.can_add_to_cart ? (
                   <Button
@@ -176,7 +217,7 @@ export function ProductDetailContent({
                 ) : (
                   <Button asChild>
                     <Link href={getProductInquiryHref(locale, product)}>
-                      {product.inquiry_only ? t.bulkEnquiry : t.requestUpdate}
+                      {supportsProjectEnquiry(product) ? t.bulkEnquiry : t.requestUpdate}
                     </Link>
                   </Button>
                 )}
@@ -226,148 +267,127 @@ export function ProductDetailContent({
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <section className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
-            <div className="flex items-end justify-between gap-6">
-              <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                  {t.specificationEyebrow}
-                </p>
-                <h2 className="mt-3 font-serif text-3xl text-foreground">
-                  {t.specificationTitle}
-                </h2>
+          {product.specifications?.length ? (
+            <section className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
+              <div className="flex items-end justify-between gap-6">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                    {t.specificationEyebrow}
+                  </p>
+                  <h2 className="mt-3 font-serif text-3xl text-foreground">
+                    {t.specificationTitle}
+                  </h2>
+                </div>
+                {product.availability_text ? (
+                  <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+                    {product.availability_text}
+                  </p>
+                ) : null}
               </div>
-              {product.availability_text ? (
-                <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-                  {product.availability_text}
-                </p>
-              ) : null}
-            </div>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              {highlightedSpecs.map((specification) => (
-                <article
-                  key={`${specification.key}-${specification.label}`}
-                  className="rounded-3xl border border-border/60 bg-background p-5"
-                >
-                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                    {specification.label}
-                  </p>
-                  <p className="mt-3 text-lg font-medium text-foreground">
-                    {specification.value}
-                    {specification.unit ? ` ${specification.unit}` : ""}
-                  </p>
-                  {specification.group ? (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {specification.group}
-                    </p>
-                  ) : null}
-                </article>
-              ))}
-            </div>
-          </section>
+              <div className="mt-8">
+                <ProductSpecificationGrid
+                  specifications={product.specifications ?? []}
+                />
+              </div>
+            </section>
+          ) : null}
 
           <section className="grid gap-6">
-            <article className="rounded-[2rem] border border-border/60 bg-card p-8">
-              <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                {t.materialBenefits}
-              </p>
-              <div className="mt-6 space-y-4">
-                {(product.material_benefits ?? []).map((benefit) => (
-                  <div key={benefit} className="flex gap-3">
-                    <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
-                    <p className="text-sm leading-relaxed text-foreground">
-                      {benefit}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </article>
-
-            <article className="rounded-[2rem] border border-border/60 bg-card p-8">
-              <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                {t.careAndCertification}
-              </p>
-              <div className="mt-6 grid gap-6 md:grid-cols-2">
-                <div>
-                  <h3 className="font-medium text-foreground">{t.care}</h3>
-                  <div className="mt-3 space-y-3">
-                    {(product.care_instructions ?? []).map((instruction) => (
-                      <p
-                        key={instruction}
-                        className="text-sm leading-relaxed text-muted-foreground"
-                      >
-                        {instruction}
+            {product.material_benefits?.length ? (
+              <article className="rounded-[2rem] border border-border/60 bg-card p-8">
+                <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                  {t.materialBenefits}
+                </p>
+                <div className="mt-6 space-y-4">
+                  {(product.material_benefits ?? []).map((benefit) => (
+                    <div key={benefit} className="flex gap-3">
+                      <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
+                      <p className="text-sm leading-relaxed text-foreground">
+                        {benefit}
                       </p>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <h3 className="font-medium text-foreground">{t.trustBadges}</h3>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {(product.certifications ?? []).map((certification) => (
-                      <span
-                        key={certification}
-                        className="rounded-full border border-border/60 px-3 py-2 text-xs uppercase tracking-[0.16em] text-foreground"
-                      >
-                        {certification}
-                      </span>
-                    ))}
-                  </div>
+              </article>
+            ) : null}
+
+            {product.care_instructions?.length || product.certifications?.length ? (
+              <article className="rounded-[2rem] border border-border/60 bg-card p-8">
+                <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                  {t.careAndCertification}
+                </p>
+                <div className="mt-6 grid gap-6 md:grid-cols-2">
+                  {product.care_instructions?.length ? (
+                    <div>
+                      <h3 className="font-medium text-foreground">{t.care}</h3>
+                      <div className="mt-3 space-y-3">
+                        {(product.care_instructions ?? []).map((instruction) => (
+                          <p
+                            key={instruction}
+                            className="text-sm leading-relaxed text-muted-foreground"
+                          >
+                            {instruction}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {product.certifications?.length ? (
+                    <div>
+                      <h3 className="font-medium text-foreground">{t.trustBadges}</h3>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {(product.certifications ?? []).map((certification) => (
+                          <span
+                            key={certification}
+                            className="rounded-full border border-border/60 px-3 py-2 text-xs uppercase tracking-[0.16em] text-foreground"
+                          >
+                            {certification}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
-              </div>
-            </article>
+              </article>
+            ) : null}
           </section>
         </div>
 
-        <section className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
-          <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                {t.conversionEyebrow}
-              </p>
-              <h2 className="mt-3 font-serif text-3xl text-foreground">
-                {t.conversionTitle}
-              </h2>
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-3xl border border-border/60 bg-background p-5">
-                <p className="text-sm font-medium text-foreground">{t.bulkEnquiryTitle}</p>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {t.bulkEnquiryDescription}
+        {supportCards.length > 0 ? (
+          <section className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
+            <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+              <div>
+                <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                  {t.conversionEyebrow}
                 </p>
-                <Button asChild variant="ghost" className="mt-5 px-0 text-primary">
-                  <Link href={getProductInquiryHref(locale, product)}>
-                    {t.bulkEnquiryAction}
-                  </Link>
-                </Button>
+                <h2 className="mt-3 font-serif text-3xl text-foreground">
+                  {t.conversionTitle}
+                </h2>
               </div>
-              <div className="rounded-3xl border border-border/60 bg-background p-5">
-                <p className="text-sm font-medium text-foreground">{t.requestSampleTitle}</p>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {t.requestSampleDescription}
-                </p>
-                <Button asChild variant="ghost" className="mt-5 px-0 text-primary">
-                  <Link href={getProductSampleRequestHref(locale, product)}>
-                    {t.requestSampleAction}
-                  </Link>
-                </Button>
-              </div>
-              <div className="rounded-3xl border border-border/60 bg-background p-5">
-                <p className="text-sm font-medium text-foreground">
-                  {t.materialReviewTitle}
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {t.materialReviewDescription}
-                </p>
-                <Button asChild variant="ghost" className="mt-5 px-0 text-primary">
-                  <Link href={getLocalizedHref(locale, "material")}>
-                    {t.materialReviewAction}
-                  </Link>
-                </Button>
+              <div
+                className={`grid gap-4 ${
+                  supportCards.length > 1 ? "md:grid-cols-2 xl:grid-cols-3" : ""
+                }`}
+              >
+                {supportCards.map((card) => (
+                  <div
+                    key={card.title}
+                    className="rounded-3xl border border-border/60 bg-background p-5"
+                  >
+                    <p className="text-sm font-medium text-foreground">{card.title}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                      {card.description}
+                    </p>
+                    <Button asChild variant="ghost" className="mt-5 px-0 text-primary">
+                      <Link href={card.href}>{card.label}</Link>
+                    </Button>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        ) : null}
 
         {relatedProducts.length > 0 ? (
           <section>

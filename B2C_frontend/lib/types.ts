@@ -209,6 +209,12 @@ export interface ProductFacetOption {
   count: number
 }
 
+export interface ProductAppliedFilterChip {
+  key: string
+  value: string
+  display: string
+}
+
 export interface ProductSortChoice {
   value: ProductSortOption
   label: string
@@ -232,6 +238,7 @@ export interface ProductCatalogMeta extends ApiPaginationMeta {
   sort_options: ProductSortChoice[]
   facets: ProductCatalogFacets
   applied_filters?: Record<string, string>
+  applied_filter_chips: ProductAppliedFilterChip[]
 }
 
 export interface ApiPaginationMeta {

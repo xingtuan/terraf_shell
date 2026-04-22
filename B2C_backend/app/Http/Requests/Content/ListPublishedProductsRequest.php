@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Content;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -22,7 +23,12 @@ class ListPublishedProductsRequest extends FormRequest
         return [
             'search' => ['nullable', 'string', 'max:120'],
             'sort' => ['nullable', Rule::in(['featured', 'newest', 'best_selling', 'price_low_to_high', 'price_high_to_low'])],
-            'category' => ['nullable', Rule::in(array_keys(Product::CATEGORY_OPTIONS))],
+            'category' => [
+                'nullable',
+                'string',
+                'max:120',
+                Rule::exists(ProductCategory::class, 'slug')->where('is_active', true),
+            ],
             'model' => ['nullable', Rule::in(array_keys(Product::MODEL_OPTIONS))],
             'finish' => ['nullable', Rule::in(array_keys(Product::FINISH_OPTIONS))],
             'color' => ['nullable', Rule::in(array_keys(Product::COLOR_OPTIONS))],

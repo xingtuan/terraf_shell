@@ -15,6 +15,30 @@ export type StoreCatalogFilters = {
   page: number
 }
 
+export type StoreCatalogFilterChipKey =
+  | "search"
+  | "category"
+  | "model"
+  | "finish"
+  | "color"
+  | "stock_status"
+  | "use_case"
+  | "price"
+
+export const DEFAULT_STORE_CATALOG_FILTERS: StoreCatalogFilters = {
+  search: "",
+  sort: "featured",
+  category: "",
+  model: "",
+  finish: "",
+  color: "",
+  stock_status: "",
+  use_case: "",
+  price_min: "",
+  price_max: "",
+  page: 1,
+}
+
 const PRODUCT_SORT_OPTIONS: ProductSortOption[] = [
   "featured",
   "newest",
@@ -48,10 +72,11 @@ export function parseStoreCatalogFilters(
   const pageValue = Number(firstValue(searchParams.page))
 
   return {
+    ...DEFAULT_STORE_CATALOG_FILTERS,
     search,
     sort: PRODUCT_SORT_OPTIONS.includes(sortValue as ProductSortOption)
       ? (sortValue as ProductSortOption)
-      : "featured",
+      : DEFAULT_STORE_CATALOG_FILTERS.sort,
     category: firstValue(searchParams.category).trim(),
     model: firstValue(searchParams.model).trim(),
     finish: firstValue(searchParams.finish).trim(),
@@ -60,11 +85,57 @@ export function parseStoreCatalogFilters(
       stockStatusValue as ProductStockStatus,
     )
       ? (stockStatusValue as ProductStockStatus)
-      : "",
+      : DEFAULT_STORE_CATALOG_FILTERS.stock_status,
     use_case: firstValue(searchParams.use_case).trim(),
     price_min: firstValue(searchParams.price_min).trim(),
     price_max: firstValue(searchParams.price_max).trim(),
-    page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1,
+    page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : DEFAULT_STORE_CATALOG_FILTERS.page,
+  }
+}
+
+export function hasActiveStoreCatalogFilters(filters: StoreCatalogFilters) {
+  return (
+    filters.search !== "" ||
+    filters.category !== "" ||
+    filters.model !== "" ||
+    filters.finish !== "" ||
+    filters.color !== "" ||
+    filters.stock_status !== "" ||
+    filters.use_case !== "" ||
+    filters.price_min !== "" ||
+    filters.price_max !== ""
+  )
+}
+
+export function clearStoreCatalogFilters(
+  overrides: Partial<StoreCatalogFilters> = {},
+): Partial<StoreCatalogFilters> {
+  return {
+    ...DEFAULT_STORE_CATALOG_FILTERS,
+    ...overrides,
+  }
+}
+
+export function removeStoreCatalogFilter(
+  filters: StoreCatalogFilters,
+  key: StoreCatalogFilterChipKey,
+): StoreCatalogFilters {
+  const nextFilters = {
+    ...filters,
+    page: 1,
+  }
+
+  if (key === "price") {
+    return {
+      ...nextFilters,
+      price_min: "",
+      price_max: "",
+    }
+  }
+
+  return {
+    ...nextFilters,
+    [key]: "",
   }
 }
 
@@ -76,6 +147,10 @@ export function buildStoreCatalogHref(
 
   for (const [key, value] of Object.entries(filters)) {
     if (key === "page" && (value === 1 || value === "1")) {
+      continue
+    }
+
+    if (key === "sort" && value === DEFAULT_STORE_CATALOG_FILTERS.sort) {
       continue
     }
 

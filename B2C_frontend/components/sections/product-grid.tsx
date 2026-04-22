@@ -1,12 +1,19 @@
 import Link from "next/link"
 
 import { ProductCard } from "@/components/store/ProductCard"
+import { StoreActiveFilters } from "@/components/store/StoreActiveFilters"
 import { StoreFaq } from "@/components/store/store-faq"
+import { StoreFilterField } from "@/components/store/StoreFilterField"
 import { StorePagination } from "@/components/store/StorePagination"
 import { StoreTrustPanel } from "@/components/store/store-trust-panel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { buildStoreCatalogHref, type StoreCatalogFilters } from "@/lib/store/catalog"
+import {
+  buildStoreCatalogHref,
+  clearStoreCatalogFilters,
+  hasActiveStoreCatalogFilters,
+  type StoreCatalogFilters,
+} from "@/lib/store/catalog"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { Product, ProductCatalogMeta } from "@/lib/types"
 
@@ -25,7 +32,28 @@ function selectedCategoryName(
   meta: ProductCatalogMeta | null | undefined,
   category: string,
 ) {
-  return meta?.facets.categories.find((item) => item.slug === category)?.name
+  return meta?.facets.categories.find((item) => item.slug === category)?.name ?? null
+}
+
+function catalogueHeading(
+  filters: StoreCatalogFilters,
+  activeCategoryLabel: string | null,
+  hasActiveFilters: boolean,
+  content: SiteMessages["storePage"]["grid"],
+) {
+  if (filters.search) {
+    return content.searchResultTitle.replace("{search}", filters.search)
+  }
+
+  if (activeCategoryLabel) {
+    return activeCategoryLabel
+  }
+
+  if (hasActiveFilters) {
+    return content.filteredProductsTitle
+  }
+
+  return content.allProductsTitle
 }
 
 export function ProductGridSection({
@@ -40,6 +68,8 @@ export function ProductGridSection({
 }: ProductGridSectionProps) {
   const activeCategoryLabel =
     filters.category !== "" ? selectedCategoryName(meta, filters.category) : null
+  const activeFilterChips = meta?.applied_filter_chips ?? []
+  const hasActiveFilters = hasActiveStoreCatalogFilters(filters)
 
   return (
     <section id="catalogue" className="bg-background py-24 lg:py-28">
@@ -72,7 +102,7 @@ export function ProductGridSection({
                 page: 1,
               })}
             >
-              All
+              {content.allOption}
             </Link>
           </Button>
           {(meta?.facets.categories ?? []).map((category) => (
@@ -90,6 +120,9 @@ export function ProductGridSection({
                 })}
               >
                 {category.name}
+                {typeof category.products_count === "number"
+                  ? ` (${category.products_count})`
+                  : ""}
               </Link>
             </Button>
           ))}
@@ -106,31 +139,24 @@ export function ProductGridSection({
                 <p className="text-sm uppercase tracking-[0.2em] text-primary">
                   {content.filtersTitle}
                 </p>
-                {activeCategoryLabel ? (
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    Showing products in {activeCategoryLabel}.
-                  </p>
-                ) : (
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                    Search by product, finish, stock state, or use case and keep
-                    the full filter state in the URL.
-                  </p>
-                )}
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {activeCategoryLabel
+                    ? content.categoryHint.replace("{category}", activeCategoryLabel)
+                    : content.filterHint}
+                </p>
               </div>
 
               <div className="space-y-4">
-                <label className="block space-y-2">
-                  <span className="text-sm text-foreground">Search</span>
+                <StoreFilterField label={content.searchLabel}>
                   <Input
                     name="search"
                     defaultValue={filters.search}
                     placeholder={content.searchPlaceholder}
                   />
-                </label>
+                </StoreFilterField>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block space-y-2">
-                    <span className="text-sm text-foreground">{content.sortLabel}</span>
+                  <StoreFilterField label={content.sortLabel}>
                     <select
                       name="sort"
                       defaultValue={filters.sort}
@@ -142,105 +168,93 @@ export function ProductGridSection({
                         </option>
                       ))}
                     </select>
-                  </label>
-                  <label className="block space-y-2">
-                    <span className="text-sm text-foreground">
-                      {content.modelLabel}
-                    </span>
+                  </StoreFilterField>
+
+                  <StoreFilterField label={content.modelLabel}>
                     <select
                       name="model"
                       defaultValue={filters.model}
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     >
-                      <option value="">All</option>
+                      <option value="">{content.allOption}</option>
                       {(meta?.facets.models ?? []).map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label} ({option.count})
                         </option>
                       ))}
                     </select>
-                  </label>
+                  </StoreFilterField>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block space-y-2">
-                    <span className="text-sm text-foreground">
-                      {content.finishLabel}
-                    </span>
+                  <StoreFilterField label={content.finishLabel}>
                     <select
                       name="finish"
                       defaultValue={filters.finish}
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     >
-                      <option value="">All</option>
+                      <option value="">{content.allOption}</option>
                       {(meta?.facets.finishes ?? []).map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label} ({option.count})
                         </option>
                       ))}
                     </select>
-                  </label>
-                  <label className="block space-y-2">
-                    <span className="text-sm text-foreground">
-                      {content.colorLabel}
-                    </span>
+                  </StoreFilterField>
+
+                  <StoreFilterField label={content.colorLabel}>
                     <select
                       name="color"
                       defaultValue={filters.color}
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     >
-                      <option value="">All</option>
+                      <option value="">{content.allOption}</option>
                       {(meta?.facets.colors ?? []).map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label} ({option.count})
                         </option>
                       ))}
                     </select>
-                  </label>
+                  </StoreFilterField>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block space-y-2">
-                    <span className="text-sm text-foreground">
-                      {content.stockLabel}
-                    </span>
+                  <StoreFilterField label={content.stockLabel}>
                     <select
                       name="stock_status"
                       defaultValue={filters.stock_status}
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     >
-                      <option value="">All</option>
+                      <option value="">{content.allOption}</option>
                       {(meta?.facets.stock_statuses ?? []).map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label} ({option.count})
                         </option>
                       ))}
                     </select>
-                  </label>
-                  <label className="block space-y-2">
-                    <span className="text-sm text-foreground">
-                      {content.useCaseLabel}
-                    </span>
+                  </StoreFilterField>
+
+                  <StoreFilterField label={content.useCaseLabel}>
                     <select
                       name="use_case"
                       defaultValue={filters.use_case}
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     >
-                      <option value="">All</option>
+                      <option value="">{content.allOption}</option>
                       {(meta?.facets.use_cases ?? []).map((option) => (
                         <option key={option.value} value={option.value}>
                           {option.label} ({option.count})
                         </option>
                       ))}
                     </select>
-                  </label>
+                  </StoreFilterField>
                 </div>
 
-                <div className="space-y-2">
-                  <span className="text-sm text-foreground">{content.priceLabel}</span>
+                <StoreFilterField label={content.priceLabel}>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <Input
                       name="price_min"
+                      inputMode="decimal"
                       defaultValue={filters.price_min}
                       placeholder={`${content.minPrice} ${
                         meta?.facets.price_range.min ?? "0.00"
@@ -248,19 +262,25 @@ export function ProductGridSection({
                     />
                     <Input
                       name="price_max"
+                      inputMode="decimal"
                       defaultValue={filters.price_max}
                       placeholder={`${content.maxPrice} ${
                         meta?.facets.price_range.max ?? "0.00"
                       }`}
                     />
                   </div>
-                </div>
+                </StoreFilterField>
               </div>
 
               <div className="flex flex-wrap gap-3 border-t border-border/60 pt-2">
                 <Button type="submit">{content.applyFilters}</Button>
                 <Button asChild type="button" variant="outline">
-                  <Link href={buildStoreCatalogHref(locale, { sort: "featured" })}>
+                  <Link
+                    href={buildStoreCatalogHref(
+                      locale,
+                      clearStoreCatalogFilters({ sort: filters.sort }),
+                    )}
+                  >
                     {content.clearAll}
                   </Link>
                 </Button>
@@ -286,28 +306,38 @@ export function ProductGridSection({
             ) : null}
 
             {!hasError ? (
-              <div className="flex flex-wrap items-end justify-between gap-4 rounded-[2rem] border border-border/60 bg-card p-6">
-                <div>
-                  <p className="text-sm uppercase tracking-[0.18em] text-muted-foreground">
-                    {content.resultLabel.replace(
-                      "{count}",
-                      String(meta?.total ?? products.length),
-                    )}
+              <>
+                <div className="flex flex-wrap items-end justify-between gap-4 rounded-[2rem] border border-border/60 bg-card p-6">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.18em] text-muted-foreground">
+                      {content.resultLabel.replace(
+                        "{count}",
+                        String(meta?.total ?? products.length),
+                      )}
+                    </p>
+                    <h3 className="mt-2 font-serif text-2xl text-foreground">
+                      {catalogueHeading(
+                        filters,
+                        activeCategoryLabel,
+                        hasActiveFilters,
+                        content,
+                      )}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {content.showingLabel
+                      .replace("{page}", String(meta?.current_page ?? 1))
+                      .replace("{lastPage}", String(meta?.last_page ?? 1))}
                   </p>
-                  <h3 className="mt-2 font-serif text-2xl text-foreground">
-                    {filters.search
-                      ? `Results for "${filters.search}"`
-                      : activeCategoryLabel
-                        ? activeCategoryLabel
-                        : "All products"}
-                  </h3>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {content.showingLabel
-                    .replace("{page}", String(meta?.current_page ?? 1))
-                    .replace("{lastPage}", String(meta?.last_page ?? 1))}
-                </p>
-              </div>
+
+                <StoreActiveFilters
+                  locale={locale}
+                  filters={filters}
+                  chips={activeFilterChips}
+                  content={content}
+                />
+              </>
             ) : null}
 
             {!hasError && products.length === 0 ? (
@@ -319,8 +349,13 @@ export function ProductGridSection({
                   {content.emptyDescription}
                 </p>
                 <Button asChild className="mt-6">
-                  <Link href={buildStoreCatalogHref(locale, { sort: "featured" })}>
-                    {content.emptyAction}
+                  <Link
+                    href={buildStoreCatalogHref(
+                      locale,
+                      clearStoreCatalogFilters({ sort: filters.sort }),
+                    )}
+                  >
+                    {hasActiveFilters ? content.clearAll : content.emptyAction}
                   </Link>
                 </Button>
               </div>

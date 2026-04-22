@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { formatCurrencyAmount } from "@/lib/api/products"
 import { getMessages, getLocalizedHref, type Locale } from "@/lib/i18n"
+import { getProductQuantityLimit } from "@/lib/store/product-display"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCart } from "@/hooks/useCart"
 
@@ -167,7 +168,11 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                           type="button"
                           className="px-3 py-2 text-foreground transition-colors hover:bg-muted"
                           onClick={() => {
-                            if (item.quantity >= 10) {
+                            const maxQuantity = item.product
+                              ? getProductQuantityLimit(item.product, 10)
+                              : 10
+
+                            if (item.quantity >= maxQuantity) {
                               return
                             }
 

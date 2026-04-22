@@ -64,7 +64,7 @@ class ProductCatalogTest extends TestCase
         ]);
 
         $this->getJson(
-            '/api/products?search=Dinner&category=tableware&model=lite_15&finish=glossy&color=ocean_bone&stock_status=in_stock&use_case=home_dining&sort=price_low_to_high&per_page=12'
+            '/api/products?search=Dinner&category=tableware&model=lite_15&finish=glossy&color=ocean_bone&stock_status=in_stock&use_case=home_dining&price_min=40&price_max=60&sort=price_low_to_high&per_page=12'
         )
             ->assertOk()
             ->assertJsonPath('success', true)
@@ -74,6 +74,11 @@ class ProductCatalogTest extends TestCase
             ->assertJsonPath('meta.sort', 'price_low_to_high')
             ->assertJsonPath('meta.facets.price_range.min', '48.00')
             ->assertJsonPath('meta.facets.price_range.max', '55.00')
+            ->assertJsonPath('meta.applied_filter_chips.0.key', 'search')
+            ->assertJsonPath('meta.applied_filter_chips.1.key', 'category')
+            ->assertJsonPath('meta.applied_filter_chips.1.display', 'Tableware')
+            ->assertJsonPath('meta.applied_filter_chips.7.key', 'price')
+            ->assertJsonPath('meta.applied_filter_chips.7.display', '$40.00 - $60.00')
             ->assertJsonPath('data.0.title', 'Dinner Plate - Lite / Ocean Bone')
             ->assertJsonPath('data.0.sku', 'DINNER_PLATE_LITE_OCEAN_BONE')
             ->assertJsonPath('data.0.subtitle', 'Everyday service plate')

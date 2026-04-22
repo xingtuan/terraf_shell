@@ -12,6 +12,7 @@ use App\Support\PaginatesResources;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -55,6 +56,7 @@ class ProductController extends Controller
                         'price_range' => $this->priceRangeFacet(),
                     ],
                     'applied_filters' => $this->appliedFilters($validated, $sort),
+                    'applied_filter_chips' => $this->appliedFilterChips($validated),
                 ],
             ),
         ]);
@@ -303,5 +305,98 @@ class ProductController extends Controller
         ])
             ->filter(fn (mixed $value): bool => $value !== null && $value !== '')
             ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     * @return array<int, array<string, string>>
+     */
+    private function appliedFilterChips(array $validated): array
+    {
+        $chips = collect([
+            'search' => $validated['search'] ?? null,
+            'category' => $validated['category'] ?? null,
+            'model' => $validated['model'] ?? null,
+            'finish' => $validated['finish'] ?? null,
+            'color' => $validated['color'] ?? null,
+            'stock_status' => $validated['stock_status'] ?? null,
+            'use_case' => $validated['use_case'] ?? null,
+        ])
+            ->filter(fn (mixed $value): bool => filled($value))
+            ->map(function (mixed $value, string $key): ?array {
+                $display = $this->appliedFilterDisplay($key, (string) $value);
+
+                if ($display === null) {
+                    return null;
+                }
+
+                return [
+                    'key' => $key,
+                    'value' => (string) $value,
+                    'display' => $display,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        $priceChip = $this->priceFilterChip($validated);
+
+        if ($priceChip !== null) {
+            $chips->push($priceChip);
+        }
+
+        return $chips->all();
+    }
+
+    private function appliedFilterDisplay(string $key, string $value): ?string
+    {
+        if (trim($value) === '') {
+            return null;
+        }
+
+        return match ($key) {
+            'search' => trim($value),
+            'category' => ProductCategory::query()
+                ->where('slug', $value)
+                ->value('name')
+                ?? Product::labelForOption(Product::CATEGORY_OPTIONS, $value)
+                ?? Str::headline($value),
+            'model' => Product::labelForOption(Product::MODEL_OPTIONS, $value) ?? Str::headline($value),
+            'finish' => Product::labelForOption(Product::FINISH_OPTIONS, $value) ?? Str::headline($value),
+            'color' => Product::labelForOption(Product::COLOR_OPTIONS, $value) ?? Str::headline($value),
+            'stock_status' => Product::labelForOption(Product::STOCK_STATUS_OPTIONS, $value) ?? Str::headline($value),
+            'use_case' => Product::labelForOption(Product::USE_CASE_OPTIONS, $value) ?? Str::headline($value),
+            default => Str::headline($value),
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     * @return array<string, string>|null
+     */
+    private function priceFilterChip(array $validated): ?array
+    {
+        $priceMin = isset($validated['price_min'])
+            ? number_format((float) $validated['price_min'], 2, '.', '')
+            : null;
+        $priceMax = isset($validated['price_max'])
+            ? number_format((float) $validated['price_max'], 2, '.', '')
+            : null;
+
+        if ($priceMin === null && $priceMax === null) {
+            return null;
+        }
+
+        $display = match (true) {
+            $priceMin !== null && $priceMax !== null => '$'.$priceMin.' - $'.$priceMax,
+            $priceMin !== null => 'From $'.$priceMin,
+            default => 'Up to $'.$priceMax,
+        };
+
+        return [
+            'key' => 'price',
+            'value' => implode(':', array_filter([$priceMin, $priceMax], fn (?string $value): bool => $value !== null)),
+            'display' => $display,
+        ];
     }
 }

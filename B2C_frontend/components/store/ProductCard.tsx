@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
+import { ProductAvailabilityBadge } from "@/components/store/ProductAvailabilityBadge"
 import { Button } from "@/components/ui/button"
 import {
   formatCurrencyAmount,
@@ -14,26 +15,13 @@ import {
   getProductInquiryHref,
   getProductSampleRequestHref,
 } from "@/lib/product-links"
+import { getProductAvailabilitySummary, supportsProjectEnquiry } from "@/lib/store/product-display"
 import type { Product } from "@/lib/types"
 import { useCart } from "@/hooks/useCart"
 
 type ProductCardProps = {
   locale: Locale
   product: Product
-}
-
-function stockTone(product: Product) {
-  switch (product.stock_status) {
-    case "low_stock":
-      return "bg-amber-100 text-amber-700"
-    case "sold_out":
-      return "bg-red-100 text-red-700"
-    case "preorder":
-    case "made_to_order":
-      return "bg-sky-100 text-sky-700"
-    default:
-      return "bg-emerald-100 text-emerald-700"
-  }
 }
 
 export function ProductCard({ locale, product }: ProductCardProps) {
@@ -70,13 +58,7 @@ export function ProductCard({ locale, product }: ProductCardProps) {
                 </span>
               ))}
             </div>
-            <span
-              className={`rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] ${stockTone(
-                product,
-              )}`}
-            >
-              {product.stock_status_label || (product.in_stock ? t.inStock : t.soldOut)}
-            </span>
+            <ProductAvailabilityBadge product={product} fallbackLabel={t.inStock} />
           </div>
         </div>
       </Link>
@@ -144,11 +126,13 @@ export function ProductCard({ locale, product }: ProductCardProps) {
                 ) : null}
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {product.lead_time || product.availability_text || "Small-batch availability"}
+                {getProductAvailabilitySummary(product, t.defaultAvailability)}
               </p>
             </div>
             {product.stock_quantity !== null && product.stock_status === "low_stock" ? (
-              <p className="text-sm text-amber-700">{t.stockLeft.replace("{count}", String(product.stock_quantity))}</p>
+              <p className="text-sm text-amber-700">
+                {t.stockLeft.replace("{count}", String(product.stock_quantity))}
+              </p>
             ) : null}
           </div>
         </div>
@@ -170,13 +154,13 @@ export function ProductCard({ locale, product }: ProductCardProps) {
           ) : (
             <Button asChild className="flex-1">
               <Link href={getProductInquiryHref(locale, product)}>
-                {product.inquiry_only ? t.bulkEnquiry : t.requestUpdate}
+                {supportsProjectEnquiry(product) ? t.bulkEnquiry : t.requestUpdate}
               </Link>
             </Button>
           )}
         </div>
 
-        {!product.can_add_to_cart && product.sample_request_enabled ? (
+        {product.sample_request_enabled && !product.can_add_to_cart ? (
           <Button asChild variant="ghost" className="w-full justify-start px-0 text-primary">
             <Link href={getProductSampleRequestHref(locale, product)}>
               {t.requestSample}

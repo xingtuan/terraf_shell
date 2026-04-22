@@ -24,6 +24,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { getMessages, getLocalizedHref, type Locale } from "@/lib/i18n"
+import { getProductQuantityLimit } from "@/lib/store/product-display"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCart } from "@/hooks/useCart"
 
@@ -106,7 +107,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                     <div className="flex gap-4">
                       <div className="relative h-[60px] w-[60px] shrink-0 overflow-hidden rounded-2xl bg-muted">
                         <Image
-                          src={item.product?.image_url || "/placeholder.jpg"}
+                          src={item.product?.primary_image_url || item.product?.image_url || "/placeholder.jpg"}
                           alt={item.product?.name || "Shellfin product"}
                           fill
                           className="object-cover"
@@ -152,7 +153,11 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                               type="button"
                               className="px-3 py-2 text-foreground transition-colors hover:bg-muted"
                               onClick={() => {
-                                if (item.quantity >= 10) {
+                                const maxQuantity = item.product
+                                  ? getProductQuantityLimit(item.product, 10)
+                                  : 10
+
+                                if (item.quantity >= maxQuantity) {
                                   return
                                 }
 

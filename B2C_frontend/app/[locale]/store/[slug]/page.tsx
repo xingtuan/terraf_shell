@@ -14,13 +14,6 @@ type ProductDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>
 }
 
-const categoryLabels: Record<string, string> = {
-  tableware: "Tableware",
-  planters: "Planters",
-  wellness_interior: "Wellness & Interior",
-  architectural: "Architectural",
-}
-
 export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
@@ -33,6 +26,7 @@ export default async function ProductDetailPage({
   const locale = resolvedParams.locale
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
+  const t = messages.productDetail
 
   let product: Product | null = null
   let hasError = false
@@ -54,11 +48,11 @@ export default async function ProductDetailPage({
     return (
       <>
         <PageIntro
-          eyebrow="Product"
-          title="Product details are temporarily unavailable."
-          description="The product page could not be loaded from the API. You can still browse the store or contact the team directly."
+          eyebrow={t.pageFallbackEyebrow}
+          title={t.pageErrorTitle}
+          description={t.pageErrorDescription}
           primaryAction={{
-            label: "Back to store",
+            label: t.backToStore,
             href: getLocalizedHref(locale, "store"),
           }}
           secondaryAction={{
@@ -74,11 +68,15 @@ export default async function ProductDetailPage({
   return (
     <>
       <PageIntro
-        eyebrow={categoryLabels[product.category] || "Product"}
+        eyebrow={product.category_label || t.pageFallbackEyebrow}
         title={product.name}
-        description={product.subtitle || product.short_description || "Review the Shellfin product specification, availability, and enquiry options."}
+        description={
+          product.subtitle ||
+          product.short_description ||
+          t.pageFallbackDescription
+        }
         primaryAction={{
-          label: "Back to store",
+          label: t.backToStore,
           href: getLocalizedHref(locale, "store"),
         }}
         secondaryAction={{
