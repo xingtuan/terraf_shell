@@ -108,6 +108,7 @@ Route::middleware('throttle:leads')->group(function (): void {
     Route::post('/product-development-collaborations', [PartnershipInquiryController::class, 'storeProductDevelopment']);
 });
 Route::get('/users/{user}/posts', [UserController::class, 'posts']);
+Route::get('/users/{user}/favorites', [UserController::class, 'favorites']);
 Route::get('/users/{user}/comments', [UserController::class, 'comments']);
 Route::get('/users/{user}/followers', [UserController::class, 'followers']);
 Route::get('/users/{user}/following', [UserController::class, 'following']);

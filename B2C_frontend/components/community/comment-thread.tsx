@@ -4,8 +4,8 @@ import Link from "next/link"
 import { MoreHorizontal } from "lucide-react"
 import { useState } from "react"
 
+import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,7 +16,6 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import {
   formatCommunityDate,
-  getCommunityUserInitials,
   getCommunityUserName,
 } from "@/lib/community-ui"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
@@ -60,6 +59,7 @@ export function CommentThread({
     <div className="space-y-4">
       {comments.map((comment) => {
         const isOwner = currentUserId === comment.user?.id
+        const replies = comment.replies ?? []
 
         return (
           <div
@@ -72,16 +72,15 @@ export function CommentThread({
                 <Link
                   href={getLocalizedHref(
                     locale,
-                    `community/profile/${comment.user?.username ?? "member"}`,
+                    `community/u/${comment.user?.username ?? "member"}`,
                   )}
                   className="flex items-center gap-3"
                 >
-                  <Avatar className="size-10 border border-border/60">
-                    <AvatarImage src={comment.user?.avatar_url ?? undefined} />
-                    <AvatarFallback>
-                      {getCommunityUserInitials(comment.user)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <CommunityUserAvatar
+                    user={comment.user}
+                    className="size-10 border border-border/60"
+                    sizes="40px"
+                  />
                   <div>
                     <p className="text-sm font-medium text-foreground">
                       {getCommunityUserName(comment.user)}
@@ -91,7 +90,7 @@ export function CommentThread({
                         {formatCommunityDate(locale, comment.created_at) ?? ""}
                       </span>
                       <span>
-                        {messages.comments}: {comment.replies.length}
+                        {messages.comments}: {replies.length}
                       </span>
                       <span>
                         {messages.likesLabel.replace(
@@ -309,10 +308,10 @@ export function CommentThread({
               </AlertDialogContent>
             </AlertDialog>
 
-            {comment.replies.length > 0 ? (
+            {replies.length > 0 ? (
               <div className="mt-4">
                 <CommentThread
-                  comments={comment.replies}
+                  comments={replies}
                   locale={locale}
                   messages={messages}
                   token={token}

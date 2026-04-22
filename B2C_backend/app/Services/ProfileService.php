@@ -35,16 +35,31 @@ class ProfileService
                 'portfolio_url',
                 'open_to_collab',
             ]);
+            $previousAvatarPath = $profile->avatar_path;
 
             if (array_key_exists('avatar', $data) && $data['avatar'] !== null) {
                 $this->mediaService->deletePath($profile->avatar_path);
 
                 $upload = $this->mediaService->storeAvatar($data['avatar'], $user);
                 $profileData = [...$profileData, ...$upload];
+            } elseif (array_key_exists('avatar_path', $data)) {
+                $profileData['avatar_path'] = filled($data['avatar_path'])
+                    ? trim((string) $data['avatar_path'])
+                    : null;
             }
 
             $profile->fill($profileData);
             $profile->save();
+
+            if (
+                array_key_exists('avatar_path', $profileData)
+                && filled($previousAvatarPath)
+                && $previousAvatarPath !== $profile->avatar_path
+            ) {
+                DB::afterCommit(function () use ($previousAvatarPath): void {
+                    $this->mediaService->deletePath($previousAvatarPath);
+                });
+            }
 
             return $user->fresh()->load('profile');
         });

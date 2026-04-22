@@ -59,7 +59,7 @@ function resolveNotificationHref(locale: Locale, notification: UserNotification)
       : null)
 
   if (username) {
-    return getLocalizedHref(locale, `community/profile/${username}`)
+    return getLocalizedHref(locale, `community/u/${username}`)
   }
 
   return getLocalizedHref(locale, "community")

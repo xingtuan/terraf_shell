@@ -51,6 +51,7 @@ class PostService
         $this->applyCategoryFilter($query, $filters);
         $this->applyCreatorFilter($query, $filters);
         $this->applyLikedByFilter($query, $filters);
+        $this->applyFavoritedByFilter($query, $filters);
         $this->applyProfileFilters($query, $filters);
 
         if (! empty($filters['user_id'])) {
@@ -408,6 +409,19 @@ class PostService
 
         $query->whereHas('likes.user', function ($userQuery) use ($likedBy): void {
             $userQuery->where('username', $likedBy);
+        });
+    }
+
+    private function applyFavoritedByFilter($query, array $filters): void
+    {
+        if (empty($filters['favorited_by'])) {
+            return;
+        }
+
+        $favoritedBy = (string) $filters['favorited_by'];
+
+        $query->whereHas('favorites.user', function ($userQuery) use ($favoritedBy): void {
+            $userQuery->where('username', $favoritedBy);
         });
     }
 

@@ -1,27 +1,17 @@
-import { CommunityProfilePage } from "@/components/community/community-profile-page"
-import { FinalCtaSection } from "@/components/sections/final-cta"
-import { getMessages } from "@/lib/i18n"
+import { redirect } from "next/navigation"
+
+import { getLocalizedHref } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
 
-type CommunityProfileRoutePageProps = {
+type LegacyCommunityProfileRoutePageProps = {
   params: Promise<{ locale: string; username: string }>
 }
 
-export default async function CommunityProfileRoutePage({
+export default async function LegacyCommunityProfileRoutePage({
   params,
-}: CommunityProfileRoutePageProps) {
+}: LegacyCommunityProfileRoutePageProps) {
   const locale = await resolveLocale(params)
   const resolvedParams = await params
-  const messages = getMessages(locale)
 
-  return (
-    <>
-      <CommunityProfilePage
-        locale={locale}
-        username={resolvedParams.username}
-        messages={messages.community}
-      />
-      <FinalCtaSection locale={locale} content={messages.home.finalCta} />
-    </>
-  )
+  redirect(getLocalizedHref(locale, `community/u/${resolvedParams.username}`))
 }

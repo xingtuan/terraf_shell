@@ -11,9 +11,14 @@ import type {
   CommunityUser,
   FollowStatePayload,
   PaginatedResult,
+  UserProfile,
 } from "@/lib/types"
 
 type UserIdentifier = string | number
+
+type ApiRequestOverrides = {
+  baseUrl?: string
+}
 
 type ListUserContentParams = {
   page?: number
@@ -33,8 +38,37 @@ type ListUserRelationsParams = {
   per_page?: number
 }
 
+export type UpdateProfilePayload = {
+  name?: string
+  username?: string
+  email?: string
+  bio?: string
+  location?: string
+  website?: string
+  school_or_company?: string
+  region?: string
+  portfolio_url?: string
+  open_to_collab?: boolean
+  avatar_url?: string | null
+  avatar_path?: string | null
+}
+
 function buildUserPath(identifier: UserIdentifier) {
   return `/users/${encodeURIComponent(String(identifier))}`
+}
+
+function normalizeUserProfile(user?: CommunityUser | null): UserProfile | null {
+  const normalized = normalizeCommunityUser(user)
+
+  if (!normalized) {
+    return null
+  }
+
+  return {
+    ...normalized,
+    bio: normalized.profile?.bio ?? null,
+    joined_at: normalized.created_at ?? null,
+  }
 }
 
 async function getPaginatedPosts(
@@ -93,12 +127,14 @@ async function getPaginatedUsers(
 export async function getUserProfile(
   username: UserIdentifier,
   token?: string | null,
+  options: ApiRequestOverrides = {},
 ) {
   const response = await requestApi<CommunityUser>(buildUserPath(username), {
     token,
+    baseUrl: options.baseUrl,
   })
 
-  return normalizeCommunityUser(response.data)
+  return normalizeUserProfile(response.data)
 }
 
 export async function getUserPosts(
@@ -112,6 +148,19 @@ export async function getUserPosts(
       : pageOrParams
 
   return getPaginatedPosts(`${buildUserPath(username)}/posts`, params, token)
+}
+
+export async function getUserFavorites(
+  username: UserIdentifier,
+  pageOrParams: number | ListUserContentParams = {},
+  token?: string | null,
+) {
+  const params =
+    typeof pageOrParams === "number"
+      ? ({ page: pageOrParams } satisfies ListUserContentParams)
+      : pageOrParams
+
+  return getPaginatedPosts(`${buildUserPath(username)}/favorites`, params, token)
 }
 
 export async function getUserComments(
@@ -168,4 +217,14 @@ export async function toggleFollowUser(
   token: string,
 ) {
   return isFollowing ? unfollowUser(username, token) : followUser(username, token)
+}
+
+export async function updateProfile(payload: UpdateProfilePayload, token: string) {
+  const response = await requestApi<CommunityUser>("/auth/profile", {
+    method: "PUT",
+    token,
+    body: payload,
+  })
+
+  return normalizeUserProfile(response.data)
 }

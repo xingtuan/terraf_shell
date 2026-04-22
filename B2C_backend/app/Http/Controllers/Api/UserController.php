@@ -35,6 +35,19 @@ class UserController extends Controller
         );
     }
 
+    public function favorites(
+        ListPostsRequest $request,
+        User $user,
+        UserDirectoryService $userDirectoryService
+    ): JsonResponse {
+        $posts = $userDirectoryService->listFavorites($user, $request->validated(), $request->user());
+
+        return $this->paginatedResponse(
+            $posts,
+            PostResource::collection($posts->getCollection())
+        );
+    }
+
     public function comments(
         ListUserCommentsRequest $request,
         User $user,

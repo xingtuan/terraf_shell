@@ -6,10 +6,10 @@ import { MoreHorizontal } from "lucide-react"
 import { useEffect, useEffectEvent, useState, type FormEvent, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
+import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
 import { CommentThread } from "@/components/community/comment-thread"
 import { CreatePostPanel } from "@/components/community/CreatePostPanel"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -36,7 +36,6 @@ import {
   formatCommunityDate,
   getCommunityPostCoverImage,
   getCommunitySupportUrl,
-  getCommunityUserInitials,
   getCommunityUserName,
 } from "@/lib/community-ui"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
@@ -63,7 +62,7 @@ function updateCommentTree(
 
     return {
       ...comment,
-      replies: updateCommentTree(comment.replies, commentId, updater),
+      replies: updateCommentTree(comment.replies ?? [], commentId, updater),
     }
   })
 }
@@ -249,16 +248,15 @@ export function CommunityPostDetail({
                     <Link
                       href={getLocalizedHref(
                         locale,
-                        `community/profile/${post.user?.username ?? "member"}`,
+                        `community/u/${post.user?.username ?? "member"}`,
                       )}
                       className="inline-flex items-center gap-3"
                     >
-                      <Avatar className="size-12 border border-border/60">
-                        <AvatarImage src={post.user?.avatar_url ?? undefined} />
-                        <AvatarFallback>
-                          {getCommunityUserInitials(post.user)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <CommunityUserAvatar
+                        user={post.user}
+                        className="size-12 border border-border/60"
+                        sizes="48px"
+                      />
                       <div>
                         <p className="text-sm font-medium text-foreground">
                           {getCommunityUserName(post.user)}

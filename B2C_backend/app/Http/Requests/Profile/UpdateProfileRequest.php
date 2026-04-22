@@ -47,6 +47,8 @@ class UpdateProfileRequest extends FormRequest
             'portfolio_url' => ['nullable', 'url', 'max:255'],
             'open_to_collab' => ['nullable', 'boolean'],
             'avatar' => ['nullable', 'image', 'max:5120'],
+            'avatar_path' => ['nullable', 'string', 'max:2048'],
+            'avatar_url' => ['nullable', 'string', 'max:2048'],
         ];
     }
 }

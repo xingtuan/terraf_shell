@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Support\StorageUrl;
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -89,6 +90,30 @@ class AuthTest extends TestCase
             ->assertJsonPath('data.email_verified', false);
 
         Notification::assertSentTo($user->fresh(), VerifyEmail::class);
+    }
+
+    public function test_authenticated_user_can_update_profile_with_preuploaded_avatar_path(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+        config()->set('community.uploads.azure.use_sas_urls', false);
+        config()->set('community.uploads.disk', 'azure');
+        config()->set('filesystems.disks.azure.storage_url', 'https://example.blob.core.windows.net');
+        config()->set('filesystems.disks.azure.container', 'uploads');
+
+        $this
+            ->patchJson('/api/auth/profile', [
+                'name' => 'Updated User',
+                'username' => 'updated_user',
+                'bio' => 'Updated profile bio.',
+                'avatar_path' => 'avatars/test-avatar.png',
+                'avatar_url' => 'https://example.com/avatars/test-avatar.png',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Updated User')
+            ->assertJsonPath('data.username', 'updated_user')
+            ->assertJsonPath('data.profile.bio', 'Updated profile bio.')
+            ->assertJsonPath('data.profile.avatar_url', StorageUrl::publicResolve('avatars/test-avatar.png', 'azure'));
     }
 
     public function test_user_can_request_password_reset_and_log_in_with_new_password(): void

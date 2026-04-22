@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Support\StorageUrl;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -37,7 +38,7 @@ class MediaUploadTest extends TestCase
         $url = (string) $uploadResponse->json('data.url');
 
         Storage::disk('public')->assertExists($path);
-        $this->assertStringStartsWith('/media/files/public/', $url);
+        $this->assertSame(StorageUrl::publicResolve($path, 'public'), $url);
 
         $response = $this->get($url)
             ->assertOk();

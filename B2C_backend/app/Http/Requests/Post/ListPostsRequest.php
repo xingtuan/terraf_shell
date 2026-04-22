@@ -29,6 +29,7 @@ class ListPostsRequest extends FormRequest
             'category' => ['nullable', 'string', 'max:120'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'liked_by' => ['nullable', 'string', 'max:30'],
+            'favorited_by' => ['nullable', 'string', 'max:30'],
             'creator' => ['nullable', 'string', 'max:120'],
             'creator_role' => ['nullable', Rule::in(UserRole::values())],
             'school_or_company' => ['nullable', 'string', 'max:160'],

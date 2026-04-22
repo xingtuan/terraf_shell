@@ -455,6 +455,11 @@ export interface CommunityUser {
   updated_at?: string | null
 }
 
+export interface UserProfile extends CommunityUser {
+  bio?: string | null
+  joined_at?: string | null
+}
+
 export interface CommunityCategory {
   id: number
   name: string

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 
 import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,7 +18,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { getCommunityUserInitials } from "@/lib/community-ui"
 import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
 import { useAuthSession } from "@/hooks/use-auth-session"
 
@@ -40,12 +39,11 @@ export function UserNav({ locale }: UserNavProps) {
             type="button"
             className="flex items-center gap-3 rounded-full border border-border/60 bg-card px-3 py-2 text-left transition-colors hover:bg-muted"
           >
-            <Avatar className="size-9 border border-border/60">
-              <AvatarImage src={session.user.avatar_url ?? undefined} />
-              <AvatarFallback>
-                {getCommunityUserInitials(session.user)}
-              </AvatarFallback>
-            </Avatar>
+            <CommunityUserAvatar
+              user={session.user}
+              className="size-9 border border-border/60"
+              sizes="36px"
+            />
             <div className="hidden sm:block">
               <p className="text-sm font-medium text-foreground">
                 {session.user.name}
@@ -76,7 +74,7 @@ export function UserNav({ locale }: UserNavProps) {
               router.push(
                 getLocalizedHref(
                   locale,
-                  `community/profile/${session.user?.username ?? ""}`,
+                  `community/u/${session.user?.username ?? ""}`,
                 ),
               )
             }}

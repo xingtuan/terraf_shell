@@ -24,6 +24,7 @@ export type ListPostsParams = {
   category?: string
   user_id?: number
   liked_by?: string
+  favorited_by?: string
   tag?: string
   featured?: boolean
   pinned?: boolean

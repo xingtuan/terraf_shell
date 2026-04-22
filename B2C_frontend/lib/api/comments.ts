@@ -12,6 +12,10 @@ type LegacyCommentPayload = {
   content: string
 }
 
+type UpdateCommentPayload = {
+  body: string
+}
+
 export async function listComments(postId: number, token?: string | null) {
   const response = await requestApi<CommunityComment[]>(
     `/posts/${postId}/comments`,
@@ -66,7 +70,7 @@ export async function updateComment(
   const response = await requestApi<CommunityComment>(`/comments/${commentId}`, {
     method: "PUT",
     token,
-    body: { content } satisfies CommentPayload,
+    body: { body: content } satisfies UpdateCommentPayload,
   })
 
   return normalizeCommunityComment(response.data)

@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 
 import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
 import { CommunitySearch } from "@/components/community/CommunitySearch"
@@ -13,7 +13,10 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { dispatchCommunityPostsRefresh } from "@/lib/community-events"
+import {
+  COMMUNITY_AUTH_OPEN_EVENT,
+  dispatchCommunityPostsRefresh,
+} from "@/lib/community-events"
 import { type Locale, type SiteMessages } from "@/lib/i18n"
 import { useAuthSession } from "@/hooks/use-auth-session"
 
@@ -30,6 +33,18 @@ export function CommunityHeaderBar({
   const currentUser = session.user
   const [isCreateOpen, setIsCreateOpen] = useState(false)
   const [isAuthOpen, setIsAuthOpen] = useState(false)
+
+  useEffect(() => {
+    function handleAuthOpen() {
+      setIsAuthOpen(true)
+    }
+
+    window.addEventListener(COMMUNITY_AUTH_OPEN_EVENT, handleAuthOpen)
+
+    return () => {
+      window.removeEventListener(COMMUNITY_AUTH_OPEN_EVENT, handleAuthOpen)
+    }
+  }, [])
 
   return (
     <>

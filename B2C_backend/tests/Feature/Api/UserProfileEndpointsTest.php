@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Comment;
+use App\Models\Favorite;
 use App\Models\Follow;
 use App\Models\Post;
 use App\Models\User;
@@ -82,6 +83,35 @@ class UserProfileEndpointsTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $visiblePost->id)
             ->assertJsonPath('data.0.title', 'Visible user post');
+    }
+
+    public function test_public_user_favorites_endpoint_returns_favorited_posts(): void
+    {
+        $user = User::factory()->create();
+        $favoritedPost = Post::factory()->create([
+            'title' => 'Favorited post',
+            'status' => 'approved',
+        ]);
+        $otherPost = Post::factory()->create([
+            'title' => 'Other post',
+            'status' => 'approved',
+        ]);
+
+        Favorite::query()->create([
+            'user_id' => $user->id,
+            'post_id' => $favoritedPost->id,
+        ]);
+
+        $favoritedPost->increment('favorites_count');
+
+        $response = $this->getJson("/api/users/{$user->id}/favorites")
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $favoritedPost->id)
+            ->assertJsonPath('data.0.title', 'Favorited post');
+
+        $this->assertSame($otherPost->id, Post::query()->findOrFail($otherPost->id)->id);
+        $response->assertJsonMissingPath('data.1');
     }
 
     public function test_user_comments_endpoint_respects_public_and_owner_visibility(): void

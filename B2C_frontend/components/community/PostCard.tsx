@@ -1,12 +1,13 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { MoreHorizontal } from "lucide-react"
 import { useState } from "react"
 
+import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
 import { CreatePostPanel } from "@/components/community/CreatePostPanel"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -22,7 +23,6 @@ import {
   getCommunityPostCoverImage,
   getCommunityPostPreview,
   getCommunitySupportUrl,
-  getCommunityUserInitials,
   getCommunityUserName,
 } from "@/lib/community-ui"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
@@ -112,13 +112,15 @@ export function PostCard({
       <article className="overflow-hidden rounded-[2rem] border border-border/60 bg-card">
         <Link
           href={getLocalizedHref(locale, `community/${post.slug}`)}
-          className="block aspect-[16/9] w-full overflow-hidden bg-muted"
+          className="relative block aspect-[16/9] w-full overflow-hidden bg-muted"
         >
-          <img
+          <Image
             src={getCommunityPostCoverImage(post)}
             alt={post.images[0]?.alt_text ?? post.title}
-            className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]"
-            loading="lazy"
+            fill
+            unoptimized
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            className="object-cover transition-transform duration-500 hover:scale-[1.03]"
           />
         </Link>
 
@@ -172,16 +174,15 @@ export function PostCard({
             <Link
               href={getLocalizedHref(
                 locale,
-                `community/profile/${post.user?.username ?? "member"}`,
+                `community/u/${post.user?.username ?? "member"}`,
               )}
               className="flex items-center gap-3"
             >
-              <Avatar className="size-11 border border-border/60">
-                <AvatarImage src={post.user?.avatar_url ?? undefined} />
-                <AvatarFallback>
-                  {getCommunityUserInitials(post.user)}
-                </AvatarFallback>
-              </Avatar>
+              <CommunityUserAvatar
+                user={post.user}
+                className="size-11 border border-border/60"
+                sizes="44px"
+              />
               <div>
                 <p className="text-sm font-medium text-foreground">
                   {getCommunityUserName(post.user)}

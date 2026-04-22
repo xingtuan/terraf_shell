@@ -33,6 +33,14 @@ class UserDirectoryService
         return $this->postService->list($filters, $viewer);
     }
 
+    public function listFavorites(User $user, array $filters, ?User $viewer = null): LengthAwarePaginator
+    {
+        $filters['favorited_by'] = $user->username;
+        unset($filters['mine']);
+
+        return $this->postService->list($filters, $viewer);
+    }
+
     public function listComments(User $user, array $filters, ?User $viewer = null): LengthAwarePaginator
     {
         $query = Comment::query()
