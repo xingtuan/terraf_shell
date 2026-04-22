@@ -14,6 +14,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { formatCurrencyAmount } from "@/lib/api/products"
 import {
   Sheet,
   SheetContent,
@@ -33,7 +34,17 @@ type CartSidebarProps = {
 export function CartSidebar({ locale }: CartSidebarProps) {
   const router = useRouter()
   const session = useAuthSession()
-  const { cart, error, isOpen, openCart, closeCart, addItem, updateItem, removeItem } =
+  const {
+    cart,
+    error,
+    loading,
+    isOpen,
+    openCart,
+    closeCart,
+    updateItem,
+    removeItem,
+    clearCart,
+  } =
     useCart()
   const authCopy = getMessages(locale).community.auth
   const [isAuthOpen, setIsAuthOpen] = useState(false)
@@ -58,7 +69,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
               Your Cart ({cart?.item_count ?? 0} items)
             </SheetTitle>
             <SheetDescription>
-              Review quantities and move straight into the Shellfin pre-order flow.
+              Guest carts persist and merge into your account after sign-in.
             </SheetDescription>
           </SheetHeader>
 
@@ -105,12 +116,18 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                             <p className="line-clamp-2 text-sm font-medium text-foreground">
                               {item.product?.name || "Product unavailable"}
                             </p>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              ${item.unit_price_usd} USD
-                            </p>
+                            {item.product?.stock_status_label ? (
+                              <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                                {item.product.stock_status_label}
+                              </p>
+                            ) : null}
                           </div>
                           <p className="text-sm font-medium text-foreground">
-                            ${item.line_total}
+                            {formatCurrencyAmount(
+                              item.line_total,
+                              locale,
+                              item.product?.currency ?? "USD",
+                            )}
                           </p>
                         </div>
 
@@ -169,30 +186,67 @@ export function CartSidebar({ locale }: CartSidebarProps) {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-medium text-foreground">
-                  ${cart?.subtotal_usd ?? "0.00"} USD
+                  {formatCurrencyAmount(cart?.subtotal_usd ?? "0.00", locale)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Est. shipping</span>
+                <span className="font-medium text-foreground">
+                  {formatCurrencyAmount(
+                    cart?.estimated_shipping_usd ?? "0.00",
+                    locale,
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Est. tax</span>
+                <span className="font-medium text-foreground">
+                  {formatCurrencyAmount(
+                    cart?.estimated_tax_usd ?? "0.00",
+                    locale,
+                  )}
                 </span>
               </div>
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Free shipping over $200
+                Free shipping over{" "}
+                {formatCurrencyAmount(
+                  cart?.free_shipping_threshold_usd ?? "200.00",
+                  locale,
+                )}
               </p>
-              <Button
-                type="button"
-                className="w-full"
-                disabled={!cart || cart.items.length === 0}
-                onClick={() => {
-                  const checkoutHref = getLocalizedHref(locale, "store/checkout")
+              <div className="grid gap-3">
+                <Button asChild variant="outline" className="w-full">
+                  <Link href={getLocalizedHref(locale, "store/cart")}>View cart</Link>
+                </Button>
+                <Button
+                  type="button"
+                  className="w-full"
+                  disabled={!cart || cart.items.length === 0 || loading}
+                  onClick={() => {
+                    const checkoutHref = getLocalizedHref(locale, "store/checkout")
 
-                  if (!session.user) {
-                    setIsAuthOpen(true)
-                    return
-                  }
+                    if (!session.user) {
+                      setIsAuthOpen(true)
+                      return
+                    }
 
-                  closeCart()
-                  router.push(checkoutHref)
-                }}
-              >
-                Proceed to Checkout
-              </Button>
+                    closeCart()
+                    router.push(checkoutHref)
+                  }}
+                >
+                  {session.user ? "Proceed to Checkout" : "Sign in to Checkout"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={!cart || cart.items.length === 0 || loading}
+                  onClick={() => {
+                    void clearCart()
+                  }}
+                >
+                  Clear Cart
+                </Button>
+              </div>
             </div>
           </SheetFooter>
         </SheetContent>

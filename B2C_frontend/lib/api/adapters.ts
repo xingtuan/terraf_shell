@@ -27,8 +27,12 @@ import type {
   CartSummary,
   CartSummaryItem,
   Product,
+  ProductCatalogMeta,
   ProductCategory,
+  ProductFacetOption,
   ProductImage,
+  ProductSeo,
+  ProductSpecification,
   NotificationTargetSummary,
   ShippingAddressSnapshot,
   StoreOrder,
@@ -136,6 +140,11 @@ export function normalizeProductCategory(
 export function normalizeProductImage(image: ProductImage): ProductImage {
   return {
     ...image,
+    id: Number(image.id ?? 0),
+    product_id:
+      image.product_id === null || image.product_id === undefined
+        ? undefined
+        : Number(image.product_id),
     alt_text: image.alt_text ?? null,
     caption: image.caption ?? null,
     media_url: resolveApiUrl(image.media_url),
@@ -143,22 +152,202 @@ export function normalizeProductImage(image: ProductImage): ProductImage {
   }
 }
 
-export function normalizeProduct(product: Product): Product {
+function normalizeProductSpecification(
+  specification: ProductSpecification,
+): ProductSpecification {
+  return {
+    key: specification.key ?? "",
+    label: specification.label ?? "",
+    value: specification.value ?? "",
+    unit: specification.unit ?? null,
+    group: specification.group ?? null,
+  }
+}
+
+function normalizeProductSeo(seo?: ProductSeo | null): ProductSeo | null {
+  if (!seo) {
+    return null
+  }
+
+  return {
+    title: seo.title ?? null,
+    description: seo.description ?? null,
+  }
+}
+
+export function normalizeProduct(
+  product: Product,
+  depth = 0,
+): Product {
+  const title = product.title ?? product.name ?? ""
+  const primaryImageUrl = resolveApiUrl(
+    product.primary_image_url ?? product.image_url,
+  )
+  const galleryImages = ensureArray(product.gallery_images).map(normalizeProductImage)
+
+  const normalizedGallery =
+    galleryImages.length > 0
+      ? galleryImages
+      : primaryImageUrl
+        ? [
+            {
+              id: 0,
+              product_id: Number(product.id ?? 0),
+              alt_text: title,
+              caption: product.subtitle ?? product.short_description ?? null,
+              media_url: primaryImageUrl,
+              sort_order: 0,
+              created_at: null,
+              updated_at: null,
+            },
+          ]
+        : []
+
   return {
     ...product,
-    name: product.name ?? "",
+    id: Number(product.id ?? 0),
+    title,
+    name: title,
     slug: product.slug ?? "",
+    sku: product.sku ?? null,
+    subtitle: product.subtitle ?? product.short_description ?? null,
+    short_description: product.short_description ?? product.subtitle ?? null,
+    long_description:
+      product.long_description ?? product.full_description ?? null,
+    full_description:
+      product.full_description ?? product.long_description ?? null,
     category: product.category ?? "",
+    category_label: product.category_label ?? null,
+    category_detail: product.category_detail
+      ? normalizeProductCategory(product.category_detail)
+      : null,
     model: product.model ?? "",
+    model_label: product.model_label ?? null,
     finish: product.finish ?? "",
+    finish_label: product.finish_label ?? null,
     color: product.color ?? "",
+    color_label: product.color_label ?? null,
     technique: product.technique ?? "",
+    technique_label: product.technique_label ?? null,
+    currency: product.currency ?? "USD",
     price_usd:
       product.price_usd === null || product.price_usd === undefined
         ? "0.00"
         : String(product.price_usd),
+    price:
+      product.price === null || product.price === undefined
+        ? product.price_usd === null || product.price_usd === undefined
+          ? "0.00"
+          : String(product.price_usd)
+        : String(product.price),
+    compare_at_price_usd:
+      product.compare_at_price_usd === null ||
+      product.compare_at_price_usd === undefined
+        ? null
+        : String(product.compare_at_price_usd),
+    compare_at_price:
+      product.compare_at_price === null || product.compare_at_price === undefined
+        ? product.compare_at_price_usd === null ||
+          product.compare_at_price_usd === undefined
+          ? null
+          : String(product.compare_at_price_usd)
+        : String(product.compare_at_price),
+    on_sale: Boolean(product.on_sale),
+    featured: Boolean(product.featured),
+    is_bestseller: Boolean(product.is_bestseller),
+    is_new: Boolean(product.is_new),
     in_stock: Boolean(product.in_stock),
-    image_url: resolveApiUrl(product.image_url),
+    can_add_to_cart: Boolean(product.can_add_to_cart ?? product.in_stock),
+    inquiry_only: Boolean(product.inquiry_only),
+    sample_request_enabled: Boolean(product.sample_request_enabled),
+    stock_quantity:
+      product.stock_quantity === null || product.stock_quantity === undefined
+        ? null
+        : Number(product.stock_quantity),
+    stock_status: product.stock_status ?? null,
+    stock_status_label: product.stock_status_label ?? null,
+    lead_time: product.lead_time ?? null,
+    availability_text: product.availability_text ?? null,
+    primary_image_url: primaryImageUrl,
+    image_url: primaryImageUrl,
+    gallery_images: normalizedGallery,
+    features: ensureArray(product.features).map((feature) => String(feature)),
+    use_cases: ensureArray(product.use_cases).map((useCase) => String(useCase)),
+    use_case_labels: ensureArray(product.use_case_labels).map((label) =>
+      String(label),
+    ),
+    dimensions: product.dimensions ?? null,
+    weight_grams:
+      product.weight_grams === null || product.weight_grams === undefined
+        ? null
+        : Number(product.weight_grams),
+    specifications: ensureArray(product.specifications).map(
+      normalizeProductSpecification,
+    ),
+    certifications: ensureArray(product.certifications).map((item) =>
+      String(item),
+    ),
+    care_instructions: ensureArray(product.care_instructions).map((item) =>
+      String(item),
+    ),
+    material_benefits: ensureArray(product.material_benefits).map((item) =>
+      String(item),
+    ),
+    seo: normalizeProductSeo(product.seo),
+    related_products:
+      depth >= 1
+        ? []
+        : ensureArray(product.related_products).map((relatedProduct) =>
+            normalizeProduct(relatedProduct, depth + 1),
+          ),
+    published_at: product.published_at ?? null,
+  }
+}
+
+function normalizeProductFacetOption(option: ProductFacetOption): ProductFacetOption {
+  return {
+    value: option.value ?? "",
+    label: option.label ?? "",
+    count: Number(option.count ?? 0),
+  }
+}
+
+export function normalizeProductCatalogMeta(
+  meta: Partial<ProductCatalogMeta> | undefined,
+): ProductCatalogMeta {
+  const pagination = normalizePaginationMeta(meta)
+
+  return {
+    ...pagination,
+    sort: (meta?.sort ?? "featured") as ProductCatalogMeta["sort"],
+    sort_options: ensureArray(meta?.sort_options).map((option) => ({
+      value: (option.value ?? "featured") as ProductCatalogMeta["sort"],
+      label: option.label ?? "",
+    })),
+    facets: {
+      categories: ensureArray(meta?.facets?.categories).map(normalizeProductCategory),
+      models: ensureArray(meta?.facets?.models).map(normalizeProductFacetOption),
+      finishes: ensureArray(meta?.facets?.finishes).map(
+        normalizeProductFacetOption,
+      ),
+      colors: ensureArray(meta?.facets?.colors).map(normalizeProductFacetOption),
+      stock_statuses: ensureArray(meta?.facets?.stock_statuses).map(
+        normalizeProductFacetOption,
+      ),
+      use_cases: ensureArray(meta?.facets?.use_cases).map(
+        normalizeProductFacetOption,
+      ),
+      price_range: {
+        min: String(meta?.facets?.price_range?.min ?? "0.00"),
+        max: String(meta?.facets?.price_range?.max ?? "0.00"),
+      },
+    },
+    applied_filters: Object.fromEntries(
+      Object.entries(meta?.applied_filters ?? {}).map(([key, value]) => [
+        key,
+        String(value),
+      ]),
+    ),
   }
 }
 
@@ -187,6 +376,25 @@ export function normalizeCartSummary(cart: CartSummary): CartSummary {
       cart.subtotal_usd === null || cart.subtotal_usd === undefined
         ? "0.00"
         : String(cart.subtotal_usd),
+    estimated_shipping_usd:
+      cart.estimated_shipping_usd === null ||
+      cart.estimated_shipping_usd === undefined
+        ? "0.00"
+        : String(cart.estimated_shipping_usd),
+    estimated_tax_usd:
+      cart.estimated_tax_usd === null || cart.estimated_tax_usd === undefined
+        ? "0.00"
+        : String(cart.estimated_tax_usd),
+    estimated_total_usd:
+      cart.estimated_total_usd === null ||
+      cart.estimated_total_usd === undefined
+        ? String(cart.subtotal_usd ?? "0.00")
+        : String(cart.estimated_total_usd),
+    free_shipping_threshold_usd:
+      cart.free_shipping_threshold_usd === null ||
+      cart.free_shipping_threshold_usd === undefined
+        ? "200.00"
+        : String(cart.free_shipping_threshold_usd),
     items: ensureArray(cart.items).map(normalizeCartSummaryItem),
   }
 }
@@ -235,6 +443,7 @@ export function normalizeStoreOrderItem(item: StoreOrderItem): StoreOrderItem {
 export function normalizeStoreOrder(order: StoreOrder): StoreOrder {
   return {
     ...order,
+    item_count: Number(order.item_count ?? 0),
     subtotal_usd:
       order.subtotal_usd === null || order.subtotal_usd === undefined
         ? "0.00"
@@ -243,6 +452,10 @@ export function normalizeStoreOrder(order: StoreOrder): StoreOrder {
       order.shipping_usd === null || order.shipping_usd === undefined
         ? "0.00"
         : String(order.shipping_usd),
+    tax_usd:
+      order.tax_usd === null || order.tax_usd === undefined
+        ? "0.00"
+        : String(order.tax_usd),
     total_usd:
       order.total_usd === null || order.total_usd === undefined
         ? "0.00"

@@ -1,0 +1,85 @@
+import { getLocalizedHref, type Locale } from "@/lib/i18n"
+import type { ProductSortOption } from "@/lib/types"
+
+export type StoreCatalogFilters = {
+  search: string
+  sort: ProductSortOption
+  category: string
+  model: string
+  finish: string
+  color: string
+  stock_status: string
+  use_case: string
+  price_min: string
+  price_max: string
+  page: number
+}
+
+const PRODUCT_SORT_OPTIONS: ProductSortOption[] = [
+  "featured",
+  "newest",
+  "best_selling",
+  "price_low_to_high",
+  "price_high_to_low",
+]
+
+function firstValue(value?: string | string[]) {
+  if (Array.isArray(value)) {
+    return value[0] ?? ""
+  }
+
+  return value ?? ""
+}
+
+export function parseStoreCatalogFilters(
+  searchParams: Record<string, string | string[] | undefined>,
+): StoreCatalogFilters {
+  const search = firstValue(searchParams.search).trim()
+  const sortValue = firstValue(searchParams.sort).trim()
+  const pageValue = Number(firstValue(searchParams.page))
+
+  return {
+    search,
+    sort: PRODUCT_SORT_OPTIONS.includes(sortValue as ProductSortOption)
+      ? (sortValue as ProductSortOption)
+      : "featured",
+    category: firstValue(searchParams.category).trim(),
+    model: firstValue(searchParams.model).trim(),
+    finish: firstValue(searchParams.finish).trim(),
+    color: firstValue(searchParams.color).trim(),
+    stock_status: firstValue(searchParams.stock_status).trim(),
+    use_case: firstValue(searchParams.use_case).trim(),
+    price_min: firstValue(searchParams.price_min).trim(),
+    price_max: firstValue(searchParams.price_max).trim(),
+    page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1,
+  }
+}
+
+export function buildStoreCatalogHref(
+  locale: Locale,
+  filters: Partial<StoreCatalogFilters>,
+) {
+  const url = new URL(getLocalizedHref(locale, "store"), "https://shellfin.local")
+
+  for (const [key, value] of Object.entries(filters)) {
+    if (key === "page" && (value === 1 || value === "1")) {
+      continue
+    }
+
+    if (typeof value === "number") {
+      if (Number.isFinite(value) && value > 0) {
+        url.searchParams.set(key, String(value))
+      }
+
+      continue
+    }
+
+    if (typeof value === "string" && value.trim() !== "") {
+      url.searchParams.set(key, value.trim())
+    }
+  }
+
+  url.hash = "catalogue"
+
+  return `${url.pathname}${url.search}${url.hash}`
+}

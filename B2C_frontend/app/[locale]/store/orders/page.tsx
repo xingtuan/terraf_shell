@@ -6,6 +6,7 @@ import Link from "next/link"
 
 import { AuthGate } from "@/components/auth/AuthGate"
 import { Button } from "@/components/ui/button"
+import { formatCurrencyAmount } from "@/lib/api/products"
 import { cancelOrder, getOrders } from "@/lib/api/orders"
 import { getErrorMessage } from "@/lib/api/client"
 import { getLocalizedHref, isValidLocale, type Locale } from "@/lib/i18n"
@@ -147,7 +148,7 @@ function OrdersScreen({ locale }: { locale: Locale }) {
                       className="relative h-10 w-10 overflow-hidden rounded-full border border-border/60 bg-muted"
                     >
                       <Image
-                        src={item.product?.image_url || "/placeholder.jpg"}
+                        src={item.product?.primary_image_url || item.product?.image_url || "/placeholder.jpg"}
                         alt={item.product_name}
                         fill
                         className="object-cover"
@@ -161,7 +162,7 @@ function OrdersScreen({ locale }: { locale: Locale }) {
                   ) : null}
                 </div>
                 <p className="text-sm font-medium text-foreground">
-                  ${Number(order.total_usd).toFixed(2)} USD
+                  {formatCurrencyAmount(order.total_usd, locale)}
                 </p>
               </div>
             </div>

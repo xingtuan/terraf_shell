@@ -11,7 +11,10 @@ trait HasOptionalMediaUrl
     {
         static::saving(function ($model): void {
             if (blank($model->media_path)) {
-                $model->media_url = null;
+                $rawMediaUrl = $model->getAttributes()['media_url'] ?? null;
+                $model->media_url = is_string($rawMediaUrl) && trim($rawMediaUrl) !== ''
+                    ? trim($rawMediaUrl)
+                    : null;
 
                 return;
             }

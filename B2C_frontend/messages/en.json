@@ -258,7 +258,51 @@
       "title": "Shellfin objects for dining, gifting, and calm interior rituals.",
       "description": "Published products, categories, pricing, and availability now come from the backend product catalogue and admin panel.",
       "pricePrefix": "From",
-      "availabilityLabel": "Availability"
+      "availabilityLabel": "Availability",
+      "categoryQuickFilterLabel": "Browse by category",
+      "filtersTitle": "Refine the catalogue",
+      "searchPlaceholder": "Search by product, SKU, or use case",
+      "sortLabel": "Sort",
+      "modelLabel": "Model",
+      "finishLabel": "Finish",
+      "colorLabel": "Color",
+      "stockLabel": "Availability",
+      "useCaseLabel": "Use case",
+      "priceLabel": "Price range",
+      "minPrice": "Min",
+      "maxPrice": "Max",
+      "applyFilters": "Apply filters",
+      "clearAll": "Clear all",
+      "resultLabel": "{count} products",
+      "showingLabel": "Page {page} of {lastPage}",
+      "emptyTitle": "No products match these filters.",
+      "emptyDescription": "Adjust the range, switch category, or clear a filter to reopen the full Shellfin catalogue.",
+      "emptyAction": "Reset catalogue",
+      "errorTitle": "Store data is temporarily unavailable.",
+      "errorDescription": "The product catalogue could not be loaded from the API. The rest of the site is still available, and business enquiries can still be submitted.",
+      "retryAction": "Refresh catalogue"
+    },
+    "faq": {
+      "eyebrow": "Store FAQ",
+      "title": "Common questions before ordering",
+      "items": [
+        {
+          "question": "How durable is Shellfin tableware?",
+          "answer": "Shellfin products are designed around a premium shell composite story with low absorption, repeatable finish quality, and hospitality-minded durability. Exact performance still depends on the specific form factor and production batch."
+        },
+        {
+          "question": "Can I order for hospitality or design projects?",
+          "answer": "Yes. The store supports direct B2C discovery, but products that fit hospitality, retail, or design-project use can route into bulk enquiry and sample workflows through the existing B2B lead flow."
+        },
+        {
+          "question": "What happens if a product is sold out or made to order?",
+          "answer": "Availability states are surfaced per product. If a batch is sold out, the product page will steer you toward restock updates, sample requests, or a direct project enquiry instead of a dead-end purchase path."
+        },
+        {
+          "question": "Are shipping and tax fully calculated yet?",
+          "answer": "Shipping is structured in the cart and checkout flow with the current free-shipping threshold. Tax remains a placeholder until a fuller calculation service is introduced."
+        }
+      ]
     }
   },
   "b2bPage": {

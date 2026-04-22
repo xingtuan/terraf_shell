@@ -6,19 +6,13 @@ import { getProducts } from "@/lib/api/products"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
-import type { Product } from "@/lib/types"
+import { parseStoreCatalogFilters } from "@/lib/store/catalog"
+import type { ProductCatalogResult } from "@/lib/types"
 
 type StorePageProps = {
   params: Promise<{ locale: string }>
-  searchParams: Promise<{ category?: string | string[] }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
-
-const allowedCategories = new Set([
-  "tableware",
-  "planters",
-  "wellness_interior",
-  "architectural",
-])
 
 export default async function StorePage({
   params,
@@ -29,23 +23,28 @@ export default async function StorePage({
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
   const intro = messages.storePage.intro
+  const filters = parseStoreCatalogFilters(resolvedSearchParams)
 
-  const rawCategory = Array.isArray(resolvedSearchParams.category)
-    ? resolvedSearchParams.category[0]
-    : resolvedSearchParams.category
-  const activeCategory =
-    rawCategory && allowedCategories.has(rawCategory) ? rawCategory : undefined
-
-  let products: Product[] = []
+  let catalogue: ProductCatalogResult | null = null
   let hasError = false
 
   try {
-    const response = await getProducts({
-      category: activeCategory,
-      per_page: 12,
+    catalogue = await getProducts({
+      search: filters.search,
+      sort: filters.sort,
+      category: filters.category || undefined,
+      model: filters.model || undefined,
+      finish: filters.finish || undefined,
+      color: filters.color || undefined,
+      stock_status: filters.stock_status || undefined,
+      use_case: filters.use_case || undefined,
+      price_min: filters.price_min || undefined,
+      price_max: filters.price_max || undefined,
+      page: filters.page,
+      per_page: 8,
+      locale,
       baseUrl: apiBaseUrl,
     })
-    products = response.data
   } catch {
     hasError = true
   }
@@ -58,7 +57,7 @@ export default async function StorePage({
         description={intro.description}
         primaryAction={{
           label: intro.primaryCta,
-          href: `${getLocalizedHref(locale, "store")}#products`,
+          href: `${getLocalizedHref(locale, "store")}#catalogue`,
         }}
         secondaryAction={{
           label: intro.secondaryCta,
@@ -67,10 +66,12 @@ export default async function StorePage({
       />
       <ProductGridSection
         locale={locale}
-        header={messages.header}
         content={messages.storePage.grid}
-        products={products}
-        activeCategory={activeCategory}
+        faqContent={messages.storePage.faq}
+        trustContent={messages.home.credibility}
+        products={catalogue?.items ?? []}
+        filters={filters}
+        meta={catalogue?.meta}
         hasError={hasError}
       />
       <ApplicationsSection content={messages.home.applications} />

@@ -12,7 +12,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -47,18 +49,51 @@ class Product extends Model
         'driftwood_blend' => 'Driftwood Blend',
     ];
 
+    public const STOCK_STATUS_OPTIONS = [
+        'in_stock' => 'In Stock',
+        'low_stock' => 'Low Stock',
+        'preorder' => 'Pre-order',
+        'made_to_order' => 'Made to Order',
+        'sold_out' => 'Sold Out',
+    ];
+
+    public const USE_CASE_OPTIONS = [
+        'home_dining' => 'Home Dining',
+        'hospitality_service' => 'Hospitality Service',
+        'retail_gifting' => 'Retail & Gifting',
+        'interior_styling' => 'Interior Styling',
+        'design_projects' => 'Design Projects',
+    ];
+
+    public const PURCHASABLE_STOCK_STATUSES = [
+        'in_stock',
+        'low_stock',
+        'preorder',
+        'made_to_order',
+    ];
+
     protected array $localizedAttributes = [
         'name',
+        'subtitle',
         'short_description',
         'full_description',
         'features' => 'array',
         'availability_text',
+        'lead_time',
+        'dimensions',
+        'certifications' => 'array',
+        'care_instructions' => 'array',
+        'material_benefits' => 'array',
+        'seo_title',
+        'seo_description',
     ];
 
     protected $fillable = [
         'category_id',
         'name',
         'name_translations',
+        'subtitle',
+        'subtitle_translations',
         'category',
         'model',
         'finish',
@@ -73,19 +108,42 @@ class Product extends Model
         'availability_text',
         'availability_text_translations',
         'slug',
+        'sku',
         'status',
         'featured',
+        'is_bestseller',
+        'is_new',
         'sort_order',
         'media_path',
         'media_url',
         'image_url',
         'price_from',
         'price_usd',
+        'compare_at_price_usd',
         'currency',
         'in_stock',
+        'stock_quantity',
+        'stock_status',
         'is_active',
         'inquiry_only',
         'sample_request_enabled',
+        'lead_time',
+        'lead_time_translations',
+        'dimensions',
+        'dimensions_translations',
+        'weight_grams',
+        'specifications',
+        'certifications',
+        'certifications_translations',
+        'care_instructions',
+        'care_instructions_translations',
+        'material_benefits',
+        'material_benefits_translations',
+        'use_cases',
+        'seo_title',
+        'seo_title_translations',
+        'seo_description',
+        'seo_description_translations',
         'published_at',
     ];
 
@@ -93,18 +151,36 @@ class Product extends Model
     {
         return [
             'name_translations' => 'array',
+            'subtitle_translations' => 'array',
             'short_description_translations' => 'array',
             'full_description_translations' => 'array',
             'features' => 'array',
             'features_translations' => 'array',
             'availability_text_translations' => 'array',
+            'lead_time_translations' => 'array',
+            'dimensions_translations' => 'array',
+            'specifications' => 'array',
+            'certifications' => 'array',
+            'certifications_translations' => 'array',
+            'care_instructions' => 'array',
+            'care_instructions_translations' => 'array',
+            'material_benefits' => 'array',
+            'material_benefits_translations' => 'array',
+            'use_cases' => 'array',
+            'seo_title_translations' => 'array',
+            'seo_description_translations' => 'array',
             'featured' => 'boolean',
+            'is_bestseller' => 'boolean',
+            'is_new' => 'boolean',
             'price_from' => 'decimal:2',
             'price_usd' => 'decimal:2',
+            'compare_at_price_usd' => 'decimal:2',
             'in_stock' => 'boolean',
+            'stock_quantity' => 'integer',
             'is_active' => 'boolean',
             'inquiry_only' => 'boolean',
             'sample_request_enabled' => 'boolean',
+            'weight_grams' => 'integer',
             'published_at' => 'datetime',
         ];
     }
@@ -125,6 +201,18 @@ class Product extends Model
                 $product->category_id = $category->id;
             }
 
+            if (blank($product->sku) && filled($product->slug)) {
+                $product->sku = self::normalizeSku((string) $product->slug);
+            }
+
+            if (blank($product->subtitle) && filled($product->short_description)) {
+                $product->subtitle = $product->short_description;
+            }
+
+            if (blank($product->lead_time) && filled($product->availability_text)) {
+                $product->lead_time = $product->availability_text;
+            }
+
             if ($product->price_usd !== null) {
                 $product->price_from = $product->price_usd;
                 $product->currency = 'USD';
@@ -139,6 +227,36 @@ class Product extends Model
 
             if (filled($rawMediaUrl) && blank($rawImageUrl)) {
                 $product->image_url = $rawMediaUrl;
+            }
+
+            $product->stock_quantity = $product->stock_quantity !== null
+                ? max(0, (int) $product->stock_quantity)
+                : null;
+            $product->stock_status = self::normalizeStockStatus(
+                $product->stock_status,
+                $product->stock_quantity,
+                (bool) $product->in_stock,
+            );
+
+            if ($product->stock_status === 'sold_out') {
+                $product->in_stock = false;
+                $product->stock_quantity = 0;
+            } elseif (in_array($product->stock_status, ['in_stock', 'low_stock'], true)) {
+                $product->in_stock = true;
+                $product->stock_quantity ??= $product->stock_status === 'low_stock' ? 4 : 24;
+                if ($product->stock_quantity <= 5) {
+                    $product->stock_status = 'low_stock';
+                }
+            } else {
+                $product->in_stock = true;
+            }
+
+            if (blank($product->seo_title) && filled($product->name)) {
+                $product->seo_title = $product->name;
+            }
+
+            if (blank($product->seo_description) && filled($product->short_description)) {
+                $product->seo_description = $product->short_description;
             }
 
             if ($product->is_active) {
@@ -162,6 +280,11 @@ class Product extends Model
         return $query->where('status', ProductStatus::Published->value);
     }
 
+    public function scopePublicVisible(Builder $query): Builder
+    {
+        return $query->published()->active();
+    }
+
     protected function imageUrl(): Attribute
     {
         return Attribute::make(
@@ -179,9 +302,49 @@ class Product extends Model
         return $this->status === ProductStatus::Published->value;
     }
 
+    public function canBePurchased(): bool
+    {
+        return $this->is_active
+            && $this->isPublished()
+            && ! $this->inquiry_only
+            && in_array((string) $this->stock_status, self::PURCHASABLE_STOCK_STATUSES, true);
+    }
+
+    public function primaryImageUrl(): ?string
+    {
+        if ($this->relationLoaded('images')) {
+            $primaryImage = $this->images->first();
+
+            if ($primaryImage?->media_url) {
+                return $primaryImage->media_url;
+            }
+        }
+
+        return $this->image_url;
+    }
+
+    public function stockStatusLabel(): string
+    {
+        return self::labelForOption(self::STOCK_STATUS_OPTIONS, $this->stock_status) ?? 'Unavailable';
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function useCaseLabels(): array
+    {
+        return collect($this->use_cases ?? [])
+            ->filter(fn (mixed $value): bool => is_string($value) && trim($value) !== '')
+            ->map(fn (string $value): string => self::labelForOption(self::USE_CASE_OPTIONS, $value) ?? Str::headline($value))
+            ->values()
+            ->all();
+    }
+
     public function scopeOrdered(Builder $query): Builder
     {
         return $query
+            ->orderByDesc('featured')
+            ->orderByDesc('is_bestseller')
             ->orderBy('sort_order')
             ->orderByDesc('published_at')
             ->orderByDesc('created_at')
@@ -206,5 +369,66 @@ class Product extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function relatedProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            self::class,
+            'product_related_products',
+            'product_id',
+            'related_product_id',
+        )->withTimestamps();
+    }
+
+    public static function normalizeSku(?string $value): ?string
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        $normalized = preg_replace('/[^A-Za-z0-9]+/', '_', trim($value));
+
+        return $normalized ? Str::upper(trim($normalized, '_')) : null;
+    }
+
+    public static function labelForOption(array $options, ?string $value): ?string
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        return $options[$value] ?? Str::headline($value);
+    }
+
+    private static function normalizeStockStatus(?string $stockStatus, ?int $stockQuantity, bool $inStock): string
+    {
+        $normalized = strtolower(trim((string) $stockStatus));
+
+        if (isset(self::STOCK_STATUS_OPTIONS[$normalized])) {
+            if (
+                in_array($normalized, ['in_stock', 'low_stock'], true)
+                && $stockQuantity !== null
+                && $stockQuantity <= 0
+            ) {
+                return 'sold_out';
+            }
+
+            return $normalized;
+        }
+
+        if ($stockQuantity !== null) {
+            if ($stockQuantity <= 0) {
+                return 'sold_out';
+            }
+
+            if ($stockQuantity <= 5) {
+                return 'low_stock';
+            }
+
+            return 'in_stock';
+        }
+
+        return $inStock ? 'in_stock' : 'sold_out';
     }
 }

@@ -4,8 +4,16 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
-import { formatProductPrice } from "@/lib/api/products"
-import { getLocalizedHref, type Locale } from "@/lib/i18n"
+import {
+  formatCurrencyAmount,
+  formatProductPrice,
+} from "@/lib/api/products"
+import { type Locale } from "@/lib/i18n"
+import {
+  getProductDetailHref,
+  getProductInquiryHref,
+  getProductSampleRequestHref,
+} from "@/lib/product-links"
 import type { Product } from "@/lib/types"
 import { useCart } from "@/hooks/useCart"
 
@@ -14,83 +22,166 @@ type ProductCardProps = {
   product: Product
 }
 
-const categoryLabels: Record<string, string> = {
-  tableware: "Tableware",
-  planters: "Planters",
-  wellness_interior: "Wellness & Interior",
-  architectural: "Architectural",
-}
-
-const modelLabels: Record<string, string> = {
-  lite_15: "1.5 Lite",
-  heritage_16: "1.6 Heritage",
-}
-
-const colorLabels: Record<string, string> = {
-  ocean_bone: "Ocean Bone",
-  forged_ash: "Forged Ash",
+function stockTone(product: Product) {
+  switch (product.stock_status) {
+    case "low_stock":
+      return "bg-amber-100 text-amber-700"
+    case "sold_out":
+      return "bg-red-100 text-red-700"
+    case "preorder":
+    case "made_to_order":
+      return "bg-sky-100 text-sky-700"
+    default:
+      return "bg-emerald-100 text-emerald-700"
+  }
 }
 
 export function ProductCard({ locale, product }: ProductCardProps) {
   const { addItem } = useCart()
-  const productHref = getLocalizedHref(locale, `store/${product.slug}`)
+  const productHref = getProductDetailHref(locale, product.slug)
+  const badges = [
+    product.featured ? "Featured" : null,
+    product.is_bestseller ? "Best Seller" : null,
+    product.is_new ? "New" : null,
+  ].filter((badge): badge is string => Boolean(badge))
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-border/60 bg-card transition-transform duration-300 hover:-translate-y-1">
+    <article className="group overflow-hidden rounded-[2rem] border border-border/60 bg-card transition-transform duration-300 hover:-translate-y-1">
       <Link href={productHref} className="block">
-        <div className="relative min-h-[280px] overflow-hidden bg-muted">
+        <div className="relative min-h-[320px] overflow-hidden bg-muted">
           <Image
-            src={product.image_url || "/placeholder.jpg"}
+            src={product.primary_image_url || product.image_url || "/placeholder.jpg"}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
+          <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full bg-background/90 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground">
+                {product.category_label || product.category}
+              </span>
+              {badges.map((badge) => (
+                <span
+                  key={badge}
+                  className="rounded-full bg-primary/90 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-primary-foreground"
+                >
+                  {badge}
+                </span>
+              ))}
+            </div>
+            <span
+              className={`rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.18em] ${stockTone(
+                product,
+              )}`}
+            >
+              {product.stock_status_label || (product.in_stock ? "In stock" : "Sold out")}
+            </span>
+          </div>
         </div>
       </Link>
 
-      <div className="space-y-4 p-6">
-        <div className="flex items-center justify-between gap-4">
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary">
-            {categoryLabels[product.category] || product.category}
-          </span>
-          <span
-            className={`text-sm ${
-              product.in_stock ? "text-emerald-600" : "text-red-600"
-            }`}
-          >
-            {product.in_stock ? "In Stock" : "Out of Stock"}
-          </span>
+      <div className="space-y-5 p-6">
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            {product.model_label ? (
+              <span className="rounded-full border border-border/60 px-3 py-1">
+                {product.model_label}
+              </span>
+            ) : null}
+            {product.finish_label ? (
+              <span className="rounded-full border border-border/60 px-3 py-1">
+                {product.finish_label}
+              </span>
+            ) : null}
+            {product.color_label ? (
+              <span className="rounded-full border border-border/60 px-3 py-1">
+                {product.color_label}
+              </span>
+            ) : null}
+          </div>
+
+          <div>
+            <Link href={productHref} className="transition-colors hover:text-primary">
+              <h3 className="font-serif text-2xl text-foreground">{product.name}</h3>
+            </Link>
+            {product.subtitle ? (
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                {product.subtitle}
+              </p>
+            ) : null}
+          </div>
         </div>
 
-        <div>
-          <Link href={productHref} className="transition-colors hover:text-primary">
-            <h3 className="font-serif text-2xl text-foreground">{product.name}</h3>
-          </Link>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            {(modelLabels[product.model] || product.model)} /{" "}
-            {(colorLabels[product.color] || product.color)}
-          </p>
+        {product.use_case_labels?.length ? (
+          <div className="flex flex-wrap gap-2">
+            {product.use_case_labels.slice(0, 3).map((useCase) => (
+              <span
+                key={useCase}
+                className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
+              >
+                {useCase}
+              </span>
+            ))}
+          </div>
+        ) : null}
+
+        <div className="rounded-3xl bg-background p-4">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3">
+                <p className="text-xl font-medium text-foreground">
+                  {formatProductPrice(product, locale)}
+                </p>
+                {product.compare_at_price_usd ? (
+                  <p className="text-sm text-muted-foreground line-through">
+                    {formatCurrencyAmount(
+                      product.compare_at_price_usd,
+                      locale,
+                      product.currency ?? "USD",
+                    )}
+                  </p>
+                ) : null}
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {product.lead_time || product.availability_text || "Small-batch availability"}
+              </p>
+            </div>
+            {product.stock_quantity !== null && product.stock_status === "low_stock" ? (
+              <p className="text-sm text-amber-700">{product.stock_quantity} left</p>
+            ) : null}
+          </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 border-t border-border/60 pt-4">
-          <p className="text-sm font-medium text-foreground">
-            {formatProductPrice(product, locale)} USD
-          </p>
-          <div className="flex gap-3">
-            <Button asChild variant="outline">
-              <Link href={productHref}>View Details</Link>
-            </Button>
+        <div className="flex flex-wrap gap-3 border-t border-border/60 pt-1">
+          <Button asChild variant="outline" className="flex-1">
+            <Link href={productHref}>View Details</Link>
+          </Button>
+          {product.can_add_to_cart ? (
             <Button
               type="button"
-              disabled={!product.in_stock}
+              className="flex-1"
               onClick={() => {
                 void addItem(product.id, 1)
               }}
             >
               Add to Cart
             </Button>
-          </div>
+          ) : (
+            <Button asChild className="flex-1">
+              <Link href={getProductInquiryHref(locale, product)}>
+                {product.inquiry_only ? "Bulk Enquiry" : "Request Update"}
+              </Link>
+            </Button>
+          )}
         </div>
+
+        {!product.can_add_to_cart && product.sample_request_enabled ? (
+          <Button asChild variant="ghost" className="w-full justify-start px-0 text-primary">
+            <Link href={getProductSampleRequestHref(locale, product)}>
+              Request a sample or spec pack
+            </Link>
+          </Button>
+        ) : null}
       </div>
     </article>
   )

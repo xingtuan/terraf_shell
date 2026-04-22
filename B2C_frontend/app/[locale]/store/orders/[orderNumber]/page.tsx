@@ -7,6 +7,7 @@ import { CheckCircle2, Copy } from "lucide-react"
 
 import { AuthGate } from "@/components/auth/AuthGate"
 import { Button } from "@/components/ui/button"
+import { formatCurrencyAmount } from "@/lib/api/products"
 import { getOrder } from "@/lib/api/orders"
 import { getErrorMessage } from "@/lib/api/client"
 import { getLocalizedHref, isValidLocale, type Locale } from "@/lib/i18n"
@@ -89,7 +90,7 @@ function OrderConfirmationScreen({
               Order Confirmed
             </p>
             <h1 className="mt-3 font-serif text-4xl text-foreground">
-              Order Placed!
+              Order Placed
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -122,7 +123,7 @@ function OrderConfirmationScreen({
                 >
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted">
                     <Image
-                      src={item.product?.image_url || "/placeholder.jpg"}
+                      src={item.product?.primary_image_url || item.product?.image_url || "/placeholder.jpg"}
                       alt={item.product_name}
                       fill
                       className="object-cover"
@@ -131,7 +132,12 @@ function OrderConfirmationScreen({
                   <div className="flex-1">
                     <p className="font-medium text-foreground">{item.product_name}</p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Qty {item.quantity} · ${item.unit_price_usd} USD
+                      Qty {item.quantity} ·{" "}
+                      {formatCurrencyAmount(
+                        item.unit_price_usd,
+                        locale,
+                        item.product?.currency ?? "USD",
+                      )}
                     </p>
                   </div>
                 </div>
@@ -169,7 +175,7 @@ function OrderConfirmationScreen({
             <div className="rounded-3xl border border-border/60 p-5">
               <h2 className="font-serif text-2xl text-foreground">Total</h2>
               <p className="mt-4 text-2xl font-medium text-foreground">
-                ${Number(order.total_usd).toFixed(2)} USD
+                {formatCurrencyAmount(order.total_usd, locale)}
               </p>
             </div>
 

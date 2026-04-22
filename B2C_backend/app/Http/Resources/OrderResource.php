@@ -20,8 +20,10 @@ class OrderResource extends JsonResource
             'order_number' => $this->order_number,
             'status' => $this->status?->value ?? (string) $this->status,
             'payment_status' => $this->payment_status?->value ?? (string) $this->payment_status,
+            'item_count' => (int) $this->items->sum('quantity'),
             'subtotal_usd' => number_format((float) $this->subtotal_usd, 2, '.', ''),
             'shipping_usd' => number_format((float) $this->shipping_usd, 2, '.', ''),
+            'tax_usd' => '0.00',
             'total_usd' => number_format((float) $this->total_usd, 2, '.', ''),
             'currency' => $this->currency,
             'shipping_address' => [

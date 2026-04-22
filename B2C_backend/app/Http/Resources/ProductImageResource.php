@@ -22,10 +22,8 @@ class ProductImageResource extends JsonResource
             'product_id' => $this->product_id,
             'alt_text' => $this->localizedString($request, 'alt_text'),
             'caption' => $this->localizedString($request, 'caption'),
-            'alt_text_translations' => $this->localizedStringSet('alt_text'),
-            'caption_translations' => $this->localizedStringSet('caption'),
             'media_url' => $this->media_url,
-            'sort_order' => $this->sort_order,
+            'sort_order' => (int) $this->sort_order,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

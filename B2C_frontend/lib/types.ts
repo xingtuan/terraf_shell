@@ -6,20 +6,100 @@ export type JsonObject = {
   [key: string]: JsonValue
 }
 
+export type ProductStockStatus =
+  | "in_stock"
+  | "low_stock"
+  | "preorder"
+  | "made_to_order"
+  | "sold_out"
+
+export type ProductSortOption =
+  | "featured"
+  | "newest"
+  | "best_selling"
+  | "price_low_to_high"
+  | "price_high_to_low"
+
+export interface ProductSpecification {
+  key: string
+  label: string
+  value: string
+  unit?: string | null
+  group?: string | null
+}
+
+export interface ProductSeo {
+  title?: string | null
+  description?: string | null
+}
+
+export interface ProductImage {
+  id: number
+  product_id?: number
+  alt_text?: string | null
+  caption?: string | null
+  media_url?: string | null
+  sort_order: number
+  created_at?: string | null
+  updated_at?: string | null
+}
+
 export interface Product {
   id: number
+  title?: string
   name: string
   slug: string
+  sku?: string | null
+  subtitle?: string | null
+  short_description?: string | null
+  long_description?: string | null
+  full_description?: string | null
   category: string
+  category_label?: string | null
+  category_detail?: ProductCategory | null
   model: string
+  model_label?: string | null
   finish: string
+  finish_label?: string | null
   color: string
+  color_label?: string | null
   technique: string
+  technique_label?: string | null
+  currency?: string
   price_usd: string
+  price?: string
+  compare_at_price_usd?: string | null
+  compare_at_price?: string | null
+  on_sale?: boolean
+  featured?: boolean
+  is_bestseller?: boolean
+  is_new?: boolean
   in_stock: boolean
+  can_add_to_cart?: boolean
+  inquiry_only?: boolean
+  sample_request_enabled?: boolean
+  stock_quantity?: number | null
+  stock_status?: ProductStockStatus | null
+  stock_status_label?: string | null
+  lead_time?: string | null
+  availability_text?: string | null
+  primary_image_url?: string | null
   image_url?: string | null
+  gallery_images?: ProductImage[]
+  features?: string[]
+  use_cases?: string[]
+  use_case_labels?: string[]
+  dimensions?: string | null
+  weight_grams?: number | null
+  specifications?: ProductSpecification[]
+  certifications?: string[]
+  care_instructions?: string[]
+  material_benefits?: string[]
+  seo?: ProductSeo | null
+  related_products?: Product[]
   sort_order?: number
   is_active?: boolean
+  published_at?: string | null
   created_at?: string | null
   updated_at?: string | null
 }
@@ -36,6 +116,10 @@ export interface CartSummary {
   id: number
   item_count: number
   subtotal_usd: string
+  estimated_shipping_usd?: string
+  estimated_tax_usd?: string
+  estimated_total_usd?: string
+  free_shipping_threshold_usd?: string
   items: CartSummaryItem[]
 }
 
@@ -91,8 +175,10 @@ export interface StoreOrder {
   order_number: string
   status: StoreOrderStatus
   payment_status: StoreOrderPaymentStatus
+  item_count?: number
   subtotal_usd: string
   shipping_usd: string
+  tax_usd?: string
   total_usd: string
   currency?: string
   shipping_address: ShippingAddressSnapshot
@@ -117,15 +203,35 @@ export interface ProductCategory {
   updated_at?: string | null
 }
 
-export interface ProductImage {
-  id: number
-  product_id?: number
-  alt_text?: string | null
-  caption?: string | null
-  media_url?: string | null
-  sort_order: number
-  created_at?: string | null
-  updated_at?: string | null
+export interface ProductFacetOption {
+  value: string
+  label: string
+  count: number
+}
+
+export interface ProductSortChoice {
+  value: ProductSortOption
+  label: string
+}
+
+export interface ProductCatalogFacets {
+  categories: ProductCategory[]
+  models: ProductFacetOption[]
+  finishes: ProductFacetOption[]
+  colors: ProductFacetOption[]
+  stock_statuses: ProductFacetOption[]
+  use_cases: ProductFacetOption[]
+  price_range: {
+    min: string
+    max: string
+  }
+}
+
+export interface ProductCatalogMeta extends ApiPaginationMeta {
+  sort: ProductSortOption
+  sort_options: ProductSortChoice[]
+  facets: ProductCatalogFacets
+  applied_filters?: Record<string, string>
 }
 
 export interface ApiPaginationMeta {
@@ -143,6 +249,8 @@ export interface PaginatedResult<T, TMeta = ApiPaginationMeta> {
   items: T[]
   meta: TMeta
 }
+
+export type ProductCatalogResult = PaginatedResult<Product, ProductCatalogMeta>
 
 export type MaterialSpecIcon = "feather" | "shield" | "leaf" | "badge"
 

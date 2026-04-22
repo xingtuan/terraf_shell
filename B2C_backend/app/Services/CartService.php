@@ -58,13 +58,9 @@ class CartService
 
     public function addItem(Cart $cart, int $productId, int $quantity = 1): CartItem
     {
-        $product = Product::query()
-            ->whereKey($productId)
-            ->where('is_active', true)
-            ->where('in_stock', true)
-            ->first();
+        $product = Product::query()->whereKey($productId)->first();
 
-        if ($product === null) {
+        if ($product === null || ! $product->canBePurchased()) {
             throw ValidationException::withMessages([
                 'product_id' => ['This product is not available for purchase.'],
             ]);
@@ -82,6 +78,7 @@ class CartService
             $item->unit_price_usd = $product->price_usd;
         }
 
+        $this->guardStockAvailability($product, $item->quantity);
         $item->save();
 
         return $item->fresh(['product']);
@@ -103,6 +100,15 @@ class CartService
             return null;
         }
 
+        $product = Product::query()->whereKey($productId)->first();
+
+        if ($product === null || ! $product->canBePurchased()) {
+            throw ValidationException::withMessages([
+                'product_id' => ['This product is not available for purchase.'],
+            ]);
+        }
+
+        $this->guardStockAvailability($product, $quantity);
         $item->quantity = $quantity;
         $item->save();
 
@@ -169,5 +175,18 @@ class CartService
             'subtotal' => $cart->total(),
             'item_count' => $cart->itemCount(),
         ];
+    }
+
+    private function guardStockAvailability(Product $product, int $desiredQuantity): void
+    {
+        if (
+            $product->stock_quantity !== null
+            && in_array($product->stock_status, ['in_stock', 'low_stock'], true)
+            && $desiredQuantity > $product->stock_quantity
+        ) {
+            throw ValidationException::withMessages([
+                'quantity' => ['Requested quantity exceeds current stock availability.'],
+            ]);
+        }
     }
 }

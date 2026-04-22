@@ -21,14 +21,7 @@ class OrderItemResource extends JsonResource
             'quantity' => $this->quantity,
             'unit_price_usd' => number_format((float) $this->unit_price_usd, 2, '.', ''),
             'subtotal_usd' => number_format((float) $this->subtotal_usd, 2, '.', ''),
-            'product' => $this->product ? [
-                'id' => $this->product->id,
-                'name' => $this->product->name,
-                'slug' => $this->product->slug,
-                'image_url' => $this->product->image_url,
-                'in_stock' => (bool) $this->product->in_stock,
-                'price_usd' => number_format((float) $this->product->price_usd, 2, '.', ''),
-            ] : null,
+            'product' => $this->product ? (new ProductResource($this->product))->resolve($request) : null,
         ];
     }
 }

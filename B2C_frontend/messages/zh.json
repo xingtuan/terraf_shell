@@ -258,7 +258,51 @@
       "title": "适用于用餐、礼赠与安静居家仪式的 Shellfin 物件。",
       "description": "当前目录使用模拟数据与服务抽象构建，后续接入后端时无需重做界面。",
       "pricePrefix": "起价",
-      "availabilityLabel": "供应状态"
+      "availabilityLabel": "供应状态",
+      "categoryQuickFilterLabel": "按品类浏览",
+      "filtersTitle": "筛选目录",
+      "searchPlaceholder": "按产品、SKU 或用途搜索",
+      "sortLabel": "排序",
+      "modelLabel": "型号",
+      "finishLabel": "表面处理",
+      "colorLabel": "颜色",
+      "stockLabel": "库存状态",
+      "useCaseLabel": "使用场景",
+      "priceLabel": "价格区间",
+      "minPrice": "最低",
+      "maxPrice": "最高",
+      "applyFilters": "应用筛选",
+      "clearAll": "清除全部",
+      "resultLabel": "{count} products",
+      "showingLabel": "Page {page} of {lastPage}",
+      "emptyTitle": "没有符合这些筛选条件的产品。",
+      "emptyDescription": "调整价格范围、切换品类，或清除筛选条件以重新查看完整的 Shellfin 目录。",
+      "emptyAction": "重置目录",
+      "errorTitle": "商店数据暂时不可用。",
+      "errorDescription": "无法从 API 加载产品目录。站点其余部分仍可使用，商务询盘也仍可提交。",
+      "retryAction": "刷新目录"
+    },
+    "faq": {
+      "eyebrow": "Store FAQ",
+      "title": "Common questions before ordering",
+      "items": [
+        {
+          "question": "How durable is Shellfin tableware?",
+          "answer": "Shellfin products are designed around a premium shell composite story with low absorption, repeatable finish quality, and hospitality-minded durability. Exact performance still depends on the specific form factor and production batch."
+        },
+        {
+          "question": "Can I order for hospitality or design projects?",
+          "answer": "Yes. The store supports direct B2C discovery, but products that fit hospitality, retail, or design-project use can route into bulk enquiry and sample workflows through the existing B2B lead flow."
+        },
+        {
+          "question": "What happens if a product is sold out or made to order?",
+          "answer": "Availability states are surfaced per product. If a batch is sold out, the product page will steer you toward restock updates, sample requests, or a direct project enquiry instead of a dead-end purchase path."
+        },
+        {
+          "question": "Are shipping and tax fully calculated yet?",
+          "answer": "Shipping is structured in the cart and checkout flow with the current free-shipping threshold. Tax remains a placeholder until a fuller calculation service is introduced."
+        }
+      ]
     }
   },
   "b2bPage": {

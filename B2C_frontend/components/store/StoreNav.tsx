@@ -27,6 +27,12 @@ export function StoreNav({ locale }: StoreNavProps) {
               Collection
             </Link>
             <Link
+              href={getLocalizedHref(locale, "store/cart")}
+              className="transition-colors hover:text-foreground"
+            >
+              Cart
+            </Link>
+            <Link
               href={getLocalizedHref(locale, "store/orders")}
               className="transition-colors hover:text-foreground"
             >

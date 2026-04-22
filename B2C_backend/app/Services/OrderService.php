@@ -5,16 +5,13 @@ namespace App\Services;
 use App\Enums\OrderStatus;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Support\StorePricing;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
-    private const FREE_SHIPPING_THRESHOLD = 200.0;
-
-    private const SHIPPING_RATE = 15.0;
-
     public function createFromCart(Cart $cart, array $shippingData, string $note = ''): Order
     {
         $cart->loadMissing(['user', 'items.product']);
@@ -34,9 +31,19 @@ class OrderService
         $items = $cart->items->map(function ($item) {
             $product = $item->product;
 
-            if ($product === null || ! $product->is_active || ! $product->in_stock) {
+            if ($product === null || ! $product->canBePurchased()) {
                 throw ValidationException::withMessages([
                     'cart' => ['One or more items in your cart are no longer available.'],
+                ]);
+            }
+
+            if (
+                $product->stock_quantity !== null
+                && in_array($product->stock_status, ['in_stock', 'low_stock'], true)
+                && $item->quantity > $product->stock_quantity
+            ) {
+                throw ValidationException::withMessages([
+                    'cart' => ['One or more items exceed available stock.'],
                 ]);
             }
 
@@ -45,7 +52,7 @@ class OrderService
             return [
                 'product_id' => $product->id,
                 'product_name' => $product->name,
-                'product_sku' => $product->slug,
+                'product_sku' => $product->sku ?? $product->slug,
                 'quantity' => $item->quantity,
                 'unit_price_usd' => $unitPrice,
                 'subtotal_usd' => $unitPrice * $item->quantity,
@@ -53,8 +60,8 @@ class OrderService
         });
 
         $subtotal = (float) $items->sum('subtotal_usd');
-        $shipping = $subtotal >= self::FREE_SHIPPING_THRESHOLD ? 0.0 : self::SHIPPING_RATE;
-        $total = $subtotal + $shipping;
+        $shipping = StorePricing::shippingForSubtotal($subtotal);
+        $total = StorePricing::totalForSubtotal($subtotal);
 
         $order = DB::transaction(function () use ($cart, $shippingData, $note, $items, $subtotal, $shipping, $total): Order {
             $order = Order::query()->create([

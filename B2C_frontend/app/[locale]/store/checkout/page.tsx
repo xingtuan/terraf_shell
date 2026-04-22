@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { listAddresses } from "@/lib/api/addresses"
+import { formatCurrencyAmount } from "@/lib/api/products"
 import { createOrder } from "@/lib/api/orders"
 import { ApiError, getErrorMessage } from "@/lib/api/client"
 import { getLocalizedHref, isValidLocale, type Locale } from "@/lib/i18n"
@@ -76,9 +77,9 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   }, [session.token])
 
   const subtotal = Number(cart?.subtotal_usd ?? 0)
-  const shipping = subtotal >= 200 ? 0 : 15
-  const total = subtotal + shipping
-
+  const shipping = Number(cart?.estimated_shipping_usd ?? 0)
+  const tax = Number(cart?.estimated_tax_usd ?? 0)
+  const total = Number(cart?.estimated_total_usd ?? subtotal + shipping + tax)
   const topAddresses = useMemo(() => addresses.slice(0, 3), [addresses])
 
   function applyAddress(address: Address) {
@@ -165,10 +166,23 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   return (
     <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
       <div className="mb-10">
-        <p className="text-sm uppercase tracking-[0.2em] text-primary">Checkout</p>
+        <Link
+          href={getLocalizedHref(locale, "store/cart")}
+          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Back to cart
+        </Link>
+        <p className="mt-4 text-sm uppercase tracking-[0.2em] text-primary">
+          Checkout
+        </p>
         <h1 className="mt-3 font-serif text-4xl text-foreground">
           Shipping and Order Review
         </h1>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          Orders run through the shared Shellfin account flow. Shipping is
+          structured now, while tax remains a placeholder until the full commerce
+          calculator is introduced.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-8 xl:grid-cols-[1.15fr_0.85fr]">
@@ -176,7 +190,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           {topAddresses.length > 0 ? (
             <div>
               <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                Saved Addresses
+                Saved addresses
               </p>
               <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
                 {topAddresses.map((address) => (
@@ -333,7 +347,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
 
         <aside className="rounded-[2rem] border border-border/60 bg-card p-8">
           <p className="text-sm uppercase tracking-[0.18em] text-primary">
-            Order Summary
+            Order summary
           </p>
 
           <div className="mt-6 space-y-4">
@@ -341,7 +355,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
               <div key={item.product_id} className="flex gap-4">
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted">
                   <Image
-                    src={item.product?.image_url || "/placeholder.jpg"}
+                    src={item.product?.primary_image_url || item.product?.image_url || "/placeholder.jpg"}
                     alt={item.product?.name || "Product"}
                     fill
                     className="object-cover"
@@ -352,7 +366,12 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                     {item.product?.name || "Shellfin product"}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Qty {item.quantity} · ${item.unit_price_usd} USD
+                    Qty {item.quantity} ·{" "}
+                    {formatCurrencyAmount(
+                      item.unit_price_usd,
+                      locale,
+                      item.product?.currency ?? "USD",
+                    )}
                   </p>
                 </div>
               </div>
@@ -362,23 +381,33 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           <div className="mt-8 space-y-3 border-t border-border/60 pt-6 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="text-foreground">${subtotal.toFixed(2)}</span>
+              <span className="text-foreground">
+                {formatCurrencyAmount(subtotal, locale)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Shipping</span>
               <span className="text-foreground">
-                {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                {shipping === 0 ? "Free" : formatCurrencyAmount(shipping, locale)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Tax</span>
+              <span className="text-foreground">
+                {formatCurrencyAmount(tax, locale)}
               </span>
             </div>
             <div className="flex items-center justify-between pt-2 text-base font-medium">
               <span className="text-foreground">Total</span>
-              <span className="text-foreground">${total.toFixed(2)}</span>
+              <span className="text-foreground">
+                {formatCurrencyAmount(total, locale)}
+              </span>
             </div>
           </div>
 
           <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-            Note: Orders are manually confirmed. You will receive a confirmation
-            email once your order is reviewed.
+            Orders are manually confirmed. You will receive a confirmation email
+            once your order is reviewed.
           </p>
 
           <Button
@@ -389,7 +418,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
               void handleSubmit()
             }}
           >
-            {isSubmitting ? "Placing Order..." : "Place Order →"}
+            {isSubmitting ? "Placing Order..." : "Place Order"}
           </Button>
         </aside>
       </div>

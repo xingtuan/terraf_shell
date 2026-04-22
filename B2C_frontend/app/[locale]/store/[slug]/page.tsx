@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation"
 
 import { ApiError } from "@/lib/api/client"
-import { getProduct, getProducts } from "@/lib/api/products"
+import { getProduct } from "@/lib/api/products"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages, isValidLocale } from "@/lib/i18n"
 import { PageIntro } from "@/components/page-intro"
 import { FinalCtaSection } from "@/components/sections/final-cta"
+import { StoreFaq } from "@/components/store/store-faq"
 import { ProductDetailContent } from "@/components/store/product-detail-content"
 import type { Product } from "@/lib/types"
 
@@ -34,24 +35,13 @@ export default async function ProductDetailPage({
   const messages = getMessages(locale)
 
   let product: Product | null = null
-  let relatedProducts: Product[] = []
   let hasError = false
 
   try {
-    const response = await getProduct(resolvedParams.slug, {
+    product = await getProduct(resolvedParams.slug, {
       baseUrl: apiBaseUrl,
+      locale,
     })
-    product = response.data
-
-    const relatedResponse = await getProducts({
-      category: response.data.category,
-      per_page: 4,
-      baseUrl: apiBaseUrl,
-    })
-
-    relatedProducts = relatedResponse.data
-      .filter((candidate) => candidate.slug !== response.data.slug)
-      .slice(0, 3)
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) {
       notFound()
@@ -86,9 +76,7 @@ export default async function ProductDetailPage({
       <PageIntro
         eyebrow={categoryLabels[product.category] || "Product"}
         title={product.name}
-        description={
-          "Review the Shellfin product specification, add it to your cart, and continue into the shared account checkout flow."
-        }
+        description={product.subtitle || product.short_description || "Review the Shellfin product specification, availability, and enquiry options."}
         primaryAction={{
           label: "Back to store",
           href: getLocalizedHref(locale, "store"),
@@ -98,11 +86,10 @@ export default async function ProductDetailPage({
           href: getLocalizedHref(locale, "contact"),
         }}
       />
-      <ProductDetailContent
-        locale={locale}
-        product={product}
-        relatedProducts={relatedProducts}
-      />
+      <ProductDetailContent locale={locale} product={product} />
+      <div className="mx-auto max-w-7xl px-6 pb-10 lg:px-8">
+        <StoreFaq content={messages.storePage.faq} />
+      </div>
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />
     </>
   )
