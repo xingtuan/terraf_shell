@@ -1,5 +1,5 @@
 import { getLocalizedHref, type Locale } from "@/lib/i18n"
-import type { ProductSortOption } from "@/lib/types"
+import type { ProductSortOption, ProductStockStatus } from "@/lib/types"
 
 export type StoreCatalogFilters = {
   search: string
@@ -8,7 +8,7 @@ export type StoreCatalogFilters = {
   model: string
   finish: string
   color: string
-  stock_status: string
+  stock_status: ProductStockStatus | ""
   use_case: string
   price_min: string
   price_max: string
@@ -21,6 +21,14 @@ const PRODUCT_SORT_OPTIONS: ProductSortOption[] = [
   "best_selling",
   "price_low_to_high",
   "price_high_to_low",
+]
+
+const PRODUCT_STOCK_STATUS_OPTIONS: ProductStockStatus[] = [
+  "in_stock",
+  "low_stock",
+  "preorder",
+  "made_to_order",
+  "sold_out",
 ]
 
 function firstValue(value?: string | string[]) {
@@ -36,6 +44,7 @@ export function parseStoreCatalogFilters(
 ): StoreCatalogFilters {
   const search = firstValue(searchParams.search).trim()
   const sortValue = firstValue(searchParams.sort).trim()
+  const stockStatusValue = firstValue(searchParams.stock_status).trim()
   const pageValue = Number(firstValue(searchParams.page))
 
   return {
@@ -47,7 +56,11 @@ export function parseStoreCatalogFilters(
     model: firstValue(searchParams.model).trim(),
     finish: firstValue(searchParams.finish).trim(),
     color: firstValue(searchParams.color).trim(),
-    stock_status: firstValue(searchParams.stock_status).trim(),
+    stock_status: PRODUCT_STOCK_STATUS_OPTIONS.includes(
+      stockStatusValue as ProductStockStatus,
+    )
+      ? (stockStatusValue as ProductStockStatus)
+      : "",
     use_case: firstValue(searchParams.use_case).trim(),
     price_min: firstValue(searchParams.price_min).trim(),
     price_max: firstValue(searchParams.price_max).trim(),

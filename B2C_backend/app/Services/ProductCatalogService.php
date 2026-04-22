@@ -13,10 +13,10 @@ class ProductCatalogService
     {
         return ProductCategory::query()
             ->active()
+            ->whereHas('products', fn ($query) => $query->publicVisible())
             ->withCount([
-                'products' => fn ($query) => $query->published(),
+                'products' => fn ($query) => $query->publicVisible(),
             ])
-            ->having('products_count', '>', 0)
             ->ordered()
             ->get();
     }

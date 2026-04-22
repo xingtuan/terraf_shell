@@ -277,7 +277,7 @@ class Product extends Model
 
     public function scopePublished(Builder $query): Builder
     {
-        return $query->where('status', ProductStatus::Published->value);
+        return $query->where($query->qualifyColumn('status'), ProductStatus::Published->value);
     }
 
     public function scopePublicVisible(Builder $query): Builder
@@ -294,7 +294,7 @@ class Product extends Model
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->where('is_active', true);
+        return $query->where($query->qualifyColumn('is_active'), true);
     }
 
     public function isPublished(): bool
@@ -343,12 +343,12 @@ class Product extends Model
     public function scopeOrdered(Builder $query): Builder
     {
         return $query
-            ->orderByDesc('featured')
-            ->orderByDesc('is_bestseller')
-            ->orderBy('sort_order')
-            ->orderByDesc('published_at')
-            ->orderByDesc('created_at')
-            ->orderBy('id');
+            ->orderByDesc($query->qualifyColumn('featured'))
+            ->orderByDesc($query->qualifyColumn('is_bestseller'))
+            ->orderBy($query->qualifyColumn('sort_order'))
+            ->orderByDesc($query->qualifyColumn('published_at'))
+            ->orderByDesc($query->qualifyColumn('created_at'))
+            ->orderBy($query->qualifyColumn('id'));
     }
 
     public function category(): BelongsTo

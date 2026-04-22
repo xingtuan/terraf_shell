@@ -29,7 +29,7 @@ class CartResource extends JsonResource
             'estimated_tax_usd' => number_format($estimatedTax, 2, '.', ''),
             'estimated_total_usd' => number_format($subtotal + $estimatedShipping + $estimatedTax, 2, '.', ''),
             'free_shipping_threshold_usd' => number_format(StorePricing::FREE_SHIPPING_THRESHOLD, 2, '.', ''),
-            'items' => $this->items->map(function (CartItem $item): array {
+            'items' => $this->items->map(function (CartItem $item) use ($request): array {
                 $product = $item->product;
                 $lineTotal = (float) $item->unit_price_usd * $item->quantity;
 

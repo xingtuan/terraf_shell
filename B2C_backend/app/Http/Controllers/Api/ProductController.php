@@ -273,10 +273,10 @@ class ProductController extends Controller
     {
         $categories = ProductCategory::query()
             ->active()
+            ->whereHas('products', fn (Builder $query) => $query->publicVisible())
             ->withCount([
                 'products' => fn (Builder $query) => $query->publicVisible(),
             ])
-            ->having('products_count', '>', 0)
             ->ordered()
             ->get();
 
