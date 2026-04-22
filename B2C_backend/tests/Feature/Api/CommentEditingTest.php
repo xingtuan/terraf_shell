@@ -90,4 +90,45 @@ class CommentEditingTest extends TestCase
             'content' => 'Unauthorized update',
         ])->assertForbidden();
     }
+
+    public function test_user_can_reply_to_a_reply_and_receive_nested_comment_tree(): void
+    {
+        $author = User::factory()->create();
+        $replier = User::factory()->create();
+        $nestedReplier = User::factory()->create();
+        $post = Post::factory()->create([
+            'status' => 'approved',
+        ]);
+
+        $rootComment = Comment::factory()->create([
+            'post_id' => $post->id,
+            'user_id' => $author->id,
+            'status' => 'approved',
+            'content' => 'Root comment',
+        ]);
+
+        $firstReply = Comment::factory()->create([
+            'post_id' => $post->id,
+            'user_id' => $replier->id,
+            'parent_id' => $rootComment->id,
+            'status' => 'approved',
+            'content' => 'First reply',
+        ]);
+
+        Sanctum::actingAs($nestedReplier);
+
+        $this->postJson("/api/posts/{$post->id}/comments", [
+            'body' => 'Nested reply',
+            'parent_id' => $firstReply->id,
+        ])->assertCreated()
+            ->assertJsonPath('data.parent_id', $firstReply->id)
+            ->assertJsonPath('data.content', 'Nested reply');
+
+        $this->getJson("/api/posts/{$post->id}/comments")
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $rootComment->id)
+            ->assertJsonPath('data.0.replies.0.id', $firstReply->id)
+            ->assertJsonPath('data.0.replies.0.replies.0.parent_id', $firstReply->id)
+            ->assertJsonPath('data.0.replies.0.replies.0.content', 'Nested reply');
+    }
 }

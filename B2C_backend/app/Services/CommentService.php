@@ -10,7 +10,6 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class CommentService
 {
@@ -193,11 +192,7 @@ class CommentService
             ->filter(fn (Comment $comment): bool => $comment->parent_id === null || ! $availableIds->has($comment->parent_id))
             ->values();
 
-        $roots->each(function (Comment $comment) use ($grouped): void {
-            $replies = $grouped->get($comment->id, collect())->values();
-            $replies->each(fn (Comment $reply) => $reply->setRelation('replies', collect()));
-            $comment->setRelation('replies', $replies);
-        });
+        $roots->each(fn (Comment $comment) => $this->attachReplies($comment, $grouped));
 
         return $roots;
     }
@@ -216,13 +211,16 @@ class CommentService
             throw $this->notFound(Comment::class, $parentId);
         }
 
-        if ($parent->parent_id !== null) {
-            throw ValidationException::withMessages([
-                'parent_id' => 'Replies can only be nested one level deep.',
-            ]);
-        }
-
         return $parent;
+    }
+
+    private function attachReplies(Comment $comment, Collection $grouped): void
+    {
+        $replies = $grouped->get($comment->id, collect())->values();
+
+        $replies->each(fn (Comment $reply) => $this->attachReplies($reply, $grouped));
+
+        $comment->setRelation('replies', $replies);
     }
 
     private function resolveContent(array $data): string
