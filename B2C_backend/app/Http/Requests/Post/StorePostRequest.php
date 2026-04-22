@@ -47,7 +47,7 @@ class StorePostRequest extends FormRequest
             'image_alts' => ['nullable', 'array'],
             'image_alts.*' => ['nullable', 'string', 'max:150'],
             'attachments' => ['nullable', 'array', 'max:'.$maxFiles],
-            'attachments.*' => ['file', 'mimes:'.$this->allowedAttachmentExtensionsRule(), 'max:'.$maxFileSize],
+            'attachments.*' => ['file', 'extensions:'.$this->allowedAttachmentExtensionsRule(), 'max:'.$maxFileSize],
             'attachment_titles' => ['nullable', 'array'],
             'attachment_titles.*' => ['nullable', 'string', 'max:150'],
             'attachment_alts' => ['nullable', 'array'],
