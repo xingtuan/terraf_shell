@@ -17,6 +17,8 @@ class RecentOrders extends TableWidget
 {
     protected static ?string $heading = 'Fulfilment Backlog';
 
+    protected static ?int $sort = 7;
+
     protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table

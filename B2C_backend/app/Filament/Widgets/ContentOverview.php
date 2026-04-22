@@ -15,6 +15,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class ContentOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 3;
+
+    protected int|string|array $columnSpan = 'full';
+
     protected ?string $heading = 'Content Overview';
 
     protected ?string $description = 'Website publishing status across homepage, materials, and articles.';

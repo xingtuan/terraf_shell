@@ -17,6 +17,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class StoreOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 1;
+
+    protected int|string|array $columnSpan = 'full';
+
     protected ?string $heading = 'Store Overview';
 
     protected ?string $description = 'Catalogue health and fulfilment workload for the storefront.';

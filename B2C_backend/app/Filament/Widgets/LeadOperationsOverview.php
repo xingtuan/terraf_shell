@@ -14,6 +14,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class LeadOperationsOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 2;
+
+    protected int|string|array $columnSpan = 'full';
+
     protected ?string $heading = 'Lead Operations';
 
     protected ?string $description = 'Inbound enquiry, partnership, and sample-request workload.';

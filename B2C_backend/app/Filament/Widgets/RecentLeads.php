@@ -18,6 +18,8 @@ class RecentLeads extends TableWidget
 {
     protected static ?string $heading = 'Lead Backlog';
 
+    protected static ?int $sort = 8;
+
     protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table

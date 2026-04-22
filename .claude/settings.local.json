@@ -4,7 +4,9 @@
       "Bash(xargs wc *)",
       "Bash(sed -n '162,170p' /c/Users/xingz/Desktop/terraf/B2C_frontend/app/\\\\[locale\\\\]/page.tsx)",
       "Bash(sed -n '71p' /c/Users/xingz/Desktop/terraf/B2C_frontend/app/\\\\[locale\\\\]/material/page.tsx)",
-      "Bash(grep -n '`' /c/Users/xingz/Desktop/terraf/B2C_frontend/app/\\\\[locale\\\\]/material/page.tsx)"
+      "Bash(grep -n '`' /c/Users/xingz/Desktop/terraf/B2C_frontend/app/\\\\[locale\\\\]/material/page.tsx)",
+      "Bash(xargs grep *)",
+      "Bash(xargs ls *)"
     ]
   }
 }

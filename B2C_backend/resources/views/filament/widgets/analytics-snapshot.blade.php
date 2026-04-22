@@ -1,103 +1,196 @@
 <x-filament-widgets::widget>
     @php
-        $summary = $overview['summary'] ?? [];
+        $summary    = $overview['summary'] ?? [];
         $categories = $overview['categories']['highest_engagement'] ?? [];
-        $schools = $overview['activity']['schools_or_companies'] ?? [];
-        $concepts = $overview['funding']['most_likely_concepts'] ?? [];
+        $schools    = $overview['activity']['schools_or_companies'] ?? [];
+        $concepts   = $overview['funding']['most_likely_concepts'] ?? [];
+
+        $maxCatEngagement    = collect($categories)->max('total_engagement') ?: 1;
+        $maxSchoolEngagement = collect($schools)->max('total_engagement') ?: 1;
+        $maxReadiness        = collect($concepts)->max('funding_readiness_score') ?: 1;
+
+        $metricCards = [
+            [
+                'label' => 'Total Engagement',
+                'value' => number_format((int) ($summary['total_engagement'] ?? 0)),
+                'icon'  => 'heroicon-o-bolt',
+                'color' => 'text-amber-500',
+                'bg'    => 'bg-amber-50 dark:bg-amber-950/30',
+            ],
+            [
+                'label' => 'Total Views',
+                'value' => number_format((int) ($summary['total_views'] ?? 0)),
+                'icon'  => 'heroicon-o-eye',
+                'color' => 'text-blue-500',
+                'bg'    => 'bg-blue-50 dark:bg-blue-950/30',
+            ],
+            [
+                'label' => 'B2B Leads',
+                'value' => number_format((int) ($summary['total_b2b_leads'] ?? 0)),
+                'icon'  => 'heroicon-o-briefcase',
+                'color' => 'text-violet-500',
+                'bg'    => 'bg-violet-50 dark:bg-violet-950/30',
+            ],
+            [
+                'label' => 'Funding-Linked',
+                'value' => number_format((int) ($summary['concepts_with_funding_campaigns'] ?? 0)),
+                'icon'  => 'heroicon-o-banknotes',
+                'color' => 'text-emerald-500',
+                'bg'    => 'bg-emerald-50 dark:bg-emerald-950/30',
+            ],
+        ];
     @endphp
 
+    {{-- Summary metric strip --}}
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+        @foreach ($metricCards as $card)
+            <div class="flex items-center gap-4 rounded-xl p-4 {{ $card['bg'] }} ring-1 ring-gray-950/5 dark:ring-white/10">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm dark:bg-gray-900">
+                    <x-filament::icon :icon="$card['icon']" class="h-5 w-5 {{ $card['color'] }}" />
+                </div>
+                <div class="min-w-0">
+                    <div class="truncate text-xs font-medium text-gray-500 dark:text-gray-400">{{ $card['label'] }}</div>
+                    <div class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ $card['value'] }}</div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
     <div class="grid gap-6 lg:grid-cols-3">
-        <x-filament::section heading="Analytics Summary" class="lg:col-span-3">
-            <div class="grid gap-4 md:grid-cols-4">
-                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">Total engagement</div>
-                    <div class="mt-2 text-2xl font-semibold">{{ number_format((int) ($summary['total_engagement'] ?? 0)) }}</div>
-                </div>
-                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">Total views</div>
-                    <div class="mt-2 text-2xl font-semibold">{{ number_format((int) ($summary['total_views'] ?? 0)) }}</div>
-                </div>
-                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">B2B leads</div>
-                    <div class="mt-2 text-2xl font-semibold">{{ number_format((int) ($summary['total_b2b_leads'] ?? 0)) }}</div>
-                </div>
-                <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">Funding-linked concepts</div>
-                    <div class="mt-2 text-2xl font-semibold">{{ number_format((int) ($summary['concepts_with_funding_campaigns'] ?? 0)) }}</div>
-                </div>
-            </div>
-        </x-filament::section>
 
-        <x-filament::section heading="Top Categories">
+        {{-- Top Categories --}}
+        <x-filament::section>
+            <x-slot name="heading">
+                <div class="flex items-center gap-2">
+                    <x-filament::icon icon="heroicon-o-squares-2x2" class="h-4 w-4 text-gray-400" />
+                    Top Categories
+                </div>
+            </x-slot>
+
             <div class="space-y-3">
-                @forelse ($categories as $category)
-                    <div class="flex items-start justify-between gap-4 rounded-xl border border-gray-200/70 p-3 dark:border-white/10">
-                        <div>
-                            <div class="font-medium">{{ $category['name'] }}</div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400">
-                                {{ number_format($category['total_concepts']) }} concepts
-                            </div>
+                @forelse ($categories as $i => $category)
+                    @php
+                        $pct = $maxCatEngagement > 0
+                            ? round(($category['total_engagement'] / $maxCatEngagement) * 100)
+                            : 0;
+                        $barColors = ['bg-blue-500', 'bg-violet-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'];
+                        $bar = $barColors[$i % count($barColors)];
+                    @endphp
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="font-medium text-gray-900 dark:text-white truncate max-w-[60%]">
+                                {{ $category['name'] }}
+                            </span>
+                            <span class="text-gray-500 dark:text-gray-400 shrink-0 ml-2">
+                                {{ number_format($category['total_engagement']) }}
+                            </span>
                         </div>
-                        <div class="text-right text-sm">
-                            <div class="font-medium">{{ number_format($category['total_engagement']) }}</div>
-                            <div class="text-gray-500 dark:text-gray-400">engagement</div>
+                        <div class="flex items-center gap-2">
+                            <div class="h-1.5 flex-1 rounded-full bg-gray-100 dark:bg-gray-800">
+                                <div class="h-1.5 rounded-full {{ $bar }} transition-all" style="width: {{ $pct }}%"></div>
+                            </div>
+                            <span class="text-xs text-gray-400 w-10 text-right shrink-0">
+                                {{ number_format($category['total_concepts']) }}c
+                            </span>
                         </div>
                     </div>
                 @empty
-                    <div class="text-sm text-gray-500 dark:text-gray-400">No category analytics available yet.</div>
+                    <p class="text-sm text-gray-400">No category analytics yet.</p>
                 @endforelse
             </div>
         </x-filament::section>
 
-        <x-filament::section heading="Active Schools / Companies">
+        {{-- Active Schools / Companies --}}
+        <x-filament::section>
+            <x-slot name="heading">
+                <div class="flex items-center gap-2">
+                    <x-filament::icon icon="heroicon-o-building-office-2" class="h-4 w-4 text-gray-400" />
+                    Active Schools & Companies
+                </div>
+            </x-slot>
+
             <div class="space-y-3">
-                @forelse ($schools as $school)
-                    <div class="flex items-start justify-between gap-4 rounded-xl border border-gray-200/70 p-3 dark:border-white/10">
-                        <div>
-                            <div class="font-medium">{{ $school['school_or_company'] }}</div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400">
-                                {{ number_format($school['total_users']) }} users, {{ number_format($school['approved_concepts']) }} approved concepts
-                            </div>
+                @forelse ($schools as $i => $school)
+                    @php
+                        $pct = $maxSchoolEngagement > 0
+                            ? round(($school['total_engagement'] / $maxSchoolEngagement) * 100)
+                            : 0;
+                    @endphp
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="font-medium text-gray-900 dark:text-white truncate max-w-[60%]">
+                                {{ $school['school_or_company'] }}
+                            </span>
+                            <span class="text-gray-500 dark:text-gray-400 shrink-0 ml-2">
+                                {{ number_format($school['total_engagement']) }}
+                            </span>
                         </div>
-                        <div class="text-right text-sm">
-                            <div class="font-medium">{{ number_format($school['total_engagement']) }}</div>
-                            <div class="text-gray-500 dark:text-gray-400">engagement</div>
+                        <div class="flex items-center gap-2">
+                            <div class="h-1.5 flex-1 rounded-full bg-gray-100 dark:bg-gray-800">
+                                <div class="h-1.5 rounded-full bg-emerald-500 transition-all" style="width: {{ $pct }}%"></div>
+                            </div>
+                            <span class="text-xs text-gray-400 w-24 text-right shrink-0">
+                                {{ number_format($school['total_users']) }}u · {{ number_format($school['approved_concepts']) }}c
+                            </span>
                         </div>
                     </div>
                 @empty
-                    <div class="text-sm text-gray-500 dark:text-gray-400">No school or company activity yet.</div>
+                    <p class="text-sm text-gray-400">No school or company activity yet.</p>
                 @endforelse
             </div>
         </x-filament::section>
 
-        <x-filament::section heading="Funding-Ready Concepts">
+        {{-- Funding-Ready Concepts --}}
+        <x-filament::section>
+            <x-slot name="heading">
+                <div class="flex items-center gap-2">
+                    <x-filament::icon icon="heroicon-o-banknotes" class="h-4 w-4 text-gray-400" />
+                    Funding-Ready Concepts
+                </div>
+            </x-slot>
+
             <div class="space-y-3">
                 @forelse ($concepts as $concept)
-                    <div class="rounded-xl border border-gray-200/70 p-3 dark:border-white/10">
-                        <div class="flex items-start justify-between gap-4">
-                            <div>
-                                <div class="font-medium">{{ $concept['title'] }}</div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ $concept['creator_name'] ?? 'Unknown creator' }}
-                                    @if (! empty($concept['school_or_company']))
-                                        • {{ $concept['school_or_company'] }}
+                    @php
+                        $score  = (float) ($concept['funding_readiness_score'] ?? 0);
+                        $pct    = $maxReadiness > 0 ? round(($score / $maxReadiness) * 100) : 0;
+                        $scoreColor = $score >= 0.7 ? 'text-emerald-600 dark:text-emerald-400'
+                            : ($score >= 0.4 ? 'text-amber-600 dark:text-amber-400'
+                            : 'text-gray-500 dark:text-gray-400');
+                        $barColor = $score >= 0.7 ? 'bg-emerald-500'
+                            : ($score >= 0.4 ? 'bg-amber-500' : 'bg-gray-400');
+                    @endphp
+                    <div class="space-y-1">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="min-w-0">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    {{ $concept['title'] }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                    {{ $concept['creator_name'] ?? 'Unknown' }}
+                                    @if (!empty($concept['school_or_company']))
+                                        · {{ $concept['school_or_company'] }}
                                     @endif
                                 </div>
                             </div>
-                            <div class="text-right text-sm">
-                                <div class="font-medium">{{ number_format((float) $concept['funding_readiness_score'], 2) }}</div>
-                                <div class="text-gray-500 dark:text-gray-400">readiness</div>
-                            </div>
+                            <span class="shrink-0 text-sm font-semibold {{ $scoreColor }}">
+                                {{ number_format($score * 100) }}%
+                            </span>
                         </div>
-
-                        <div class="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                            {{ $concept['recommended_next_action'] }}
+                        <div class="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800">
+                            <div class="h-1.5 rounded-full {{ $barColor }} transition-all" style="width: {{ $pct }}%"></div>
                         </div>
+                        @if (!empty($concept['recommended_next_action']))
+                            <p class="text-xs text-gray-400 dark:text-gray-500 leading-snug">
+                                {{ $concept['recommended_next_action'] }}
+                            </p>
+                        @endif
                     </div>
                 @empty
-                    <div class="text-sm text-gray-500 dark:text-gray-400">No funding-ready concepts available yet.</div>
+                    <p class="text-sm text-gray-400">No funding-ready concepts yet.</p>
                 @endforelse
             </div>
         </x-filament::section>
+
     </div>
 </x-filament-widgets::widget>

@@ -2,61 +2,62 @@
 
 namespace App\Filament\Widgets;
 
-use App\Enums\B2BLeadStatus;
 use App\Enums\ContentStatus;
-use App\Enums\ReportStatus;
 use App\Enums\UserRole;
-use App\Models\B2BLead;
-use App\Models\Comment;
+use App\Filament\Resources\Posts\PostResource;
+use App\Filament\Resources\Users\UserResource;
 use App\Models\FundingCampaign;
 use App\Models\Post;
-use App\Models\Report;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class CommunityStatsOverview extends StatsOverviewWidget
 {
-    protected ?string $heading = 'Community Overview';
+    protected static ?int $sort = 5;
 
-    protected ?string $description = 'Operational metrics for moderators and administrators.';
+    protected int|string|array $columnSpan = 'full';
+
+    protected ?string $heading = 'Community Health';
+
+    protected ?string $description = 'Platform growth and content volume at a glance.';
 
     protected function getStats(): array
     {
+        $totalUsers     = User::query()->count();
+        $creators       = User::query()->whereIn('role', [UserRole::Creator->value, 'user'])->count();
+        $bannedUsers    = User::query()->where('is_banned', true)->count();
+        $totalConcepts  = Post::query()->count();
+        $published      = Post::query()->where('status', ContentStatus::Approved->value)->count();
+        $featured       = Post::query()->where('is_featured', true)->count();
+        $supportEnabled = FundingCampaign::query()->where('support_enabled', true)->count();
+
         return [
-            Stat::make('Total users', number_format(User::query()->count()))
-                ->description('All registered community members')
-                ->color('primary'),
-            Stat::make('Creators', number_format(User::query()->whereIn('role', [UserRole::Creator->value, 'user'])->count()))
-                ->description('Accounts that can submit concepts')
-                ->color('success'),
-            Stat::make('Total concepts', number_format(Post::query()->count()))
-                ->description('Published and moderated concepts combined')
-                ->color('primary'),
-            Stat::make('Pending posts', number_format(Post::query()->where('status', ContentStatus::Pending->value)->count()))
-                ->description('Posts waiting for review')
-                ->color('warning'),
-            Stat::make('Published concepts', number_format(Post::query()->where('status', ContentStatus::Approved->value)->count()))
-                ->description('Concepts visible on the public platform')
-                ->color('success'),
-            Stat::make('Featured concepts', number_format(Post::query()->where('is_featured', true)->count()))
-                ->description('Editor-promoted concepts')
-                ->color('info'),
-            Stat::make('Pending comments', number_format(Comment::query()->where('status', ContentStatus::Pending->value)->count()))
-                ->description('Comments waiting for review')
-                ->color('warning'),
-            Stat::make('Open reports', number_format(Report::query()->where('status', ReportStatus::Pending->value)->count()))
-                ->description('Reports that still need action')
-                ->color('danger'),
-            Stat::make('Open B2B leads', number_format(B2BLead::query()->whereIn('status', [B2BLeadStatus::New->value, B2BLeadStatus::InReview->value])->count()))
-                ->description('Inbound leads that still need follow-up')
-                ->color('warning'),
-            Stat::make('Support-enabled concepts', number_format(FundingCampaign::query()->where('support_enabled', true)->count()))
-                ->description('Concepts with an active support CTA')
-                ->color('gray'),
-            Stat::make('Banned users', number_format(User::query()->where('is_banned', true)->count()))
+            Stat::make('Total users', number_format($totalUsers))
+                ->description(number_format($creators) . ' creators')
+                ->color('primary')
+                ->icon('heroicon-o-users')
+                ->url(UserResource::getUrl()),
+            Stat::make('Published concepts', number_format($published))
+                ->description(number_format($totalConcepts) . ' total concepts')
+                ->color('success')
+                ->icon('heroicon-o-light-bulb')
+                ->url(PostResource::getUrl()),
+            Stat::make('Featured concepts', number_format($featured))
+                ->description('Editor-promoted on the platform')
+                ->color('info')
+                ->icon('heroicon-o-star')
+                ->url(PostResource::getUrl()),
+            Stat::make('Support-enabled', number_format($supportEnabled))
+                ->description('Concepts with an active funding CTA')
+                ->color('warning')
+                ->icon('heroicon-o-heart')
+                ->url(PostResource::getUrl()),
+            Stat::make('Banned users', number_format($bannedUsers))
                 ->description('Accounts currently blocked')
-                ->color('gray'),
+                ->color($bannedUsers > 0 ? 'danger' : 'success')
+                ->icon('heroicon-o-no-symbol')
+                ->url(UserResource::getUrl()),
         ];
     }
 }

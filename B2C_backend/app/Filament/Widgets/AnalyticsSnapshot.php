@@ -7,6 +7,8 @@ use Filament\Widgets\Widget;
 
 class AnalyticsSnapshot extends Widget
 {
+    protected static ?int $sort = 6;
+
     protected string $view = 'filament.widgets.analytics-snapshot';
 
     protected int|string|array $columnSpan = 'full';

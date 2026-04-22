@@ -12,7 +12,9 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentActivity extends TableWidget
 {
-    protected static ?string $heading = 'Recent Activity';
+    protected static ?string $heading = 'Recent Moderation Activity';
+
+    protected static ?int $sort = 9;
 
     protected int|string|array $columnSpan = 'full';
 
@@ -23,34 +25,38 @@ class RecentActivity extends TableWidget
             ->columns([
                 TextColumn::make('created_at')
                     ->label('When')
-                    ->dateTime()
+                    ->dateTime('d M Y, H:i')
                     ->since()
-                    ->sortable(),
+                    ->sortable()
+                    ->tooltip(fn (ModerationLog $record): string => $record->created_at->format('d M Y, H:i:s')),
                 TextColumn::make('actor.name')
-                    ->label('Actor')
+                    ->label('By')
                     ->default('System')
-                    ->searchable(),
+                    ->searchable()
+                    ->icon('heroicon-m-user-circle'),
                 TextColumn::make('action')
                     ->label('Action')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('subject_type')
-                    ->label('Target type')
+                    ->label('On')
                     ->formatStateUsing(fn (string $state): string => ucfirst(class_basename($state)))
                     ->badge()
                     ->color('gray'),
-                TextColumn::make('subject_id')
-                    ->label('Target ID')
-                    ->sortable(),
                 TextColumn::make('reason')
-                    ->label('Reason')
-                    ->limit(70)
-                    ->default('No note provided.'),
+                    ->label('Note')
+                    ->limit(80)
+                    ->default('—')
+                    ->wrap(),
             ])
             ->recordActions([
                 ViewAction::make()
                     ->url(fn (ModerationLog $record): string => ModerationLogResource::getUrl('view', ['record' => $record])),
             ])
-            ->paginated([10]);
+            ->defaultSort('created_at', 'desc')
+            ->paginated([10, 25])
+            ->emptyStateIcon('heroicon-o-clipboard-document-list')
+            ->emptyStateHeading('No moderation activity yet.')
+            ->emptyStateDescription('Staff actions will appear here as they happen.');
     }
 }

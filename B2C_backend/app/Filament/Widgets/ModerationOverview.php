@@ -18,6 +18,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class ModerationOverview extends StatsOverviewWidget
 {
+    protected static ?int $sort = 4;
+
+    protected int|string|array $columnSpan = 'full';
+
     protected ?string $heading = 'Moderation Overview';
 
     protected ?string $description = 'Community backlog and governance signals for staff review.';
