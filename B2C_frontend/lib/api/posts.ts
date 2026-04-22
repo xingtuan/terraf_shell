@@ -195,10 +195,17 @@ export async function updatePost(
   payload: Partial<PostFormPayload>,
   token: string,
 ) {
+  const body = buildPostBody(payload)
+  const isMultipartUpdate = body instanceof FormData
+
+  if (isMultipartUpdate) {
+    body.append("_method", "PUT")
+  }
+
   const response = await requestApi<CommunityPost>(`/posts/${postId}`, {
-    method: "PUT",
+    method: isMultipartUpdate ? "POST" : "PUT",
     token,
-    body: buildPostBody(payload),
+    body,
   })
 
   return normalizeCommunityPost(response.data)

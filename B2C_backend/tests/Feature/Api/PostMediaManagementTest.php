@@ -149,6 +149,54 @@ class PostMediaManagementTest extends TestCase
         ]);
     }
 
+    public function test_post_update_accepts_multipart_method_override_with_safe_attachments(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $createResponse = $this->post('/api/posts', [
+            'title' => 'Community attachment update flow',
+            'content' => 'Original post content with enough text to satisfy validation.',
+        ], [
+            'Accept' => 'application/json',
+        ])->assertCreated();
+
+        $postId = $createResponse->json('data.id');
+
+        $updateResponse = $this->post("/api/posts/{$postId}", [
+            '_method' => 'PUT',
+            'content' => 'Updated post content with a render preview and a supporting document.',
+            'attachments' => [
+                UploadedFile::fake()->create('concept-preview.png', 120, 'image/png'),
+                UploadedFile::fake()->create(
+                    'manufacturing-notes.docx',
+                    80,
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                ),
+            ],
+        ], [
+            'Accept' => 'application/json',
+        ]);
+
+        $updateResponse
+            ->assertOk()
+            ->assertJsonCount(2, 'data.media');
+
+        $this->assertDatabaseHas('idea_media', [
+            'post_id' => $postId,
+            'original_name' => 'concept-preview.png',
+            'media_type' => 'image',
+        ]);
+        $this->assertDatabaseHas('idea_media', [
+            'post_id' => $postId,
+            'original_name' => 'manufacturing-notes.docx',
+            'media_type' => 'document',
+        ]);
+    }
+
     public function test_post_media_validation_rejects_invalid_types_and_oversized_files(): void
     {
         Config::set('community.uploads.disk', 'public');
