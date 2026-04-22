@@ -34,7 +34,9 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
     removeItem,
     clearCart,
   } = useCart()
-  const authCopy = getMessages(locale).community.auth
+  const messages = getMessages(locale)
+  const authCopy = messages.community.auth
+  const t = messages.cartPage
   const [isAuthOpen, setIsAuthOpen] = useState(false)
 
   if (!cart || cart.items.length === 0) {
@@ -43,14 +45,13 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
         <div className="rounded-[2rem] border border-border/60 bg-card p-10 text-center">
           <ShoppingBag className="mx-auto size-10 text-muted-foreground" />
           <h1 className="mt-6 font-serif text-4xl text-foreground">
-            Your cart is empty
+            {t.emptyTitle}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            Add a Shellfin product to start a guest-friendly cart. If you sign in
-            later, the current cart will merge into your account.
+            {t.emptyDescription}
           </p>
           <Button asChild className="mt-6">
-            <Link href={getLocalizedHref(locale, "store")}>Browse Collection</Link>
+            <Link href={getLocalizedHref(locale, "store")}>{t.browseCollection}</Link>
           </Button>
         </div>
       </div>
@@ -62,9 +63,9 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-primary">Cart</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-primary">{t.eyebrow}</p>
             <h1 className="mt-3 font-serif text-4xl text-foreground">
-              Review your Shellfin selections
+              {t.title}
             </h1>
           </div>
           <Button
@@ -75,7 +76,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
               void clearCart()
             }}
           >
-            Clear cart
+            {t.clearCart}
           </Button>
         </div>
 
@@ -112,7 +113,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                           )}
                           className="font-medium text-foreground transition-colors hover:text-primary"
                         >
-                          {item.product?.name || "Product unavailable"}
+                          {item.product?.name || t.productUnavailable}
                         </Link>
                         {item.product?.subtitle ? (
                           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -135,7 +136,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                             locale,
                             item.product?.currency ?? "USD",
                           )}{" "}
-                          each
+                          {t.each}
                         </p>
                         <p className="mt-2 text-lg font-medium text-foreground">
                           {formatCurrencyAmount(
@@ -155,7 +156,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                           onClick={() => {
                             void updateItem(item.product_id, item.quantity - 1)
                           }}
-                          aria-label="Decrease quantity"
+                          aria-label={t.decreaseQuantity}
                         >
                           <Minus className="size-4" />
                         </button>
@@ -172,7 +173,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
 
                             void updateItem(item.product_id, item.quantity + 1)
                           }}
-                          aria-label="Increase quantity"
+                          aria-label={t.increaseQuantity}
                         >
                           <Plus className="size-4" />
                         </button>
@@ -186,7 +187,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                         }}
                       >
                         <Trash2 className="size-4" />
-                        Remove
+                        {t.remove}
                       </button>
                     </div>
                   </div>
@@ -197,29 +198,29 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
 
           <aside className="rounded-[2rem] border border-border/60 bg-card p-8">
             <p className="text-sm uppercase tracking-[0.18em] text-primary">
-              Order summary
+              {t.orderSummary}
             </p>
             <div className="mt-6 space-y-4 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t.subtotal}</span>
                 <span className="text-foreground">
                   {formatCurrencyAmount(cart.subtotal_usd, locale)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Estimated shipping</span>
+                <span className="text-muted-foreground">{t.estimatedShipping}</span>
                 <span className="text-foreground">
                   {formatCurrencyAmount(cart.estimated_shipping_usd, locale)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Estimated tax</span>
+                <span className="text-muted-foreground">{t.estimatedTax}</span>
                 <span className="text-foreground">
                   {formatCurrencyAmount(cart.estimated_tax_usd, locale)}
                 </span>
               </div>
               <div className="flex items-center justify-between border-t border-border/60 pt-4 text-base font-medium">
-                <span className="text-foreground">Estimated total</span>
+                <span className="text-foreground">{t.estimatedTotal}</span>
                 <span className="text-foreground">
                   {formatCurrencyAmount(cart.estimated_total_usd, locale)}
                 </span>
@@ -227,9 +228,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
             </div>
 
             <div className="mt-6 rounded-3xl bg-background p-5 text-sm leading-relaxed text-muted-foreground">
-              Free shipping unlocks at{" "}
-              {formatCurrencyAmount(cart.free_shipping_threshold_usd, locale)}.
-              Tax remains a placeholder until the full calculation service is ready.
+              {t.freeShippingNote.replace("{threshold}", formatCurrencyAmount(cart.free_shipping_threshold_usd, locale))}
             </div>
 
             <div className="mt-8 space-y-3">
@@ -247,11 +246,11 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                   router.push(checkoutHref)
                 }}
               >
-                {session.user ? "Proceed to checkout" : "Sign in to checkout"}
+                {session.user ? t.proceedToCheckout : t.signInToCheckout}
               </Button>
               <Button asChild variant="outline" className="w-full">
                 <Link href={getLocalizedHref(locale, "store")}>
-                  Continue shopping
+                  {t.continueShopping}
                 </Link>
               </Button>
             </div>
@@ -261,9 +260,9 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
 
       <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
         <DialogContent className="max-w-2xl border-none bg-transparent p-0 shadow-none">
-          <DialogTitle className="sr-only">Sign in to continue</DialogTitle>
+          <DialogTitle className="sr-only">{t.signInDialogTitle}</DialogTitle>
           <DialogDescription className="sr-only">
-            Sign in with the same Shellfin account used across the community.
+            {t.signInDialogDescription}
           </DialogDescription>
           <CommunityAuthPanel
             copy={authCopy}

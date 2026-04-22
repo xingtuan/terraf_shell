@@ -13,7 +13,7 @@ import { listAddresses } from "@/lib/api/addresses"
 import { formatCurrencyAmount } from "@/lib/api/products"
 import { createOrder } from "@/lib/api/orders"
 import { ApiError, getErrorMessage } from "@/lib/api/client"
-import { getLocalizedHref, isValidLocale, type Locale } from "@/lib/i18n"
+import { getLocalizedHref, getMessages, isValidLocale, type Locale } from "@/lib/i18n"
 import type { Address } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCart } from "@/hooks/useCart"
@@ -46,19 +46,11 @@ const defaultFormState: CheckoutFormState = {
   customer_note: "",
 }
 
-const countryOptions = [
-  { label: "South Korea", value: "KR" },
-  { label: "New Zealand", value: "NZ" },
-  { label: "China", value: "CN" },
-  { label: "Australia", value: "AU" },
-  { label: "United States", value: "US" },
-  { label: "United Kingdom", value: "GB" },
-  { label: "Other", value: "OT" },
-]
-
 function CheckoutScreen({ locale }: { locale: Locale }) {
   const router = useRouter()
   const session = useAuthSession()
+  const t = getMessages(locale).checkout
+  const countryOptions = Object.entries(t.countries).map(([value, label]) => ({ value, label }))
   const { cart, loadCart } = useCart()
   const [addresses, setAddresses] = useState<Address[]>([])
   const [form, setForm] = useState<CheckoutFormState>(defaultFormState)
@@ -151,12 +143,12 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     return (
       <div className="mx-auto max-w-4xl px-6 py-20 lg:px-8">
         <div className="rounded-[2rem] border border-border/60 bg-card p-10 text-center">
-          <h1 className="font-serif text-4xl text-foreground">Your cart is empty</h1>
+          <h1 className="font-serif text-4xl text-foreground">{t.emptyTitle}</h1>
           <p className="mt-4 text-muted-foreground">
-            Add a Shellfin product before continuing to checkout.
+            {t.emptyDescription}
           </p>
           <Button asChild className="mt-6">
-            <Link href={getLocalizedHref(locale, "store")}>Browse Collection</Link>
+            <Link href={getLocalizedHref(locale, "store")}>{t.browseCollection}</Link>
           </Button>
         </div>
       </div>
@@ -170,18 +162,16 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           href={getLocalizedHref(locale, "store/cart")}
           className="text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
-          Back to cart
+          {t.backToCart}
         </Link>
         <p className="mt-4 text-sm uppercase tracking-[0.2em] text-primary">
-          Checkout
+          {t.eyebrow}
         </p>
         <h1 className="mt-3 font-serif text-4xl text-foreground">
-          Shipping and Order Review
+          {t.title}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Orders run through the shared Shellfin account flow. Shipping is
-          structured now, while tax remains a placeholder until the full commerce
-          calculator is introduced.
+          {t.description}
         </p>
       </div>
 
@@ -190,7 +180,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           {topAddresses.length > 0 ? (
             <div>
               <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                Saved addresses
+                {t.savedAddresses}
               </p>
               <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
                 {topAddresses.map((address) => (
@@ -210,7 +200,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                       </p>
                       {address.is_default ? (
                         <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-primary">
-                          Default
+                          {t.defaultBadge}
                         </span>
                       ) : null}
                     </div>
@@ -220,7 +210,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                     <p className="mt-1 text-sm text-muted-foreground">
                       {address.city}, {address.country}
                     </p>
-                    <p className="mt-4 text-sm text-foreground">Use this address</p>
+                    <p className="mt-4 text-sm text-foreground">{t.useThisAddress}</p>
                   </button>
                 ))}
               </div>
@@ -229,7 +219,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-sm text-foreground">Full Name</span>
+              <span className="text-sm text-foreground">{t.fullName}</span>
               <Input
                 value={form.shipping_name}
                 onChange={(event) => updateField("shipping_name", event.target.value)}
@@ -241,7 +231,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
               ) : null}
             </label>
             <label className="space-y-2">
-              <span className="text-sm text-foreground">Phone</span>
+              <span className="text-sm text-foreground">{t.phone}</span>
               <Input
                 value={form.shipping_phone}
                 onChange={(event) => updateField("shipping_phone", event.target.value)}
@@ -250,7 +240,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           </div>
 
           <label className="space-y-2">
-            <span className="text-sm text-foreground">Address Line 1</span>
+            <span className="text-sm text-foreground">{t.addressLine1}</span>
             <Input
               value={form.shipping_address_line1}
               onChange={(event) =>
@@ -265,7 +255,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm text-foreground">Address Line 2</span>
+            <span className="text-sm text-foreground">{t.addressLine2}</span>
             <Input
               value={form.shipping_address_line2}
               onChange={(event) =>
@@ -276,7 +266,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-sm text-foreground">City</span>
+              <span className="text-sm text-foreground">{t.city}</span>
               <Input
                 value={form.shipping_city}
                 onChange={(event) => updateField("shipping_city", event.target.value)}
@@ -288,7 +278,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
               ) : null}
             </label>
             <label className="space-y-2">
-              <span className="text-sm text-foreground">State/Province</span>
+              <span className="text-sm text-foreground">{t.stateProvince}</span>
               <Input
                 value={form.shipping_state_province}
                 onChange={(event) =>
@@ -300,7 +290,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <label className="space-y-2">
-              <span className="text-sm text-foreground">Postal Code</span>
+              <span className="text-sm text-foreground">{t.postalCode}</span>
               <Input
                 value={form.shipping_postal_code}
                 onChange={(event) =>
@@ -309,7 +299,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
               />
             </label>
             <label className="space-y-2">
-              <span className="text-sm text-foreground">Country</span>
+              <span className="text-sm text-foreground">{t.country}</span>
               <select
                 value={form.shipping_country}
                 onChange={(event) => updateField("shipping_country", event.target.value)}
@@ -330,7 +320,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           </div>
 
           <label className="space-y-2">
-            <span className="text-sm text-foreground">Order Note</span>
+            <span className="text-sm text-foreground">{t.orderNote}</span>
             <Textarea
               value={form.customer_note}
               onChange={(event) => updateField("customer_note", event.target.value)}
@@ -347,7 +337,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
 
         <aside className="rounded-[2rem] border border-border/60 bg-card p-8">
           <p className="text-sm uppercase tracking-[0.18em] text-primary">
-            Order summary
+            {t.orderSummary}
           </p>
 
           <div className="mt-6 space-y-4">
@@ -366,7 +356,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                     {item.product?.name || "Shellfin product"}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Qty {item.quantity} ·{" "}
+                    {t.qty} {item.quantity} ·{" "}
                     {formatCurrencyAmount(
                       item.unit_price_usd,
                       locale,
@@ -380,25 +370,25 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
 
           <div className="mt-8 space-y-3 border-t border-border/60 pt-6 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
+              <span className="text-muted-foreground">{t.subtotal}</span>
               <span className="text-foreground">
                 {formatCurrencyAmount(subtotal, locale)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Shipping</span>
+              <span className="text-muted-foreground">{t.shipping}</span>
               <span className="text-foreground">
-                {shipping === 0 ? "Free" : formatCurrencyAmount(shipping, locale)}
+                {shipping === 0 ? t.shippingFree : formatCurrencyAmount(shipping, locale)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Tax</span>
+              <span className="text-muted-foreground">{t.tax}</span>
               <span className="text-foreground">
                 {formatCurrencyAmount(tax, locale)}
               </span>
             </div>
             <div className="flex items-center justify-between pt-2 text-base font-medium">
-              <span className="text-foreground">Total</span>
+              <span className="text-foreground">{t.total}</span>
               <span className="text-foreground">
                 {formatCurrencyAmount(total, locale)}
               </span>
@@ -406,8 +396,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           </div>
 
           <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-            Orders are manually confirmed. You will receive a confirmation email
-            once your order is reviewed.
+            {t.confirmationNote}
           </p>
 
           <Button
@@ -418,7 +407,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
               void handleSubmit()
             }}
           >
-            {isSubmitting ? "Placing Order..." : "Place Order"}
+            {isSubmitting ? t.placingOrder : t.placeOrder}
           </Button>
         </aside>
       </div>

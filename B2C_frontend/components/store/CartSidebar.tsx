@@ -46,7 +46,9 @@ export function CartSidebar({ locale }: CartSidebarProps) {
     clearCart,
   } =
     useCart()
-  const authCopy = getMessages(locale).community.auth
+  const messages = getMessages(locale)
+  const authCopy = messages.community.auth
+  const t = messages.cartSidebar
   const [isAuthOpen, setIsAuthOpen] = useState(false)
 
   return (
@@ -66,10 +68,10 @@ export function CartSidebar({ locale }: CartSidebarProps) {
           <SheetHeader className="border-b border-border/60 px-6 py-5">
             <SheetTitle className="flex items-center gap-3 text-xl">
               <ShoppingBag className="size-5" />
-              Your Cart ({cart?.item_count ?? 0} items)
+              {t.title.replace("{count}", String(cart?.item_count ?? 0))}
             </SheetTitle>
             <SheetDescription>
-              Guest carts persist and merge into your account after sign-in.
+              {t.guestHint}
             </SheetDescription>
           </SheetHeader>
 
@@ -83,14 +85,14 @@ export function CartSidebar({ locale }: CartSidebarProps) {
             {!cart || cart.items.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-border/70 bg-card p-8 text-center">
                 <h3 className="font-serif text-2xl text-foreground">
-                  Your cart is empty
+                  {t.emptyTitle}
                 </h3>
                 <p className="mt-3 text-sm text-muted-foreground">
-                  Add a Shellfin piece to begin your order request.
+                  {t.emptyDescription}
                 </p>
                 <Button asChild className="mt-6">
                   <Link href={getLocalizedHref(locale, "store")}>
-                    Browse our collection
+                    {t.browseCollection}
                   </Link>
                 </Button>
               </div>
@@ -114,7 +116,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <p className="line-clamp-2 text-sm font-medium text-foreground">
-                              {item.product?.name || "Product unavailable"}
+                              {item.product?.name || t.productUnavailable}
                             </p>
                             {item.product?.stock_status_label ? (
                               <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -139,7 +141,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                               onClick={() => {
                                 void updateItem(item.product_id, item.quantity - 1)
                               }}
-                              aria-label="Decrease quantity"
+                              aria-label={t.decreaseQuantity}
                             >
                               <Minus className="size-4" />
                             </button>
@@ -156,7 +158,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
 
                                 void updateItem(item.product_id, item.quantity + 1)
                               }}
-                              aria-label="Increase quantity"
+                              aria-label={t.increaseQuantity}
                             >
                               <Plus className="size-4" />
                             </button>
@@ -170,7 +172,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                             }}
                           >
                             <Trash2 className="size-4" />
-                            Remove
+                            {t.remove}
                           </button>
                         </div>
                       </div>
@@ -184,13 +186,13 @@ export function CartSidebar({ locale }: CartSidebarProps) {
           <SheetFooter className="border-t border-border/60 bg-background/95 px-6 py-5">
             <div className="space-y-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{t.subtotal}</span>
                 <span className="font-medium text-foreground">
                   {formatCurrencyAmount(cart?.subtotal_usd ?? "0.00", locale)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Est. shipping</span>
+                <span className="text-muted-foreground">{t.estShipping}</span>
                 <span className="font-medium text-foreground">
                   {formatCurrencyAmount(
                     cart?.estimated_shipping_usd ?? "0.00",
@@ -199,7 +201,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Est. tax</span>
+                <span className="text-muted-foreground">{t.estTax}</span>
                 <span className="font-medium text-foreground">
                   {formatCurrencyAmount(
                     cart?.estimated_tax_usd ?? "0.00",
@@ -208,7 +210,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                 </span>
               </div>
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Free shipping over{" "}
+                {t.freeShippingOver}{" "}
                 {formatCurrencyAmount(
                   cart?.free_shipping_threshold_usd ?? "200.00",
                   locale,
@@ -216,7 +218,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
               </p>
               <div className="grid gap-3">
                 <Button asChild variant="outline" className="w-full">
-                  <Link href={getLocalizedHref(locale, "store/cart")}>View cart</Link>
+                  <Link href={getLocalizedHref(locale, "store/cart")}>{t.viewCart}</Link>
                 </Button>
                 <Button
                   type="button"
@@ -234,7 +236,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                     router.push(checkoutHref)
                   }}
                 >
-                  {session.user ? "Proceed to Checkout" : "Sign in to Checkout"}
+                  {session.user ? t.proceedToCheckout : t.signInToCheckout}
                 </Button>
                 <Button
                   type="button"
@@ -244,7 +246,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                     void clearCart()
                   }}
                 >
-                  Clear Cart
+                  {t.clearCart}
                 </Button>
               </div>
             </div>
@@ -254,9 +256,9 @@ export function CartSidebar({ locale }: CartSidebarProps) {
 
       <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
         <DialogContent className="max-w-2xl border-none bg-transparent p-0 shadow-none">
-          <DialogTitle className="sr-only">Sign in to continue</DialogTitle>
+          <DialogTitle className="sr-only">{t.signInDialogTitle}</DialogTitle>
           <DialogDescription className="sr-only">
-            Sign in with the same Shellfin account used across the community.
+            {t.signInDialogDescription}
           </DialogDescription>
           <CommunityAuthPanel
             copy={authCopy}

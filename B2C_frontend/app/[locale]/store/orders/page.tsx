@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { formatCurrencyAmount } from "@/lib/api/products"
 import { cancelOrder, getOrders } from "@/lib/api/orders"
 import { getErrorMessage } from "@/lib/api/client"
-import { getLocalizedHref, isValidLocale, type Locale } from "@/lib/i18n"
+import { getLocalizedHref, getMessages, isValidLocale, type Locale } from "@/lib/i18n"
 import type { StoreOrder } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 
@@ -36,6 +36,7 @@ function statusClasses(status: StoreOrder["status"]) {
 
 function OrdersScreen({ locale }: { locale: Locale }) {
   const session = useAuthSession()
+  const t = getMessages(locale).ordersPage
   const [orders, setOrders] = useState<StoreOrder[]>([])
   const [page, setPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
@@ -68,7 +69,7 @@ function OrdersScreen({ locale }: { locale: Locale }) {
       return
     }
 
-    if (!window.confirm("Cancel this pending order?")) {
+    if (!window.confirm(t.cancelConfirm)) {
       return
     }
 
@@ -87,8 +88,8 @@ function OrdersScreen({ locale }: { locale: Locale }) {
   return (
     <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
       <div className="mb-10">
-        <p className="text-sm uppercase tracking-[0.2em] text-primary">Orders</p>
-        <h1 className="mt-3 font-serif text-4xl text-foreground">Order History</h1>
+        <p className="text-sm uppercase tracking-[0.2em] text-primary">{t.eyebrow}</p>
+        <h1 className="mt-3 font-serif text-4xl text-foreground">{t.title}</h1>
       </div>
 
       {error ? (
@@ -99,18 +100,18 @@ function OrdersScreen({ locale }: { locale: Locale }) {
 
       {loading ? (
         <div className="rounded-[2rem] border border-border/60 bg-card p-10 text-sm text-muted-foreground">
-          Loading orders...
+          {t.loading}
         </div>
       ) : null}
 
       {!loading && orders.length === 0 ? (
         <div className="rounded-[2rem] border border-border/60 bg-card p-10 text-center">
-          <h2 className="font-serif text-3xl text-foreground">No orders yet</h2>
+          <h2 className="font-serif text-3xl text-foreground">{t.emptyTitle}</h2>
           <p className="mt-4 text-muted-foreground">
-            Browse the Shellfin collection and place your first order.
+            {t.emptyDescription}
           </p>
           <Button asChild className="mt-6">
-            <Link href={getLocalizedHref(locale, "store")}>Browse Collection</Link>
+            <Link href={getLocalizedHref(locale, "store")}>{t.browseCollection}</Link>
           </Button>
         </div>
       ) : null}
@@ -136,7 +137,7 @@ function OrdersScreen({ locale }: { locale: Locale }) {
                 <p className="mt-3 text-sm text-muted-foreground">
                   {order.created_at
                     ? new Date(order.created_at).toLocaleDateString()
-                    : "Pending date"}
+                    : t.pendingDate}
                 </p>
               </div>
 
@@ -157,7 +158,7 @@ function OrdersScreen({ locale }: { locale: Locale }) {
                   ))}
                   {order.items.length > 3 ? (
                     <span className="text-sm text-muted-foreground">
-                      +{order.items.length - 3} more
+                      {t.moreItems.replace("{count}", String(order.items.length - 3))}
                     </span>
                   ) : null}
                 </div>
@@ -175,7 +176,7 @@ function OrdersScreen({ locale }: { locale: Locale }) {
                     `store/orders/${order.order_number}`,
                   )}
                 >
-                  View Details
+                  {t.viewDetails}
                 </Link>
               </Button>
               {order.status === "pending" ? (
@@ -186,7 +187,7 @@ function OrdersScreen({ locale }: { locale: Locale }) {
                     void handleCancel(order.order_number)
                   }}
                 >
-                  Cancel
+                  {t.cancel}
                 </Button>
               ) : null}
             </div>
@@ -202,10 +203,10 @@ function OrdersScreen({ locale }: { locale: Locale }) {
             disabled={page <= 1}
             onClick={() => setPage((currentValue) => Math.max(1, currentValue - 1))}
           >
-            Previous
+            {t.previous}
           </Button>
           <p className="text-sm text-muted-foreground">
-            Page {page} of {lastPage}
+            {t.pageOf.replace("{page}", String(page)).replace("{lastPage}", String(lastPage))}
           </p>
           <Button
             type="button"
@@ -215,7 +216,7 @@ function OrdersScreen({ locale }: { locale: Locale }) {
               setPage((currentValue) => Math.min(lastPage, currentValue + 1))
             }
           >
-            Next
+            {t.next}
           </Button>
         </div>
       ) : null}

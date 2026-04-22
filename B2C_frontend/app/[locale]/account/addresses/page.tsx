@@ -14,7 +14,7 @@ import {
   type AddressPayload,
 } from "@/lib/api/addresses"
 import { getErrorMessage } from "@/lib/api/client"
-import { getLocalizedHref, isValidLocale, type Locale } from "@/lib/i18n"
+import { getLocalizedHref, getMessages, isValidLocale, type Locale } from "@/lib/i18n"
 import type { Address } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 
@@ -37,6 +37,7 @@ const emptyAddressForm: AddressPayload = {
 
 function AddressesScreen({ locale }: { locale: Locale }) {
   const session = useAuthSession()
+  const t = getMessages(locale).addressPage
   const [addresses, setAddresses] = useState<Address[]>([])
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null)
   const [form, setForm] = useState<AddressPayload>(emptyAddressForm)
@@ -91,8 +92,8 @@ function AddressesScreen({ locale }: { locale: Locale }) {
 
       setMessage(
         editingAddressId
-          ? "Address updated successfully."
-          : "Address created successfully.",
+          ? t.updatedSuccess
+          : t.createdSuccess,
       )
       resetForm()
     } catch (nextError) {
@@ -105,7 +106,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
       return
     }
 
-    if (!window.confirm("Delete this address?")) {
+    if (!window.confirm(t.deleteConfirm)) {
       return
     }
 
@@ -141,14 +142,14 @@ function AddressesScreen({ locale }: { locale: Locale }) {
     <div className="mx-auto max-w-6xl px-6 py-16 lg:px-8">
       <div className="grid grid-cols-1 gap-8 xl:grid-cols-[0.95fr_1.05fr]">
         <section className="rounded-[2rem] border border-border/60 bg-card p-8">
-          <p className="text-sm uppercase tracking-[0.2em] text-primary">Addresses</p>
+          <p className="text-sm uppercase tracking-[0.2em] text-primary">{t.eyebrow}</p>
           <h1 className="mt-3 font-serif text-4xl text-foreground">
-            {editingAddressId ? "Edit Address" : "Add Address"}
+            {editingAddressId ? t.editTitle : t.addTitle}
           </h1>
 
           <div className="mt-8 space-y-4">
             <Input
-              placeholder="Label"
+              placeholder={t.labelPlaceholder}
               value={form.label ?? ""}
               onChange={(event) =>
                 setForm((currentValue) => ({
@@ -158,7 +159,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
               }
             />
             <Input
-              placeholder="Recipient Name"
+              placeholder={t.recipientNamePlaceholder}
               value={form.recipient_name}
               onChange={(event) =>
                 setForm((currentValue) => ({
@@ -168,7 +169,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
               }
             />
             <Input
-              placeholder="Phone"
+              placeholder={t.phonePlaceholder}
               value={form.phone ?? ""}
               onChange={(event) =>
                 setForm((currentValue) => ({
@@ -178,7 +179,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
               }
             />
             <Input
-              placeholder="Address Line 1"
+              placeholder={t.addressLine1Placeholder}
               value={form.address_line1}
               onChange={(event) =>
                 setForm((currentValue) => ({
@@ -188,7 +189,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
               }
             />
             <Input
-              placeholder="Address Line 2"
+              placeholder={t.addressLine2Placeholder}
               value={form.address_line2 ?? ""}
               onChange={(event) =>
                 setForm((currentValue) => ({
@@ -199,7 +200,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
             />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
-                placeholder="City"
+                placeholder={t.cityPlaceholder}
                 value={form.city}
                 onChange={(event) =>
                   setForm((currentValue) => ({
@@ -209,7 +210,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
                 }
               />
               <Input
-                placeholder="State / Province"
+                placeholder={t.stateProvincePlaceholder}
                 value={form.state_province ?? ""}
                 onChange={(event) =>
                   setForm((currentValue) => ({
@@ -221,7 +222,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <Input
-                placeholder="Postal Code"
+                placeholder={t.postalCodePlaceholder}
                 value={form.postal_code ?? ""}
                 onChange={(event) =>
                   setForm((currentValue) => ({
@@ -231,7 +232,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
                 }
               />
               <Input
-                placeholder="Country (ISO code)"
+                placeholder={t.countryPlaceholder}
                 value={form.country}
                 onChange={(event) =>
                   setForm((currentValue) => ({
@@ -256,11 +257,11 @@ function AddressesScreen({ locale }: { locale: Locale }) {
 
             <div className="flex flex-wrap gap-3">
               <Button type="button" onClick={() => void handleSubmit()}>
-                {editingAddressId ? "Update Address" : "Add Address"}
+                {editingAddressId ? t.updateAddress : t.addAddress}
               </Button>
               {editingAddressId ? (
                 <Button type="button" variant="outline" onClick={resetForm}>
-                  Cancel
+                  {t.cancel}
                 </Button>
               ) : null}
             </div>
@@ -269,12 +270,12 @@ function AddressesScreen({ locale }: { locale: Locale }) {
 
         <section className="rounded-[2rem] border border-border/60 bg-card p-8">
           <p className="text-sm uppercase tracking-[0.2em] text-primary">
-            Saved Addresses
+            {t.savedAddresses}
           </p>
           <div className="mt-6 space-y-4">
             {orderedAddresses.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No saved addresses yet.
+                {t.noAddresses}
               </p>
             ) : (
               orderedAddresses.map((address) => (
@@ -290,7 +291,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
                         </p>
                         {address.is_default ? (
                           <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-primary">
-                            Default
+                            {t.defaultBadge}
                           </span>
                         ) : null}
                       </div>
@@ -314,7 +315,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
                             void handleSetDefault(address.id)
                           }}
                         >
-                          Set Default
+                          {t.setDefault}
                         </Button>
                       ) : null}
                       <Button
@@ -337,7 +338,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
                           })
                         }}
                       >
-                        Edit
+                        {t.edit}
                       </Button>
                       <Button
                         type="button"
@@ -347,7 +348,7 @@ function AddressesScreen({ locale }: { locale: Locale }) {
                           void handleDelete(address.id)
                         }}
                       >
-                        Delete
+                        {t.delete}
                       </Button>
                     </div>
                   </div>

@@ -28,7 +28,9 @@ type UserNavProps = {
 export function UserNav({ locale }: UserNavProps) {
   const router = useRouter()
   const session = useAuthSession()
-  const authCopy = getMessages(locale).community.auth
+  const messages = getMessages(locale)
+  const authCopy = messages.community.auth
+  const t = messages.userNav
   const [isAuthOpen, setIsAuthOpen] = useState(false)
 
   if (session.user) {
@@ -65,21 +67,21 @@ export function UserNav({ locale }: UserNavProps) {
               )
             }}
           >
-            My Account
+            {t.myAccount}
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {
               router.push(getLocalizedHref(locale, "store/orders"))
             }}
           >
-            My Orders
+            {t.myOrders}
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {
               void session.logout()
             }}
           >
-            Sign Out
+            {t.signOut}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -89,14 +91,14 @@ export function UserNav({ locale }: UserNavProps) {
   return (
     <>
       <Button type="button" variant="outline" onClick={() => setIsAuthOpen(true)}>
-        Sign In
+        {t.signIn}
       </Button>
 
       <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
         <DialogContent className="max-w-2xl border-none bg-transparent p-0 shadow-none">
-          <DialogTitle className="sr-only">Sign In</DialogTitle>
+          <DialogTitle className="sr-only">{t.dialogTitle}</DialogTitle>
           <DialogDescription className="sr-only">
-            Sign in with the shared Shellfin account used across community and store flows.
+            {t.dialogDescription}
           </DialogDescription>
           <CommunityAuthPanel
             copy={authCopy}

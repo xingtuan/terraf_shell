@@ -10,7 +10,7 @@ import {
   formatCurrencyAmount,
   formatProductPrice,
 } from "@/lib/api/products"
-import { getLocalizedHref, type Locale } from "@/lib/i18n"
+import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
 import {
   getProductInquiryHref,
   getProductSampleRequestHref,
@@ -42,6 +42,7 @@ export function ProductDetailContent({
   product,
 }: ProductDetailContentProps) {
   const { addItem } = useCart()
+  const t = getMessages(locale).productDetail
   const [quantity, setQuantity] = useState(1)
   const relatedProducts = product.related_products ?? []
   const highlightedSpecs = product.specifications?.slice(0, 6) ?? []
@@ -72,12 +73,12 @@ export function ProductDetailContent({
               ) : null}
               {product.is_new ? (
                 <span className="rounded-full bg-primary px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary-foreground">
-                  New
+                  {t.newBadge}
                 </span>
               ) : null}
               {product.is_bestseller ? (
                 <span className="rounded-full bg-foreground px-3 py-1 text-xs uppercase tracking-[0.18em] text-background">
-                  Best Seller
+                  {t.bestSellerBadge}
                 </span>
               ) : null}
             </div>
@@ -129,7 +130,7 @@ export function ProductDetailContent({
                 product.stock_status !== "sold_out" ? (
                   <div className="rounded-2xl border border-border/60 px-4 py-3 text-right">
                     <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                      Batch stock
+                      {t.batchStock}
                     </p>
                     <p className="mt-2 text-xl font-medium text-foreground">
                       {product.stock_quantity}
@@ -170,12 +171,12 @@ export function ProductDetailContent({
                       void addItem(product.id, quantity)
                     }}
                   >
-                    Add to Cart
+                    {t.addToCart}
                   </Button>
                 ) : (
                   <Button asChild>
                     <Link href={getProductInquiryHref(locale, product)}>
-                      {product.inquiry_only ? "Bulk Enquiry" : "Request Update"}
+                      {product.inquiry_only ? t.bulkEnquiry : t.requestUpdate}
                     </Link>
                   </Button>
                 )}
@@ -183,7 +184,7 @@ export function ProductDetailContent({
                 {product.sample_request_enabled ? (
                   <Button asChild variant="outline">
                     <Link href={getProductSampleRequestHref(locale, product)}>
-                      Request Sample
+                      {t.requestSample}
                     </Link>
                   </Button>
                 ) : null}
@@ -192,8 +193,8 @@ export function ProductDetailContent({
               {!product.can_add_to_cart ? (
                 <div className="mt-5 rounded-2xl border border-dashed border-border/70 bg-card p-4 text-sm leading-relaxed text-muted-foreground">
                   {product.stock_status === "sold_out"
-                    ? "This batch is sold out. Request a restock update or a sample pack and the team can guide you to the next release."
-                    : "This product is better suited to hospitality, bulk, or project-led ordering. Use the enquiry CTA for MOQ, lead time, and customization support."}
+                    ? t.soldOutMessage
+                    : t.bulkOrderMessage}
                 </div>
               ) : null}
             </div>
@@ -214,7 +215,7 @@ export function ProductDetailContent({
             {product.long_description ? (
               <div className="mt-8 rounded-[1.75rem] bg-muted/40 p-6">
                 <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  Product story
+                  {t.productStory}
                 </p>
                 <p className="mt-4 text-base leading-relaxed text-foreground">
                   {product.long_description}
@@ -229,10 +230,10 @@ export function ProductDetailContent({
             <div className="flex items-end justify-between gap-6">
               <div>
                 <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                  Specification
+                  {t.specificationEyebrow}
                 </p>
                 <h2 className="mt-3 font-serif text-3xl text-foreground">
-                  Material and use details
+                  {t.specificationTitle}
                 </h2>
               </div>
               {product.availability_text ? (
@@ -268,7 +269,7 @@ export function ProductDetailContent({
           <section className="grid gap-6">
             <article className="rounded-[2rem] border border-border/60 bg-card p-8">
               <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                Material benefits
+                {t.materialBenefits}
               </p>
               <div className="mt-6 space-y-4">
                 {(product.material_benefits ?? []).map((benefit) => (
@@ -284,11 +285,11 @@ export function ProductDetailContent({
 
             <article className="rounded-[2rem] border border-border/60 bg-card p-8">
               <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                Care and certification
+                {t.careAndCertification}
               </p>
               <div className="mt-6 grid gap-6 md:grid-cols-2">
                 <div>
-                  <h3 className="font-medium text-foreground">Care</h3>
+                  <h3 className="font-medium text-foreground">{t.care}</h3>
                   <div className="mt-3 space-y-3">
                     {(product.care_instructions ?? []).map((instruction) => (
                       <p
@@ -301,7 +302,7 @@ export function ProductDetailContent({
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-medium text-foreground">Trust badges</h3>
+                  <h3 className="font-medium text-foreground">{t.trustBadges}</h3>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {(product.certifications ?? []).map((certification) => (
                       <span
@@ -322,48 +323,45 @@ export function ProductDetailContent({
           <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
               <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                Conversion support
+                {t.conversionEyebrow}
               </p>
               <h2 className="mt-3 font-serif text-3xl text-foreground">
-                Move from product discovery into a real project or order flow
+                {t.conversionTitle}
               </h2>
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="rounded-3xl border border-border/60 bg-background p-5">
-                <p className="text-sm font-medium text-foreground">Bulk enquiry</p>
+                <p className="text-sm font-medium text-foreground">{t.bulkEnquiryTitle}</p>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  For restaurant groups, design studios, and hospitality buyers
-                  reviewing MOQ and lead time.
+                  {t.bulkEnquiryDescription}
                 </p>
                 <Button asChild variant="ghost" className="mt-5 px-0 text-primary">
                   <Link href={getProductInquiryHref(locale, product)}>
-                    Open enquiry
+                    {t.bulkEnquiryAction}
                   </Link>
                 </Button>
               </div>
               <div className="rounded-3xl border border-border/60 bg-background p-5">
-                <p className="text-sm font-medium text-foreground">Request sample</p>
+                <p className="text-sm font-medium text-foreground">{t.requestSampleTitle}</p>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  Review Shellfin finish, density, and care notes before a larger
-                  commitment.
+                  {t.requestSampleDescription}
                 </p>
                 <Button asChild variant="ghost" className="mt-5 px-0 text-primary">
                   <Link href={getProductSampleRequestHref(locale, product)}>
-                    Request sample
+                    {t.requestSampleAction}
                   </Link>
                 </Button>
               </div>
               <div className="rounded-3xl border border-border/60 bg-background p-5">
                 <p className="text-sm font-medium text-foreground">
-                  Material review
+                  {t.materialReviewTitle}
                 </p>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  Explore the oyster-shell material system behind this product and
-                  its sustainability story.
+                  {t.materialReviewDescription}
                 </p>
                 <Button asChild variant="ghost" className="mt-5 px-0 text-primary">
                   <Link href={getLocalizedHref(locale, "material")}>
-                    View material story
+                    {t.materialReviewAction}
                   </Link>
                 </Button>
               </div>
@@ -376,15 +374,15 @@ export function ProductDetailContent({
             <div className="mb-8 flex items-end justify-between gap-6">
               <div>
                 <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                  Related products
+                  {t.relatedEyebrow}
                 </p>
                 <h2 className="mt-3 font-serif text-3xl text-foreground">
-                  Cross-sell from the same material story
+                  {t.relatedTitle}
                 </h2>
               </div>
               <Button asChild variant="outline">
                 <Link href={getLocalizedHref(locale, "store")}>
-                  Browse all products
+                  {t.browseAllProducts}
                 </Link>
               </Button>
             </div>

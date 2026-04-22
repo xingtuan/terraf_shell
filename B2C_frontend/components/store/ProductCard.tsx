@@ -8,7 +8,7 @@ import {
   formatCurrencyAmount,
   formatProductPrice,
 } from "@/lib/api/products"
-import { type Locale } from "@/lib/i18n"
+import { getMessages, type Locale } from "@/lib/i18n"
 import {
   getProductDetailHref,
   getProductInquiryHref,
@@ -38,11 +38,12 @@ function stockTone(product: Product) {
 
 export function ProductCard({ locale, product }: ProductCardProps) {
   const { addItem } = useCart()
+  const t = getMessages(locale).productCard
   const productHref = getProductDetailHref(locale, product.slug)
   const badges = [
-    product.featured ? "Featured" : null,
-    product.is_bestseller ? "Best Seller" : null,
-    product.is_new ? "New" : null,
+    product.featured ? t.featuredBadge : null,
+    product.is_bestseller ? t.bestSellerBadge : null,
+    product.is_new ? t.newBadge : null,
   ].filter((badge): badge is string => Boolean(badge))
 
   return (
@@ -74,7 +75,7 @@ export function ProductCard({ locale, product }: ProductCardProps) {
                 product,
               )}`}
             >
-              {product.stock_status_label || (product.in_stock ? "In stock" : "Sold out")}
+              {product.stock_status_label || (product.in_stock ? t.inStock : t.soldOut)}
             </span>
           </div>
         </div>
@@ -147,14 +148,14 @@ export function ProductCard({ locale, product }: ProductCardProps) {
               </p>
             </div>
             {product.stock_quantity !== null && product.stock_status === "low_stock" ? (
-              <p className="text-sm text-amber-700">{product.stock_quantity} left</p>
+              <p className="text-sm text-amber-700">{t.stockLeft.replace("{count}", String(product.stock_quantity))}</p>
             ) : null}
           </div>
         </div>
 
         <div className="flex flex-wrap gap-3 border-t border-border/60 pt-1">
           <Button asChild variant="outline" className="flex-1">
-            <Link href={productHref}>View Details</Link>
+            <Link href={productHref}>{t.viewDetails}</Link>
           </Button>
           {product.can_add_to_cart ? (
             <Button
@@ -164,12 +165,12 @@ export function ProductCard({ locale, product }: ProductCardProps) {
                 void addItem(product.id, 1)
               }}
             >
-              Add to Cart
+              {t.addToCart}
             </Button>
           ) : (
             <Button asChild className="flex-1">
               <Link href={getProductInquiryHref(locale, product)}>
-                {product.inquiry_only ? "Bulk Enquiry" : "Request Update"}
+                {product.inquiry_only ? t.bulkEnquiry : t.requestUpdate}
               </Link>
             </Button>
           )}
@@ -178,7 +179,7 @@ export function ProductCard({ locale, product }: ProductCardProps) {
         {!product.can_add_to_cart && product.sample_request_enabled ? (
           <Button asChild variant="ghost" className="w-full justify-start px-0 text-primary">
             <Link href={getProductSampleRequestHref(locale, product)}>
-              Request a sample or spec pack
+              {t.requestSample}
             </Link>
           </Button>
         ) : null}
