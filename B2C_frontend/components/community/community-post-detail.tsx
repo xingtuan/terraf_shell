@@ -73,6 +73,10 @@ function getAttachmentName(media: CommunityMedia) {
   return media.title ?? media.original_name ?? media.file_name ?? "Attachment"
 }
 
+function getAttachmentDownloadName(media: CommunityMedia) {
+  return media.original_name ?? media.file_name ?? getAttachmentName(media)
+}
+
 function getAttachmentType(media: CommunityMedia) {
   return (
     media.extension?.toUpperCase() ??
@@ -408,7 +412,7 @@ export function CommunityPostDetail({
                           href={media.download_url ?? media.url ?? undefined}
                           target="_blank"
                           rel="noreferrer"
-                          download={getAttachmentName(media)}
+                          download={getAttachmentDownloadName(media)}
                           onClick={() => handleAttachmentDownload(media.id)}
                           className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm transition-colors hover:bg-muted"
                         >

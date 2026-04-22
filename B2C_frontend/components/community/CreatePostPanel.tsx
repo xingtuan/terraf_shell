@@ -167,6 +167,10 @@ function getAttachmentLabel(file: File | CommunityMedia) {
   return file.title ?? file.original_name ?? file.file_name ?? "Attachment"
 }
 
+function getAttachmentIdentity(file: File) {
+  return [file.name, file.size, file.lastModified].join("::")
+}
+
 function getAttachmentExtension(file: File | CommunityMedia) {
   if (!(file instanceof File)) {
     return (
@@ -622,7 +626,26 @@ export function CreatePostPanel({
               multiple
               onChange={(event) => {
                 const nextFiles = Array.from(event.target.files ?? [])
-                setAttachments(nextFiles)
+
+                setAttachments((currentAttachments) => {
+                  const seen = new Set(
+                    currentAttachments.map((file) => getAttachmentIdentity(file)),
+                  )
+                  const mergedAttachments = [...currentAttachments]
+
+                  nextFiles.forEach((file) => {
+                    const identity = getAttachmentIdentity(file)
+
+                    if (!seen.has(identity)) {
+                      mergedAttachments.push(file)
+                      seen.add(identity)
+                    }
+                  })
+
+                  return mergedAttachments
+                })
+
+                event.currentTarget.value = ""
               }}
             />
             <p className="text-xs text-muted-foreground">
