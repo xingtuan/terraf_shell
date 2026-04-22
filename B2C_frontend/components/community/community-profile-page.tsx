@@ -15,6 +15,7 @@ import {
   getUserPosts,
   getUserProfile,
 } from "@/lib/api/users"
+import { COMMUNITY_POSTS_REFRESH_EVENT } from "@/lib/community-events"
 import { getIntlLocale, getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { CommunityPost, UserProfile } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
@@ -70,6 +71,7 @@ export function CommunityProfilePage({
   const [profile, setProfile] = useState<UserProfile | null>(initialProfile)
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [favorites, setFavorites] = useState<CommunityPost[]>([])
+  const [postsTotal, setPostsTotal] = useState(initialProfile?.posts_count ?? 0)
   const [message, setMessage] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("posts")
   const [isLoadingProfile, setIsLoadingProfile] = useState(!initialProfile)
@@ -101,8 +103,10 @@ export function CommunityProfilePage({
         session.token,
       )
       setPosts(nextPosts.items)
+      setPostsTotal(nextPosts.meta.total)
     } catch (error) {
       setPosts([])
+      setPostsTotal(0)
       setMessage(getErrorMessage(error))
     } finally {
       setIsLoadingPosts(false)
@@ -130,6 +134,7 @@ export function CommunityProfilePage({
   useEffect(() => {
     setActiveUsername(initialProfile?.username ?? username)
     setProfile(initialProfile)
+    setPostsTotal(initialProfile?.posts_count ?? 0)
   }, [initialProfile, username])
 
   useEffect(() => {
@@ -140,6 +145,22 @@ export function CommunityProfilePage({
     setMessage(null)
     void Promise.all([loadProfile(), loadPosts(), loadFavorites()])
   }, [session.isReady, session.token, activeUsername])
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      if (!profile || session.user?.id !== profile.id) {
+        return
+      }
+
+      void Promise.all([loadProfile(), loadPosts()])
+    }
+
+    window.addEventListener(COMMUNITY_POSTS_REFRESH_EVENT, handleRefresh)
+
+    return () => {
+      window.removeEventListener(COMMUNITY_POSTS_REFRESH_EVENT, handleRefresh)
+    }
+  }, [loadPosts, loadProfile, profile, session.user?.id])
 
   function syncPost(updatedPost: CommunityPost) {
     setPosts((currentPosts) =>
@@ -158,6 +179,7 @@ export function CommunityProfilePage({
     setPosts((currentPosts) =>
       currentPosts.filter((currentPost) => currentPost.id !== postId),
     )
+    setPostsTotal((currentTotal) => Math.max(0, currentTotal - 1))
     setFavorites((currentPosts) =>
       currentPosts.filter((currentPost) => currentPost.id !== postId),
     )
@@ -174,6 +196,7 @@ export function CommunityProfilePage({
   const isOwnProfile =
     session.isReady && Boolean(profile && session.user?.id === profile.id)
   const memberSince = formatMonthYear(locale, profile?.joined_at ?? profile?.created_at)
+  const visiblePostsCount = isOwnProfile ? postsTotal : (profile?.posts_count ?? postsTotal)
 
   return (
     <>
@@ -282,7 +305,7 @@ export function CommunityProfilePage({
                         {messages.profile.postsCount}
                       </p>
                       <p className="mt-2 text-2xl text-foreground">
-                        {profile.posts_count ?? 0}
+                        {visiblePostsCount}
                       </p>
                     </div>
                     <div className="rounded-[1.5rem] bg-background p-5">

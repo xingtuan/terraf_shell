@@ -35,6 +35,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
         'restricted_at',
         'ban_reason',
         'restriction_reason',
+        'community_auto_approve',
     ];
 
     protected $hidden = [
@@ -54,6 +55,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmailContr
             'banned_at' => 'datetime',
             'restricted_at' => 'datetime',
             'is_banned' => 'boolean',
+            'community_auto_approve' => 'boolean',
             'password' => 'hashed',
         ];
     }

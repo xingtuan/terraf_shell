@@ -57,6 +57,10 @@ class UsersTable
                     ->badge()
                     ->formatStateUsing(fn (?string $state, User $record): string => AccountStatus::tryFrom($state ?? $record->accountStatusValue())?->label() ?? ucfirst((string) $state))
                     ->color(fn (?string $state, User $record): string => AccountStatus::tryFrom($state ?? $record->accountStatusValue())?->color() ?? 'gray'),
+                IconColumn::make('community_auto_approve')
+                    ->label('Direct approval')
+                    ->boolean()
+                    ->toggleable(),
                 TextColumn::make('posts_count')
                     ->label('Ideas')
                     ->numeric()
@@ -118,6 +122,8 @@ class UsersTable
                         'profile',
                         fn (Builder $profileQuery): Builder => $profileQuery->where('open_to_collab', true)
                     )),
+                TernaryFilter::make('community_auto_approve')
+                    ->label('Direct community approval'),
                 Filter::make('organization')
                     ->label('School / Company')
                     ->schema([

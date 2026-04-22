@@ -41,6 +41,7 @@ return [
         ))),
     ],
     'moderation' => [
+        'submission_policy' => env('COMMUNITY_SUBMISSION_POLICY', 'all_require_approval'),
         'sensitive_words' => [
             'enabled' => (bool) env('COMMUNITY_SENSITIVE_WORDS_ENABLED', false),
             'terms' => array_values(array_filter(array_map(

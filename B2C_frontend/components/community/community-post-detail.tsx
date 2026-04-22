@@ -41,6 +41,7 @@ import {
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { CommunityComment, CommunityPost } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
+import { toast } from "@/hooks/use-toast"
 
 type CommunityPostDetailProps = {
   locale: Locale
@@ -86,6 +87,13 @@ export function CommunityPostDetail({
   const [activeAction, setActiveAction] = useState<string | null>(null)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+
+  function notify(title: string, description?: string) {
+    toast({
+      title,
+      ...(description ? { description } : {}),
+    })
+  }
 
   const loadDetail = useEffectEvent(async () => {
     if (!session.isReady) {
@@ -147,7 +155,7 @@ export function CommunityPostDetail({
     }
 
     if (!session.token) {
-      setMessage(messages.post.loginToComment)
+      notify(messages.post.loginToComment)
       return
     }
 
@@ -163,15 +171,14 @@ export function CommunityPostDetail({
     try {
       const createdComment = await createComment(post.id, content, session.token)
       setCommentText("")
-      // Refresh only comments list (not the full post) to avoid useEffectEvent-outside-effect issues
       await refreshComments(post.id)
-      setMessage(
+      notify(
         createdComment.status === "approved"
           ? messages.post.commentPosted
           : messages.post.commentPending,
       )
     } catch (error) {
-      setMessage(getErrorMessage(error))
+      notify(getErrorMessage(error))
     } finally {
       setIsSubmittingComment(false)
     }
@@ -608,19 +615,27 @@ export function CommunityPostDetail({
                     activeAction={activeAction}
                     onReply={async (commentId, content) => {
                       if (!post || !session.token) {
-                        setMessage(messages.post.loginToComment)
+                        notify(messages.post.loginToComment)
                         throw new Error(messages.post.loginToComment)
                       }
 
                       setActiveAction(`comment-reply-${commentId}`)
 
                       try {
-                        // Use createComment with parentId instead of legacy replyToComment endpoint
-                        await createComment(post.id, content, session.token, commentId)
+                        const createdReply = await createComment(
+                          post.id,
+                          content,
+                          session.token,
+                          commentId,
+                        )
                         await refreshComments(post.id)
-                        setMessage(messages.post.replyAdded)
+                        notify(
+                          createdReply.status === "approved"
+                            ? messages.post.replyAdded
+                            : messages.post.commentPending,
+                        )
                       } catch (error) {
-                        setMessage(getErrorMessage(error))
+                        notify(getErrorMessage(error))
                         throw error
                       } finally {
                         setActiveAction(null)
@@ -628,23 +643,35 @@ export function CommunityPostDetail({
                     }}
                     onUpdate={async (commentId, content) => {
                       if (!session.token) {
-                        setMessage(messages.post.loginToComment)
+                        notify(messages.post.loginToComment)
                         throw new Error(messages.post.loginToComment)
                       }
 
                       setActiveAction(`comment-update-${commentId}`)
 
                       try {
-                        await updateComment(commentId, content, session.token)
+                        const updatedComment = await updateComment(
+                          commentId,
+                          content,
+                          session.token,
+                        )
                         setComments((currentComments) =>
                           updateCommentTree(currentComments, commentId, (comment) => ({
                             ...comment,
-                            content,
+                            body: updatedComment.body,
+                            content: updatedComment.content,
+                            status: updatedComment.status,
+                            updated_at: updatedComment.updated_at,
                           })),
                         )
-                        setMessage(messages.post.updatedComment)
+                        notify(
+                          messages.post.updatedComment,
+                          updatedComment.status === "approved"
+                            ? undefined
+                            : messages.post.commentPending,
+                        )
                       } catch (error) {
-                        setMessage(getErrorMessage(error))
+                        notify(getErrorMessage(error))
                         throw error
                       } finally {
                         setActiveAction(null)
@@ -652,7 +679,7 @@ export function CommunityPostDetail({
                     }}
                     onDelete={async (commentId) => {
                       if (!post || !session.token) {
-                        setMessage(messages.post.loginToComment)
+                        notify(messages.post.loginToComment)
                         return
                       }
 
@@ -661,16 +688,16 @@ export function CommunityPostDetail({
                       try {
                         await deleteComment(commentId, session.token)
                         await refreshComments(post.id)
-                        setMessage(messages.post.deletedComment)
+                        notify(messages.post.deletedComment)
                       } catch (error) {
-                        setMessage(getErrorMessage(error))
+                        notify(getErrorMessage(error))
                       } finally {
                         setActiveAction(null)
                       }
                     }}
                     onLike={async (commentId, isLiked) => {
                       if (!session.token) {
-                        setMessage(messages.post.signInToInteract)
+                        notify(messages.post.signInToInteract)
                         return
                       }
 
@@ -691,12 +718,14 @@ export function CommunityPostDetail({
                           })),
                         )
                       } catch (error) {
-                        setMessage(getErrorMessage(error))
+                        notify(getErrorMessage(error))
                       } finally {
                         setActiveAction(null)
                       }
                     }}
-                    onMessage={setMessage}
+                    onMessage={(nextMessage) => {
+                      notify(nextMessage)
+                    }}
                   />
                 </div>
               ) : null}
@@ -714,7 +743,6 @@ export function CommunityPostDetail({
         initialData={post}
         onSuccess={(updatedPost) => {
           setPost(updatedPost)
-          setMessage(messages.post.updatedPost)
           router.refresh()
         }}
       />

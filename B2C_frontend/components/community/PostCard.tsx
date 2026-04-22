@@ -29,6 +29,18 @@ import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { CommunityPost } from "@/lib/types"
 import { toast } from "@/hooks/use-toast"
 
+function getPostModerationLabel(status: string, pendingLabel: string) {
+  if (status === "approved") {
+    return null
+  }
+
+  if (status === "pending") {
+    return pendingLabel
+  }
+
+  return status.replace(/_/g, " ")
+}
+
 type PostCardProps = {
   locale: Locale
   post: CommunityPost
@@ -54,6 +66,11 @@ export function PostCard({
 
   const isOwner = currentUserId === post.user?.id
   const supportUrl = getCommunitySupportUrl(post)
+  const readingTime = post.reading_time ?? 0
+  const moderationLabel = getPostModerationLabel(
+    post.status,
+    messages.post.pendingBadge,
+  )
 
   async function handleLikeToggle() {
     if (!token) {
@@ -142,6 +159,11 @@ export function PostCard({
                   {messages.post.pinned}
                 </span>
               ) : null}
+              {moderationLabel ? (
+                <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs capitalize text-amber-700">
+                  {moderationLabel}
+                </span>
+              ) : null}
             </div>
 
             {isOwner ? (
@@ -205,10 +227,10 @@ export function PostCard({
               {getCommunityPostPreview(post)}
             </p>
             {/* Meta: reading time + attachments */}
-            {(post.reading_time > 0 || post.images.length > 0 || (post.media && post.media.length > 0)) ? (
+            {(readingTime > 0 || post.images.length > 0 || (post.media && post.media.length > 0)) ? (
               <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                {post.reading_time > 0 ? (
-                  <span>{post.reading_time} min read</span>
+                {readingTime > 0 ? (
+                  <span>{readingTime} min read</span>
                 ) : null}
                 {post.images.length > 0 ? (
                   <span>{post.images.length} image{post.images.length > 1 ? "s" : ""}</span>
@@ -288,9 +310,6 @@ export function PostCard({
         initialData={post}
         onSuccess={(updatedPost) => {
           onUpdated(updatedPost)
-          toast({
-            title: messages.post.updatedPost,
-          })
         }}
       />
 

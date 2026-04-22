@@ -30,6 +30,10 @@ class UserDirectoryService
         $filters['user_id'] = $user->id;
         unset($filters['mine']);
 
+        if ($this->canViewPrivateContent($user, $viewer)) {
+            $filters['include_private'] = true;
+        }
+
         return $this->postService->list($filters, $viewer);
     }
 

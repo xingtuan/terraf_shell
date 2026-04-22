@@ -94,6 +94,22 @@ function normalizeTags(value: string) {
   )
 }
 
+function getSubmissionToastTitle(
+  status: string,
+  isEditing: boolean,
+  messages: SiteMessages["community"],
+) {
+  if (isEditing) {
+    return status === "approved"
+      ? messages.form.updateApproved
+      : messages.form.updatePending
+  }
+
+  return status === "approved"
+    ? messages.form.approvedSuccess
+    : messages.form.pendingSuccess
+}
+
 export function CreatePostPanel({
   locale,
   messages,
@@ -309,11 +325,9 @@ export function CreatePostPanel({
                 ? updatePost(initialData.id, payload, token)
                 : createPost(payload, token))
                 .then((post) => {
-                  if (!isEditing) {
-                    toast({
-                      title: messages.form.success,
-                    })
-                  }
+                  toast({
+                    title: getSubmissionToastTitle(post.status, isEditing, messages),
+                  })
 
                   onSuccess?.(post)
                   onOpenChange(false)

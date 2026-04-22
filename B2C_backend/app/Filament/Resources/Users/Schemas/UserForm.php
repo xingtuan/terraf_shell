@@ -48,6 +48,10 @@ class UserForm
                                     ->default(AccountStatus::Active->value)
                                     ->required()
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
+                                Toggle::make('community_auto_approve')
+                                    ->label('Direct community approval')
+                                    ->helperText('When the moderation policy allows trusted users, this account will be approved automatically.')
+                                    ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 TextInput::make('password')
                                     ->password()
                                     ->revealable()

@@ -50,6 +50,11 @@ class UserInfolist
                                         TextEntry::make('status_reason')
                                             ->state(fn (User $record): ?string => $record->participationRestrictionReason())
                                             ->placeholder('No restriction reason recorded.'),
+                                        TextEntry::make('community_auto_approve')
+                                            ->label('Direct community approval')
+                                            ->badge()
+                                            ->formatStateUsing(fn (bool $state): string => $state ? 'Enabled' : 'Disabled')
+                                            ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                                         TextEntry::make('created_at')
                                             ->label('Created')
                                             ->dateTime(),

@@ -85,6 +85,38 @@ class UserProfileEndpointsTest extends TestCase
             ->assertJsonPath('data.0.title', 'Visible user post');
     }
 
+    public function test_owner_user_posts_endpoint_includes_pending_posts(): void
+    {
+        $user = User::factory()->create();
+
+        $approvedPost = Post::factory()->create([
+            'user_id' => $user->id,
+            'title' => 'Approved owner post',
+            'status' => 'approved',
+        ]);
+
+        $pendingPost = Post::factory()->pending()->create([
+            'user_id' => $user->id,
+            'title' => 'Pending owner post',
+        ]);
+
+        $this->getJson("/api/users/{$user->id}/posts")
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $approvedPost->id);
+
+        Sanctum::actingAs($user);
+
+        $this->getJson("/api/users/{$user->id}/posts")
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
+
+        $this->getJson("/api/users/{$user->id}/posts?status=pending")
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $pendingPost->id);
+    }
+
     public function test_public_user_favorites_endpoint_returns_favorited_posts(): void
     {
         $user = User::factory()->create();

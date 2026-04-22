@@ -18,6 +18,7 @@ class CommentService
         private readonly NotificationService $notificationService,
         private readonly PostRankingService $postRankingService,
         private readonly GovernanceService $governanceService,
+        private readonly CommunityModerationPolicyService $communityModerationPolicyService,
     ) {}
 
     public function listForPost(Post $post, ?User $viewer = null): Collection
@@ -59,12 +60,14 @@ class CommentService
         }
 
         return DB::transaction(function () use ($post, $user, $data, $parent): Comment {
+            $status = $this->communityModerationPolicyService->statusFor($user);
+
             $comment = Comment::query()->create([
                 'post_id' => $post->id,
                 'user_id' => $user->id,
                 'parent_id' => $parent?->id,
                 'content' => $this->resolveContent($data),
-                'status' => $user->isAdmin() ? ContentStatus::Approved->value : ContentStatus::Pending->value,
+                'status' => $status,
             ]);
 
             if ($comment->status === ContentStatus::Approved->value) {
@@ -108,16 +111,21 @@ class CommentService
         return DB::transaction(function () use ($comment, $user, $data): Comment {
             $comment->loadMissing(['post', 'user.profile', 'post.user.profile']);
             $previousStatus = $comment->status;
+            $nextStatus = $user->isAdmin()
+                ? ContentStatus::Approved->value
+                : $this->communityModerationPolicyService->statusFor($user);
+
             $comment->content = $this->resolveContent($data);
 
-            if (! $user->isAdmin()) {
-                $comment->status = ContentStatus::Pending->value;
-
-                if ($previousStatus === ContentStatus::Approved->value) {
-                    $comment->post->decrement('comments_count');
-                }
+            if ($previousStatus !== ContentStatus::Approved->value && $nextStatus === ContentStatus::Approved->value) {
+                $comment->post->increment('comments_count');
             }
 
+            if ($previousStatus === ContentStatus::Approved->value && $nextStatus !== ContentStatus::Approved->value) {
+                $comment->post->decrement('comments_count');
+            }
+
+            $comment->status = $nextStatus;
             $comment->save();
             $this->governanceService->flagSensitiveContent(
                 $user,

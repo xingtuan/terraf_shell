@@ -28,13 +28,20 @@ class PostService
         private readonly PostRankingService $postRankingService,
         private readonly NotificationService $notificationService,
         private readonly GovernanceService $governanceService,
+        private readonly CommunityModerationPolicyService $communityModerationPolicyService,
     ) {}
 
     public function list(array $filters, ?User $viewer = null): LengthAwarePaginator
     {
         $query = Post::query()->with(['user.profile', 'category', 'tags', 'images', 'media', 'fundingCampaign']);
 
-        if (($filters['mine'] ?? false) && $viewer !== null) {
+        if (($privateUserId = $this->resolvePrivateUserId($filters, $viewer)) !== null) {
+            $query->where('user_id', $privateUserId);
+
+            if (! empty($filters['status'])) {
+                $query->where('status', $filters['status']);
+            }
+        } elseif (($filters['mine'] ?? false) && $viewer !== null) {
             $query->where('user_id', $viewer->id);
             if (! empty($filters['status'])) {
                 $query->where('status', $filters['status']);
@@ -115,8 +122,8 @@ class PostService
     {
         return DB::transaction(function () use ($user, $data): Post {
             $data = $this->preparePostData($data);
+            $status = $this->communityModerationPolicyService->statusFor($user);
             $isAdmin = $user->isAdmin();
-            $status = $isAdmin ? ContentStatus::Approved->value : ContentStatus::Pending->value;
 
             $post = Post::query()->create([
                 'user_id' => $user->id,
@@ -191,8 +198,10 @@ class PostService
                     $post->featured_by = $post->is_featured ? $user->id : null;
                 }
             } else {
-                $post->status = ContentStatus::Pending->value;
-                $post->published_at = null;
+                $post->status = $this->communityModerationPolicyService->statusFor($user);
+                $post->published_at = $post->status === ContentStatus::Approved->value
+                    ? ($post->published_at ?? now())
+                    : null;
             }
 
             $post->save();
@@ -553,6 +562,29 @@ class PostService
                 )->id;
             })
             ->all();
+    }
+
+    private function resolvePrivateUserId(array $filters, ?User $viewer = null): ?int
+    {
+        if (! ($filters['include_private'] ?? false)) {
+            return null;
+        }
+
+        if ($viewer === null) {
+            return null;
+        }
+
+        $userId = isset($filters['user_id']) ? (int) $filters['user_id'] : null;
+
+        if (! $userId) {
+            return null;
+        }
+
+        if ($viewer->canModerate() || $viewer->id === $userId) {
+            return $userId;
+        }
+
+        return null;
     }
 
     private function perPage(null|int|string $requested): int
