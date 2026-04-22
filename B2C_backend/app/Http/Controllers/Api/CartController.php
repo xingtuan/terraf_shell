@@ -85,7 +85,7 @@ class CartController extends Controller
     {
         $validated = $request->validated();
 
-        $this->cartService->mergeGuestCart($validated['session_key'], $request->user()->id);
+        $this->cartService->mergeGuestCart($validated['session_key'], $request->user('sanctum')->id);
         $cart = $this->cartService->getOrCreateCart($request);
 
         return $this->successResponse(
@@ -100,7 +100,7 @@ class CartController extends Controller
         Request $request,
         ?string $sessionKey,
     ): JsonResponse {
-        if ($request->user() !== null || blank($sessionKey)) {
+        if ($request->user('sanctum') !== null || blank($sessionKey)) {
             return $response;
         }
 

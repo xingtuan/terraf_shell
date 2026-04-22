@@ -16,7 +16,7 @@ class PostController extends Controller
 {
     public function index(ListPostsRequest $request, PostService $postService): JsonResponse
     {
-        $posts = $postService->list($request->validated(), $request->user());
+        $posts = $postService->list($request->validated(), $request->user('sanctum'));
 
         return $this->paginatedResponse(
             $posts,
@@ -37,7 +37,7 @@ class PostController extends Controller
 
     public function show(Request $request, string $identifier, PostService $postService): JsonResponse
     {
-        $post = $postService->findForDisplay($identifier, $request->user());
+        $post = $postService->findForDisplay($identifier, $request->user('sanctum'));
 
         return $this->successResponse((new PostResource($post))->includeDetailFields());
     }

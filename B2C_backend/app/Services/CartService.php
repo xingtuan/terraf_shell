@@ -17,7 +17,7 @@ class CartService
 
     public function getOrCreateCart(Request $request): Cart
     {
-        $user = $request->user();
+        $user = $request->user('sanctum');
 
         if ($user !== null) {
             $cart = Cart::query()->firstOrCreate(

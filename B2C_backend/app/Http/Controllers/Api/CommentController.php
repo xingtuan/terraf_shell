@@ -17,7 +17,7 @@ class CommentController extends Controller
 {
     public function index(Request $request, Post $post, CommentService $commentService): JsonResponse
     {
-        $comments = $commentService->listForPost($post, $request->user());
+        $comments = $commentService->listForPost($post, $request->user('sanctum'));
 
         return $this->successResponse(CommentResource::collection($comments));
     }

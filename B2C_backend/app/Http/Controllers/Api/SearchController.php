@@ -19,7 +19,7 @@ class SearchController extends Controller
     {
         $posts = $searchService->searchPosts(
             $request->validated(),
-            $request->user(),
+            $request->user('sanctum'),
         );
 
         return $this->paginatedResponse(

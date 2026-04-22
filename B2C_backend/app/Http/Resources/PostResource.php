@@ -26,7 +26,8 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $campaign = $this->visibleFundingCampaign($request);
+        $viewer = $request->user('sanctum') ?? $request->user();
+        $campaign = $this->visibleFundingCampaign($request, $viewer);
 
         return [
             'id' => $this->id,
@@ -72,11 +73,11 @@ class PostResource extends JsonResource
             'images' => PostImageResource::collection($this->whenLoaded('images')),
             'media' => IdeaMediaResource::collection($this->whenLoaded('media')),
             'featured_by' => $this->when(
-                $request->user()?->canModerate() ?? false,
+                $viewer?->canModerate() ?? false,
                 $this->featured_by
             ),
-            'can_edit' => $request->user()?->can('update', $this->resource) ?? false,
-            'can_delete' => $request->user()?->can('delete', $this->resource) ?? false,
+            'can_edit' => $viewer?->can('update', $this->resource) ?? false,
+            'can_delete' => $viewer?->can('delete', $this->resource) ?? false,
             'featured_at' => $this->featured_at?->toISOString(),
             'published_at' => $this->published_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
@@ -84,13 +85,13 @@ class PostResource extends JsonResource
         ];
     }
 
-    private function visibleFundingCampaign(Request $request): ?FundingCampaign
+    private function visibleFundingCampaign(Request $request, ?\App\Models\User $viewer = null): ?FundingCampaign
     {
         if (! $this->relationLoaded('fundingCampaign') || ! ($this->fundingCampaign instanceof FundingCampaign)) {
             return null;
         }
 
-        return $this->fundingCampaign->isVisibleTo($request->user())
+        return $this->fundingCampaign->isVisibleTo($viewer)
             ? $this->fundingCampaign
             : null;
     }

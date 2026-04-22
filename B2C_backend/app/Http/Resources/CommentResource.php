@@ -16,6 +16,8 @@ class CommentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $viewer = $request->user('sanctum') ?? $request->user();
+
         return [
             'id' => $this->id,
             'post_id' => $this->post_id,
@@ -35,8 +37,8 @@ class CommentResource extends JsonResource
                 ? $this->replies->count()
                 : (int) ($this->replies_count ?? 0),
             'replies' => CommentResource::collection($this->whenLoaded('replies')),
-            'can_edit' => $request->user()?->can('update', $this->resource) ?? false,
-            'can_delete' => $request->user()?->can('delete', $this->resource) ?? false,
+            'can_edit' => $viewer?->can('update', $this->resource) ?? false,
+            'can_delete' => $viewer?->can('delete', $this->resource) ?? false,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

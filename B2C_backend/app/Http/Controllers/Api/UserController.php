@@ -17,7 +17,7 @@ class UserController extends Controller
 {
     public function show(User $user, UserDirectoryService $userDirectoryService): JsonResponse
     {
-        $user = $userDirectoryService->show($user, request()->user());
+        $user = $userDirectoryService->show($user, request()->user('sanctum'));
 
         return $this->successResponse(new UserResource($user));
     }
@@ -27,7 +27,7 @@ class UserController extends Controller
         User $user,
         UserDirectoryService $userDirectoryService
     ): JsonResponse {
-        $posts = $userDirectoryService->listPosts($user, $request->validated(), $request->user());
+        $posts = $userDirectoryService->listPosts($user, $request->validated(), $request->user('sanctum'));
 
         return $this->paginatedResponse(
             $posts,
@@ -40,7 +40,7 @@ class UserController extends Controller
         User $user,
         UserDirectoryService $userDirectoryService
     ): JsonResponse {
-        $posts = $userDirectoryService->listFavorites($user, $request->validated(), $request->user());
+        $posts = $userDirectoryService->listFavorites($user, $request->validated(), $request->user('sanctum'));
 
         return $this->paginatedResponse(
             $posts,
@@ -53,7 +53,7 @@ class UserController extends Controller
         User $user,
         UserDirectoryService $userDirectoryService
     ): JsonResponse {
-        $comments = $userDirectoryService->listComments($user, $request->validated(), $request->user());
+        $comments = $userDirectoryService->listComments($user, $request->validated(), $request->user('sanctum'));
 
         return $this->paginatedResponse(
             $comments,
@@ -66,7 +66,7 @@ class UserController extends Controller
         User $user,
         UserDirectoryService $userDirectoryService
     ): JsonResponse {
-        $followers = $userDirectoryService->listFollowers($user, $request->validated(), $request->user());
+        $followers = $userDirectoryService->listFollowers($user, $request->validated(), $request->user('sanctum'));
 
         return $this->paginatedResponse(
             $followers,
@@ -79,7 +79,7 @@ class UserController extends Controller
         User $user,
         UserDirectoryService $userDirectoryService
     ): JsonResponse {
-        $following = $userDirectoryService->listFollowing($user, $request->validated(), $request->user());
+        $following = $userDirectoryService->listFollowing($user, $request->validated(), $request->user('sanctum'));
 
         return $this->paginatedResponse(
             $following,
