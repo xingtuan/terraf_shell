@@ -193,11 +193,47 @@ class MediaService
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'text/plain',
+            'text/markdown',
+            'text/csv',
+            'application/zip',
+            'application/x-zip-compressed',
+            'application/x-rar-compressed',
+            'application/x-7z-compressed',
+            'model/gltf+json',
+            'model/gltf-binary',
+            'model/obj',
+            'model/stl',
+            'application/sla',
         ], true)) {
             return true;
         }
 
-        return in_array($extension, ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'], true);
+        return in_array($extension, [
+            'pdf',
+            'doc',
+            'docx',
+            'xls',
+            'xlsx',
+            'ppt',
+            'pptx',
+            'txt',
+            'md',
+            'csv',
+            'zip',
+            'rar',
+            '7z',
+            'stl',
+            'obj',
+            'glb',
+            'gltf',
+            'dwg',
+            'dxf',
+            'step',
+            'stp',
+            'iges',
+            'igs',
+        ], true);
     }
 
     /**

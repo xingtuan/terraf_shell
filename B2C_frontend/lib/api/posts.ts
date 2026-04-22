@@ -48,6 +48,7 @@ export type PostFormPayload = {
   content_json?: string | null
   funding_url?: string | null
   images?: File[]
+  attachments?: File[]
   excerpt?: string | null
   cover_image_url?: string | null
   cover_image_path?: string | null
@@ -58,8 +59,10 @@ export type UpsertPostPayload = PostFormPayload
 
 function buildPostBody(payload: Partial<PostFormPayload>) {
   const hasImages = Array.isArray(payload.images) && payload.images.length > 0
+  const hasAttachments =
+    Array.isArray(payload.attachments) && payload.attachments.length > 0
 
-  if (!hasImages) {
+  if (!hasImages && !hasAttachments) {
     return {
       ...(payload.title !== undefined ? { title: payload.title } : {}),
       ...(payload.category_id !== undefined
@@ -134,6 +137,9 @@ function buildPostBody(payload: Partial<PostFormPayload>) {
   }
 
   payload.images?.forEach((image) => form.append("images[]", image))
+  payload.attachments?.forEach((attachment) =>
+    form.append("attachments[]", attachment),
+  )
 
   return form
 }

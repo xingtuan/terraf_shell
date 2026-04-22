@@ -427,7 +427,7 @@
       "createTitle": "Upload Design Idea",
       "createDescription": "Describe your design idea, what product Shellfin material could be used for, and why it would be valuable.",
       "editTitle": "Edit Post",
-      "editDescription": "Update the title, content, images, or funding link for your design idea.",
+      "editDescription": "Update the title, content, attachments, or funding link for your design idea.",
       "titleLabel": "Title",
       "titlePlaceholder": "e.g. Oyster-shell tableware set for boutique hotels",
       "categoryLabel": "Category",
@@ -442,8 +442,8 @@
       "excerptLabel": "Excerpt",
       "excerptPlaceholder": "Optional summary for cards and previews.",
       "excerptHint": "Leave blank to auto-generate an excerpt from the editor content.",
-      "imagesLabel": "Images",
-      "imagesHint": "Optional. Upload up to 4 images.",
+      "imagesLabel": "Attachments",
+      "imagesHint": "Optional. Upload up to 12 safe files, including images, documents, archives, and common 3D files.",
       "existingImages": "Existing images",
       "loadingPost": "Loading post editor data...",
       "publish": "Publish",
@@ -459,7 +459,7 @@
       "contentRequired": "Content is required.",
       "contentMin": "Content must be at least 20 characters.",
       "fundingInvalid": "Enter a valid URL.",
-      "imagesMax": "You can upload up to 4 images."
+      "imagesMax": "You can upload up to 12 attachments."
     },
     "post": {
       "author": "Author",
@@ -503,6 +503,7 @@
       "replyAdded": "Reply added.",
       "supportIdea": "💛 Support this idea",
       "pendingBadge": "Pending",
+      "rejectedBadge": "Rejected",
       "featured": "Featured",
       "pinned": "Pinned",
       "uncategorized": "Uncategorized",

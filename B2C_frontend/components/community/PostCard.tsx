@@ -29,13 +29,21 @@ import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { CommunityPost } from "@/lib/types"
 import { toast } from "@/hooks/use-toast"
 
-function getPostModerationLabel(status: string, pendingLabel: string) {
+function getPostModerationLabel(
+  status: string,
+  pendingLabel: string,
+  rejectedLabel: string,
+) {
   if (status === "approved") {
     return null
   }
 
   if (status === "pending") {
     return pendingLabel
+  }
+
+  if (status === "rejected") {
+    return rejectedLabel
   }
 
   return status.replace(/_/g, " ")
@@ -67,9 +75,12 @@ export function PostCard({
   const isOwner = currentUserId === post.user?.id
   const supportUrl = getCommunitySupportUrl(post)
   const readingTime = post.reading_time ?? 0
+  const downloadableAttachmentCount =
+    post.media?.filter((item) => !item.is_image && !item.is_external).length ?? 0
   const moderationLabel = getPostModerationLabel(
     post.status,
     messages.post.pendingBadge,
+    messages.post.rejectedBadge,
   )
 
   async function handleLikeToggle() {
@@ -227,7 +238,9 @@ export function PostCard({
               {getCommunityPostPreview(post)}
             </p>
             {/* Meta: reading time + attachments */}
-            {(readingTime > 0 || post.images.length > 0 || (post.media && post.media.length > 0)) ? (
+            {(readingTime > 0 ||
+              post.images.length > 0 ||
+              downloadableAttachmentCount > 0) ? (
               <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 {readingTime > 0 ? (
                   <span>{readingTime} min read</span>
@@ -235,8 +248,11 @@ export function PostCard({
                 {post.images.length > 0 ? (
                   <span>{post.images.length} image{post.images.length > 1 ? "s" : ""}</span>
                 ) : null}
-                {post.media && post.media.length > 0 ? (
-                  <span>{post.media.length} attachment{post.media.length > 1 ? "s" : ""}</span>
+                {downloadableAttachmentCount > 0 ? (
+                  <span>
+                    {downloadableAttachmentCount} attachment
+                    {downloadableAttachmentCount > 1 ? "s" : ""}
+                  </span>
                 ) : null}
               </div>
             ) : null}

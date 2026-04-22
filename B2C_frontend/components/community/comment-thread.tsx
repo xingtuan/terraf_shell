@@ -100,7 +100,7 @@ export function CommentThread({
                       </span>
                       {comment.status !== "approved" ? (
                         <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-primary">
-                          {messages.pendingBadge}
+                          {comment.status === "rejected" ? messages.rejectedBadge : messages.pendingBadge}
                         </span>
                       ) : null}
                     </div>

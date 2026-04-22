@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PartnershipInquiryController;
+use App\Http\Controllers\Api\PostAttachmentDownloadController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\PostLikeController;
 use App\Http\Controllers\Api\ProductCategoryController as PublicProductCategoryController;
@@ -76,6 +77,9 @@ Route::prefix('auth')->group(function (): void {
 
 Route::get('/posts', [PostController::class, 'index']);
 Route::get('/posts/{post}/comments', [CommentController::class, 'index'])->whereNumber('post');
+Route::get('/posts/{identifier}/attachments/{media}/download', PostAttachmentDownloadController::class)
+    ->whereNumber('media')
+    ->name('posts.attachments.download');
 Route::get('/posts/{identifier}', [PostController::class, 'show']);
 
 Route::get('/categories', [CategoryController::class, 'index']);

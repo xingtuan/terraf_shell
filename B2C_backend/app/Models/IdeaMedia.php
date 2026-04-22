@@ -41,12 +41,14 @@ class IdeaMedia extends Model
         'external_url',
         'metadata',
         'sort_order',
+        'download_count',
     ];
 
     protected function casts(): array
     {
         return [
             'size_bytes' => 'integer',
+            'download_count' => 'integer',
             'metadata' => 'array',
         ];
     }

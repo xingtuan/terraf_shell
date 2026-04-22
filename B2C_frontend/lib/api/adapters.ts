@@ -320,6 +320,11 @@ export function normalizeCommunityMedia(media: CommunityMedia): CommunityMedia {
     preview_url: resolveApiUrl(media.preview_url),
     thumbnail_url: resolveApiUrl(media.thumbnail_url),
     external_url: resolveApiUrl(media.external_url),
+    download_url: resolveApiUrl(media.download_url),
+    is_image: Boolean(media.is_image),
+    is_document: Boolean(media.is_document),
+    is_external: Boolean(media.is_external),
+    download_count: Number(media.download_count ?? 0),
     metadata: isJsonObject(media.metadata) ? media.metadata : null,
   }
 }

@@ -181,4 +181,46 @@ class PostMediaManagementTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors(['attachments.0']);
     }
+
+    public function test_creator_can_submit_safe_non_image_files_and_download_counts_increment(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $createResponse = $this->post('/api/posts', [
+            'title' => 'Mixed attachment package',
+            'content' => 'A concept package with notes, a zipped source archive, and a printable brief.',
+            'attachments' => [
+                UploadedFile::fake()->create('brief.txt', 8, 'text/plain'),
+                UploadedFile::fake()->create('source-package.zip', 32, 'application/zip'),
+            ],
+            'attachment_titles' => ['Brief', 'Source package'],
+            'attachment_kinds' => ['reference_document', 'reference_document'],
+        ], [
+            'Accept' => 'application/json',
+        ])->assertCreated();
+
+        $document = collect($createResponse->json('data.media'))
+            ->first(fn (array $item): bool => ($item['title'] ?? null) === 'Brief');
+
+        $this->assertNotNull($document);
+        $this->assertSame(0, $document['download_count']);
+        $this->assertNotEmpty($document['download_url']);
+
+        $downloadResponse = $this->get($document['download_url'], [
+            'Accept' => 'application/json',
+        ]);
+
+        $downloadResponse
+            ->assertOk()
+            ->assertHeader('content-disposition');
+
+        $this->assertDatabaseHas('idea_media', [
+            'id' => $document['id'],
+            'download_count' => 1,
+        ]);
+    }
 }

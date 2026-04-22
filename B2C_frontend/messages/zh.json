@@ -442,8 +442,8 @@
       "excerptLabel": "摘要",
       "excerptPlaceholder": "可选的卡片与预览摘要。",
       "excerptHint": "留空时会根据编辑器内容自动生成摘要。",
-      "imagesLabel": "??",
-      "imagesHint": "??????? 4 ????",
+      "imagesLabel": "附件",
+      "imagesHint": "选填。最多可上传 12 个安全文件，包括图片、文档、压缩包和常见 3D 文件。",
       "existingImages": "????",
       "loadingPost": "正在加载帖子编辑内容...",
       "publish": "??",
@@ -459,7 +459,7 @@
       "contentRequired": "??????",
       "contentMin": "?????? 20 ????",
       "fundingInvalid": "?????? URL?",
-      "imagesMax": "?????? 4 ????"
+      "imagesMax": "最多可上传 12 个附件。"
     },
     "post": {
       "author": "??",
@@ -502,7 +502,8 @@
       "updatedComment": "??????",
       "replyAdded": "??????",
       "supportIdea": "💛 ??????",
-      "pendingBadge": "???",
+      "pendingBadge": "待审核",
+      "rejectedBadge": "已拒绝",
       "featured": "??",
       "pinned": "??",
       "uncategorized": "???",

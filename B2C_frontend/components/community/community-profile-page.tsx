@@ -555,7 +555,7 @@ export function CommunityProfilePage({
                                 </span>
                                 {comment.status !== "approved" ? (
                                   <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-primary">
-                                    {messages.post.pendingBadge}
+                                    {comment.status === "rejected" ? messages.post.rejectedBadge : messages.post.pendingBadge}
                                   </span>
                                 ) : null}
                               </div>

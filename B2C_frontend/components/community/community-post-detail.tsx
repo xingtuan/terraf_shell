@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { MoreHorizontal } from "lucide-react"
+import { Download, ExternalLink, MoreHorizontal } from "lucide-react"
 import { useEffect, useEffectEvent, useState, type FormEvent, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
@@ -34,12 +34,13 @@ import {
 import { deletePost, getPost } from "@/lib/api/posts"
 import {
   formatCommunityDate,
+  formatCommunityFileSize,
   getCommunityPostCoverImage,
   getCommunitySupportUrl,
   getCommunityUserName,
 } from "@/lib/community-ui"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
-import type { CommunityComment, CommunityPost } from "@/lib/types"
+import type { CommunityComment, CommunityMedia, CommunityPost } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { toast } from "@/hooks/use-toast"
 
@@ -66,6 +67,18 @@ function updateCommentTree(
       replies: updateCommentTree(comment.replies ?? [], commentId, updater),
     }
   })
+}
+
+function getAttachmentName(media: CommunityMedia) {
+  return media.title ?? media.original_name ?? media.file_name ?? "Attachment"
+}
+
+function getAttachmentType(media: CommunityMedia) {
+  return (
+    media.extension?.toUpperCase() ??
+    media.mime_type?.split("/")[1]?.toUpperCase() ??
+    "FILE"
+  )
 }
 
 export function CommunityPostDetail({
@@ -186,6 +199,28 @@ export function CommunityPostDetail({
 
   const supportUrl = post ? getCommunitySupportUrl(post) : null
   const isOwner = session.user?.id === post?.user?.id
+  const downloadableAttachments =
+    post?.media?.filter((item) => !item.is_image && !item.is_external) ?? []
+  const externalMedia =
+    post?.media?.filter((item) => item.is_external) ?? []
+
+  function handleAttachmentDownload(mediaId: number) {
+    setPost((currentPost) =>
+      currentPost
+        ? {
+            ...currentPost,
+            media: currentPost.media?.map((item) =>
+              item.id === mediaId
+                ? {
+                    ...item,
+                    download_count: Number(item.download_count ?? 0) + 1,
+                  }
+                : item,
+            ),
+          }
+        : currentPost,
+    )
+  }
 
   return (
     <section className="bg-background py-14 lg:py-16">
@@ -355,71 +390,84 @@ export function CommunityPostDetail({
                   </div>
                 ) : null}
 
-                {/* Media attachments (IdeaMedia: images + documents) */}
-                {post.media && post.media.length > 0 ? (
+                {downloadableAttachments.length > 0 ? (
                   <div className="space-y-3">
-                    {post.media.filter((m) => m.is_image).length > 0 ? (
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                        {post.media
-                          .filter((m) => m.is_image)
-                          .map((media) => (
-                            <a
-                              key={media.id}
-                              href={media.url ?? undefined}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="block overflow-hidden rounded-2xl border border-border/60 bg-muted"
-                            >
-                              <Image
-                                src={
-                                  media.thumbnail_url ??
-                                  media.preview_url ??
-                                  media.url ??
-                                  "/placeholder.jpg"
-                                }
-                                alt={media.alt_text ?? media.title ?? post.title}
-                                width={400}
-                                height={300}
-                                unoptimized
-                                className="aspect-[4/3] w-full object-cover transition-opacity hover:opacity-90"
-                              />
-                              {media.title ? (
-                                <p className="truncate px-3 py-2 text-xs text-muted-foreground">
-                                  {media.title}
-                                </p>
+                    <div className="flex items-center justify-between gap-3">
+                      <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
+                        Attachments
+                      </h2>
+                      <span className="text-xs text-muted-foreground">
+                        {downloadableAttachments.length} file
+                        {downloadableAttachments.length > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {downloadableAttachments.map((media) => (
+                        <a
+                          key={media.id}
+                          href={media.download_url ?? media.url ?? undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                          download={getAttachmentName(media)}
+                          onClick={() => handleAttachmentDownload(media.id)}
+                          className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm transition-colors hover:bg-muted"
+                        >
+                          <span className="shrink-0 rounded-lg border border-border/60 bg-muted px-2 py-1 text-xs uppercase text-muted-foreground">
+                            {getAttachmentType(media)}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate font-medium text-foreground">
+                              {getAttachmentName(media)}
+                            </span>
+                            <span className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                              {formatCommunityFileSize(media.size_bytes) ? (
+                                <span>{formatCommunityFileSize(media.size_bytes)}</span>
                               ) : null}
-                            </a>
-                          ))}
-                      </div>
-                    ) : null}
+                              <span>{media.download_count ?? 0} downloads</span>
+                            </span>
+                          </span>
+                          <span className="inline-flex shrink-0 items-center gap-2 text-xs font-medium text-foreground">
+                            <Download className="size-4" />
+                            Download
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
 
-                    {post.media.filter((m) => !m.is_image).length > 0 ? (
-                      <div className="space-y-2">
-                        {post.media
-                          .filter((m) => !m.is_image)
-                          .map((media) => (
-                            <a
-                              key={media.id}
-                              href={media.url ?? undefined}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm transition-colors hover:bg-muted"
-                            >
-                              <span className="shrink-0 rounded-lg border border-border/60 bg-muted px-2 py-1 text-xs uppercase text-muted-foreground">
-                                {media.extension ?? media.mime_type?.split("/")[1] ?? "file"}
-                              </span>
-                              <span className="min-w-0 flex-1 truncate text-foreground">
-                                {media.title ?? media.original_name ?? "Attachment"}
-                              </span>
-                              {media.size_bytes ? (
-                                <span className="shrink-0 text-xs text-muted-foreground">
-                                  {(media.size_bytes / 1024).toFixed(0)} KB
-                                </span>
-                              ) : null}
-                            </a>
-                          ))}
-                      </div>
-                    ) : null}
+                {externalMedia.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
+                        External Links
+                      </h2>
+                      <span className="text-xs text-muted-foreground">
+                        {externalMedia.length} link{externalMedia.length > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {externalMedia.map((media) => (
+                        <a
+                          key={media.id}
+                          href={media.external_url ?? media.url ?? undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm transition-colors hover:bg-muted"
+                        >
+                          <span className="shrink-0 rounded-lg border border-border/60 bg-muted px-2 py-1 text-xs uppercase text-muted-foreground">
+                            LINK
+                          </span>
+                          <span className="min-w-0 flex-1 truncate text-foreground">
+                            {getAttachmentName(media)}
+                          </span>
+                          <span className="inline-flex shrink-0 items-center gap-2 text-xs font-medium text-foreground">
+                            <ExternalLink className="size-4" />
+                            Open
+                          </span>
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 ) : null}
 

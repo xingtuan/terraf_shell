@@ -10,10 +10,13 @@ import {
   listCategories,
   updatePost,
 } from "@/lib/api/posts"
-import { getCommunityPostCoverImage } from "@/lib/community-ui"
+import {
+  formatCommunityFileSize,
+  getCommunityPostCoverImage,
+} from "@/lib/community-ui"
 import { createRichTextDocumentFromText } from "@/lib/community-rich-text"
 import type { Locale, SiteMessages } from "@/lib/i18n"
-import type { CommunityCategory, CommunityPost } from "@/lib/types"
+import type { CommunityCategory, CommunityMedia, CommunityPost } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -66,7 +69,7 @@ type FieldErrors = Partial<
     | "content"
     | "excerpt"
     | "funding_url"
-    | "images",
+    | "attachments",
     string
   >
 >
@@ -110,6 +113,74 @@ function getSubmissionToastTitle(
     : messages.form.pendingSuccess
 }
 
+const MAX_ATTACHMENTS = 12
+const SAFE_ATTACHMENT_ACCEPT = [
+  "image/*",
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".ppt",
+  ".pptx",
+  ".xls",
+  ".xlsx",
+  ".txt",
+  ".md",
+  ".csv",
+  ".zip",
+  ".rar",
+  ".7z",
+  ".stl",
+  ".obj",
+  ".glb",
+  ".gltf",
+  ".dwg",
+  ".dxf",
+  ".step",
+  ".stp",
+  ".iges",
+  ".igs",
+].join(",")
+
+function isImageAttachment(file: File | CommunityMedia) {
+  if (file instanceof File) {
+    if (file.type.startsWith("image/")) {
+      return true
+    }
+
+    return /\.(avif|bmp|gif|jpe?g|png|svg|webp)$/i.test(file.name)
+  }
+
+  if (file.is_image) {
+    return true
+  }
+
+  return /\.(avif|bmp|gif|jpe?g|png|svg|webp)$/i.test(
+    file.original_name ?? file.file_name ?? "",
+  )
+}
+
+function getAttachmentLabel(file: File | CommunityMedia) {
+  if (file instanceof File) {
+    return file.name
+  }
+
+  return file.title ?? file.original_name ?? file.file_name ?? "Attachment"
+}
+
+function getAttachmentExtension(file: File | CommunityMedia) {
+  if (!(file instanceof File)) {
+    return (
+      file.extension?.toUpperCase() ??
+      file.mime_type?.split("/")[1]?.toUpperCase() ??
+      "FILE"
+    )
+  }
+
+  const extension = file.name.split(".").pop()?.trim()
+
+  return extension ? extension.toUpperCase() : "FILE"
+}
+
 export function CreatePostPanel({
   locale,
   messages,
@@ -132,8 +203,10 @@ export function CreatePostPanel({
   const [fundingUrl, setFundingUrl] = useState("")
   const [coverImageUrl, setCoverImageUrl] = useState("")
   const [coverImagePath, setCoverImagePath] = useState("")
-  const [images, setImages] = useState<File[]>([])
-  const [previews, setPreviews] = useState<string[]>([])
+  const [attachments, setAttachments] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<
+    Array<{ index: number; url: string }>
+  >([])
   const [editingPost, setEditingPost] = useState<CommunityPost | null>(null)
   const [isLoadingPostDetail, setIsLoadingPostDetail] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -179,7 +252,7 @@ export function CreatePostPanel({
 
     setErrors({})
     setFormError(null)
-    setImages([])
+    setAttachments([])
     setEditingPost(initialData && !requiresDetail ? initialData : null)
 
     if (!initialData || !requiresDetail || !token) {
@@ -234,13 +307,15 @@ export function CreatePostPanel({
   }, [currentPost, open])
 
   useEffect(() => {
-    const nextPreviews = images.map((file) => URL.createObjectURL(file))
-    setPreviews(nextPreviews)
+    const nextPreviews = attachments.flatMap((file, index) =>
+      isImageAttachment(file) ? [{ index, url: URL.createObjectURL(file) }] : [],
+    )
+    setImagePreviews(nextPreviews)
 
     return () => {
-      nextPreviews.forEach((preview) => URL.revokeObjectURL(preview))
+      nextPreviews.forEach((preview) => URL.revokeObjectURL(preview.url))
     }
-  }, [images])
+  }, [attachments])
 
   function validate() {
     const nextErrors: FieldErrors = {}
@@ -273,8 +348,8 @@ export function CreatePostPanel({
       }
     }
 
-    if (images.length > 4) {
-      nextErrors.images = messages.form.imagesMax
+    if (attachments.length > MAX_ATTACHMENTS) {
+      nextErrors.attachments = messages.form.imagesMax
     }
 
     setErrors(nextErrors)
@@ -315,7 +390,7 @@ export function CreatePostPanel({
               cover_image_url: coverImageUrl || null,
               cover_image_path: coverImagePath || null,
               funding_url: fundingUrl.trim() || null,
-              images,
+              attachments,
             }
 
             setFormError(null)
@@ -341,12 +416,20 @@ export function CreatePostPanel({
                       content: getApiFieldError(error, ["content", "content_json"]),
                       excerpt: getApiFieldError(error, ["excerpt"]),
                       funding_url: getApiFieldError(error, ["funding_url"]),
-                      images: getApiFieldError(error, [
-                        "images",
-                        "images.0",
-                        "images.1",
-                        "images.2",
-                        "images.3",
+                      attachments: getApiFieldError(error, [
+                        "attachments",
+                        "attachments.0",
+                        "attachments.1",
+                        "attachments.2",
+                        "attachments.3",
+                        "attachments.4",
+                        "attachments.5",
+                        "attachments.6",
+                        "attachments.7",
+                        "attachments.8",
+                        "attachments.9",
+                        "attachments.10",
+                        "attachments.11",
                       ]),
                     })
                   }
@@ -500,41 +583,74 @@ export function CreatePostPanel({
             </div>
           ) : null}
 
+          {isEditing &&
+          currentPost?.media?.some((media) => !media.is_image && !media.is_external) ? (
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-foreground">Current attachments</p>
+              <div className="space-y-2">
+                {currentPost.media
+                  .filter((media) => !media.is_image && !media.is_external)
+                  .map((media) => (
+                    <div
+                      key={media.id}
+                      className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm"
+                    >
+                      <span className="shrink-0 rounded-lg border border-border/60 bg-muted px-2 py-1 text-xs uppercase text-muted-foreground">
+                        {getAttachmentExtension(media)}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-foreground">
+                        {getAttachmentLabel(media)}
+                      </span>
+                      {formatCommunityFileSize(media.size_bytes) ? (
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {formatCommunityFileSize(media.size_bytes)}
+                        </span>
+                      ) : null}
+                    </div>
+                  ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className="space-y-3">
             <label className="text-sm font-medium text-foreground">
               {messages.form.imagesLabel}
             </label>
             <Input
               type="file"
-              accept="image/*"
+              accept={SAFE_ATTACHMENT_ACCEPT}
               multiple
               onChange={(event) => {
                 const nextFiles = Array.from(event.target.files ?? [])
-                setImages(nextFiles)
+                setAttachments(nextFiles)
               }}
             />
             <p className="text-xs text-muted-foreground">
               {messages.form.imagesHint}
             </p>
-            {previews.length > 0 ? (
+            {imagePreviews.length > 0 ? (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {previews.map((preview, index) => (
+                {imagePreviews.map((preview) => (
                   <div
-                    key={preview}
+                    key={preview.url}
                     className="relative overflow-hidden rounded-2xl border border-border/60"
                   >
                     <img
-                      src={preview}
-                      alt={images[index]?.name ?? `${locale}-preview-${index + 1}`}
+                      src={preview.url}
+                      alt={
+                        attachments[preview.index]?.name ??
+                        `${locale}-preview-${preview.index + 1}`
+                      }
                       className="aspect-square w-full object-cover"
                     />
                     <button
                       type="button"
                       className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-1 text-xs text-foreground"
                       onClick={() => {
-                        setImages((currentImages) =>
-                          currentImages.filter(
-                            (_, imageIndex) => imageIndex !== index,
+                        setAttachments((currentAttachments) =>
+                          currentAttachments.filter(
+                            (_, attachmentIndex) =>
+                              attachmentIndex !== preview.index,
                           ),
                         )
                       }}
@@ -545,8 +661,48 @@ export function CreatePostPanel({
                 ))}
               </div>
             ) : null}
-            {errors.images ? (
-              <p className="text-sm text-destructive">{errors.images}</p>
+
+            {attachments.some((file) => !isImageAttachment(file)) ? (
+              <div className="space-y-2">
+                {attachments
+                  .map((file, index) => ({ file, index }))
+                  .filter(({ file }) => !isImageAttachment(file))
+                  .map(({ file, index }) => (
+                    <div
+                      key={`${file.name}-${index}`}
+                      className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm"
+                    >
+                      <span className="shrink-0 rounded-lg border border-border/60 bg-muted px-2 py-1 text-xs uppercase text-muted-foreground">
+                        {getAttachmentExtension(file)}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-foreground">
+                        {file.name}
+                      </span>
+                      {formatCommunityFileSize(file.size) ? (
+                        <span className="shrink-0 text-xs text-muted-foreground">
+                          {formatCommunityFileSize(file.size)}
+                        </span>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="rounded-full border border-border/60 px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+                        onClick={() => {
+                          setAttachments((currentAttachments) =>
+                            currentAttachments.filter(
+                              (_, attachmentIndex) => attachmentIndex !== index,
+                            ),
+                          )
+                        }}
+                      >
+                        {messages.post.delete}
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            ) : null}
+
+            {errors.attachments ? (
+              <p className="text-sm text-destructive">{errors.attachments}</p>
             ) : null}
           </div>
 

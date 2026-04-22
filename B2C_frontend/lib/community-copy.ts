@@ -80,6 +80,7 @@ export type CommunityCopy = {
     noCommentsDescription: string
     repliesLabel: string
     pendingBadge: string
+    rejectedBadge: string
   }
 }
 
@@ -171,6 +172,7 @@ const englishCopy: CommunityCopy = {
       "This post has no visible comments. Sign in and add the first one.",
     repliesLabel: "Replies",
     pendingBadge: "Pending",
+    rejectedBadge: "Rejected",
   },
 }
 

@@ -95,6 +95,29 @@ export function getCommunityCommentPreview(
   return `${preview.slice(0, maxLength)}...`
 }
 
+export function formatCommunityFileSize(sizeBytes?: number | null) {
+  if (!sizeBytes || sizeBytes < 0) {
+    return null
+  }
+
+  if (sizeBytes < 1024) {
+    return `${sizeBytes} B`
+  }
+
+  const units = ["KB", "MB", "GB", "TB"]
+  let value = sizeBytes / 1024
+  let unitIndex = 0
+
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024
+    unitIndex += 1
+  }
+
+  const precision = value >= 100 ? 0 : value >= 10 ? 1 : 2
+
+  return `${value.toFixed(precision)} ${units[unitIndex]}`
+}
+
 export function getCommunityPostCoverImage(post: CommunityPost) {
   const mediaImage = post.media?.find(
     (item) =>
