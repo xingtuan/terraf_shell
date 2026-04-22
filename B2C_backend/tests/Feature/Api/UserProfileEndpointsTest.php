@@ -100,18 +100,18 @@ class UserProfileEndpointsTest extends TestCase
             'title' => 'Pending owner post',
         ]);
 
-        $this->getJson("/api/users/{$user->id}/posts")
+        $this->getJson("/api/users/{$user->username}/posts")
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $approvedPost->id);
 
         Sanctum::actingAs($user);
 
-        $this->getJson("/api/users/{$user->id}/posts")
+        $this->getJson("/api/users/{$user->username}/posts")
             ->assertOk()
             ->assertJsonCount(2, 'data');
 
-        $this->getJson("/api/users/{$user->id}/posts?status=pending")
+        $this->getJson("/api/users/{$user->username}/posts?status=pending")
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $pendingPost->id);
@@ -161,18 +161,18 @@ class UserProfileEndpointsTest extends TestCase
             'content' => 'Pending comment',
         ]);
 
-        $this->getJson("/api/users/{$user->id}/comments")
+        $this->getJson("/api/users/{$user->username}/comments")
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $approvedComment->id);
 
         Sanctum::actingAs($user);
 
-        $this->getJson("/api/users/{$user->id}/comments")
+        $this->getJson("/api/users/{$user->username}/comments")
             ->assertOk()
             ->assertJsonCount(2, 'data');
 
-        $this->getJson("/api/users/{$user->id}/comments?status=pending")
+        $this->getJson("/api/users/{$user->username}/comments?status=pending")
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $pendingComment->id);

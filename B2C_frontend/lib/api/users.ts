@@ -23,6 +23,7 @@ type ApiRequestOverrides = {
 type ListUserContentParams = {
   page?: number
   per_page?: number
+  status?: "approved" | "pending" | "rejected" | "hidden"
   sort?:
     | "latest"
     | "hot"

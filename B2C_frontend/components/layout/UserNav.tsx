@@ -57,7 +57,12 @@ export function UserNav({ locale }: UserNavProps) {
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onSelect={() => {
-              router.push(getLocalizedHref(locale, "account"))
+              router.push(
+                getLocalizedHref(
+                  locale,
+                  `community/u/${session.user?.username ?? ""}`,
+                ),
+              )
             }}
           >
             My Account
@@ -68,18 +73,6 @@ export function UserNav({ locale }: UserNavProps) {
             }}
           >
             My Orders
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onSelect={() => {
-              router.push(
-                getLocalizedHref(
-                  locale,
-                  `community/u/${session.user?.username ?? ""}`,
-                ),
-              )
-            }}
-          >
-            Community Profile
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {
