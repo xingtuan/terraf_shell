@@ -6,7 +6,14 @@
       "Bash(sed -n '71p' /c/Users/xingz/Desktop/terraf/B2C_frontend/app/\\\\[locale\\\\]/material/page.tsx)",
       "Bash(grep -n '`' /c/Users/xingz/Desktop/terraf/B2C_frontend/app/\\\\[locale\\\\]/material/page.tsx)",
       "Bash(xargs grep *)",
-      "Bash(xargs ls *)"
+      "Bash(xargs ls *)",
+      "Bash(php artisan *)",
+      "Bash(php -r ' *)",
+      "Bash(php -l app/Filament/Pages/Dashboard.php)",
+      "Bash(php -l app/Filament/Widgets/CommunityStatsOverview.php)",
+      "Bash(php -l app/Filament/Widgets/RecentActivity.php)",
+      "Bash(php -l app/Filament/Widgets/StoreOverview.php)",
+      "Bash(php -l app/Filament/Widgets/LeadOperationsOverview.php)"
     ]
   }
 }
