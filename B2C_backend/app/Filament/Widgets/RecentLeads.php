@@ -8,7 +8,6 @@ use App\Filament\Resources\B2BLeads\B2BLeadResource;
 use App\Filament\Resources\Enquiries\EnquiryResource;
 use App\Filament\Support\PanelAccess;
 use App\Models\B2BLead;
-use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -17,12 +16,9 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentLeads extends TableWidget
 {
-    protected static ?string $heading = 'Lead Queue';
+    protected static ?string $heading = 'Lead Backlog';
 
-    protected int|string|array $columnSpan = [
-        'md' => 4,
-        'xl' => 6,
-    ];
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -34,13 +30,6 @@ class RecentLeads extends TableWidget
                     B2BLeadStatus::Closed->value,
                 ])
                 ->latest())
-            ->description('Open enquiries and business-development submissions that still need owner attention.')
-            ->headerActions([
-                Action::make('manageLeads')
-                    ->label('Open lead ops')
-                    ->icon('heroicon-o-arrow-top-right-on-square')
-                    ->url(EnquiryResource::getUrl()),
-            ])
             ->columns([
                 TextColumn::make('reference')
                     ->label('Reference')
@@ -75,7 +64,7 @@ class RecentLeads extends TableWidget
                         ? EnquiryResource::getUrl('view', ['record' => $record->getKey()])
                         : B2BLeadResource::getUrl('view', ['record' => $record])),
             ])
-            ->paginated([6])
+            ->paginated([8])
             ->emptyStateHeading('No open leads in the queue.')
             ->emptyStateDescription('New enquiries and business-development submissions will appear here.');
     }

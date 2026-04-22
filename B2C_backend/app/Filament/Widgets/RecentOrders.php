@@ -7,7 +7,6 @@ use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource;
 use App\Filament\Support\PanelAccess;
 use App\Models\Order;
-use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -16,12 +15,9 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentOrders extends TableWidget
 {
-    protected static ?string $heading = 'Fulfilment Queue';
+    protected static ?string $heading = 'Fulfilment Backlog';
 
-    protected int|string|array $columnSpan = [
-        'md' => 4,
-        'xl' => 6,
-    ];
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
@@ -36,19 +32,11 @@ class RecentOrders extends TableWidget
                     OrderStatus::Shipped->value,
                 ])
                 ->latest())
-            ->description('Orders that still need fulfilment, status review, or payment follow-up.')
-            ->headerActions([
-                Action::make('manageOrders')
-                    ->label('Open orders')
-                    ->icon('heroicon-o-arrow-top-right-on-square')
-                    ->url(OrderResource::getUrl()),
-            ])
             ->columns([
                 TextColumn::make('order_number')
                     ->label('Order')
                     ->copyable()
-                    ->searchable()
-                    ->description(fn (Order $record): string => '$'.number_format((float) $record->total_usd, 2)),
+                    ->searchable(),
                 TextColumn::make('user.name')
                     ->label('Customer')
                     ->description(fn (Order $record): string => $record->user?->email ?? 'Guest checkout')
@@ -77,7 +65,7 @@ class RecentOrders extends TableWidget
                 ViewAction::make()
                     ->url(fn (Order $record): string => OrderResource::getUrl('view', ['record' => $record])),
             ])
-            ->paginated([6])
+            ->paginated([8])
             ->emptyStateHeading('No active fulfilment backlog.')
             ->emptyStateDescription('New orders that need review will appear here.');
     }

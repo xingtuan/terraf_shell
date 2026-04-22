@@ -2,10 +2,18 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\ContentOverview;
+use App\Filament\Widgets\LeadOperationsOverview;
+use App\Filament\Widgets\ModerationOverview;
+use App\Filament\Widgets\RecentActivity;
+use App\Filament\Widgets\RecentLeads;
+use App\Filament\Widgets\RecentOrders;
+use App\Filament\Widgets\StoreOverview;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -31,6 +39,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->pages([
+                Dashboard::class,
+            ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->navigationGroups([
                 'Store',
@@ -39,6 +50,15 @@ class AdminPanelProvider extends PanelProvider
                 'Community',
                 'Governance',
                 'Insights',
+            ])
+            ->widgets([
+                StoreOverview::class,
+                LeadOperationsOverview::class,
+                ContentOverview::class,
+                ModerationOverview::class,
+                RecentOrders::class,
+                RecentLeads::class,
+                RecentActivity::class,
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -2,101 +2,61 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\PublishStatus;
+use App\Filament\Resources\Articles\ArticleResource;
+use App\Filament\Resources\HomeSections\HomeSectionResource;
+use App\Filament\Resources\Materials\MaterialResource;
 use App\Filament\Support\PanelAccess;
-use Filament\Support\RawJs;
-use Filament\Widgets\ChartWidget;
+use App\Models\Article;
+use App\Models\HomeSection;
+use App\Models\Material;
+use Filament\Widgets\StatsOverviewWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class ContentOverview extends ChartWidget
+class ContentOverview extends StatsOverviewWidget
 {
-    public array $dashboard = [];
+    protected ?string $heading = 'Content Overview';
 
-    protected int|string|array $columnSpan = [
-        'md' => 4,
-        'xl' => 4,
-    ];
+    protected ?string $description = 'Website publishing status across homepage, materials, and articles.';
 
-    protected ?string $pollingInterval = null;
-
-    protected ?string $heading = 'Publishing Cadence';
-
-    protected string $color = 'success';
-
-    protected ?string $maxHeight = '340px';
-
-    public function getDescription(): ?string
+    protected function getStats(): array
     {
-        $content = $this->dashboard['content'] ?? [];
-
-        return number_format((int) ($content['published_total'] ?? 0)).' live content records | '
-            .number_format((int) ($content['draft_total'] ?? 0)).' drafts still in progress';
-    }
-
-    protected function getType(): string
-    {
-        return 'bar';
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getData(): array
-    {
-        $content = $this->dashboard['content'] ?? [];
+        $publishedMaterials = Material::query()->where('status', PublishStatus::Published->value)->count();
+        $draftMaterials = Material::query()->where('status', PublishStatus::Draft->value)->count();
+        $publishedArticles = Article::query()->where('status', PublishStatus::Published->value)->count();
+        $draftArticles = Article::query()->where('status', PublishStatus::Draft->value)->count();
+        $publishedSections = HomeSection::query()->where('status', PublishStatus::Published->value)->count();
+        $draftSections = HomeSection::query()->where('status', PublishStatus::Draft->value)->count();
 
         return [
-            'labels' => $content['labels_30d'] ?? [],
-            'datasets' => [
-                [
-                    'label' => 'Materials',
-                    'data' => $content['materials_series_30d'] ?? [],
-                    'backgroundColor' => 'rgba(5, 150, 105, 0.72)',
-                    'borderRadius' => 10,
-                    'maxBarThickness' => 18,
-                ],
-                [
-                    'label' => 'Articles',
-                    'data' => $content['articles_series_30d'] ?? [],
-                    'backgroundColor' => 'rgba(14, 165, 233, 0.72)',
-                    'borderRadius' => 10,
-                    'maxBarThickness' => 18,
-                ],
-                [
-                    'label' => 'Homepage sections',
-                    'data' => $content['sections_series_30d'] ?? [],
-                    'backgroundColor' => 'rgba(217, 119, 6, 0.72)',
-                    'borderRadius' => 10,
-                    'maxBarThickness' => 18,
-                ],
-            ],
-        ];
-    }
-
-    protected function getOptions(): array|RawJs|null
-    {
-        return [
-            'interaction' => [
-                'intersect' => false,
-                'mode' => 'index',
-            ],
-            'plugins' => [
-                'legend' => [
-                    'position' => 'bottom',
-                ],
-            ],
-            'scales' => [
-                'x' => [
-                    'stacked' => false,
-                    'grid' => [
-                        'display' => false,
-                    ],
-                ],
-                'y' => [
-                    'beginAtZero' => true,
-                    'ticks' => [
-                        'precision' => 0,
-                    ],
-                ],
-            ],
+            Stat::make('Homepage sections live', number_format($publishedSections))
+                ->description("{$draftSections} draft sections")
+                ->color('info')
+                ->icon('heroicon-o-home')
+                ->url(HomeSectionResource::getUrl()),
+            Stat::make('Materials published', number_format($publishedMaterials))
+                ->description("{$draftMaterials} draft material records")
+                ->color('success')
+                ->icon('heroicon-o-sparkles')
+                ->url(MaterialResource::getUrl()),
+            Stat::make(
+                'Featured materials',
+                number_format(
+                    Material::query()
+                        ->where('status', PublishStatus::Published->value)
+                        ->where('is_featured', true)
+                        ->count(),
+                ),
+            )
+                ->description('Material stories promoted on key landing surfaces')
+                ->color('warning')
+                ->icon('heroicon-o-star')
+                ->url(MaterialResource::getUrl()),
+            Stat::make('Articles published', number_format($publishedArticles))
+                ->description("{$draftArticles} draft article records")
+                ->color('success')
+                ->icon('heroicon-o-newspaper')
+                ->url(ArticleResource::getUrl()),
         ];
     }
 

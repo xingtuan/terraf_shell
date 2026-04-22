@@ -2,110 +2,97 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\OrderPaymentStatus;
+use App\Enums\OrderStatus;
+use App\Enums\ProductStatus;
+use App\Filament\Resources\OrderResource;
+use App\Filament\Resources\ProductCategories\ProductCategoryResource;
+use App\Filament\Resources\Products\ProductResource;
 use App\Filament\Support\PanelAccess;
-use Filament\Support\RawJs;
-use Filament\Widgets\ChartWidget;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use Filament\Widgets\StatsOverviewWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class StoreOverview extends ChartWidget
+class StoreOverview extends StatsOverviewWidget
 {
-    public array $dashboard = [];
+    protected ?string $heading = 'Store Overview';
 
-    protected int|string|array $columnSpan = [
-        'md' => 4,
-        'xl' => 8,
-    ];
+    protected ?string $description = 'Catalogue health and fulfilment workload for the storefront.';
 
-    protected ?string $pollingInterval = null;
-
-    protected ?string $heading = 'Commerce Performance';
-
-    protected string $color = 'warning';
-
-    protected ?string $maxHeight = '340px';
-
-    public function getDescription(): ?string
+    protected function getStats(): array
     {
-        $commerce = $this->dashboard['commerce'] ?? [];
+        $orderBacklog = Order::query()
+            ->whereIn('status', [
+                OrderStatus::Pending->value,
+                OrderStatus::Confirmed->value,
+                OrderStatus::Processing->value,
+                OrderStatus::Shipped->value,
+            ])
+            ->count();
 
-        return '$'.number_format((float) ($commerce['revenue_30d'] ?? 0), 2)
-            .' booked in the last 30 days | '
-            .number_format((int) ($commerce['backlog_count'] ?? 0))
-            .' orders still in fulfilment | '
-            .number_format((int) ($commerce['unpaid_count'] ?? 0))
-            .' awaiting payment review';
-    }
+        $liveProducts = Product::query()
+            ->where('status', ProductStatus::Published->value)
+            ->where('is_active', true)
+            ->count();
 
-    protected function getType(): string
-    {
-        return 'bar';
-    }
+        $stockAlerts = Product::query()
+            ->whereIn('stock_status', ['low_stock', 'sold_out'])
+            ->where('status', ProductStatus::Published->value)
+            ->count();
 
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getData(): array
-    {
-        $commerce = $this->dashboard['commerce'] ?? [];
+        $categories = ProductCategory::query()
+            ->where('is_active', true)
+            ->count();
 
         return [
-            'labels' => $commerce['labels_30d'] ?? [],
-            'datasets' => [
-                [
-                    'type' => 'bar',
-                    'label' => 'Revenue (USD)',
-                    'data' => $commerce['revenue_series_30d'] ?? [],
-                    'yAxisID' => 'revenue',
-                    'backgroundColor' => 'rgba(217, 119, 6, 0.18)',
-                    'borderColor' => 'rgb(217, 119, 6)',
-                    'borderRadius' => 10,
-                    'maxBarThickness' => 20,
-                ],
-                [
-                    'type' => 'line',
-                    'label' => 'Orders',
-                    'data' => $commerce['orders_series_30d'] ?? [],
-                    'yAxisID' => 'orders',
-                    'borderColor' => 'rgb(5, 150, 105)',
-                    'backgroundColor' => 'rgba(5, 150, 105, 0.18)',
-                    'fill' => true,
-                    'tension' => 0.35,
-                    'pointRadius' => 0,
-                    'pointHoverRadius' => 3,
-                ],
-            ],
-        ];
-    }
-
-    protected function getOptions(): array|RawJs|null
-    {
-        return [
-            'interaction' => [
-                'intersect' => false,
-                'mode' => 'index',
-            ],
-            'plugins' => [
-                'legend' => [
-                    'position' => 'bottom',
-                ],
-            ],
-            'scales' => [
-                'x' => [
-                    'grid' => [
-                        'display' => false,
-                    ],
-                ],
-                'revenue' => [
-                    'position' => 'left',
-                    'beginAtZero' => true,
-                ],
-                'orders' => [
-                    'position' => 'right',
-                    'beginAtZero' => true,
-                    'grid' => [
-                        'display' => false,
-                    ],
-                ],
-            ],
+            Stat::make('Fulfilment backlog', number_format($orderBacklog))
+                ->description('Pending, confirmed, processing, or shipped orders')
+                ->color($orderBacklog > 0 ? 'warning' : 'success')
+                ->icon('heroicon-o-shopping-bag')
+                ->url(OrderResource::getUrl()),
+            Stat::make('Published products', number_format($liveProducts))
+                ->description('Active catalogue records visible to the storefront')
+                ->color('success')
+                ->icon('heroicon-o-cube')
+                ->url(ProductResource::getUrl()),
+            Stat::make('Stock alerts', number_format($stockAlerts))
+                ->description('Products marked low stock or sold out')
+                ->color($stockAlerts > 0 ? 'danger' : 'success')
+                ->icon('heroicon-o-exclamation-triangle')
+                ->url(ProductResource::getUrl()),
+            Stat::make('Active categories', number_format($categories))
+                ->description('Storefront taxonomy groups in use')
+                ->color('info')
+                ->icon('heroicon-o-squares-2x2')
+                ->url(ProductCategoryResource::getUrl()),
+            Stat::make(
+                'Unpaid orders',
+                number_format(
+                    Order::query()
+                        ->where('payment_status', OrderPaymentStatus::Unpaid->value)
+                        ->whereNotIn('status', [OrderStatus::Cancelled->value])
+                        ->count(),
+                ),
+            )
+                ->description('Orders still awaiting payment confirmation')
+                ->color('danger')
+                ->icon('heroicon-o-credit-card')
+                ->url(OrderResource::getUrl()),
+            Stat::make(
+                'Inquiry-only products',
+                number_format(
+                    Product::query()
+                        ->where('inquiry_only', true)
+                        ->where('status', ProductStatus::Published->value)
+                        ->count(),
+                ),
+            )
+                ->description('Catalogue items routed to contact-led conversion')
+                ->color('gray')
+                ->icon('heroicon-o-chat-bubble-left-right')
+                ->url(ProductResource::getUrl()),
         ];
     }
 
