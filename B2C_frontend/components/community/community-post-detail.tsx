@@ -22,9 +22,9 @@ import {
   createComment,
   deleteComment,
   listComments,
-  replyToComment,
   updateComment,
 } from "@/lib/api/comments"
+import { PostRenderer } from "@/components/community/PostRenderer"
 import { getErrorMessage } from "@/lib/api/client"
 import {
   toggleCommentLike,
@@ -162,8 +162,9 @@ export function CommunityPostDetail({
 
     try {
       const createdComment = await createComment(post.id, content, session.token)
-      await loadDetail()
       setCommentText("")
+      // Refresh only comments list (not the full post) to avoid useEffectEvent-outside-effect issues
+      await refreshComments(post.id)
       setMessage(
         createdComment.status === "approved"
           ? messages.post.commentPosted
@@ -317,10 +318,121 @@ export function CommunityPostDetail({
                 {children ? (
                   <div className="leading-8 text-foreground">{children}</div>
                 ) : (
-                  <div className="whitespace-pre-wrap leading-8 text-foreground">
-                    {post.content}
-                  </div>
+                  <PostRenderer
+                    contentJson={post.content_json}
+                    content={post.content}
+                  />
                 )}
+
+                {/* Additional images gallery (beyond cover) */}
+                {post.images.length > 1 ? (
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {post.images.slice(1).map((image) => (
+                      <a
+                        key={image.id}
+                        href={image.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block overflow-hidden rounded-2xl border border-border/60 bg-muted"
+                      >
+                        <Image
+                          src={image.thumbnail_url ?? image.preview_url ?? image.url}
+                          alt={image.alt_text ?? post.title}
+                          width={400}
+                          height={300}
+                          unoptimized
+                          className="aspect-[4/3] w-full object-cover transition-opacity hover:opacity-90"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
+
+                {/* Media attachments (IdeaMedia: images + documents) */}
+                {post.media && post.media.length > 0 ? (
+                  <div className="space-y-3">
+                    {post.media.filter((m) => m.is_image).length > 0 ? (
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {post.media
+                          .filter((m) => m.is_image)
+                          .map((media) => (
+                            <a
+                              key={media.id}
+                              href={media.url ?? undefined}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="block overflow-hidden rounded-2xl border border-border/60 bg-muted"
+                            >
+                              <Image
+                                src={
+                                  media.thumbnail_url ??
+                                  media.preview_url ??
+                                  media.url ??
+                                  "/placeholder.jpg"
+                                }
+                                alt={media.alt_text ?? media.title ?? post.title}
+                                width={400}
+                                height={300}
+                                unoptimized
+                                className="aspect-[4/3] w-full object-cover transition-opacity hover:opacity-90"
+                              />
+                              {media.title ? (
+                                <p className="truncate px-3 py-2 text-xs text-muted-foreground">
+                                  {media.title}
+                                </p>
+                              ) : null}
+                            </a>
+                          ))}
+                      </div>
+                    ) : null}
+
+                    {post.media.filter((m) => !m.is_image).length > 0 ? (
+                      <div className="space-y-2">
+                        {post.media
+                          .filter((m) => !m.is_image)
+                          .map((media) => (
+                            <a
+                              key={media.id}
+                              href={media.url ?? undefined}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm transition-colors hover:bg-muted"
+                            >
+                              <span className="shrink-0 rounded-lg border border-border/60 bg-muted px-2 py-1 text-xs uppercase text-muted-foreground">
+                                {media.extension ?? media.mime_type?.split("/")[1] ?? "file"}
+                              </span>
+                              <span className="min-w-0 flex-1 truncate text-foreground">
+                                {media.title ?? media.original_name ?? "Attachment"}
+                              </span>
+                              {media.size_bytes ? (
+                                <span className="shrink-0 text-xs text-muted-foreground">
+                                  {(media.size_bytes / 1024).toFixed(0)} KB
+                                </span>
+                              ) : null}
+                            </a>
+                          ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {/* Funding / support banner */}
+                {post.funding_url ? (
+                  <div className="flex flex-col gap-4 rounded-[1.5rem] border border-primary/30 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Support this idea</p>
+                      <p className="mt-1 text-xs text-muted-foreground truncate max-w-sm">{post.funding_url}</p>
+                    </div>
+                    <a
+                      href={post.funding_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex shrink-0 items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                    >
+                      {messages.post.supportIdea}
+                    </a>
+                  </div>
+                ) : null}
 
                 {post.tags.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
@@ -503,8 +615,9 @@ export function CommunityPostDetail({
                       setActiveAction(`comment-reply-${commentId}`)
 
                       try {
-                        await replyToComment(commentId, content, session.token)
-                        await loadDetail()
+                        // Use createComment with parentId instead of legacy replyToComment endpoint
+                        await createComment(post.id, content, session.token, commentId)
+                        await refreshComments(post.id)
                         setMessage(messages.post.replyAdded)
                       } catch (error) {
                         setMessage(getErrorMessage(error))
@@ -548,7 +661,6 @@ export function CommunityPostDetail({
                       try {
                         await deleteComment(commentId, session.token)
                         await refreshComments(post.id)
-                        await loadDetail()
                         setMessage(messages.post.deletedComment)
                       } catch (error) {
                         setMessage(getErrorMessage(error))

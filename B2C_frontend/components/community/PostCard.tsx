@@ -204,6 +204,20 @@ export function PostCard({
             <p className="leading-relaxed text-muted-foreground">
               {getCommunityPostPreview(post)}
             </p>
+            {/* Meta: reading time + attachments */}
+            {(post.reading_time > 0 || post.images.length > 0 || (post.media && post.media.length > 0)) ? (
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                {post.reading_time > 0 ? (
+                  <span>{post.reading_time} min read</span>
+                ) : null}
+                {post.images.length > 0 ? (
+                  <span>{post.images.length} image{post.images.length > 1 ? "s" : ""}</span>
+                ) : null}
+                {post.media && post.media.length > 0 ? (
+                  <span>{post.media.length} attachment{post.media.length > 1 ? "s" : ""}</span>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           {post.tags.length > 0 ? (
