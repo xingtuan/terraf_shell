@@ -2,97 +2,111 @@
 
 namespace App\Filament\Widgets;
 
-use App\Enums\B2BLeadStatus;
-use App\Enums\B2BLeadType;
-use App\Filament\Resources\B2BLeads\B2BLeadResource;
-use App\Filament\Resources\Enquiries\EnquiryResource;
 use App\Filament\Support\PanelAccess;
-use App\Models\B2BLead;
-use App\Models\Inquiry;
-use Filament\Widgets\StatsOverviewWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Support\RawJs;
+use Filament\Widgets\ChartWidget;
 
-class LeadOperationsOverview extends StatsOverviewWidget
+class LeadOperationsOverview extends ChartWidget
 {
-    protected ?string $heading = 'Lead Operations';
+    public array $dashboard = [];
 
-    protected ?string $description = 'Inbound enquiry, partnership, and sample-request workload.';
+    protected int|string|array $columnSpan = [
+        'md' => 4,
+        'xl' => 4,
+    ];
 
-    protected function getStats(): array
+    protected ?string $pollingInterval = null;
+
+    protected ?string $heading = 'Lead Flow';
+
+    protected string $color = 'info';
+
+    protected ?string $maxHeight = '340px';
+
+    public function getDescription(): ?string
     {
-        $openEnquiriesQuery = Inquiry::query()->whereNotIn('status', [
-            B2BLeadStatus::Archived->value,
-            B2BLeadStatus::Closed->value,
-        ]);
+        $leads = $this->dashboard['leads'] ?? [];
 
-        $openOpportunityQuery = B2BLead::query()
-            ->where('lead_type', '!=', B2BLeadType::BusinessContact->value)
-            ->whereNotIn('status', [
-                B2BLeadStatus::Archived->value,
-                B2BLeadStatus::Closed->value,
-            ]);
+        return number_format((int) ($leads['open_enquiries'] ?? 0)).' open enquiries | '
+            .number_format((int) ($leads['unassigned_enquiries'] ?? 0)).' still unassigned | '
+            .number_format((int) ($leads['qualified_leads'] ?? 0)).' qualified opportunities';
+    }
+
+    protected function getType(): string
+    {
+        return 'line';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function getData(): array
+    {
+        $leads = $this->dashboard['leads'] ?? [];
 
         return [
-            Stat::make(
-                'New enquiries',
-                number_format(
-                    Inquiry::query()->where('status', B2BLeadStatus::New->value)->count(),
-                ),
-            )
-                ->description('Fresh contact form submissions awaiting triage')
-                ->color('warning')
-                ->icon('heroicon-o-inbox-stack')
-                ->url(EnquiryResource::getUrl()),
-            Stat::make(
-                'Unassigned enquiries',
-                number_format(
-                    (clone $openEnquiriesQuery)->whereNull('assigned_to')->count(),
-                ),
-            )
-                ->description('Open enquiries without an owner')
-                ->color('danger')
-                ->icon('heroicon-o-user-plus')
-                ->url(EnquiryResource::getUrl()),
-            Stat::make(
-                'Active B2B opportunities',
-                number_format((clone $openOpportunityQuery)->count()),
-            )
-                ->description('Sample and collaboration leads still in progress')
-                ->color('warning')
-                ->icon('heroicon-o-briefcase')
-                ->url(B2BLeadResource::getUrl()),
-            Stat::make(
-                'Qualified leads',
-                number_format(
-                    B2BLead::query()->where('status', B2BLeadStatus::Qualified->value)->count(),
-                ),
-            )
-                ->description('High-intent leads ready for conversion follow-up')
-                ->color('success')
-                ->icon('heroicon-o-check-badge')
-                ->url(B2BLeadResource::getUrl()),
-            Stat::make(
-                'Sample requests',
-                number_format(
-                    B2BLead::query()->where('lead_type', B2BLeadType::SampleRequest->value)->count(),
-                ),
-            )
-                ->description('Material sample submissions recorded to date')
-                ->color('info')
-                ->icon('heroicon-o-beaker')
-                ->url(B2BLeadResource::getUrl()),
-            Stat::make(
-                'Collaboration leads',
-                number_format(
-                    B2BLead::query()
-                        ->whereIn('lead_type', B2BLeadType::collaborationValues())
-                        ->count(),
-                ),
-            )
-                ->description('Partnership, university, and product-development flows')
-                ->color('gray')
-                ->icon('heroicon-o-building-office-2')
-                ->url(B2BLeadResource::getUrl()),
+            'labels' => $leads['labels_30d'] ?? [],
+            'datasets' => [
+                [
+                    'label' => 'Enquiries',
+                    'data' => $leads['enquiries_series_30d'] ?? [],
+                    'borderColor' => 'rgb(14, 165, 233)',
+                    'backgroundColor' => 'rgba(14, 165, 233, 0.14)',
+                    'fill' => true,
+                    'tension' => 0.3,
+                    'pointRadius' => 0,
+                    'pointHoverRadius' => 3,
+                ],
+                [
+                    'label' => 'B2B opportunities',
+                    'data' => $leads['opportunities_series_30d'] ?? [],
+                    'borderColor' => 'rgb(217, 119, 6)',
+                    'backgroundColor' => 'rgba(217, 119, 6, 0.14)',
+                    'fill' => true,
+                    'tension' => 0.3,
+                    'pointRadius' => 0,
+                    'pointHoverRadius' => 3,
+                ],
+                [
+                    'label' => 'Qualified',
+                    'data' => $leads['qualified_series_30d'] ?? [],
+                    'borderColor' => 'rgb(5, 150, 105)',
+                    'backgroundColor' => 'rgba(5, 150, 105, 0.12)',
+                    'fill' => false,
+                    'tension' => 0.3,
+                    'pointRadius' => 0,
+                    'pointHoverRadius' => 3,
+                    'borderDash' => [5, 5],
+                ],
+            ],
+        ];
+    }
+
+    protected function getOptions(): array|RawJs|null
+    {
+        return [
+            'interaction' => [
+                'intersect' => false,
+                'mode' => 'index',
+            ],
+            'plugins' => [
+                'legend' => [
+                    'position' => 'bottom',
+                ],
+            ],
+            'scales' => [
+                'x' => [
+                    'grid' => [
+                        'display' => false,
+                    ],
+                ],
+                'y' => [
+                    'beginAtZero' => true,
+                    'ticks' => [
+                        'precision' => 0,
+                    ],
+                ],
+            ],
         ];
     }
 

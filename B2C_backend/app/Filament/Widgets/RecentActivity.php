@@ -2,55 +2,36 @@
 
 namespace App\Filament\Widgets;
 
-use App\Filament\Resources\ModerationLogs\ModerationLogResource;
-use App\Models\ModerationLog;
-use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Filament\Widgets\TableWidget;
-use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Support\PanelAccess;
+use Filament\Widgets\Widget;
 
-class RecentActivity extends TableWidget
+class RecentActivity extends Widget
 {
-    protected static ?string $heading = 'Recent Activity';
+    public array $dashboard = [];
+
+    protected string $view = 'filament.widgets.recent-activity';
 
     protected int|string|array $columnSpan = 'full';
 
-    public function table(Table $table): Table
+    /**
+     * @return array<string, mixed>
+     */
+    protected function getViewData(): array
     {
-        return $table
-            ->query(fn (): Builder => ModerationLog::query()->with(['actor', 'subject'])->latest())
-            ->columns([
-                TextColumn::make('created_at')
-                    ->label('When')
-                    ->dateTime()
-                    ->since()
-                    ->sortable(),
-                TextColumn::make('actor.name')
-                    ->label('Actor')
-                    ->default('System')
-                    ->searchable(),
-                TextColumn::make('action')
-                    ->label('Action')
-                    ->badge()
-                    ->searchable(),
-                TextColumn::make('subject_type')
-                    ->label('Target type')
-                    ->formatStateUsing(fn (string $state): string => ucfirst(class_basename($state)))
-                    ->badge()
-                    ->color('gray'),
-                TextColumn::make('subject_id')
-                    ->label('Target ID')
-                    ->sortable(),
-                TextColumn::make('reason')
-                    ->label('Reason')
-                    ->limit(70)
-                    ->default('No note provided.'),
-            ])
-            ->recordActions([
-                ViewAction::make()
-                    ->url(fn (ModerationLog $record): string => ModerationLogResource::getUrl('view', ['record' => $record])),
-            ])
-            ->paginated([10]);
+        $items = collect($this->dashboard['activity'] ?? []);
+
+        if (! PanelAccess::isAdmin()) {
+            $items = $items->where('scope', 'staff');
+        }
+
+        return [
+            'items' => $items->values()->all(),
+            'isAdmin' => PanelAccess::isAdmin(),
+        ];
+    }
+
+    public static function canView(): bool
+    {
+        return PanelAccess::isStaff();
     }
 }
