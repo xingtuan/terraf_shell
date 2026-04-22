@@ -152,13 +152,13 @@
             <div class="space-y-3">
                 @forelse ($concepts as $concept)
                     @php
-                        $score  = (float) ($concept['funding_readiness_score'] ?? 0);
-                        $pct    = $maxReadiness > 0 ? round(($score / $maxReadiness) * 100) : 0;
-                        $scoreColor = $score >= 0.7 ? 'text-emerald-600 dark:text-emerald-400'
-                            : ($score >= 0.4 ? 'text-amber-600 dark:text-amber-400'
+                        $score     = (float) ($concept['funding_readiness_score'] ?? 0);
+                        $pct       = $maxReadiness > 0 ? round(($score / $maxReadiness) * 100) : 0;
+                        $scoreColor = $score >= 50 ? 'text-emerald-600 dark:text-emerald-400'
+                            : ($score >= 20 ? 'text-amber-600 dark:text-amber-400'
                             : 'text-gray-500 dark:text-gray-400');
-                        $barColor = $score >= 0.7 ? 'bg-emerald-500'
-                            : ($score >= 0.4 ? 'bg-amber-500' : 'bg-gray-400');
+                        $barColor  = $score >= 50 ? 'bg-emerald-500'
+                            : ($score >= 20 ? 'bg-amber-500' : 'bg-gray-400');
                     @endphp
                     <div class="space-y-1">
                         <div class="flex items-start justify-between gap-2">
@@ -173,8 +173,8 @@
                                     @endif
                                 </div>
                             </div>
-                            <span class="shrink-0 text-sm font-semibold {{ $scoreColor }}">
-                                {{ number_format($score * 100) }}%
+                            <span class="shrink-0 text-sm font-semibold tabular-nums {{ $scoreColor }}">
+                                {{ number_format($score, 1) }}
                             </span>
                         </div>
                         <div class="h-1.5 w-full rounded-full bg-gray-100 dark:bg-gray-800">
