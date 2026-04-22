@@ -43,15 +43,15 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "韩国牡蛎壳材料",
-      "title": "由再生牡蛎壳制成，更轻、更强、更安静的餐具与家居物件。",
-      "description": "Shellfin 将牡蛎壳转化为颗粒和压缩模塑物件，服务于注重健康的家庭、餐饮酒店空间与高端材料合作伙伴。",
-      "primaryCta": "进入商店",
+      "eyebrow": "Terraƒ — 将气候变为函数",
+      "title": "以利润驱动生态系统修复。",
+      "description": "Terraf将区域生物质废料转化为耐久的OX复合材料，驱动本地微型工厂，资助生态系统修复——一个完成碳循环的材料选择。",
+      "primaryCta": "探索材料",
       "secondaryCta": "联系 B2B 团队",
       "indicators": [
-        "比传统瓷器更轻",
-        "压缩模塑带来稳定耐用性",
-        "从贝壳到成品的可追溯流程"
+        "比传统陶瓷更轻",
+        "日常及商业用途的高冲击耐久性",
+        "天然矿物安全性，无人工涂层"
       ]
     },
     "whyItMatters": {
@@ -198,6 +198,116 @@
         {
           "title": "样品流程",
           "description": "团队可以在同一站点架构内从询盘顺畅过渡到样品规划。"
+        }
+      ]
+    },
+    "businessPillars": {
+      "eyebrow": "三大功能",
+      "title": "Terraf通过三个相互关联的功能运作——材料、制造和修复。",
+      "pillars": [
+        {
+          "name": "Terrafin",
+          "formula": "ƒ(生物质) = OX复合材料",
+          "description": "材料功能。由木材、稻壳、生物炭、贝壳和矿物等区域废料制成的烯烃交联(OX)生物质复合材料。Shellfin(OX-S)是首个商业化产品线。"
+        },
+        {
+          "name": "Terrafactory",
+          "formula": "ƒ(区域) = 本地产出",
+          "description": "制造功能。靠近生物质来源的微型工厂将区域废料就地转化为Terrafin材料，减少运输并支持本地经济。"
+        },
+        {
+          "name": "Terraforming",
+          "formula": "ƒ(土地) = 生态系统",
+          "description": "修复功能。通过森林管理、水资源采集和绿洲项目，将碳归还土壤，在景观层面恢复功能性生态系统。"
+        }
+      ]
+    },
+    "openSourceLegacy": {
+      "eyebrow": "开源遗产",
+      "title": "我们并非发明——我们复制了自然的源代码。",
+      "intro": "四位自然作者为Terraf今天的创造写下了蓝图。",
+      "authors": [
+        {
+          "author": "烯烃",
+          "timeframe": "4亿年前",
+          "sourceCode": "生物聚合物标准",
+          "legacy": "昆虫和植物将烯烃确立为整个进化过程中的主要结构材料——经过4亿年临床试验的验证。"
+        },
+        {
+          "author": "古代木质素",
+          "timeframe": "3.6亿年前",
+          "sourceCode": "碳储存架构",
+          "legacy": "石炭纪森林将大气碳固定为耐久的木质生物质——最原始的碳封存技术。"
+        },
+        {
+          "author": "大象",
+          "timeframe": "现代进化",
+          "sourceCode": "战略生态系统管理",
+          "legacy": "大象通过迁徙和觅食重塑整个景观——生态系统规模修复的典范。"
+        },
+        {
+          "author": "黄蜂",
+          "timeframe": "现代进化",
+          "sourceCode": "原始生物塑料建筑师",
+          "legacy": "黄蜂是最早用植物纤维和唾液构建精密耐久结构的生物——复合生物质建筑的先驱。"
+        }
+      ]
+    },
+    "audiencePaths": {
+      "eyebrow": "适合哪些人",
+      "title": "三个入口。一种材料哲学。",
+      "paths": [
+        {
+          "label": "消费者",
+          "description": "浏览由Shellfin(OX-S)打造的成品餐具和家居物品——比传统陶瓷更轻、更坚固、更天然安全。",
+          "cta": "访问商店"
+        },
+        {
+          "label": "企业",
+          "description": "采购原料OX颗粒，或共同开发适用于酒店、零售和高端品牌项目的成品。",
+          "cta": "B2B询盘"
+        },
+        {
+          "label": "设计师",
+          "description": "上传概念，与材料团队协作，为基于Terrafin复合材料系列的新产品创意寻求支持。",
+          "cta": "加入社区"
+        }
+      ]
+    },
+    "materialFamily": {
+      "eyebrow": "OX材料系列",
+      "title": "五种生物质复合材料产品线。一种设计哲学。",
+      "intro": "每种Terrafin材料都是源自区域生物质原料的烯烃交联(OX)复合材料——将废料中捕获的碳工程化为耐久材料。",
+      "lines": [
+        {
+          "code": "OX-W",
+          "name": "木材复合材料",
+          "source": "区域木材和林业废料",
+          "status": "coming_soon"
+        },
+        {
+          "code": "OX-H",
+          "name": "稻壳复合材料",
+          "source": "农业作物稻壳",
+          "status": "coming_soon"
+        },
+        {
+          "code": "OX-B",
+          "name": "生物炭复合材料",
+          "source": "热解生物质碳",
+          "status": "coming_soon"
+        },
+        {
+          "code": "OX-S",
+          "name": "贝壳复合材料",
+          "source": "再生牡蛎壳——韩国",
+          "status": "available"
+        },
+        {
+          "code": "OX-M",
+          "name": "矿物复合材料",
+          "source": "区域矿物生物质",
+          "status": "coming_soon"
         }
       ]
     },

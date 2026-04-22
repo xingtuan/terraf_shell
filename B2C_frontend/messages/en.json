@@ -43,15 +43,15 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "South Korean Oyster Shell Material",
-      "title": "Quietly stronger tableware and objects, formed from reclaimed oyster shell.",
-      "description": "Shellfin turns oyster shells into pellets and compress-moulded objects for health-conscious homes, hospitality spaces, and premium material partners.",
-      "primaryCta": "Explore Store",
+      "eyebrow": "Terraƒ — Climate as a Function",
+      "title": "Empowering Your Profit to Restore the Ecosystem.",
+      "description": "Terraf converts regional biomass waste into durable OX composites, powers local micro-factories, and funds ecosystem restoration — a single material choice that closes the carbon loop.",
+      "primaryCta": "Explore the Material",
       "secondaryCta": "Talk to B2B Team",
       "indicators": [
-        "Lighter than traditional porcelain",
-        "Durable compress-moulded finish",
-        "Traceable shell-to-object process"
+        "Lighter than traditional ceramics",
+        "High-impact durability for daily and commercial use",
+        "Natural mineral safety — no artificial coatings"
       ]
     },
     "whyItMatters": {
@@ -198,6 +198,116 @@
         {
           "title": "Sample Workflow",
           "description": "Teams can move from inquiry to sample planning without leaving the site architecture."
+        }
+      ]
+    },
+    "businessPillars": {
+      "eyebrow": "Three Functions",
+      "title": "Terraf operates through three interconnected functions — material, manufacturing, and restoration.",
+      "pillars": [
+        {
+          "name": "Terrafin",
+          "formula": "ƒ(Biomass) = OX Composite",
+          "description": "The material function. Olefin X-linked (OX) biomass composites made from regional waste streams — wood, husk, biochar, shell, and mineral. Shellfin (OX-S) is the first commercially available line."
+        },
+        {
+          "name": "Terrafactory",
+          "formula": "ƒ(Region) = Local Output",
+          "description": "The manufacturing function. Micro-factories positioned close to biomass sources convert regional waste into Terrafin material on-site, reducing transport and supporting local economies."
+        },
+        {
+          "name": "Terraforming",
+          "formula": "ƒ(Land) = Living System",
+          "description": "The restoration function. Forest management, water harvesting, and oasis projects that return carbon to the ground and restore functional ecosystems at the landscape level."
+        }
+      ]
+    },
+    "openSourceLegacy": {
+      "eyebrow": "Open-Source Legacy",
+      "title": "We did not invent — we copied nature's source code.",
+      "intro": "Four natural authors wrote the blueprint for what Terraf builds today.",
+      "authors": [
+        {
+          "author": "Olefin",
+          "timeframe": "400 million years ago",
+          "sourceCode": "The biological polymer standard",
+          "legacy": "Insects and plants established olefins as the dominant structural material across evolution — proven across 400 million years of clinical trials."
+        },
+        {
+          "author": "Ancient Lignin",
+          "timeframe": "360 million years ago",
+          "sourceCode": "Carbon storage architecture",
+          "legacy": "Carboniferous forests locked atmospheric carbon into durable woody biomass — the original carbon sequestration technology."
+        },
+        {
+          "author": "Elephant",
+          "timeframe": "Evolutionary present",
+          "sourceCode": "Strategic ecosystem management",
+          "legacy": "The elephant reshapes entire landscapes through movement and grazing — a model for restoration at ecosystem scale."
+        },
+        {
+          "author": "Wasp",
+          "timeframe": "Evolutionary present",
+          "sourceCode": "Original bioplastic architecture",
+          "legacy": "The wasp was the first to construct with biomass composites — building precise, durable structures from plant fibers and saliva."
+        }
+      ]
+    },
+    "audiencePaths": {
+      "eyebrow": "Who Is This For",
+      "title": "Three entry points. One material philosophy.",
+      "paths": [
+        {
+          "label": "Consumers",
+          "description": "Browse finished tableware and home objects shaped from Shellfin (OX-S) — lighter, stronger, and naturally safer than conventional ceramics.",
+          "cta": "Visit the Store"
+        },
+        {
+          "label": "Businesses",
+          "description": "Source raw OX pellets or co-develop finished products for hospitality, retail, and premium brand programs.",
+          "cta": "B2B Inquiry"
+        },
+        {
+          "label": "Designers",
+          "description": "Upload concepts, collaborate with the material team, and find support for new product ideas built on the Terrafin composite family.",
+          "cta": "Join the Community"
+        }
+      ]
+    },
+    "materialFamily": {
+      "eyebrow": "The OX Material Family",
+      "title": "Five biomass composite lines. One design philosophy.",
+      "intro": "Every Terrafin material is an Olefin X-linked (OX) composite derived from a regional biomass source — carbon captured from waste, engineered into a durable material.",
+      "lines": [
+        {
+          "code": "OX-W",
+          "name": "Wood Composite",
+          "source": "Regional timber and forestry waste",
+          "status": "coming_soon"
+        },
+        {
+          "code": "OX-H",
+          "name": "Husk Composite",
+          "source": "Agricultural crop husks",
+          "status": "coming_soon"
+        },
+        {
+          "code": "OX-B",
+          "name": "Biochar Composite",
+          "source": "Pyrolyzed biomass carbon",
+          "status": "coming_soon"
+        },
+        {
+          "code": "OX-S",
+          "name": "Shell Composite",
+          "source": "Reclaimed oyster shell — South Korea",
+          "status": "available"
+        },
+        {
+          "code": "OX-M",
+          "name": "Mineral Composite",
+          "source": "Regional mineral biomass",
+          "status": "coming_soon"
         }
       ]
     },
