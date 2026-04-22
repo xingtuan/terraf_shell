@@ -243,7 +243,10 @@
       "description": "此页面聚焦 Shellfin 材料系统本身，包括牡蛎壳回收、颗粒精制、压缩模塑，以及供评审使用的技术叙事。",
       "primaryCta": "申请材料说明",
       "secondaryCta": "联系材料团队"
-    }
+    },
+    "sheetTitleSuffix": "材料说明",
+    "modelsLabel": "型号",
+    "colorsLabel": "颜色"
   },
   "storePage": {
     "intro": {
@@ -393,6 +396,17 @@
       ],
       "response": "通常回复时间：2 个工作日内。"
     }
+  },
+  "articleFeed": {
+    "fallbackExcerpt": "最新的 Shellfin 编辑内容现已可通过后端内容 API 获取。",
+    "emptyTitle": "尚未发布文章",
+    "emptyDescription": "此区域已连接到后端文章流，但目前还没有已发布的更新。",
+    "badgeLabel": "Shellfin 更新",
+    "readArticle": "阅读文章",
+    "defaultEyebrow": "最新更新",
+    "defaultTitle": "最新的材料与工作室更新。",
+    "defaultDescription": "已发布文章现可直接来自后端 CMS，无需重新构建前端即可展示。",
+    "defaultCta": "查看全部更新"
   },
   "userNav": {
     "myAccount": "我的账户",

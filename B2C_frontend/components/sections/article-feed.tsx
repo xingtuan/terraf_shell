@@ -1,7 +1,7 @@
 import Link from "next/link"
 
 import { stripHtml } from "@/lib/api/normalizers"
-import { getLocalizedHref, getIntlLocale, type Locale } from "@/lib/i18n"
+import { getLocalizedHref, getIntlLocale, getMessages, type Locale } from "@/lib/i18n"
 import type { ArticleSummary } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 
@@ -30,11 +30,11 @@ function formatDate(locale: Locale, value?: string | null) {
   }).format(new Date(value))
 }
 
-function getArticleExcerpt(article: ArticleSummary) {
+function getArticleExcerpt(article: ArticleSummary, fallback: string) {
   const candidate = stripHtml(article.excerpt || article.content)
 
   if (!candidate) {
-    return "The latest Shellfin editorial updates are now available through the backend content API."
+    return fallback
   }
 
   if (candidate.length <= 180) {
@@ -52,9 +52,12 @@ export function ArticleFeedSection({
   articles,
   id = "articles",
   cta = null,
-  emptyTitle = "No articles published yet",
-  emptyDescription = "This section is connected to the backend article feed, but there are no published updates available right now.",
+  emptyTitle,
+  emptyDescription,
 }: ArticleFeedSectionProps) {
+  const t = getMessages(locale).articleFeed
+  const resolvedEmptyTitle = emptyTitle ?? t.emptyTitle
+  const resolvedEmptyDescription = emptyDescription ?? t.emptyDescription
   return (
     <section id={id} className="bg-card py-24 lg:py-28">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -80,9 +83,9 @@ export function ArticleFeedSection({
 
         {articles.length === 0 ? (
           <div className="rounded-3xl border border-border/60 bg-background p-8">
-            <h3 className="font-serif text-2xl text-foreground">{emptyTitle}</h3>
+            <h3 className="font-serif text-2xl text-foreground">{resolvedEmptyTitle}</h3>
             <p className="mt-3 max-w-2xl text-muted-foreground">
-              {emptyDescription}
+              {resolvedEmptyDescription}
             </p>
           </div>
         ) : (
@@ -103,7 +106,7 @@ export function ArticleFeedSection({
                   ) : (
                     <div className="flex h-full items-end bg-[radial-gradient(circle_at_top_left,rgba(67,108,109,0.26),transparent_50%),linear-gradient(135deg,rgba(202,190,166,0.18),rgba(67,108,109,0.06))] p-6">
                       <span className="rounded-full border border-white/20 px-3 py-1 text-xs uppercase tracking-[0.18em] text-foreground/70">
-                        Shellfin Update
+                        {t.badgeLabel}
                       </span>
                     </div>
                   )}
@@ -126,13 +129,13 @@ export function ArticleFeedSection({
                   </Link>
 
                   <p className="mt-4 leading-relaxed text-muted-foreground">
-                    {getArticleExcerpt(article)}
+                    {getArticleExcerpt(article, t.fallbackExcerpt)}
                   </p>
 
                   <div className="mt-8">
                     <Button asChild variant="ghost" className="px-0">
                       <Link href={getLocalizedHref(locale, `articles/${article.slug}`)}>
-                        Read article
+                        {t.readArticle}
                       </Link>
                     </Button>
                   </div>

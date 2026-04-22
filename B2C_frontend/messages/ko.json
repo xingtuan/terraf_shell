@@ -243,7 +243,10 @@
       "description": "이 페이지는 Shellfin 소재 시스템 자체에 집중합니다. 굴 패각 회수, 펠릿 정제, 압축 성형, 그리고 검토를 위한 기술적 스토리를 한곳에 정리했습니다.",
       "primaryCta": "소재 시트 요청",
       "secondaryCta": "소재팀 문의"
-    }
+    },
+    "sheetTitleSuffix": "소재 시트",
+    "modelsLabel": "모델",
+    "colorsLabel": "색상"
   },
   "storePage": {
     "intro": {
@@ -393,6 +396,17 @@
       ],
       "response": "평균 응답 시간: 영업일 기준 2일 이내."
     }
+  },
+  "articleFeed": {
+    "fallbackExcerpt": "최신 Shellfin 에디토리얼 업데이트는 이제 백엔드 콘텐츠 API를 통해 제공됩니다.",
+    "emptyTitle": "아직 게시된 아티클이 없습니다",
+    "emptyDescription": "이 섹션은 백엔드 아티클 피드에 연결되어 있지만, 현재 게시된 업데이트가 없습니다.",
+    "badgeLabel": "Shellfin 업데이트",
+    "readArticle": "아티클 읽기",
+    "defaultEyebrow": "최신 업데이트",
+    "defaultTitle": "최신 소재 및 스튜디오 업데이트.",
+    "defaultDescription": "게시된 아티클은 이제 백엔드 CMS에서 불러오며, 프런트엔드를 다시 빌드하지 않아도 노출할 수 있습니다.",
+    "defaultCta": "모든 업데이트 보기"
   },
   "userNav": {
     "myAccount": "내 계정",

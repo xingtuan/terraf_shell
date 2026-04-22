@@ -68,17 +68,17 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
     ? {
         ...messages.home.materialFacts,
         title: materialInfo.tagline,
-        sheetTitle: `${materialInfo.name} Material Sheet`,
+        sheetTitle: `${materialInfo.name} ${messages.materialPage.sheetTitleSuffix}`,
         sheetDescription: materialInfo.certifications
           .map((certification) => `${certification.label}: ${certification.value}`)
           .join(" / "),
         infoCards: [
           {
-            label: "Models",
+            label: messages.materialPage.modelsLabel,
             value: materialInfo.models.map((model) => model.name).join(", "),
           },
           {
-            label: "Colors",
+            label: messages.materialPage.colorsLabel,
             value: materialInfo.colors.map((color) => color.name).join(", "),
           },
         ],

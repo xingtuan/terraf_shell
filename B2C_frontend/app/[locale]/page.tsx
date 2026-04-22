@@ -159,15 +159,15 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
       {(homepage.articles.length > 0 || articlesSection) ? (
         <ArticleFeedSection
           locale={locale}
-          eyebrow={articlesSection?.subtitle || "Latest Updates"}
-          title={articlesSection?.title || "The newest material and studio updates."}
+          eyebrow={articlesSection?.subtitle || messages.articleFeed.defaultEyebrow}
+          title={articlesSection?.title || messages.articleFeed.defaultTitle}
           description={
             articlesSection?.content ||
-            "Published articles now come from the backend CMS and can be surfaced without rebuilding the frontend."
+            messages.articleFeed.defaultDescription
           }
           articles={homepage.articles}
           cta={{
-            label: articlesSection?.cta_label || "View all updates",
+            label: articlesSection?.cta_label || messages.articleFeed.defaultCta,
             href: resolveCmsHref(
               locale,
               articlesSection?.cta_url,

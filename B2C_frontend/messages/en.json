@@ -243,7 +243,10 @@
       "description": "This page focuses on the Shellfin material system: oyster shell recovery, pellet refining, compress moulding, and the technical story required for review.",
       "primaryCta": "Request Material Sheet",
       "secondaryCta": "Contact Material Team"
-    }
+    },
+    "sheetTitleSuffix": "Material Sheet",
+    "modelsLabel": "Models",
+    "colorsLabel": "Colors"
   },
   "storePage": {
     "intro": {
@@ -393,6 +396,17 @@
       ],
       "response": "Typical response time: within two business days."
     }
+  },
+  "articleFeed": {
+    "fallbackExcerpt": "The latest Shellfin editorial updates are now available through the backend content API.",
+    "emptyTitle": "No articles published yet",
+    "emptyDescription": "This section is connected to the backend article feed, but there are no published updates available right now.",
+    "badgeLabel": "Shellfin Update",
+    "readArticle": "Read article",
+    "defaultEyebrow": "Latest Updates",
+    "defaultTitle": "The newest material and studio updates.",
+    "defaultDescription": "Published articles now come from the backend CMS and can be surfaced without rebuilding the frontend.",
+    "defaultCta": "View all updates"
   },
   "userNav": {
     "myAccount": "My Account",
