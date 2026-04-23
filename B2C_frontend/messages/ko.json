@@ -757,10 +757,10 @@
       "registerSubmit": "계정 만들기",
       "guestHint": "로그인하지 않아도 공개 게시물을 둘러볼 수 있습니다.",
       "refreshSuccess": "/api/auth/me에서 프로필을 새로고쳤습니다.",
-      "emailPlaceholder": "jane@example.com",
-      "passwordPlaceholder": "password123",
-      "namePlaceholder": "홍길동",
-      "usernamePlaceholder": "honggildong"
+      "emailPlaceholder": "이메일 주소를 입력하세요",
+      "passwordPlaceholder": "비밀번호를 입력하세요",
+      "namePlaceholder": "이름을 입력하세요",
+      "usernamePlaceholder": "사용자명을 입력하세요"
     },
     "search": {
       "placeholder": "게시물 검색",

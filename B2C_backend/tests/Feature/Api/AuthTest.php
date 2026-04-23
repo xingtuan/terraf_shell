@@ -21,17 +21,17 @@ class AuthTest extends TestCase
         Notification::fake();
 
         $response = $this->postJson('/api/auth/register', [
-            'name' => 'Jane Doe',
-            'username' => 'janedoe',
-            'email' => 'jane@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'name' => 'name',
+            'username' => 'username',
+            'email' => 'email',
+            'password' => 'password',
+            'password_confirmation' => 'password',
         ]);
 
         $response
             ->assertCreated()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.user.username', 'janedoe')
+            ->assertJsonPath('data.user.username', 'username')
             ->assertJsonPath('data.user.role', 'creator')
             ->assertJsonPath('data.user.account_status', 'active')
             ->assertJsonPath('data.user.email_verified', false);

@@ -757,10 +757,10 @@
       "registerSubmit": "创建账户",
       "guestHint": "无需登录也可以浏览公开帖子。",
       "refreshSuccess": "已从 /api/auth/me 刷新资料。",
-      "emailPlaceholder": "jane@example.com",
-      "passwordPlaceholder": "password123",
-      "namePlaceholder": "张三",
-      "usernamePlaceholder": "janedoe"
+      "emailPlaceholder": "请输入你的邮箱地址",
+      "passwordPlaceholder": "请输入你的密码",
+      "namePlaceholder": "取个昵称吧",
+      "usernamePlaceholder": "唯一用户名"
     },
     "search": {
       "placeholder": "搜索帖子",

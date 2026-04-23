@@ -757,10 +757,10 @@
       "registerSubmit": "Create account",
       "guestHint": "You can browse public posts without signing in.",
       "refreshSuccess": "Profile refreshed from /api/auth/me.",
-      "emailPlaceholder": "jane@example.com",
-      "passwordPlaceholder": "password123",
-      "namePlaceholder": "Jane Doe",
-      "usernamePlaceholder": "janedoe"
+      "emailPlaceholder": "Please enter your email address",
+      "passwordPlaceholder": "Please enter your password",
+      "namePlaceholder": "Given name or full name",
+      "usernamePlaceholder": "Unique username for posting and profile"
     },
     "search": {
       "placeholder": "Search posts",
