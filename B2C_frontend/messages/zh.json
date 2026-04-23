@@ -43,15 +43,15 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "Terraƒ — 将气候变为函数",
-      "title": "以利润驱动生态系统修复。",
-      "description": "Terraf将区域生物质废料转化为耐久的OX复合材料，驱动本地微型工厂，资助生态系统修复——一个完成碳循环的材料选择。",
-      "primaryCta": "探索材料",
-      "secondaryCta": "联系 B2B 团队",
+      "eyebrow": "SHELL · SCIENCE · SOURCE CODE",
+      "title": "源自自然工学 4.5 亿年验证的材料。",
+      "description": "回收的牡蛎壳经粉末精炼成颗粒料，再以压制成型工艺打造高端器物——比瓷器更轻、比陶瓷更坚固、天然矿物级安全。",
+      "primaryCta": "了解材料",
+      "secondaryCta": "商业合作",
       "indicators": [
-        "比传统陶瓷更轻",
-        "日常及商业用途的高冲击耐久性",
-        "天然矿物安全性，无人工涂层"
+        "比传统瓷器更轻",
+        "比一般陶瓷更坚固",
+        "天然矿物基质，安全可靠"
       ]
     },
     "whyItMatters": {
@@ -254,23 +254,29 @@
       ]
     },
     "audiencePaths": {
-      "eyebrow": "适合哪些人",
-      "title": "三个入口。一种材料哲学。",
-      "paths": [
+      "eyebrow": "选择你的入口",
+      "title": "与 Shellfin 合作的三种方式。",
+      "cards": [
         {
-          "label": "消费者",
-          "description": "浏览由Shellfin(OX-S)打造的成品餐具和家居物品——比传统陶瓷更轻、更坚固、更天然安全。",
-          "cta": "访问商店"
+          "label": "面向消费者",
+          "title": "购买成品",
+          "description": "以牡蛎壳颗粒压制成型的高端餐具与家居器物。",
+          "cta": "进入商店",
+          "href": "store"
         },
         {
-          "label": "企业",
-          "description": "采购原料OX颗粒，或共同开发适用于酒店、零售和高端品牌项目的成品。",
-          "cta": "B2B询盘"
+          "label": "面向企业",
+          "title": "采购原材料",
+          "description": "索取样品颗粒、技术规格与批量报价。",
+          "cta": "开启 B2B 洽谈",
+          "href": "b2b"
         },
         {
-          "label": "设计师",
-          "description": "上传概念，与材料团队协作，为基于Terrafin复合材料系列的新产品创意寻求支持。",
-          "cta": "加入社区"
+          "label": "面向设计师",
+          "title": "提交概念设计",
+          "description": "在社区分享你的设计构想。优秀创意将进入打样流程。",
+          "cta": "进入设计社区",
+          "href": "community"
         }
       ]
     },

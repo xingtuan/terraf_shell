@@ -43,15 +43,15 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "Terraƒ — Climate as a Function",
-      "title": "Empowering Your Profit to Restore the Ecosystem.",
-      "description": "Terraf converts regional biomass waste into durable OX composites, powers local micro-factories, and funds ecosystem restoration — a single material choice that closes the carbon loop.",
-      "primaryCta": "Explore the Material",
-      "secondaryCta": "Talk to B2B Team",
+      "eyebrow": "SHELL · SCIENCE · SOURCE CODE",
+      "title": "A material born from 450 million years of natural engineering.",
+      "description": "Reclaimed oyster shell, refined into pellets, compress-moulded into premium objects — lighter than porcelain, stronger than ceramic, naturally safe.",
+      "primaryCta": "See the Science",
+      "secondaryCta": "For Business",
       "indicators": [
-        "Lighter than traditional ceramics",
-        "High-impact durability for daily and commercial use",
-        "Natural mineral safety — no artificial coatings"
+        "Lighter than traditional porcelain",
+        "Stronger than standard ceramic",
+        "Naturally safe, mineral-based"
       ]
     },
     "whyItMatters": {
@@ -254,23 +254,29 @@
       ]
     },
     "audiencePaths": {
-      "eyebrow": "Who Is This For",
-      "title": "Three entry points. One material philosophy.",
-      "paths": [
+      "eyebrow": "Choose your path",
+      "title": "Three ways to work with Shellfin.",
+      "cards": [
         {
-          "label": "Consumers",
-          "description": "Browse finished tableware and home objects shaped from Shellfin (OX-S) — lighter, stronger, and naturally safer than conventional ceramics.",
-          "cta": "Visit the Store"
+          "label": "For Consumers",
+          "title": "Shop Finished Objects",
+          "description": "Tableware and home objects compress-moulded from oyster shell pellets.",
+          "cta": "Visit the Store",
+          "href": "store"
         },
         {
-          "label": "Businesses",
-          "description": "Source raw OX pellets or co-develop finished products for hospitality, retail, and premium brand programs.",
-          "cta": "B2B Inquiry"
+          "label": "For Business",
+          "title": "Source Raw Material",
+          "description": "Request pellet samples, technical sheets, and volume pricing for your production line.",
+          "cta": "Start a B2B Conversation",
+          "href": "b2b"
         },
         {
-          "label": "Designers",
-          "description": "Upload concepts, collaborate with the material team, and find support for new product ideas built on the Terrafin composite family.",
-          "cta": "Join the Community"
+          "label": "For Designers",
+          "title": "Submit a Concept",
+          "description": "Share a design idea with the community. Strong ideas move forward into prototyping.",
+          "cta": "Open the Community",
+          "href": "community"
         }
       ]
     },

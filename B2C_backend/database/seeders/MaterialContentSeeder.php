@@ -219,7 +219,7 @@ class MaterialContentSeeder extends Seeder
                 'key' => 'hero',
                 'title' => 'Premium oyster-shell material for design-led products',
                 'subtitle' => 'Material showcase',
-                'content' => 'Use the homepage API to drive hero messaging, CTA text, and premium material storytelling without code changes.',
+                'content' => 'Reclaimed oyster shell, refined into pellets, compress-moulded into premium objects — lighter than porcelain, stronger than ceramic, naturally safe.',
                 'cta_label' => 'Explore the material',
                 'cta_url' => '/materials/premium-oyster-shell',
                 'payload' => [
