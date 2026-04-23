@@ -128,11 +128,8 @@ export function buildHeroContent(
 
   return {
     ...fallback,
-    // eyebrow is brand copy — always locale, never CMS section text
-    // title/description use material API data when present, but not the CMS
-    // section's title/content fields (where placeholder text previously leaked)
-    title: material?.headline || fallback.title,
-    description: material?.summary || fallback.description,
+    // Hero copy (eyebrow/title/description) is fully locale-driven.
+    // Only indicators pull from live material data; CTA label can be CMS-controlled.
     primaryCta: heroSection?.cta_label || fallback.primaryCta,
     indicators: indicators?.length ? indicators : fallback.indicators,
   }
