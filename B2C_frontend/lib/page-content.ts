@@ -128,9 +128,11 @@ export function buildHeroContent(
 
   return {
     ...fallback,
-    eyebrow: heroSection?.subtitle || fallback.eyebrow,
-    title: heroSection?.title || material?.headline || fallback.title,
-    description: heroSection?.content || material?.summary || fallback.description,
+    // eyebrow is brand copy — always locale, never CMS section text
+    // title/description use material API data when present, but not the CMS
+    // section's title/content fields (where placeholder text previously leaked)
+    title: material?.headline || fallback.title,
+    description: material?.summary || fallback.description,
     primaryCta: heroSection?.cta_label || fallback.primaryCta,
     indicators: indicators?.length ? indicators : fallback.indicators,
   }
