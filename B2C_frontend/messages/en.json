@@ -1,4 +1,10 @@
 {
+  "common": {
+    "errors": {
+      "apiUnavailable": "The API is unavailable right now.",
+      "requestFailed": "The request could not be completed."
+    }
+  },
   "meta": {
     "siteName": "Shellfin",
     "localeName": "English",
@@ -624,6 +630,7 @@
     "confirmationNote": "Orders are manually confirmed. You will receive a confirmation email once your order is reviewed.",
     "placingOrder": "Placing Order...",
     "placeOrder": "Place Order",
+    "productFallback": "Shellfin product",
     "countries": {
       "KR": "South Korea",
       "NZ": "New Zealand",
@@ -760,7 +767,21 @@
       "emailPlaceholder": "Please enter your email address",
       "passwordPlaceholder": "Please enter your password",
       "namePlaceholder": "Given name or full name",
-      "usernamePlaceholder": "Unique username for posting and profile"
+      "usernamePlaceholder": "Unique username for posting and profile",
+      "signInToContinue": "Sign in to continue",
+      "loadingAccount": "Loading your Shellfin account..."
+    },
+    "report": {
+      "button": "Report",
+      "title": "Report {targetType}",
+      "description": "Submit a moderation report through the backend reporting endpoint.",
+      "reasonLabel": "Reason",
+      "reasonPlaceholder": "Spam, abusive content, plagiarism...",
+      "detailsLabel": "Details",
+      "detailsPlaceholder": "Optional details for the moderation team.",
+      "reportedSuccess": "Report submitted successfully.",
+      "submitting": "Submitting...",
+      "submitReport": "Submit report"
     },
     "search": {
       "placeholder": "Search posts",

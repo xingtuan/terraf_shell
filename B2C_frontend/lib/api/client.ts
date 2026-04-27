@@ -31,16 +31,19 @@ const DEFAULT_API_BASE_URL = "/api"
 export class ApiError extends Error {
   status: number
   errors?: Record<string, string[]>
+  code?: string
 
   constructor(
     message: string,
     status: number,
     errors?: Record<string, string[]>,
+    code?: string,
   ) {
     super(message)
     this.name = "ApiError"
     this.status = status
     this.errors = errors
+    this.code = code
   }
 }
 
@@ -165,7 +168,7 @@ export async function requestApi<T>(
       credentials: options.credentials ?? "include",
     })
   } catch {
-    throw new ApiError("The API is unavailable right now.", 0)
+    throw new ApiError("The API is unavailable right now.", 0, undefined, "api_unavailable")
   }
 
   const rawText = await response.text()
@@ -178,6 +181,7 @@ export async function requestApi<T>(
       payload?.message ?? "The request could not be completed.",
       response.status,
       validationErrors,
+      payload?.message ? undefined : "request_failed",
     )
   }
 
@@ -194,4 +198,21 @@ export function getErrorMessage(error: unknown) {
   }
 
   return "The request could not be completed."
+}
+
+export function getLocalizedErrorMessage(
+  error: unknown,
+  t: { apiUnavailable: string; requestFailed: string },
+): string {
+  if (error instanceof ApiError) {
+    if (error.code === "api_unavailable") return t.apiUnavailable
+    if (error.code === "request_failed") return t.requestFailed
+    return error.message
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return t.requestFailed
 }

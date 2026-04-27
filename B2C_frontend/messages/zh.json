@@ -1,4 +1,10 @@
 {
+  "common": {
+    "errors": {
+      "apiUnavailable": "API 暂时不可用。",
+      "requestFailed": "请求无法完成。"
+    }
+  },
   "meta": {
     "siteName": "Shellfin",
     "localeName": "中文",
@@ -380,13 +386,13 @@
       "availabilityLabel": "供应状态",
       "categoryQuickFilterLabel": "按品类浏览",
       "filtersTitle": "筛选目录",
-      "searchLabel": "Search",
+      "searchLabel": "搜索",
       "searchPlaceholder": "按产品、SKU 或用途搜索",
-      "allOption": "All",
-      "filterHint": "Search by product, finish, stock state, or use case and keep the full filter state in the URL.",
-      "categoryHint": "Showing products in {category}.",
-      "activeFiltersLabel": "Active filters",
-      "removeFilterLabel": "Remove {label}",
+      "allOption": "全部",
+      "filterHint": "按产品、表面处理、库存状态或用途搜索，并在 URL 中保留完整筛选状态。",
+      "categoryHint": "正在显示 {category} 分类的产品。",
+      "activeFiltersLabel": "已启用筛选",
+      "removeFilterLabel": "移除 {label}",
       "sortLabel": "排序",
       "modelLabel": "型号",
       "finishLabel": "表面处理",
@@ -399,9 +405,9 @@
       "applyFilters": "应用筛选",
       "clearAll": "清除全部",
       "resultLabel": "{count} 件产品",
-      "searchResultTitle": "Results for \"{search}\"",
-      "filteredProductsTitle": "Filtered products",
-      "allProductsTitle": "All products",
+      "searchResultTitle": "\"{search}\" 的搜索结果",
+      "filteredProductsTitle": "筛选结果",
+      "allProductsTitle": "全部产品",
       "showingLabel": "第 {page} / {lastPage} 页",
       "emptyTitle": "没有符合这些筛选条件的产品。",
       "emptyDescription": "调整价格范围、切换品类，或清除筛选条件以重新查看完整的 Shellfin 目录。",
@@ -542,12 +548,12 @@
     "dialogDescription": "使用 Shellfin 在社区和商店流程中共用的账户登录。"
   },
   "storeNav": {
-    "eyebrow": "Store",
-    "collection": "Collection",
-    "cart": "Cart",
-    "orders": "Orders",
-    "account": "Account",
-    "cartAction": "Cart"
+    "eyebrow": "商店",
+    "collection": "系列",
+    "cart": "购物车",
+    "orders": "订单",
+    "account": "账户",
+    "cartAction": "购物车"
   },
   "cartSidebar": {
     "title": "你的购物车（{count} 件商品）",
@@ -624,6 +630,7 @@
     "confirmationNote": "订单将由人工确认。审核完成后，你会收到确认邮件。",
     "placingOrder": "正在下单...",
     "placeOrder": "提交订单",
+    "productFallback": "Shellfin 产品",
     "countries": {
       "KR": "韩国",
       "NZ": "新西兰",
@@ -683,7 +690,7 @@
     "inStock": "有货",
     "soldOut": "售罄",
     "stockLeft": "剩余 {count} 件",
-    "defaultAvailability": "Small-batch availability",
+    "defaultAvailability": "小批量供应",
     "viewDetails": "查看详情",
     "addToCart": "加入购物车",
     "bulkEnquiry": "批量询盘",
@@ -694,17 +701,17 @@
     "newBadge": "新品",
     "bestSellerBadge": "畅销",
     "batchStock": "批次库存",
-    "availabilityLabel": "Availability",
-    "defaultAvailability": "Availability confirmed with the latest store sync.",
+    "availabilityLabel": "供应状态",
+    "defaultAvailability": "已与最新商店同步确认供应情况。",
     "addToCart": "加入购物车",
     "bulkEnquiry": "批量询盘",
     "requestUpdate": "请求更新",
     "requestSample": "申请样品",
-    "backToStore": "Back to store",
-    "pageFallbackEyebrow": "Product",
-    "pageFallbackDescription": "Review the Shellfin product specification, availability, and enquiry options.",
-    "pageErrorTitle": "Product details are temporarily unavailable.",
-    "pageErrorDescription": "The product page could not be loaded from the API. You can still browse the store or contact the team directly.",
+    "backToStore": "返回商店",
+    "pageFallbackEyebrow": "产品",
+    "pageFallbackDescription": "查看 Shellfin 产品规格、供应状态与询盘选项。",
+    "pageErrorTitle": "产品详情暂时不可用。",
+    "pageErrorDescription": "无法从 API 加载产品页面。你仍可以浏览商店或直接联系团队。",
     "soldOutMessage": "该批次已售罄。你可以申请补货更新或样品包，团队将引导你了解下一次发售安排。",
     "bulkOrderMessage": "该产品更适合餐饮酒店、批量采购或项目制订购。请使用询盘按钮了解 MOQ、交付周期和定制支持。",
     "productStory": "产品故事",
@@ -760,7 +767,21 @@
       "emailPlaceholder": "请输入你的邮箱地址",
       "passwordPlaceholder": "请输入你的密码",
       "namePlaceholder": "取个昵称吧",
-      "usernamePlaceholder": "唯一用户名"
+      "usernamePlaceholder": "唯一用户名",
+      "signInToContinue": "登录以继续",
+      "loadingAccount": "正在加载你的 Shellfin 账户..."
+    },
+    "report": {
+      "button": "举报",
+      "title": "举报 {targetType}",
+      "description": "通过后台举报接口提交审核报告。",
+      "reasonLabel": "原因",
+      "reasonPlaceholder": "垃圾内容、辱骂性内容、抄袭...",
+      "detailsLabel": "详情",
+      "detailsPlaceholder": "可选：向审核团队提供的补充说明。",
+      "reportedSuccess": "举报已成功提交。",
+      "submitting": "提交中...",
+      "submitReport": "提交举报"
     },
     "search": {
       "placeholder": "搜索帖子",

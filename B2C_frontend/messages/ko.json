@@ -1,4 +1,10 @@
 {
+  "common": {
+    "errors": {
+      "apiUnavailable": "API를 현재 사용할 수 없습니다.",
+      "requestFailed": "요청을 완료할 수 없습니다."
+    }
+  },
   "meta": {
     "siteName": "Shellfin",
     "localeName": "한국어",
@@ -380,13 +386,13 @@
       "availabilityLabel": "공급 상태",
       "categoryQuickFilterLabel": "카테고리로 보기",
       "filtersTitle": "카탈로그 필터",
-      "searchLabel": "Search",
+      "searchLabel": "검색",
       "searchPlaceholder": "제품명, SKU, 사용처로 검색",
-      "allOption": "All",
-      "filterHint": "Search by product, finish, stock state, or use case and keep the full filter state in the URL.",
-      "categoryHint": "Showing products in {category}.",
-      "activeFiltersLabel": "Active filters",
-      "removeFilterLabel": "Remove {label}",
+      "allOption": "전체",
+      "filterHint": "제품, 마감, 재고 상태, 사용처로 검색하고 URL에 전체 필터 상태를 유지합니다.",
+      "categoryHint": "{category} 카테고리의 제품을 표시합니다.",
+      "activeFiltersLabel": "활성 필터",
+      "removeFilterLabel": "{label} 제거",
       "sortLabel": "정렬",
       "modelLabel": "모델",
       "finishLabel": "마감",
@@ -399,9 +405,9 @@
       "applyFilters": "필터 적용",
       "clearAll": "전체 해제",
       "resultLabel": "제품 {count}개",
-      "searchResultTitle": "Results for \"{search}\"",
-      "filteredProductsTitle": "Filtered products",
-      "allProductsTitle": "All products",
+      "searchResultTitle": "\"{search}\" 검색 결과",
+      "filteredProductsTitle": "필터된 제품",
+      "allProductsTitle": "전체 제품",
       "showingLabel": "{lastPage}페이지 중 {page}페이지",
       "emptyTitle": "조건에 맞는 제품이 없습니다.",
       "emptyDescription": "가격 범위를 조정하거나 카테고리를 바꾸거나 필터를 해제해 전체 Shellfin 카탈로그를 다시 확인해 보세요.",
@@ -542,12 +548,12 @@
     "dialogDescription": "커뮤니티와 스토어 흐름 전반에서 공용으로 사용하는 Shellfin 계정으로 로그인하세요."
   },
   "storeNav": {
-    "eyebrow": "Store",
-    "collection": "Collection",
-    "cart": "Cart",
-    "orders": "Orders",
-    "account": "Account",
-    "cartAction": "Cart"
+    "eyebrow": "스토어",
+    "collection": "컬렉션",
+    "cart": "장바구니",
+    "orders": "주문",
+    "account": "계정",
+    "cartAction": "장바구니"
   },
   "cartSidebar": {
     "title": "장바구니 ({count}개 상품)",
@@ -624,6 +630,7 @@
     "confirmationNote": "주문은 수동으로 확인됩니다. 주문 검토가 완료되면 확인 이메일을 받게 됩니다.",
     "placingOrder": "주문 처리 중...",
     "placeOrder": "주문하기",
+    "productFallback": "Shellfin 제품",
     "countries": {
       "KR": "대한민국",
       "NZ": "뉴질랜드",
@@ -683,7 +690,7 @@
     "inStock": "재고 있음",
     "soldOut": "품절",
     "stockLeft": "{count}개 남음",
-    "defaultAvailability": "Small-batch availability",
+    "defaultAvailability": "소량 배치 공급",
     "viewDetails": "자세히 보기",
     "addToCart": "장바구니 담기",
     "bulkEnquiry": "대량 문의",
@@ -694,17 +701,17 @@
     "newBadge": "신규",
     "bestSellerBadge": "베스트셀러",
     "batchStock": "배치 재고",
-    "availabilityLabel": "Availability",
-    "defaultAvailability": "Availability confirmed with the latest store sync.",
+    "availabilityLabel": "공급 상태",
+    "defaultAvailability": "최신 스토어 동기화 기준 공급 상태가 확인되었습니다.",
     "addToCart": "장바구니 담기",
     "bulkEnquiry": "대량 문의",
     "requestUpdate": "업데이트 요청",
     "requestSample": "샘플 요청",
-    "backToStore": "Back to store",
-    "pageFallbackEyebrow": "Product",
-    "pageFallbackDescription": "Review the Shellfin product specification, availability, and enquiry options.",
-    "pageErrorTitle": "Product details are temporarily unavailable.",
-    "pageErrorDescription": "The product page could not be loaded from the API. You can still browse the store or contact the team directly.",
+    "backToStore": "스토어로 돌아가기",
+    "pageFallbackEyebrow": "제품",
+    "pageFallbackDescription": "Shellfin 제품 사양, 공급 상태, 문의 옵션을 확인하세요.",
+    "pageErrorTitle": "제품 정보를 일시적으로 불러올 수 없습니다.",
+    "pageErrorDescription": "API에서 제품 페이지를 가져오지 못했습니다. 스토어를 계속 둘러보거나 팀에 직접 문의하세요.",
     "soldOutMessage": "이 배치는 품절되었습니다. 재입고 알림이나 샘플 팩을 요청하시면 팀이 다음 출시 일정으로 안내해 드립니다.",
     "bulkOrderMessage": "이 제품은 호스피탈리티, 대량, 또는 프로젝트 단위 주문에 더 적합합니다. 최소 주문 수량(MOQ), 리드타임, 맞춤화 지원은 문의 CTA를 이용해 주세요.",
     "productStory": "제품 스토리",
@@ -760,7 +767,21 @@
       "emailPlaceholder": "이메일 주소를 입력하세요",
       "passwordPlaceholder": "비밀번호를 입력하세요",
       "namePlaceholder": "이름을 입력하세요",
-      "usernamePlaceholder": "사용자명을 입력하세요"
+      "usernamePlaceholder": "사용자명을 입력하세요",
+      "signInToContinue": "계속하려면 로그인하세요",
+      "loadingAccount": "Shellfin 계정을 불러오는 중..."
+    },
+    "report": {
+      "button": "신고",
+      "title": "{targetType} 신고",
+      "description": "백엔드 신고 엔드포인트를 통해 관리 보고서를 제출합니다.",
+      "reasonLabel": "이유",
+      "reasonPlaceholder": "스팸, 욕설, 표절...",
+      "detailsLabel": "상세 내용",
+      "detailsPlaceholder": "관리팀에 전달할 선택 사항입니다.",
+      "reportedSuccess": "신고가 성공적으로 제출되었습니다.",
+      "submitting": "제출 중...",
+      "submitReport": "신고 제출"
     },
     "search": {
       "placeholder": "게시물 검색",

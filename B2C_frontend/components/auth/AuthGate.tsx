@@ -26,7 +26,7 @@ export function AuthGate({
     return (
       <div className="mx-auto max-w-3xl px-6 py-24 lg:px-8">
         <div className="rounded-3xl border border-border/60 bg-card p-8 text-sm text-muted-foreground">
-          Loading your Shellfin account...
+          {authCopy.loadingAccount}
         </div>
       </div>
     )

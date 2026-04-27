@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint . && node scripts/check-i18n-keys.mjs",
+    "check:i18n": "node scripts/check-i18n-keys.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

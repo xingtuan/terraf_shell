@@ -346,14 +346,14 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted">
                   <Image
                     src={item.product?.primary_image_url || item.product?.image_url || "/placeholder.jpg"}
-                    alt={item.product?.name || "Product"}
+                    alt={item.product?.name || t.productFallback}
                     fill
                     className="object-cover"
                   />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="line-clamp-2 text-sm font-medium text-foreground">
-                    {item.product?.name || "Shellfin product"}
+                    {item.product?.name || t.productFallback}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t.qty} {item.quantity} ·{" "}

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { locales, type Locale, type SiteMessages } from "@/lib/i18n"
@@ -12,16 +12,23 @@ type LanguageSwitcherProps = {
   className?: string
 }
 
-function buildLocalizedPath(pathname: string, targetLocale: Locale) {
+function buildLocalizedPath(
+  pathname: string,
+  searchParams: URLSearchParams,
+  targetLocale: Locale,
+) {
   const segments = pathname.split("/").filter(Boolean)
 
   if (segments.length === 0) {
-    return `/${targetLocale}`
+    segments.push(targetLocale)
+  } else {
+    segments[0] = targetLocale
   }
 
-  segments[0] = targetLocale
+  const path = `/${segments.join("/")}`
+  const query = searchParams.toString()
 
-  return `/${segments.join("/")}`
+  return query ? `${path}?${query}` : path
 }
 
 export function LanguageSwitcher({
@@ -30,6 +37,7 @@ export function LanguageSwitcher({
   className,
 }: LanguageSwitcherProps) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   return (
     <div
@@ -40,7 +48,7 @@ export function LanguageSwitcher({
       aria-label={content.label}
     >
       {locales.map((language) => {
-        const href = buildLocalizedPath(pathname, language)
+        const href = buildLocalizedPath(pathname, searchParams, language)
         const isActive = language === locale
 
         return (

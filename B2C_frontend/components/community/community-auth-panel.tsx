@@ -32,6 +32,8 @@ export type CommunityAuthCopy = {
   passwordPlaceholder: string
   namePlaceholder: string
   usernamePlaceholder: string
+  signInToContinue: string
+  loadingAccount: string
 }
 
 type CommunityAuthPanelProps = {
@@ -65,7 +67,7 @@ export function CommunityAuthPanel({
   const [mode, setMode] = useState<"login" | "register">("login")
   const [message, setMessage] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
-  const headline = context === "store" ? "Sign in to continue" : copy.title
+  const headline = context === "store" ? copy.signInToContinue : copy.title
 
   if (!isReady) {
     return (

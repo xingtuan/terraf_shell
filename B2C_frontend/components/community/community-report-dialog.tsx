@@ -16,8 +16,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { getErrorMessage } from "@/lib/api/client"
 import { submitReport } from "@/lib/api/interactions"
+import { getMessages, type Locale } from "@/lib/i18n"
 
 type CommunityReportDialogProps = {
+  locale: Locale
   token?: string | null
   targetType: "post" | "comment"
   targetId: number
@@ -25,11 +27,13 @@ type CommunityReportDialogProps = {
 }
 
 export function CommunityReportDialog({
+  locale,
   token,
   targetType,
   targetId,
   onReported,
 }: CommunityReportDialogProps) {
+  const t = getMessages(locale).community.report
   const [open, setOpen] = useState(false)
   const [reason, setReason] = useState("")
   const [description, setDescription] = useState("")
@@ -40,33 +44,31 @@ export function CommunityReportDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" variant="ghost" size="sm" disabled={!token}>
-          Report
+          {t.button}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Report {targetType}</DialogTitle>
-          <DialogDescription>
-            Submit a moderation report through the backend reporting endpoint.
-          </DialogDescription>
+          <DialogTitle>{t.title.replace("{targetType}", targetType)}</DialogTitle>
+          <DialogDescription>{t.description}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <label className="space-y-2">
-            <span className="text-sm text-foreground">Reason</span>
+            <span className="text-sm text-foreground">{t.reasonLabel}</span>
             <Input
               value={reason}
               onChange={(event) => setReason(event.target.value)}
-              placeholder="Spam, abusive content, plagiarism..."
+              placeholder={t.reasonPlaceholder}
             />
           </label>
           <label className="space-y-2">
-            <span className="text-sm text-foreground">Details</span>
+            <span className="text-sm text-foreground">{t.detailsLabel}</span>
             <Textarea
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               className="min-h-28"
-              placeholder="Optional details for the moderation team."
+              placeholder={t.detailsPlaceholder}
             />
           </label>
           {errorMessage ? (
@@ -99,7 +101,7 @@ export function CommunityReportDialog({
                     setOpen(false)
                     setReason("")
                     setDescription("")
-                    onReported("Report submitted successfully.")
+                    onReported(t.reportedSuccess)
                   })
                   .catch((error) => {
                     setErrorMessage(getErrorMessage(error))
@@ -107,7 +109,7 @@ export function CommunityReportDialog({
               })
             }}
           >
-            {isPending ? "Submitting..." : "Submit report"}
+            {isPending ? t.submitting : t.submitReport}
           </Button>
         </DialogFooter>
       </DialogContent>

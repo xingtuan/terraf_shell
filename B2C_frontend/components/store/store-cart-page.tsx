@@ -98,7 +98,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                   <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-3xl bg-muted">
                     <Image
                       src={item.product?.primary_image_url || item.product?.image_url || "/placeholder.jpg"}
-                      alt={item.product?.name || "Shellfin product"}
+                      alt={item.product?.name || t.productUnavailable}
                       fill
                       className="object-cover"
                     />
