@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useEffectEvent, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -52,56 +52,63 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const loadOverview = useEffectEvent(async () => {
-    if (!session.token || !session.user?.username) {
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const [
-        nextProfile,
-        ordersResponse,
-        nextAddresses,
-        postsResponse,
-        commentsResponse,
-        favoritesResponse,
-        notificationsResponse,
-      ] = await Promise.all([
-        getUserProfile(session.user.username, session.token),
-        getOrders(session.token, 1, 3),
-        listAddresses(session.token),
-        getUserPosts(session.user.username, { per_page: 1 }, session.token),
-        getUserComments(session.user.username, { per_page: 1 }, session.token),
-        getUserFavorites(session.user.username, { per_page: 1 }, session.token),
-        getNotifications({ per_page: 3 }, session.token),
-      ])
-
-      setProfile(nextProfile)
-      setOrders(ordersResponse.items)
-      setTotalOrders(ordersResponse.meta.total)
-      setAddresses(nextAddresses)
-      setPostsCount(postsResponse.meta.total)
-      setCommentsCount(commentsResponse.meta.total)
-      setFavoritesCount(favoritesResponse.meta.total)
-      setNotifications(notificationsResponse.items)
-      setUnreadNotifications(notificationsResponse.meta.unread_count ?? 0)
-    } catch (loadError) {
-      setError(getErrorMessage(loadError))
-    } finally {
-      setLoading(false)
-    }
-  })
-
   useEffect(() => {
-    if (!session.token || !session.user?.username) {
+    const token = session.token
+    const username = session.user?.username
+
+    if (!token || !username) {
+      setLoading(false)
       return
+    }
+
+    let cancelled = false
+
+    async function loadOverview() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const [
+          nextProfile,
+          ordersResponse,
+          nextAddresses,
+          postsResponse,
+          commentsResponse,
+          favoritesResponse,
+          notificationsResponse,
+        ] = await Promise.all([
+          getUserProfile(username, token),
+          getOrders(token, 1, 3),
+          listAddresses(token),
+          getUserPosts(username, { per_page: 1 }, token),
+          getUserComments(username, { per_page: 1 }, token),
+          getUserFavorites(username, { per_page: 1 }, token),
+          getNotifications({ per_page: 3 }, token),
+        ])
+
+        if (cancelled) return
+        setProfile(nextProfile)
+        setOrders(ordersResponse.items)
+        setTotalOrders(ordersResponse.meta.total)
+        setAddresses(nextAddresses)
+        setPostsCount(postsResponse.meta.total)
+        setCommentsCount(commentsResponse.meta.total)
+        setFavoritesCount(favoritesResponse.meta.total)
+        setNotifications(notificationsResponse.items)
+        setUnreadNotifications(notificationsResponse.meta.unread_count ?? 0)
+      } catch (loadError) {
+        if (!cancelled) setError(getErrorMessage(loadError))
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
 
     void loadOverview()
-  }, [loadOverview, session.token, session.user?.username])
+
+    return () => {
+      cancelled = true
+    }
+  }, [session.token, session.user?.username])
 
   const defaultAddress = useMemo(() => getDefaultAddress(addresses), [addresses])
   const checklistItems = useMemo(

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useEffectEvent, useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -40,31 +40,37 @@ export function AccountOrderDetailPage({
   const [error, setError] = useState<string | null>(null)
   const [copyState, setCopyState] = useState(false)
 
-  const loadOrder = useEffectEvent(async () => {
-    if (!session.token) {
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const nextOrder = await getOrder(orderNumber, session.token)
-      setOrder(nextOrder)
-    } catch (loadError) {
-      setError(getErrorMessage(loadError))
-    } finally {
-      setLoading(false)
-    }
-  })
-
   useEffect(() => {
-    if (!session.token) {
+    const token = session.token
+
+    if (!token) {
+      setLoading(false)
       return
+    }
+
+    let cancelled = false
+
+    async function loadOrder() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const nextOrder = await getOrder(orderNumber, token)
+        if (cancelled) return
+        setOrder(nextOrder)
+      } catch (loadError) {
+        if (!cancelled) setError(getErrorMessage(loadError))
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
 
     void loadOrder()
-  }, [loadOrder, orderNumber, session.token])
+
+    return () => {
+      cancelled = true
+    }
+  }, [session.token, orderNumber])
 
   async function handleCancel() {
     if (!session.token || !order) {

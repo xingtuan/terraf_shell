@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useEffectEvent, useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
@@ -50,52 +50,60 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-
-  const loadCommunity = useEffectEvent(async () => {
-    if (!session.token || !session.user?.username) {
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const [
-        nextProfile,
-        postsResponse,
-        commentsResponse,
-        favoritesResponse,
-        followersResponse,
-        followingResponse,
-      ] = await Promise.all([
-        getUserProfile(session.user.username, session.token),
-        getUserPosts(session.user.username, { per_page: 4 }, session.token),
-        getUserComments(session.user.username, { per_page: 4 }, session.token),
-        getUserFavorites(session.user.username, { per_page: 4 }, session.token),
-        getUserFollowers(session.user.username, { per_page: 6 }, session.token),
-        getUserFollowing(session.user.username, { per_page: 6 }, session.token),
-      ])
-
-      setProfile(nextProfile)
-      setPosts(postsResponse.items)
-      setComments(commentsResponse.items)
-      setFavorites(favoritesResponse.items)
-      setFollowers(followersResponse.items)
-      setFollowing(followingResponse.items)
-    } catch (loadError) {
-      setError(getErrorMessage(loadError))
-    } finally {
-      setLoading(false)
-    }
-  })
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
-    if (!session.token || !session.user?.username) {
+    const token = session.token
+    const username = session.user?.username
+
+    if (!token || !username) {
+      setLoading(false)
       return
+    }
+
+    let cancelled = false
+
+    async function loadCommunity() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const [
+          nextProfile,
+          postsResponse,
+          commentsResponse,
+          favoritesResponse,
+          followersResponse,
+          followingResponse,
+        ] = await Promise.all([
+          getUserProfile(username, token),
+          getUserPosts(username, { per_page: 4 }, token),
+          getUserComments(username, { per_page: 4 }, token),
+          getUserFavorites(username, { per_page: 4 }, token),
+          getUserFollowers(username, { per_page: 6 }, token),
+          getUserFollowing(username, { per_page: 6 }, token),
+        ])
+
+        if (cancelled) return
+        setProfile(nextProfile)
+        setPosts(postsResponse.items)
+        setComments(commentsResponse.items)
+        setFavorites(favoritesResponse.items)
+        setFollowers(followersResponse.items)
+        setFollowing(followingResponse.items)
+      } catch (loadError) {
+        if (!cancelled) setError(getErrorMessage(loadError))
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
 
     void loadCommunity()
-  }, [loadCommunity, session.token, session.user?.username])
+
+    return () => {
+      cancelled = true
+    }
+  }, [session.token, session.user?.username, reloadKey])
 
   function syncPost(updatedPost: CommunityPost) {
     setPosts((currentPosts) =>
@@ -422,7 +430,7 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
         onSuccess={() => {
-          void loadCommunity()
+          setReloadKey((k) => k + 1)
         }}
       />
     </>

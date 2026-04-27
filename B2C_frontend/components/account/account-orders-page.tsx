@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useEffectEvent, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -38,33 +38,39 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const loadOrders = useEffectEvent(async () => {
-    if (!session.token) {
-      return
-    }
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const response = await getOrders(session.token, page, 10)
-      setOrders(response.items)
-      setLastPage(response.meta.last_page)
-      setTotalOrders(response.meta.total)
-    } catch (loadError) {
-      setError(getErrorMessage(loadError))
-    } finally {
-      setLoading(false)
-    }
-  })
-
   useEffect(() => {
-    if (!session.token) {
+    const token = session.token
+
+    if (!token) {
+      setLoading(false)
       return
+    }
+
+    let cancelled = false
+
+    async function loadOrders() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const response = await getOrders(token, page, 10)
+        if (cancelled) return
+        setOrders(response.items)
+        setLastPage(response.meta.last_page)
+        setTotalOrders(response.meta.total)
+      } catch (loadError) {
+        if (!cancelled) setError(getErrorMessage(loadError))
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
     }
 
     void loadOrders()
-  }, [loadOrders, page, session.token])
+
+    return () => {
+      cancelled = true
+    }
+  }, [session.token, page])
 
   const activeOrders = useMemo(
     () =>
