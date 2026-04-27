@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 
@@ -31,7 +32,7 @@ function buildLocalizedPath(
   return query ? `${path}?${query}` : path
 }
 
-export function LanguageSwitcher({
+function LanguageSwitcherLinks({
   locale,
   content,
   className,
@@ -67,5 +68,17 @@ export function LanguageSwitcher({
         )
       })}
     </div>
+  )
+}
+
+export function LanguageSwitcher({
+  locale,
+  content,
+  className,
+}: LanguageSwitcherProps) {
+  return (
+    <Suspense>
+      <LanguageSwitcherLinks locale={locale} content={content} className={className} />
+    </Suspense>
   )
 }
