@@ -522,7 +522,7 @@ export function CommunityPostDetail({
                     disabled={activeAction === "like"}
                     onClick={() => {
                       if (!session.token) {
-                        setMessage(messages.post.signInToInteract)
+                        notify(messages.post.signInToInteract)
                         return
                       }
 
@@ -558,7 +558,7 @@ export function CommunityPostDetail({
                     disabled={activeAction === "favorite"}
                     onClick={() => {
                       if (!session.token) {
-                        setMessage(messages.post.signInToInteract)
+                        notify(messages.post.signInToInteract)
                         return
                       }
 
