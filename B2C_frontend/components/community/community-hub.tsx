@@ -157,7 +157,7 @@ export function CommunityHub({
     return () => {
       window.removeEventListener(COMMUNITY_POSTS_REFRESH_EVENT, handleRefresh)
     }
-  }, [loadPosts])
+  }, [])
 
   useEffect(() => {
     setJumpPageInput(String(page))

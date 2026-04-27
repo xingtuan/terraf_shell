@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Download, ExternalLink, MoreHorizontal } from "lucide-react"
-import { useEffect, useEffectEvent, useState, type FormEvent, type ReactNode } from "react"
+import { useEffect, useState, type FormEvent, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
@@ -112,43 +112,51 @@ export function CommunityPostDetail({
     })
   }
 
-  const loadDetail = useEffectEvent(async () => {
-    if (!session.isReady) {
-      return
-    }
-
-    setIsLoadingPost(true)
-    setMessage(null)
-
-    try {
-      const nextPost = await getPost(slug, { token: session.token })
-      setPost(nextPost)
-      setIsLoadingComments(true)
-
-      try {
-        const nextComments = await listComments(nextPost.id, session.token)
-        setComments(nextComments)
-      } catch (error) {
-        setComments([])
-        setMessage(getErrorMessage(error))
-      } finally {
-        setIsLoadingComments(false)
-      }
-    } catch (error) {
-      setPost(null)
-      setComments([])
-      setMessage(getErrorMessage(error))
-    } finally {
-      setIsLoadingPost(false)
-    }
-  })
-
   useEffect(() => {
     if (!session.isReady) {
       return
     }
 
+    const token = session.token
+    let cancelled = false
+
+    async function loadDetail() {
+      setIsLoadingPost(true)
+      setMessage(null)
+
+      try {
+        const nextPost = await getPost(slug, { token })
+        if (cancelled) return
+        setPost(nextPost)
+        setIsLoadingComments(true)
+
+        try {
+          const nextComments = await listComments(nextPost.id, token)
+          if (!cancelled) setComments(nextComments)
+        } catch (error) {
+          if (!cancelled) {
+            setComments([])
+            setMessage(getErrorMessage(error))
+          }
+        } finally {
+          if (!cancelled) setIsLoadingComments(false)
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setPost(null)
+          setComments([])
+          setMessage(getErrorMessage(error))
+        }
+      } finally {
+        if (!cancelled) setIsLoadingPost(false)
+      }
+    }
+
     void loadDetail()
+
+    return () => {
+      cancelled = true
+    }
   }, [session.isReady, slug])
 
   async function refreshComments(postId: number) {

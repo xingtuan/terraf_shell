@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useEffectEvent, useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
@@ -100,77 +100,7 @@ export function CommunityProfilePage({
   const [isLoadingComments, setIsLoadingComments] = useState(true)
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(true)
 
-  const loadProfile = useEffectEvent(async () => {
-    setIsLoadingProfile(true)
-
-    try {
-      const nextProfile = await getUserProfile(activeUsername, session.token)
-      setProfile(nextProfile)
-    } catch (loadError) {
-      setProfile(null)
-      setMessage(getErrorMessage(loadError))
-    } finally {
-      setIsLoadingProfile(false)
-    }
-  })
-
-  const loadPosts = useEffectEvent(async () => {
-    setIsLoadingPosts(true)
-
-    try {
-      const nextPosts = await getUserPosts(
-        activeUsername,
-        { per_page: 12 },
-        session.token,
-      )
-      setPosts(nextPosts.items)
-      setPostsTotal(nextPosts.meta.total)
-    } catch (loadError) {
-      setPosts([])
-      setPostsTotal(0)
-      setMessage(getErrorMessage(loadError))
-    } finally {
-      setIsLoadingPosts(false)
-    }
-  })
-
-  const loadFavorites = useEffectEvent(async () => {
-    setIsLoadingFavorites(true)
-
-    try {
-      const nextFavorites = await getUserFavorites(
-        activeUsername,
-        { per_page: 12 },
-        session.token,
-      )
-      setFavorites(nextFavorites.items)
-    } catch (loadError) {
-      setFavorites([])
-      setMessage(getErrorMessage(loadError))
-    } finally {
-      setIsLoadingFavorites(false)
-    }
-  })
-
-  const loadComments = useEffectEvent(async () => {
-    setIsLoadingComments(true)
-
-    try {
-      const nextComments = await getUserComments(
-        activeUsername,
-        { per_page: 12 },
-        session.token,
-      )
-      setComments(nextComments.items)
-      setCommentsTotal(nextComments.meta.total)
-    } catch (loadError) {
-      setComments([])
-      setCommentsTotal(0)
-      setMessage(getErrorMessage(loadError))
-    } finally {
-      setIsLoadingComments(false)
-    }
-  })
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     setActiveUsername(initialProfile?.username ?? username)
@@ -185,13 +115,88 @@ export function CommunityProfilePage({
       return
     }
 
+    const token = session.token
+    const currentUsername = activeUsername
+    let cancelled = false
+
     setMessage(null)
-    void Promise.all([loadProfile(), loadPosts(), loadComments(), loadFavorites()])
-  }, [activeUsername, loadComments, loadFavorites, loadPosts, loadProfile, session.isReady, session.token])
+    setIsLoadingProfile(true)
+    setIsLoadingPosts(true)
+    setIsLoadingComments(true)
+    setIsLoadingFavorites(true)
+
+    void getUserProfile(currentUsername, token)
+      .then((nextProfile) => {
+        if (!cancelled) setProfile(nextProfile)
+      })
+      .catch((loadError) => {
+        if (!cancelled) {
+          setProfile(null)
+          setMessage(getErrorMessage(loadError))
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingProfile(false)
+      })
+
+    void getUserPosts(currentUsername, { per_page: 12 }, token)
+      .then((nextPosts) => {
+        if (!cancelled) {
+          setPosts(nextPosts.items)
+          setPostsTotal(nextPosts.meta.total)
+        }
+      })
+      .catch((loadError) => {
+        if (!cancelled) {
+          setPosts([])
+          setPostsTotal(0)
+          setMessage(getErrorMessage(loadError))
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingPosts(false)
+      })
+
+    void getUserComments(currentUsername, { per_page: 12 }, token)
+      .then((nextComments) => {
+        if (!cancelled) {
+          setComments(nextComments.items)
+          setCommentsTotal(nextComments.meta.total)
+        }
+      })
+      .catch((loadError) => {
+        if (!cancelled) {
+          setComments([])
+          setCommentsTotal(0)
+          setMessage(getErrorMessage(loadError))
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingComments(false)
+      })
+
+    void getUserFavorites(currentUsername, { per_page: 12 }, token)
+      .then((nextFavorites) => {
+        if (!cancelled) setFavorites(nextFavorites.items)
+      })
+      .catch((loadError) => {
+        if (!cancelled) {
+          setFavorites([])
+          setMessage(getErrorMessage(loadError))
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingFavorites(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [activeUsername, session.isReady, session.token, reloadKey])
 
   useEffect(() => {
-    const handleRefresh = () => {
-      void Promise.all([loadProfile(), loadPosts(), loadComments(), loadFavorites()])
+    function handleRefresh() {
+      setReloadKey((k) => k + 1)
     }
 
     window.addEventListener(COMMUNITY_POSTS_REFRESH_EVENT, handleRefresh)
@@ -199,7 +204,7 @@ export function CommunityProfilePage({
     return () => {
       window.removeEventListener(COMMUNITY_POSTS_REFRESH_EVENT, handleRefresh)
     }
-  }, [loadComments, loadFavorites, loadPosts, loadProfile])
+  }, [])
 
   function syncPost(updatedPost: CommunityPost) {
     setPosts((currentPosts) =>
