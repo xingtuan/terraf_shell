@@ -1,117 +1,143 @@
-## Shellfin Frontend
+# Shellfin Frontend
 
-Shellfin 是一个基于 `Next.js 16 + TypeScript + Tailwind CSS + shadcn/ui` 的多语言官网前端，面向一家专注于`굴 패각 / oyster shell`材料的韩国材料科技公司。
+The Next.js 16 frontend for the Shellfin brand platform. It serves as a multi-language brand site, B2C product storefront, B2B inquiry hub, and community space for creators working with oyster shell materials.
 
-当前版本已经从单页落地页重构为多页面网站，覆盖以下 3 类用户：
+Built with the App Router, TypeScript, Tailwind CSS 4, and a clear separation between server-rendered content pages and client-interactive community features.
 
-- `B2C`：线上浏览与销售高端餐具 / 家居物件
-- `B2B`：销售 oyster shell pellets / 原材料给企业客户
-- `Community`：创意共创、设计协作、概念支持与 fundraising 场景
+---
 
-网站内容只聚焦`牡蛎壳材料线`，不涉及其他材料系列。
+## Tech Stack
 
-## 核心特性
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript 5.7 |
+| UI Library | React 19 |
+| Styling | Tailwind CSS 4 + PostCSS |
+| Components | Radix UI primitives + shadcn/ui |
+| Forms | react-hook-form + Zod |
+| Rich Text | Tiptap |
+| Icons | lucide-react |
+| Carousel | Embla Carousel |
+| Charts | Recharts |
+| Toasts | Sonner |
+| Date utilities | date-fns |
+| Analytics | Vercel Analytics |
+| Package Manager | pnpm (via Corepack) |
 
-- 基于 `App Router` 的多页面结构
-- 多语言路由支持：`English / Korean / Chinese`
-- 保留原有 premium / quiet luxury 视觉方向
-- 复用并重构原 landing page section
-- 首页 / 材料 / 文章 / B2B 询盘 / Community 帖子已经接入 Laravel API
-- Store 商品目录与 Community idea cards 仍保持明确的 mock-only 边界
-- 优先使用 Server Components，只有交互区域使用 Client Components
+---
 
-## 页面路由
+## Local Development
 
-每种语言都支持以下路由：
-
-| 路由 | 说明 |
-| --- | --- |
-| `/[locale]` | 首页 |
-| `/[locale]/material` | 材料页 |
-| `/[locale]/store` | B2C 商店页 |
-| `/[locale]/b2b` | B2B 合作与询盘页 |
-| `/[locale]/community` | 社区与概念合作页 |
-| `/[locale]/contact` | 联系页 |
-
-当前支持的 `locale`：
-
-- `en`
-- `ko`
-- `zh`
-
-根路径 `/` 会自动跳转到默认语言 `/en`。
-
-## 材料叙事重点
-
-站点当前围绕以下业务信息展开：
-
-- oyster shells
-- pellets
-- compress moulding
-- finished tableware / premium objects
-
-突出展示的材料优势：
-
-- lighter than traditional porcelain
-- stronger / more durable
-- safer / more natural for health-conscious positioning
-
-## 技术栈
-
-- `Next.js 16`
-- `React 19`
-- `TypeScript`
-- `Tailwind CSS 4`
-- `shadcn/ui`
-- `lucide-react`
-
-## 本地开发
-
-先安装依赖：
+Install dependencies:
 
 ```bash
+corepack enable
 corepack pnpm install
 ```
 
-启动开发环境：
+Copy the environment template and configure:
+
+```bash
+cp .env.example .env.local
+```
+
+Start the development server:
 
 ```bash
 corepack pnpm dev
 ```
 
-生产构建：
+Production build:
 
 ```bash
 corepack pnpm build
 ```
 
-类型检查：
+Type check without emitting:
 
 ```bash
 corepack pnpm exec tsc --noEmit
 ```
 
-## 目录结构
+Validate i18n key coverage across all locales:
+
+```bash
+node scripts/check-i18n-keys.mjs
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `NEXT_PUBLIC_API_BASE_URL` | `/api` | Backend API base URL. Change to an absolute URL (e.g., `http://127.0.0.1:8000/api`) when running frontend and backend on different ports without a reverse proxy. |
+| `NEXT_PUBLIC_MEDIA_BASE_URL` | *(empty)* | Optional CDN base URL for media assets served from Azure Blob Storage. |
+
+---
+
+## Routing
+
+All pages are under the `[locale]` dynamic segment. The root path `/` redirects to `/en`.
+
+| Route | Page |
+|---|---|
+| `/[locale]` | Homepage |
+| `/[locale]/material` | Material showcase page |
+| `/[locale]/articles` | Article listing |
+| `/[locale]/articles/[slug]` | Article detail |
+| `/[locale]/store` | B2C product store |
+| `/[locale]/store/[slug]` | Product detail |
+| `/[locale]/store/checkout` | Checkout |
+| `/[locale]/store/orders` | Order list |
+| `/[locale]/store/orders/[orderNumber]` | Order detail |
+| `/[locale]/b2b` | B2B partnership and inquiry page |
+| `/[locale]/contact` | Contact page |
+| `/[locale]/community` | Community hub (post feed) |
+| `/[locale]/community/[slug]` | Post detail |
+| `/[locale]/community/profile/[username]` | User profile |
+| `/[locale]/account` | Account overview |
+| `/[locale]/account/profile` | Profile settings |
+| `/[locale]/account/addresses` | Address management |
+
+Supported locales: `en` (default), `ko`, `zh`
+
+---
+
+## Directory Structure
 
 ```text
 app/
-  page.tsx                  # 根路径重定向到默认语言
+  page.tsx                          # Root redirect → /en
   [locale]/
-    layout.tsx              # 多语言站点布局
-    page.tsx                # 首页
-    material/page.tsx       # Material 页面
-    store/page.tsx          # B2C Store 页面
-    b2b/page.tsx            # B2B 页面
-    community/page.tsx      # Community 页面
-    contact/page.tsx        # Contact 页面
+    layout.tsx                      # Global layout with locale context
+    page.tsx                        # Homepage
+    material/page.tsx               # Material page
+    articles/
+      page.tsx                      # Article list
+      [slug]/page.tsx               # Article detail
+    store/
+      page.tsx                      # Product store
+      [slug]/page.tsx               # Product detail
+      checkout/page.tsx
+      orders/
+        page.tsx
+        [orderNumber]/page.tsx
+    b2b/page.tsx                    # B2B inquiry page
+    contact/page.tsx                # Contact page
+    community/
+      page.tsx                      # Community hub
+      [slug]/page.tsx               # Post detail
+      profile/[username]/page.tsx   # User profile
+    account/
+      page.tsx
+      profile/page.tsx
+      addresses/page.tsx
 
 components/
-  header.tsx                # 顶部导航 + 语言切换
-  footer.tsx                # 底部导航
-  language-switcher.tsx     # 语言切换器
-  page-intro.tsx            # 内页顶部介绍区
-  locale-html-sync.tsx      # 同步 html lang
-  sections/
+  layout/
+    header.tsx                      # Top navigation with locale switcher
+    footer.tsx                      # Footer navigation
+  sections/                         # Homepage and page section components
     hero.tsx
     why-it-matters.tsx
     material-story.tsx
@@ -124,164 +150,214 @@ components/
     b2b-inquiry-form.tsx
     community-ideas.tsx
     contact-details.tsx
-
-messages/
-  en.json
-  ko.json
-  zh.json
-
-lib/
-  i18n.ts                   # locale、messages、路由工具
-  resolve-locale.ts         # 校验 locale
-  types.ts                  # Product / MaterialSpec / Inquiry 等类型
-  data/
-    products.ts
-    materials.ts
-    community.ts
-  api/
-    products.ts
-    materials.ts
-    inquiries.ts
-    community.ts
+  community/                        # Community-specific components
+    community-hub.tsx               # Post feed and filtering
+    community-post-detail.tsx       # Post detail with comments
+    community-auth-panel.tsx        # Login / register modal
+    comment-tree.tsx
+    post-card.tsx
+  account/                          # Account and profile components
+  articles/                         # Article list and detail components
+  store/                            # Store and product components
+  auth/                             # Authentication panels
+  ui/                               # Base UI primitives (buttons, dialogs, etc.)
 
 hooks/
-  use-section-in-view.ts    # section reveal animation hook
+  use-section-in-view.ts            # Intersection Observer hook for reveal animations
+
+lib/
+  api/
+    client.ts                       # Central HTTP client (auth, base URL, error handling)
+    auth.ts                         # Authentication endpoints
+    posts.ts                        # Community posts
+    comments.ts                     # Post comments
+    interactions.ts                 # Likes, favorites, follows
+    notifications.ts                # User notifications
+    search.ts                       # Post search
+    users.ts                        # User profiles
+    materials.ts                    # Material CMS
+    articles.ts                     # Articles
+    homepage.ts                     # Homepage content aggregation
+    leads.ts                        # B2B lead / inquiry submission
+    inquiries.ts                    # Legacy wrapper → delegates to leads.ts
+    cart.ts                         # Shopping cart
+    orders.ts                       # Orders
+    addresses.ts                    # User addresses
+    media.ts                        # Media upload
+    products.ts                     # ⚠ Mock only — no backend endpoint yet
+    community.ts                    # ⚠ Mock only — no backend endpoint yet
+    adapters.ts                     # Response transformation helpers
+    normalizers.ts                  # Data normalization utilities
+    request-throttle.ts             # Client-side request rate limiting
+  auth/
+    token-storage.ts                # localStorage wrapper for Sanctum tokens
+  data/                             # Intentional fallback/mock data
+    products.ts                     # Product mock data (pending backend)
+    materials.ts                    # Material spec fallback data
+    community.ts                    # Community idea card mock data
+  i18n.ts                           # Locale list, message loading, URL helpers
+  resolve-locale.ts                 # Locale validation middleware helper
+  types.ts                          # Shared TypeScript type definitions
+
+messages/
+  en.json                           # English translations
+  ko.json                           # Korean translations
+  zh.json                           # Chinese translations
+
+scripts/
+  check-i18n-keys.mjs               # Validates key parity across all locale files
+
+public/                             # Static assets (images, fonts, etc.)
 ```
 
-## 国际化说明
+---
 
-所有页面文案都来自：
+## Internationalization
 
-- `messages/en.json`
-- `messages/ko.json`
-- `messages/zh.json`
+All user-facing strings are stored in `messages/*.json`. The i18n system is custom-built (no third-party i18n library) and driven by the `[locale]` dynamic segment.
 
-Locale 配置位于：
+**Configuration:** `lib/i18n.ts`
 
-- `lib/i18n.ts`
+```typescript
+export const locales = ['en', 'ko', 'zh']
+export const defaultLocale = 'en'
+```
 
-其中包含：
+**Helper functions in `lib/i18n.ts`:**
 
-- 支持的 `locales`
-- 默认语言 `defaultLocale`
-- `getMessages(locale)`
-- `getLocalizedHref(locale, slug)`
+- `getMessages(locale)` — loads and returns the message catalog for a locale
+- `getLocalizedHref(locale, slug)` — builds a locale-prefixed URL
 
-如果要新增文案，优先修改 message 文件，而不是在组件中写死字符串。
+**Adding new copy:** Edit the appropriate key in all three `messages/*.json` files. Never hard-code strings in components. Run `node scripts/check-i18n-keys.mjs` to verify key parity.
 
-## 数据模型
+**Adding a new locale:** Add the locale code to the `locales` array in `lib/i18n.ts`, create the corresponding `messages/{locale}.json` file, and update `next.config.mjs` remote patterns if locale-specific CDN paths are used.
 
-当前已定义的核心类型：
+---
 
-- `Product`
-- `ProductCategory`
-- `MaterialSpec`
-- `B2BInquiry`
-- `CommunityIdea`
+## API Client
 
-类型文件位于：
+All backend calls go through the central client at `lib/api/client.ts`. It handles:
 
-- `lib/types.ts`
+- **Base URL resolution** from `NEXT_PUBLIC_API_BASE_URL`
+- **Bearer token injection** from `localStorage` via `lib/auth/token-storage.ts`
+- **Query parameter serialization**
+- **Unified error handling** — throws a typed `ApiError` on non-2xx responses
+- **Response parsing** — unwraps the backend's `{ success, data, meta }` envelope
 
-当前仍然主要使用 mock data：
+The token is stored at key `shellfin.community.auth-token` in `localStorage`.
 
-- `lib/data/products.ts`
-- `lib/data/community.ts`
-- `lib/data/materials.ts` 仅作为材料规格的 fallback 数据源，不是主数据源
+### Authentication Flow
 
-## 后端接入状态
+1. User submits credentials in `CommunityAuthPanel`
+2. Frontend calls `lib/api/auth.login()` → `POST /api/auth/login`
+3. Backend returns a Sanctum Personal Access Token
+4. Token is persisted to `localStorage`
+5. Subsequent requests include `Authorization: Bearer <token>`
+6. On page load, `GET /api/auth/me` restores the authenticated user state
+7. On logout, `POST /api/auth/logout` is called and the local token is cleared
 
-已接入真实后端的 service 文件：
+---
 
-- `lib/api/homepage.ts`
-- `lib/api/materials.ts`
-- `lib/api/articles.ts`
-- `lib/api/leads.ts`
-- `lib/api/auth.ts`
-- `lib/api/posts.ts`
-- `lib/api/comments.ts`
-- `lib/api/interactions.ts`
-- `lib/api/search.ts`
-- `lib/api/notifications.ts`
-- `lib/api/users.ts`
-- `lib/api/inquiries.ts`（兼容包装，内部转发到 `lib/api/leads.ts`）
+## Component Architecture
 
-仍然明确保持 mock-only 的 service 文件：
+Pages are composed of two types of components:
 
-- `lib/api/products.ts`
-- `lib/api/community.ts`
+### Server Components (static / content pages)
 
-这些 mock-only 文件不是“待接回头再说”的隐性 TODO，而是因为当前后端公共接口还没有提供对应能力。
+Used for: Homepage, Material, Store listing, B2B, Contact, Articles.
 
-建议后续接入方向：
+These are `async` React Server Components. They fetch data at render time and produce stable, SEO-friendly HTML. They do not manage state or subscribe to browser events.
 
-1. `products.ts` 需要商品列表 / 详情 / 分类等公开目录接口
-2. `community.ts` 需要 community idea 列表 / 提交 / 详情接口
+### Client Components (interactive community pages)
 
-## 当前页面组成
+Used for: Community feed, post detail, auth panel, account pages, inquiry forms.
 
-### 首页
+These use `"use client"` and manage authentication state, form submission, real-time interactions (likes, favorites, comments), and pagination.
 
-- HeroSection
-- WhyItMattersSection
-- MaterialStorySection
-- ApplicationsSection
-- MaterialFactsSection
-- CollaborationSection
-- CredibilitySection
-- FinalCtaSection
+---
 
-### Material 页面
+## Data Layer
 
-聚焦材料逻辑、技术说明、可信度与 B2B 转化。
+### Live Backend Modules
 
-### Store 页面
+The following API modules make real requests to the Laravel backend:
 
-展示 B2C 产品 grid、分类信息和产品卡片。
+| Module | Endpoints |
+|---|---|
+| `auth.ts` | `/api/auth/*` |
+| `posts.ts` | `/api/posts`, `/api/posts/{id}` |
+| `comments.ts` | `/api/posts/{id}/comments`, `/api/comments/{id}` |
+| `interactions.ts` | `/api/posts/{id}/like`, `/api/posts/{id}/favorite`, `/api/users/{id}/follow` |
+| `notifications.ts` | `/api/notifications` |
+| `search.ts` | `/api/search/posts` |
+| `users.ts` | `/api/users/{id}` and sub-resources |
+| `materials.ts` | `/api/materials` |
+| `articles.ts` | `/api/articles` |
+| `homepage.ts` | `/api/homepage` |
+| `leads.ts` | `/api/business-contacts`, `/api/partnership-inquiries`, etc. |
+| `cart.ts` | `/api/cart` |
+| `orders.ts` | `/api/orders` |
+| `addresses.ts` | `/api/addresses` |
+| `media.ts` | `/api/media/upload` |
 
-### B2B 页面
+### Mock-Only Modules
 
-展示合作模式、材料信息、询盘表单。
+These modules return local data from `lib/data/` because the corresponding backend endpoints are not yet implemented:
 
-### Community 页面
+| Module | Reason |
+|---|---|
+| `products.ts` | Product catalog public API not yet exposed on the backend |
+| `community.ts` | Community idea submission API not yet implemented |
 
-展示概念卡片、合作方向与社区支持入口。
+These are deliberate boundaries, not technical debt. The page structure and components are already in place and will adopt live data when the backend endpoints are ready.
 
-### Contact 页面
+---
 
-展示联系信息，并复用询盘表单。
+## Page Composition
 
-## 视觉与实现约束
+### Homepage
 
-当前实现遵循以下方向：
+Composed of: `HeroSection`, `WhyItMattersSection`, `MaterialStorySection`, `ApplicationsSection`, `MaterialFactsSection`, `CollaborationSection`, `CredibilitySection`, `FinalCtaSection`
 
-- premium
-- minimal
-- spacious
-- editorial
-- quiet luxury
+Data source: `GET /api/homepage` aggregates materials, articles, and home sections in a single request.
 
-同时尽量保留原有动画与 polished 体验，没有在无必要的情况下移除动效。
+### Material Page
 
-## 已验证
+Showcases the oyster shell material with specs, story sections, certifications, and applications. Data from `GET /api/materials/{slug}`.
 
-已完成以下验证：
+### Store Page
 
-- `corepack pnpm build`
-- `corepack pnpm exec tsc --noEmit`
+Product grid with category filtering. Currently renders from mock data (`lib/data/products.ts`).
 
-## 后续建议
+### B2B Page
 
-如果你准备继续推进这个项目，建议按下面顺序接后端：
+Collaboration pitch with inquiry form. Submission goes to `POST /api/partnership-inquiries` or `POST /api/business-contacts`.
 
-1. 先接 `B2B inquiry` 提交
-2. 再接 `products` 与 `categories`
-3. 再接 `material specs / certifications`
-4. 最后补 `community` 的互动与 fundraising 数据
+### Community Page
 
-如果需要，我也可以继续帮你补：
+Post feed with sorting (latest, hot, trending, popular), filtering by category and tag, and full interaction support. Requires authentication for posting, liking, and favoriting.
 
-- README 英文版
-- API 接口约定文档
-- CMS / 后端字段设计
-- 部署说明
+### Account Pages
+
+Profile editing, address management, and order history. All require authenticated session.
+
+---
+
+## Design Direction
+
+The visual language follows a premium, minimal, editorial style:
+
+- Spacious layouts with controlled whitespace
+- Quiet luxury color palette
+- Typography-forward sections
+- Smooth reveal animations via `useIntersectionObserver` (see `hooks/use-section-in-view.ts`)
+- No unnecessary interactive states or decorative elements
+
+---
+
+## Next Steps for Backend Integration
+
+1. **Product catalog** — Connect `lib/api/products.ts` to `GET /api/products` and `GET /api/product-categories`
+2. **Community idea cards** — Implement idea submission and listing API endpoints, then wire `lib/api/community.ts`
+3. **Checkout flow** — Integrate `POST /api/orders` and payment processing
+4. **Community advanced UI** — Add create-post form, reply thread, follow button, report dialog, notification center, and full user profile page

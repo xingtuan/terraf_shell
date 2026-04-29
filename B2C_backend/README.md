@@ -1,111 +1,65 @@
-# Product Community API
+# Shellfin Backend API
 
-Laravel API backend for the oyster-shell material showcase, creator idea submission community, and future collaboration platform. The frontend is assumed to live separately in Next.js + TypeScript and consume this service over REST with JSON responses.
+Laravel 13 REST API backend for the Shellfin platform. It provides authentication, community features, CMS content delivery, B2B lead capture, media management, and an internal moderation panel.
 
-## Stack
+The frontend is a separate Next.js application that consumes this service over REST with JSON responses.
 
-- PHP 8.4
-- Laravel 13
-- Filament 5 for the internal admin panel
-- MySQL for the primary database
-- Redis for cache and queues
-- S3-compatible object storage for avatars and post images
-- Laravel Sanctum for API authentication
+---
 
-## What This Backend Supports
+## Tech Stack
 
-- Authentication: register, login, logout, current user, email verification, password reset, profile update
-- RBAC: `visitor`, `creator`, `sme_partner`, `moderator`, `admin`
-- Account controls: `active`, `restricted`, `banned`
-- Posts: create, update, delete, list, detail
-- Idea media: multi-file image/document attachments, legacy image compatibility, and external 3D links
-- Comments: create, reply, edit, delete, list by post and by user
-- Likes: posts and comments
-- Favorites: posts
-- Follows: users, followers, following
-- Reports: post and comment reporting
-- Notifications: approvals, rejections, comments, replies, likes, favorites, featured concepts, follows, and system announcements
-- Moderation: `pending`, `approved`, `rejected`, `hidden`
-- Governance: user violations, moderation history, admin action logs, review history, and optional sensitive-word flagging
-- Admin: review reports, moderate posts/comments, ban users
-- Material CMS: materials, specs, story sections, applications, home sections, and articles
-- Homepage content aggregation for hero, science, and editorial sections
-- Discovery: latest, hot, popular, trending, most liked, most discussed, featured concepts
-- Collaboration leads: business contacts, partnership inquiries, sample requests, university collaborations, and product development collaborations
-- Lightweight concept funding support through external crowdfunding campaigns
-- Analytics foundation for admin dashboards covering categories, activity, CTA sources, concept views, and funding-readiness signals
-- Internal admin panel for admins and moderators at `/admin`
-- Uploads: avatar upload, idea media upload, and CMS media upload
-- Search: post title/content search
-- Taxonomy: categories and tags with public list endpoints and admin CRUD
+| Layer | Technology |
+|---|---|
+| Language | PHP 8.3+ |
+| Framework | Laravel 13 |
+| Admin Panel | Filament 5 |
+| API Authentication | Laravel Sanctum (token-based) |
+| Database | MySQL 8+ |
+| Cache & Queue | Redis |
+| File Storage | Azure Blob Storage (primary) + local `public` disk (fallback) |
+| File System Adapter | League Flysystem Azure Blob Storage |
+| Testing | PHPUnit 12.5+ |
+| Code Style | Laravel Pint |
+
+---
 
 ## Architecture
 
-- API-only routing in [`routes/api.php`](/c:/Users/xingz/Desktop/B2C_backend/routes/api.php)
-- Web-based internal admin panel through Filament at `/admin`
-- Thin controllers delegating to service classes in [`app/Services`](/c:/Users/xingz/Desktop/B2C_backend/app/Services)
-- Validation through Form Requests in [`app/Http/Requests`](/c:/Users/xingz/Desktop/B2C_backend/app/Http/Requests)
-- Authorization through policies in [`app/Policies`](/c:/Users/xingz/Desktop/B2C_backend/app/Policies)
-- Stable response formatting via API Resources and the shared API response trait
-- Queued notification creation through [`CreateUserNotificationJob`](/c:/Users/xingz/Desktop/B2C_backend/app/Jobs/CreateUserNotificationJob.php)
+```text
+routes/api.php
+  └── Controller (thin — delegates immediately)
+        └── FormRequest (validation + basic authorization)
+              └── Service (business logic, transactions, aggregation)
+                    ├── Model / Eloquent
+                    ├── Policy (fine-grained authorization)
+                    ├── API Resource (response serialization)
+                    ├── Storage (Azure / local)
+                    └── Queue Job (async notifications)
+```
 
-## Core Tables
+- **Controllers** (`app/Http/Controllers/Api/`) — receive the request, call the service, return a response
+- **Form Requests** (`app/Http/Requests/`) — validate input fields and handle basic authorization checks
+- **Services** (`app/Services/`) — contain all business logic, database transactions, and cross-model coordination
+- **Resources** (`app/Http/Resources/`) — serialize models into stable JSON shapes, inject viewer-aware flags (`is_liked`, `is_favorited`, `is_following`, `can_edit`, `can_delete`)
+- **Policies** (`app/Policies/`) — gate post, comment, report, and notification operations per user role and ownership
+- **Middleware** (`app/Middleware/`) — `EnsureUserNotBanned` blocks restricted/banned users from write operations
+- **Support** (`app/Support/ApiResponse.php`) — shared trait for consistent `{ success, message, data, meta }` envelope
 
-- `users`
-- `profiles`
-- `password_reset_tokens`
-- `posts`
-- `post_images`
-- `idea_media`
-- `categories`
-- `tags`
-- `post_tags`
-- `comments`
-- `post_likes`
-- `comment_likes`
-- `favorites`
-- `follows`
-- `notifications`
-- `reports`
-- `moderation_logs`
-- `user_violations`
-- `admin_action_logs`
-- `inquiries`
-- `partnership_inquiries`
-- `sample_requests`
-- `funding_campaigns`
-- `materials`
-- `material_specs`
-- `material_story_sections`
-- `material_applications`
-- `articles`
-- `home_sections`
-- `personal_access_tokens`
-
-## Status Rules
-
-- Creator posts and comments are created as `pending`
-- Admin-created posts and comments are created as `approved`
-- Public endpoints only return approved content by default
-- Owners can still fetch their own pending posts/comments where applicable
-- Restricted and banned users cannot create posts, comments, likes, favorites, follows, or reports
-- Only creators, moderators, and admins can submit concepts through `POST /api/posts`
+---
 
 ## Response Contract
 
-Successful responses:
+Every endpoint returns one of these three shapes:
 
 ```json
+// Single resource or action confirmation
 {
   "success": true,
   "message": "Optional human-readable message",
   "data": {}
 }
-```
 
-Paginated responses:
-
-```json
+// Paginated list
 {
   "success": true,
   "message": null,
@@ -117,374 +71,578 @@ Paginated responses:
     "last_page": 5
   }
 }
-```
 
-Error responses:
-
-```json
+// Validation error or application error
 {
   "success": false,
   "message": "Error summary",
-  "errors": {}
+  "errors": {
+    "field": ["Validation message"]
+  }
 }
 ```
 
-## Main Endpoints
-
-### Auth
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/forgot-password`
-- `POST /api/auth/reset-password`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
-- `PATCH /api/auth/profile`
-- `POST /api/auth/email/verification-notification`
-- `GET /api/auth/email/verify/{id}/{hash}`
-- `GET /api/auth/reset-password/{token}`
-
-### Posts and Comments
-
-- `GET /api/posts`
-- `POST /api/posts`
-- `GET /api/posts/{id_or_slug}`
-- `PATCH /api/posts/{id}`
-- `DELETE /api/posts/{id}`
-- `GET /api/posts/{id}/comments`
-- `POST /api/posts/{id}/comments`
-
-`POST /api/posts` and `PATCH /api/posts/{id}` support:
-
-- legacy `images[]` + `image_alts[]`
-- new `attachments[]` + `attachment_titles[]` + `attachment_alts[]` + `attachment_kinds[]`
-- `model_3d_links[][url]` for external 3D links
-- `remove_media_ids[]`, `remove_image_ids[]`, and `replace_media[][id|file|external_url]` on update
-- post responses may also include `support_enabled`, `support_button_text`, `external_crowdfunding_url`, `campaign_status`, and `funding_campaign`
-- `PATCH /api/comments/{id}`
-- `POST /api/comments/{id}/reply`
-- `DELETE /api/comments/{id}`
-
-`GET /api/posts` also supports optional query params such as:
-
-- `q=keyword`
-- `sort=latest|hot|popular|trending|most_liked|most_discussed`
-- `user_id=`
-- `creator=alicecreator`
-- `creator_role=creator|admin|moderator`
-- `school_or_company=Auckland Design Lab`
-- `region=Auckland`
-- `status=approved|pending|rejected|hidden`
-- `category=` or `category_id=`
-- `tag=`
-- `featured=1`
-- `pinned=1`
-
-### Engagement
-
-- `POST /api/posts/{id}/like`
-- `DELETE /api/posts/{id}/like`
-- `POST /api/comments/{id}/like`
-- `DELETE /api/comments/{id}/like`
-- `POST /api/posts/{id}/favorite`
-- `DELETE /api/posts/{id}/favorite`
-- `POST /api/users/{id}/follow`
-- `DELETE /api/users/{id}/follow`
-
-### Public User and Taxonomy
-
-- `GET /api/users/{id}`
-- `GET /api/users/{id}/posts`
-- `GET /api/users/{id}/comments`
-- `GET /api/users/{id}/followers`
-- `GET /api/users/{id}/following`
-- `GET /api/categories`
-- `GET /api/tags`
-
-### Material CMS and Homepage
-
-- `GET /api/homepage`
-- `GET /api/home-sections`
-- `GET /api/materials`
-- `GET /api/materials/{id_or_slug}`
-- `GET /api/articles`
-- `GET /api/articles/{id_or_slug}`
-
-`GET /api/materials` also supports:
-
-- `featured=1`
-
-`GET /api/articles` also supports:
-
-- `category=updates`
-- `per_page=10`
-
-### Collaboration and B2B Leads
-
-- `POST /api/inquiries`
-- `POST /api/business-contacts`
-- `POST /api/partnership-inquiries`
-- `POST /api/sample-requests`
-- `POST /api/university-collaborations`
-- `POST /api/product-development-collaborations`
-
-Lead capture endpoints are rate-limited and support optional shared fields such as:
-
-- `organization_type`
-- `region`
-- `company_website`
-- `job_title`
-- `source_page`
-- `metadata`
-
-### Notifications, Reports, Search
-
-- `GET /api/notifications`
-- `GET /api/notifications?read=unread&type=favorite`
-- `PATCH /api/notifications/{id}/read`
-- `POST /api/reports`
-- `GET /api/search/posts?q=keyword`
-
-`GET /api/search/posts` also supports:
-
-- `sort=latest|hot|popular|trending|most_liked|most_discussed`
-- `creator=alicecreator`
-- `creator_role=creator|admin|moderator`
-- `school_or_company=Auckland Design Lab`
-- `region=Auckland`
-- `status=approved|pending|rejected|hidden`
-- `category=` or `category_id=`
-- `tag=`
-- `featured=1`
-- `per_page=10`
-
-### Admin
-
-- `GET /api/admin/reports`
-- `PATCH /api/admin/reports/{id}/status`
-- `GET /api/admin/posts/ranking-formula`
-- `PATCH /api/admin/posts/{id}/status`
-- `PATCH /api/admin/posts/{id}/feature`
-- `GET /api/admin/analytics/overview`
-- `GET /api/admin/posts/{id}/funding-campaign`
-- `PATCH /api/admin/posts/{id}/funding-campaign`
-- `DELETE /api/admin/posts/{id}/funding-campaign`
-- `POST /api/admin/notifications/announcements`
-- `GET /api/admin/b2b-leads/export`
-- `GET /api/admin/b2b-leads`
-- `GET /api/admin/b2b-leads/{id}`
-- `PATCH /api/admin/b2b-leads/{id}`
-- `PATCH /api/admin/comments/{id}/status`
-- `GET /api/admin/users/{id}/moderation-history`
-- `GET /api/admin/users/{id}/admin-actions`
-- `GET /api/admin/users/{id}/violations`
-- `POST /api/admin/users/{id}/violations`
-- `PATCH /api/admin/users/{id}/violations/{violation_id}`
-- `GET /api/admin/posts/{id}/review-history`
-- `GET /api/admin/comments/{id}/review-history`
-- `PATCH /api/admin/users/{id}/role`
-- `PATCH /api/admin/users/{id}/account-status`
-- `PATCH /api/admin/users/{id}/ban`
-- `GET /api/admin/categories`
-- `POST /api/admin/categories`
-- `GET /api/admin/categories/{id}`
-- `PATCH /api/admin/categories/{id}`
-- `DELETE /api/admin/categories/{id}`
-- `GET /api/admin/tags`
-- `POST /api/admin/tags`
-- `GET /api/admin/tags/{id}`
-- `PATCH /api/admin/tags/{id}`
-- `DELETE /api/admin/tags/{id}`
-- `GET /api/admin/materials`
-- `POST /api/admin/materials`
-- `GET /api/admin/materials/{id}`
-- `PATCH /api/admin/materials/{id}`
-- `DELETE /api/admin/materials/{id}`
-- `GET /api/admin/material-specs`
-- `POST /api/admin/material-specs`
-- `GET /api/admin/material-specs/{id}`
-- `PATCH /api/admin/material-specs/{id}`
-- `DELETE /api/admin/material-specs/{id}`
-- `GET /api/admin/material-story-sections`
-- `POST /api/admin/material-story-sections`
-- `GET /api/admin/material-story-sections/{id}`
-- `PATCH /api/admin/material-story-sections/{id}`
-- `DELETE /api/admin/material-story-sections/{id}`
-- `GET /api/admin/material-applications`
-- `POST /api/admin/material-applications`
-- `GET /api/admin/material-applications/{id}`
-- `PATCH /api/admin/material-applications/{id}`
-- `DELETE /api/admin/material-applications/{id}`
-- `GET /api/admin/articles`
-- `POST /api/admin/articles`
-- `GET /api/admin/articles/{id}`
-- `PATCH /api/admin/articles/{id}`
-- `DELETE /api/admin/articles/{id}`
-- `GET /api/admin/home-sections`
-- `POST /api/admin/home-sections`
-- `GET /api/admin/home-sections/{id}`
-- `PATCH /api/admin/home-sections/{id}`
-- `DELETE /api/admin/home-sections/{id}`
+---
 
 ## Setup
 
-1. Install dependencies:
+### Requirements
+
+- PHP 8.3+ with extensions: `intl`, `pdo_mysql`, `mbstring`, `openssl`
+- Composer
+- MySQL 8+
+- Redis
+
+### Installation
 
 ```bash
+cd B2C_backend
 composer install
-```
-
-Required PHP extensions for local development:
-
-- `intl`
-- `pdo_mysql`
-- `mbstring`
-- `openssl`
-
-2. Create the environment file:
-
-```bash
 cp .env.example .env
-```
-
-3. Generate the app key:
-
-```bash
 php artisan key:generate
 ```
 
-4. Configure MySQL, Redis, and S3-compatible storage in `.env`
-
-5. Run migrations and seeders:
+Configure your database, Redis, and storage settings in `.env`, then:
 
 ```bash
 php artisan migrate --seed
-```
-
-If you use the default `SESSION_DRIVER=database`, this migration step also creates the `sessions` table required by the Filament admin panel.
-
-6. Start the API server:
-
-```bash
 php artisan serve
 ```
 
-7. Access the internal admin panel:
-
-```text
-http://127.0.0.1:8000/admin
-```
-
-8. Run the queue worker in a separate terminal:
+Start the queue worker in a separate terminal (required for async notifications):
 
 ```bash
 php artisan queue:work
 ```
 
-## Environment Notes
+**API** is available at: `http://127.0.0.1:8000`  
+**Admin panel** is available at: `http://127.0.0.1:8000/admin`
 
-See [`.env.example`](/c:/Users/xingz/Desktop/B2C_backend/.env.example) for the full template. Important values:
+### Lightweight Local Configuration
 
-- `DB_CONNECTION=mysql`
-- `SESSION_DRIVER=database`
-- `QUEUE_CONNECTION=redis`
-- `CACHE_STORE=redis`
-- `FILESYSTEM_DISK=s3`
-- `COMMUNITY_UPLOAD_DISK=s3`
-- `SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000`
-- `FRONTEND_URL=http://localhost:3000`
-- `B2B_LEADS_NOTIFY_ADMINS=false`
-- `B2B_LEAD_NOTIFICATION_RECIPIENTS=`
-- `FUNDING_DEFAULT_SUPPORT_BUTTON_TEXT=Support this concept`
+To run without Azure Blob Storage or Redis:
 
-### MySQL TLS / Azure MySQL
+```env
+QUEUE_CONNECTION=sync
+CACHE_STORE=file
+SESSION_DRIVER=file
+FILESYSTEM_DISK=public
+COMMUNITY_UPLOAD_DISK=public
+```
 
-If your MySQL server enforces secure transport, such as Azure Database for MySQL with `require_secure_transport=ON`, you must enable SSL in `.env`.
+---
 
-Typical Ubuntu server configuration:
+## Environment Variables
+
+See `.env.example` for the full reference. Key variables:
+
+### Core
+
+```env
+APP_NAME=ProductCommunityAPI
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+```
+
+### Database
 
 ```env
 DB_CONNECTION=mysql
-DB_HOST=your-server.mysql.database.azure.com
+DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=your_database
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
+DB_DATABASE=product_community
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### Session, Cache, Queue
+
+```env
+SESSION_DRIVER=database        # Required by Filament admin panel
+QUEUE_CONNECTION=redis
+CACHE_STORE=redis
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+```
+
+### CORS and Authentication
+
+```env
+SANCTUM_STATEFUL_DOMAINS=localhost:3000,127.0.0.1:3000
+FRONTEND_URL=http://localhost:3000
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```
+
+### Azure Blob Storage
+
+```env
+FILESYSTEM_DISK=azure
+COMMUNITY_UPLOAD_DISK=azure
+AZURE_STORAGE_NAME=your-storage-account-name
+AZURE_STORAGE_KEY=your-storage-account-key
+AZURE_STORAGE_CONTAINER=uploads
+AZURE_STORAGE_URL=https://your-storage-account-name.blob.core.windows.net
+AZURE_STORAGE_USE_SAS_URLS=true
+AZURE_STORAGE_SAS_URL_TTL_MINUTES=10080
+```
+
+### MySQL TLS (Azure Database for MySQL)
+
+If your MySQL server enforces `require_secure_transport=ON`:
+
+```env
 MYSQL_ATTR_SSL_CA=/etc/ssl/certs/ca-certificates.crt
 MYSQL_ATTR_SSL_VERIFY_SERVER_CERT=true
 ```
 
-If your environment does not trust the system CA bundle for this server, use the provider CA PEM file path in `MYSQL_ATTR_SSL_CA` instead.
-
-After updating `.env`, clear cached configuration before retrying:
+After updating `.env`, clear cached config:
 
 ```bash
 php artisan optimize:clear
-php artisan migrate --seed
 ```
 
-### S3-Compatible Storage
+### Upload Limits
 
-Set these values for MinIO, Cloudflare R2, DigitalOcean Spaces, or another compatible provider:
+```env
+IDEA_MEDIA_DIRECTORY=ideas
+IDEA_MEDIA_MAX_FILES=12
+IDEA_MEDIA_MAX_FILE_SIZE_KB=10240
+IDEA_MEDIA_ALLOWED_EXTENSIONS=jpg,jpeg,png,webp,gif,pdf,doc,docx,ppt,pptx,xls,xlsx
+```
 
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `AWS_DEFAULT_REGION`
-- `AWS_BUCKET`
-- `AWS_ENDPOINT`
-- `AWS_URL`
-- `AWS_USE_PATH_STYLE_ENDPOINT`
+### Feature Flags
 
-## Admin Panel
+```env
+COMMUNITY_SENSITIVE_WORDS_ENABLED=false
+COMMUNITY_SENSITIVE_WORDS=
+B2B_LEADS_NOTIFY_ADMINS=false
+B2B_LEAD_NOTIFICATION_RECIPIENTS=
+ALLOW_GUEST_UPLOAD=false
+```
 
-The Filament admin panel is intended for internal staff only.
+---
 
-- Login URL: `/admin/login`
-- Allowed roles: `admin`, `moderator`
-- Blocked roles: regular users and banned staff
-- The panel uses Laravel web sessions, so `sessions` must exist if `SESSION_DRIVER=database`
-- Main navigation groups: `Community`, `Content`, `Growth`, `Governance`, `Taxonomy`, `System`
+## Database Schema
 
-The panel includes:
+### User & Identity
 
-- Dashboard widgets for operational stats, analytics snapshots, and recent governance activity
-- User management with roles, account status, verification state, extended profiles, moderation history, and activity summaries
-- Concept management with engagement metrics, featured state, funding campaign visibility, and creator context
-- Idea media oversight with file metadata, previews, and moderation-friendly review
-- Comment, report, violation, moderation-log, and admin-action-log review workflows
-- CMS management for materials, specs, story sections, applications, articles, and homepage sections
-- System notification visibility plus admin announcement broadcasting
-- B2B lead and funding campaign management
-- Category and tag CRUD
+| Table | Description |
+|---|---|
+| `users` | Core user accounts |
+| `profiles` | Extended profile data (bio, school, region, portfolio, open-to-collab) |
+| `personal_access_tokens` | Sanctum API tokens |
+| `sessions` | Web sessions for Filament admin |
+| `password_reset_tokens` | Password reset flow |
 
-## Sample Seeded Accounts
+### Community Content
+
+| Table | Description |
+|---|---|
+| `posts` | Creator concept submissions |
+| `post_images` | Legacy image attachments |
+| `idea_media` | Structured media attachments (images, documents, 3D links) |
+| `comments` | Post comments and replies |
+| `categories` | Content categories |
+| `tags` | Content tags |
+| `post_tags` | Post-to-tag pivot |
+
+### Community Interaction
+
+| Table | Description |
+|---|---|
+| `post_likes` | Post likes |
+| `comment_likes` | Comment likes |
+| `favorites` | Saved/favorited posts |
+| `follows` | User follow relationships |
+
+### Governance & Moderation
+
+| Table | Description |
+|---|---|
+| `reports` | Content reports submitted by users |
+| `moderation_logs` | Full moderation action history |
+| `user_violations` | Per-user violation records with severity and status |
+| `admin_action_logs` | Admin action audit trail |
+
+### B2B Leads
+
+| Table | Description |
+|---|---|
+| `inquiries` | Generic inquiry submissions (legacy) |
+| `b2b_leads` | Unified B2B lead table |
+| `partnership_inquiries` | Partnership inquiry details |
+| `sample_requests` | Sample request details |
+| `business_contacts` | Business contact leads |
+
+### Commerce
+
+| Table | Description |
+|---|---|
+| `products` | Product catalog |
+| `product_categories` | Product categories |
+| `carts` | Shopping carts |
+| `cart_items` | Cart line items |
+| `orders` | Orders |
+| `order_items` | Order line items |
+| `addresses` | User shipping/billing addresses |
+
+### CMS Content
+
+| Table | Description |
+|---|---|
+| `materials` | Material showcase entries |
+| `material_specs` | Material technical specifications |
+| `material_story_sections` | Material narrative sections |
+| `material_applications` | Material application examples |
+| `articles` | News and blog articles |
+| `home_sections` | Dynamic homepage sections |
+
+### Other
+
+| Table | Description |
+|---|---|
+| `notifications` | User notifications |
+| `funding_campaigns` | External crowdfunding campaign metadata on concepts |
+| `media_files` | Centralized media file tracking |
+
+### Content Status Values
+
+| Status | Meaning |
+|---|---|
+| `pending` | Awaiting moderator review (default for creator submissions) |
+| `approved` | Visible publicly |
+| `rejected` | Hidden, creator notified |
+| `hidden` | Taken down post-approval |
+
+### User Roles
+
+| Role | Description |
+|---|---|
+| `visitor` | Read-only access, cannot post |
+| `creator` | Can submit concepts; posts go to `pending` |
+| `sme_partner` | SME/business partner access level |
+| `moderator` | Can approve/reject/hide content; access to Filament panel |
+| `admin` | Full access including user management and analytics |
+
+---
+
+## API Endpoints
+
+### Health
+
+```
+GET /          API status
+GET /up        Laravel health check
+```
+
+### Authentication
+
+```
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+GET    /api/auth/me
+PATCH  /api/auth/profile
+POST   /api/auth/forgot-password
+POST   /api/auth/reset-password
+POST   /api/auth/email/verification-notification
+GET    /api/auth/email/verify/{id}/{hash}
+```
+
+### Community Posts
+
+```
+GET    /api/posts
+POST   /api/posts                            # Requires creator, moderator, or admin role
+GET    /api/posts/{id_or_slug}
+PATCH  /api/posts/{id}
+DELETE /api/posts/{id}
+```
+
+**`GET /api/posts` query parameters:**
+
+| Parameter | Example | Description |
+|---|---|---|
+| `q` | `oyster` | Keyword search |
+| `sort` | `latest\|hot\|popular\|trending\|most_liked\|most_discussed` | Sort order |
+| `category` | `furniture` | Filter by category slug |
+| `category_id` | `3` | Filter by category ID |
+| `tag` | `oyster-shell` | Filter by tag slug |
+| `user_id` | `42` | Filter by author ID |
+| `creator` | `janedoe` | Filter by username |
+| `creator_role` | `creator` | Filter by author role |
+| `school_or_company` | `Auckland Design Lab` | Filter by institution |
+| `region` | `Auckland` | Filter by region |
+| `featured` | `1` | Only featured concepts |
+| `pinned` | `1` | Only pinned concepts |
+| `status` | `approved` | Content status (staff only for non-approved) |
+
+**Post create/update fields:**
+
+- `title`, `content`, `category_id`, `tags[]`
+- `images[]`, `image_alts[]` — legacy image upload
+- `attachments[]`, `attachment_titles[]`, `attachment_alts[]`, `attachment_kinds[]` — structured media upload
+- `model_3d_links[][url]`, `model_3d_links[][title]` — external 3D references
+- `remove_media_ids[]`, `remove_image_ids[]` — remove existing media on update
+- `replace_media[][id|file|external_url]` — replace existing media on update
+
+### Comments
+
+```
+GET    /api/posts/{id}/comments
+POST   /api/posts/{id}/comments
+PATCH  /api/comments/{id}
+POST   /api/comments/{id}/reply
+DELETE /api/comments/{id}
+```
+
+### Engagement
+
+```
+POST   /api/posts/{id}/like
+DELETE /api/posts/{id}/like
+POST   /api/comments/{id}/like
+DELETE /api/comments/{id}/like
+POST   /api/posts/{id}/favorite
+DELETE /api/posts/{id}/favorite
+POST   /api/users/{id}/follow
+DELETE /api/users/{id}/follow
+```
+
+### Users and Taxonomy
+
+```
+GET    /api/users/{id}
+GET    /api/users/{id}/posts
+GET    /api/users/{id}/comments
+GET    /api/users/{id}/followers
+GET    /api/users/{id}/following
+GET    /api/categories
+GET    /api/tags
+```
+
+### CMS Content and Homepage
+
+```
+GET    /api/homepage
+GET    /api/home-sections
+GET    /api/materials
+GET    /api/materials/{id_or_slug}
+GET    /api/articles
+GET    /api/articles/{id_or_slug}
+```
+
+**`GET /api/materials` query parameters:** `featured=1`
+
+**`GET /api/articles` query parameters:** `category=updates`, `per_page=10`
+
+### Commerce
+
+```
+GET    /api/product-categories
+GET    /api/products
+GET    /api/products/{slug}
+GET    /api/cart
+POST   /api/cart/items
+PATCH  /api/cart/items/{id}
+DELETE /api/cart/items/{id}
+GET    /api/addresses
+POST   /api/addresses
+PATCH  /api/addresses/{id}
+DELETE /api/addresses/{id}
+GET    /api/orders
+GET    /api/orders/{id}
+```
+
+### B2B Leads
+
+All lead endpoints are rate-limited and support optional shared fields: `organization_type`, `region`, `company_website`, `job_title`, `source_page`, `metadata`.
+
+```
+POST   /api/inquiries                              # Legacy generic inquiry
+POST   /api/business-contacts
+POST   /api/partnership-inquiries
+POST   /api/sample-requests
+POST   /api/university-collaborations
+POST   /api/product-development-collaborations
+```
+
+### Notifications, Reports, Search
+
+```
+GET    /api/notifications
+GET    /api/notifications?read=unread&type=favorite
+PATCH  /api/notifications/{id}/read
+POST   /api/reports
+GET    /api/search/posts?q=keyword
+```
+
+**`GET /api/search/posts` supports the same query parameters as `GET /api/posts`.**
+
+### Media Upload
+
+```
+POST   /api/media/upload
+DELETE /api/media
+POST   /api/media/upload/guest        # Requires ALLOW_GUEST_UPLOAD=true
+```
+
+Uploaded files are organized by type: `images / videos / audios / documents / others`  
+Path format: `{type}/{category}/{YYYY/MM}/{uuid}.{ext}`
+
+---
+
+## Admin API Endpoints
+
+All `/api/admin/*` routes require the `admin` or `moderator` role.
+
+### Content Moderation
+
+```
+GET    /api/admin/reports
+PATCH  /api/admin/reports/{id}/status
+PATCH  /api/admin/posts/{id}/status
+PATCH  /api/admin/posts/{id}/feature
+PATCH  /api/admin/comments/{id}/status
+GET    /api/admin/posts/{id}/review-history
+GET    /api/admin/comments/{id}/review-history
+GET    /api/admin/posts/ranking-formula
+```
+
+### User Management
+
+```
+PATCH  /api/admin/users/{id}/role
+PATCH  /api/admin/users/{id}/account-status
+PATCH  /api/admin/users/{id}/ban
+GET    /api/admin/users/{id}/moderation-history
+GET    /api/admin/users/{id}/admin-actions
+GET    /api/admin/users/{id}/violations
+POST   /api/admin/users/{id}/violations
+PATCH  /api/admin/users/{id}/violations/{violation_id}
+```
+
+### Taxonomy CRUD
+
+```
+GET|POST              /api/admin/categories
+GET|PATCH|DELETE      /api/admin/categories/{id}
+GET|POST              /api/admin/tags
+GET|PATCH|DELETE      /api/admin/tags/{id}
+```
+
+### CMS CRUD
+
+```
+GET|POST              /api/admin/materials
+GET|PATCH|DELETE      /api/admin/materials/{id}
+GET|POST              /api/admin/material-specs
+GET|PATCH|DELETE      /api/admin/material-specs/{id}
+GET|POST              /api/admin/material-story-sections
+GET|PATCH|DELETE      /api/admin/material-story-sections/{id}
+GET|POST              /api/admin/material-applications
+GET|PATCH|DELETE      /api/admin/material-applications/{id}
+GET|POST              /api/admin/articles
+GET|PATCH|DELETE      /api/admin/articles/{id}
+GET|POST              /api/admin/home-sections
+GET|PATCH|DELETE      /api/admin/home-sections/{id}
+```
+
+### B2B Lead Management
+
+```
+GET    /api/admin/b2b-leads
+GET    /api/admin/b2b-leads/{id}
+PATCH  /api/admin/b2b-leads/{id}
+GET    /api/admin/b2b-leads/export         # CSV export with search and status filters
+```
+
+### Funding Campaigns
+
+```
+GET    /api/admin/posts/{id}/funding-campaign
+PATCH  /api/admin/posts/{id}/funding-campaign
+DELETE /api/admin/posts/{id}/funding-campaign
+```
+
+### Notifications and Analytics
+
+```
+POST   /api/admin/notifications/announcements
+GET    /api/admin/analytics/overview
+```
+
+---
+
+## Admin Panel (Filament)
+
+The Filament admin panel at `/admin` is for internal staff only.
+
+- **Login URL:** `/admin/login`
+- **Allowed roles:** `admin`, `moderator`
+- **Session-based:** requires `SESSION_DRIVER=database` and the `sessions` table
+
+### Navigation Groups
+
+| Group | Contents |
+|---|---|
+| Community | Concepts, comments, idea media, reports |
+| Content | Materials, specs, story sections, applications, articles, homepage sections |
+| Growth | B2B leads, funding campaigns |
+| Governance | Users, violations, moderation logs, admin action logs |
+| Taxonomy | Categories, tags |
+| System | Notifications |
+
+### Panel Capabilities
+
+- Dashboard widgets: operational stats, analytics snapshot, recent governance activity
+- User management: roles, account status, verification, extended profiles, moderation history
+- Concept management: engagement metrics, featured state, funding campaign visibility, creator context
+- Idea media oversight: file metadata, previews, moderation review
+- Comment, report, violation, and audit log workflows
+- CMS content management for all material and article types
+- B2B lead management with status tracking, internal notes, and CSV export
+- System announcement broadcasting to targeted user roles
+
+---
+
+## Seeded Test Accounts
 
 After `php artisan migrate --seed`:
 
-- Admin: `admin@example.com` / `password`
-- Moderator: `moderator@example.com` / `password`
-- Banned sample user: `banned@example.com` / `password`
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@example.com` | `password` |
+| Moderator | `moderator@example.com` | `password` |
+| Banned user | `banned@example.com` | `password` |
 
-Seeded CMS content also includes:
+Seeded CMS content includes:
 
-- one published featured material at `premium-oyster-shell`
-- published material specs, story sections, and application sections
-- published homepage sections for hero, science, and updates
-- published sample articles for frontend integration
-- one approved concept with a sample live external funding campaign
+- One published featured material at slug `premium-oyster-shell`
+- Published material specs, story sections, and application sections
+- Published homepage sections (hero, science, updates)
+- Published sample articles
+- One approved concept with a sample live external funding campaign
+
+---
 
 ## Upload Behavior
 
-- Profile avatar upload is handled through `PATCH /api/auth/profile` with an `avatar` file field
-- Legacy post image upload is handled through `POST /api/posts` and `PATCH /api/posts/{id}` with `images[]`
-- Structured idea media upload is handled through `POST /api/posts` and `PATCH /api/posts/{id}` with `attachments[]`
-- External 3D references are handled through `model_3d_links[][url]`
-- CMS media upload is handled through admin CMS create and update endpoints with a `media` file field
-- CMS media removal is handled with `remove_media=true` on admin CMS update endpoints
+| Upload Type | Endpoint | Field |
+|---|---|---|
+| Profile avatar | `PATCH /api/auth/profile` | `avatar` |
+| Legacy post images | `POST /api/posts` or `PATCH /api/posts/{id}` | `images[]` |
+| Structured idea media | `POST /api/posts` or `PATCH /api/posts/{id}` | `attachments[]` |
+| External 3D references | `POST /api/posts` or `PATCH /api/posts/{id}` | `model_3d_links[][url]` |
+| CMS media | Admin CMS create/update endpoints | `media` |
+| CMS media removal | Admin CMS update endpoints | `remove_media=true` |
 
-## Phase 1 Payload Examples
+---
 
-Register as a creator or business-side account:
+## Payload Examples
+
+### Register
 
 ```json
 {
@@ -497,7 +655,7 @@ Register as a creator or business-side account:
 }
 ```
 
-Update the expanded profile:
+### Update Profile
 
 ```json
 {
@@ -509,106 +667,7 @@ Update the expanded profile:
 }
 ```
 
-Update a user's role as an admin:
-
-```json
-{
-  "role": "sme_partner"
-}
-```
-
-Update a user's account status as an admin:
-
-```json
-{
-  "account_status": "restricted",
-  "reason": "Under moderation review."
-}
-```
-
-Request a password reset:
-
-```json
-{
-  "email": "jane@example.com"
-}
-```
-
-## Phase 2 Payload Examples
-
-Create or update a material:
-
-```json
-{
-  "title": "Premium Oyster Shell Composite",
-  "headline": "Science-backed shell composite for premium applications",
-  "summary": "Core showcase material for storytelling and collaboration.",
-  "story_overview": "Recovered shell is refined into a premium composite.",
-  "science_overview": "Performance and circularity data can be surfaced dynamically.",
-  "status": "published",
-  "is_featured": true,
-  "sort_order": 1
-}
-```
-
-Create a material spec:
-
-```json
-{
-  "material_id": 1,
-  "key": "durability",
-  "label": "Durability",
-  "value": "High",
-  "detail": "Dense compression improves edge stability.",
-  "status": "published",
-  "sort_order": 1
-}
-```
-
-Create a homepage section:
-
-```json
-{
-  "key": "hero",
-  "title": "Premium oyster-shell materials",
-  "subtitle": "Material showcase",
-  "content": "Drive homepage content dynamically from the API.",
-  "cta_label": "Explore the material",
-  "cta_url": "/materials/premium-oyster-shell",
-  "payload": {
-    "variant": "hero"
-  },
-  "status": "published",
-  "sort_order": 1
-}
-```
-
-Create an article:
-
-```json
-{
-  "title": "Material launch update",
-  "excerpt": "Published article summary.",
-  "content": "Published article body.",
-  "category": "updates",
-  "status": "published",
-  "sort_order": 1
-}
-```
-
-Public homepage response shape:
-
-```json
-{
-  "home_sections": [],
-  "materials": [],
-  "articles": []
-}
-```
-
-## Phase 3 Payload Examples
-
-Create a concept with mixed media:
+### Create Concept with Mixed Media
 
 ```json
 {
@@ -626,208 +685,7 @@ Create a concept with mixed media:
 }
 ```
 
-Update a concept by removing and replacing media:
-
-```json
-{
-  "remove_media_ids": [12],
-  "replace_media": [
-    {
-      "id": 15,
-      "title": "Revised spec sheet",
-      "kind": "spec_sheet"
-    }
-  ]
-}
-```
-
-Attachment metadata in post responses:
-
-```json
-{
-  "images": [
-    {
-      "id": 1,
-      "url": "https://cdn.example.com/ideas/1/render.jpg",
-      "preview_url": "https://cdn.example.com/ideas/1/render.jpg",
-      "thumbnail_url": "https://cdn.example.com/ideas/1/render.jpg",
-      "alt_text": "Rendered material board",
-      "kind": "render_image",
-      "sort_order": 0
-    }
-  ],
-  "media": [
-    {
-      "id": 1,
-      "source_type": "upload",
-      "media_type": "image",
-      "kind": "render_image",
-      "title": "Render board",
-      "mime_type": "image/jpeg",
-      "size_bytes": 123456,
-      "url": "https://cdn.example.com/ideas/1/render.jpg",
-      "preview_url": "https://cdn.example.com/ideas/1/render.jpg",
-      "thumbnail_url": "https://cdn.example.com/ideas/1/render.jpg",
-      "external_url": null,
-      "sort_order": 0
-    }
-  ]
-}
-```
-
-## Phase 4 Payload Examples
-
-Fetch concepts by discovery order:
-
-```text
-GET /api/posts?sort=trending&category=hardware&tag=oyster-shell&featured=1
-```
-
-Filter concepts by creator and profile attributes:
-
-```text
-GET /api/posts?creator=alicecreator&school_or_company=Auckland%20Design&region=Auckland
-```
-
-Feature a concept as an admin:
-
-```json
-{
-  "is_featured": true,
-  "reason": "Featured for homepage discovery."
-}
-```
-
-Post ranking fields in API responses:
-
-```json
-{
-  "id": 42,
-  "title": "Popular concept",
-  "is_featured": true,
-  "engagement_score": 109,
-  "trending_score": 160,
-  "featured_at": "2026-04-12T00:00:00Z"
-}
-```
-
-Ranking formula reference:
-
-```json
-{
-  "engagement_score": "likes_count * 3 + comments_count * 4 + favorites_count * 2",
-  "trending_score": "((weekly_likes * 3 + weekly_comments * 4 + weekly_favorites * 2) * 10) + recency_boost",
-  "window_days": 7,
-  "recency_boost_max_hours": 168
-}
-```
-
-## Phase 5 Payload Examples
-
-Filter unread notifications:
-
-```text
-GET /api/notifications?read=unread&type=system_announcement
-```
-
-Example notification payload:
-
-```json
-{
-  "id": 18,
-  "type": "concept_featured",
-  "title": "Concept featured",
-  "body": "Your concept \"Oyster shell stool\" is now featured.",
-  "action_url": "/posts/oyster-shell-stool",
-  "target_type": "post",
-  "target_id": 42,
-  "target": {
-    "id": 42,
-    "title": "Oyster shell stool",
-    "slug": "oyster-shell-stool",
-    "status": "approved"
-  },
-  "actor": {
-    "id": 1,
-    "name": "Admin User"
-  },
-  "data": {
-    "post_id": 42,
-    "post_slug": "oyster-shell-stool"
-  },
-  "is_read": false,
-  "read_at": null
-}
-```
-
-Broadcast a system announcement as an admin:
-
-```json
-{
-  "title": "Platform update",
-  "body": "Material showcase content has been refreshed.",
-  "action_url": "/materials/premium-oyster-shell",
-  "roles": ["creator", "sme_partner"]
-}
-```
-
-## Phase 6 Payload Examples
-
-Record a manual user violation as staff:
-
-```json
-{
-  "type": "manual_warning",
-  "severity": "warning",
-  "reason": "Repeated low-quality submissions after prior guidance.",
-  "subject_type": "post",
-  "subject_id": 42
-}
-```
-
-Resolve a violation:
-
-```json
-{
-  "status": "resolved",
-  "resolution_note": "Issue addressed after moderator review."
-}
-```
-
-Fetch a user's moderation history:
-
-```text
-GET /api/admin/users/42/moderation-history
-```
-
-Example moderation log payload:
-
-```json
-{
-  "id": 91,
-  "action": "post.status_updated",
-  "reason": "Temporarily taken down during review.",
-  "subject_type": "post",
-  "subject_id": 42,
-  "target_user_id": 7,
-  "report_id": null,
-  "metadata": {
-    "from": "approved",
-    "to": "hidden"
-  }
-}
-```
-
-Enable optional sensitive-word flagging:
-
-```env
-COMMUNITY_SENSITIVE_WORDS_ENABLED=true
-COMMUNITY_SENSITIVE_WORDS=scamword,abusive-term
-```
-
-## Phase 7 Payload Examples
-
-Submit a business contact lead:
+### Submit a Business Contact Lead
 
 ```json
 {
@@ -843,23 +701,7 @@ Submit a business contact lead:
 }
 ```
 
-Submit a partnership inquiry:
-
-```json
-{
-  "name": "Leo Park",
-  "company_name": "Helix Atelier",
-  "organization_type": "company",
-  "email": "leo@example.com",
-  "message": "We want to co-develop a premium furniture capsule.",
-  "collaboration_type": "partnership_inquiry",
-  "collaboration_goal": "Pilot a limited-edition material application.",
-  "project_stage": "prototype",
-  "timeline": "Q3 2026"
-}
-```
-
-Submit a sample request:
+### Submit a Sample Request
 
 ```json
 {
@@ -874,46 +716,11 @@ Submit a sample request:
   "quantity_estimate": "10 sheets",
   "shipping_country": "Japan",
   "shipping_region": "Osaka",
-  "shipping_address": "1-2-3 Minami, Osaka",
   "intended_use": "Interior wall system prototyping."
 }
 ```
 
-Update a lead as an admin:
-
-```json
-{
-  "status": "qualified",
-  "internal_notes": "Strong partnership fit. Schedule a follow-up call."
-}
-```
-
-Export filtered leads:
-
-```text
-GET /api/admin/b2b-leads/export?search=Helix&status=qualified
-```
-
-Lead response shape:
-
-```json
-{
-  "id": 101,
-  "reference": "INQ-000101",
-  "lead_type": "partnership_inquiry",
-  "inquiry_type": "Partnership Inquiry",
-  "company_name": "Helix Atelier",
-  "status": "in_review",
-  "partnership_inquiry": {
-    "collaboration_type": "partnership_inquiry",
-    "collaboration_goal": "Pilot a limited-edition material application."
-  }
-}
-```
-
-## Phase 8 Payload Examples
-
-Attach or update a funding campaign on a concept as an admin:
+### Attach Funding Campaign to Concept (Admin)
 
 ```json
 {
@@ -924,152 +731,101 @@ Attach or update a funding campaign on a concept as an admin:
   "target_amount": 15000,
   "pledged_amount": 4200,
   "backer_count": 64,
-  "reward_description": "Backers receive sample material tiles and early design updates.",
   "campaign_start_at": "2026-05-01T00:00:00Z",
   "campaign_end_at": "2026-06-01T00:00:00Z"
 }
 ```
 
-Fetch a concept with support metadata from the public API:
+### Broadcast System Announcement (Admin)
 
 ```json
 {
-  "id": 42,
-  "title": "Oyster shell chair",
-  "support_enabled": true,
-  "support_button_text": "Back this concept",
-  "external_crowdfunding_url": "https://crowdfund.example.com/projects/oyster-shell-chair",
-  "campaign_status": "live",
-  "target_amount": 15000,
-  "pledged_amount": 4200,
-  "backer_count": 64,
-  "funding_campaign": {
-    "support_enabled": true,
-    "campaign_status": "live",
-    "progress_percentage": 28
-  }
+  "title": "Platform update",
+  "body": "Material showcase content has been refreshed.",
+  "action_url": "/materials/premium-oyster-shell",
+  "roles": ["creator", "sme_partner"]
 }
 ```
 
-Remove a funding campaign from a concept:
+---
 
-```text
-DELETE /api/admin/posts/42/funding-campaign
+## Post Ranking
+
+Posts support several discovery sort modes. The ranking formulas are:
+
+```
+engagement_score = (likes_count × 3) + (comments_count × 4) + (favorites_count × 2)
+trending_score   = ((weekly_likes × 3 + weekly_comments × 4 + weekly_favorites × 2) × 10) + recency_boost
 ```
 
-## Phase 9 Payload Examples
+Trending uses a 7-day rolling window. The full formula is available to staff at `GET /api/admin/posts/ranking-formula`.
 
-Search concepts by keyword and creator metadata:
+---
 
-```text
-GET /api/search/posts?q=hana&creator_role=creator&school_or_company=Pacific%20Materials%20Lab&region=Auckland&sort=latest&per_page=10
-```
+## Analytics Overview
 
-Filter concepts from the main listing endpoint with the same search fields:
-
-```text
-GET /api/posts?q=oyster&creator=ariana&creator_role=creator&region=Auckland&category=furniture&sort=trending
-```
-
-Moderation-aware search by status as staff:
-
-```text
-GET /api/search/posts?q=shell&status=pending&creator_role=creator
-```
-
-## Phase 10 Payload Examples
-
-Fetch the admin analytics overview:
-
-```text
-GET /api/admin/analytics/overview?limit=5
-```
-
-Example analytics response shape:
+`GET /api/admin/analytics/overview` returns:
 
 ```json
 {
-  "generated_at": "2026-04-13T00:00:00Z",
+  "generated_at": "2026-04-28T00:00:00Z",
   "summary": {
     "total_concepts": 42,
     "approved_concepts": 30,
     "total_views": 1840,
     "support_enabled_concepts": 4
   },
-  "categories": {
-    "most_common": [],
-    "highest_engagement": []
-  },
-  "activity": {
-    "schools_or_companies": [],
-    "user_groups": []
-  },
+  "categories": { "most_common": [], "highest_engagement": [] },
+  "activity": { "schools_or_companies": [], "user_groups": [] },
   "attention": {
-    "tracking": {
-      "concept_views_available": true,
-      "page_views_available": false,
-      "cta_sources_available": true
-    },
     "most_viewed_concepts": [],
     "best_performing_cta_sources": []
   },
   "funding": {
     "readiness_formula": {
-      "formula": "(engagement_score) + (favorites_count * 3) + (views_count / 10) + featured_bonus + collab_bonus + support_bonus"
+      "formula": "(engagement_score) + (favorites_count × 3) + (views_count / 10) + featured_bonus + collab_bonus + support_bonus"
     },
     "most_likely_concepts": []
   }
 }
 ```
 
+---
+
 ## Running Tests
 
-The automated test suite uses in-memory SQLite for speed while production is expected to use MySQL.
+The test suite uses in-memory SQLite, so no database setup is required.
 
 ```bash
 php artisan test
 ```
 
-## Formatting
+Coverage areas: authentication, user profiles, products, cart and orders, community posts and comments, interactions and notifications, search and discovery, B2B leads, CMS content, admin moderation and governance, media upload, taxonomy.
+
+## Code Formatting
 
 ```bash
 vendor/bin/pint
 ```
 
+---
+
 ## Notes for Frontend Integration
 
 - All responses are JSON and stable for REST consumption
 - User, post, comment, report, and notification payloads are normalized through API Resources
-- `is_liked`, `is_favorited`, and `is_following` flags are included where relevant
-- Public user profile responses include `followers_count`, `following_count`, `posts_count`, and `comments_count`
+- `is_liked`, `is_favorited`, and `is_following` flags are included in responses where applicable
+- Public user profile responses include `followers_count`, `following_count`, `posts_count`, `comments_count`
 - Post slugs are generated automatically from titles
-- Category and tag admin endpoints generate unique slugs automatically when omitted
-- Search only returns approved posts by default
-- Post responses keep the legacy `images` array for image-only clients
-- Post responses now also include a structured `media` array for mixed attachments
-- Image attachments expose `preview_url` and `thumbnail_url`
+- Search only returns `approved` posts by default; `status` filter is available to staff
+- Post responses include both a legacy `images` array (for backward compatibility) and a structured `media` array for mixed attachments
 - Post discovery responses include `engagement_score`, `trending_score`, and `featured_at`
-- `sort=hot` remains supported as a backward-compatible alias for popularity ordering
-- Staff can inspect the ranking formula at `GET /api/admin/posts/ranking-formula`
+- `sort=hot` is a backward-compatible alias for popularity ordering
 - Notification responses include `title`, `body`, `action_url`, and `meta.unread_count`
-- `GET /api/notifications` supports `read=all|read|unread` and `type=...` filters
-- System announcements are sent through `POST /api/admin/notifications/announcements` and target active users only
-- Report responses now include `moderator_note`
-- Staff can inspect user-level audit trails through moderation history, admin action, and violation endpoints
-- Post and comment review histories are available through `GET /api/admin/posts/{id}/review-history` and `GET /api/admin/comments/{id}/review-history`
-- Sensitive-word flagging is config-driven and records audit entries without breaking the existing pending-review flow
-- Homepage content is available from `GET /api/homepage`
-- Public material and article endpoints only return `published` content
-- Material detail responses include published `specs`, `story_sections`, and `applications`
-- Collaboration leads are available through the legacy `POST /api/inquiries` path and the new dedicated lead endpoints
+- Concept funding support is external-link only — no internal payment or pledge processing
+- CTA source analytics are derived from `inquiries.source_page` and ranked by lead volume
+- `GET /api/posts` and `GET /api/search/posts` share the same filter and sort parameter set
+- Post detail views increment `posts.views_count` for public approved concepts (feeds analytics)
+- Sensitive-word flagging is config-driven and records audit entries without blocking the pending-review flow
 - Admin lead management supports search, status updates, internal notes, and CSV export
-- Admin email notifications for new leads are optional and controlled by `B2B_LEADS_NOTIFY_ADMINS` and `B2B_LEAD_NOTIFICATION_RECIPIENTS`
-- Concept responses can expose a public `funding_campaign` block plus top-level support CTA fields when a campaign is not in `draft`
-- Admins manage concept funding support through `/api/admin/posts/{id}/funding-campaign`
-- Funding support is external-link only; no internal payment, checkout, or pledge processing is implemented
-- `GET /api/posts` and `GET /api/search/posts` now share the same keyword, creator, profile, status, tag, category, featured, and sort filters
-- Search matches post text plus creator name, username, school/company, and region
-- Result ordering now uses stable `created_at` plus `id` tie-breaks for safer pagination under load
-- Post detail views now increment `posts.views_count` for public approved-concept views, which feeds the Phase 10 analytics summaries
-- CTA source analytics are derived from `inquiries.source_page` and ranked by high-intent lead volume
-- Funding-readiness signals are derived from engagement, favorites, concept views, featured status, collaboration openness, and existing support enablement
+- Result ordering uses stable `created_at` + `id` tie-breaks for consistent pagination under load
