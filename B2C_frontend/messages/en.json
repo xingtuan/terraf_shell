@@ -6,10 +6,10 @@
     }
   },
   "meta": {
-    "siteName": "Shellfin",
+    "siteName": "OXP",
     "localeName": "English",
-    "title": "Shellfin | Oyster Shell Pellets, Premium Tableware, and Material Supply",
-    "description": "Shellfin is a South Korean oyster shell material company creating pellets, compress-moulded tableware, and premium home objects."
+    "title": "OXP | Oyster Shell Pellets, Premium Tableware, and Material Supply",
+    "description": "OXP is a South Korean oyster shell material company creating pellets, compress-moulded tableware, and premium home objects."
   },
   "header": {
     "home": "Home",
@@ -43,7 +43,7 @@
     "phoneLabel": "Phone",
     "locationLabel": "Location",
     "locationValue": "South Korea",
-    "copyright": "© 2026 Shellfin. All rights reserved.",
+    "copyright": "© 2026 OXP. All rights reserved.",
     "privacy": "Privacy Policy",
     "terms": "Terms of Use"
   },
@@ -61,12 +61,12 @@
       ]
     },
     "whyItMatters": {
-      "eyebrow": "Why Shellfin Matters",
+      "eyebrow": "Why OXP Matters",
       "title": "A premium material story grounded in oyster shell, not surface-level sustainability.",
       "cards": [
         {
           "title": "Lighter Everyday Use",
-          "description": "Shellfin is developed to feel lighter in hand than traditional porcelain, making premium objects easier to live with and easier to service."
+          "description": "OXP is developed to feel lighter in hand than traditional porcelain, making premium objects easier to live with and easier to service."
         },
         {
           "title": "Durability With Presence",
@@ -95,7 +95,7 @@
         {
           "number": "02",
           "title": "Pellet Refining",
-          "description": "Shell mineral content is cleaned, milled, and refined into Shellfin pellets prepared for controlled production."
+          "description": "Shell mineral content is cleaned, milled, and refined into OXP pellets prepared for controlled production."
         },
         {
           "number": "03",
@@ -156,7 +156,7 @@
         {
           "title": "Pellet Supply",
           "forWhom": "For converters, manufacturers, and material buyers",
-          "description": "Source Shellfin pellets as a raw material input for your next development cycle.",
+          "description": "Source OXP pellets as a raw material input for your next development cycle.",
           "cta": "Discuss Supply"
         },
         {
@@ -214,7 +214,7 @@
         {
           "name": "Terrafin",
           "formula": "ƒ(Biomass) = OX Composite",
-          "description": "The material function. Olefin X-linked (OX) biomass composites made from regional waste streams — wood, husk, biochar, shell, and mineral. Shellfin (OX-S) is the first commercially available line."
+          "description": "The material function. Olefin X-linked (OX) biomass composites made from regional waste streams — wood, husk, biochar, shell, and mineral. OXP (OX-S) is the first commercially available line."
         },
         {
           "name": "Terrafactory",
@@ -261,7 +261,7 @@
     },
     "audiencePaths": {
       "eyebrow": "Choose your path",
-      "title": "Three ways to work with Shellfin.",
+      "title": "Three ways to work with OXP.",
       "cards": [
         {
           "label": "For Consumers",
@@ -324,7 +324,7 @@
       ]
     },
     "finalCta": {
-      "title": "Bring Shellfin into your next tableware, pellet, or concept program.",
+      "title": "Bring OXP into your next tableware, pellet, or concept program.",
       "description": "Use the store for product inspiration, or contact the team for B2B supply and development.",
       "primaryCta": "Send a B2B Inquiry",
       "secondaryCta": "Browse the Store"
@@ -333,7 +333,7 @@
   "material": {
     "origin": {
       "title": "Origin Story",
-      "body": "Shellfin begins with discarded oyster shell waste. The shells are collected, purified, refined into mineral-rich pellets, and compression-moulded into premium products."
+      "body": "OXP begins with discarded oyster shell waste. The shells are collected, purified, refined into mineral-rich pellets, and compression-moulded into premium products."
     },
     "properties": {
       "weight": "35% lighter than traditional ceramics, with specific gravity 1.5-1.6 versus 2.4.",
@@ -346,7 +346,7 @@
     "process": {
       "step1": "Collection: oyster shell waste is recovered and sorted from coastal processing streams.",
       "step2": "Thermal purification: shells are sterilized between 200-700°C and mineral tones are developed.",
-      "step3": "Pelletizing: purified shell minerals are refined into Shellfin pellets for stable batch production.",
+      "step3": "Pelletizing: purified shell minerals are refined into OXP pellets for stable batch production.",
       "step4": "Compression moulding: pellets are formed into lightweight, high-impact products and surfaces."
     },
     "certifications": {
@@ -362,7 +362,7 @@
     "intro": {
       "eyebrow": "The Material",
       "title": "Oyster shell pellets engineered for lighter, stronger, more natural premium objects.",
-      "description": "This page focuses on the Shellfin material system: oyster shell recovery, pellet refining, compress moulding, and the technical story required for review.",
+      "description": "This page focuses on the OXP material system: oyster shell recovery, pellet refining, compress moulding, and the technical story required for review.",
       "primaryCta": "Request Material Sheet",
       "secondaryCta": "Contact Material Team"
     },
@@ -380,7 +380,7 @@
     },
     "grid": {
       "eyebrow": "Product Grid",
-      "title": "Shellfin objects for dining, gifting, and calm interior rituals.",
+      "title": "OXP objects for dining, gifting, and calm interior rituals.",
       "description": "Published products, categories, pricing, and availability now come from the backend product catalogue and admin panel.",
       "pricePrefix": "From",
       "availabilityLabel": "Availability",
@@ -410,7 +410,7 @@
       "allProductsTitle": "All products",
       "showingLabel": "Page {page} of {lastPage}",
       "emptyTitle": "No products match these filters.",
-      "emptyDescription": "Adjust the range, switch category, or clear a filter to reopen the full Shellfin catalogue.",
+      "emptyDescription": "Adjust the range, switch category, or clear a filter to reopen the full OXP catalogue.",
       "emptyAction": "Reset catalogue",
       "errorTitle": "Store data is temporarily unavailable.",
       "errorDescription": "The product catalogue could not be loaded from the API. The rest of the site is still available, and business enquiries can still be submitted.",
@@ -421,8 +421,8 @@
       "title": "Common questions before ordering",
       "items": [
         {
-          "question": "How durable is Shellfin tableware?",
-          "answer": "Shellfin products are designed around a premium shell composite story with low absorption, repeatable finish quality, and hospitality-minded durability. Exact performance still depends on the specific form factor and production batch."
+          "question": "How durable is OXP tableware?",
+          "answer": "OXP products are designed around a premium shell composite story with low absorption, repeatable finish quality, and hospitality-minded durability. Exact performance still depends on the specific form factor and production batch."
         },
         {
           "question": "Can I order for hospitality or design projects?",
@@ -442,14 +442,14 @@
   "b2bPage": {
     "intro": {
       "eyebrow": "B2B Supply",
-      "title": "Source oyster shell pellets or develop finished products with Shellfin.",
+      "title": "Source oyster shell pellets or develop finished products with OXP.",
       "description": "For manufacturers, hospitality groups, designers, and premium brands looking for oyster shell material supply, samples, or co-development.",
       "primaryCta": "Send Inquiry",
       "secondaryCta": "Review Material Facts"
     },
     "form": {
       "eyebrow": "Start a Project",
-      "title": "Tell us how you plan to use Shellfin pellets or finished objects.",
+      "title": "Tell us how you plan to use OXP pellets or finished objects.",
       "description": "Send a lightweight project brief directly to the Laravel backend. This keeps the workflow simple while giving the team a real submission record.",
       "fields": {
         "name": "Name",
@@ -481,7 +481,7 @@
     "intro": {
       "eyebrow": "Community",
       "title": "Share ideas, build collaborations, and support new oyster shell concepts.",
-      "description": "The community layer is designed for designers, studios, makers, and supporters who want to shape the next Shellfin objects and material experiments.",
+      "description": "The community layer is designed for designers, studios, makers, and supporters who want to shape the next OXP objects and material experiments.",
       "primaryCta": "Share an Idea",
       "secondaryCta": "Support a Concept"
     },
@@ -499,19 +499,19 @@
   "contactPage": {
     "intro": {
       "eyebrow": "Contact",
-      "title": "Talk to Shellfin about material supply, products, or collaborative concepts.",
+      "title": "Talk to OXP about material supply, products, or collaborative concepts.",
       "description": "Use the direct contact details for quick conversations, or submit a structured project brief through the inquiry form.",
       "primaryCta": "Email the Team",
       "secondaryCta": "Open B2B Inquiry"
     },
     "details": {
-      "eyebrow": "Reach Shellfin",
+      "eyebrow": "Reach OXP",
       "title": "Direct paths for retail, B2B, and community conversations.",
       "description": "The contact layer keeps business, product, and concept discussions visible while staying ready for backend-driven CRM integration.",
       "cards": [
         {
           "label": "Email",
-          "value": "hello@shellfin.kr",
+          "value": "Contact email pending",
           "detail": "General, retail, and product inquiries"
         },
         {
@@ -529,10 +529,10 @@
     }
   },
   "articleFeed": {
-    "fallbackExcerpt": "The latest Shellfin editorial updates are now available through the backend content API.",
+    "fallbackExcerpt": "The latest OXP editorial updates are now available through the backend content API.",
     "emptyTitle": "No articles published yet",
     "emptyDescription": "This section is connected to the backend article feed, but there are no published updates available right now.",
-    "badgeLabel": "Shellfin Update",
+    "badgeLabel": "OXP Update",
     "readArticle": "Read article",
     "defaultEyebrow": "Latest Updates",
     "defaultTitle": "The newest material and studio updates.",
@@ -545,7 +545,7 @@
     "signOut": "Sign Out",
     "signIn": "Sign In",
     "dialogTitle": "Sign In",
-    "dialogDescription": "Sign in with the shared Shellfin account used across community and store flows."
+    "dialogDescription": "Sign in with the shared OXP account used across community and store flows."
   },
   "storeNav": {
     "eyebrow": "Store",
@@ -559,7 +559,7 @@
     "title": "Your Cart ({count} items)",
     "guestHint": "Guest carts persist and merge into your account after sign-in.",
     "emptyTitle": "Your cart is empty",
-    "emptyDescription": "Add a Shellfin piece to begin your order request.",
+    "emptyDescription": "Add an OXP piece to begin your order request.",
     "browseCollection": "Browse our collection",
     "productUnavailable": "Product unavailable",
     "decreaseQuantity": "Decrease quantity",
@@ -574,14 +574,14 @@
     "signInToCheckout": "Sign in to Checkout",
     "clearCart": "Clear Cart",
     "signInDialogTitle": "Sign in to continue",
-    "signInDialogDescription": "Sign in with the same Shellfin account used across the community."
+    "signInDialogDescription": "Sign in with the same OXP account used across the community."
   },
   "cartPage": {
     "emptyTitle": "Your cart is empty",
-    "emptyDescription": "Add a Shellfin product to start a guest-friendly cart. If you sign in later, the current cart will merge into your account.",
+    "emptyDescription": "Add an OXP product to start a guest-friendly cart. If you sign in later, the current cart will merge into your account.",
     "browseCollection": "Browse Collection",
     "eyebrow": "Cart",
-    "title": "Review your Shellfin selections",
+    "title": "Review your OXP selections",
     "clearCart": "Clear cart",
     "productUnavailable": "Product unavailable",
     "remove": "Remove",
@@ -598,16 +598,16 @@
     "signInToCheckout": "Sign in to checkout",
     "continueShopping": "Continue shopping",
     "signInDialogTitle": "Sign in to continue",
-    "signInDialogDescription": "Sign in with the same Shellfin account used across the community."
+    "signInDialogDescription": "Sign in with the same OXP account used across the community."
   },
   "checkout": {
     "emptyTitle": "Your cart is empty",
-    "emptyDescription": "Add a Shellfin product before continuing to checkout.",
+    "emptyDescription": "Add an OXP product before continuing to checkout.",
     "browseCollection": "Browse Collection",
     "backToCart": "Back to cart",
     "eyebrow": "Checkout",
     "title": "Shipping and Order Review",
-    "description": "Orders run through the shared Shellfin account flow. Shipping is structured now, while tax remains a placeholder until the full commerce calculator is introduced.",
+    "description": "Orders run through the shared OXP account flow. Shipping is structured now, while tax remains a placeholder until the full commerce calculator is introduced.",
     "savedAddresses": "Saved addresses",
     "defaultBadge": "Default",
     "useThisAddress": "Use this address",
@@ -630,7 +630,7 @@
     "confirmationNote": "Orders are manually confirmed. You will receive a confirmation email once your order is reviewed.",
     "placingOrder": "Placing Order...",
     "placeOrder": "Place Order",
-    "productFallback": "Shellfin product",
+    "productFallback": "OXP product",
     "countries": {
       "KR": "South Korea",
       "NZ": "New Zealand",
@@ -672,7 +672,7 @@
     "title": "Order History",
     "loading": "Loading orders...",
     "emptyTitle": "No orders yet",
-    "emptyDescription": "Browse the Shellfin collection and place your first order.",
+    "emptyDescription": "Browse the OXP collection and place your first order.",
     "browseCollection": "Browse Collection",
     "pendingDate": "Pending date",
     "viewDetails": "View Details",
@@ -709,7 +709,7 @@
     "requestSample": "Request Sample",
     "backToStore": "Back to store",
     "pageFallbackEyebrow": "Product",
-    "pageFallbackDescription": "Review the Shellfin product specification, availability, and enquiry options.",
+    "pageFallbackDescription": "Review the OXP product specification, availability, and enquiry options.",
     "pageErrorTitle": "Product details are temporarily unavailable.",
     "pageErrorDescription": "The product page could not be loaded from the API. You can still browse the store or contact the team directly.",
     "soldOutMessage": "This batch is sold out. Request a restock update or a sample pack and the team can guide you to the next release.",
@@ -727,7 +727,7 @@
     "bulkEnquiryDescription": "For restaurant groups, design studios, and hospitality buyers reviewing MOQ and lead time.",
     "bulkEnquiryAction": "Open enquiry",
     "requestSampleTitle": "Request sample",
-    "requestSampleDescription": "Review Shellfin finish, density, and care notes before a larger commitment.",
+    "requestSampleDescription": "Review OXP finish, density, and care notes before a larger commitment.",
     "requestSampleAction": "Request sample",
     "materialReviewTitle": "Material review",
     "materialReviewDescription": "Explore the oyster-shell material system behind this product and its sustainability story.",
@@ -738,8 +738,8 @@
   },
   "community": {
     "layout": {
-      "title": "Shellfin Community",
-      "description": "A place for designers and makers to share Shellfin product ideas, material experiments, and sustainable living concepts.",
+      "title": "OXP Community",
+      "description": "A place for designers and makers to share OXP product ideas, material experiments, and sustainable living concepts.",
       "shareButton": "Share Your Design Idea",
       "signIn": "Sign In",
       "viewProfile": "View Profile",
@@ -747,7 +747,7 @@
     },
     "auth": {
       "title": "Community Access",
-      "description": "Sign in to post ideas, follow makers, and join the conversation around Shellfin material applications.",
+      "description": "Sign in to post ideas, follow makers, and join the conversation around OXP material applications.",
       "loginTab": "Login",
       "registerTab": "Register",
       "loadingSession": "Checking your saved session...",
@@ -769,7 +769,7 @@
       "namePlaceholder": "Given name or full name",
       "usernamePlaceholder": "Unique username for posting and profile",
       "signInToContinue": "Sign in to continue",
-      "loadingAccount": "Loading your Shellfin account..."
+      "loadingAccount": "Loading your OXP account..."
     },
     "report": {
       "button": "Report",
@@ -793,10 +793,10 @@
     },
     "feed": {
       "eyebrow": "Community Feed",
-      "title": "Design ideas from the Shellfin community",
+      "title": "Design ideas from the OXP community",
       "description": "Browse product concepts, material and craft experiments, partnership ideas, and sustainable living discussions.",
       "resultsTitlePrefix": "Search results for:",
-      "resultsDescription": "These posts match your search and can help you explore related Shellfin ideas.",
+      "resultsDescription": "These posts match your search and can help you explore related OXP ideas.",
       "latest": "Latest",
       "hot": "Hot",
       "categoryFilter": "Category",
@@ -816,7 +816,7 @@
       "goToPage": "Go",
       "loading": "Loading posts...",
       "emptyTitle": "No posts yet",
-      "emptyDescription": "The community is ready. Share the first Shellfin idea to get the conversation started.",
+      "emptyDescription": "The community is ready. Share the first OXP idea to get the conversation started.",
       "noResultsTitle": "No results found",
       "noResults": "Try a different keyword or browse the latest community posts instead.",
       "readMore": "Read more",
@@ -825,7 +825,7 @@
     },
     "form": {
       "createTitle": "Upload Design Idea",
-      "createDescription": "Describe your design idea, what product Shellfin material could be used for, and why it would be valuable.",
+      "createDescription": "Describe your design idea, what product OXP material could be used for, and why it would be valuable.",
       "editTitle": "Edit Post",
       "editDescription": "Update the title, content, attachments, or funding link for your design idea.",
       "titleLabel": "Title",
@@ -838,7 +838,7 @@
       "fundingLabel": "Funding link",
       "fundingPlaceholder": "GoFundMe or Kickstarter link for this design",
       "contentLabel": "Content",
-      "contentPlaceholder": "Describe your design idea, what product could Shellfin material be used for, and why it would be valuable.",
+      "contentPlaceholder": "Describe your design idea, what product could OXP material be used for, and why it would be valuable.",
       "excerptLabel": "Excerpt",
       "excerptPlaceholder": "Optional summary for cards and previews.",
       "excerptHint": "Leave blank to auto-generate an excerpt from the editor content.",

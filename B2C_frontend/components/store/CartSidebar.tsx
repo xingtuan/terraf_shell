@@ -108,7 +108,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                       <div className="relative h-[60px] w-[60px] shrink-0 overflow-hidden rounded-2xl bg-muted">
                         <Image
                           src={item.product?.primary_image_url || item.product?.image_url || "/placeholder.jpg"}
-                          alt={item.product?.name || "Shellfin product"}
+                          alt={item.product?.name || "OXP product"}
                           fill
                           className="object-cover"
                         />

@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 
 import { Toaster } from "@/components/ui/toaster"
+import { BRAND_NAME } from "@/lib/brand"
 
 import "./globals.css"
 
@@ -19,16 +20,16 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: "Shellfin | Oyster Shell Material",
+  title: `${BRAND_NAME} | Oyster Shell Material`,
   description:
-    "Shellfin is a multilingual oyster shell material website for B2C products, B2B pellets, and community collaboration.",
+    `${BRAND_NAME} is a multilingual oyster shell material website for B2C products, B2B pellets, and community collaboration.`,
   keywords: [
     "oyster shell pellets",
     "premium tableware",
     "material science",
     "compress moulding",
     "South Korea",
-    "Shellfin",
+    BRAND_NAME,
   ],
   icons: {
     icon: [

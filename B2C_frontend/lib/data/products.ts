@@ -109,7 +109,7 @@ export const productRecords: RawProductRecord[] = [
     price: 45,
     currency: "USD",
     inStock: true,
-    image: "https://placehold.co/600x400?text=Shellfin+Dinner+Plate",
+    image: "https://placehold.co/600x400?text=OXP+Dinner+Plate",
   },
   {
     id: "side-plate-lite-forged-ash",
@@ -132,7 +132,7 @@ export const productRecords: RawProductRecord[] = [
     price: 48,
     currency: "USD",
     inStock: true,
-    image: "https://placehold.co/600x400?text=Shellfin+Side+Plate",
+    image: "https://placehold.co/600x400?text=OXP+Side+Plate",
   },
   {
     id: "coupe-bowl-heritage-ocean-bone",
@@ -155,7 +155,7 @@ export const productRecords: RawProductRecord[] = [
     price: 62,
     currency: "USD",
     inStock: true,
-    image: "https://placehold.co/600x400?text=Shellfin+Coupe+Bowl",
+    image: "https://placehold.co/600x400?text=OXP+Coupe+Bowl",
   },
   {
     id: "serving-bowl-heritage-forged-ash",
@@ -178,7 +178,7 @@ export const productRecords: RawProductRecord[] = [
     price: 78,
     currency: "USD",
     inStock: true,
-    image: "https://placehold.co/600x400?text=Shellfin+Serving+Bowl",
+    image: "https://placehold.co/600x400?text=OXP+Serving+Bowl",
   },
   {
     id: "countertop-planter-heritage-ocean-bone",
@@ -201,7 +201,7 @@ export const productRecords: RawProductRecord[] = [
     price: 85,
     currency: "USD",
     inStock: true,
-    image: "https://placehold.co/600x400?text=Shellfin+Planter",
+    image: "https://placehold.co/600x400?text=OXP+Planter",
   },
   {
     id: "wellness-tray-lite-ocean-bone",
@@ -224,7 +224,7 @@ export const productRecords: RawProductRecord[] = [
     price: 68,
     currency: "USD",
     inStock: true,
-    image: "https://placehold.co/600x400?text=Shellfin+Wellness+Tray",
+    image: "https://placehold.co/600x400?text=OXP+Wellness+Tray",
   },
   {
     id: "aroma-object-heritage-forged-ash",
@@ -235,9 +235,9 @@ export const productRecords: RawProductRecord[] = [
       zh: "香薰摆件 - 1.6 Heritage / Forged Ash",
     },
     description: {
-      en: "A matte interior object that highlights Shellfin's non-slip mineral touch.",
-      ko: "Shellfin 특유의 논슬립 미네랄 촉감을 강조한 매트 인테리어 오브제입니다.",
-      zh: "突出 Shellfin 防滑矿物触感的哑光家居摆件。",
+      en: "A matte interior object that highlights OXP's non-slip mineral touch.",
+      ko: "OXP 특유의 논슬립 미네랄 촉감을 강조한 매트 인테리어 오브제입니다.",
+      zh: "突出 OXP 防滑矿物触感的哑光家居摆件。",
     },
     model: "1.6 Heritage",
     finish: "Matte",
@@ -247,7 +247,7 @@ export const productRecords: RawProductRecord[] = [
     price: 92,
     currency: "USD",
     inStock: true,
-    image: "https://placehold.co/600x400?text=Shellfin+Aroma+Object",
+    image: "https://placehold.co/600x400?text=OXP+Aroma+Object",
   },
   {
     id: "panel-tile-heritage-forged-ash",
@@ -270,6 +270,6 @@ export const productRecords: RawProductRecord[] = [
     price: 120,
     currency: "USD",
     inStock: true,
-    image: "https://placehold.co/600x400?text=Shellfin+Panel+Tile",
+    image: "https://placehold.co/600x400?text=OXP+Panel+Tile",
   },
 ]

@@ -45,7 +45,7 @@ export function materialInfoToDetail(material: MaterialInfo): MaterialDetail {
   return {
     id: 1,
     title: material.name,
-    slug: "shellfin",
+    slug: "oxp",
     headline: material.tagline,
     summary: material.origin,
     story_overview: material.process_steps.map((step) => step.title).join(" -> "),

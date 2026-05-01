@@ -3,6 +3,7 @@ import { ArticleFeedSection } from "@/components/sections/article-feed"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { listArticles } from "@/lib/api/articles"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { BRAND_NAME } from "@/lib/brand"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
 import type { ArticleSummary } from "@/lib/types"
@@ -33,7 +34,7 @@ export default async function ArticlesPage({ params }: ArticlesPageProps) {
       <PageIntro
         eyebrow="Journal"
         title="Articles, lab notes, and material updates."
-        description="This editorial layer is now connected to the backend article CMS while preserving the existing Shellfin visual language."
+        description={`This editorial layer is now connected to the backend article CMS while preserving the existing ${BRAND_NAME} visual language.`}
         primaryAction={{
           label: "Latest updates",
           href: `${getLocalizedHref(locale, "articles")}#articles`,

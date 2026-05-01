@@ -1,13 +1,13 @@
-# Shellfin / terraf — Monorepo
+# OXP / terraf — Monorepo
 
-A full-stack, API-driven monorepo for the **Shellfin** brand platform. The repository contains two top-level applications that are developed and deployed independently but designed to work together as a single product.
+A full-stack, API-driven monorepo for the **OXP** brand platform. The repository contains two top-level applications that are developed and deployed independently but designed to work together as a single product.
 
 | Directory | Role |
 |---|---|
 | [`B2C_frontend/`](./B2C_frontend/) | Next.js 16 multi-language storefront, community hub, and brand site |
 | [`B2C_backend/`](./B2C_backend/) | Laravel 13 REST API, admin panel, CMS, and community engine |
 
-The platform is built around Shellfin's oyster shell material narrative and covers three audience segments:
+The platform is built around OXP's oyster shell material narrative and covers three audience segments:
 
 - **B2C** — Premium tableware and home goods product catalog
 - **B2B** — Raw material and partnership inquiry pipeline
@@ -114,7 +114,7 @@ Browser
 
 - **Frontend consumers** use Sanctum Personal Access Tokens stored in `localStorage`.
 - **Admin panel** uses standard Laravel web sessions (separate authentication from the API).
-- Token key in the browser: `shellfin.community.auth-token`
+- Token key in the browser: `oxp.community.auth-token`
 
 ### API Response Contract
 
@@ -225,6 +225,7 @@ NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | `/api` | Backend API base URL |
 | `NEXT_PUBLIC_MEDIA_BASE_URL` | *(empty)* | CDN URL for media assets |
+| `NEXT_PUBLIC_BRAND_CONTACT_EMAIL` | *(empty)* | Optional confirmed OXP contact email |
 
 ### Backend (`.env`)
 

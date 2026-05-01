@@ -212,7 +212,7 @@ class Product extends Model
                     ['slug' => $categorySlug],
                     [
                         'name' => $categoryLabel,
-                        'description' => $categoryLabel.' category for the Shellfin catalog.',
+                        'description' => $categoryLabel.' category for the OXP catalog.',
                         'is_active' => true,
                     ],
                 );

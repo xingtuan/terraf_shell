@@ -143,7 +143,7 @@ export function buildStoreCatalogHref(
   locale: Locale,
   filters: Partial<StoreCatalogFilters>,
 ) {
-  const url = new URL(getLocalizedHref(locale, "store"), "https://shellfin.local")
+  const url = new URL(getLocalizedHref(locale, "store"), "https://oxp.local")
 
   for (const [key, value] of Object.entries(filters)) {
     if (key === "page" && (value === 1 || value === "1")) {

@@ -191,7 +191,7 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => true,
                 'inquiry_only' => false,
                 'sample_request_enabled' => true,
-                'seo_title' => 'Tidal Dinner Plate | Shellfin premium oyster-shell tableware',
+                'seo_title' => 'Tidal Dinner Plate | OXP premium oyster-shell tableware',
                 'seo_description' => 'A premium oyster-shell dinner plate with refined tactility, lighter handling, and hospitality-ready durability.',
                 'related' => [
                     'harbor-serving-bowl',
@@ -216,11 +216,11 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => 'A hospitality-scaled serving bowl with a warm mineral profile and a durable rim built for repeat service.',
                     'zh' => 'A hospitality-scaled serving bowl with a warm mineral profile and a durable rim built for repeat service.',
                 ],
-                'full_description' => 'Sized for shared courses, breakfast service, and premium residential tables, Harbor brings a heavier visual presence without losing the lighter handling benefits of the Shellfin material system. It is especially suited to boutique hotel breakfast, shared appetizers, and curated chef service packs.',
+                'full_description' => 'Sized for shared courses, breakfast service, and premium residential tables, Harbor brings a heavier visual presence without losing the lighter handling benefits of the OXP material system. It is especially suited to boutique hotel breakfast, shared appetizers, and curated chef service packs.',
                 'full_description_translations' => [
-                    'en' => 'Sized for shared courses, breakfast service, and premium residential tables, Harbor brings a heavier visual presence without losing the lighter handling benefits of the Shellfin material system. It is especially suited to boutique hotel breakfast, shared appetizers, and curated chef service packs.',
-                    'ko' => 'Sized for shared courses, breakfast service, and premium residential tables, Harbor brings a heavier visual presence without losing the lighter handling benefits of the Shellfin material system. It is especially suited to boutique hotel breakfast, shared appetizers, and curated chef service packs.',
-                    'zh' => 'Sized for shared courses, breakfast service, and premium residential tables, Harbor brings a heavier visual presence without losing the lighter handling benefits of the Shellfin material system. It is especially suited to boutique hotel breakfast, shared appetizers, and curated chef service packs.',
+                    'en' => 'Sized for shared courses, breakfast service, and premium residential tables, Harbor brings a heavier visual presence without losing the lighter handling benefits of the OXP material system. It is especially suited to boutique hotel breakfast, shared appetizers, and curated chef service packs.',
+                    'ko' => 'Sized for shared courses, breakfast service, and premium residential tables, Harbor brings a heavier visual presence without losing the lighter handling benefits of the OXP material system. It is especially suited to boutique hotel breakfast, shared appetizers, and curated chef service packs.',
+                    'zh' => 'Sized for shared courses, breakfast service, and premium residential tables, Harbor brings a heavier visual presence without losing the lighter handling benefits of the OXP material system. It is especially suited to boutique hotel breakfast, shared appetizers, and curated chef service packs.',
                 ],
                 'features' => [
                     'Durable hospitality-ready rim',
@@ -296,8 +296,8 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => true,
                 'inquiry_only' => false,
                 'sample_request_enabled' => true,
-                'seo_title' => 'Harbor Serving Bowl | Shellfin hospitality-ready servingware',
-                'seo_description' => 'A generous Shellfin serving bowl for chef-led hospitality service and premium residential tables.',
+                'seo_title' => 'Harbor Serving Bowl | OXP hospitality-ready servingware',
+                'seo_description' => 'A generous OXP serving bowl for chef-led hospitality service and premium residential tables.',
                 'related' => [
                     'tidal-dinner-plate',
                     'salt-air-espresso-set',
@@ -321,11 +321,11 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => 'A smaller-shell tableware set for morning service, gifting programs, and boutique retail moments.',
                     'zh' => 'A smaller-shell tableware set for morning service, gifting programs, and boutique retail moments.',
                 ],
-                'full_description' => 'Salt Air was designed as an approachable entry into the Shellfin tableware world: compact enough for retail gifting, refined enough for boutique cafe counters, and distinctive enough to carry the oyster-shell material story into a smaller ritual object.',
+                'full_description' => 'Salt Air was designed as an approachable entry into the OXP tableware world: compact enough for retail gifting, refined enough for boutique cafe counters, and distinctive enough to carry the oyster-shell material story into a smaller ritual object.',
                 'full_description_translations' => [
-                    'en' => 'Salt Air was designed as an approachable entry into the Shellfin tableware world: compact enough for retail gifting, refined enough for boutique cafe counters, and distinctive enough to carry the oyster-shell material story into a smaller ritual object.',
-                    'ko' => 'Salt Air was designed as an approachable entry into the Shellfin tableware world: compact enough for retail gifting, refined enough for boutique cafe counters, and distinctive enough to carry the oyster-shell material story into a smaller ritual object.',
-                    'zh' => 'Salt Air was designed as an approachable entry into the Shellfin tableware world: compact enough for retail gifting, refined enough for boutique cafe counters, and distinctive enough to carry the oyster-shell material story into a smaller ritual object.',
+                    'en' => 'Salt Air was designed as an approachable entry into the OXP tableware world: compact enough for retail gifting, refined enough for boutique cafe counters, and distinctive enough to carry the oyster-shell material story into a smaller ritual object.',
+                    'ko' => 'Salt Air was designed as an approachable entry into the OXP tableware world: compact enough for retail gifting, refined enough for boutique cafe counters, and distinctive enough to carry the oyster-shell material story into a smaller ritual object.',
+                    'zh' => 'Salt Air was designed as an approachable entry into the OXP tableware world: compact enough for retail gifting, refined enough for boutique cafe counters, and distinctive enough to carry the oyster-shell material story into a smaller ritual object.',
                 ],
                 'features' => [
                     'Cup and saucer pairing',
@@ -399,8 +399,8 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => true,
                 'inquiry_only' => false,
                 'sample_request_enabled' => true,
-                'seo_title' => 'Salt Air Espresso Set | Shellfin oyster-shell giftable tableware',
-                'seo_description' => 'A compact Shellfin espresso set designed for premium rituals, gifting, and boutique hospitality.',
+                'seo_title' => 'Salt Air Espresso Set | OXP oyster-shell giftable tableware',
+                'seo_description' => 'A compact OXP espresso set designed for premium rituals, gifting, and boutique hospitality.',
                 'related' => [
                     'tidal-dinner-plate',
                     'harbor-serving-bowl',
@@ -424,11 +424,11 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => 'A sculptural planter built for design-led homes, boutique hospitality, and visual merchandising.',
                     'zh' => 'A sculptural planter built for design-led homes, boutique hospitality, and visual merchandising.',
                 ],
-                'full_description' => 'Drift Planter translates Shellfin materiality into the interior category, giving the oyster-shell story a calmer architectural presence. The piece works equally well for boutique hotel room styling, elevated plant gifting, and retail display capsules.',
+                'full_description' => 'Drift Planter translates OXP materiality into the interior category, giving the oyster-shell story a calmer architectural presence. The piece works equally well for boutique hotel room styling, elevated plant gifting, and retail display capsules.',
                 'full_description_translations' => [
-                    'en' => 'Drift Planter translates Shellfin materiality into the interior category, giving the oyster-shell story a calmer architectural presence. The piece works equally well for boutique hotel room styling, elevated plant gifting, and retail display capsules.',
-                    'ko' => 'Drift Planter translates Shellfin materiality into the interior category, giving the oyster-shell story a calmer architectural presence. The piece works equally well for boutique hotel room styling, elevated plant gifting, and retail display capsules.',
-                    'zh' => 'Drift Planter translates Shellfin materiality into the interior category, giving the oyster-shell story a calmer architectural presence. The piece works equally well for boutique hotel room styling, elevated plant gifting, and retail display capsules.',
+                    'en' => 'Drift Planter translates OXP materiality into the interior category, giving the oyster-shell story a calmer architectural presence. The piece works equally well for boutique hotel room styling, elevated plant gifting, and retail display capsules.',
+                    'ko' => 'Drift Planter translates OXP materiality into the interior category, giving the oyster-shell story a calmer architectural presence. The piece works equally well for boutique hotel room styling, elevated plant gifting, and retail display capsules.',
+                    'zh' => 'Drift Planter translates OXP materiality into the interior category, giving the oyster-shell story a calmer architectural presence. The piece works equally well for boutique hotel room styling, elevated plant gifting, and retail display capsules.',
                 ],
                 'features' => [
                     'Drainage-ready interior shape',
@@ -481,7 +481,7 @@ class ProductCatalogSeeder extends Seeder
                     'Suitable for indoor use and covered styling zones.',
                 ],
                 'material_benefits' => [
-                    'Extends the Shellfin material story beyond the table into interior rituals.',
+                    'Extends the OXP material story beyond the table into interior rituals.',
                     'Lower-absorption surface than many porous indoor decorative materials.',
                 ],
                 'certifications' => [
@@ -503,8 +503,8 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => true,
                 'inquiry_only' => false,
                 'sample_request_enabled' => false,
-                'seo_title' => 'Drift Planter No. 2 | Shellfin premium interior planter',
-                'seo_description' => 'A sculptural Shellfin planter for premium interiors, boutique hospitality, and gifting programs.',
+                'seo_title' => 'Drift Planter No. 2 | OXP premium interior planter',
+                'seo_description' => 'A sculptural OXP planter for premium interiors, boutique hospitality, and gifting programs.',
                 'related' => [
                     'shoreline-wellness-tray',
                     'reef-candle-vessel',
@@ -522,11 +522,11 @@ class ProductCatalogSeeder extends Seeder
                     'zh' => 'Shoreline Wellness Tray',
                 ],
                 'subtitle' => 'Slim tray for scent rituals, bathroom styling, and calm hospitality moments.',
-                'short_description' => 'A low-profile tray that brings Shellfin tactility into quieter bathroom, spa, and bedside routines.',
+                'short_description' => 'A low-profile tray that brings OXP tactility into quieter bathroom, spa, and bedside routines.',
                 'short_description_translations' => [
-                    'en' => 'A low-profile tray that brings Shellfin tactility into quieter bathroom, spa, and bedside routines.',
-                    'ko' => 'A low-profile tray that brings Shellfin tactility into quieter bathroom, spa, and bedside routines.',
-                    'zh' => 'A low-profile tray that brings Shellfin tactility into quieter bathroom, spa, and bedside routines.',
+                    'en' => 'A low-profile tray that brings OXP tactility into quieter bathroom, spa, and bedside routines.',
+                    'ko' => 'A low-profile tray that brings OXP tactility into quieter bathroom, spa, and bedside routines.',
+                    'zh' => 'A low-profile tray that brings OXP tactility into quieter bathroom, spa, and bedside routines.',
                 ],
                 'full_description' => 'Shoreline is shaped for settings where objects are seen and handled at close range: boutique bathrooms, spa amenities, bedside styling, and premium gifting. The compact footprint makes it easy to pair with candles, soap, jewelry, or curated guest-room items.',
                 'full_description_translations' => [
@@ -606,8 +606,8 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => true,
                 'inquiry_only' => false,
                 'sample_request_enabled' => false,
-                'seo_title' => 'Shoreline Wellness Tray | Shellfin premium interior tray',
-                'seo_description' => 'A compact Shellfin tray for spa rituals, gifting, and calm interior styling.',
+                'seo_title' => 'Shoreline Wellness Tray | OXP premium interior tray',
+                'seo_description' => 'A compact OXP tray for spa rituals, gifting, and calm interior styling.',
                 'related' => [
                     'drift-planter-no-2',
                     'reef-candle-vessel',
@@ -625,11 +625,11 @@ class ProductCatalogSeeder extends Seeder
                     'zh' => 'Cove Display Tile',
                 ],
                 'subtitle' => 'Architectural shell composite sample tile for design libraries and hospitality fit-outs.',
-                'short_description' => 'A specification-oriented sample piece for interior teams evaluating Shellfin for hospitality and retail surfaces.',
+                'short_description' => 'A specification-oriented sample piece for interior teams evaluating OXP for hospitality and retail surfaces.',
                 'short_description_translations' => [
-                    'en' => 'A specification-oriented sample piece for interior teams evaluating Shellfin for hospitality and retail surfaces.',
-                    'ko' => 'A specification-oriented sample piece for interior teams evaluating Shellfin for hospitality and retail surfaces.',
-                    'zh' => 'A specification-oriented sample piece for interior teams evaluating Shellfin for hospitality and retail surfaces.',
+                    'en' => 'A specification-oriented sample piece for interior teams evaluating OXP for hospitality and retail surfaces.',
+                    'ko' => 'A specification-oriented sample piece for interior teams evaluating OXP for hospitality and retail surfaces.',
+                    'zh' => 'A specification-oriented sample piece for interior teams evaluating OXP for hospitality and retail surfaces.',
                 ],
                 'full_description' => 'Cove Display Tile is less a conventional B2C object and more a bridge into future B2B surface programs. It gives designers and hospitality buyers a clear way to review finish, tone, density, and care requirements before moving into larger material conversations.',
                 'full_description_translations' => [
@@ -680,7 +680,7 @@ class ProductCatalogSeeder extends Seeder
                 'weight_grams' => 180,
                 'specifications' => [
                     ['key' => 'sample_format', 'label' => 'Sample Format', 'value' => 'Architectural swatch tile', 'group' => 'Program'],
-                    ['key' => 'moq', 'label' => 'Project MOQ', 'value' => 'Discuss with Shellfin team', 'group' => 'Commercial'],
+                    ['key' => 'moq', 'label' => 'Project MOQ', 'value' => 'Discuss with OXP team', 'group' => 'Commercial'],
                 ],
                 'care_instructions' => [
                     'Use as a review sample for finish and tone comparison.',
@@ -709,8 +709,8 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => true,
                 'inquiry_only' => true,
                 'sample_request_enabled' => true,
-                'seo_title' => 'Cove Display Tile | Shellfin architectural material sample',
-                'seo_description' => 'A Shellfin architectural sample tile for hospitality, retail, and interior design project review.',
+                'seo_title' => 'Cove Display Tile | OXP architectural material sample',
+                'seo_description' => 'An OXP architectural sample tile for hospitality, retail, and interior design project review.',
                 'related' => [
                     'studio-sample-kit',
                     'drift-planter-no-2',
@@ -728,11 +728,11 @@ class ProductCatalogSeeder extends Seeder
                     'zh' => 'Studio Sample Kit',
                 ],
                 'subtitle' => 'Entry sample kit for designers, specifiers, and hospitality buyers.',
-                'short_description' => 'A compact pack of Shellfin finish chips and object references for teams reviewing the material story.',
+                'short_description' => 'A compact pack of OXP finish chips and object references for teams reviewing the material story.',
                 'short_description_translations' => [
-                    'en' => 'A compact pack of Shellfin finish chips and object references for teams reviewing the material story.',
-                    'ko' => 'A compact pack of Shellfin finish chips and object references for teams reviewing the material story.',
-                    'zh' => 'A compact pack of Shellfin finish chips and object references for teams reviewing the material story.',
+                    'en' => 'A compact pack of OXP finish chips and object references for teams reviewing the material story.',
+                    'ko' => 'A compact pack of OXP finish chips and object references for teams reviewing the material story.',
+                    'zh' => 'A compact pack of OXP finish chips and object references for teams reviewing the material story.',
                 ],
                 'full_description' => 'The Studio Sample Kit is intended for early project conversations. It combines finish references, a small-format object sample, and care notes so design teams can move from inspiration to a more grounded materials review without committing to a large order.',
                 'full_description_translations' => [
@@ -787,7 +787,7 @@ class ProductCatalogSeeder extends Seeder
                 ],
                 'care_instructions' => [
                     'Store samples flat and dry for finish comparison.',
-                    'Contact Shellfin for project-specific care guidance.',
+                    'Contact OXP for project-specific care guidance.',
                 ],
                 'material_benefits' => [
                     'Low-friction way to evaluate the shell-led material story.',
@@ -812,8 +812,8 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => true,
                 'inquiry_only' => false,
                 'sample_request_enabled' => true,
-                'seo_title' => 'Studio Sample Kit | Shellfin designer review kit',
-                'seo_description' => 'A compact Shellfin sample kit for design teams, hospitality buyers, and project evaluation.',
+                'seo_title' => 'Studio Sample Kit | OXP designer review kit',
+                'seo_description' => 'A compact OXP sample kit for design teams, hospitality buyers, and project evaluation.',
                 'related' => [
                     'cove-display-tile',
                     'tidal-dinner-plate',
@@ -885,7 +885,7 @@ class ProductCatalogSeeder extends Seeder
                 'dimensions' => 'Dia 8.5 cm x H 9 cm',
                 'weight_grams' => 420,
                 'specifications' => [
-                    ['key' => 'wax_fill', 'label' => 'Wax Fill Guideline', 'value' => 'Discuss with Shellfin team', 'group' => 'Program'],
+                    ['key' => 'wax_fill', 'label' => 'Wax Fill Guideline', 'value' => 'Discuss with OXP team', 'group' => 'Program'],
                     ['key' => 'batch_state', 'label' => 'Batch Status', 'value' => 'Sold out', 'group' => 'Availability'],
                 ],
                 'care_instructions' => [
@@ -915,8 +915,8 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => false,
                 'inquiry_only' => false,
                 'sample_request_enabled' => true,
-                'seo_title' => 'Reef Candle Vessel | Shellfin premium candle collaboration vessel',
-                'seo_description' => 'A currently sold-out Shellfin vessel designed for premium candle and hospitality amenity concepts.',
+                'seo_title' => 'Reef Candle Vessel | OXP premium candle collaboration vessel',
+                'seo_description' => 'A currently sold-out OXP vessel designed for premium candle and hospitality amenity concepts.',
                 'related' => [
                     'shoreline-wellness-tray',
                     'drift-planter-no-2',

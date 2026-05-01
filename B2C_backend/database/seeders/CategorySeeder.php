@@ -26,7 +26,7 @@ class CategorySeeder extends Seeder
         $categories = collect([
             [
                 'name' => 'Tableware Design Ideas',
-                'description' => 'Concept sketches, plating ideas, and form studies for Shellfin tableware.',
+                'description' => 'Concept sketches, plating ideas, and form studies for OXP tableware.',
                 'sort_order' => 1,
             ],
             [
@@ -36,22 +36,22 @@ class CategorySeeder extends Seeder
             ],
             [
                 'name' => 'Sustainable Living',
-                'description' => 'Daily-use ideas and circular living stories built around Shellfin products.',
+                'description' => 'Daily-use ideas and circular living stories built around OXP products.',
                 'sort_order' => 3,
             ],
             [
                 'name' => 'B2B Partnership',
-                'description' => 'Hospitality, retail, manufacturing, and collaboration opportunities with Shellfin.',
+                'description' => 'Hospitality, retail, manufacturing, and collaboration opportunities with OXP.',
                 'sort_order' => 4,
             ],
             [
                 'name' => 'Product Feedback',
-                'description' => 'Reviews, testing notes, and feedback on Shellfin prototypes and finished products.',
+                'description' => 'Reviews, testing notes, and feedback on OXP prototypes and finished products.',
                 'sort_order' => 5,
             ],
             [
                 'name' => 'Design Challenges',
-                'description' => 'Open briefs and community prompts for new Shellfin applications and concepts.',
+                'description' => 'Open briefs and community prompts for new OXP applications and concepts.',
                 'sort_order' => 6,
             ],
         ]);

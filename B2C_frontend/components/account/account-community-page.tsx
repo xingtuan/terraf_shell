@@ -61,6 +61,8 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
       return
     }
 
+    const authToken: string = token
+    const userIdentifier: string = username
     let cancelled = false
 
     async function loadCommunity() {
@@ -76,12 +78,12 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
           followersResponse,
           followingResponse,
         ] = await Promise.all([
-          getUserProfile(username, token),
-          getUserPosts(username, { per_page: 4 }, token),
-          getUserComments(username, { per_page: 4 }, token),
-          getUserFavorites(username, { per_page: 4 }, token),
-          getUserFollowers(username, { per_page: 6 }, token),
-          getUserFollowing(username, { per_page: 6 }, token),
+          getUserProfile(userIdentifier, authToken),
+          getUserPosts(userIdentifier, { per_page: 4 }, authToken),
+          getUserComments(userIdentifier, { per_page: 4 }, authToken),
+          getUserFavorites(userIdentifier, { per_page: 4 }, authToken),
+          getUserFollowers(userIdentifier, { per_page: 6 }, authToken),
+          getUserFollowing(userIdentifier, { per_page: 6 }, authToken),
         ])
 
         if (cancelled) return

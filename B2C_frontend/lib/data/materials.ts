@@ -155,12 +155,12 @@ export const materialSpecRecords: RawMaterialSpecRecord[] = [
   },
 ]
 
-export const shellfinMaterialRecord: RawMaterialContentRecord = {
-  id: "shellfin-oyster-shell-material",
+export const oxpMaterialRecord: RawMaterialContentRecord = {
+  id: "oxp-oyster-shell-material",
   title: {
-    en: "Shellfin Oyster Shell Material",
-    ko: "Shellfin 굴패각 소재",
-    zh: "Shellfin 牡蛎壳材料",
+    en: "OXP Oyster Shell Material",
+    ko: "OXP 굴패각 소재",
+    zh: "OXP 牡蛎壳材料",
   },
   subtitle: {
     en: "Premium compression-moulded material made from recycled oyster shell pellets.",
@@ -174,9 +174,9 @@ export const shellfinMaterialRecord: RawMaterialContentRecord = {
       zh: "材料起源",
     },
     body: {
-      en: "Shellfin starts with discarded oyster shell waste from coastal food and aquaculture streams. The shells are cleaned, purified, milled into mineral-rich pellets, and remade into premium products through compression moulding.",
-      ko: "Shellfin은 해안 양식과 식음 산업에서 버려지는 굴패각 폐기물에서 시작합니다. 수거된 패각은 세척과 정제 과정을 거쳐 미네랄이 풍부한 펠릿으로 만들어지고, 다시 압축성형을 통해 프리미엄 제품으로 재탄생합니다.",
-      zh: "Shellfin 始于沿海养殖与餐饮体系中被丢弃的牡蛎壳废弃物。回收后的贝壳经过清洗、净化与粉体化，制成富含矿物的颗粒，再通过压缩成型转化为高端成品。",
+      en: "OXP starts with discarded oyster shell waste from coastal food and aquaculture streams. The shells are cleaned, purified, milled into mineral-rich pellets, and remade into premium products through compression moulding.",
+      ko: "OXP은 해안 양식과 식음 산업에서 버려지는 굴패각 폐기물에서 시작합니다. 수거된 패각은 세척과 정제 과정을 거쳐 미네랄이 풍부한 펠릿으로 만들어지고, 다시 압축성형을 통해 프리미엄 제품으로 재탄생합니다.",
+      zh: "OXP 始于沿海养殖与餐饮体系中被丢弃的牡蛎壳废弃物。回收后的贝壳经过清洗、净化与粉体化，制成富含矿物的颗粒，再通过压缩成型转化为高端成品。",
     },
   },
   propertiesTitle: {
@@ -224,9 +224,9 @@ export const shellfinMaterialRecord: RawMaterialContentRecord = {
         zh: "制粒",
       },
       body: {
-        en: "Purified shell minerals are refined into Shellfin pellets for stable forming, scalable batching, and repeatable quality control.",
-        ko: "정제된 패각 미네랄은 안정적인 성형과 일관된 품질 관리를 위해 Shellfin 펠릿으로 가공됩니다.",
-        zh: "净化后的贝壳矿物被精制成 Shellfin 颗粒，以支持稳定成型、批次控制与一致品质。",
+        en: "Purified shell minerals are refined into OXP pellets for stable forming, scalable batching, and repeatable quality control.",
+        ko: "정제된 패각 미네랄은 안정적인 성형과 일관된 품질 관리를 위해 OXP 펠릿으로 가공됩니다.",
+        zh: "净化后的贝壳矿物被精制成 OXP 颗粒，以支持稳定成型、批次控制与一致品质。",
       },
     },
     {

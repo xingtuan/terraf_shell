@@ -20,7 +20,7 @@ class MaterialCmsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_public_material_endpoint_returns_static_shellfin_payload_and_homepage_still_returns_published_content(): void
+    public function test_public_material_endpoint_returns_static_oxp_payload_and_homepage_still_returns_published_content(): void
     {
         $material = Material::factory()->published()->create([
             'slug' => 'oyster-shell-material',
@@ -81,7 +81,7 @@ class MaterialCmsTest extends TestCase
         $this->getJson('/api/materials')
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.name', 'Shellfin')
+            ->assertJsonPath('data.name', 'OXP')
             ->assertJsonPath('data.tagline', "Ocean's Legacy, Crafted with Artisan Tech.")
             ->assertJsonPath('data.origin', 'Recycled oyster shells collected from coastal waste streams')
             ->assertJsonCount(4, 'data.process_steps')
@@ -92,7 +92,7 @@ class MaterialCmsTest extends TestCase
 
         $this->getJson('/api/materials/oyster-shell-material')
             ->assertOk()
-            ->assertJsonPath('data.name', 'Shellfin');
+            ->assertJsonPath('data.name', 'OXP');
 
         $this->getJson('/api/home-sections')
             ->assertOk()

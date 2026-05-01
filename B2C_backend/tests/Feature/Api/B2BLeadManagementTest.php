@@ -20,13 +20,13 @@ class B2BLeadManagementTest extends TestCase
     {
         $response = $this->postJson('/api/inquiries', [
             'name' => 'Jane Doe',
-            'company_name' => 'Shellfin Studio',
+            'company_name' => 'OXP Studio',
             'organization_type' => 'design_studio',
             'email' => 'jane@example.com',
             'phone' => '+82-10-5555-0101',
             'country' => 'South Korea',
             'region' => 'Seoul',
-            'company_website' => 'https://shellfin.example.com',
+            'company_website' => 'https://oxp.example.com',
             'job_title' => 'Founder',
             'inquiry_type' => 'Business Contact',
             'message' => 'We want to discuss a hospitality collaboration.',
@@ -41,7 +41,7 @@ class B2BLeadManagementTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.reference', 'INQ-000001')
             ->assertJsonPath('data.lead_type', B2BLeadType::BusinessContact->value)
-            ->assertJsonPath('data.company_name', 'Shellfin Studio')
+            ->assertJsonPath('data.company_name', 'OXP Studio')
             ->assertJsonMissingPath('data.internal_notes');
 
         $this->assertDatabaseHas('inquiries', [
@@ -50,7 +50,7 @@ class B2BLeadManagementTest extends TestCase
             'lead_type' => B2BLeadType::BusinessContact->value,
             'organization_type' => 'design_studio',
             'region' => 'Seoul',
-            'company_website' => 'https://shellfin.example.com',
+            'company_website' => 'https://oxp.example.com',
             'job_title' => 'Founder',
             'status' => B2BLeadStatus::New->value,
         ]);

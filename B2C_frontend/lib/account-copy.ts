@@ -193,7 +193,7 @@ export type AccountCopy = {
 const en: AccountCopy = {
   shell: {
     eyebrow: "Account Center",
-    title: "Your private Shellfin workspace",
+    title: "Your private OXP workspace",
     description:
       "Manage profile identity, shopping activity, addresses, community work, and account controls from one structured place.",
     privateWorkspace: "Private account workspace",
@@ -232,7 +232,7 @@ const en: AccountCopy = {
     accountHealthTitle: "Account health",
     accountHealthDescription:
       "Complete a few basics so checkout, profile, and support flows stay ready.",
-    readyMessage: "Your account is set up well for the current Shellfin flows.",
+    readyMessage: "Your account is set up well for the current OXP flows.",
     addBioAction: "Add a public bio",
     addDefaultAddressAction: "Add a default address",
     placeFirstOrderAction: "Place your first order",
@@ -301,7 +301,7 @@ const en: AccountCopy = {
       "Additional context for location, work, and collaboration.",
     identityTitle: "Account identity",
     identityDescription:
-      "Shared account details connected to your Shellfin sign-in.",
+      "Shared account details connected to your OXP sign-in.",
     locationLabel: "Location",
     locationPlaceholder: "City or country",
     regionLabel: "Region",
@@ -391,7 +391,7 @@ const en: AccountCopy = {
       "Password management and advanced privacy controls are not available in the current API yet.",
     sessionTitle: "Session",
     sessionDescription:
-      "Use sign out to end the current frontend session for this shared Shellfin account.",
+      "Use sign out to end the current frontend session for this shared OXP account.",
     manageProfile: "Manage profile",
     viewOrders: "View orders",
     signOut: "Sign out",
@@ -404,7 +404,7 @@ const en: AccountCopy = {
 const ko: AccountCopy = {
   shell: {
     eyebrow: "계정 센터",
-    title: "나만의 Shellfin 프라이빗 공간",
+    title: "나만의 OXP 프라이빗 공간",
     description: "프로필 정보, 쇼핑 내역, 주소, 커뮤니티 활동, 계정 설정을 한 곳에서 관리하세요.",
     privateWorkspace: "프라이빗 계정 공간",
     signedInAs: "{email}로 로그인됨",
@@ -439,7 +439,7 @@ const ko: AccountCopy = {
     notificationsLabel: "읽지 않은 알림",
     accountHealthTitle: "계정 상태",
     accountHealthDescription: "결제, 프로필, 고객 지원이 원활하게 이루어지도록 기본 정보를 완성해 주세요.",
-    readyMessage: "현재 Shellfin 흐름에 맞게 계정이 잘 설정되어 있습니다.",
+    readyMessage: "현재 OXP 흐름에 맞게 계정이 잘 설정되어 있습니다.",
     addBioAction: "공개 소개 추가",
     addDefaultAddressAction: "기본 주소 추가",
     placeFirstOrderAction: "첫 주문 하기",
@@ -502,7 +502,7 @@ const ko: AccountCopy = {
     professionalTitle: "개인 및 직업 정보",
     professionalDescription: "위치, 업무, 협업에 관한 추가 정보.",
     identityTitle: "계정 정보",
-    identityDescription: "Shellfin 계정에 연결된 공유 정보.",
+    identityDescription: "OXP 계정에 연결된 공유 정보.",
     locationLabel: "위치",
     locationPlaceholder: "도시 또는 국가",
     regionLabel: "지역",
@@ -581,7 +581,7 @@ const ko: AccountCopy = {
     securityTitle: "보안 및 개인정보",
     securityDescription: "비밀번호 관리와 고급 개인정보 설정은 현재 API에서 아직 지원되지 않습니다.",
     sessionTitle: "세션",
-    sessionDescription: "로그아웃하면 공유 Shellfin 계정의 현재 프론트엔드 세션이 종료됩니다.",
+    sessionDescription: "로그아웃하면 공유 OXP 계정의 현재 프론트엔드 세션이 종료됩니다.",
     manageProfile: "프로필 관리",
     viewOrders: "주문 보기",
     signOut: "로그아웃",
@@ -594,7 +594,7 @@ const ko: AccountCopy = {
 const zh: AccountCopy = {
   shell: {
     eyebrow: "账户中心",
-    title: "你的专属 Shellfin 私人工作台",
+    title: "你的专属 OXP 私人工作台",
     description: "在一个结构清晰的界面中管理个人身份、购物记录、收货地址、社区内容与账户设置。",
     privateWorkspace: "私人账户工作台",
     signedInAs: "当前登录：{email}",
@@ -629,7 +629,7 @@ const zh: AccountCopy = {
     notificationsLabel: "未读通知",
     accountHealthTitle: "账户健康",
     accountHealthDescription: "完成基础设置，确保结账、个人资料和支持流程顺畅进行。",
-    readyMessage: "你的账户已为当前 Shellfin 流程做好准备。",
+    readyMessage: "你的账户已为当前 OXP 流程做好准备。",
     addBioAction: "添加公开简介",
     addDefaultAddressAction: "添加默认地址",
     placeFirstOrderAction: "下第一单",
@@ -692,7 +692,7 @@ const zh: AccountCopy = {
     professionalTitle: "个人与职业信息",
     professionalDescription: "位置、工作和协作意向的补充信息。",
     identityTitle: "账户身份",
-    identityDescription: "与你的 Shellfin 账号关联的共享信息。",
+    identityDescription: "与你的 OXP 账号关联的共享信息。",
     locationLabel: "位置",
     locationPlaceholder: "城市或国家",
     regionLabel: "地区",
@@ -771,7 +771,7 @@ const zh: AccountCopy = {
     securityTitle: "安全与隐私",
     securityDescription: "密码管理和高级隐私设置在当前 API 中暂不支持。",
     sessionTitle: "会话",
-    sessionDescription: "使用退出登录结束此共享 Shellfin 账户的当前前端会话。",
+    sessionDescription: "使用退出登录结束此共享 OXP 账户的当前前端会话。",
     manageProfile: "管理资料",
     viewOrders: "查看订单",
     signOut: "退出登录",

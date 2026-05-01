@@ -48,6 +48,7 @@ export function AccountOrderDetailPage({
       return
     }
 
+    const authToken: string = token
     let cancelled = false
 
     async function loadOrder() {
@@ -55,7 +56,7 @@ export function AccountOrderDetailPage({
       setError(null)
 
       try {
-        const nextOrder = await getOrder(orderNumber, token)
+        const nextOrder = await getOrder(orderNumber, authToken)
         if (cancelled) return
         setOrder(nextOrder)
       } catch (loadError) {
@@ -73,7 +74,9 @@ export function AccountOrderDetailPage({
   }, [session.token, orderNumber])
 
   async function handleCancel() {
-    if (!session.token || !order) {
+    const authToken = session.token
+
+    if (!authToken || !order) {
       return
     }
 
@@ -82,7 +85,7 @@ export function AccountOrderDetailPage({
     }
 
     try {
-      const updatedOrder = await cancelOrder(order.order_number, session.token)
+      const updatedOrder = await cancelOrder(order.order_number, authToken)
       setOrder(updatedOrder)
     } catch (cancelError) {
       setError(getErrorMessage(cancelError))

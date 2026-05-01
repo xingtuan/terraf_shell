@@ -8,6 +8,7 @@ import { Menu, X } from "lucide-react"
 import { UserNav } from "@/components/layout/UserNav"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Button } from "@/components/ui/button"
+import { BRAND_DISPLAY_NAME } from "@/lib/brand"
 import {
   getLocalizedHref,
   type Locale,
@@ -63,7 +64,7 @@ export function Header({ locale, header, languageSwitcher }: HeaderProps) {
         <div className="flex h-20 items-center justify-between gap-4">
           <Link href={getLocalizedHref(locale)} className="flex items-center">
             <span className="font-serif text-2xl tracking-[0.28em] text-foreground">
-              SHELLFIN
+              {BRAND_DISPLAY_NAME}
             </span>
           </Link>
 

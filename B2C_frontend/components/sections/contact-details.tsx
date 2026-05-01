@@ -1,5 +1,6 @@
 import { Mail, MapPin, Phone } from "lucide-react"
 
+import { getBrandContactLabel } from "@/lib/brand"
 import type { SiteMessages } from "@/lib/i18n"
 
 type ContactDetailsSectionProps = {
@@ -29,6 +30,7 @@ export function ContactDetailsSection({
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {content.cards.map((card, index) => {
             const Icon = contactIcons[index] ?? Mail
+            const value = index === 0 ? getBrandContactLabel() : card.value
 
             return (
               <div
@@ -42,7 +44,7 @@ export function ContactDetailsSection({
                   {card.label}
                 </p>
                 <p className="mb-3 font-serif text-2xl text-foreground">
-                  {card.value}
+                  {value}
                 </p>
                 <p className="text-sm leading-relaxed text-muted-foreground">
                   {card.detail}

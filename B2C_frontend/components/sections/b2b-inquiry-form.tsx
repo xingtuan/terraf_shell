@@ -9,6 +9,7 @@ import {
   submitLeadForm,
   type LeadFormField,
 } from "@/lib/api/leads"
+import { BRAND_DISPLAY_NAME } from "@/lib/brand"
 import type { Locale, SiteMessages } from "@/lib/i18n"
 import type { LeadFormType, LeadFormValues } from "@/lib/types"
 import { Input } from "@/components/ui/input"
@@ -433,7 +434,7 @@ export function B2BInquiryFormSection({
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-3xl border border-border/60 bg-background p-8">
             <p className="mb-6 text-sm uppercase tracking-[0.18em] text-primary">
-              Shellfin
+              {BRAND_DISPLAY_NAME}
             </p>
             <div className="space-y-4 text-muted-foreground">
               {panelCopy.map((line) => (

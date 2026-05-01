@@ -6,10 +6,10 @@
     }
   },
   "meta": {
-    "siteName": "Shellfin",
+    "siteName": "OXP",
     "localeName": "中文",
-    "title": "Shellfin | 牡蛎壳颗粒、精品餐具与材料供应",
-    "description": "Shellfin 是一家韩国牡蛎壳材料公司，提供颗粒原料、压缩模塑餐具以及高端家居物件。"
+    "title": "OXP | 牡蛎壳颗粒、精品餐具与材料供应",
+    "description": "OXP 是一家韩国牡蛎壳材料公司，提供颗粒原料、压缩模塑餐具以及高端家居物件。"
   },
   "header": {
     "home": "首页",
@@ -43,7 +43,7 @@
     "phoneLabel": "电话",
     "locationLabel": "地点",
     "locationValue": "韩国",
-    "copyright": "© 2026 Shellfin. All rights reserved.",
+    "copyright": "© 2026 OXP. All rights reserved.",
     "privacy": "隐私政策",
     "terms": "使用条款"
   },
@@ -61,12 +61,12 @@
       ]
     },
     "whyItMatters": {
-      "eyebrow": "为什么选择 Shellfin",
+      "eyebrow": "为什么选择 OXP",
       "title": "不是表层可持续叙事，而是建立在牡蛎壳之上的高端材料故事。",
       "cards": [
         {
           "title": "更轻的日常体验",
-          "description": "Shellfin 被设计为比传统瓷器握持更轻，让高端物件在日常使用与服务场景中都更友好。"
+          "description": "OXP 被设计为比传统瓷器握持更轻，让高端物件在日常使用与服务场景中都更友好。"
         },
         {
           "title": "带有存在感的耐用性",
@@ -95,7 +95,7 @@
         {
           "number": "02",
           "title": "颗粒精制",
-          "description": "将贝壳矿物成分清洗、粉碎、精制，制成可控生产用的 Shellfin 颗粒。"
+          "description": "将贝壳矿物成分清洗、粉碎、精制，制成可控生产用的 OXP 颗粒。"
         },
         {
           "number": "03",
@@ -156,7 +156,7 @@
         {
           "title": "颗粒供应",
           "forWhom": "适用于转化商、制造商与材料采购方",
-          "description": "将 Shellfin 颗粒作为下一轮开发的原材料输入。",
+          "description": "将 OXP 颗粒作为下一轮开发的原材料输入。",
           "cta": "洽谈供应"
         },
         {
@@ -214,7 +214,7 @@
         {
           "name": "Terrafin",
           "formula": "ƒ(生物质) = OX复合材料",
-          "description": "材料功能。由木材、稻壳、生物炭、贝壳和矿物等区域废料制成的烯烃交联(OX)生物质复合材料。Shellfin(OX-S)是首个商业化产品线。"
+          "description": "材料功能。由木材、稻壳、生物炭、贝壳和矿物等区域废料制成的烯烃交联(OX)生物质复合材料。OXP (OX-S) 是首个商业化产品线。"
         },
         {
           "name": "Terrafactory",
@@ -261,7 +261,7 @@
     },
     "audiencePaths": {
       "eyebrow": "选择你的入口",
-      "title": "与 Shellfin 合作的三种方式。",
+      "title": "与 OXP 合作的三种方式。",
       "cards": [
         {
           "label": "面向消费者",
@@ -324,7 +324,7 @@
       ]
     },
     "finalCta": {
-      "title": "让 Shellfin 进入你的下一套餐具、颗粒项目或概念计划。",
+      "title": "让 OXP 进入你的下一套餐具、颗粒项目或概念计划。",
       "description": "可以先通过商店获取产品灵感，也可以直接联系团队进行 B2B 供应与开发沟通。",
       "primaryCta": "发送 B2B 询盘",
       "secondaryCta": "浏览商店"
@@ -333,7 +333,7 @@
   "material": {
     "origin": {
       "title": "材料起源",
-      "body": "Shellfin 始于被丢弃的牡蛎壳废弃物。回收后的贝壳经过净化与精制，制成富含矿物的颗粒，再通过压缩成型转化为高端产品。"
+      "body": "OXP 始于被丢弃的牡蛎壳废弃物。回收后的贝壳经过净化与精制，制成富含矿物的颗粒，再通过压缩成型转化为高端产品。"
     },
     "properties": {
       "weight": "比重 1.5-1.6，相比传统陶瓷 2.4 轻约 35%。",
@@ -346,7 +346,7 @@
     "process": {
       "step1": "回收收集：从沿海加工链回收并筛选牡蛎壳废弃物。",
       "step2": "热净化：在 200-700°C 范围内完成杀菌并形成矿物色调。",
-      "step3": "制粒：将净化后的贝壳矿物精制成 Shellfin 颗粒。",
+      "step3": "制粒：将净化后的贝壳矿物精制成 OXP 颗粒。",
       "step4": "压缩成型：将颗粒成型为轻量且耐冲击的产品与表面材料。"
     },
     "certifications": {
@@ -362,7 +362,7 @@
     "intro": {
       "eyebrow": "材料",
       "title": "面向更轻、更强、更自然的高端物件而设计的牡蛎壳颗粒。",
-      "description": "此页面聚焦 Shellfin 材料系统本身，包括牡蛎壳回收、颗粒精制、压缩模塑，以及供评审使用的技术叙事。",
+      "description": "此页面聚焦 OXP 材料系统本身，包括牡蛎壳回收、颗粒精制、压缩模塑，以及供评审使用的技术叙事。",
       "primaryCta": "申请材料说明",
       "secondaryCta": "联系材料团队"
     },
@@ -380,7 +380,7 @@
     },
     "grid": {
       "eyebrow": "产品网格",
-      "title": "适用于用餐、礼赠与安静居家仪式的 Shellfin 物件。",
+      "title": "适用于用餐、礼赠与安静居家仪式的 OXP 物件。",
       "description": "当前已发布的产品、品类、价格和供应状态均来自后端产品目录与管理面板。",
       "pricePrefix": "起价",
       "availabilityLabel": "供应状态",
@@ -410,7 +410,7 @@
       "allProductsTitle": "全部产品",
       "showingLabel": "第 {page} / {lastPage} 页",
       "emptyTitle": "没有符合这些筛选条件的产品。",
-      "emptyDescription": "调整价格范围、切换品类，或清除筛选条件以重新查看完整的 Shellfin 目录。",
+      "emptyDescription": "调整价格范围、切换品类，或清除筛选条件以重新查看完整的 OXP 目录。",
       "emptyAction": "重置目录",
       "errorTitle": "商店数据暂时不可用。",
       "errorDescription": "无法从 API 加载产品目录。站点其余部分仍可使用，商务询盘也仍可提交。",
@@ -421,8 +421,8 @@
       "title": "下单前的常见问题",
       "items": [
         {
-          "question": "Shellfin 餐具的耐用性如何？",
-          "answer": "Shellfin 产品围绕高端贝壳复合材料理念设计，具有低吸收率、稳定一致的表面质量，以及适合餐饮酒店场景的耐用性。实际表现仍取决于具体产品形态和生产批次。"
+          "question": "OXP 餐具的耐用性如何？",
+          "answer": "OXP 产品围绕高端贝壳复合材料理念设计，具有低吸收率、稳定一致的表面质量，以及适合餐饮酒店场景的耐用性。实际表现仍取决于具体产品形态和生产批次。"
         },
         {
           "question": "我可以为餐饮酒店或设计项目下单吗？",
@@ -442,14 +442,14 @@
   "b2bPage": {
     "intro": {
       "eyebrow": "B2B 供应",
-      "title": "与 Shellfin 合作采购牡蛎壳颗粒或共同开发成品。",
+      "title": "与 OXP 合作采购牡蛎壳颗粒或共同开发成品。",
       "description": "面向制造商、餐饮酒店集团、设计师与高端品牌，提供牡蛎壳材料供应、样品与联合开发。",
       "primaryCta": "发送询盘",
       "secondaryCta": "查看材料事实"
     },
     "form": {
       "eyebrow": "启动项目",
-      "title": "告诉我们你计划如何使用 Shellfin 颗粒或成品。",
+      "title": "告诉我们你计划如何使用 OXP 颗粒或成品。",
       "description": "该表单现已直接连接 Laravel 后端，可提交真实询盘记录，同时保留简洁的前端交互流程。",
       "fields": {
         "name": "姓名",
@@ -481,7 +481,7 @@
     "intro": {
       "eyebrow": "社区",
       "title": "分享想法、建立合作，并支持新的牡蛎壳概念项目。",
-      "description": "社区层面向设计师、工作室、创作者与支持者，帮助他们共同推动下一代 Shellfin 物件与材料实验。",
+      "description": "社区层面向设计师、工作室、创作者与支持者，帮助他们共同推动下一代 OXP 物件与材料实验。",
       "primaryCta": "分享创意",
       "secondaryCta": "支持概念"
     },
@@ -499,19 +499,19 @@
   "contactPage": {
     "intro": {
       "eyebrow": "联系",
-      "title": "与 Shellfin 讨论材料供应、产品或合作概念。",
+      "title": "与 OXP 讨论材料供应、产品或合作概念。",
       "description": "可通过直接联系方式进行快速沟通，也可以使用结构化表单提交项目简报。",
       "primaryCta": "发送邮件",
       "secondaryCta": "打开 B2B 询盘"
     },
     "details": {
-      "eyebrow": "联系 Shellfin",
+      "eyebrow": "联系 OXP",
       "title": "为零售、B2B 与社区合作准备的直接沟通入口。",
       "description": "该联系层让商务、产品与概念交流保持清晰，同时为未来 CRM 后端集成预留结构。",
       "cards": [
         {
           "label": "邮箱",
-          "value": "hello@shellfin.kr",
+          "value": "Contact email pending",
           "detail": "一般咨询、零售与产品问题"
         },
         {
@@ -529,10 +529,10 @@
     }
   },
   "articleFeed": {
-    "fallbackExcerpt": "最新的 Shellfin 编辑内容现已可通过后端内容 API 获取。",
+    "fallbackExcerpt": "最新的 OXP 编辑内容现已可通过后端内容 API 获取。",
     "emptyTitle": "尚未发布文章",
     "emptyDescription": "此区域已连接到后端文章流，但目前还没有已发布的更新。",
-    "badgeLabel": "Shellfin 更新",
+    "badgeLabel": "OXP 更新",
     "readArticle": "阅读文章",
     "defaultEyebrow": "最新更新",
     "defaultTitle": "最新的材料与工作室更新。",
@@ -545,7 +545,7 @@
     "signOut": "退出登录",
     "signIn": "登录",
     "dialogTitle": "登录",
-    "dialogDescription": "使用 Shellfin 在社区和商店流程中共用的账户登录。"
+    "dialogDescription": "使用 OXP 在社区和商店流程中共用的账户登录。"
   },
   "storeNav": {
     "eyebrow": "商店",
@@ -559,7 +559,7 @@
     "title": "你的购物车（{count} 件商品）",
     "guestHint": "游客购物车会保留，并会在登录后合并到你的账户中。",
     "emptyTitle": "你的购物车为空",
-    "emptyDescription": "添加一件 Shellfin 产品，开始提交订单请求。",
+    "emptyDescription": "添加一件 OXP 产品，开始提交订单请求。",
     "browseCollection": "浏览我们的系列",
     "productUnavailable": "产品不可用",
     "decreaseQuantity": "减少数量",
@@ -574,14 +574,14 @@
     "signInToCheckout": "登录后结账",
     "clearCart": "清空购物车",
     "signInDialogTitle": "登录以继续",
-    "signInDialogDescription": "使用与社区共用的同一 Shellfin 账户登录。"
+    "signInDialogDescription": "使用与社区共用的同一 OXP 账户登录。"
   },
   "cartPage": {
     "emptyTitle": "你的购物车为空",
-    "emptyDescription": "添加 Shellfin 产品即可开始使用游客购物车。若你稍后登录，当前购物车会合并到你的账户中。",
+    "emptyDescription": "添加 OXP 产品即可开始使用游客购物车。若你稍后登录，当前购物车会合并到你的账户中。",
     "browseCollection": "浏览系列",
     "eyebrow": "购物车",
-    "title": "确认你的 Shellfin 已选商品",
+    "title": "确认你的 OXP 已选商品",
     "clearCart": "清空购物车",
     "productUnavailable": "产品不可用",
     "remove": "移除",
@@ -598,16 +598,16 @@
     "signInToCheckout": "登录后结账",
     "continueShopping": "继续购物",
     "signInDialogTitle": "登录以继续",
-    "signInDialogDescription": "使用与社区共用的同一 Shellfin 账户登录。"
+    "signInDialogDescription": "使用与社区共用的同一 OXP 账户登录。"
   },
   "checkout": {
     "emptyTitle": "你的购物车为空",
-    "emptyDescription": "继续结账前，请先添加 Shellfin 产品。",
+    "emptyDescription": "继续结账前，请先添加 OXP 产品。",
     "browseCollection": "浏览系列",
     "backToCart": "返回购物车",
     "eyebrow": "结账",
     "title": "配送与订单确认",
-    "description": "订单通过共享的 Shellfin 账户流程提交。当前已具备运费结构，而税费在完整商业计算器上线前仍为占位信息。",
+    "description": "订单通过共享的 OXP 账户流程提交。当前已具备运费结构，而税费在完整商业计算器上线前仍为占位信息。",
     "savedAddresses": "已保存地址",
     "defaultBadge": "默认",
     "useThisAddress": "使用此地址",
@@ -630,7 +630,7 @@
     "confirmationNote": "订单将由人工确认。审核完成后，你会收到确认邮件。",
     "placingOrder": "正在下单...",
     "placeOrder": "提交订单",
-    "productFallback": "Shellfin 产品",
+    "productFallback": "OXP 产品",
     "countries": {
       "KR": "韩国",
       "NZ": "新西兰",
@@ -672,7 +672,7 @@
     "title": "订单历史",
     "loading": "正在加载订单...",
     "emptyTitle": "还没有订单",
-    "emptyDescription": "浏览 Shellfin 系列，完成你的第一笔订单。",
+    "emptyDescription": "浏览 OXP 系列，完成你的第一笔订单。",
     "browseCollection": "浏览系列",
     "pendingDate": "待处理日期",
     "viewDetails": "查看详情",
@@ -709,7 +709,7 @@
     "requestSample": "申请样品",
     "backToStore": "返回商店",
     "pageFallbackEyebrow": "产品",
-    "pageFallbackDescription": "查看 Shellfin 产品规格、供应状态与询盘选项。",
+    "pageFallbackDescription": "查看 OXP 产品规格、供应状态与询盘选项。",
     "pageErrorTitle": "产品详情暂时不可用。",
     "pageErrorDescription": "无法从 API 加载产品页面。你仍可以浏览商店或直接联系团队。",
     "soldOutMessage": "该批次已售罄。你可以申请补货更新或样品包，团队将引导你了解下一次发售安排。",
@@ -727,7 +727,7 @@
     "bulkEnquiryDescription": "适用于正在评估 MOQ 和交付周期的餐饮集团、设计工作室与酒店采购方。",
     "bulkEnquiryAction": "打开询盘",
     "requestSampleTitle": "申请样品",
-    "requestSampleDescription": "在作出更大规模决策前，先查看 Shellfin 的表面、密度和护理说明。",
+    "requestSampleDescription": "在作出更大规模决策前，先查看 OXP 的表面、密度和护理说明。",
     "requestSampleAction": "申请样品",
     "materialReviewTitle": "材料解读",
     "materialReviewDescription": "了解该产品背后的牡蛎壳材料系统及其可持续叙事。",
@@ -738,8 +738,8 @@
   },
   "community": {
     "layout": {
-      "title": "Shellfin 社区",
-      "description": "一个让设计师与创作者分享 Shellfin 产品创意、材料实验和可持续生活理念的空间。",
+      "title": "OXP 社区",
+      "description": "一个让设计师与创作者分享 OXP 产品创意、材料实验和可持续生活理念的空间。",
       "shareButton": "分享你的设计创意",
       "signIn": "登录",
       "viewProfile": "查看个人主页",
@@ -747,7 +747,7 @@
     },
     "auth": {
       "title": "社区访问",
-      "description": "登录后即可发布创意、关注创作者，并参与围绕 Shellfin 材料应用的讨论。",
+      "description": "登录后即可发布创意、关注创作者，并参与围绕 OXP 材料应用的讨论。",
       "loginTab": "登录",
       "registerTab": "注册",
       "loadingSession": "正在检查你的已保存会话...",
@@ -769,7 +769,7 @@
       "namePlaceholder": "取个昵称吧",
       "usernamePlaceholder": "唯一用户名",
       "signInToContinue": "登录以继续",
-      "loadingAccount": "正在加载你的 Shellfin 账户..."
+      "loadingAccount": "正在加载你的 OXP 账户..."
     },
     "report": {
       "button": "举报",
@@ -793,10 +793,10 @@
     },
     "feed": {
       "eyebrow": "社区动态",
-      "title": "来自 Shellfin 社区的设计创意",
+      "title": "来自 OXP 社区的设计创意",
       "description": "浏览产品概念、材料与工艺实验、合作创意和可持续生活讨论。",
       "resultsTitlePrefix": "搜索结果：",
-      "resultsDescription": "这些内容与您的搜索相关，可帮助您探索相关 Shellfin 创意。",
+      "resultsDescription": "这些内容与您的搜索相关，可帮助您探索相关 OXP 创意。",
       "latest": "最新",
       "hot": "热门",
       "categoryFilter": "分类",
@@ -816,7 +816,7 @@
       "goToPage": "前往",
       "loading": "加载中...",
       "emptyTitle": "还没有帖子",
-      "emptyDescription": "社区已准备就绪，分享第一个 Shellfin 创意来开启讨论吧。",
+      "emptyDescription": "社区已准备就绪，分享第一个 OXP 创意来开启讨论吧。",
       "noResultsTitle": "未找到结果",
       "noResults": "尝试其他关键词或浏览最新的社区帖子。",
       "readMore": "查看更多",
@@ -825,7 +825,7 @@
     },
     "form": {
       "createTitle": "上传设计创意",
-      "createDescription": "描述你的设计创意、Shellfin 材料可以用于什么产品，以及它为何有价值。",
+      "createDescription": "描述你的设计创意、OXP 材料可以用于什么产品，以及它为何有价值。",
       "editTitle": "编辑帖子",
       "editDescription": "更新你的设计创意标题、内容、附件或筹资链接。",
       "titleLabel": "标题",
@@ -838,7 +838,7 @@
       "fundingLabel": "筹资链接",
       "fundingPlaceholder": "此设计的 GoFundMe 或 Kickstarter 链接",
       "contentLabel": "内容",
-      "contentPlaceholder": "描述你的设计创意、Shellfin 材料可以用于什么产品，以及它为何有价值。",
+      "contentPlaceholder": "描述你的设计创意、OXP 材料可以用于什么产品，以及它为何有价值。",
       "excerptLabel": "摘要",
       "excerptPlaceholder": "可选的卡片与预览摘要。",
       "excerptHint": "留空时会根据编辑器内容自动生成摘要。",

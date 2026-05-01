@@ -1,6 +1,6 @@
-# Shellfin Frontend
+# OXP Frontend
 
-The Next.js 16 frontend for the Shellfin brand platform. It serves as a multi-language brand site, B2C product storefront, B2B inquiry hub, and community space for creators working with oyster shell materials.
+The Next.js 16 frontend for the OXP brand platform. It serves as a multi-language brand site, B2C product storefront, B2B inquiry hub, and community space for creators working with oyster shell materials.
 
 Built with the App Router, TypeScript, Tailwind CSS 4, and a clear separation between server-rendered content pages and client-interactive community features.
 
@@ -72,6 +72,7 @@ node scripts/check-i18n-keys.mjs
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | `/api` | Backend API base URL. Change to an absolute URL (e.g., `http://127.0.0.1:8000/api`) when running frontend and backend on different ports without a reverse proxy. |
 | `NEXT_PUBLIC_MEDIA_BASE_URL` | *(empty)* | Optional CDN base URL for media assets served from Azure Blob Storage. |
+| `NEXT_PUBLIC_BRAND_CONTACT_EMAIL` | *(empty)* | Optional confirmed OXP contact email. Leave empty until the client confirms the final address. |
 
 ---
 
@@ -244,7 +245,7 @@ All backend calls go through the central client at `lib/api/client.ts`. It handl
 - **Unified error handling** — throws a typed `ApiError` on non-2xx responses
 - **Response parsing** — unwraps the backend's `{ success, data, meta }` envelope
 
-The token is stored at key `shellfin.community.auth-token` in `localStorage`.
+The token is stored at key `oxp.community.auth-token` in `localStorage`.
 
 ### Authentication Flow
 

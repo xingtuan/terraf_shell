@@ -4,6 +4,7 @@ import { PageIntro } from "@/components/page-intro"
 import { B2BInquiryFormSection } from "@/components/sections/b2b-inquiry-form"
 import { ContactDetailsSection } from "@/components/sections/contact-details"
 import { FinalCtaSection } from "@/components/sections/final-cta"
+import { getBrandContactHref } from "@/lib/brand"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
 
@@ -24,7 +25,7 @@ export default async function ContactPage({ params }: ContactPageProps) {
         description={intro.description}
         primaryAction={{
           label: intro.primaryCta,
-          href: "mailto:hello@shellfin.kr",
+          href: getBrandContactHref("#contact-form"),
         }}
         secondaryAction={{
           label: intro.secondaryCta,

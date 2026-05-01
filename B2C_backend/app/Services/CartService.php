@@ -11,7 +11,9 @@ use Illuminate\Validation\ValidationException;
 
 class CartService
 {
-    public const COOKIE_NAME = 'shellfin_cart_session';
+    public const COOKIE_NAME = 'oxp_cart_session';
+
+    public const LEGACY_COOKIE_NAME = 'shell'.'fin_cart_session';
 
     public const COOKIE_TTL_MINUTES = 43_200;
 
@@ -28,7 +30,7 @@ class CartService
             return $cart->load(['items.product']);
         }
 
-        $sessionKey = trim((string) $request->cookie(self::COOKIE_NAME, ''));
+        $sessionKey = $this->sessionKeyFromRequest($request);
         $cart = null;
 
         if ($sessionKey !== '') {
@@ -188,5 +190,16 @@ class CartService
                 'quantity' => ['Requested quantity exceeds current stock availability.'],
             ]);
         }
+    }
+
+    private function sessionKeyFromRequest(Request $request): string
+    {
+        $sessionKey = trim((string) $request->cookie(self::COOKIE_NAME, ''));
+
+        if ($sessionKey !== '') {
+            return $sessionKey;
+        }
+
+        return trim((string) $request->cookie(self::LEGACY_COOKIE_NAME, ''));
     }
 }

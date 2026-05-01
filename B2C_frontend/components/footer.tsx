@@ -1,6 +1,11 @@
 import Link from "next/link"
 import { Mail, MapPin, Phone } from "lucide-react"
 
+import {
+  BRAND_DISPLAY_NAME,
+  getBrandContactHref,
+  getBrandContactLabel,
+} from "@/lib/brand"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 
 type FooterProps = {
@@ -40,8 +45,8 @@ export function Footer({ locale, header, footer }: FooterProps) {
     {
       icon: Mail,
       label: footer.emailLabel,
-      value: "hello@shellfin.kr",
-      href: "mailto:hello@shellfin.kr",
+      value: getBrandContactLabel(),
+      href: getBrandContactHref(`${getLocalizedHref(locale, "contact")}#contact-form`),
     },
     {
       icon: Phone,
@@ -64,7 +69,7 @@ export function Footer({ locale, header, footer }: FooterProps) {
           <div className="lg:col-span-4">
             <Link href={getLocalizedHref(locale)} className="inline-block">
               <span className="font-serif text-3xl tracking-[0.28em] text-background">
-                SHELLFIN
+                {BRAND_DISPLAY_NAME}
               </span>
             </Link>
             <p className="mt-6 max-w-sm text-background/72 leading-relaxed">

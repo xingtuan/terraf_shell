@@ -46,6 +46,7 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
       return
     }
 
+    const authToken: string = token
     let cancelled = false
 
     async function loadOrders() {
@@ -53,7 +54,7 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
       setError(null)
 
       try {
-        const response = await getOrders(token, page, 10)
+        const response = await getOrders(authToken, page, 10)
         if (cancelled) return
         setOrders(response.items)
         setLastPage(response.meta.last_page)
@@ -85,7 +86,9 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
   )
 
   async function handleCancel(orderNumber: string) {
-    if (!session.token) {
+    const authToken = session.token
+
+    if (!authToken) {
       return
     }
 
@@ -94,7 +97,7 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
     }
 
     try {
-      const updatedOrder = await cancelOrder(orderNumber, session.token)
+      const updatedOrder = await cancelOrder(orderNumber, authToken)
       setOrders((currentOrders) =>
         currentOrders.map((order) =>
           order.order_number === orderNumber ? updatedOrder : order,

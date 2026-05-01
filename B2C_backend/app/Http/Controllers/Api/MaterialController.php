@@ -23,7 +23,7 @@ class MaterialController extends Controller
     private function payload(): array
     {
         return [
-            'name' => 'Shellfin',
+            'name' => 'OXP',
             'tagline' => "Ocean's Legacy, Crafted with Artisan Tech.",
             'origin' => 'Recycled oyster shells collected from coastal waste streams',
             'process_steps' => [

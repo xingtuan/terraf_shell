@@ -6,7 +6,7 @@ function buildLeadHref(
   leadType: string,
   product: Pick<Product, "slug" | "name" | "category">,
 ) {
-  const url = new URL(getLocalizedHref(locale, "b2b"), "https://shellfin.local")
+  const url = new URL(getLocalizedHref(locale, "b2b"), "https://oxp.local")
 
   url.searchParams.set("leadType", leadType)
   url.searchParams.set("product", product.slug)

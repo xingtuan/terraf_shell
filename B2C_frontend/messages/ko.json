@@ -6,10 +6,10 @@
     }
   },
   "meta": {
-    "siteName": "Shellfin",
+    "siteName": "OXP",
     "localeName": "한국어",
-    "title": "Shellfin | 굴 패각 펠릿, 프리미엄 테이블웨어, 소재 공급",
-    "description": "Shellfin은 한국의 굴 패각을 기반으로 펠릿, 압축 성형 테이블웨어, 프리미엄 홈 오브제를 만드는 소재 기업입니다."
+    "title": "OXP | 굴 패각 펠릿, 프리미엄 테이블웨어, 소재 공급",
+    "description": "OXP은 한국의 굴 패각을 기반으로 펠릿, 압축 성형 테이블웨어, 프리미엄 홈 오브제를 만드는 소재 기업입니다."
   },
   "header": {
     "home": "홈",
@@ -43,7 +43,7 @@
     "phoneLabel": "전화",
     "locationLabel": "위치",
     "locationValue": "대한민국",
-    "copyright": "© 2026 Shellfin. All rights reserved.",
+    "copyright": "© 2026 OXP. All rights reserved.",
     "privacy": "개인정보 처리방침",
     "terms": "이용약관"
   },
@@ -61,12 +61,12 @@
       ]
     },
     "whyItMatters": {
-      "eyebrow": "왜 Shellfin인가",
+      "eyebrow": "왜 OXP인가",
       "title": "겉보기 친환경이 아닌, 굴 패각에 기반한 프리미엄 소재 스토리.",
       "cards": [
         {
           "title": "더 가벼운 일상 사용성",
-          "description": "Shellfin은 기존 도자기보다 손에 들었을 때 더 가볍게 느껴지도록 설계되어 프리미엄 오브제를 일상과 서비스 환경 모두에 적합하게 만듭니다."
+          "description": "OXP은 기존 도자기보다 손에 들었을 때 더 가볍게 느껴지도록 설계되어 프리미엄 오브제를 일상과 서비스 환경 모두에 적합하게 만듭니다."
         },
         {
           "title": "존재감 있는 내구성",
@@ -95,7 +95,7 @@
         {
           "number": "02",
           "title": "펠릿 정제",
-          "description": "패각의 미네랄 성분을 세정, 분쇄, 정제하여 제어 가능한 생산용 Shellfin 펠릿으로 만듭니다."
+          "description": "패각의 미네랄 성분을 세정, 분쇄, 정제하여 제어 가능한 생산용 OXP 펠릿으로 만듭니다."
         },
         {
           "number": "03",
@@ -156,7 +156,7 @@
         {
           "title": "펠릿 공급",
           "forWhom": "컨버터, 제조사, 소재 바이어 대상",
-          "description": "다음 개발 사이클을 위한 원재료로 Shellfin 펠릿을 공급합니다.",
+          "description": "다음 개발 사이클을 위한 원재료로 OXP 펠릿을 공급합니다.",
           "cta": "공급 문의"
         },
         {
@@ -261,7 +261,7 @@
     },
     "audiencePaths": {
       "eyebrow": "경로를 선택하세요",
-      "title": "Shellfin과 함께하는 세 가지 방식.",
+      "title": "OXP과 함께하는 세 가지 방식.",
       "cards": [
         {
           "label": "소비자를 위해",
@@ -324,7 +324,7 @@
       ]
     },
     "finalCta": {
-      "title": "다음 테이블웨어, 펠릿, 혹은 컨셉 프로그램에 Shellfin을 적용해보세요.",
+      "title": "다음 테이블웨어, 펠릿, 혹은 컨셉 프로그램에 OXP을 적용해보세요.",
       "description": "제품 영감은 스토어에서 확인하고, B2B 공급과 개발은 팀에 직접 문의할 수 있습니다.",
       "primaryCta": "B2B 문의하기",
       "secondaryCta": "스토어 둘러보기"
@@ -333,7 +333,7 @@
   "material": {
     "origin": {
       "title": "원료 스토리",
-      "body": "Shellfin은 버려지는 굴패각 폐기물에서 시작합니다. 수거된 패각은 정화와 정제를 거쳐 미네랄이 풍부한 펠릿으로 만들어지고, 다시 압축성형을 통해 프리미엄 제품으로 완성됩니다."
+      "body": "OXP은 버려지는 굴패각 폐기물에서 시작합니다. 수거된 패각은 정화와 정제를 거쳐 미네랄이 풍부한 펠릿으로 만들어지고, 다시 압축성형을 통해 프리미엄 제품으로 완성됩니다."
     },
     "properties": {
       "weight": "비중 1.5-1.6으로 일반 도자기 2.4 대비 약 35% 가볍습니다.",
@@ -346,7 +346,7 @@
     "process": {
       "step1": "수거: 해안 가공 공정에서 굴패각 폐기물을 회수하고 선별합니다.",
       "step2": "열 정화: 200-700°C 구간에서 살균하며 미네랄 톤을 형성합니다.",
-      "step3": "펠릿화: 정제된 패각 미네랄을 Shellfin 펠릿으로 가공합니다.",
+      "step3": "펠릿화: 정제된 패각 미네랄을 OXP 펠릿으로 가공합니다.",
       "step4": "압축성형: 펠릿을 가볍고 충격에 강한 제품과 표면재로 성형합니다."
     },
     "certifications": {
@@ -362,7 +362,7 @@
     "intro": {
       "eyebrow": "소재",
       "title": "더 가볍고 더 단단하며 더 자연스러운 프리미엄 오브제를 위한 굴 패각 펠릿.",
-      "description": "이 페이지는 Shellfin 소재 시스템 자체에 집중합니다. 굴 패각 회수, 펠릿 정제, 압축 성형, 그리고 검토를 위한 기술적 스토리를 한곳에 정리했습니다.",
+      "description": "이 페이지는 OXP 소재 시스템 자체에 집중합니다. 굴 패각 회수, 펠릿 정제, 압축 성형, 그리고 검토를 위한 기술적 스토리를 한곳에 정리했습니다.",
       "primaryCta": "소재 시트 요청",
       "secondaryCta": "소재팀 문의"
     },
@@ -380,7 +380,7 @@
     },
     "grid": {
       "eyebrow": "제품 그리드",
-      "title": "다이닝, 기프팅, 차분한 인테리어 루틴을 위한 Shellfin 오브제.",
+      "title": "다이닝, 기프팅, 차분한 인테리어 루틴을 위한 OXP 오브제.",
       "description": "게시된 제품, 카테고리, 가격, 재고 상태는 이제 백엔드 제품 카탈로그와 관리자 패널에서 불러옵니다.",
       "pricePrefix": "시작가",
       "availabilityLabel": "공급 상태",
@@ -410,7 +410,7 @@
       "allProductsTitle": "전체 제품",
       "showingLabel": "{lastPage}페이지 중 {page}페이지",
       "emptyTitle": "조건에 맞는 제품이 없습니다.",
-      "emptyDescription": "가격 범위를 조정하거나 카테고리를 바꾸거나 필터를 해제해 전체 Shellfin 카탈로그를 다시 확인해 보세요.",
+      "emptyDescription": "가격 범위를 조정하거나 카테고리를 바꾸거나 필터를 해제해 전체 OXP 카탈로그를 다시 확인해 보세요.",
       "emptyAction": "카탈로그 초기화",
       "errorTitle": "스토어 데이터를 불러올 수 없습니다.",
       "errorDescription": "API에서 제품 카탈로그를 가져오지 못했습니다. 다른 사이트 기능은 계속 사용할 수 있으며 비즈니스 문의도 제출할 수 있습니다.",
@@ -421,8 +421,8 @@
       "title": "주문 전 자주 묻는 질문",
       "items": [
         {
-          "question": "Shellfin 테이블웨어는 얼마나 내구성이 있나요?",
-          "answer": "Shellfin 제품은 낮은 흡수율, 일관된 마감 품질, 호스피탈리티 환경을 고려한 내구성을 바탕으로 설계되었습니다. 다만 실제 성능은 제품 형태와 생산 배치에 따라 달라질 수 있습니다."
+          "question": "OXP 테이블웨어는 얼마나 내구성이 있나요?",
+          "answer": "OXP 제품은 낮은 흡수율, 일관된 마감 품질, 호스피탈리티 환경을 고려한 내구성을 바탕으로 설계되었습니다. 다만 실제 성능은 제품 형태와 생산 배치에 따라 달라질 수 있습니다."
         },
         {
           "question": "호스피탈리티 또는 디자인 프로젝트용으로 주문할 수 있나요?",
@@ -442,14 +442,14 @@
   "b2bPage": {
     "intro": {
       "eyebrow": "B2B 공급",
-      "title": "Shellfin과 함께 굴 패각 펠릿을 공급받거나 완제품을 공동 개발하세요.",
+      "title": "OXP과 함께 굴 패각 펠릿을 공급받거나 완제품을 공동 개발하세요.",
       "description": "굴 패각 소재 공급, 샘플, 공동 개발이 필요한 제조사, 호스피탈리티 그룹, 디자이너, 프리미엄 브랜드를 위한 페이지입니다.",
       "primaryCta": "문의 보내기",
       "secondaryCta": "소재 정보 보기"
     },
     "form": {
       "eyebrow": "프로젝트 시작",
-      "title": "Shellfin 펠릿 또는 완제품을 어떻게 활용할지 알려주세요.",
+      "title": "OXP 펠릿 또는 완제품을 어떻게 활용할지 알려주세요.",
       "description": "이 폼은 이제 Laravel 백엔드에 직접 연결되어 실제 문의 레코드를 생성하면서도 기존의 간결한 프런트엔드 흐름을 유지합니다.",
       "fields": {
         "name": "이름",
@@ -481,7 +481,7 @@
     "intro": {
       "eyebrow": "커뮤니티",
       "title": "아이디어를 공유하고, 협업을 만들고, 새로운 굴 패각 컨셉을 지원하세요.",
-      "description": "커뮤니티 레이어는 디자이너, 스튜디오, 메이커, 서포터가 다음 Shellfin 오브제와 소재 실험을 함께 만들어가기 위해 설계되었습니다.",
+      "description": "커뮤니티 레이어는 디자이너, 스튜디오, 메이커, 서포터가 다음 OXP 오브제와 소재 실험을 함께 만들어가기 위해 설계되었습니다.",
       "primaryCta": "아이디어 공유",
       "secondaryCta": "컨셉 지원"
     },
@@ -499,7 +499,7 @@
   "contactPage": {
     "intro": {
       "eyebrow": "문의",
-      "title": "소재 공급, 제품, 협업 컨셉에 대해 Shellfin과 이야기하세요.",
+      "title": "소재 공급, 제품, 협업 컨셉에 대해 OXP과 이야기하세요.",
       "description": "빠른 상담은 직접 연락처를 이용하고, 구조화된 프로젝트 브리프는 문의 폼으로 전달할 수 있습니다.",
       "primaryCta": "이메일 보내기",
       "secondaryCta": "B2B 문의 열기"
@@ -511,7 +511,7 @@
       "cards": [
         {
           "label": "이메일",
-          "value": "hello@shellfin.kr",
+          "value": "Contact email pending",
           "detail": "일반 문의, 리테일, 제품 문의"
         },
         {
@@ -529,10 +529,10 @@
     }
   },
   "articleFeed": {
-    "fallbackExcerpt": "최신 Shellfin 에디토리얼 업데이트는 이제 백엔드 콘텐츠 API를 통해 제공됩니다.",
+    "fallbackExcerpt": "최신 OXP 에디토리얼 업데이트는 이제 백엔드 콘텐츠 API를 통해 제공됩니다.",
     "emptyTitle": "아직 게시된 아티클이 없습니다",
     "emptyDescription": "이 섹션은 백엔드 아티클 피드에 연결되어 있지만, 현재 게시된 업데이트가 없습니다.",
-    "badgeLabel": "Shellfin 업데이트",
+    "badgeLabel": "OXP 업데이트",
     "readArticle": "아티클 읽기",
     "defaultEyebrow": "최신 업데이트",
     "defaultTitle": "최신 소재 및 스튜디오 업데이트.",
@@ -545,7 +545,7 @@
     "signOut": "로그아웃",
     "signIn": "로그인",
     "dialogTitle": "로그인",
-    "dialogDescription": "커뮤니티와 스토어 흐름 전반에서 공용으로 사용하는 Shellfin 계정으로 로그인하세요."
+    "dialogDescription": "커뮤니티와 스토어 흐름 전반에서 공용으로 사용하는 OXP 계정으로 로그인하세요."
   },
   "storeNav": {
     "eyebrow": "스토어",
@@ -559,7 +559,7 @@
     "title": "장바구니 ({count}개 상품)",
     "guestHint": "비회원 장바구니는 유지되며 로그인 후 계정과 병합됩니다.",
     "emptyTitle": "장바구니가 비어 있습니다",
-    "emptyDescription": "주문 요청을 시작하려면 Shellfin 제품을 추가하세요.",
+    "emptyDescription": "주문 요청을 시작하려면 OXP 제품을 추가하세요.",
     "browseCollection": "컬렉션 둘러보기",
     "productUnavailable": "상품 이용 불가",
     "decreaseQuantity": "수량 줄이기",
@@ -574,14 +574,14 @@
     "signInToCheckout": "로그인 후 결제",
     "clearCart": "장바구니 비우기",
     "signInDialogTitle": "계속하려면 로그인하세요",
-    "signInDialogDescription": "커뮤니티에서 사용하는 동일한 Shellfin 계정으로 로그인하세요."
+    "signInDialogDescription": "커뮤니티에서 사용하는 동일한 OXP 계정으로 로그인하세요."
   },
   "cartPage": {
     "emptyTitle": "장바구니가 비어 있습니다",
-    "emptyDescription": "Shellfin 상품을 추가해 비회원 장바구니를 시작하세요. 나중에 로그인하면 현재 장바구니가 계정에 병합됩니다.",
+    "emptyDescription": "OXP 상품을 추가해 비회원 장바구니를 시작하세요. 나중에 로그인하면 현재 장바구니가 계정에 병합됩니다.",
     "browseCollection": "컬렉션 둘러보기",
     "eyebrow": "장바구니",
-    "title": "선택한 Shellfin 상품 검토",
+    "title": "선택한 OXP 상품 검토",
     "clearCart": "장바구니 비우기",
     "productUnavailable": "상품 이용 불가",
     "remove": "삭제",
@@ -598,16 +598,16 @@
     "signInToCheckout": "로그인 후 결제",
     "continueShopping": "쇼핑 계속하기",
     "signInDialogTitle": "계속하려면 로그인하세요",
-    "signInDialogDescription": "커뮤니티에서 사용하는 동일한 Shellfin 계정으로 로그인하세요."
+    "signInDialogDescription": "커뮤니티에서 사용하는 동일한 OXP 계정으로 로그인하세요."
   },
   "checkout": {
     "emptyTitle": "장바구니가 비어 있습니다",
-    "emptyDescription": "결제를 계속하기 전에 Shellfin 상품을 추가하세요.",
+    "emptyDescription": "결제를 계속하기 전에 OXP 상품을 추가하세요.",
     "browseCollection": "컬렉션 둘러보기",
     "backToCart": "장바구니로 돌아가기",
     "eyebrow": "결제",
     "title": "배송 및 주문 확인",
-    "description": "주문은 공용 Shellfin 계정 흐름을 통해 처리됩니다. 배송비는 현재 구조화되어 있으며 세금은 전체 커머스 계산기가 도입될 때까지 플레이스홀더로 유지됩니다.",
+    "description": "주문은 공용 OXP 계정 흐름을 통해 처리됩니다. 배송비는 현재 구조화되어 있으며 세금은 전체 커머스 계산기가 도입될 때까지 플레이스홀더로 유지됩니다.",
     "savedAddresses": "저장된 주소",
     "defaultBadge": "기본",
     "useThisAddress": "이 주소 사용",
@@ -630,7 +630,7 @@
     "confirmationNote": "주문은 수동으로 확인됩니다. 주문 검토가 완료되면 확인 이메일을 받게 됩니다.",
     "placingOrder": "주문 처리 중...",
     "placeOrder": "주문하기",
-    "productFallback": "Shellfin 제품",
+    "productFallback": "OXP 제품",
     "countries": {
       "KR": "대한민국",
       "NZ": "뉴질랜드",
@@ -672,7 +672,7 @@
     "title": "주문 내역",
     "loading": "주문을 불러오는 중...",
     "emptyTitle": "아직 주문이 없습니다",
-    "emptyDescription": "Shellfin 컬렉션을 둘러보고 첫 주문을 해보세요.",
+    "emptyDescription": "OXP 컬렉션을 둘러보고 첫 주문을 해보세요.",
     "browseCollection": "컬렉션 둘러보기",
     "pendingDate": "대기 일자",
     "viewDetails": "상세 보기",
@@ -709,7 +709,7 @@
     "requestSample": "샘플 요청",
     "backToStore": "스토어로 돌아가기",
     "pageFallbackEyebrow": "제품",
-    "pageFallbackDescription": "Shellfin 제품 사양, 공급 상태, 문의 옵션을 확인하세요.",
+    "pageFallbackDescription": "OXP 제품 사양, 공급 상태, 문의 옵션을 확인하세요.",
     "pageErrorTitle": "제품 정보를 일시적으로 불러올 수 없습니다.",
     "pageErrorDescription": "API에서 제품 페이지를 가져오지 못했습니다. 스토어를 계속 둘러보거나 팀에 직접 문의하세요.",
     "soldOutMessage": "이 배치는 품절되었습니다. 재입고 알림이나 샘플 팩을 요청하시면 팀이 다음 출시 일정으로 안내해 드립니다.",
@@ -727,7 +727,7 @@
     "bulkEnquiryDescription": "MOQ와 리드타임을 검토하는 레스토랑 그룹, 디자인 스튜디오, 호스피탈리티 바이어를 위한 안내입니다.",
     "bulkEnquiryAction": "문의 열기",
     "requestSampleTitle": "샘플 요청",
-    "requestSampleDescription": "더 큰 결정을 하기 전에 Shellfin 마감, 밀도, 관리 노트를 검토해 보세요.",
+    "requestSampleDescription": "더 큰 결정을 하기 전에 OXP 마감, 밀도, 관리 노트를 검토해 보세요.",
     "requestSampleAction": "샘플 요청",
     "materialReviewTitle": "소재 검토",
     "materialReviewDescription": "이 제품을 구성하는 굴 패각 소재 시스템과 그 지속가능성 스토리를 살펴보세요.",
@@ -738,8 +738,8 @@
   },
   "community": {
     "layout": {
-      "title": "Shellfin 커뮤니티",
-      "description": "디자이너와 메이커가 Shellfin 제품 아이디어, 소재 실험, 지속 가능한 라이프스타일 컨셉을 공유하는 공간입니다.",
+      "title": "OXP 커뮤니티",
+      "description": "디자이너와 메이커가 OXP 제품 아이디어, 소재 실험, 지속 가능한 라이프스타일 컨셉을 공유하는 공간입니다.",
       "shareButton": "내 디자인 아이디어 공유",
       "signIn": "로그인",
       "viewProfile": "프로필 보기",
@@ -747,7 +747,7 @@
     },
     "auth": {
       "title": "커뮤니티 이용",
-      "description": "로그인하여 아이디어를 게시하고, 메이커를 팔로우하고, Shellfin 소재 활용에 대한 대화에 참여하세요.",
+      "description": "로그인하여 아이디어를 게시하고, 메이커를 팔로우하고, OXP 소재 활용에 대한 대화에 참여하세요.",
       "loginTab": "로그인",
       "registerTab": "회원가입",
       "loadingSession": "저장된 세션을 확인하는 중...",
@@ -769,7 +769,7 @@
       "namePlaceholder": "이름을 입력하세요",
       "usernamePlaceholder": "사용자명을 입력하세요",
       "signInToContinue": "계속하려면 로그인하세요",
-      "loadingAccount": "Shellfin 계정을 불러오는 중..."
+      "loadingAccount": "OXP 계정을 불러오는 중..."
     },
     "report": {
       "button": "신고",
@@ -793,10 +793,10 @@
     },
     "feed": {
       "eyebrow": "커뮤니티 피드",
-      "title": "Shellfin 커뮤니티의 디자인 아이디어",
+      "title": "OXP 커뮤니티의 디자인 아이디어",
       "description": "제품 개념, 재료 및 공예 실험, 파트너십 아이디어 및 지속 가능한 생활 토론을 탐색하세요.",
       "resultsTitlePrefix": "검색 결과:",
-      "resultsDescription": "이 게시물들이 검색과 일치합니다. Shellfin 관련 아이디어를 더 탐색할 수 있습니다.",
+      "resultsDescription": "이 게시물들이 검색과 일치합니다. OXP 관련 아이디어를 더 탐색할 수 있습니다.",
       "latest": "최신",
       "hot": "인기",
       "categoryFilter": "카테고리",
@@ -816,7 +816,7 @@
       "goToPage": "이동",
       "loading": "게시물을 불러오는 중...",
       "emptyTitle": "게시물이 없습니다",
-      "emptyDescription": "커뮤니티가 준비되었습니다. 첫 번째 Shellfin 아이디어를 공유해주세요.",
+      "emptyDescription": "커뮤니티가 준비되었습니다. 첫 번째 OXP 아이디어를 공유해주세요.",
       "noResultsTitle": "검색 결과 없음",
       "noResults": "다른 키워드를 시도하거나 최신 커뮤니티 게시물을 둘러보세요.",
       "readMore": "더 보기",
@@ -825,7 +825,7 @@
     },
     "form": {
       "createTitle": "디자인 아이디어 업로드",
-      "createDescription": "디자인 아이디어와 Shellfin 소재를 어떤 제품에 사용할 수 있는지, 그리고 왜 가치가 있는지 설명해 주세요.",
+      "createDescription": "디자인 아이디어와 OXP 소재를 어떤 제품에 사용할 수 있는지, 그리고 왜 가치가 있는지 설명해 주세요.",
       "editTitle": "게시물 수정",
       "editDescription": "디자인 아이디어의 제목, 내용, 첨부파일, 펀딩 링크를 수정하세요.",
       "titleLabel": "제목",
@@ -838,7 +838,7 @@
       "fundingLabel": "펀딩 링크",
       "fundingPlaceholder": "이 디자인을 위한 GoFundMe 또는 Kickstarter 링크",
       "contentLabel": "내용",
-      "contentPlaceholder": "디자인 아이디어와 Shellfin 소재를 어떤 제품에 활용할 수 있는지, 그리고 왜 가치가 있는지 설명해 주세요.",
+      "contentPlaceholder": "디자인 아이디어와 OXP 소재를 어떤 제품에 활용할 수 있는지, 그리고 왜 가치가 있는지 설명해 주세요.",
       "excerptLabel": "요약",
       "excerptPlaceholder": "카드와 미리보기에 표시할 선택 요약입니다.",
       "excerptHint": "비워 두면 에디터 내용에서 자동으로 요약을 생성합니다.",

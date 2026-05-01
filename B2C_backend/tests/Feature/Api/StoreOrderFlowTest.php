@@ -27,7 +27,7 @@ class StoreOrderFlowTest extends TestCase
         $guestCartResponse = $this->getJson('/api/cart')
             ->assertOk()
             ->assertJsonPath('data.item_count', 0)
-            ->assertCookie('shellfin_cart_session');
+            ->assertCookie('oxp_cart_session');
 
         $sessionKey = Cart::query()
             ->whereNull('user_id')
@@ -61,7 +61,7 @@ class StoreOrderFlowTest extends TestCase
         $this->assertDatabaseCount('cart_items', 1);
 
         $orderResponse = $this->postJson('/api/orders', [
-            'shipping_name' => 'Shellfin Buyer',
+            'shipping_name' => 'OXP Buyer',
             'shipping_phone' => '+64-21-000-000',
             'shipping_address_line1' => '123 Ocean Road',
             'shipping_city' => 'Auckland',
@@ -97,6 +97,22 @@ class StoreOrderFlowTest extends TestCase
         $this->assertDatabaseCount('cart_items', 0);
     }
 
+    public function test_guest_cart_accepts_pre_rebrand_cookie_name(): void
+    {
+        $sessionKey = 'legacy-cart-session';
+
+        Cart::query()->create([
+            'session_key' => $sessionKey,
+            'expires_at' => now()->addDays(7),
+        ]);
+
+        $this->withUnencryptedCookies([CartService::LEGACY_COOKIE_NAME => $sessionKey])
+            ->getJson('/api/cart')
+            ->assertOk()
+            ->assertJsonPath('data.item_count', 0)
+            ->assertCookie(CartService::COOKIE_NAME);
+    }
+
     public function test_user_can_manage_addresses_and_cancel_pending_order(): void
     {
         $user = User::factory()->create();
@@ -104,7 +120,7 @@ class StoreOrderFlowTest extends TestCase
 
         $addressResponse = $this->postJson('/api/addresses', [
             'label' => 'Home',
-            'recipient_name' => 'Shellfin Buyer',
+            'recipient_name' => 'OXP Buyer',
             'phone' => '+64-21-000-000',
             'address_line1' => '123 Ocean Road',
             'city' => 'Auckland',
@@ -120,7 +136,7 @@ class StoreOrderFlowTest extends TestCase
         $secondAddress = Address::query()->create([
             'user_id' => $user->id,
             'label' => 'Office',
-            'recipient_name' => 'Shellfin Buyer',
+            'recipient_name' => 'OXP Buyer',
             'address_line1' => '10 Harbour Street',
             'city' => 'Auckland',
             'country' => 'NZ',
@@ -145,7 +161,7 @@ class StoreOrderFlowTest extends TestCase
             'shipping_usd' => 15.00,
             'total_usd' => 63.00,
             'currency' => 'USD',
-            'shipping_name' => 'Shellfin Buyer',
+            'shipping_name' => 'OXP Buyer',
             'shipping_address_line1' => '123 Ocean Road',
             'shipping_city' => 'Auckland',
             'shipping_country' => 'NZ',

@@ -25,7 +25,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Shellfin Operations')
+            ->brandName('OXP Operations')
             ->colors([
                 'primary' => Color::Amber,
             ])

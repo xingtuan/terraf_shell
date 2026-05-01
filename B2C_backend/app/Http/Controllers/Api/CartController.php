@@ -92,7 +92,9 @@ class CartController extends Controller
             new CartResource($cart),
             'Guest cart merged successfully.',
         )->withoutCookie(CartService::COOKIE_NAME)
-            ->cookie(Cookie::forget(CartService::COOKIE_NAME));
+            ->withoutCookie(CartService::LEGACY_COOKIE_NAME)
+            ->cookie(Cookie::forget(CartService::COOKIE_NAME))
+            ->cookie(Cookie::forget(CartService::LEGACY_COOKIE_NAME));
     }
 
     private function withGuestCartCookie(
@@ -104,16 +106,19 @@ class CartController extends Controller
             return $response;
         }
 
-        return $response->cookie(
-            CartService::COOKIE_NAME,
-            $sessionKey,
-            CartService::COOKIE_TTL_MINUTES,
-            '/',
-            null,
-            false,
-            false,
-            false,
-            'lax',
-        );
+        return $response
+            ->withoutCookie(CartService::LEGACY_COOKIE_NAME)
+            ->cookie(Cookie::forget(CartService::LEGACY_COOKIE_NAME))
+            ->cookie(
+                CartService::COOKIE_NAME,
+                $sessionKey,
+                CartService::COOKIE_TTL_MINUTES,
+                '/',
+                null,
+                false,
+                false,
+                false,
+                'lax',
+            );
     }
 }

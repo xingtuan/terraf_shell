@@ -127,7 +127,7 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
                 <p className="mt-1 text-sm text-muted-foreground">
                   {copy.shell.signedInAs.replace(
                     "{email}",
-                    session.user.email ?? "Shellfin account",
+                    session.user.email ?? "OXP account",
                   )}
                 </p>
               </div>

@@ -195,7 +195,7 @@ export function CommunityAuthPanel({
             const payload: LoginPayload = {
               email: String(formData.get("email") ?? "").trim(),
               password: String(formData.get("password") ?? ""),
-              device_name: "shellfin-web",
+              device_name: "oxp-web",
             }
 
             startTransition(() => {
@@ -254,7 +254,7 @@ export function CommunityAuthPanel({
               password_confirmation: String(
                 formData.get("password_confirmation") ?? "",
               ),
-              device_name: "shellfin-web",
+              device_name: "oxp-web",
             }
 
             startTransition(() => {

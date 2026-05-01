@@ -1,6 +1,6 @@
-# Shellfin Backend API
+# OXP Backend API
 
-Laravel 13 REST API backend for the Shellfin platform. It provides authentication, community features, CMS content delivery, B2B lead capture, media management, and an internal moderation panel.
+Laravel 13 REST API backend for the OXP platform. It provides authentication, community features, CMS content delivery, B2B lead capture, media management, and an internal moderation panel.
 
 The frontend is a separate Next.js application that consumes this service over REST with JSON responses.
 
@@ -139,7 +139,7 @@ See `.env.example` for the full reference. Key variables:
 ### Core
 
 ```env
-APP_NAME=ProductCommunityAPI
+APP_NAME=OXP
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://127.0.0.1:8000

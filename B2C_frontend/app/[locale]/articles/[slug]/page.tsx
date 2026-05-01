@@ -5,6 +5,7 @@ import { PageIntro } from "@/components/page-intro"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { getArticle } from "@/lib/api/articles"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { BRAND_NAME } from "@/lib/brand"
 import { getLocalizedHref, getMessages, isValidLocale } from "@/lib/i18n"
 
 type ArticleDetailPageProps = {
@@ -46,7 +47,7 @@ export default async function ArticleDetailPage({
         title={article.title}
         description={
           article.excerpt ||
-          "Read the full backend-driven article and follow Shellfin material updates."
+          `Read the full backend-driven article and follow ${BRAND_NAME} material updates.`
         }
         primaryAction={{
           label: "Back to articles",

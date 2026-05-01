@@ -61,6 +61,8 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
       return
     }
 
+    const authToken: string = token
+    const userIdentifier: string = username
     let cancelled = false
 
     async function loadOverview() {
@@ -77,13 +79,13 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
           favoritesResponse,
           notificationsResponse,
         ] = await Promise.all([
-          getUserProfile(username, token),
-          getOrders(token, 1, 3),
-          listAddresses(token),
-          getUserPosts(username, { per_page: 1 }, token),
-          getUserComments(username, { per_page: 1 }, token),
-          getUserFavorites(username, { per_page: 1 }, token),
-          getNotifications({ per_page: 3 }, token),
+          getUserProfile(userIdentifier, authToken),
+          getOrders(authToken, 1, 3),
+          listAddresses(authToken),
+          getUserPosts(userIdentifier, { per_page: 1 }, authToken),
+          getUserComments(userIdentifier, { per_page: 1 }, authToken),
+          getUserFavorites(userIdentifier, { per_page: 1 }, authToken),
+          getNotifications({ per_page: 3 }, authToken),
         ])
 
         if (cancelled) return

@@ -113,8 +113,8 @@ class ProductCatalogTest extends TestCase
             'inquiry_only' => true,
             'sample_request_enabled' => true,
             'use_cases' => ['design_projects', 'hospitality_service'],
-            'seo_title' => 'Wall Panel Sample | Shellfin',
-            'seo_description' => 'Architectural sample for Shellfin finish review.',
+            'seo_title' => 'Wall Panel Sample | OXP',
+            'seo_description' => 'Architectural sample for OXP finish review.',
             'is_active' => true,
             'in_stock' => true,
         ]);
@@ -162,14 +162,14 @@ class ProductCatalogTest extends TestCase
             ->assertJsonPath('data.specifications.0.key', 'model')
             ->assertJsonPath('data.specifications.0.label', 'Model')
             ->assertJsonPath('data.related_products.0.slug', 'studio-sample-kit')
-            ->assertJsonPath('data.seo.title', 'Wall Panel Sample | Shellfin')
-            ->assertJsonPath('data.seo.description', 'Architectural sample for Shellfin finish review.');
+            ->assertJsonPath('data.seo.title', 'Wall Panel Sample | OXP')
+            ->assertJsonPath('data.seo.description', 'Architectural sample for OXP finish review.');
     }
 
     public function test_inactive_products_are_hidden_from_public_endpoints(): void
     {
         Product::factory()->published()->create([
-            'slug' => 'inactive-shellfin-product',
+            'slug' => 'inactive-oxp-product',
             'category' => 'tableware',
             'model' => 'lite_15',
             'finish' => 'glossy',
@@ -183,7 +183,7 @@ class ProductCatalogTest extends TestCase
             ->assertOk()
             ->assertJsonCount(0, 'data');
 
-        $this->getJson('/api/products/inactive-shellfin-product')
+        $this->getJson('/api/products/inactive-oxp-product')
             ->assertNotFound();
     }
 }

@@ -84,9 +84,9 @@ export const communityIdeaRecords: RawCommunityIdeaRecord[] = [
     id: "material-lab-fund",
     image: "/images/process-refined.jpg",
     title: {
-      en: "Shellfin Material Lab Fund",
+      en: "OXP Material Lab Fund",
       ko: "쉘핀 머티리얼 랩 펀드",
-      zh: "Shellfin 材料实验基金",
+      zh: "OXP 材料实验基金",
     },
     summary: {
       en: "A small funding track for pilot moulds, sample sets, and student or studio-led concept testing.",

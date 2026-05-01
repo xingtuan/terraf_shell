@@ -13,7 +13,7 @@ class InquiryTest extends TestCase
     {
         $response = $this->postJson('/api/inquiries', [
             'name' => 'Jane Doe',
-            'company_name' => 'Shellfin Studio',
+            'company_name' => 'OXP Studio',
             'email' => 'jane@example.com',
             'phone' => '+82-10-5555-0101',
             'country' => 'South Korea',
@@ -27,11 +27,11 @@ class InquiryTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.reference', 'INQ-000001')
             ->assertJsonPath('data.status', 'new')
-            ->assertJsonPath('data.company_name', 'Shellfin Studio');
+            ->assertJsonPath('data.company_name', 'OXP Studio');
 
         $this->assertDatabaseHas('inquiries', [
             'name' => 'Jane Doe',
-            'company_name' => 'Shellfin Studio',
+            'company_name' => 'OXP Studio',
             'email' => 'jane@example.com',
             'status' => 'new',
             'source_page' => 'b2b:en',

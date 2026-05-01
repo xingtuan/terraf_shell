@@ -14,7 +14,7 @@ function isLocalPreviewOrigin(href: string) {
 }
 
 function appendHrefSuffix(baseHref: string, search = "", hash = "") {
-  const url = new URL(baseHref, "https://shellfin.local")
+  const url = new URL(baseHref, "https://oxp.local")
   const searchParams = new URLSearchParams(search)
 
   searchParams.forEach((value, key) => {
@@ -46,7 +46,7 @@ export function resolveCmsHref(
   try {
     const parsedUrl = /^https?:\/\//i.test(href)
       ? new URL(href)
-      : new URL(href, "https://shellfin.local")
+      : new URL(href, "https://oxp.local")
 
     pathname = parsedUrl.pathname
     search = parsedUrl.search
