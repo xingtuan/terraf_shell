@@ -22,7 +22,6 @@ export type CommunityAuthCopy = {
   email: string
   password: string
   name: string
-  username: string
   confirmPassword: string
   loginSubmit: string
   registerSubmit: string
@@ -31,7 +30,6 @@ export type CommunityAuthCopy = {
   emailPlaceholder: string
   passwordPlaceholder: string
   namePlaceholder: string
-  usernamePlaceholder: string
   signInToContinue: string
   loadingAccount: string
 }
@@ -248,7 +246,6 @@ export function CommunityAuthPanel({
             const formData = new FormData(event.currentTarget)
             const payload: RegisterPayload = {
               name: String(formData.get("name") ?? "").trim(),
-              username: String(formData.get("username") ?? "").trim(),
               email: String(formData.get("email") ?? "").trim(),
               password: String(formData.get("password") ?? ""),
               password_confirmation: String(
@@ -272,20 +269,10 @@ export function CommunityAuthPanel({
             })
           }}
         >
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="space-y-2">
-              <span className="text-sm text-foreground">{copy.name}</span>
-              <Input name="name" placeholder={copy.namePlaceholder} required />
-            </label>
-            <label className="space-y-2">
-              <span className="text-sm text-foreground">{copy.username}</span>
-              <Input
-                name="username"
-                placeholder={copy.usernamePlaceholder}
-                required
-              />
-            </label>
-          </div>
+          <label className="space-y-2">
+            <span className="text-sm text-foreground">{copy.name}</span>
+            <Input name="name" placeholder={copy.namePlaceholder} required />
+          </label>
           <label className="space-y-2">
             <span className="text-sm text-foreground">{copy.email}</span>
             <Input

@@ -24,11 +24,10 @@ class UpdateProfileRequest extends FormRequest
             'name' => ['sometimes', 'required', 'string', 'max:100'],
             'username' => [
                 'sometimes',
-                'required',
                 'string',
-                'alpha_dash',
                 'min:3',
                 'max:30',
+                'regex:/^[a-z0-9_]+$/',
                 Rule::unique('users', 'username')->ignore($this->user()?->id),
             ],
             'email' => [

@@ -758,7 +758,6 @@
       "email": "이메일",
       "password": "비밀번호",
       "name": "이름",
-      "username": "사용자명",
       "confirmPassword": "비밀번호 확인",
       "loginSubmit": "로그인",
       "registerSubmit": "계정 만들기",
@@ -767,7 +766,6 @@
       "emailPlaceholder": "이메일 주소를 입력하세요",
       "passwordPlaceholder": "비밀번호를 입력하세요",
       "namePlaceholder": "이름을 입력하세요",
-      "usernamePlaceholder": "사용자명을 입력하세요",
       "signInToContinue": "계속하려면 로그인하세요",
       "loadingAccount": "OXP 계정을 불러오는 중..."
     },

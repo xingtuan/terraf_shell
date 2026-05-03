@@ -21,8 +21,7 @@ class AuthTest extends TestCase
         Notification::fake();
 
         $response = $this->postJson('/api/auth/register', [
-            'name' => 'name',
-            'username' => 'username',
+            'name' => 'Jane Doe',
             'email' => 'jane@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
@@ -31,10 +30,11 @@ class AuthTest extends TestCase
         $response
             ->assertCreated()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.user.username', 'username')
             ->assertJsonPath('data.user.role', 'creator')
             ->assertJsonPath('data.user.account_status', 'active')
             ->assertJsonPath('data.user.email_verified', false);
+
+        $this->assertNotEmpty($response->json('data.user.username'));
 
         $user = User::query()->firstOrFail();
 
@@ -114,6 +114,82 @@ class AuthTest extends TestCase
             ->assertJsonPath('data.username', 'updated_user')
             ->assertJsonPath('data.profile.bio', 'Updated profile bio.')
             ->assertJsonPath('data.profile.avatar_url', StorageUrl::publicResolve('avatars/test-avatar.png', 'azure'));
+    }
+
+    public function test_registration_auto_generates_username_from_email_local_part(): void
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'Sara',
+            'email' => 'sara@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $response->assertCreated();
+
+        $user = User::query()->where('email', 'sara@example.com')->firstOrFail();
+        $this->assertStringStartsWith('sara', $user->username);
+    }
+
+    public function test_registration_applies_collision_suffix_when_username_is_taken(): void
+    {
+        $this->postJson('/api/auth/register', [
+            'name' => 'Sara A',
+            'email' => 'sara@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])->assertCreated();
+
+        $this->postJson('/api/auth/register', [
+            'name' => 'Sara B',
+            'email' => 'sara@other.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])->assertCreated();
+
+        $first = User::query()->where('email', 'sara@example.com')->firstOrFail();
+        $second = User::query()->where('email', 'sara@other.com')->firstOrFail();
+
+        $this->assertNotEquals($first->username, $second->username);
+        $this->assertStringStartsWith('sara_', $second->username);
+    }
+
+    public function test_registration_falls_back_to_user_prefix_for_short_or_special_char_email_local_part(): void
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'A',
+            'email' => 'a@x.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $response->assertCreated();
+
+        $user = User::query()->where('email', 'a@x.com')->firstOrFail();
+        $this->assertStringStartsWith('user', $user->username);
+    }
+
+    public function test_user_can_update_username_via_profile_endpoint(): void
+    {
+        $user = User::factory()->create(['username' => 'original_handle']);
+        Sanctum::actingAs($user);
+
+        $this->patchJson('/api/auth/profile', ['username' => 'new_handle'])
+            ->assertOk()
+            ->assertJsonPath('data.username', 'new_handle');
+
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'username' => 'new_handle']);
+    }
+
+    public function test_username_uniqueness_enforced_on_profile_update(): void
+    {
+        $taken = User::factory()->create(['username' => 'taken_handle']);
+        $user = User::factory()->create(['username' => 'my_handle']);
+        Sanctum::actingAs($user);
+
+        $this->patchJson('/api/auth/profile', ['username' => 'taken_handle'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['username']);
     }
 
     public function test_user_can_request_password_reset_and_log_in_with_new_password(): void

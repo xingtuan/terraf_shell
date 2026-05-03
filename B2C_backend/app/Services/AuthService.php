@@ -15,12 +15,32 @@ use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
+    private function generateUsername(string $email): string
+    {
+        $base = Str::slug(Str::before($email, '@'), '_');
+        if ($base === '' || strlen($base) < 2) {
+            $base = 'user';
+        }
+        $username = $base;
+        $attempt = 0;
+        while (User::where('username', $username)->exists()) {
+            $username = $base . '_' . Str::lower(Str::random(4));
+            $attempt++;
+            if ($attempt > 10) {
+                $username = $base . '_' . Str::lower(Str::random(8));
+                break;
+            }
+        }
+
+        return $username;
+    }
+
     public function register(array $data, ?string $userAgent = null): array
     {
         [$user, $token] = DB::transaction(function () use ($data, $userAgent): array {
             $user = User::query()->create([
                 'name' => $data['name'],
-                'username' => $data['username'],
+                'username' => $this->generateUsername($data['email']),
                 'email' => $data['email'],
                 'password' => $data['password'],
                 'role' => $data['role'] ?? UserRole::Creator->value,

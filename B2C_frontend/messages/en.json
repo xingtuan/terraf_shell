@@ -758,7 +758,6 @@
       "email": "Email",
       "password": "Password",
       "name": "Name",
-      "username": "Username",
       "confirmPassword": "Confirm password",
       "loginSubmit": "Login",
       "registerSubmit": "Create account",
@@ -767,7 +766,6 @@
       "emailPlaceholder": "Please enter your email address",
       "passwordPlaceholder": "Please enter your password",
       "namePlaceholder": "Given name or full name",
-      "usernamePlaceholder": "Unique username for posting and profile",
       "signInToContinue": "Sign in to continue",
       "loadingAccount": "Loading your OXP account..."
     },

@@ -758,7 +758,6 @@
       "email": "邮箱",
       "password": "密码",
       "name": "名称",
-      "username": "用户名",
       "confirmPassword": "确认密码",
       "loginSubmit": "登录",
       "registerSubmit": "创建账户",
@@ -767,7 +766,6 @@
       "emailPlaceholder": "请输入你的邮箱地址",
       "passwordPlaceholder": "请输入你的密码",
       "namePlaceholder": "取个昵称吧",
-      "usernamePlaceholder": "唯一用户名",
       "signInToContinue": "登录以继续",
       "loadingAccount": "正在加载你的 OXP 账户..."
     },
