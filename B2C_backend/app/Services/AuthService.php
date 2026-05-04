@@ -67,12 +67,12 @@ class AuthService
 
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'email' => [__('auth.invalid_credentials')],
             ]);
         }
 
         if ($user->isBanned()) {
-            throw new AuthorizationException('This account has been banned.');
+            throw new AuthorizationException(__('auth.account_banned'));
         }
 
         $token = $user->createToken(

@@ -36,16 +36,4 @@ class StoreInquiryRequest extends FormRequest
         ];
     }
 
-    public function messages(): array
-    {
-        return [
-            'name.required'         => 'Name is required.',
-            'company_name.required' => 'Company name is required.',
-            'email.required'        => 'Email address is required.',
-            'email.email'           => 'Please enter a valid email address.',
-            'inquiry_type.required' => 'Application is required.',
-            'message.required'      => 'Project details are required.',
-            'company_website.url'   => 'Please enter a valid website URL (including https://).',
-        ];
-    }
 }

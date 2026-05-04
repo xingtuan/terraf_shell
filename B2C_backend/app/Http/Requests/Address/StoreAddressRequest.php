@@ -31,14 +31,4 @@ class StoreAddressRequest extends FormRequest
         ];
     }
 
-    public function messages(): array
-    {
-        return [
-            'recipient_name.required' => 'Recipient name is required.',
-            'address_line1.required'  => 'Address is required.',
-            'city.required'           => 'City is required.',
-            'country.required'        => 'Country is required.',
-            'country.size'            => 'Country must be a 2-letter ISO code.',
-        ];
-    }
 }

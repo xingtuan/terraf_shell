@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        $middleware->append(\App\Middleware\SetLocaleFromHeader::class);
 
         $middleware->alias([
             'not_banned' => EnsureUserNotBanned::class,

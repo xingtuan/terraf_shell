@@ -35,16 +35,4 @@ class RegisterRequest extends FormRequest
         ];
     }
 
-    public function messages(): array
-    {
-        return [
-            'name.required'      => 'Name is required.',
-            'email.required'     => 'Email address is required.',
-            'email.email'        => 'Please enter a valid email address.',
-            'email.unique'       => 'This email is already registered. Try signing in instead.',
-            'password.required'  => 'Password is required.',
-            'password.confirmed' => "Passwords don't match.",
-            'password.min'       => 'Password must be at least 8 characters.',
-        ];
-    }
 }

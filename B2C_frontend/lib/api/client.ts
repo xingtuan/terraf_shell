@@ -139,6 +139,12 @@ function buildUrl(
   return url.toString()
 }
 
+function detectLocale(): string | null {
+  if (typeof window === "undefined") return null
+  const match = /^\/(en|ko|zh)\b/.exec(window.location.pathname)
+  return match ? match[1] : null
+}
+
 function isPlainObject(
   value: ApiRequestOptions["body"],
 ): value is Record<string, unknown> {
@@ -165,6 +171,11 @@ export async function requestApi<T>(
   let body = options.body
 
   headers.set("Accept", "application/json")
+
+  const locale = detectLocale()
+  if (locale) {
+    headers.set("Accept-Language", locale)
+  }
 
   if (options.token) {
     headers.set("Authorization", `Bearer ${options.token}`)
