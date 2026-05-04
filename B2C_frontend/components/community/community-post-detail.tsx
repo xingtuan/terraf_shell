@@ -316,9 +316,6 @@ export function CommunityPostDetail({
                         <p className="text-sm font-medium text-foreground">
                           {getCommunityUserName(post.user)}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          @{post.user?.username ?? "member"}
-                        </p>
                       </div>
                     </Link>
                   </div>

@@ -122,9 +122,6 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
                 </p>
                 <p className="mt-2 text-xl text-foreground">{session.user.name}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  @{session.user.username}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
                   {copy.shell.signedInAs.replace(
                     "{email}",
                     session.user.email ?? "OXP account",

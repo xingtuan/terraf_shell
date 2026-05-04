@@ -316,9 +316,6 @@ export function CommunityProfilePage({
 
                     <div className="space-y-3">
                       <div className="space-y-2">
-                        <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                          @{profile.username}
-                        </p>
                         <h1 className="font-serif text-4xl text-foreground">
                           {profile.name}
                         </h1>

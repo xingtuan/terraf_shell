@@ -367,9 +367,6 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
                           />
                           <div>
                             <p className="font-medium text-foreground">{user.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              @{user.username}
-                            </p>
                           </div>
                         </Link>
                       ))
@@ -405,9 +402,6 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
                           />
                           <div>
                             <p className="font-medium text-foreground">{user.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              @{user.username}
-                            </p>
                           </div>
                         </Link>
                       ))

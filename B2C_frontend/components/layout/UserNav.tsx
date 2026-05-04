@@ -50,9 +50,6 @@ export function UserNav({ locale }: UserNavProps) {
               <p className="text-sm font-medium text-foreground">
                 {session.user.name}
               </p>
-              <p className="text-xs text-muted-foreground">
-                @{session.user.username}
-              </p>
             </div>
           </button>
         </DropdownMenuTrigger>

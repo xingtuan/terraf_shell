@@ -22,15 +22,13 @@ import { defaultLocale, getMessages, isValidLocale } from "@/lib/i18n"
 import type { UserProfile } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 
-type FieldErrors = Partial<Record<"name" | "username" | "bio" | "avatar", string>>
+type FieldErrors = Partial<Record<"name" | "bio" | "avatar", string>>
 
 type EditProfileModalProps = {
   user: UserProfile
   onClose: () => void
   onSave: (updated: UserProfile) => void
 }
-
-const USERNAME_PATTERN = /^[a-z0-9_]+$/
 
 export function EditProfileModal({
   user,
@@ -44,7 +42,6 @@ export function EditProfileModal({
   const session = useAuthSession()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [name, setName] = useState(user.name ?? "")
-  const [username, setUsername] = useState(user.username ?? "")
   const [bio, setBio] = useState(user.bio ?? user.profile?.bio ?? "")
   const [avatarUrl, setAvatarUrl] = useState(user.avatar_url ?? null)
   const [avatarPath, setAvatarPath] = useState<string | null>(null)
@@ -56,21 +53,12 @@ export function EditProfileModal({
   function validate() {
     const nextErrors: FieldErrors = {}
     const trimmedName = name.trim()
-    const normalizedUsername = username.trim().toLowerCase()
     const trimmedBio = bio.trim()
 
     if (!trimmedName) {
       nextErrors.name = messages.nameRequired
     } else if (trimmedName.length > 60) {
       nextErrors.name = messages.nameMax
-    }
-
-    if (!normalizedUsername) {
-      nextErrors.username = messages.usernameRequired
-    } else if (normalizedUsername.length > 30) {
-      nextErrors.username = messages.usernameMax
-    } else if (!USERNAME_PATTERN.test(normalizedUsername)) {
-      nextErrors.username = messages.usernameInvalid
     }
 
     if (trimmedBio.length > 200) {
@@ -105,7 +93,6 @@ export function EditProfileModal({
             void updateProfile(
               {
                 name: name.trim(),
-                username: username.trim().toLowerCase(),
                 bio: bio.trim(),
                 avatar_url: avatarUrl,
                 avatar_path: avatarPath,
@@ -124,7 +111,6 @@ export function EditProfileModal({
                 if (error instanceof ApiError) {
                   setErrors({
                     name: error.errors?.name?.[0],
-                    username: error.errors?.username?.[0],
                     bio: error.errors?.bio?.[0],
                     avatar:
                       error.errors?.avatar?.[0] ??
@@ -144,7 +130,7 @@ export function EditProfileModal({
             <div className="relative">
               <CommunityUserAvatar
                 src={avatarUrl}
-                name={name || username || user.name}
+                name={name || user.name}
                 className="size-24 border border-border/60"
                 fallbackClassName="text-lg"
                 sizes="96px"
@@ -222,30 +208,6 @@ export function EditProfileModal({
             />
             {errors.name ? (
               <p className="text-sm text-destructive">{errors.name}</p>
-            ) : null}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              {messages.usernameLabel}
-            </label>
-            <Input
-              value={username}
-              maxLength={30}
-              onChange={(event) => {
-                setUsername(event.target.value.toLowerCase())
-                setErrors((currentErrors) => ({
-                  ...currentErrors,
-                  username: undefined,
-                }))
-              }}
-              placeholder={messages.usernamePlaceholder}
-            />
-            <p className="text-xs text-muted-foreground">
-              {messages.usernameHint}
-            </p>
-            {errors.username ? (
-              <p className="text-sm text-destructive">{errors.username}</p>
             ) : null}
           </div>
 

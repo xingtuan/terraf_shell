@@ -187,10 +187,7 @@ export function CommunityUserSheet({
           {user ? (
             <>
               <div className="rounded-3xl border border-border/60 bg-card p-6">
-                <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                  @{user.username}
-                </p>
-                <h3 className="mt-3 font-serif text-3xl text-foreground">
+                <h3 className="font-serif text-3xl text-foreground">
                   {user.name}
                 </h3>
                 <div className="mt-4 space-y-2 text-sm text-muted-foreground">
@@ -365,9 +362,6 @@ export function CommunityUserSheet({
                             <p className="font-medium text-foreground">
                               {listedUser.name}
                             </p>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              @{listedUser.username}
-                            </p>
                           </button>
                         ))
                       )}
@@ -396,9 +390,6 @@ export function CommunityUserSheet({
                           >
                             <p className="font-medium text-foreground">
                               {listedUser.name}
-                            </p>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              @{listedUser.username}
                             </p>
                           </button>
                         ))

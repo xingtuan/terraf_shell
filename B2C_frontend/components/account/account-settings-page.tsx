@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { getAccountCopy } from "@/lib/account-copy"
 import { getNotifications } from "@/lib/api/notifications"
 import { getErrorMessage } from "@/lib/api/client"
-import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
+import { getLocalizedHref, type Locale } from "@/lib/i18n"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import {
   AccountPageHeader,
@@ -41,7 +41,6 @@ export function AccountSettingsPage({ locale }: AccountSettingsPageProps) {
   const router = useRouter()
   const session = useAuthSession()
   const copy = getAccountCopy(locale)
-  const communityProfileMessages = getMessages(locale).community.profile
   const [unreadNotifications, setUnreadNotifications] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(true)
@@ -122,12 +121,6 @@ export function AccountSettingsPage({ locale }: AccountSettingsPageProps) {
               <span className="text-right text-foreground">
                 {user.email ?? "Not set"}
               </span>
-            </div>
-            <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-3">
-              <span className="text-muted-foreground">
-                {communityProfileMessages.usernameLabel}
-              </span>
-              <span className="text-right text-foreground">@{user.username}</span>
             </div>
             <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-3">
               <span className="text-muted-foreground">{copy.profile.roleLabel}</span>

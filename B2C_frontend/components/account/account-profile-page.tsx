@@ -30,7 +30,6 @@ type ProfileFormValues = {
   avatar_url: string | null
   avatar_path: string | null
   name: string
-  username: string
   email: string
   bio: string
   location: string
@@ -45,7 +44,6 @@ type FieldErrors = Partial<
   Record<
     | "avatar"
     | "name"
-    | "username"
     | "email"
     | "bio"
     | "website"
@@ -54,14 +52,11 @@ type FieldErrors = Partial<
   >
 >
 
-const USERNAME_PATTERN = /^[a-z0-9_]+$/
-
 function createInitialForm(profile: UserProfile | null): ProfileFormValues {
   return {
     avatar_url: profile?.avatar_url ?? null,
     avatar_path: null,
     name: profile?.name ?? "",
-    username: profile?.username ?? "",
     email: profile?.email ?? "",
     bio: profile?.bio ?? profile?.profile?.bio ?? "",
     location: profile?.profile?.location ?? "",
@@ -120,7 +115,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
   function validate() {
     const nextErrors: FieldErrors = {}
     const trimmedName = form.name.trim()
-    const normalizedUsername = form.username.trim().toLowerCase()
     const trimmedBio = form.bio.trim()
     const trimmedEmail = form.email.trim()
     const trimmedWebsite = form.website.trim()
@@ -130,14 +124,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
       nextErrors.name = communityProfileMessages.nameRequired
     } else if (trimmedName.length > 60) {
       nextErrors.name = communityProfileMessages.nameMax
-    }
-
-    if (!normalizedUsername) {
-      nextErrors.username = communityProfileMessages.usernameRequired
-    } else if (normalizedUsername.length > 30) {
-      nextErrors.username = communityProfileMessages.usernameMax
-    } else if (!USERNAME_PATTERN.test(normalizedUsername)) {
-      nextErrors.username = communityProfileMessages.usernameInvalid
     }
 
     if (trimmedBio.length > 200) {
@@ -176,7 +162,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
           avatar_url: form.avatar_url,
           avatar_path: form.avatar_path,
           name: form.name.trim(),
-          username: form.username.trim().toLowerCase(),
           email: form.email.trim(),
           bio: form.bio.trim(),
           location: form.location.trim(),
@@ -201,7 +186,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
             submitError.errors?.avatar_path?.[0] ??
             submitError.errors?.avatar_url?.[0],
           name: submitError.errors?.name?.[0],
-          username: submitError.errors?.username?.[0],
           email: submitError.errors?.email?.[0],
           bio: submitError.errors?.bio?.[0],
           website: submitError.errors?.website?.[0],
@@ -217,7 +201,7 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
 
   const previewProfileHref = getLocalizedHref(
     locale,
-    `community/u/${form.username.trim().toLowerCase() || session.user?.username || ""}`,
+    `community/u/${session.user?.username ?? ""}`,
   )
 
   return (
@@ -257,7 +241,7 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
                 <div className="relative">
                   <CommunityUserAvatar
                     src={form.avatar_url}
-                    name={form.name || form.username || profile?.name}
+                    name={form.name || profile?.name}
                     className="size-24 border border-border/60"
                     fallbackClassName="text-lg"
                     sizes="96px"
@@ -355,33 +339,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
                   />
                   {errors.name ? (
                     <p className="text-sm text-destructive">{errors.name}</p>
-                  ) : null}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">
-                    {communityProfileMessages.usernameLabel}
-                  </label>
-                  <Input
-                    value={form.username}
-                    maxLength={30}
-                    onChange={(event) => {
-                      setForm((currentValue) => ({
-                        ...currentValue,
-                        username: event.target.value.toLowerCase(),
-                      }))
-                      setErrors((currentErrors) => ({
-                        ...currentErrors,
-                        username: undefined,
-                      }))
-                    }}
-                    placeholder={communityProfileMessages.usernamePlaceholder}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {communityProfileMessages.usernameHint}
-                  </p>
-                  {errors.username ? (
-                    <p className="text-sm text-destructive">{errors.username}</p>
                   ) : null}
                 </div>
 
@@ -594,16 +551,13 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
                 <div className="flex items-center gap-4">
                   <CommunityUserAvatar
                     src={form.avatar_url}
-                    name={form.name || form.username || profile?.name}
+                    name={form.name || profile?.name}
                     className="size-16 border border-border/60"
                     fallbackClassName="text-base"
                     sizes="64px"
                   />
                   <div>
                     <p className="text-lg text-foreground">{form.name || "—"}</p>
-                    <p className="text-sm text-muted-foreground">
-                      @{form.username || "username"}
-                    </p>
                   </div>
                 </div>
 

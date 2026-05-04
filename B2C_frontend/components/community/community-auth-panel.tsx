@@ -85,7 +85,7 @@ export function CommunityAuthPanel({
           {user.name}
         </h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          {copy.signedInAs} @{user.username}
+          {copy.signedInAs}
         </p>
         <div className="mt-6 space-y-2 text-sm text-muted-foreground">
           {user.email ? <p>{user.email}</p> : null}
