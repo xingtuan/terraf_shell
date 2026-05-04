@@ -896,7 +896,7 @@
       "signedInAs": "当前登录为",
       "logout": "退出登录",
       "refreshProfile": "刷新资料",
-      "email": "邮箱（同时作为您的用户名）",
+      "email": "邮箱",
       "emailHelper": "你的邮箱地址同时作为 OXP 全站的用户名。",
       "password": "密码",
       "name": "名称",

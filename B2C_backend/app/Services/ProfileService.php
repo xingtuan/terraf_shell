@@ -3,13 +3,18 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Services\Email\EmailDispatchService;
+use App\Services\Email\EmailPayloadFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 
 class ProfileService
 {
     public function __construct(
         private readonly MediaService $mediaService,
+        private readonly EmailDispatchService $emailDispatchService,
+        private readonly EmailPayloadFactory $emailPayloadFactory,
     ) {}
 
     public function update(User $user, array $data): User
@@ -65,7 +70,29 @@ class ProfileService
         });
 
         if ($emailChanged) {
-            $updatedUser->sendEmailVerificationNotification();
+            $verificationUrl = URL::temporarySignedRoute(
+                'verification.verify',
+                now()->addMinutes(60),
+                [
+                    'id' => $updatedUser->getKey(),
+                    'hash' => sha1($updatedUser->getEmailForVerification()),
+                ]
+            );
+
+            $log = $this->emailDispatchService->sendEvent(
+                'auth.email_verification',
+                $this->emailPayloadFactory->forUser($updatedUser, [
+                    'verification_url' => $verificationUrl,
+                ]),
+                [
+                    'related' => $updatedUser,
+                    'idempotency_key' => 'auth.email_verification:'.$updatedUser->id.':'.$updatedUser->email,
+                ],
+            );
+
+            if ($log?->status === 'skipped') {
+                $updatedUser->sendEmailVerificationNotification();
+            }
         }
 
         return $updatedUser;

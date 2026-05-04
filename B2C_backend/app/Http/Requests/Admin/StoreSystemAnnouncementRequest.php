@@ -25,6 +25,7 @@ class StoreSystemAnnouncementRequest extends FormRequest
             'title' => ['required', 'string', 'max:160'],
             'body' => ['required', 'string', 'max:2000'],
             'action_url' => ['nullable', 'string', 'max:2048'],
+            'send_email' => ['sometimes', 'boolean'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['string', Rule::in(UserRole::values())],
         ];

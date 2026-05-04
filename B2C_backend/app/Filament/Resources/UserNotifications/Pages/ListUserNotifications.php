@@ -11,6 +11,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 
@@ -44,6 +45,9 @@ class ListUserNotifications extends ListRecords
                             UserRole::SmePartner->value => UserRole::SmePartner->label(),
                         ])
                         ->helperText('Leave blank to send to all active users.'),
+                    Toggle::make('send_email')
+                        ->label('Also send email')
+                        ->helperText('Email sending still respects the Email Center system announcement switch.'),
                 ])
                 ->action(function (array $data): void {
                     $count = app(NotificationService::class)->broadcastSystemAnnouncement(
@@ -52,6 +56,7 @@ class ListUserNotifications extends ListRecords
                         $data['body'],
                         $data['action_url'] ?? null,
                         $data['roles'] ?? [],
+                        (bool) ($data['send_email'] ?? false),
                     );
 
                     app(GovernanceService::class)->recordAdminAction(
@@ -62,6 +67,7 @@ class ListUserNotifications extends ListRecords
                             'title' => $data['title'],
                             'audience_roles' => $data['roles'] ?? [],
                             'recipients' => $count,
+                            'send_email' => (bool) ($data['send_email'] ?? false),
                         ],
                     );
 

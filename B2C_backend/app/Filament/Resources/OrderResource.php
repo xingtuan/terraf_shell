@@ -10,6 +10,7 @@ use App\Filament\Resources\OrderResource\Pages\ViewOrder;
 use App\Filament\Resources\Users\UserResource as UserFilamentResource;
 use App\Filament\Support\PanelAccess;
 use App\Models\Order;
+use App\Services\OrderService;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
@@ -329,7 +330,13 @@ class OrderResource extends Resource
                             $payload['cancelled_at'] = now();
                         }
 
+                        $previousStatus = $record->status instanceof OrderStatus ? $record->status->value : (string) $record->status;
+
                         $record->forceFill($payload)->save();
+
+                        if ($previousStatus !== $status->value) {
+                            app(OrderService::class)->dispatchStatusChangedEmail($record->fresh(['user', 'items.product']), $previousStatus);
+                        }
 
                         Notification::make()
                             ->title('Order status updated.')

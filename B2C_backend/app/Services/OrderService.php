@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Enums\OrderStatus;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Services\Email\EmailDispatchService;
+use App\Services\Email\EmailPayloadFactory;
 use App\Support\StorePricing;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +14,11 @@ use Illuminate\Validation\ValidationException;
 
 class OrderService
 {
+    public function __construct(
+        private readonly EmailDispatchService $emailDispatchService,
+        private readonly EmailPayloadFactory $emailPayloadFactory,
+    ) {}
+
     public function createFromCart(Cart $cart, array $shippingData, string $note = ''): Order
     {
         $cart->loadMissing(['user', 'items.product']);
@@ -92,7 +99,23 @@ class OrderService
             return $order;
         });
 
-        return $order->fresh(['user', 'items.product']);
+        $order = $order->fresh(['user', 'items.product']);
+
+        DB::afterCommit(function () use ($order): void {
+            $payload = $this->emailPayloadFactory->forOrder($order);
+
+            $this->emailDispatchService->sendEvent('order.created', $payload, [
+                'related' => $order,
+                'idempotency_key' => 'order.created:'.$order->id,
+            ]);
+
+            $this->emailDispatchService->sendEvent('order.admin_new_order', $payload, [
+                'related' => $order,
+                'idempotency_key' => 'order.admin_new_order:'.$order->id,
+            ]);
+        });
+
+        return $order;
     }
 
     public function cancelOrder(Order $order): Order
@@ -108,7 +131,38 @@ class OrderService
             'cancelled_at' => now(),
         ])->save();
 
-        return $order->fresh(['items.product']);
+        $order = $order->fresh(['user', 'items.product']);
+
+        DB::afterCommit(fn () => $this->emailDispatchService->sendEvent(
+            'order.cancelled',
+            $this->emailPayloadFactory->forOrder($order),
+            [
+                'related' => $order,
+                'idempotency_key' => 'order.cancelled:'.$order->id,
+            ],
+        ));
+
+        return $order;
+    }
+
+    public function dispatchStatusChangedEmail(Order $order, ?string $previousStatus = null): void
+    {
+        $order->loadMissing(['user', 'items.product']);
+        $status = $order->status instanceof OrderStatus ? $order->status->value : (string) $order->status;
+        $eventKey = $status === OrderStatus::Shipped->value ? 'order.shipped' : 'order.status_changed';
+
+        DB::afterCommit(fn () => $this->emailDispatchService->sendEvent(
+            $eventKey,
+            $this->emailPayloadFactory->forOrder($order, [
+                'order' => [
+                    'previous_status' => $previousStatus,
+                ],
+            ]),
+            [
+                'related' => $order,
+                'idempotency_key' => $eventKey.':'.$order->id.':'.$status,
+            ],
+        ));
     }
 
     public function getOrdersForUser(int $userId): Collection

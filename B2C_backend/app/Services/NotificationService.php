@@ -8,6 +8,8 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\UserNotification;
+use App\Services\Email\EmailDispatchService;
+use App\Services\Email\EmailPayloadFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +17,11 @@ use Illuminate\Support\Str;
 
 class NotificationService
 {
+    public function __construct(
+        private readonly EmailDispatchService $emailDispatchService,
+        private readonly EmailPayloadFactory $emailPayloadFactory,
+    ) {}
+
     public function dispatch(
         User $recipient,
         ?User $actor,
@@ -144,6 +151,8 @@ class NotificationService
                 'interaction_target' => 'post',
             ]
         );
+
+        $this->dispatchCommunityEmail('community.post_liked', $post->user, $actor, $post, $this->emailPayloadFactory->forPost($post, $actor));
     }
 
     public function notifyCommentLiked(Comment $comment, User $actor): void
@@ -185,6 +194,8 @@ class NotificationService
                 'post_slug' => $post->slug,
             ]
         );
+
+        $this->dispatchCommunityEmail('community.post_favorited', $post->user, $actor, $post, $this->emailPayloadFactory->forPost($post, $actor));
     }
 
     public function notifyUserFollowed(User $recipient, User $actor): void
@@ -203,6 +214,14 @@ class NotificationService
                 'username' => $actor->username,
             ]
         );
+
+        $this->dispatchCommunityEmail('community.follow_created', $recipient, $actor, $recipient, $this->emailPayloadFactory->forUser($recipient, [
+            'actor' => [
+                'name' => $actor->name,
+                'email' => $actor->email,
+            ],
+            'action_url' => '/users/'.$actor->id,
+        ]));
     }
 
     public function notifyCommentCreated(Post $post, Comment $comment, User $actor): void
@@ -224,6 +243,8 @@ class NotificationService
                 'comment_id' => $comment->id,
             ]
         );
+
+        $this->dispatchCommunityEmail('community.comment_created', $post->user, $actor, $comment, $this->emailPayloadFactory->forComment($comment, $actor));
     }
 
     public function notifyReplyCreated(Comment $parent, Comment $reply, User $actor): void
@@ -246,6 +267,10 @@ class NotificationService
                 'parent_comment_id' => $parent->id,
             ]
         );
+
+        $this->dispatchCommunityEmail('community.reply_created', $parent->user, $actor, $reply, $this->emailPayloadFactory->forComment($reply, $actor, [
+            'user' => $parent->user,
+        ]));
     }
 
     public function notifyPostApproved(Post $post, User $actor): void
@@ -267,6 +292,8 @@ class NotificationService
                 'status' => 'approved',
             ]
         );
+
+        $this->dispatchCommunityEmail('community.post_approved', $post->user, $actor, $post, $this->emailPayloadFactory->forPost($post, $actor));
     }
 
     public function notifyPostRejected(Post $post, User $actor, ?string $reason = null): void
@@ -294,6 +321,10 @@ class NotificationService
                 'reason' => $reason,
             ]
         );
+
+        $this->dispatchCommunityEmail('community.post_rejected', $post->user, $actor, $post, $this->emailPayloadFactory->forPost($post, $actor, [
+            'reason' => $reason,
+        ]));
     }
 
     public function notifyPostFeatured(Post $post, User $actor): void
@@ -314,6 +345,8 @@ class NotificationService
                 'post_slug' => $post->slug,
             ]
         );
+
+        $this->dispatchCommunityEmail('community.post_featured', $post->user, $actor, $post, $this->emailPayloadFactory->forPost($post, $actor));
     }
 
     public function broadcastSystemAnnouncement(
@@ -321,7 +354,8 @@ class NotificationService
         string $title,
         string $body,
         ?string $actionUrl = null,
-        array $roles = []
+        array $roles = [],
+        bool $sendEmail = false,
     ): int {
         $createdCount = 0;
         $data = [
@@ -338,7 +372,7 @@ class NotificationService
             ->where('account_status', AccountStatus::Active->value)
             ->when($roles !== [], fn ($query) => $query->whereIn('role', $roles))
             ->orderBy('id')
-            ->chunkById(250, function ($users) use ($actor, $title, $body, $actionUrl, $data, &$createdCount): void {
+            ->chunkById(250, function ($users) use ($actor, $title, $body, $actionUrl, $data, $sendEmail, &$createdCount): void {
                 $timestamp = now();
                 $rows = $users->map(function (User $recipient) use ($actor, $title, $body, $actionUrl, $data, $timestamp): array {
                     return [
@@ -362,9 +396,54 @@ class NotificationService
                     UserNotification::query()->insert($rows);
                     $createdCount += count($rows);
                 }
+
+                if ($sendEmail) {
+                    foreach ($users as $recipient) {
+                        $this->emailDispatchService->sendEvent(
+                            'community.system_announcement',
+                            $this->emailPayloadFactory->forUser($recipient, [
+                                'actor' => [
+                                    'name' => $actor->name,
+                                    'email' => $actor->email,
+                                ],
+                                'announcement' => [
+                                    'title' => $title,
+                                    'body' => $body,
+                                ],
+                                'action_url' => $actionUrl,
+                            ]),
+                            [
+                                'to' => [$recipient],
+                                'idempotency_key' => 'community.system_announcement:'.$recipient->id.':'.sha1($title.'|'.$body.'|'.($actionUrl ?? '')),
+                            ],
+                        );
+                    }
+                }
             });
 
         return $createdCount;
+    }
+
+    private function dispatchCommunityEmail(
+        string $eventKey,
+        User $recipient,
+        ?User $actor,
+        Model $target,
+        array $payload
+    ): void {
+        if ($actor !== null && $actor->is($recipient)) {
+            return;
+        }
+
+        $payload['user'] = $recipient;
+
+        $this->emailDispatchService->sendEvent(
+            $eventKey,
+            $payload,
+            [
+                'related' => $target,
+            ],
+        );
     }
 
     private function perPage(null|int|string $requested): int

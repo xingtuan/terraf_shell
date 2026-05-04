@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Filament\Support\PanelAccess;
 use App\Models\User;
 use App\Services\AdminModerationService;
+use App\Services\AuthService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
@@ -213,7 +214,7 @@ class UsersTable
                     ->color('info')
                     ->visible(fn (User $record): bool => PanelAccess::isAdmin() && $record->email_verified_at === null)
                     ->action(function (User $record): void {
-                        $record->sendEmailVerificationNotification();
+                        app(AuthService::class)->sendVerificationNotification($record);
 
                         Notification::make()
                             ->title('Verification email sent.')

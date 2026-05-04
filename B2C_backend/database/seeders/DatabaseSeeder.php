@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             PostSeeder::class,
             MaterialContentSeeder::class,
             ProductSeeder::class,
+            EmailCenterSeeder::class,
         ]);
     }
 }

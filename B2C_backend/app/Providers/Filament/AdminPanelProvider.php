@@ -35,6 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 'Store',
                 'Leads / Growth',
+                'Email Center',
                 'Content',
                 'Community',
                 'Governance',

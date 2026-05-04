@@ -7,6 +7,8 @@ use App\Enums\B2BLeadType;
 use App\Mail\B2BLeadSubmittedMail;
 use App\Models\B2BLead;
 use App\Models\User;
+use App\Services\Email\EmailDispatchService;
+use App\Services\Email\EmailPayloadFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +19,8 @@ class B2BLeadService
 {
     public function __construct(
         private readonly GovernanceService $governanceService,
+        private readonly EmailDispatchService $emailDispatchService,
+        private readonly EmailPayloadFactory $emailPayloadFactory,
     ) {}
 
     public function createBusinessContact(array $data): B2BLead
@@ -129,7 +133,34 @@ class B2BLeadService
                 $lead
             );
 
-            return $this->loadLead($lead);
+            $lead = $this->loadLead($lead);
+
+            DB::afterCommit(function () use ($lead, $changes): void {
+                if (isset($changes['assigned_to']) && $lead->assignee instanceof User) {
+                    $this->emailDispatchService->sendEvent(
+                        'lead.assigned_admin_notification',
+                        $this->emailPayloadFactory->forLead($lead),
+                        [
+                            'to' => [$lead->assignee],
+                            'related' => $lead,
+                            'idempotency_key' => 'lead.assigned_admin_notification:'.$lead->id.':'.$lead->assigned_to,
+                        ],
+                    );
+                }
+
+                if (isset($changes['status'])) {
+                    $this->emailDispatchService->sendEvent(
+                        'lead.status_changed_user_update',
+                        $this->emailPayloadFactory->forLead($lead),
+                        [
+                            'related' => $lead,
+                            'idempotency_key' => 'lead.status_changed_user_update:'.$lead->id.':'.$lead->status,
+                        ],
+                    );
+                }
+            });
+
+            return $lead;
         });
     }
 
@@ -231,12 +262,41 @@ class B2BLeadService
 
             $lead = $this->loadLead($lead);
 
-            DB::afterCommit(fn () => $this->sendAdminNotification($lead));
+            DB::afterCommit(fn () => $this->sendLeadEmails($lead));
 
             return $lead;
         });
 
         return $lead;
+    }
+
+    private function sendLeadEmails(B2BLead $lead): void
+    {
+        $payload = $this->emailPayloadFactory->forLead($lead);
+
+        $userEvent = match ($lead->lead_type) {
+            B2BLeadType::BusinessContact->value => 'inquiry.submitted_user_confirmation',
+            B2BLeadType::SampleRequest->value => 'sample_request.submitted_user_confirmation',
+            default => 'partnership_inquiry.submitted_user_confirmation',
+        };
+
+        $adminEvent = $lead->lead_type === B2BLeadType::BusinessContact->value
+            ? 'inquiry.submitted_admin_notification'
+            : 'b2b_lead.submitted_admin_notification';
+
+        $this->emailDispatchService->sendEvent($userEvent, $payload, [
+            'related' => $lead,
+            'idempotency_key' => $userEvent.':'.$lead->id,
+        ]);
+
+        $adminLog = $this->emailDispatchService->sendEvent($adminEvent, $payload, [
+            'related' => $lead,
+            'idempotency_key' => $adminEvent.':'.$lead->id,
+        ]);
+
+        if ($adminLog?->status === 'skipped') {
+            $this->sendAdminNotification($lead);
+        }
     }
 
     private function sendAdminNotification(B2BLead $lead): void

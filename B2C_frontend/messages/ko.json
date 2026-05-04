@@ -896,7 +896,7 @@
       "signedInAs": "로그인 계정",
       "logout": "로그아웃",
       "refreshProfile": "프로필 새로고침",
-      "email": "이메일 (사용자명으로도 사용됩니다)",
+      "email": "이메일",
       "emailHelper": "이메일 주소는 OXP 전반에서 사용자명으로도 사용됩니다.",
       "password": "비밀번호",
       "name": "이름",

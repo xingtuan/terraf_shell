@@ -223,6 +223,67 @@ ALLOW_GUEST_UPLOAD=false
 
 ---
 
+## Email Center
+
+The backend includes a Filament-managed Email Center at `/admin/email-settings`.
+Admins can configure runtime mail delivery without editing `.env`.
+
+### How It Works
+
+- Mail server settings are stored in `email_settings`.
+- `MAIL_*`, `POSTMARK_API_KEY`, `RESEND_API_KEY`, `AWS_*`, and related `.env` values remain fallback defaults for local development or an empty database.
+- Passwords, provider API keys, and secrets use encrypted model casts and are masked in the admin UI.
+- `email_events` controls each email stage with an on/off switch, recipient mode, queue setting, and optional throttle.
+- `email_templates` stores editable EN / ZH / KO subject, HTML, and text bodies. Missing locales fall back to EN.
+- `email_logs` records queued, sent, failed, skipped, and test emails.
+- Email jobs reload database mail settings before sending, so queue workers use current admin settings.
+
+### Configure SMTP in Admin
+
+1. Sign in as an admin at `/admin`.
+2. Open **Email Center -> Settings**.
+3. Enable email sending.
+4. Select `smtp`, then enter host, port, encryption, username, password, sender, and admin recipients.
+5. Save and send a test email.
+
+The `log` and `array` mailers are available for local and test environments.
+
+### Queue Worker
+
+Most events use queued jobs:
+
+```bash
+php artisan queue:work
+```
+
+Set `QUEUE_CONNECTION=sync` only for local development.
+
+### Developer Commands
+
+```bash
+php artisan email:center:seed
+php artisan email:center:test ops@example.com
+php artisan email:center:preview auth.email_verification --locale=en
+```
+
+### Supported Email Events
+
+Auth: `auth.email_verification`, `auth.email_verification_resent`, `auth.password_reset`, `auth.password_reset_success`, `auth.welcome`.
+
+Store: `order.created`, `order.cancelled`, `order.status_changed`, `order.shipped`, `order.admin_new_order`.
+
+B2B / Contact: `inquiry.submitted_user_confirmation`, `inquiry.submitted_admin_notification`, `b2b_lead.submitted_user_confirmation`, `b2b_lead.submitted_admin_notification`, `partnership_inquiry.submitted_user_confirmation`, `sample_request.submitted_user_confirmation`, `lead.assigned_admin_notification`, `lead.status_changed_user_update`.
+
+Community: `community.comment_created`, `community.reply_created`, `community.follow_created`, `community.post_liked`, `community.post_favorited`, `community.post_approved`, `community.post_rejected`, `community.post_featured`, `community.system_announcement`.
+
+Admin/System: `admin.test_email`, `admin.manual_announcement`.
+
+Common template variables include `app.name`, `app.url`, `user.name`, `user.email`, `verification_url`, `reset_url`, `order.order_number`, `order.items`, `order_url`, `inquiry.name`, `lead.reference`, `post.title`, `post_url`, `reason`, and `announcement.body`.
+
+Templates use safe `{{ variable.path }}` placeholders. Blade directives, PHP tags, and scripts are stripped; no arbitrary PHP is executed.
+
+---
+
 ## Database Schema
 
 ### User & Identity
@@ -287,6 +348,16 @@ ALLOW_GUEST_UPLOAD=false
 | `orders` | Orders |
 | `order_items` | Order line items |
 | `addresses` | User shipping/billing addresses |
+
+### Email Center
+
+| Table | Description |
+|---|---|
+| `email_settings` | Runtime mailer settings, sender identity, encrypted secrets |
+| `email_events` | Stage-level email switches, recipients, throttle, queue behavior |
+| `email_templates` | Editable localized subject/body templates |
+| `email_template_versions` | Previous template versions |
+| `email_logs` | Sent, failed, skipped, queued, and test email trace log |
 
 ### CMS Content
 
@@ -591,6 +662,7 @@ The Filament admin panel at `/admin` is for internal staff only.
 |---|---|
 | Community | Concepts, comments, idea media, reports |
 | Content | Materials, specs, story sections, applications, articles, homepage sections |
+| Email Center | Mail settings, event switches, templates, logs |
 | Growth | B2B leads, funding campaigns |
 | Governance | Users, violations, moderation logs, admin action logs |
 | Taxonomy | Categories, tags |

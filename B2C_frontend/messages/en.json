@@ -896,7 +896,7 @@
       "signedInAs": "Signed in as",
       "logout": "Log out",
       "refreshProfile": "Refresh profile",
-      "email": "Email (also used as your username)",
+      "email": "Email",
       "emailHelper": "Your email address is also your username across OXP.",
       "password": "Password",
       "name": "Name",

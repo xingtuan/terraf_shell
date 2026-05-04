@@ -21,7 +21,8 @@ class SystemAnnouncementController extends Controller
             $data['title'],
             $data['body'],
             $data['action_url'] ?? null,
-            $data['roles'] ?? []
+            $data['roles'] ?? [],
+            (bool) ($data['send_email'] ?? false),
         );
 
         $governanceService->recordAdminAction(
@@ -31,6 +32,7 @@ class SystemAnnouncementController extends Controller
             [
                 'title' => $data['title'],
                 'roles' => $data['roles'] ?? [],
+                'send_email' => (bool) ($data['send_email'] ?? false),
                 'sent_count' => $sentCount,
                 'action_url' => $data['action_url'] ?? null,
             ],
@@ -43,6 +45,7 @@ class SystemAnnouncementController extends Controller
             'body' => $data['body'],
             'action_url' => $data['action_url'] ?? null,
             'roles' => $data['roles'] ?? [],
+            'send_email' => (bool) ($data['send_email'] ?? false),
             'sent_count' => $sentCount,
         ], 'System announcement sent successfully.', 201);
     }
