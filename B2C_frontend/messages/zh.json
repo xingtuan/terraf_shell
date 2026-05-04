@@ -2,7 +2,148 @@
   "common": {
     "errors": {
       "apiUnavailable": "API 暂时不可用。",
-      "requestFailed": "请求无法完成。"
+      "requestFailed": "请求无法完成。",
+      "generic": "出现了一些问题，请重试。",
+      "network": "网络不可用，请检查你的连接。",
+      "unauthorized": "请先登录以继续操作。",
+      "forbidden": "你没有权限执行此操作。",
+      "notFound": "找不到请求的内容。",
+      "validation": "请检查标注的字段并重试。",
+      "rateLimited": "操作太频繁，请稍候再试。",
+      "serverError": "服务器出现了问题，请稍后重试。",
+      "fieldEmailTaken": "该邮箱已注册，请直接登录。",
+      "fieldPasswordWeak": "密码至少需要 8 位，并包含字母和数字。",
+      "fieldPasswordMismatch": "两次输入的密码不一致。",
+      "fieldRequired": "此项为必填项。",
+      "fieldInvalid": "该值无效。"
+    },
+    "empty": {
+      "cart": {
+        "title": "购物车为空",
+        "description": "添加你喜欢的商品，它们将显示在这里。",
+        "cta": "浏览商店"
+      },
+      "orders": {
+        "title": "还没有订单",
+        "description": "提交订单后，记录将显示在这里。",
+        "cta": "开始购物"
+      },
+      "addresses": {
+        "title": "还没有保存的地址",
+        "description": "保存一个地址，下次结账会更快。",
+        "cta": "添加地址"
+      },
+      "favorites": {
+        "title": "还没有收藏",
+        "description": "点击帖子上的爱心，稍后再看。"
+      },
+      "followers": {
+        "title": "还没有粉丝",
+        "description": "分享你的作品，让更多人发现你。"
+      },
+      "following": {
+        "title": "还没有关注任何人",
+        "description": "寻找与你理念相合的创作者。"
+      },
+      "notifications": {
+        "title": "已全部查看",
+        "description": "有新消息时我们会通知你。"
+      },
+      "searchPosts": {
+        "title": "没有与「{query}」匹配的帖子",
+        "description": "试试其他关键词，或浏览全部帖子。"
+      },
+      "products": {
+        "title": "没有符合筛选条件的产品",
+        "description": "尝试移除某个筛选条件或清空搜索内容。",
+        "cta": "重置筛选"
+      },
+      "comments": {
+        "title": "来发表第一条评论吧",
+        "description": "分享你对这个创意的看法。"
+      },
+      "userPosts": {
+        "title": "{name} 还没有发帖",
+        "description": "稍后再来看看，或探索其他创作者。"
+      }
+    },
+    "loading": {
+      "default": "加载中…",
+      "account": "正在加载账户…",
+      "orders": "正在加载订单…",
+      "cart": "正在加载购物车…",
+      "products": "正在加载产品…",
+      "posts": "正在加载帖子…",
+      "comments": "正在加载评论…",
+      "notifications": "正在加载通知…",
+      "addresses": "正在加载地址…",
+      "submitting": "提交中…",
+      "saving": "保存中…",
+      "uploading": "上传中…",
+      "processing": "处理中…"
+    },
+    "success": {
+      "saved": "更改已保存。",
+      "profileUpdated": "资料已更新。",
+      "addressSaved": "地址已保存。",
+      "addressDefaultSet": "默认地址已更新。",
+      "addressDeleted": "地址已删除。",
+      "orderPlaced": "订单已提交，我们会尽快发送确认邮件。",
+      "orderCancelled": "订单已取消。",
+      "postPublished": "帖子已发布。",
+      "postPendingReview": "帖子已提交，正在等待审核。",
+      "postUpdated": "帖子已更新。",
+      "postDeleted": "帖子已删除。",
+      "commentPosted": "评论已发布。",
+      "commentDeleted": "评论已删除。",
+      "inquirySubmitted": "感谢你的询盘，已成功接收。编号：{reference}。我们将在 2 个工作日内与你联系。",
+      "passwordReset": "密码已重置，可用新密码登录。",
+      "verificationSent": "验证邮件已发送，请查收邮箱。",
+      "reportSubmitted": "感谢举报，我们的团队将尽快审核。"
+    },
+    "confirm": {
+      "deletePost": {
+        "title": "删除这篇帖子？",
+        "description": "此操作无法撤销，评论和媒体也会一并删除。",
+        "confirm": "删除",
+        "cancel": "保留帖子"
+      },
+      "deleteComment": {
+        "title": "删除这条评论？",
+        "description": "此操作无法撤销。",
+        "confirm": "删除",
+        "cancel": "取消"
+      },
+      "deleteAddress": {
+        "title": "删除这个地址？",
+        "description": "你可以稍后重新添加。",
+        "confirm": "删除",
+        "cancel": "保留"
+      },
+      "cancelOrder": {
+        "title": "取消这笔订单？",
+        "description": "如果已付款，退款可能需要 3–5 个工作日。",
+        "confirm": "取消订单",
+        "cancel": "保留订单"
+      },
+      "unfollowUser": {
+        "title": "取消关注 {name}？",
+        "description": "之后将不再在动态中看到对方的帖子。",
+        "confirm": "取消关注",
+        "cancel": "继续关注"
+      },
+      "logout": {
+        "title": "退出登录？",
+        "description": "发帖或评论前需要重新登录。",
+        "confirm": "退出登录",
+        "cancel": "保持登录"
+      },
+      "clearCart": {
+        "title": "清空购物车？",
+        "description": "购物车中的所有商品将被移除。",
+        "confirm": "清空购物车",
+        "cancel": "保留商品"
+      }
     }
   },
   "meta": {
@@ -464,7 +605,7 @@
       "placeholders": {
         "name": "你的姓名",
         "company": "公司或工作室",
-        "email": "name@company.com",
+        "email": "工作邮箱",
         "phone": "可选联系电话",
         "application": "颗粒供应、餐具系列、酒店项目等",
         "volume": "试产规模、年度需求、样品数量等",
@@ -755,12 +896,15 @@
       "signedInAs": "当前登录为",
       "logout": "退出登录",
       "refreshProfile": "刷新资料",
-      "email": "邮箱",
+      "email": "邮箱（同时作为您的用户名）",
+      "emailHelper": "你的邮箱地址同时作为 OXP 全站的用户名。",
       "password": "密码",
       "name": "名称",
       "confirmPassword": "确认密码",
       "loginSubmit": "登录",
+      "loginSubmitPending": "登录中…",
       "registerSubmit": "创建账户",
+      "registerSubmitPending": "创建账户中…",
       "guestHint": "无需登录也可以浏览公开帖子。",
       "refreshSuccess": "已从 /api/auth/me 刷新资料。",
       "emailPlaceholder": "请输入你的邮箱地址",

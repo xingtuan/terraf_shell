@@ -88,6 +88,7 @@ All pages are under the `[locale]` dynamic segment. The root path `/` redirects 
 | `/[locale]/articles/[slug]` | Article detail |
 | `/[locale]/store` | B2C product store |
 | `/[locale]/store/[slug]` | Product detail |
+| `/[locale]/store/cart` | Shopping cart |
 | `/[locale]/store/checkout` | Checkout |
 | `/[locale]/store/orders` | Order list |
 | `/[locale]/store/orders/[orderNumber]` | Order detail |
@@ -99,6 +100,10 @@ All pages are under the `[locale]` dynamic segment. The root path `/` redirects 
 | `/[locale]/account` | Account overview |
 | `/[locale]/account/profile` | Profile settings |
 | `/[locale]/account/addresses` | Address management |
+| `/[locale]/account/community` | Community settings |
+| `/[locale]/account/orders` | Order history |
+| `/[locale]/account/store` | Store settings |
+| `/[locale]/account/settings` | General settings |
 
 Supported locales: `en` (default), `ko`, `zh`
 
@@ -119,6 +124,7 @@ app/
     store/
       page.tsx                      # Product store
       [slug]/page.tsx               # Product detail
+      cart/page.tsx
       checkout/page.tsx
       orders/
         page.tsx
@@ -133,6 +139,10 @@ app/
       page.tsx
       profile/page.tsx
       addresses/page.tsx
+      community/page.tsx
+      orders/page.tsx
+      store/page.tsx
+      settings/page.tsx
 
 components/
   layout/

@@ -281,6 +281,7 @@ ALLOW_GUEST_UPLOAD=false
 |---|---|
 | `products` | Product catalog |
 | `product_categories` | Product categories |
+| `product_images` | Product images |
 | `carts` | Shopping carts |
 | `cart_items` | Cart line items |
 | `orders` | Orders |
@@ -305,6 +306,7 @@ ALLOW_GUEST_UPLOAD=false
 | `notifications` | User notifications |
 | `funding_campaigns` | External crowdfunding campaign metadata on concepts |
 | `media_files` | Centralized media file tracking |
+| `community_moderation_settings` | Global community moderation configuration |
 
 ### Content Status Values
 
@@ -647,13 +649,14 @@ Seeded CMS content includes:
 ```json
 {
   "name": "Jane Doe",
-  "username": "janedoe",
   "email": "jane@example.com",
   "password": "password123",
   "password_confirmation": "password123",
   "role": "creator"
 }
 ```
+
+> `username` is auto-generated from the email address and is not accepted as a user-supplied field.
 
 ### Update Profile
 

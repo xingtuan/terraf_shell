@@ -7,6 +7,17 @@ import { useRouter } from "next/navigation"
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react"
 
 import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -46,13 +57,13 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
         <div className="rounded-[2rem] border border-border/60 bg-card p-10 text-center">
           <ShoppingBag className="mx-auto size-10 text-muted-foreground" />
           <h1 className="mt-6 font-serif text-4xl text-foreground">
-            {t.emptyTitle}
+            {messages.common.empty.cart.title}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-            {t.emptyDescription}
+            {messages.common.empty.cart.description}
           </p>
           <Button asChild className="mt-6">
-            <Link href={getLocalizedHref(locale, "store")}>{t.browseCollection}</Link>
+            <Link href={getLocalizedHref(locale, "store")}>{messages.common.empty.cart.cta}</Link>
           </Button>
         </div>
       </div>
@@ -69,20 +80,39 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
               {t.title}
             </h1>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={loading}
-            onClick={() => {
-              void clearCart()
-            }}
-          >
-            {t.clearCart}
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="outline" disabled={loading}>
+                {t.clearCart}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {messages.common.confirm.clearCart.title}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {messages.common.confirm.clearCart.description}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>
+                  {messages.common.confirm.clearCart.cancel}
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    void clearCart()
+                  }}
+                >
+                  {messages.common.confirm.clearCart.confirm}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
 
         {error ? (
-          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-6 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {error}
           </div>
         ) : null}

@@ -3,6 +3,16 @@
 import { useEffect, useState } from "react"
 import { useParams } from "next/navigation"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { getErrorMessage } from "@/lib/api/client"
 import { followUser, unfollowUser } from "@/lib/api/users"
@@ -15,6 +25,7 @@ type FollowButtonProps = {
   userId: number
   initialIsFollowing: boolean
   followerCount: number
+  userName?: string
   className?: string
   onChange?: (state: { isFollowing: boolean; followerCount: number }) => void
 }
@@ -23,17 +34,20 @@ export function FollowButton({
   userId,
   initialIsFollowing,
   followerCount,
+  userName,
   className,
   onChange,
 }: FollowButtonProps) {
   const params = useParams<{ locale?: string }>()
   const requestedLocale = params?.locale ?? defaultLocale
   const locale = isValidLocale(requestedLocale) ? requestedLocale : defaultLocale
-  const messages = getMessages(locale).community.profile
+  const siteMessages = getMessages(locale)
+  const messages = siteMessages.community.profile
   const session = useAuthSession()
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
   const [currentFollowerCount, setCurrentFollowerCount] = useState(followerCount)
   const [isPending, setIsPending] = useState(false)
+  const [pendingUnfollow, setPendingUnfollow] = useState(false)
 
   useEffect(() => {
     setIsFollowing(initialIsFollowing)
@@ -43,54 +57,101 @@ export function FollowButton({
     setCurrentFollowerCount(followerCount)
   }, [followerCount])
 
+  function performUnfollow() {
+    const previousFollowerCount = currentFollowerCount
+    const nextFollowerCount = Math.max(0, currentFollowerCount - 1)
+
+    setIsPending(true)
+    setIsFollowing(false)
+    setCurrentFollowerCount(nextFollowerCount)
+    onChange?.({ isFollowing: false, followerCount: nextFollowerCount })
+
+    void unfollowUser(userId, session.token!)
+      .catch((error) => {
+        setIsFollowing(true)
+        setCurrentFollowerCount(previousFollowerCount)
+        onChange?.({ isFollowing: true, followerCount: previousFollowerCount })
+        toast({ title: getErrorMessage(error) })
+      })
+      .finally(() => {
+        setIsPending(false)
+      })
+  }
+
+  const confirmTitle = siteMessages.common.confirm.unfollowUser.title.replace(
+    "{name}",
+    userName ?? "",
+  )
+
   return (
-    <Button
-      type="button"
-      variant={isFollowing ? "default" : "outline"}
-      className={className}
-      disabled={isPending}
-      onClick={() => {
-        if (!session.user || !session.token) {
-          dispatchCommunityAuthOpen()
-          return
-        }
+    <>
+      <Button
+        type="button"
+        variant={isFollowing ? "default" : "outline"}
+        className={className}
+        disabled={isPending}
+        onClick={() => {
+          if (!session.user || !session.token) {
+            dispatchCommunityAuthOpen()
+            return
+          }
 
-        const previousIsFollowing = isFollowing
-        const previousFollowerCount = currentFollowerCount
-        const nextIsFollowing = !isFollowing
-        const nextFollowerCount = Math.max(
-          0,
-          currentFollowerCount + (nextIsFollowing ? 1 : -1),
-        )
+          if (isFollowing) {
+            setPendingUnfollow(true)
+            return
+          }
 
-        setIsPending(true)
-        setIsFollowing(nextIsFollowing)
-        setCurrentFollowerCount(nextFollowerCount)
-        onChange?.({
-          isFollowing: nextIsFollowing,
-          followerCount: nextFollowerCount,
-        })
+          const previousFollowerCount = currentFollowerCount
+          const nextFollowerCount = currentFollowerCount + 1
 
-        void (nextIsFollowing
-          ? followUser(userId, session.token)
-          : unfollowUser(userId, session.token))
-          .catch((error) => {
-            setIsFollowing(previousIsFollowing)
-            setCurrentFollowerCount(previousFollowerCount)
-            onChange?.({
-              isFollowing: previousIsFollowing,
-              followerCount: previousFollowerCount,
+          setIsPending(true)
+          setIsFollowing(true)
+          setCurrentFollowerCount(nextFollowerCount)
+          onChange?.({ isFollowing: true, followerCount: nextFollowerCount })
+
+          void followUser(userId, session.token)
+            .catch((error) => {
+              setIsFollowing(false)
+              setCurrentFollowerCount(previousFollowerCount)
+              onChange?.({ isFollowing: false, followerCount: previousFollowerCount })
+              toast({ title: getErrorMessage(error) })
             })
-            toast({
-              title: getErrorMessage(error),
+            .finally(() => {
+              setIsPending(false)
             })
-          })
-          .finally(() => {
-            setIsPending(false)
-          })
-      }}
-    >
-      {isFollowing ? messages.unfollow : messages.follow}
-    </Button>
+        }}
+      >
+        {isFollowing ? messages.unfollow : messages.follow}
+      </Button>
+
+      <AlertDialog
+        open={pendingUnfollow}
+        onOpenChange={(open) => {
+          if (!open) setPendingUnfollow(false)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmTitle}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {siteMessages.common.confirm.unfollowUser.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {siteMessages.common.confirm.unfollowUser.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setPendingUnfollow(false)
+                performUnfollow()
+              }}
+            >
+              {siteMessages.common.confirm.unfollowUser.confirm}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }

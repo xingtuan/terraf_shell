@@ -38,8 +38,8 @@ The platform is built around OXP's oyster shell material narrative and covers th
 │   │   │   ├── Controllers/Api/    # REST API controllers
 │   │   │   ├── Requests/           # Form request validation
 │   │   │   └── Resources/          # JSON API response resources
-│   │   ├── Models/             # Eloquent models (30+)
-│   │   ├── Services/           # Business logic layer (15+ services)
+│   │   ├── Models/             # Eloquent models (40+)
+│   │   ├── Services/           # Business logic layer (25+ services)
 │   │   ├── Policies/           # Authorization policies
 │   │   ├── Filament/           # Admin panel resources and widgets
 │   │   ├── Filesystem/         # Azure Blob Storage adapter

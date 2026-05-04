@@ -4,6 +4,16 @@ import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { getAccountCopy } from "@/lib/account-copy"
 import { getOrders, cancelOrder } from "@/lib/api/orders"
@@ -30,13 +40,16 @@ type AccountOrdersPageProps = {
 export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
   const session = useAuthSession()
   const copy = getAccountCopy(locale)
-  const messages = getMessages(locale).ordersPage
+  const siteMessages = getMessages(locale)
+  const messages = siteMessages.ordersPage
   const [orders, setOrders] = useState<StoreOrder[]>([])
   const [page, setPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [totalOrders, setTotalOrders] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+  const [cancelingOrderNumber, setCancelingOrderNumber] = useState<string | null>(null)
 
   useEffect(() => {
     const token = session.token
@@ -92,10 +105,6 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
       return
     }
 
-    if (!window.confirm(messages.cancelConfirm)) {
-      return
-    }
-
     try {
       const updatedOrder = await cancelOrder(orderNumber, authToken)
       setOrders((currentOrders) =>
@@ -103,8 +112,11 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
           order.order_number === orderNumber ? updatedOrder : order,
         ),
       )
+      setMessage(siteMessages.common.success.orderCancelled)
     } catch (cancelError) {
       setError(getErrorMessage(cancelError))
+    } finally {
+      setCancelingOrderNumber(null)
     }
   }
 
@@ -124,8 +136,14 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
       />
 
       {error ? (
-        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-6 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
+        </div>
+      ) : null}
+
+      {message ? (
+        <div className="mt-6 rounded-2xl bg-primary/8 px-4 py-3 text-sm text-foreground">
+          {message}
         </div>
       ) : null}
 
@@ -244,7 +262,7 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
                   type="button"
                   variant="ghost"
                   onClick={() => {
-                    void handleCancel(order.order_number)
+                    setCancelingOrderNumber(order.order_number)
                   }}
                 >
                   {messages.cancel}
@@ -282,6 +300,38 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
           </Button>
         </div>
       ) : null}
+
+      <AlertDialog
+        open={cancelingOrderNumber !== null}
+        onOpenChange={(open) => {
+          if (!open) setCancelingOrderNumber(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {siteMessages.common.confirm.cancelOrder.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {siteMessages.common.confirm.cancelOrder.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {siteMessages.common.confirm.cancelOrder.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (cancelingOrderNumber !== null) {
+                  void handleCancel(cancelingOrderNumber)
+                }
+              }}
+            >
+              {siteMessages.common.confirm.cancelOrder.confirm}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AccountPanel>
   )
 }

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 
 import type { LoginPayload, RegisterPayload } from "@/lib/api/auth"
-import { getErrorMessage } from "@/lib/api/client"
+import { getErrorMessage, getFieldErrors } from "@/lib/api/client"
 import type { CommunityUser } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,11 +20,14 @@ export type CommunityAuthCopy = {
   logout: string
   refreshProfile: string
   email: string
+  emailHelper: string
   password: string
   name: string
   confirmPassword: string
   loginSubmit: string
+  loginSubmitPending: string
   registerSubmit: string
+  registerSubmitPending: string
   guestHint: string
   refreshSuccess: string
   emailPlaceholder: string
@@ -32,6 +35,8 @@ export type CommunityAuthCopy = {
   namePlaceholder: string
   signInToContinue: string
   loadingAccount: string
+  verificationNotice?: string
+  resendVerification?: string
 }
 
 type CommunityAuthPanelProps = {
@@ -46,6 +51,11 @@ type CommunityAuthPanelProps = {
   redirectAfterLogin?: string
   context?: "community" | "store"
   onSuccess?: () => void
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null
+  return <p className="mt-1 text-xs text-destructive">{message}</p>
 }
 
 export function CommunityAuthPanel({
@@ -64,8 +74,15 @@ export function CommunityAuthPanel({
   const router = useRouter()
   const [mode, setMode] = useState<"login" | "register">("login")
   const [message, setMessage] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string> | null>(null)
+  const [showVerificationBanner, setShowVerificationBanner] = useState(false)
   const [isPending, startTransition] = useTransition()
   const headline = context === "store" ? copy.signInToContinue : copy.title
+
+  function clearErrors() {
+    setMessage(null)
+    setFieldErrors(null)
+  }
 
   if (!isReady) {
     return (
@@ -93,6 +110,12 @@ export function CommunityAuthPanel({
           <p>{copy.description}</p>
         </div>
 
+        {showVerificationBanner && copy.verificationNotice ? (
+          <div className="mt-5 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-900/20 dark:text-amber-200">
+            {copy.verificationNotice}
+          </div>
+        ) : null}
+
         {message ? (
           <div className="mt-5 rounded-2xl bg-primary/8 px-4 py-3 text-sm text-foreground">
             {message}
@@ -105,7 +128,7 @@ export function CommunityAuthPanel({
             variant="outline"
             disabled={isPending || isLoadingUser}
             onClick={() => {
-              setMessage(null)
+              clearErrors()
               startTransition(() => {
                 void onRefresh()
                   .then(() => {
@@ -124,7 +147,7 @@ export function CommunityAuthPanel({
             variant="ghost"
             disabled={isPending}
             onClick={() => {
-              setMessage(null)
+              clearErrors()
               startTransition(() => {
                 void onLogout().catch((error) => {
                   setMessage(getErrorMessage(error))
@@ -158,7 +181,10 @@ export function CommunityAuthPanel({
                 ? "bg-foreground text-background"
                 : "text-muted-foreground"
             }`}
-            onClick={() => setMode("login")}
+            onClick={() => {
+              setMode("login")
+              clearErrors()
+            }}
           >
             {copy.loginTab}
           </button>
@@ -169,15 +195,19 @@ export function CommunityAuthPanel({
                 ? "bg-foreground text-background"
                 : "text-muted-foreground"
             }`}
-            onClick={() => setMode("register")}
+            onClick={() => {
+              setMode("register")
+              clearErrors()
+            }}
           >
             {copy.registerTab}
           </button>
         </div>
       </div>
 
+      {/* Top-level (non-field) error message */}
       {message ? (
-        <div className="mt-5 rounded-2xl bg-primary/8 px-4 py-3 text-sm text-foreground">
+        <div className="mt-5 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {message}
         </div>
       ) : null}
@@ -187,7 +217,7 @@ export function CommunityAuthPanel({
           className="mt-6 space-y-4"
           onSubmit={(event) => {
             event.preventDefault()
-            setMessage(null)
+            clearErrors()
 
             const formData = new FormData(event.currentTarget)
             const payload: LoginPayload = {
@@ -206,33 +236,46 @@ export function CommunityAuthPanel({
                   }
                 })
                 .catch((error) => {
-                  setMessage(getErrorMessage(error))
+                  const fields = getFieldErrors(error)
+                  if (fields) {
+                    setFieldErrors(fields)
+                  } else {
+                    setMessage(getErrorMessage(error))
+                  }
                 })
             })
           }}
         >
-          <label className="space-y-2">
-            <span className="text-sm text-foreground">{copy.email}</span>
-            <Input
-              name="email"
-              type="email"
-              placeholder={copy.emailPlaceholder}
-              required
-            />
-          </label>
-          <label className="space-y-2">
-            <span className="text-sm text-foreground">{copy.password}</span>
-            <Input
-              name="password"
-              type="password"
-              placeholder={copy.passwordPlaceholder}
-              required
-            />
-          </label>
+          <div className="space-y-1">
+            <label className="space-y-2">
+              <span className="text-sm text-foreground">{copy.email}</span>
+              <Input
+                name="email"
+                type="email"
+                placeholder={copy.emailPlaceholder}
+                aria-invalid={!!fieldErrors?.email}
+                required
+              />
+            </label>
+            <FieldError message={fieldErrors?.email} />
+          </div>
+          <div className="space-y-1">
+            <label className="space-y-2">
+              <span className="text-sm text-foreground">{copy.password}</span>
+              <Input
+                name="password"
+                type="password"
+                placeholder={copy.passwordPlaceholder}
+                aria-invalid={!!fieldErrors?.password}
+                required
+              />
+            </label>
+            <FieldError message={fieldErrors?.password} />
+          </div>
           <div className="flex items-center justify-between gap-4 pt-2">
             <p className="text-sm text-muted-foreground">{copy.guestHint}</p>
             <Button type="submit" disabled={isPending}>
-              {isPending ? `${copy.loginSubmit}...` : copy.loginSubmit}
+              {isPending ? copy.loginSubmitPending : copy.loginSubmit}
             </Button>
           </div>
         </form>
@@ -241,7 +284,7 @@ export function CommunityAuthPanel({
           className="mt-6 space-y-4"
           onSubmit={(event) => {
             event.preventDefault()
-            setMessage(null)
+            clearErrors()
 
             const formData = new FormData(event.currentTarget)
             const payload: RegisterPayload = {
@@ -256,7 +299,11 @@ export function CommunityAuthPanel({
 
             startTransition(() => {
               void onRegister(payload)
-                .then(() => {
+                .then((newUser) => {
+                  if (newUser.email_verified === false) {
+                    setShowVerificationBanner(true)
+                  }
+
                   onSuccess?.()
 
                   if (redirectAfterLogin) {
@@ -264,50 +311,76 @@ export function CommunityAuthPanel({
                   }
                 })
                 .catch((error) => {
-                  setMessage(getErrorMessage(error))
+                  const fields = getFieldErrors(error)
+                  if (fields) {
+                    setFieldErrors(fields)
+                  } else {
+                    setMessage(getErrorMessage(error))
+                  }
                 })
             })
           }}
         >
-          <label className="space-y-2">
-            <span className="text-sm text-foreground">{copy.name}</span>
-            <Input name="name" placeholder={copy.namePlaceholder} required />
-          </label>
-          <label className="space-y-2">
-            <span className="text-sm text-foreground">{copy.email}</span>
-            <Input
-              name="email"
-              type="email"
-              placeholder={copy.emailPlaceholder}
-              required
-            />
-          </label>
+          <div className="space-y-1">
+            <label className="space-y-2">
+              <span className="text-sm text-foreground">{copy.name}</span>
+              <Input
+                name="name"
+                placeholder={copy.namePlaceholder}
+                aria-invalid={!!fieldErrors?.name}
+                required
+              />
+            </label>
+            <FieldError message={fieldErrors?.name} />
+          </div>
+          <div className="space-y-1">
+            <label className="space-y-2">
+              <span className="text-sm text-foreground">{copy.email}</span>
+              <Input
+                name="email"
+                type="email"
+                placeholder={copy.emailPlaceholder}
+                aria-invalid={!!fieldErrors?.email}
+                required
+              />
+            </label>
+            <FieldError message={fieldErrors?.email} />
+            <p className="text-xs text-muted-foreground">{copy.emailHelper}</p>
+          </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="space-y-2">
-              <span className="text-sm text-foreground">{copy.password}</span>
-              <Input
-                name="password"
-                type="password"
-                placeholder={copy.passwordPlaceholder}
-                required
-              />
-            </label>
-            <label className="space-y-2">
-              <span className="text-sm text-foreground">
-                {copy.confirmPassword}
-              </span>
-              <Input
-                name="password_confirmation"
-                type="password"
-                placeholder={copy.passwordPlaceholder}
-                required
-              />
-            </label>
+            <div className="space-y-1">
+              <label className="space-y-2">
+                <span className="text-sm text-foreground">{copy.password}</span>
+                <Input
+                  name="password"
+                  type="password"
+                  placeholder={copy.passwordPlaceholder}
+                  aria-invalid={!!fieldErrors?.password}
+                  required
+                />
+              </label>
+              <FieldError message={fieldErrors?.password} />
+            </div>
+            <div className="space-y-1">
+              <label className="space-y-2">
+                <span className="text-sm text-foreground">
+                  {copy.confirmPassword}
+                </span>
+                <Input
+                  name="password_confirmation"
+                  type="password"
+                  placeholder={copy.passwordPlaceholder}
+                  aria-invalid={!!fieldErrors?.password_confirmation}
+                  required
+                />
+              </label>
+              <FieldError message={fieldErrors?.password_confirmation} />
+            </div>
           </div>
           <div className="flex items-center justify-between gap-4 pt-2">
             <p className="text-sm text-muted-foreground">{copy.guestHint}</p>
             <Button type="submit" disabled={isPending}>
-              {isPending ? `${copy.registerSubmit}...` : copy.registerSubmit}
+              {isPending ? copy.registerSubmitPending : copy.registerSubmit}
             </Button>
           </div>
         </form>

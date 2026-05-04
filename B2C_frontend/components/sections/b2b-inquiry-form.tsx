@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 type B2BInquiryFormSectionProps = {
   locale: Locale
   content: SiteMessages["b2bPage"]["form"]
+  common: SiteMessages["common"]
   id?: string
   sourcePage?: string
   defaultLeadType?: LeadFormType
@@ -310,6 +311,7 @@ function getPanelCopy(type: LeadFormType) {
 export function B2BInquiryFormSection({
   locale,
   content,
+  common,
   id = "inquiry",
   sourcePage = "b2b",
   defaultLeadType = "inquiry",
@@ -480,9 +482,13 @@ export function B2BInquiryFormSection({
                   })
                   .catch((error) => {
                     if (error instanceof ApiError) {
-                      setFieldErrors(mapLeadValidationErrors(error.errors))
+                      const mapped = mapLeadValidationErrors(error.errors)
+                      if (Object.keys(mapped).length > 0) {
+                        setFieldErrors(mapped)
+                        setErrorMessage(common.errors.validation)
+                        return
+                      }
                     }
-
                     setErrorMessage(getErrorMessage(error))
                   })
               })
@@ -836,21 +842,20 @@ export function B2BInquiryFormSection({
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <Button type="submit" size="lg" disabled={isPending}>
-                {isPending ? `${content.submit}...` : content.submit}
+                {isPending ? common.loading.submitting : content.submit}
               </Button>
               {errorMessage ? (
-                <div className="rounded-2xl border border-destructive/30 bg-destructive/8 px-4 py-3 text-sm text-foreground">
+                <div className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
                   <p>{errorMessage}</p>
                 </div>
               ) : null}
               {submission ? (
                 <div className="rounded-2xl bg-primary/8 px-4 py-3 text-sm text-foreground">
-                  <p>{content.success}</p>
-                  <p className="mt-1 text-muted-foreground">
-                    {content.referenceLabel}: {submission.reference}
-                  </p>
-                  <p className="mt-1 text-muted-foreground">
-                    Status: {submission.status}
+                  <p>
+                    {common.success.inquirySubmitted.replace(
+                      "{reference}",
+                      submission.reference,
+                    )}
                   </p>
                 </div>
               ) : null}

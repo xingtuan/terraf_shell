@@ -39,7 +39,7 @@ import {
   getCommunitySupportUrl,
   getCommunityUserName,
 } from "@/lib/community-ui"
-import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
+import { getLocalizedHref, getMessages, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { CommunityComment, CommunityMedia, CommunityPost } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { toast } from "@/hooks/use-toast"
@@ -94,6 +94,7 @@ export function CommunityPostDetail({
 }: CommunityPostDetailProps) {
   const router = useRouter()
   const session = useAuthSession()
+  const commonMessages = getMessages(locale).common
   const [post, setPost] = useState<CommunityPost | null>(initialPost)
   const [comments, setComments] = useState<CommunityComment[]>([])
   const [commentText, setCommentText] = useState("")
@@ -653,10 +654,10 @@ export function CommunityPostDetail({
               {!isLoadingComments && comments.length === 0 ? (
                 <div className="mt-8 rounded-[1.5rem] border border-border/60 bg-background p-6">
                   <h3 className="font-serif text-2xl text-foreground">
-                    {messages.post.noCommentsTitle}
+                    {commonMessages.empty.comments.title}
                   </h3>
                   <p className="mt-3 text-muted-foreground">
-                    {messages.post.noCommentsDescription}
+                    {commonMessages.empty.comments.description}
                   </p>
                 </div>
               ) : null}

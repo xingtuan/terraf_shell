@@ -352,6 +352,7 @@ export function CommunityProfilePage({
                         userId={profile.id}
                         initialIsFollowing={profile.is_following}
                         followerCount={profile.followers_count ?? 0}
+                        userName={profile.name}
                         onChange={({ isFollowing, followerCount }) => {
                           setProfile((currentProfile) =>
                             currentProfile

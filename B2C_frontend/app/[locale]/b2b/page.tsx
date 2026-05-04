@@ -83,6 +83,7 @@ export default async function B2BPage({ params }: B2BPageProps) {
         <B2BInquiryFormSection
           locale={locale}
           content={messages.b2bPage.form}
+          common={messages.common}
           sourcePage="b2b"
           defaultLeadType="inquiry"
         />

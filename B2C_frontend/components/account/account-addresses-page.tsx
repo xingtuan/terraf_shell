@@ -2,6 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -59,9 +69,11 @@ function mergeAddress(currentAddresses: Address[], nextAddress: Address) {
 export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
   const session = useAuthSession()
   const copy = getAccountCopy(locale)
-  const messages = getMessages(locale).addressPage
+  const siteMessages = getMessages(locale)
+  const messages = siteMessages.addressPage
   const [addresses, setAddresses] = useState<Address[]>([])
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null)
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null)
   const [form, setForm] = useState<AddressPayload>(emptyAddressForm)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -128,17 +140,16 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
       return
     }
 
-    if (!window.confirm(messages.deleteConfirm)) {
-      return
-    }
-
     try {
       await deleteAddress(addressId, session.token)
       setAddresses((currentAddresses) =>
         currentAddresses.filter((address) => address.id !== addressId),
       )
+      setMessage(siteMessages.common.success.addressDeleted)
     } catch (deleteError) {
       setError(getErrorMessage(deleteError))
+    } finally {
+      setPendingDeleteId(null)
     }
   }
 
@@ -150,6 +161,7 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
     try {
       const nextAddress = await setDefaultAddress(addressId, session.token)
       setAddresses((currentAddresses) => mergeAddress(currentAddresses, nextAddress))
+      setMessage(siteMessages.common.success.addressDefaultSet)
     } catch (defaultError) {
       setError(getErrorMessage(defaultError))
     }
@@ -174,13 +186,13 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
       />
 
       {error ? (
-        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mt-6 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       ) : null}
 
       {message ? (
-        <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div className="mt-6 rounded-2xl bg-primary/8 px-4 py-3 text-sm text-foreground">
           {message}
         </div>
       ) : null}
@@ -422,7 +434,7 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          void handleDelete(address.id)
+                          setPendingDeleteId(address.id)
                         }}
                       >
                         {messages.delete}
@@ -435,6 +447,38 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
           </div>
         </AccountPanel>
       </div>
+
+      <AlertDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {siteMessages.common.confirm.deleteAddress.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {siteMessages.common.confirm.deleteAddress.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {siteMessages.common.confirm.deleteAddress.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingDeleteId !== null) {
+                  void handleDelete(pendingDeleteId)
+                }
+              }}
+            >
+              {siteMessages.common.confirm.deleteAddress.confirm}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AccountPanel>
   )
 }

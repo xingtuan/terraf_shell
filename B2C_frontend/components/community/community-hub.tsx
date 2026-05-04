@@ -17,7 +17,7 @@ import { checkThrottle, ThrottleError } from "@/lib/api/request-throttle"
 import { getErrorMessage } from "@/lib/api/client"
 import { listCategories, listPosts, listTags } from "@/lib/api/posts"
 import { COMMUNITY_POSTS_REFRESH_EVENT } from "@/lib/community-events"
-import { type Locale, type SiteMessages } from "@/lib/i18n"
+import { getMessages, type Locale, type SiteMessages } from "@/lib/i18n"
 import type {
   ApiPaginationMeta,
   CommunityCategory,
@@ -39,6 +39,7 @@ export function CommunityHub({
 }: CommunityHubProps) {
   const searchParams = useSearchParams()
   const session = useAuthSession()
+  const commonMessages = getMessages(locale).common
   const [posts, setPosts] = useState<CommunityPost[]>([])
   const [meta, setMeta] = useState<ApiPaginationMeta | null>(null)
   const [sort, setSort] = useState<"latest" | "hot">("latest")
@@ -350,10 +351,14 @@ export function CommunityHub({
         {!isLoading && posts.length === 0 ? (
           <div className="mt-10 rounded-[2rem] border border-border/60 bg-card p-8">
             <h2 className="font-serif text-2xl text-foreground">
-              {query ? messages.feed.noResultsTitle : messages.feed.emptyTitle}
+              {query
+                ? commonMessages.empty.searchPosts.title.replace("{query}", query)
+                : messages.feed.emptyTitle}
             </h2>
             <p className="mt-3 max-w-2xl text-muted-foreground">
-              {query ? messages.feed.noResults : messages.feed.emptyDescription}
+              {query
+                ? commonMessages.empty.searchPosts.description
+                : messages.feed.emptyDescription}
             </p>
           </div>
         ) : null}

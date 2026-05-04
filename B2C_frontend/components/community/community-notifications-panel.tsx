@@ -9,7 +9,7 @@ import {
   listNotifications,
   markNotificationRead,
 } from "@/lib/api/notifications"
-import { getLocalizedHref, type Locale } from "@/lib/i18n"
+import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
 import { resolveCmsHref } from "@/lib/page-content"
 import type { UserNotification } from "@/lib/types"
 
@@ -38,6 +38,8 @@ export function CommunityNotificationsPanel({
   locale,
   token,
 }: CommunityNotificationsPanelProps) {
+  const siteMessages = getMessages(locale)
+  const t = siteMessages.community.notifications
   const [notifications, setNotifications] = useState<UserNotification[]>([])
   const [message, setMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -94,10 +96,10 @@ export function CommunityNotificationsPanel({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm uppercase tracking-[0.18em] text-primary">
-            Notifications
+            {t.title}
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
-            Unread: {unreadCount}
+            {t.unread.replace("{count}", String(unreadCount))}
           </p>
         </div>
         <Button
@@ -123,13 +125,18 @@ export function CommunityNotificationsPanel({
 
       {isLoading ? (
         <div className="mt-5 text-sm text-muted-foreground">
-          Loading notifications...
+          {siteMessages.common.loading.notifications}
         </div>
       ) : null}
 
       {!isLoading && notifications.length === 0 ? (
-        <div className="mt-5 rounded-2xl bg-background px-4 py-5 text-sm text-muted-foreground">
-          No notifications yet.
+        <div className="mt-5 rounded-2xl bg-background px-4 py-5">
+          <p className="text-sm font-medium text-foreground">
+            {siteMessages.common.empty.notifications.title}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {siteMessages.common.empty.notifications.description}
+          </p>
         </div>
       ) : null}
 
@@ -142,7 +149,7 @@ export function CommunityNotificationsPanel({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="font-medium text-foreground">
-                  {notification.title || "Community update"}
+                  {notification.title || t.announcement}
                 </p>
                 {notification.body ? (
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -177,7 +184,7 @@ export function CommunityNotificationsPanel({
                       })
                   }}
                 >
-                  Mark read
+                  {t.markAllRead}
                 </button>
               ) : null}
             </div>
@@ -185,7 +192,7 @@ export function CommunityNotificationsPanel({
             <div className="mt-4">
               <Button asChild variant="ghost" size="sm" className="px-0">
                 <Link href={resolveNotificationHref(locale, notification)}>
-                  Open
+                  {t.open}
                 </Link>
               </Button>
             </div>

@@ -2,7 +2,148 @@
   "common": {
     "errors": {
       "apiUnavailable": "API를 현재 사용할 수 없습니다.",
-      "requestFailed": "요청을 완료할 수 없습니다."
+      "requestFailed": "요청을 완료할 수 없습니다.",
+      "generic": "오류가 발생했습니다. 다시 시도해 주세요.",
+      "network": "네트워크를 사용할 수 없습니다. 연결 상태를 확인해 주세요.",
+      "unauthorized": "계속하려면 로그인하세요.",
+      "forbidden": "해당 작업을 수행할 권한이 없습니다.",
+      "notFound": "요청한 항목을 찾을 수 없습니다.",
+      "validation": "입력 내용을 확인하고 다시 시도해 주세요.",
+      "rateLimited": "너무 빠르게 요청하고 있습니다. 잠시 후 다시 시도해 주세요.",
+      "serverError": "서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+      "fieldEmailTaken": "이미 등록된 이메일입니다. 로그인을 시도해 보세요.",
+      "fieldPasswordWeak": "비밀번호는 8자 이상이며 영문자와 숫자를 포함해야 합니다.",
+      "fieldPasswordMismatch": "비밀번호가 일치하지 않습니다.",
+      "fieldRequired": "필수 입력 항목입니다.",
+      "fieldInvalid": "올바르지 않은 값입니다."
+    },
+    "empty": {
+      "cart": {
+        "title": "장바구니가 비어 있습니다",
+        "description": "마음에 드는 제품을 추가하면 여기에 표시됩니다.",
+        "cta": "스토어 둘러보기"
+      },
+      "orders": {
+        "title": "아직 주문이 없습니다",
+        "description": "주문하면 여기에 내역이 표시됩니다.",
+        "cta": "쇼핑 시작하기"
+      },
+      "addresses": {
+        "title": "저장된 주소가 없습니다",
+        "description": "주소를 저장하면 다음에 더 빠르게 결제할 수 있습니다.",
+        "cta": "주소 추가하기"
+      },
+      "favorites": {
+        "title": "아직 저장한 항목이 없습니다",
+        "description": "게시물의 하트를 눌러 나중에 저장해 보세요."
+      },
+      "followers": {
+        "title": "아직 팔로워가 없습니다",
+        "description": "작업을 공유해 발견될 기회를 만들어 보세요."
+      },
+      "following": {
+        "title": "아직 팔로우하는 사람이 없습니다",
+        "description": "공감 가는 아이디어를 가진 메이커를 찾아보세요."
+      },
+      "notifications": {
+        "title": "모두 확인했습니다",
+        "description": "새로운 소식이 있으면 알려드리겠습니다."
+      },
+      "searchPosts": {
+        "title": "\"{query}\"에 해당하는 게시물이 없습니다",
+        "description": "다른 키워드로 검색하거나 전체 게시물을 둘러보세요."
+      },
+      "products": {
+        "title": "이 필터에 해당하는 제품이 없습니다",
+        "description": "필터를 제거하거나 검색어를 변경해 보세요.",
+        "cta": "필터 초기화"
+      },
+      "comments": {
+        "title": "첫 댓글을 남겨보세요",
+        "description": "이 아이디어에 대한 생각을 공유해 보세요."
+      },
+      "userPosts": {
+        "title": "{name}님은 아직 게시물을 올리지 않았습니다",
+        "description": "나중에 다시 확인하거나 다른 메이커를 탐색해 보세요."
+      }
+    },
+    "loading": {
+      "default": "불러오는 중…",
+      "account": "계정 정보를 불러오는 중…",
+      "orders": "주문 내역을 불러오는 중…",
+      "cart": "장바구니를 불러오는 중…",
+      "products": "제품을 불러오는 중…",
+      "posts": "게시물을 불러오는 중…",
+      "comments": "댓글을 불러오는 중…",
+      "notifications": "알림을 불러오는 중…",
+      "addresses": "주소를 불러오는 중…",
+      "submitting": "제출 중…",
+      "saving": "저장 중…",
+      "uploading": "업로드 중…",
+      "processing": "처리 중…"
+    },
+    "success": {
+      "saved": "변경 사항이 저장되었습니다.",
+      "profileUpdated": "프로필이 업데이트되었습니다.",
+      "addressSaved": "주소가 저장되었습니다.",
+      "addressDefaultSet": "기본 주소가 변경되었습니다.",
+      "addressDeleted": "주소가 삭제되었습니다.",
+      "orderPlaced": "주문이 완료되었습니다. 곧 확인 이메일을 보내드리겠습니다.",
+      "orderCancelled": "주문이 취소되었습니다.",
+      "postPublished": "게시물이 게시되었습니다.",
+      "postPendingReview": "게시물이 제출되었으며 검토 대기 중입니다.",
+      "postUpdated": "게시물이 업데이트되었습니다.",
+      "postDeleted": "게시물이 삭제되었습니다.",
+      "commentPosted": "댓글이 등록되었습니다.",
+      "commentDeleted": "댓글이 삭제되었습니다.",
+      "inquirySubmitted": "감사합니다 — 문의가 접수되었습니다. 접수 번호: {reference}. 영업일 기준 2일 이내에 연락드리겠습니다.",
+      "passwordReset": "비밀번호가 재설정되었습니다. 새 비밀번호로 로그인하세요.",
+      "verificationSent": "인증 이메일이 발송되었습니다. 받은 편지함을 확인해 주세요.",
+      "reportSubmitted": "신고해 주셔서 감사합니다. 팀에서 곧 검토하겠습니다."
+    },
+    "confirm": {
+      "deletePost": {
+        "title": "이 게시물을 삭제할까요?",
+        "description": "되돌릴 수 없습니다. 댓글과 미디어도 함께 삭제됩니다.",
+        "confirm": "삭제",
+        "cancel": "게시물 유지"
+      },
+      "deleteComment": {
+        "title": "이 댓글을 삭제할까요?",
+        "description": "되돌릴 수 없습니다.",
+        "confirm": "삭제",
+        "cancel": "취소"
+      },
+      "deleteAddress": {
+        "title": "이 주소를 삭제할까요?",
+        "description": "나중에 다시 추가할 수 있습니다.",
+        "confirm": "삭제",
+        "cancel": "유지"
+      },
+      "cancelOrder": {
+        "title": "이 주문을 취소할까요?",
+        "description": "이미 결제가 완료된 경우 환불에 영업일 기준 3~5일이 소요될 수 있습니다.",
+        "confirm": "주문 취소",
+        "cancel": "주문 유지"
+      },
+      "unfollowUser": {
+        "title": "{name}님을 언팔로우할까요?",
+        "description": "피드에서 해당 사용자의 게시물이 더 이상 표시되지 않습니다.",
+        "confirm": "언팔로우",
+        "cancel": "팔로우 유지"
+      },
+      "logout": {
+        "title": "로그아웃할까요?",
+        "description": "게시물 작성이나 댓글을 남기려면 다시 로그인해야 합니다.",
+        "confirm": "로그아웃",
+        "cancel": "로그인 유지"
+      },
+      "clearCart": {
+        "title": "장바구니를 비울까요?",
+        "description": "장바구니의 모든 항목이 삭제됩니다.",
+        "confirm": "장바구니 비우기",
+        "cancel": "항목 유지"
+      }
     }
   },
   "meta": {
@@ -464,7 +605,7 @@
       "placeholders": {
         "name": "담당자 이름",
         "company": "회사 또는 스튜디오명",
-        "email": "name@company.com",
+        "email": "업무용 이메일",
         "phone": "선택 입력",
         "application": "펠릿 공급, 테이블웨어 라인, 호스피탈리티 프로젝트 등",
         "volume": "파일럿 물량, 연간 수요, 샘플 수량 등",
@@ -755,12 +896,15 @@
       "signedInAs": "로그인 계정",
       "logout": "로그아웃",
       "refreshProfile": "프로필 새로고침",
-      "email": "이메일",
+      "email": "이메일 (사용자명으로도 사용됩니다)",
+      "emailHelper": "이메일 주소는 OXP 전반에서 사용자명으로도 사용됩니다.",
       "password": "비밀번호",
       "name": "이름",
       "confirmPassword": "비밀번호 확인",
       "loginSubmit": "로그인",
+      "loginSubmitPending": "로그인 중…",
       "registerSubmit": "계정 만들기",
+      "registerSubmitPending": "계정 생성 중…",
       "guestHint": "로그인하지 않아도 공개 게시물을 둘러볼 수 있습니다.",
       "refreshSuccess": "/api/auth/me에서 프로필을 새로고쳤습니다.",
       "emailPlaceholder": "이메일 주소를 입력하세요",

@@ -7,6 +7,17 @@ import { useRouter } from "next/navigation"
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react"
 
 import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -78,7 +89,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
 
           <div className="flex-1 overflow-y-auto px-6 py-6">
             {error ? (
-              <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div className="mb-4 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {error}
               </div>
             ) : null}
@@ -86,14 +97,14 @@ export function CartSidebar({ locale }: CartSidebarProps) {
             {!cart || cart.items.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-border/70 bg-card p-8 text-center">
                 <h3 className="font-serif text-2xl text-foreground">
-                  {t.emptyTitle}
+                  {messages.common.empty.cart.title}
                 </h3>
                 <p className="mt-3 text-sm text-muted-foreground">
-                  {t.emptyDescription}
+                  {messages.common.empty.cart.description}
                 </p>
                 <Button asChild className="mt-6">
                   <Link href={getLocalizedHref(locale, "store")}>
-                    {t.browseCollection}
+                    {messages.common.empty.cart.cta}
                   </Link>
                 </Button>
               </div>
@@ -243,16 +254,39 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                 >
                   {session.user ? t.proceedToCheckout : t.signInToCheckout}
                 </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  disabled={!cart || cart.items.length === 0 || loading}
-                  onClick={() => {
-                    void clearCart()
-                  }}
-                >
-                  {t.clearCart}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      disabled={!cart || cart.items.length === 0 || loading}
+                    >
+                      {t.clearCart}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        {messages.common.confirm.clearCart.title}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {messages.common.confirm.clearCart.description}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>
+                        {messages.common.confirm.clearCart.cancel}
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => {
+                          void clearCart()
+                        }}
+                      >
+                        {messages.common.confirm.clearCart.confirm}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </SheetFooter>

@@ -2,7 +2,148 @@
   "common": {
     "errors": {
       "apiUnavailable": "The API is unavailable right now.",
-      "requestFailed": "The request could not be completed."
+      "requestFailed": "The request could not be completed.",
+      "generic": "Something went wrong. Please try again.",
+      "network": "Network unavailable. Please check your connection.",
+      "unauthorized": "Please sign in to continue.",
+      "forbidden": "You don't have permission to do that.",
+      "notFound": "The requested resource could not be found.",
+      "validation": "Please check the highlighted fields and try again.",
+      "rateLimited": "You're doing that too fast. Please wait a moment.",
+      "serverError": "Our servers are having trouble. Please try again shortly.",
+      "fieldEmailTaken": "This email is already registered. Try signing in instead.",
+      "fieldPasswordWeak": "Password must be at least 8 characters and include letters and numbers.",
+      "fieldPasswordMismatch": "Passwords don't match.",
+      "fieldRequired": "This field is required.",
+      "fieldInvalid": "This value is not valid."
+    },
+    "empty": {
+      "cart": {
+        "title": "Your cart is empty",
+        "description": "Add a piece you love and it will appear here.",
+        "cta": "Browse the store"
+      },
+      "orders": {
+        "title": "No orders yet",
+        "description": "When you place an order, it will show up here.",
+        "cta": "Start shopping"
+      },
+      "addresses": {
+        "title": "No saved addresses",
+        "description": "Save an address to check out faster next time.",
+        "cta": "Add an address"
+      },
+      "favorites": {
+        "title": "No favorites yet",
+        "description": "Tap the heart on any post to save it for later."
+      },
+      "followers": {
+        "title": "No followers yet",
+        "description": "Share your work to be discovered."
+      },
+      "following": {
+        "title": "Not following anyone yet",
+        "description": "Find makers whose ideas resonate with yours."
+      },
+      "notifications": {
+        "title": "You're all caught up",
+        "description": "We'll let you know when there's news."
+      },
+      "searchPosts": {
+        "title": "No posts match \"{query}\"",
+        "description": "Try a different keyword or browse all posts."
+      },
+      "products": {
+        "title": "No products match these filters",
+        "description": "Try removing a filter or clearing your search.",
+        "cta": "Reset filters"
+      },
+      "comments": {
+        "title": "Be the first to comment",
+        "description": "Share what you think about this idea."
+      },
+      "userPosts": {
+        "title": "{name} hasn't posted yet",
+        "description": "Check back later or explore other makers."
+      }
+    },
+    "loading": {
+      "default": "Loading…",
+      "account": "Loading your account…",
+      "orders": "Loading your orders…",
+      "cart": "Loading your cart…",
+      "products": "Loading products…",
+      "posts": "Loading posts…",
+      "comments": "Loading comments…",
+      "notifications": "Loading notifications…",
+      "addresses": "Loading addresses…",
+      "submitting": "Submitting…",
+      "saving": "Saving…",
+      "uploading": "Uploading…",
+      "processing": "Processing…"
+    },
+    "success": {
+      "saved": "Changes saved.",
+      "profileUpdated": "Profile updated.",
+      "addressSaved": "Address saved.",
+      "addressDefaultSet": "Default address updated.",
+      "addressDeleted": "Address deleted.",
+      "orderPlaced": "Order placed. We'll email you a confirmation shortly.",
+      "orderCancelled": "Order cancelled.",
+      "postPublished": "Your post is live.",
+      "postPendingReview": "Your post was submitted and is pending review.",
+      "postUpdated": "Post updated.",
+      "postDeleted": "Post deleted.",
+      "commentPosted": "Comment posted.",
+      "commentDeleted": "Comment deleted.",
+      "inquirySubmitted": "Thanks — your inquiry was received. Reference: {reference}. We'll be in touch within 2 business days.",
+      "passwordReset": "Password reset. You can sign in with your new password.",
+      "verificationSent": "Verification email sent. Please check your inbox.",
+      "reportSubmitted": "Thanks for reporting. Our team will review shortly."
+    },
+    "confirm": {
+      "deletePost": {
+        "title": "Delete this post?",
+        "description": "This can't be undone. Comments and media will also be removed.",
+        "confirm": "Delete",
+        "cancel": "Keep post"
+      },
+      "deleteComment": {
+        "title": "Delete this comment?",
+        "description": "This can't be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "deleteAddress": {
+        "title": "Remove this address?",
+        "description": "You can add it again later.",
+        "confirm": "Remove",
+        "cancel": "Keep"
+      },
+      "cancelOrder": {
+        "title": "Cancel this order?",
+        "description": "If payment was already taken, refunds may take 3–5 business days.",
+        "confirm": "Cancel order",
+        "cancel": "Keep order"
+      },
+      "unfollowUser": {
+        "title": "Unfollow {name}?",
+        "description": "You'll stop seeing their posts in your feed.",
+        "confirm": "Unfollow",
+        "cancel": "Stay following"
+      },
+      "logout": {
+        "title": "Sign out?",
+        "description": "You'll need to sign in again to post or comment.",
+        "confirm": "Sign out",
+        "cancel": "Stay signed in"
+      },
+      "clearCart": {
+        "title": "Clear your cart?",
+        "description": "All items in your cart will be removed.",
+        "confirm": "Clear cart",
+        "cancel": "Keep items"
+      }
     }
   },
   "meta": {
@@ -464,7 +605,7 @@
       "placeholders": {
         "name": "Your name",
         "company": "Company or studio",
-        "email": "name@company.com",
+        "email": "Work email",
         "phone": "Optional phone number",
         "application": "Pellet supply, tableware line, hospitality project...",
         "volume": "Pilot run, annual demand, sample quantity...",
@@ -755,12 +896,15 @@
       "signedInAs": "Signed in as",
       "logout": "Log out",
       "refreshProfile": "Refresh profile",
-      "email": "Email",
+      "email": "Email (also used as your username)",
+      "emailHelper": "Your email address is also your username across OXP.",
       "password": "Password",
       "name": "Name",
       "confirmPassword": "Confirm password",
       "loginSubmit": "Login",
+      "loginSubmitPending": "Signing in…",
       "registerSubmit": "Create account",
+      "registerSubmitPending": "Creating account…",
       "guestHint": "You can browse public posts without signing in.",
       "refreshSuccess": "Profile refreshed from /api/auth/me.",
       "emailPlaceholder": "Please enter your email address",
