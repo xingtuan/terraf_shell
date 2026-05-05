@@ -11,11 +11,13 @@ import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { PageIntro } from "@/components/page-intro"
 import {
   getMaterialInfo,
+  getMaterialSpecs,
   materialInfoToSpecs,
 } from "@/lib/api/materials"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
+import type { MaterialInfo } from "@/lib/types"
 
 type MaterialPageProps = {
   params: Promise<{ locale: string }>
@@ -26,18 +28,24 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
   const certificationMessages = messages.certificationsAtAGlance
+  const materialRequestOptions = {
+    baseUrl: apiBaseUrl,
+    locale,
+  } as const
 
-  let materialInfo = null
+  let materialInfo: MaterialInfo | null = null
 
   try {
-    const response = await getMaterialInfo({ baseUrl: apiBaseUrl })
+    const response = await getMaterialInfo(materialRequestOptions)
     materialInfo = response.data
   } catch {
     materialInfo = null
   }
 
   const intro = messages.materialPage.intro
-  const specs = materialInfo ? materialInfoToSpecs(materialInfo) : []
+  const specs = materialInfo
+    ? materialInfoToSpecs(materialInfo)
+    : await getMaterialSpecs(locale, materialRequestOptions)
   const whyItMattersContent = materialInfo
     ? {
         ...messages.home.whyItMatters,

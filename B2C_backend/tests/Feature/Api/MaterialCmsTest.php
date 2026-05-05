@@ -130,6 +130,20 @@ class MaterialCmsTest extends TestCase
             ->assertJsonPath('data.materials.0.slug', 'oyster-shell-material');
     }
 
+    public function test_public_material_endpoint_returns_chinese_material_payload_without_english_fallback_copy(): void
+    {
+        $response = $this->getJson('/api/materials?locale=zh')
+            ->assertOk()
+            ->assertJsonPath('data.tagline', '海洋遗产，以匠人工艺重塑。')
+            ->assertJsonPath('data.origin', '从沿海废弃物流中回收的牡蛎壳')
+            ->assertJsonPath('data.certifications.0.label', '吸水率测试');
+
+        $response->assertDontSee([
+            "Ocean's Legacy, Crafted with Artisan Tech.",
+            'Water Absorption Test',
+        ], false);
+    }
+
     public function test_admin_can_crud_material_cms_content_with_media(): void
     {
         Config::set('community.uploads.disk', 'public');

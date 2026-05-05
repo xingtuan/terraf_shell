@@ -9,7 +9,7 @@
     "lint": "eslint . && node scripts/check-i18n-keys.mjs",
     "check:i18n": "node scripts/check-i18n-keys.mjs",
     "i18n:check": "node scripts/i18n-diff.mjs",
-    "test": "node --experimental-strip-types --test lib/api/client.test.ts"
+    "test": "node --experimental-strip-types --test lib/api/client.test.ts tests/material-page-locale.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
