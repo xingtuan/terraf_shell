@@ -25,6 +25,7 @@ type CommentThreadProps = {
   comments: CommunityComment[]
   locale: Locale
   messages: SiteMessages["community"]["post"]
+  memberFallback: string
   token?: string | null
   currentUserId?: number | null
   activeAction?: string | null
@@ -40,6 +41,7 @@ export function CommentThread({
   comments,
   locale,
   messages,
+  memberFallback,
   token,
   currentUserId,
   activeAction,
@@ -79,11 +81,12 @@ export function CommentThread({
                   <CommunityUserAvatar
                     user={comment.user}
                     className="size-10 border border-border/60"
+                    fallbackName={memberFallback}
                     sizes="40px"
                   />
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {getCommunityUserName(comment.user)}
+                      {getCommunityUserName(comment.user, memberFallback)}
                     </p>
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                       <span>
@@ -314,6 +317,7 @@ export function CommentThread({
                   comments={replies}
                   locale={locale}
                   messages={messages}
+                  memberFallback={memberFallback}
                   token={token}
                   currentUserId={currentUserId}
                   activeAction={activeAction}

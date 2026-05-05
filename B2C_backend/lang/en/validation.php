@@ -24,7 +24,7 @@ return [
             'min'       => 'Password must be at least 8 characters.',
         ],
         'name' => [
-            'required' => 'Name is required.',
+            'required' => 'Please enter your full name.',
             'max'      => 'Name must be :max characters or fewer.',
         ],
         'company_name' => [

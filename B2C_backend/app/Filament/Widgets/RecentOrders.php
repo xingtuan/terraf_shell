@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentOrders extends TableWidget
 {
-    protected static ?string $heading = 'Fulfilment Backlog';
+    protected static ?string $heading = 'Order Request Backlog';
 
     protected static ?int $sort = 7;
 
@@ -36,19 +36,19 @@ class RecentOrders extends TableWidget
                 ->latest())
             ->columns([
                 TextColumn::make('order_number')
-                    ->label('Order')
+                    ->label('Order request')
                     ->copyable()
                     ->searchable(),
                 TextColumn::make('user.name')
                     ->label('Customer')
-                    ->description(fn (Order $record): string => $record->user?->email ?? 'Guest checkout')
+                    ->description(fn (Order $record): string => $record->user?->email ?? 'Customer email unavailable')
                     ->searchable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->label() : (OrderStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->color() : (OrderStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                 TextColumn::make('payment_status')
-                    ->label('Payment')
+                    ->label('Payment instructions')
                     ->badge()
                     ->formatStateUsing(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->label() : (OrderPaymentStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->color() : (OrderPaymentStatus::tryFrom((string) $state)?->color() ?? 'gray')),
@@ -59,7 +59,7 @@ class RecentOrders extends TableWidget
                     ->label('Ship to')
                     ->placeholder('-'),
                 TextColumn::make('created_at')
-                    ->label('Placed')
+                    ->label('Submitted')
                     ->dateTime()
                     ->since(),
             ])
@@ -68,8 +68,8 @@ class RecentOrders extends TableWidget
                     ->url(fn (Order $record): string => OrderResource::getUrl('view', ['record' => $record])),
             ])
             ->paginated([8])
-            ->emptyStateHeading('No active fulfilment backlog.')
-            ->emptyStateDescription('New orders that need review will appear here.');
+            ->emptyStateHeading('No active order request backlog.')
+            ->emptyStateDescription('New order requests that need review will appear here.');
     }
 
     public static function canView(): bool

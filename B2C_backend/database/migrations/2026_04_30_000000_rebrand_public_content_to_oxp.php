@@ -395,7 +395,7 @@ return new class extends Migration
 
         return [
             'mailto:'.$legacyEmail => '#contact-form',
-            $legacyEmail => 'Contact email pending',
+            $legacyEmail => 'Contact us',
             $legacyUpper => 'OXP',
             $legacyTitle => 'OXP',
             $legacyLower => 'oxp',

@@ -23,16 +23,16 @@ enum OrderPaymentStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Unpaid => 'Unpaid',
-            self::Paid => 'Paid',
-            self::Refunded => 'Refunded',
+            self::Unpaid => 'Awaiting payment',
+            self::Paid => 'Paid manually',
+            self::Refunded => 'Refunded manually',
         };
     }
 
     public function color(): string
     {
         return match ($this) {
-            self::Unpaid => 'danger',
+            self::Unpaid => 'warning',
             self::Paid => 'success',
             self::Refunded => 'gray',
         };

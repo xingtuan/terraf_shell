@@ -25,12 +25,12 @@
       },
       "orders": {
         "title": "No orders yet",
-        "description": "When you place an order, it will show up here.",
+        "description": "When you submit an order request, it will show up here.",
         "cta": "Start shopping"
       },
       "addresses": {
         "title": "No saved addresses",
-        "description": "Save an address to check out faster next time.",
+        "description": "Save an address to speed up future order requests.",
         "cta": "Add an address"
       },
       "favorites": {
@@ -88,7 +88,7 @@
       "addressSaved": "Address saved.",
       "addressDefaultSet": "Default address updated.",
       "addressDeleted": "Address deleted.",
-      "orderPlaced": "Order placed. We'll email you a confirmation shortly.",
+      "orderPlaced": "Your order request has been submitted. Our team will review stock, shipping, and payment details, then contact you by email.",
       "orderCancelled": "Order cancelled.",
       "postPublished": "Your post is live.",
       "postPendingReview": "Your post was submitted and is pending review.",
@@ -121,10 +121,10 @@
         "cancel": "Keep"
       },
       "cancelOrder": {
-        "title": "Cancel this order?",
-        "description": "If payment was already taken, refunds may take 3–5 business days.",
-        "confirm": "Cancel order",
-        "cancel": "Keep order"
+        "title": "Cancel this order request?",
+        "description": "Only pending manual order requests can be cancelled from the account page.",
+        "confirm": "Cancel request",
+        "cancel": "Keep request"
       },
       "unfollowUser": {
         "title": "Unfollow {name}?",
@@ -145,6 +145,13 @@
         "cancel": "Keep items"
       }
     }
+  },
+  "certificationsAtAGlance": {
+    "eyebrow": "Certified performance",
+    "title": "Certifications at a glance",
+    "description": "A quick view of the material tests and performance data behind OXP.",
+    "productDescription": "Verified material and product claims for this item.",
+    "verifiedLabel": "Verified"
   },
   "meta": {
     "siteName": "OXP",
@@ -354,8 +361,8 @@
       "pillars": [
         {
           "name": "Terrafin",
-          "formula": "ƒ(Biomass) = OX Composite",
-          "description": "The material function. Olefin X-linked (OX) biomass composites made from regional waste streams — wood, husk, biochar, shell, and mineral. OXP (OX-S) is the first commercially available line."
+          "formula": "ƒ(Biomass) = XP Composite",
+          "description": "The material function. The XP Material Family is built from regional waste streams, with OXP as the confirmed oyster-shell line and additional XP material lines prepared for future client confirmation."
         },
         {
           "name": "Terrafactory",
@@ -428,38 +435,27 @@
       ]
     },
     "materialFamily": {
-      "eyebrow": "The OX Material Family",
-      "title": "Five biomass composite lines. One design philosophy.",
-      "intro": "Every Terrafin material is an Olefin X-linked (OX) composite derived from a regional biomass source — carbon captured from waste, engineered into a durable material.",
+      "eyebrow": "XP Material Family",
+      "title": "OXP today, with additional XP material lines prepared for client confirmation.",
+      "intro": "OXP is the confirmed oyster-shell line. Additional XP material lines are prepared for future client confirmation.",
+      "comingSoonLabel": "Future confirmation",
       "lines": [
         {
-          "code": "OX-W",
-          "name": "Wood Composite",
-          "source": "Regional timber and forestry waste",
-          "status": "coming_soon"
-        },
-        {
-          "code": "OX-H",
-          "name": "Husk Composite",
-          "source": "Agricultural crop husks",
-          "status": "coming_soon"
-        },
-        {
-          "code": "OX-B",
-          "name": "Biochar Composite",
-          "source": "Pyrolyzed biomass carbon",
-          "status": "coming_soon"
-        },
-        {
-          "code": "OX-S",
-          "name": "Shell Composite",
+          "code": "OXP",
+          "name": "Oyster Shell XP",
           "source": "Reclaimed oyster shell — South Korea",
           "status": "available"
         },
         {
-          "code": "OX-M",
-          "name": "Mineral Composite",
-          "source": "Regional mineral biomass",
+          "code": "CXP",
+          "name": "Carbon XP",
+          "source": "Additional XP material line prepared for future client confirmation.",
+          "status": "coming_soon"
+        },
+        {
+          "code": "MXP",
+          "name": "Mineral XP",
+          "source": "Additional XP material line prepared for future client confirmation.",
           "status": "coming_soon"
         }
       ]
@@ -575,7 +571,7 @@
         },
         {
           "question": "Are shipping and tax fully calculated yet?",
-          "answer": "Shipping is structured in the cart and checkout flow with the current free-shipping threshold. Tax remains a placeholder until a fuller calculation service is introduced."
+          "answer": "Shipping and tax are estimates in the cart and order request flow. Our team will confirm final details by email."
         }
       ]
     }
@@ -652,7 +648,7 @@
       "cards": [
         {
           "label": "Email",
-          "value": "Contact email pending",
+          "value": "Contact us",
           "detail": "General, retail, and product inquiries"
         },
         {
@@ -711,8 +707,8 @@
     "estTax": "Est. tax",
     "freeShippingOver": "Free shipping over",
     "viewCart": "View cart",
-    "proceedToCheckout": "Proceed to Checkout",
-    "signInToCheckout": "Sign in to Checkout",
+    "proceedToCheckout": "Proceed to order request",
+    "signInToCheckout": "Sign in to request order",
     "clearCart": "Clear Cart",
     "signInDialogTitle": "Sign in to continue",
     "signInDialogDescription": "Sign in with the same OXP account used across the community."
@@ -734,21 +730,21 @@
     "estimatedShipping": "Estimated shipping",
     "estimatedTax": "Estimated tax",
     "estimatedTotal": "Estimated total",
-    "freeShippingNote": "Free shipping unlocks at {threshold}. Tax remains a placeholder until the full calculation service is ready.",
-    "proceedToCheckout": "Proceed to checkout",
-    "signInToCheckout": "Sign in to checkout",
+    "freeShippingNote": "Shipping and tax are estimates. Our team will confirm the final details by email.",
+    "proceedToCheckout": "Proceed to order request",
+    "signInToCheckout": "Sign in to request order",
     "continueShopping": "Continue shopping",
     "signInDialogTitle": "Sign in to continue",
     "signInDialogDescription": "Sign in with the same OXP account used across the community."
   },
   "checkout": {
     "emptyTitle": "Your cart is empty",
-    "emptyDescription": "Add an OXP product before continuing to checkout.",
+    "emptyDescription": "Add an OXP product before continuing to an order request.",
     "browseCollection": "Browse Collection",
     "backToCart": "Back to cart",
-    "eyebrow": "Checkout",
-    "title": "Shipping and Order Review",
-    "description": "Orders run through the shared OXP account flow. Shipping is structured now, while tax remains a placeholder until the full commerce calculator is introduced.",
+    "eyebrow": "Order request",
+    "title": "Review and submit order request",
+    "description": "Online payment is not available yet. Submit your request and our team will confirm stock, shipping, tax, and payment instructions by email.",
     "savedAddresses": "Saved addresses",
     "defaultBadge": "Default",
     "useThisAddress": "Use this address",
@@ -768,9 +764,9 @@
     "shippingFree": "Free",
     "tax": "Tax",
     "total": "Total",
-    "confirmationNote": "Orders are manually confirmed. You will receive a confirmation email once your order is reviewed.",
-    "placingOrder": "Placing Order...",
-    "placeOrder": "Place Order",
+    "confirmationNote": "Your order request will be reviewed manually. Online payment is not available yet.",
+    "placingOrder": "Submitting request...",
+    "placeOrder": "Submit order request",
     "productFallback": "OXP product",
     "countries": {
       "KR": "South Korea",
@@ -781,6 +777,19 @@
       "GB": "United Kingdom",
       "OT": "Other"
     }
+  },
+  "orderStatuses": {
+    "pending": "Pending review",
+    "confirmed": "Confirmed",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  "paymentStatuses": {
+    "unpaid": "Awaiting payment",
+    "paid": "Paid manually",
+    "refunded": "Refunded manually"
   },
   "addressPage": {
     "eyebrow": "Addresses",
@@ -813,16 +822,18 @@
     "title": "Order History",
     "loading": "Loading orders...",
     "emptyTitle": "No orders yet",
-    "emptyDescription": "Browse the OXP collection and place your first order.",
+    "emptyDescription": "Browse the OXP collection and submit your first order request.",
     "browseCollection": "Browse Collection",
-    "pendingDate": "Pending date",
+    "pendingDate": "Request date",
     "viewDetails": "View Details",
     "cancel": "Cancel",
-    "cancelConfirm": "Cancel this pending order?",
+    "cancelConfirm": "Cancel this pending order request?",
     "previous": "Previous",
     "next": "Next",
     "pageOf": "Page {page} of {lastPage}",
-    "moreItems": "+{count} more"
+    "moreItems": "+{count} more",
+    "submittedTitle": "Your order request has been submitted.",
+    "submittedDescription": "Our team will review stock, shipping, and payment details, then contact you by email."
   },
   "productCard": {
     "featuredBadge": "Featured",
@@ -878,6 +889,7 @@
     "browseAllProducts": "Browse all products"
   },
   "community": {
+    "memberFallback": "Community member",
     "layout": {
       "title": "OXP Community",
       "description": "A place for designers and makers to share OXP product ideas, material experiments, and sustainable living concepts.",
@@ -897,9 +909,9 @@
       "logout": "Log out",
       "refreshProfile": "Refresh profile",
       "email": "Email",
-      "emailHelper": "Your email address is also your username across OXP.",
+      "emailHelper": "This email will be used to sign in.",
       "password": "Password",
-      "name": "Name",
+      "name": "Full name",
       "confirmPassword": "Confirm password",
       "loginSubmit": "Login",
       "loginSubmitPending": "Signing in…",
@@ -909,9 +921,19 @@
       "refreshSuccess": "Profile refreshed from /api/auth/me.",
       "emailPlaceholder": "Please enter your email address",
       "passwordPlaceholder": "Please enter your password",
-      "namePlaceholder": "Given name or full name",
+      "namePlaceholder": "Your full name",
       "signInToContinue": "Sign in to continue",
-      "loadingAccount": "Loading your OXP account..."
+      "loadingAccount": "Loading your OXP account...",
+      "validation": {
+        "nameRequired": "Please enter your full name.",
+        "emailRequired": "Please enter your email address.",
+        "emailInvalid": "Please enter a valid email address.",
+        "emailTaken": "This email is already registered. Try signing in instead.",
+        "passwordRequired": "Please enter your password.",
+        "passwordMin": "Password must be at least 8 characters.",
+        "passwordMismatch": "Passwords do not match.",
+        "validation": "Please check the highlighted fields and try again."
+      }
     },
     "report": {
       "button": "Report",
@@ -1043,7 +1065,24 @@
       "updatedPost": "Post updated.",
       "updatedComment": "Comment updated.",
       "replyAdded": "Reply added.",
-      "supportIdea": "💛 Support this idea",
+      "supportIdea": "Support this idea",
+      "supportIdeaTitle": "Support this idea",
+      "readingTime": "{count} min read",
+      "imageCount": "{count} image",
+      "imageCountPlural": "{count} images",
+      "attachmentCount": "{count} attachment",
+      "attachmentCountPlural": "{count} attachments",
+      "attachmentFallback": "Attachment",
+      "attachments": "Attachments",
+      "fileCount": "{count} file",
+      "fileCountPlural": "{count} files",
+      "downloads": "{count} downloads",
+      "download": "Download",
+      "externalLinks": "External links",
+      "linkCount": "{count} link",
+      "linkCountPlural": "{count} links",
+      "linkType": "Link",
+      "open": "Open",
       "pendingBadge": "Pending",
       "rejectedBadge": "Rejected",
       "featured": "Featured",

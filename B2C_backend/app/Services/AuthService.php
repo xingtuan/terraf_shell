@@ -29,16 +29,19 @@ class AuthService
         if ($base === '' || strlen($base) < 2) {
             $base = 'user';
         }
-        $username = $base;
-        $attempt = 0;
-        while (User::where('username', $username)->exists()) {
-            $username = $base.'_'.Str::lower(Str::random(4));
-            $attempt++;
-            if ($attempt > 10) {
-                $username = $base.'_'.Str::lower(Str::random(8));
-                break;
+        for ($attempt = 0; $attempt < 20; $attempt++) {
+            $username = $attempt === 0
+                ? $base
+                : $base.'_'.Str::lower(Str::random(4));
+
+            if (! User::where('username', $username)->exists()) {
+                return $username;
             }
         }
+
+        do {
+            $username = $base.'_'.Str::lower(Str::random(8));
+        } while (User::where('username', $username)->exists());
 
         return $username;
     }

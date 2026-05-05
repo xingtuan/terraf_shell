@@ -220,7 +220,7 @@ return new class extends Migration
     {
         $normalized = Str::upper(str_replace('-', '_', trim($slug)));
 
-        return $normalized !== '' ? $normalized : 'SHF_PRODUCT';
+        return $normalized !== '' ? $normalized : 'OXP_PRODUCT';
     }
 
     private function encodeStringTranslations(?string $fallback): ?string

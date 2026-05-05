@@ -25,7 +25,7 @@ class OrderService
 
         if ($cart->user_id === null) {
             throw ValidationException::withMessages([
-                'cart' => ['Orders can only be created for authenticated users.'],
+                'cart' => ['Order requests can only be created for authenticated users.'],
             ]);
         }
 
@@ -122,7 +122,7 @@ class OrderService
     {
         if ($order->status !== OrderStatus::Pending) {
             throw ValidationException::withMessages([
-                'order' => ['Only pending orders can be cancelled.'],
+                'order' => ['Only pending order requests can be cancelled.'],
             ]);
         }
 

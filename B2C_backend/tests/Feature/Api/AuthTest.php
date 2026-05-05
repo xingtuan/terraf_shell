@@ -169,6 +169,22 @@ class AuthTest extends TestCase
         $this->assertStringStartsWith('user', $user->username);
     }
 
+    public function test_duplicate_registration_email_returns_field_level_error(): void
+    {
+        User::factory()->create(['email' => 'taken@example.com']);
+
+        $this->postJson('/api/auth/register', [
+            'name' => 'Taken Email',
+            'email' => 'taken@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonPath('message', 'Validation failed.')
+            ->assertJsonValidationErrors(['email'])
+            ->assertJsonPath('errors.email.0', 'This email is already registered. Try signing in instead.');
+    }
+
     public function test_user_can_update_username_via_profile_endpoint(): void
     {
         $user = User::factory()->create(['username' => 'original_handle']);

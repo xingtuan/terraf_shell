@@ -17,13 +17,13 @@ export const communityIdeaRecords: RawCommunityIdeaRecord[] = [
     image: "/images/application-tableware.jpg",
     title: {
       en: "Chef's Table Capsule",
-      ko: "셰프 테이블 캡슐",
+      ko: "셰프 테이블 캡슐 컬렉션",
       zh: "主厨餐桌限定系列",
     },
     summary: {
       en: "A limited dining collection co-developed with chefs exploring lighter premium service ware.",
-      ko: "더 가벼운 프리미엄 서비스웨어를 탐구하는 셰프와 함께 개발하는 다이닝 컬렉션입니다.",
-      zh: "与主厨共同开发的限量餐饮系列，探索更轻盈的高端器皿。",
+      ko: "더 가벼운 프리미엄 서비스웨어를 검토하는 셰프와 함께 개발하는 한정 다이닝 컬렉션입니다.",
+      zh: "与主厨共同开发的限量餐饮系列，探索更轻盈的高端服务器皿。",
     },
     stage: {
       en: "Prototype review",
@@ -38,7 +38,7 @@ export const communityIdeaRecords: RawCommunityIdeaRecord[] = [
     focus: {
       en: "Hospitality",
       ko: "호스피탈리티",
-      zh: "餐饮与酒店",
+      zh: "餐饮酒店",
     },
     tags: {
       en: ["tableware", "chef-led", "sampling"],
@@ -52,11 +52,11 @@ export const communityIdeaRecords: RawCommunityIdeaRecord[] = [
     title: {
       en: "Coastal Home Line",
       ko: "코스탈 홈 라인",
-      zh: "海岸居家系列",
+      zh: "海岸家居系列",
     },
     summary: {
       en: "A concept family of trays, stands, and home accents designed for calm domestic spaces.",
-      ko: "차분한 주거 공간을 위한 트레이, 스탠드, 홈 액센트 콘셉트 라인입니다.",
+      ko: "차분한 생활 공간을 위해 설계한 트레이, 스탠드, 홈 오브제 콘셉트 라인입니다.",
       zh: "面向安静居家空间的托盘、支架与家居点缀概念系列。",
     },
     stage: {
@@ -66,7 +66,7 @@ export const communityIdeaRecords: RawCommunityIdeaRecord[] = [
     },
     supportType: {
       en: "Concept support",
-      ko: "컨셉 지원",
+      ko: "콘셉트 지원",
       zh: "概念支持",
     },
     focus: {
@@ -85,17 +85,17 @@ export const communityIdeaRecords: RawCommunityIdeaRecord[] = [
     image: "/images/process-refined.jpg",
     title: {
       en: "OXP Material Lab Fund",
-      ko: "쉘핀 머티리얼 랩 펀드",
+      ko: "OXP 소재 랩 펀드",
       zh: "OXP 材料实验基金",
     },
     summary: {
       en: "A small funding track for pilot moulds, sample sets, and student or studio-led concept testing.",
-      ko: "파일럿 금형, 샘플 세트, 학생 및 스튜디오 콘셉트 테스트를 위한 소규모 펀드입니다.",
-      zh: "面向试验模具、样品套组及学生或工作室概念测试的小型资助计划。",
+      ko: "파일럿 몰드, 샘플 세트, 학생 및 스튜디오 주도 콘셉트 테스트를 위한 소규모 지원 트랙입니다.",
+      zh: "面向试验模具、样品套组，以及学生或工作室主导概念测试的小型资助通道。",
     },
     stage: {
       en: "Open for applicants",
-      ko: "지원 접수 중",
+      ko: "신청 접수 중",
       zh: "开放申请",
     },
     supportType: {
@@ -110,7 +110,7 @@ export const communityIdeaRecords: RawCommunityIdeaRecord[] = [
     },
     tags: {
       en: ["fund", "student studios", "pilot moulds"],
-      ko: ["펀드", "학생 스튜디오", "파일럿 금형"],
+      ko: ["펀드", "학생 스튜디오", "파일럿 몰드"],
       zh: ["资助", "学生工作室", "试验模具"],
     },
   },

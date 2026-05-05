@@ -69,12 +69,12 @@ function updateCommentTree(
   })
 }
 
-function getAttachmentName(media: CommunityMedia) {
-  return media.title ?? media.original_name ?? media.file_name ?? "Attachment"
+function getAttachmentName(media: CommunityMedia, fallback: string) {
+  return media.title ?? media.original_name ?? media.file_name ?? fallback
 }
 
-function getAttachmentDownloadName(media: CommunityMedia) {
-  return media.original_name ?? media.file_name ?? getAttachmentName(media)
+function getAttachmentDownloadName(media: CommunityMedia, fallback: string) {
+  return media.original_name ?? media.file_name ?? getAttachmentName(media, fallback)
 }
 
 function getAttachmentType(media: CommunityMedia) {
@@ -83,6 +83,10 @@ function getAttachmentType(media: CommunityMedia) {
     media.mime_type?.split("/")[1]?.toUpperCase() ??
     "FILE"
   )
+}
+
+function formatCountLabel(one: string, many: string, count: number) {
+  return (count === 1 ? one : many).replace("{count}", String(count))
 }
 
 export function CommunityPostDetail({
@@ -311,11 +315,12 @@ export function CommunityPostDetail({
                       <CommunityUserAvatar
                         user={post.user}
                         className="size-12 border border-border/60"
+                        fallbackName={messages.memberFallback}
                         sizes="48px"
                       />
                       <div>
                         <p className="text-sm font-medium text-foreground">
-                          {getCommunityUserName(post.user)}
+                          {getCommunityUserName(post.user, messages.memberFallback)}
                         </p>
                       </div>
                     </Link>
@@ -350,7 +355,7 @@ export function CommunityPostDetail({
                 <div className="grid gap-4 rounded-[1.5rem] border border-border/60 bg-background p-5 text-sm text-muted-foreground sm:grid-cols-2">
                   <p>
                     <span className="text-foreground">{messages.post.author}:</span>{" "}
-                    {getCommunityUserName(post.user)}
+                    {getCommunityUserName(post.user, messages.memberFallback)}
                   </p>
                   <p>
                     <span className="text-foreground">{messages.post.category}:</span>{" "}
@@ -359,7 +364,12 @@ export function CommunityPostDetail({
                   <p>
                     <span className="text-foreground">{messages.post.published}:</span>{" "}
                     {formatCommunityDate(locale, post.published_at ?? post.created_at) ?? ""}
-                    {post.reading_time ? ` | ${post.reading_time} min read` : ""}
+                    {post.reading_time
+                      ? ` | ${messages.post.readingTime.replace(
+                          "{count}",
+                          String(post.reading_time),
+                        )}`
+                      : ""}
                   </p>
                   <p>
                     <span className="text-foreground">{messages.post.status}:</span>{" "}
@@ -404,11 +414,14 @@ export function CommunityPostDetail({
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
-                        Attachments
+                        {messages.post.attachments}
                       </h2>
                       <span className="text-xs text-muted-foreground">
-                        {downloadableAttachments.length} file
-                        {downloadableAttachments.length > 1 ? "s" : ""}
+                        {formatCountLabel(
+                          messages.post.fileCount,
+                          messages.post.fileCountPlural,
+                          downloadableAttachments.length,
+                        )}
                       </span>
                     </div>
                     <div className="space-y-2">
@@ -418,7 +431,10 @@ export function CommunityPostDetail({
                           href={media.download_url ?? media.url ?? undefined}
                           target="_blank"
                           rel="noreferrer"
-                          download={getAttachmentDownloadName(media)}
+                          download={getAttachmentDownloadName(
+                            media,
+                            messages.post.attachmentFallback,
+                          )}
                           onClick={() => handleAttachmentDownload(media.id)}
                           className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm transition-colors hover:bg-muted"
                         >
@@ -427,18 +443,26 @@ export function CommunityPostDetail({
                           </span>
                           <span className="min-w-0 flex-1">
                             <span className="block truncate font-medium text-foreground">
-                              {getAttachmentName(media)}
+                              {getAttachmentName(
+                                media,
+                                messages.post.attachmentFallback,
+                              )}
                             </span>
                             <span className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                               {formatCommunityFileSize(media.size_bytes) ? (
                                 <span>{formatCommunityFileSize(media.size_bytes)}</span>
                               ) : null}
-                              <span>{media.download_count ?? 0} downloads</span>
+                              <span>
+                                {messages.post.downloads.replace(
+                                  "{count}",
+                                  String(media.download_count ?? 0),
+                                )}
+                              </span>
                             </span>
                           </span>
                           <span className="inline-flex shrink-0 items-center gap-2 text-xs font-medium text-foreground">
                             <Download className="size-4" />
-                            Download
+                            {messages.post.download}
                           </span>
                         </a>
                       ))}
@@ -450,10 +474,14 @@ export function CommunityPostDetail({
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-foreground">
-                        External Links
+                        {messages.post.externalLinks}
                       </h2>
                       <span className="text-xs text-muted-foreground">
-                        {externalMedia.length} link{externalMedia.length > 1 ? "s" : ""}
+                        {formatCountLabel(
+                          messages.post.linkCount,
+                          messages.post.linkCountPlural,
+                          externalMedia.length,
+                        )}
                       </span>
                     </div>
                     <div className="space-y-2">
@@ -466,14 +494,17 @@ export function CommunityPostDetail({
                           className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 text-sm transition-colors hover:bg-muted"
                         >
                           <span className="shrink-0 rounded-lg border border-border/60 bg-muted px-2 py-1 text-xs uppercase text-muted-foreground">
-                            LINK
+                            {messages.post.linkType}
                           </span>
                           <span className="min-w-0 flex-1 truncate text-foreground">
-                            {getAttachmentName(media)}
+                            {getAttachmentName(
+                              media,
+                              messages.post.attachmentFallback,
+                            )}
                           </span>
                           <span className="inline-flex shrink-0 items-center gap-2 text-xs font-medium text-foreground">
                             <ExternalLink className="size-4" />
-                            Open
+                            {messages.post.open}
                           </span>
                         </a>
                       ))}
@@ -485,7 +516,9 @@ export function CommunityPostDetail({
                 {post.funding_url ? (
                   <div className="flex flex-col gap-4 rounded-[1.5rem] border border-primary/30 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p className="text-sm font-medium text-foreground">Support this idea</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {messages.post.supportIdeaTitle}
+                      </p>
                       <p className="mt-1 text-xs text-muted-foreground truncate max-w-sm">{post.funding_url}</p>
                     </div>
                     <a
@@ -668,6 +701,7 @@ export function CommunityPostDetail({
                     comments={comments}
                     locale={locale}
                     messages={messages.post}
+                    memberFallback={messages.memberFallback}
                     token={session.token}
                     currentUserId={session.user?.id}
                     activeAction={activeAction}

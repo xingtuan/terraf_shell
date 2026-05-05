@@ -25,12 +25,12 @@
       },
       "orders": {
         "title": "아직 주문이 없습니다",
-        "description": "주문하면 여기에 내역이 표시됩니다.",
+        "description": "주문 요청을 제출하면 여기에 내역이 표시됩니다.",
         "cta": "쇼핑 시작하기"
       },
       "addresses": {
         "title": "저장된 주소가 없습니다",
-        "description": "주소를 저장하면 다음에 더 빠르게 결제할 수 있습니다.",
+        "description": "주소를 저장하면 다음 주문 요청을 더 빠르게 진행할 수 있습니다.",
         "cta": "주소 추가하기"
       },
       "favorites": {
@@ -88,7 +88,7 @@
       "addressSaved": "주소가 저장되었습니다.",
       "addressDefaultSet": "기본 주소가 변경되었습니다.",
       "addressDeleted": "주소가 삭제되었습니다.",
-      "orderPlaced": "주문이 완료되었습니다. 곧 확인 이메일을 보내드리겠습니다.",
+      "orderPlaced": "주문 요청이 제출되었습니다. 팀이 재고, 배송, 결제 세부 사항을 검토한 뒤 이메일로 연락드립니다.",
       "orderCancelled": "주문이 취소되었습니다.",
       "postPublished": "게시물이 게시되었습니다.",
       "postPendingReview": "게시물이 제출되었으며 검토 대기 중입니다.",
@@ -121,10 +121,10 @@
         "cancel": "유지"
       },
       "cancelOrder": {
-        "title": "이 주문을 취소할까요?",
-        "description": "이미 결제가 완료된 경우 환불에 영업일 기준 3~5일이 소요될 수 있습니다.",
-        "confirm": "주문 취소",
-        "cancel": "주문 유지"
+        "title": "이 주문 요청을 취소할까요?",
+        "description": "계정 페이지에서는 대기 중인 수동 주문 요청만 취소할 수 있습니다.",
+        "confirm": "요청 취소",
+        "cancel": "요청 유지"
       },
       "unfollowUser": {
         "title": "{name}님을 언팔로우할까요?",
@@ -145,6 +145,13 @@
         "cancel": "항목 유지"
       }
     }
+  },
+  "certificationsAtAGlance": {
+    "eyebrow": "인증 성능",
+    "title": "인증 한눈에 보기",
+    "description": "OXP 소재의 테스트 인증과 성능 데이터를 빠르게 확인하세요.",
+    "productDescription": "이 제품과 관련된 소재 및 제품 인증 정보입니다.",
+    "verifiedLabel": "인증됨"
   },
   "meta": {
     "siteName": "OXP",
@@ -354,8 +361,8 @@
       "pillars": [
         {
           "name": "테라핀",
-          "formula": "ƒ(바이오매스) = OX 복합소재",
-          "description": "소재 기능. 목재, 왕겨, 바이오차, 패각, 광물 등 지역 폐기물 스트림으로 만든 올레핀 교차결합(OX) 바이오매스 복합소재. 쉘핀(OX-S)은 최초 상용화된 라인입니다."
+          "formula": "ƒ(바이오매스) = XP 복합소재",
+          "description": "소재 기능. XP Material Family는 지역 폐기물 흐름에서 개발되며, OXP는 확정된 굴 패각 라인이고 추가 XP 소재 라인은 향후 고객 확인을 위해 준비 중입니다."
         },
         {
           "name": "테라팩토리",
@@ -428,38 +435,27 @@
       ]
     },
     "materialFamily": {
-      "eyebrow": "OX 소재 패밀리",
-      "title": "다섯 가지 바이오매스 복합소재 라인. 하나의 설계 철학.",
-      "intro": "모든 테라핀 소재는 지역 바이오매스 원료에서 파생된 올레핀 교차결합(OX) 복합소재입니다 — 폐기물로부터 포집한 탄소를 내구성 있는 소재로 엔지니어링합니다.",
+      "eyebrow": "XP Material Family",
+      "title": "현재는 OXP, 추가 XP 소재 라인은 고객 확인을 위해 준비 중입니다.",
+      "intro": "OXP는 확정된 굴 패각 라인입니다. 추가 XP 소재 라인은 향후 고객 확인을 위해 준비 중입니다.",
+      "comingSoonLabel": "향후 확인",
       "lines": [
         {
-          "code": "OX-W",
-          "name": "우드 복합소재",
-          "source": "지역 목재 및 임업 폐기물",
-          "status": "coming_soon"
-        },
-        {
-          "code": "OX-H",
-          "name": "허스크 복합소재",
-          "source": "농업 작물 왕겨",
-          "status": "coming_soon"
-        },
-        {
-          "code": "OX-B",
-          "name": "바이오차 복합소재",
-          "source": "열분해 바이오매스 탄소",
-          "status": "coming_soon"
-        },
-        {
-          "code": "OX-S",
-          "name": "쉘 복합소재",
+          "code": "OXP",
+          "name": "Oyster Shell XP",
           "source": "재생 굴 패각 — 대한민국",
           "status": "available"
         },
         {
-          "code": "OX-M",
-          "name": "미네랄 복합소재",
-          "source": "지역 광물 바이오매스",
+          "code": "CXP",
+          "name": "Carbon XP",
+          "source": "향후 고객 확인을 위해 준비 중인 추가 XP 소재 라인입니다.",
+          "status": "coming_soon"
+        },
+        {
+          "code": "MXP",
+          "name": "Mineral XP",
+          "source": "향후 고객 확인을 위해 준비 중인 추가 XP 소재 라인입니다.",
           "status": "coming_soon"
         }
       ]
@@ -575,7 +571,7 @@
         },
         {
           "question": "배송비와 세금이 모두 계산되어 있나요?",
-          "answer": "배송비는 현재 무료 배송 기준과 함께 장바구니 및 결제 흐름에 반영되어 있습니다. 세금은 더 완전한 계산 서비스가 도입될 때까지 플레이스홀더로 유지됩니다."
+          "answer": "배송비와 세금은 장바구니 및 주문 요청 흐름에서 예상 금액으로 표시됩니다. 최종 내용은 팀이 이메일로 확인해드립니다."
         }
       ]
     }
@@ -652,7 +648,7 @@
       "cards": [
         {
           "label": "이메일",
-          "value": "Contact email pending",
+          "value": "문의하기",
           "detail": "일반 문의, 리테일, 제품 문의"
         },
         {
@@ -711,8 +707,8 @@
     "estTax": "예상 세금",
     "freeShippingOver": "무료 배송 기준",
     "viewCart": "장바구니 보기",
-    "proceedToCheckout": "결제 진행",
-    "signInToCheckout": "로그인 후 결제",
+    "proceedToCheckout": "주문 요청으로 진행",
+    "signInToCheckout": "로그인 후 주문 요청",
     "clearCart": "장바구니 비우기",
     "signInDialogTitle": "계속하려면 로그인하세요",
     "signInDialogDescription": "커뮤니티에서 사용하는 동일한 OXP 계정으로 로그인하세요."
@@ -734,21 +730,21 @@
     "estimatedShipping": "예상 배송비",
     "estimatedTax": "예상 세금",
     "estimatedTotal": "예상 총액",
-    "freeShippingNote": "{threshold} 이상 주문 시 무료 배송이 적용됩니다. 세금은 전체 계산 서비스가 준비될 때까지 플레이스홀더로 유지됩니다.",
-    "proceedToCheckout": "결제 진행",
-    "signInToCheckout": "로그인 후 결제",
+    "freeShippingNote": "배송비와 세금은 예상 금액입니다. 최종 내용은 팀이 이메일로 확인해드립니다.",
+    "proceedToCheckout": "주문 요청으로 진행",
+    "signInToCheckout": "로그인 후 주문 요청",
     "continueShopping": "쇼핑 계속하기",
     "signInDialogTitle": "계속하려면 로그인하세요",
     "signInDialogDescription": "커뮤니티에서 사용하는 동일한 OXP 계정으로 로그인하세요."
   },
   "checkout": {
     "emptyTitle": "장바구니가 비어 있습니다",
-    "emptyDescription": "결제를 계속하기 전에 OXP 상품을 추가하세요.",
+    "emptyDescription": "주문 요청을 계속하기 전에 OXP 상품을 추가하세요.",
     "browseCollection": "컬렉션 둘러보기",
     "backToCart": "장바구니로 돌아가기",
-    "eyebrow": "결제",
-    "title": "배송 및 주문 확인",
-    "description": "주문은 공용 OXP 계정 흐름을 통해 처리됩니다. 배송비는 현재 구조화되어 있으며 세금은 전체 커머스 계산기가 도입될 때까지 플레이스홀더로 유지됩니다.",
+    "eyebrow": "주문 요청",
+    "title": "주문 요청 검토 및 제출",
+    "description": "아직 온라인 결제는 제공되지 않습니다. 요청을 제출하면 팀이 재고, 배송, 세금, 결제 안내를 이메일로 확인해드립니다.",
     "savedAddresses": "저장된 주소",
     "defaultBadge": "기본",
     "useThisAddress": "이 주소 사용",
@@ -768,9 +764,9 @@
     "shippingFree": "무료",
     "tax": "세금",
     "total": "총액",
-    "confirmationNote": "주문은 수동으로 확인됩니다. 주문 검토가 완료되면 확인 이메일을 받게 됩니다.",
-    "placingOrder": "주문 처리 중...",
-    "placeOrder": "주문하기",
+    "confirmationNote": "주문 요청은 수동으로 검토됩니다. 아직 온라인 결제는 제공되지 않습니다.",
+    "placingOrder": "요청 제출 중...",
+    "placeOrder": "주문 요청 제출",
     "productFallback": "OXP 제품",
     "countries": {
       "KR": "대한민국",
@@ -781,6 +777,19 @@
       "GB": "영국",
       "OT": "기타"
     }
+  },
+  "orderStatuses": {
+    "pending": "검토 대기",
+    "confirmed": "확인됨",
+    "processing": "처리 중",
+    "shipped": "배송됨",
+    "delivered": "배송 완료",
+    "cancelled": "취소됨"
+  },
+  "paymentStatuses": {
+    "unpaid": "결제 안내 대기",
+    "paid": "수동 결제 완료",
+    "refunded": "수동 환불 완료"
   },
   "addressPage": {
     "eyebrow": "주소",
@@ -813,16 +822,18 @@
     "title": "주문 내역",
     "loading": "주문을 불러오는 중...",
     "emptyTitle": "아직 주문이 없습니다",
-    "emptyDescription": "OXP 컬렉션을 둘러보고 첫 주문을 해보세요.",
+    "emptyDescription": "OXP 컬렉션을 둘러보고 첫 주문 요청을 제출해보세요.",
     "browseCollection": "컬렉션 둘러보기",
-    "pendingDate": "대기 일자",
+    "pendingDate": "요청 일자",
     "viewDetails": "상세 보기",
     "cancel": "취소",
-    "cancelConfirm": "이 대기 중인 주문을 취소할까요?",
+    "cancelConfirm": "이 대기 중인 주문 요청을 취소할까요?",
     "previous": "이전",
     "next": "다음",
     "pageOf": "{lastPage}페이지 중 {page}페이지",
-    "moreItems": "+{count}개 더"
+    "moreItems": "+{count}개 더",
+    "submittedTitle": "주문 요청이 제출되었습니다.",
+    "submittedDescription": "팀이 재고, 배송, 결제 세부 사항을 검토한 뒤 이메일로 연락드립니다."
   },
   "productCard": {
     "featuredBadge": "추천",
@@ -878,6 +889,7 @@
     "browseAllProducts": "모든 제품 보기"
   },
   "community": {
+    "memberFallback": "커뮤니티 회원",
     "layout": {
       "title": "OXP 커뮤니티",
       "description": "디자이너와 메이커가 OXP 제품 아이디어, 소재 실험, 지속 가능한 라이프스타일 컨셉을 공유하는 공간입니다.",
@@ -897,9 +909,9 @@
       "logout": "로그아웃",
       "refreshProfile": "프로필 새로고침",
       "email": "이메일",
-      "emailHelper": "이메일 주소는 OXP 전반에서 사용자명으로도 사용됩니다.",
+      "emailHelper": "이 이메일은 로그인 계정으로 사용됩니다.",
       "password": "비밀번호",
-      "name": "이름",
+      "name": "성명",
       "confirmPassword": "비밀번호 확인",
       "loginSubmit": "로그인",
       "loginSubmitPending": "로그인 중…",
@@ -911,7 +923,17 @@
       "passwordPlaceholder": "비밀번호를 입력하세요",
       "namePlaceholder": "이름을 입력하세요",
       "signInToContinue": "계속하려면 로그인하세요",
-      "loadingAccount": "OXP 계정을 불러오는 중..."
+      "loadingAccount": "OXP 계정을 불러오는 중...",
+      "validation": {
+        "nameRequired": "성명을 입력하세요.",
+        "emailRequired": "이메일 주소를 입력하세요.",
+        "emailInvalid": "올바른 이메일 주소를 입력하세요.",
+        "emailTaken": "이미 등록된 이메일입니다. 로그인해 보세요.",
+        "passwordRequired": "비밀번호를 입력하세요.",
+        "passwordMin": "비밀번호는 최소 8자 이상이어야 합니다.",
+        "passwordMismatch": "비밀번호가 일치하지 않습니다.",
+        "validation": "강조 표시된 항목을 확인한 뒤 다시 시도하세요."
+      }
     },
     "report": {
       "button": "신고",
@@ -1043,7 +1065,24 @@
       "updatedPost": "게시물이 업데이트되었습니다.",
       "updatedComment": "댓글이 업데이트되었습니다.",
       "replyAdded": "답글이 추가되었습니다.",
-      "supportIdea": "💛 이 아이디어 지원하기",
+      "supportIdea": "이 아이디어 지원하기",
+      "supportIdeaTitle": "이 아이디어 지원하기",
+      "readingTime": "{count}분 읽기",
+      "imageCount": "이미지 {count}개",
+      "imageCountPlural": "이미지 {count}개",
+      "attachmentCount": "첨부파일 {count}개",
+      "attachmentCountPlural": "첨부파일 {count}개",
+      "attachmentFallback": "첨부파일",
+      "attachments": "첨부파일",
+      "fileCount": "파일 {count}개",
+      "fileCountPlural": "파일 {count}개",
+      "downloads": "다운로드 {count}회",
+      "download": "다운로드",
+      "externalLinks": "외부 링크",
+      "linkCount": "링크 {count}개",
+      "linkCountPlural": "링크 {count}개",
+      "linkType": "링크",
+      "open": "열기",
       "pendingBadge": "보류 중",
       "rejectedBadge": "거부됨",
       "featured": "추천",

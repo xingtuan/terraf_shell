@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 
+import { CertificationsAtAGlance } from "@/components/sections/certifications-at-a-glance"
 import { ProductAvailabilityBadge } from "@/components/store/ProductAvailabilityBadge"
 import { ProductGallery } from "@/components/store/ProductGallery"
 import { ProductCard } from "@/components/store/ProductCard"
@@ -35,9 +36,16 @@ export function ProductDetailContent({
   product,
 }: ProductDetailContentProps) {
   const { addItem } = useCart()
-  const t = getMessages(locale).productDetail
+  const messages = getMessages(locale)
+  const t = messages.productDetail
+  const certificationMessages = messages.certificationsAtAGlance
   const relatedProducts = product.related_products ?? []
   const maxQuantity = getProductQuantityLimit(product)
+  const hasSupportingDetails = Boolean(
+    product.certifications?.length ||
+      product.material_benefits?.length ||
+      product.care_instructions?.length,
+  )
   const [quantity, setQuantity] = useState(1)
 
   useEffect(() => {
@@ -293,65 +301,54 @@ export function ProductDetailContent({
             </section>
           ) : null}
 
-          <section className="grid gap-6">
-            {product.material_benefits?.length ? (
-              <article className="rounded-[2rem] border border-border/60 bg-card p-8">
-                <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                  {t.materialBenefits}
-                </p>
-                <div className="mt-6 space-y-4">
-                  {(product.material_benefits ?? []).map((benefit) => (
-                    <div key={benefit} className="flex gap-3">
-                      <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
-                      <p className="text-sm leading-relaxed text-foreground">
-                        {benefit}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </article>
-            ) : null}
+          {hasSupportingDetails ? (
+            <section className="grid gap-6">
+              <CertificationsAtAGlance
+                certifications={product.certifications ?? []}
+                eyebrow={certificationMessages.eyebrow}
+                title={certificationMessages.title}
+                description={certificationMessages.productDescription}
+                variant="product"
+                verifiedLabel={certificationMessages.verifiedLabel}
+              />
 
-            {product.care_instructions?.length || product.certifications?.length ? (
-              <article className="rounded-[2rem] border border-border/60 bg-card p-8">
-                <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                  {t.careAndCertification}
-                </p>
-                <div className="mt-6 grid gap-6 md:grid-cols-2">
-                  {product.care_instructions?.length ? (
-                    <div>
-                      <h3 className="font-medium text-foreground">{t.care}</h3>
-                      <div className="mt-3 space-y-3">
-                        {(product.care_instructions ?? []).map((instruction) => (
-                          <p
-                            key={instruction}
-                            className="text-sm leading-relaxed text-muted-foreground"
-                          >
-                            {instruction}
-                          </p>
-                        ))}
+              {product.material_benefits?.length ? (
+                <article className="rounded-[2rem] border border-border/60 bg-card p-8">
+                  <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                    {t.materialBenefits}
+                  </p>
+                  <div className="mt-6 space-y-4">
+                    {(product.material_benefits ?? []).map((benefit) => (
+                      <div key={benefit} className="flex gap-3">
+                        <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
+                        <p className="text-sm leading-relaxed text-foreground">
+                          {benefit}
+                        </p>
                       </div>
-                    </div>
-                  ) : null}
-                  {product.certifications?.length ? (
-                    <div>
-                      <h3 className="font-medium text-foreground">{t.trustBadges}</h3>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {(product.certifications ?? []).map((certification) => (
-                          <span
-                            key={certification}
-                            className="rounded-full border border-border/60 px-3 py-2 text-xs uppercase tracking-[0.16em] text-foreground"
-                          >
-                            {certification}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              </article>
-            ) : null}
-          </section>
+                    ))}
+                  </div>
+                </article>
+              ) : null}
+
+              {product.care_instructions?.length ? (
+                <article className="rounded-[2rem] border border-border/60 bg-card p-8">
+                  <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                    {t.care}
+                  </p>
+                  <div className="mt-6 space-y-3">
+                    {(product.care_instructions ?? []).map((instruction) => (
+                      <p
+                        key={instruction}
+                        className="text-sm leading-relaxed text-muted-foreground"
+                      >
+                        {instruction}
+                      </p>
+                    ))}
+                  </div>
+                </article>
+              ) : null}
+            </section>
+          ) : null}
         </div>
 
         {supportCards.length > 0 ? (

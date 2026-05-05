@@ -60,7 +60,7 @@ class Order extends Model
             }
 
             $latest = static::max('id') ?? 0;
-            $order->order_number = 'SHF-'.str_pad((string) ($latest + 1), 6, '0', STR_PAD_LEFT);
+            $order->order_number = 'OXP-'.str_pad((string) ($latest + 1), 6, '0', STR_PAD_LEFT);
         });
     }
 

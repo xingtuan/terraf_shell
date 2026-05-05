@@ -10,6 +10,7 @@ type CommunityUserAvatarProps = {
   className?: string
   imageClassName?: string
   fallbackClassName?: string
+  fallbackName?: string
   sizes?: string
 }
 
@@ -20,10 +21,11 @@ export function CommunityUserAvatar({
   className,
   imageClassName,
   fallbackClassName,
+  fallbackName = "Community member",
   sizes = "96px",
 }: CommunityUserAvatarProps) {
   const resolvedSrc = src ?? user?.avatar_url ?? null
-  const resolvedName = name ?? user?.name ?? user?.username ?? "Community member"
+  const resolvedName = name ?? user?.name ?? user?.username ?? fallbackName
   const initials = resolvedName
     .split(/\s+/)
     .filter(Boolean)

@@ -21,20 +21,26 @@ import {
   formatAccountDate,
   formatAddressSummary,
   getOrderStatusClasses,
+  getOrderStatusLabel,
+  getPaymentStatusLabel,
 } from "@/components/account/account-utils"
 
 type AccountOrderDetailPageProps = {
   locale: Locale
   orderNumber: string
+  isSubmitted?: boolean
 }
 
 export function AccountOrderDetailPage({
   locale,
   orderNumber,
+  isSubmitted = false,
 }: AccountOrderDetailPageProps) {
   const session = useAuthSession()
   const copy = getAccountCopy(locale)
-  const messages = getMessages(locale).ordersPage
+  const siteMessages = getMessages(locale)
+  const messages = siteMessages.ordersPage
+  const checkoutMessages = siteMessages.checkout
   const [order, setOrder] = useState<StoreOrder | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -120,6 +126,15 @@ export function AccountOrderDetailPage({
         </div>
       ) : null}
 
+      {isSubmitted ? (
+        <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/8 px-5 py-4 text-sm text-foreground">
+          <p className="font-medium">{messages.submittedTitle}</p>
+          <p className="mt-1 text-muted-foreground">
+            {messages.submittedDescription}
+          </p>
+        </div>
+      ) : null}
+
       {loading || !order ? (
         <div className="mt-8 rounded-[1.5rem] border border-border/60 bg-background/70 p-6 text-sm text-muted-foreground">
           {copy.orders.loadingDetail}
@@ -146,7 +161,10 @@ export function AccountOrderDetailPage({
             <span
               className={`rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${getOrderStatusClasses(order.status)}`}
             >
-              {order.status}
+              {getOrderStatusLabel(order.status, siteMessages.orderStatuses)}
+            </span>
+            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs uppercase tracking-[0.18em] text-amber-700">
+              {getPaymentStatusLabel(order.payment_status, siteMessages.paymentStatuses)}
             </span>
           </div>
 
@@ -198,7 +216,7 @@ export function AccountOrderDetailPage({
                     <div className="flex-1">
                       <p className="font-medium text-foreground">{item.product_name}</p>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Qty {item.quantity} ·{" "}
+                        {checkoutMessages.qty} {item.quantity} ·{" "}
                         {formatCurrencyAmount(
                           item.unit_price_usd,
                           locale,
@@ -252,13 +270,18 @@ export function AccountOrderDetailPage({
                 </h2>
                 <div className="mt-4 space-y-2 text-sm text-muted-foreground">
                   <p>
-                    Subtotal: {formatCurrencyAmount(order.subtotal_usd, locale)}
+                    {checkoutMessages.subtotal}:{" "}
+                    {formatCurrencyAmount(order.subtotal_usd, locale)}
                   </p>
                   <p>
-                    Shipping: {formatCurrencyAmount(order.shipping_usd, locale)}
+                    {checkoutMessages.shipping}:{" "}
+                    {formatCurrencyAmount(order.shipping_usd, locale)}
                   </p>
                   {order.tax_usd ? (
-                    <p>Tax: {formatCurrencyAmount(order.tax_usd, locale)}</p>
+                    <p>
+                      {checkoutMessages.tax}:{" "}
+                      {formatCurrencyAmount(order.tax_usd, locale)}
+                    </p>
                   ) : null}
                 </div>
               </AccountPanel>

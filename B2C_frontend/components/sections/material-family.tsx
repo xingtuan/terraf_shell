@@ -57,7 +57,7 @@ export function MaterialFamilySection({ locale, content }: MaterialFamilySection
                 <p className="text-sm leading-relaxed text-muted-foreground">{line.source}</p>
                 {!isAvailable && (
                   <p className="mt-4 text-xs uppercase tracking-widest text-muted-foreground">
-                    Coming Soon
+                    {content.comingSoonLabel}
                   </p>
                 )}
               </div>

@@ -49,6 +49,10 @@ function getPostModerationLabel(
   return status.replace(/_/g, " ")
 }
 
+function formatCountLabel(one: string, many: string, count: number) {
+  return (count === 1 ? one : many).replace("{count}", String(count))
+}
+
 type PostCardProps = {
   locale: Locale
   post: CommunityPost
@@ -214,11 +218,12 @@ export function PostCard({
               <CommunityUserAvatar
                 user={post.user}
                 className="size-11 border border-border/60"
+                fallbackName={messages.memberFallback}
                 sizes="44px"
               />
               <div>
                 <p className="text-sm font-medium text-foreground">
-                  {getCommunityUserName(post.user)}
+                  {getCommunityUserName(post.user, messages.memberFallback)}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {formatCommunityDate(locale, post.created_at) ?? " "}
@@ -243,15 +248,29 @@ export function PostCard({
               downloadableAttachmentCount > 0) ? (
               <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 {readingTime > 0 ? (
-                  <span>{readingTime} min read</span>
+                  <span>
+                    {messages.post.readingTime.replace(
+                      "{count}",
+                      String(readingTime),
+                    )}
+                  </span>
                 ) : null}
                 {post.images.length > 0 ? (
-                  <span>{post.images.length} image{post.images.length > 1 ? "s" : ""}</span>
+                  <span>
+                    {formatCountLabel(
+                      messages.post.imageCount,
+                      messages.post.imageCountPlural,
+                      post.images.length,
+                    )}
+                  </span>
                 ) : null}
                 {downloadableAttachmentCount > 0 ? (
                   <span>
-                    {downloadableAttachmentCount} attachment
-                    {downloadableAttachmentCount > 1 ? "s" : ""}
+                    {formatCountLabel(
+                      messages.post.attachmentCount,
+                      messages.post.attachmentCountPlural,
+                      downloadableAttachmentCount,
+                    )}
                   </span>
                 ) : null}
               </div>

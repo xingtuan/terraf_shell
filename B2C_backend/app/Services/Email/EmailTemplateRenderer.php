@@ -72,15 +72,15 @@ class EmailTemplateRenderer
             ],
             Str::startsWith($eventKey, 'order.') => [
                 'order' => [
-                    'order_number' => 'SHF-000123',
+                    'order_number' => 'OXP-000123',
                     'status' => 'pending',
                     'total' => '$128.00',
                     'currency' => 'USD',
                     'items' => [
-                        ['name' => 'Shellfin Panel', 'quantity' => 2, 'subtotal' => '$128.00'],
+                        ['name' => 'OXP Tidal Plate', 'quantity' => 2, 'subtotal' => '$128.00'],
                     ],
                 ],
-                'order_url' => config('app.url', 'https://example.com').'/account/orders/SHF-000123',
+                'order_url' => config('app.url', 'https://example.com').'/account/orders/OXP-000123',
                 'shipping' => ['address' => '12 Queen Street, Auckland, NZ'],
             ],
             Str::contains($eventKey, ['inquiry.', 'lead.', 'b2b_lead.', 'partnership_inquiry.', 'sample_request.']) => [

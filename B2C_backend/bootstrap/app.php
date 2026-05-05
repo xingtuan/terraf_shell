@@ -41,7 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return ApiResponse::error(
-                'The given data was invalid.',
+                'Validation failed.',
                 $exception->errors(),
                 $exception->status
             );

@@ -51,8 +51,8 @@ class StoreOverview extends StatsOverviewWidget
             ->count();
 
         return [
-            Stat::make('Fulfilment backlog', number_format($orderBacklog))
-                ->description('Pending, confirmed, processing, or shipped orders')
+            Stat::make('Order request backlog', number_format($orderBacklog))
+                ->description('Pending review, confirmed, processing, or shipped requests')
                 ->color($orderBacklog > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-shopping-bag')
                 ->url(OrderResource::getUrl()),
@@ -72,7 +72,7 @@ class StoreOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-squares-2x2')
                 ->url(ProductCategoryResource::getUrl()),
             Stat::make(
-                'Unpaid orders',
+                'Manual payment backlog',
                 number_format(
                     Order::query()
                         ->where('payment_status', OrderPaymentStatus::Unpaid->value)
@@ -80,8 +80,8 @@ class StoreOverview extends StatsOverviewWidget
                         ->count(),
                 ),
             )
-                ->description('Orders still awaiting payment confirmation')
-                ->color('danger')
+                ->description('Order requests awaiting manual payment instructions or confirmation')
+                ->color('warning')
                 ->icon('heroicon-o-credit-card')
                 ->url(OrderResource::getUrl()),
             Stat::make(

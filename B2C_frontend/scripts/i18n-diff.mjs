@@ -39,16 +39,16 @@ const ALLOWED_ENGLISH_VALUES = new Set([
   "B2C",
   "GoFundMe",
   "Kickstarter",
-  "OX-W",
-  "OX-H",
-  "OX-B",
-  "OX-S",
-  "OX-M",
+  "XP Material Family",
+  "Oyster Shell XP",
+  "Carbon XP",
+  "Mineral XP",
+  "CXP",
+  "MXP",
   "Terrafin",
   "Terrafactory",
   "Terraforming",
   "your_username",                 // technical identifier, intentionally same
-  "Contact email pending",         // pending content, not a translation gap
   "name@company.com",              // example value — flagged separately in audit
   "SHELL · SCIENCE · SOURCE CODE", // brand tagline kept in English
   "© 2026 OXP. All rights reserved.", // legal line, intentionally same

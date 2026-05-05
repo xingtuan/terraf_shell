@@ -1,5 +1,6 @@
 import { ApplicationsSection } from "@/components/sections/applications"
 import { CollaborationSection } from "@/components/sections/collaboration"
+import { CertificationsAtAGlance } from "@/components/sections/certifications-at-a-glance"
 import { CredibilitySection } from "@/components/sections/credibility"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { MaterialFactsSection } from "@/components/sections/material-facts"
@@ -24,6 +25,7 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   const locale = await resolveLocale(params)
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
+  const certificationMessages = messages.certificationsAtAGlance
 
   let materialInfo = null
 
@@ -124,6 +126,14 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
         content={materialFactsContent}
         specs={specs}
         sheetHref={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}
+      />
+      <CertificationsAtAGlance
+        certifications={materialInfo?.certifications ?? []}
+        eyebrow={certificationMessages.eyebrow}
+        title={certificationMessages.title}
+        description={certificationMessages.description}
+        variant="material"
+        verifiedLabel={certificationMessages.verifiedLabel}
       />
       <CredibilitySection content={credibilityContent} />
       <CollaborationSection

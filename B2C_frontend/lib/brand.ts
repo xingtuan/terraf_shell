@@ -5,7 +5,7 @@ export const BRAND_DISPLAY_NAME = "OXP"
 export const BRAND_CONTACT_EMAIL =
   process.env.NEXT_PUBLIC_BRAND_CONTACT_EMAIL?.trim() ?? ""
 
-export const BRAND_CONTACT_EMAIL_FALLBACK = "Contact email pending"
+export const BRAND_CONTACT_EMAIL_FALLBACK = "Contact us"
 
 export function getBrandContactLabel() {
   return BRAND_CONTACT_EMAIL || BRAND_CONTACT_EMAIL_FALLBACK

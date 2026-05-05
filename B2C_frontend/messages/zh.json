@@ -25,7 +25,7 @@
       },
       "orders": {
         "title": "还没有订单",
-        "description": "提交订单后，记录将显示在这里。",
+        "description": "提交订单请求后，记录将显示在这里。",
         "cta": "开始购物"
       },
       "addresses": {
@@ -88,7 +88,7 @@
       "addressSaved": "地址已保存。",
       "addressDefaultSet": "默认地址已更新。",
       "addressDeleted": "地址已删除。",
-      "orderPlaced": "订单已提交，我们会尽快发送确认邮件。",
+      "orderPlaced": "你的订单请求已提交。团队会审核库存、配送和付款细节，然后通过邮件联系你。",
       "orderCancelled": "订单已取消。",
       "postPublished": "帖子已发布。",
       "postPendingReview": "帖子已提交，正在等待审核。",
@@ -121,10 +121,10 @@
         "cancel": "保留"
       },
       "cancelOrder": {
-        "title": "取消这笔订单？",
-        "description": "如果已付款，退款可能需要 3–5 个工作日。",
-        "confirm": "取消订单",
-        "cancel": "保留订单"
+        "title": "取消这笔订单请求？",
+        "description": "账户页面只能取消仍在待审核状态的人工订单请求。",
+        "confirm": "取消请求",
+        "cancel": "保留请求"
       },
       "unfollowUser": {
         "title": "取消关注 {name}？",
@@ -145,6 +145,13 @@
         "cancel": "保留商品"
       }
     }
+  },
+  "certificationsAtAGlance": {
+    "eyebrow": "认证性能",
+    "title": "认证数据一览",
+    "description": "快速查看 OXP 材料背后的测试认证与性能数据。",
+    "productDescription": "该产品相关的材料与产品认证信息。",
+    "verifiedLabel": "已认证"
   },
   "meta": {
     "siteName": "OXP",
@@ -354,8 +361,8 @@
       "pillars": [
         {
           "name": "Terrafin",
-          "formula": "ƒ(生物质) = OX复合材料",
-          "description": "材料功能。由木材、稻壳、生物炭、贝壳和矿物等区域废料制成的烯烃交联(OX)生物质复合材料。OXP (OX-S) 是首个商业化产品线。"
+          "formula": "ƒ(生物质) = XP复合材料",
+          "description": "材料功能。XP Material Family 基于区域废料流开发，OXP 是已确认的牡蛎壳产品线，其他 XP 材料线正等待客户最终确认。"
         },
         {
           "name": "Terrafactory",
@@ -428,38 +435,27 @@
       ]
     },
     "materialFamily": {
-      "eyebrow": "OX材料系列",
-      "title": "五种生物质复合材料产品线。一种设计哲学。",
-      "intro": "每种Terrafin材料都是源自区域生物质原料的烯烃交联(OX)复合材料——将废料中捕获的碳工程化为耐久材料。",
+      "eyebrow": "XP Material Family",
+      "title": "当前为 OXP，其他 XP 材料线正等待客户确认。",
+      "intro": "OXP 是已确认的牡蛎壳产品线。其他 XP 材料线正等待客户未来确认。",
+      "comingSoonLabel": "待确认",
       "lines": [
         {
-          "code": "OX-W",
-          "name": "木材复合材料",
-          "source": "区域木材和林业废料",
-          "status": "coming_soon"
-        },
-        {
-          "code": "OX-H",
-          "name": "稻壳复合材料",
-          "source": "农业作物稻壳",
-          "status": "coming_soon"
-        },
-        {
-          "code": "OX-B",
-          "name": "生物炭复合材料",
-          "source": "热解生物质碳",
-          "status": "coming_soon"
-        },
-        {
-          "code": "OX-S",
-          "name": "贝壳复合材料",
+          "code": "OXP",
+          "name": "Oyster Shell XP",
           "source": "再生牡蛎壳——韩国",
           "status": "available"
         },
         {
-          "code": "OX-M",
-          "name": "矿物复合材料",
-          "source": "区域矿物生物质",
+          "code": "CXP",
+          "name": "Carbon XP",
+          "source": "其他 XP 材料线正等待客户未来确认。",
+          "status": "coming_soon"
+        },
+        {
+          "code": "MXP",
+          "name": "Mineral XP",
+          "source": "其他 XP 材料线正等待客户未来确认。",
           "status": "coming_soon"
         }
       ]
@@ -652,7 +648,7 @@
       "cards": [
         {
           "label": "邮箱",
-          "value": "Contact email pending",
+          "value": "联系我们",
           "detail": "一般咨询、零售与产品问题"
         },
         {
@@ -711,8 +707,8 @@
     "estTax": "预估税费",
     "freeShippingOver": "满额包邮",
     "viewCart": "查看购物车",
-    "proceedToCheckout": "前往结账",
-    "signInToCheckout": "登录后结账",
+    "proceedToCheckout": "前往订单请求",
+    "signInToCheckout": "登录后请求订单",
     "clearCart": "清空购物车",
     "signInDialogTitle": "登录以继续",
     "signInDialogDescription": "使用与社区共用的同一 OXP 账户登录。"
@@ -734,21 +730,21 @@
     "estimatedShipping": "预估运费",
     "estimatedTax": "预估税费",
     "estimatedTotal": "预估总计",
-    "freeShippingNote": "满 {threshold} 即可包邮。在完整计费服务上线前，税费仍为占位信息。",
-    "proceedToCheckout": "前往结账",
-    "signInToCheckout": "登录后结账",
+    "freeShippingNote": "配送和税费为预估金额。团队会通过邮件确认最终细节。",
+    "proceedToCheckout": "前往订单请求",
+    "signInToCheckout": "登录后请求订单",
     "continueShopping": "继续购物",
     "signInDialogTitle": "登录以继续",
     "signInDialogDescription": "使用与社区共用的同一 OXP 账户登录。"
   },
   "checkout": {
     "emptyTitle": "你的购物车为空",
-    "emptyDescription": "继续结账前，请先添加 OXP 产品。",
+    "emptyDescription": "继续提交订单请求前，请先添加 OXP 产品。",
     "browseCollection": "浏览系列",
     "backToCart": "返回购物车",
-    "eyebrow": "结账",
-    "title": "配送与订单确认",
-    "description": "订单通过共享的 OXP 账户流程提交。当前已具备运费结构，而税费在完整商业计算器上线前仍为占位信息。",
+    "eyebrow": "订单请求",
+    "title": "确认并提交订单请求",
+    "description": "当前尚未提供在线支付。提交请求后，团队会通过邮件确认库存、配送、税费和付款说明。",
     "savedAddresses": "已保存地址",
     "defaultBadge": "默认",
     "useThisAddress": "使用此地址",
@@ -768,9 +764,9 @@
     "shippingFree": "免费",
     "tax": "税费",
     "total": "总计",
-    "confirmationNote": "订单将由人工确认。审核完成后，你会收到确认邮件。",
-    "placingOrder": "正在下单...",
-    "placeOrder": "提交订单",
+    "confirmationNote": "订单请求将由人工审核。当前尚未提供在线支付。",
+    "placingOrder": "正在提交请求...",
+    "placeOrder": "提交订单请求",
     "productFallback": "OXP 产品",
     "countries": {
       "KR": "韩国",
@@ -781,6 +777,19 @@
       "GB": "英国",
       "OT": "其他"
     }
+  },
+  "orderStatuses": {
+    "pending": "待审核",
+    "confirmed": "已确认",
+    "processing": "处理中",
+    "shipped": "已发货",
+    "delivered": "已送达",
+    "cancelled": "已取消"
+  },
+  "paymentStatuses": {
+    "unpaid": "等待付款说明",
+    "paid": "人工付款完成",
+    "refunded": "人工退款完成"
   },
   "addressPage": {
     "eyebrow": "地址",
@@ -813,16 +822,18 @@
     "title": "订单历史",
     "loading": "正在加载订单...",
     "emptyTitle": "还没有订单",
-    "emptyDescription": "浏览 OXP 系列，完成你的第一笔订单。",
+    "emptyDescription": "浏览 OXP 系列，提交你的第一笔订单请求。",
     "browseCollection": "浏览系列",
-    "pendingDate": "待处理日期",
+    "pendingDate": "请求日期",
     "viewDetails": "查看详情",
     "cancel": "取消",
-    "cancelConfirm": "取消这笔待处理订单？",
+    "cancelConfirm": "取消这笔待处理订单请求？",
     "previous": "上一页",
     "next": "下一页",
     "pageOf": "第 {page} / {lastPage} 页",
-    "moreItems": "另有 +{count} 件"
+    "moreItems": "另有 +{count} 件",
+    "submittedTitle": "你的订单请求已提交。",
+    "submittedDescription": "团队会审核库存、配送和付款细节，然后通过邮件联系你。"
   },
   "productCard": {
     "featuredBadge": "精选",
@@ -878,6 +889,7 @@
     "browseAllProducts": "浏览全部产品"
   },
   "community": {
+    "memberFallback": "社区成员",
     "layout": {
       "title": "OXP 社区",
       "description": "一个让设计师与创作者分享 OXP 产品创意、材料实验和可持续生活理念的空间。",
@@ -897,9 +909,9 @@
       "logout": "退出登录",
       "refreshProfile": "刷新资料",
       "email": "邮箱",
-      "emailHelper": "你的邮箱地址同时作为 OXP 全站的用户名。",
+      "emailHelper": "此邮箱将用于登录。",
       "password": "密码",
-      "name": "名称",
+      "name": "姓名",
       "confirmPassword": "确认密码",
       "loginSubmit": "登录",
       "loginSubmitPending": "登录中…",
@@ -909,9 +921,19 @@
       "refreshSuccess": "已从 /api/auth/me 刷新资料。",
       "emailPlaceholder": "请输入你的邮箱地址",
       "passwordPlaceholder": "请输入你的密码",
-      "namePlaceholder": "取个昵称吧",
+      "namePlaceholder": "请输入你的姓名",
       "signInToContinue": "登录以继续",
-      "loadingAccount": "正在加载你的 OXP 账户..."
+      "loadingAccount": "正在加载你的 OXP 账户...",
+      "validation": {
+        "nameRequired": "请输入你的姓名。",
+        "emailRequired": "请输入你的邮箱地址。",
+        "emailInvalid": "请输入有效的邮箱地址。",
+        "emailTaken": "此邮箱已注册。请尝试登录。",
+        "passwordRequired": "请输入你的密码。",
+        "passwordMin": "密码至少需要 8 个字符。",
+        "passwordMismatch": "两次输入的密码不一致。",
+        "validation": "请检查标记字段后再试。"
+      }
     },
     "report": {
       "button": "举报",
@@ -1043,7 +1065,24 @@
       "updatedPost": "帖子已更新。",
       "updatedComment": "评论已更新。",
       "replyAdded": "回复已添加。",
-      "supportIdea": "💛 支持这个创意",
+      "supportIdea": "支持这个创意",
+      "supportIdeaTitle": "支持这个创意",
+      "readingTime": "{count} 分钟阅读",
+      "imageCount": "{count} 张图片",
+      "imageCountPlural": "{count} 张图片",
+      "attachmentCount": "{count} 个附件",
+      "attachmentCountPlural": "{count} 个附件",
+      "attachmentFallback": "附件",
+      "attachments": "附件",
+      "fileCount": "{count} 个文件",
+      "fileCountPlural": "{count} 个文件",
+      "downloads": "{count} 次下载",
+      "download": "下载",
+      "externalLinks": "外部链接",
+      "linkCount": "{count} 个链接",
+      "linkCountPlural": "{count} 个链接",
+      "linkType": "链接",
+      "open": "打开",
       "pendingBadge": "待审核",
       "rejectedBadge": "已拒绝",
       "featured": "精选",

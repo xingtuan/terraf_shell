@@ -31,6 +31,7 @@ import {
 import {
   formatAccountDate,
   getOrderStatusClasses,
+  getOrderStatusLabel,
 } from "@/components/account/account-utils"
 
 type AccountOrdersPageProps = {
@@ -204,7 +205,7 @@ export function AccountOrdersPage({ locale }: AccountOrdersPageProps) {
                   <span
                     className={`rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${getOrderStatusClasses(order.status)}`}
                   >
-                    {order.status}
+                    {getOrderStatusLabel(order.status, siteMessages.orderStatuses)}
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">

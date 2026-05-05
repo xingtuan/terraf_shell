@@ -9,7 +9,7 @@ import { listAddresses } from "@/lib/api/addresses"
 import { getErrorMessage } from "@/lib/api/client"
 import { getOrders } from "@/lib/api/orders"
 import { formatCurrencyAmount } from "@/lib/api/products"
-import { getLocalizedHref, type Locale } from "@/lib/i18n"
+import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
 import type { Address, StoreOrder } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCart } from "@/hooks/useCart"
@@ -24,6 +24,7 @@ import {
   formatAddressSummary,
   getDefaultAddress,
   getOrderStatusClasses,
+  getOrderStatusLabel,
 } from "@/components/account/account-utils"
 
 type AccountStorePageProps = {
@@ -34,6 +35,7 @@ export function AccountStorePage({ locale }: AccountStorePageProps) {
   const session = useAuthSession()
   const { cart, openCart } = useCart()
   const copy = getAccountCopy(locale)
+  const siteMessages = getMessages(locale)
   const [orders, setOrders] = useState<StoreOrder[]>([])
   const [totalOrders, setTotalOrders] = useState(0)
   const [addresses, setAddresses] = useState<Address[]>([])
@@ -158,10 +160,10 @@ export function AccountStorePage({ locale }: AccountStorePageProps) {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="font-medium text-foreground">
-                        {item.product?.name ?? `Product #${item.product_id}`}
+                        {item.product?.name ?? siteMessages.checkout.productFallback}
                       </p>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        Qty {item.quantity}
+                        {siteMessages.checkout.qty} {item.quantity}
                       </p>
                     </div>
                     <p className="text-sm font-medium text-foreground">
@@ -235,7 +237,10 @@ export function AccountStorePage({ locale }: AccountStorePageProps) {
                   <span
                     className={`rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${getOrderStatusClasses(latestOrder.status)}`}
                   >
-                    {latestOrder.status}
+                    {getOrderStatusLabel(
+                      latestOrder.status,
+                      siteMessages.orderStatuses,
+                    )}
                   </span>
                 </div>
                 <p className="mt-4 text-sm font-medium text-foreground">

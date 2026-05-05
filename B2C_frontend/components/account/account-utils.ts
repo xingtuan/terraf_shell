@@ -1,4 +1,4 @@
-import { getIntlLocale, type Locale } from "@/lib/i18n"
+import { getIntlLocale, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { Address, StoreOrder } from "@/lib/types"
 
 export function formatAccountDate(
@@ -41,6 +41,20 @@ export function getOrderStatusClasses(status: StoreOrder["status"]) {
     default:
       return "bg-muted text-foreground"
   }
+}
+
+export function getOrderStatusLabel(
+  status: StoreOrder["status"],
+  labels: SiteMessages["orderStatuses"],
+) {
+  return labels[status as keyof SiteMessages["orderStatuses"]] ?? status.replace(/_/g, " ")
+}
+
+export function getPaymentStatusLabel(
+  status: StoreOrder["payment_status"],
+  labels: SiteMessages["paymentStatuses"],
+) {
+  return labels[status as keyof SiteMessages["paymentStatuses"]] ?? status.replace(/_/g, " ")
 }
 
 export function getDefaultAddress(addresses: Address[]) {

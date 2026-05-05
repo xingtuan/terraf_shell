@@ -355,6 +355,15 @@ export interface MaterialCertification {
   value: string
 }
 
+export type CertificationCardInput =
+  | string
+  | {
+      key?: string | null
+      label?: string | null
+      value?: string | null
+      description?: string | null
+    }
+
 export interface MaterialModelInfo {
   id: string
   name: string

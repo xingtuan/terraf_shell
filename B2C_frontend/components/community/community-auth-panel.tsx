@@ -35,6 +35,16 @@ export type CommunityAuthCopy = {
   namePlaceholder: string
   signInToContinue: string
   loadingAccount: string
+  validation?: {
+    nameRequired: string
+    emailRequired: string
+    emailInvalid: string
+    emailTaken: string
+    passwordRequired: string
+    passwordMin: string
+    passwordMismatch: string
+    validation: string
+  }
   verificationNotice?: string
   resendVerification?: string
 }
@@ -56,6 +66,113 @@ type CommunityAuthPanelProps = {
 function FieldError({ message }: { message?: string }) {
   if (!message) return null
   return <p className="mt-1 text-xs text-destructive">{message}</p>
+}
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function validateRegisterPayload(
+  payload: RegisterPayload,
+  copy: CommunityAuthCopy,
+): Record<string, string> | null {
+  const validation = copy.validation
+  const errors: Record<string, string> = {}
+
+  if (!payload.name.trim()) {
+    errors.name = validation?.nameRequired ?? "Please enter your full name."
+  }
+
+  if (!payload.email.trim()) {
+    errors.email = validation?.emailRequired ?? "Please enter your email address."
+  } else if (!emailPattern.test(payload.email)) {
+    errors.email = validation?.emailInvalid ?? "Please enter a valid email address."
+  }
+
+  if (!payload.password) {
+    errors.password = validation?.passwordRequired ?? "Please enter your password."
+  } else if (payload.password.length < 8) {
+    errors.password =
+      validation?.passwordMin ?? "Password must be at least 8 characters."
+  }
+
+  if (payload.password !== payload.password_confirmation) {
+    errors.password_confirmation =
+      validation?.passwordMismatch ?? "Passwords do not match."
+  }
+
+  return Object.keys(errors).length > 0 ? errors : null
+}
+
+function localizeRegisterFieldErrors(
+  fields: Record<string, string>,
+  copy: CommunityAuthCopy,
+): Record<string, string> {
+  const validation = copy.validation
+  const result: Record<string, string> = {}
+
+  for (const [field, message] of Object.entries(fields)) {
+    const normalizedMessage = message.toLowerCase()
+
+    if (
+      field === "email" &&
+      (normalizedMessage.includes("already") ||
+        normalizedMessage.includes("taken") ||
+        normalizedMessage.includes("registered") ||
+        normalizedMessage.includes("unique"))
+    ) {
+      result.email =
+        validation?.emailTaken ??
+        "This email is already registered. Try signing in instead."
+      continue
+    }
+
+    if (field === "email" && normalizedMessage.includes("valid")) {
+      result.email = validation?.emailInvalid ?? message
+      continue
+    }
+
+    if (field === "name" && normalizedMessage.includes("required")) {
+      result.name = validation?.nameRequired ?? message
+      continue
+    }
+
+    if (
+      field === "password" &&
+      (normalizedMessage.includes("confirm") ||
+        normalizedMessage.includes("match"))
+    ) {
+      result.password_confirmation =
+        validation?.passwordMismatch ?? "Passwords do not match."
+      continue
+    }
+
+    if (
+      field === "password_confirmation" &&
+      (normalizedMessage.includes("confirm") ||
+        normalizedMessage.includes("match"))
+    ) {
+      result.password_confirmation =
+        validation?.passwordMismatch ?? "Passwords do not match."
+      continue
+    }
+
+    if (
+      field === "password" &&
+      (normalizedMessage.includes("8") || normalizedMessage.includes("least"))
+    ) {
+      result.password =
+        validation?.passwordMin ?? "Password must be at least 8 characters."
+      continue
+    }
+
+    if (field === "password" && normalizedMessage.includes("required")) {
+      result.password = validation?.passwordRequired ?? message
+      continue
+    }
+
+    result[field] = message
+  }
+
+  return result
 }
 
 export function CommunityAuthPanel({
@@ -297,6 +414,14 @@ export function CommunityAuthPanel({
               device_name: "oxp-web",
             }
 
+            const clientErrors = validateRegisterPayload(payload, copy)
+
+            if (clientErrors) {
+              setFieldErrors(clientErrors)
+              setMessage(null)
+              return
+            }
+
             startTransition(() => {
               void onRegister(payload)
                 .then((newUser) => {
@@ -313,7 +438,8 @@ export function CommunityAuthPanel({
                 .catch((error) => {
                   const fields = getFieldErrors(error)
                   if (fields) {
-                    setFieldErrors(fields)
+                    setFieldErrors(localizeRegisterFieldErrors(fields, copy))
+                    setMessage(null)
                   } else {
                     setMessage(getErrorMessage(error))
                   }

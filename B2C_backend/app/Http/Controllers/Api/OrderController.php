@@ -87,7 +87,7 @@ class OrderController extends Controller
 
         return $this->successResponse(
             new OrderResource($order),
-            'Order created successfully.',
+            'Order request submitted successfully.',
             201,
         );
     }
@@ -103,7 +103,7 @@ class OrderController extends Controller
 
         return $this->successResponse(
             new OrderResource($order),
-            'Order cancelled successfully.',
+            'Order request cancelled successfully.',
         );
     }
 }

@@ -41,7 +41,7 @@ class OrderResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Store';
 
-    protected static ?string $navigationLabel = 'Orders';
+    protected static ?string $navigationLabel = 'Order Requests';
 
     protected static ?int $navigationSort = 10;
 
@@ -49,16 +49,16 @@ class OrderResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Order Review')
+                Section::make('Order Request Review')
                     ->schema([
                         Placeholder::make('order_number')
-                            ->label('Order Number')
+                            ->label('Order Request Number')
                             ->content(fn (Order $record): string => $record->order_number),
                         Placeholder::make('payment_method')
-                            ->label('Payment Method')
-                            ->content(fn (Order $record): string => $record->payment_method ?: 'Not captured'),
+                            ->label('Payment Handling')
+                            ->content(fn (Order $record): string => $record->payment_method ?: 'Manual follow-up'),
                         Placeholder::make('payment_reference')
-                            ->label('Payment Reference')
+                            ->label('Manual Payment Reference')
                             ->content(fn (Order $record): string => $record->payment_reference ?: 'Not captured'),
                         Placeholder::make('customer_note_summary')
                             ->label('Customer Note')
@@ -83,7 +83,7 @@ class OrderResource extends Resource
     {
         return $schema
             ->components([
-                InfolistSection::make('Order Info')
+                InfolistSection::make('Order Request Info')
                     ->schema([
                         TextEntry::make('order_number')
                             ->copyable(),
@@ -127,7 +127,7 @@ class OrderResource extends Resource
                         TextEntry::make('shipping_country'),
                     ])
                     ->columns(2),
-                InfolistSection::make('Payment')
+                InfolistSection::make('Manual Payment')
                     ->schema([
                         TextEntry::make('payment_method')
                             ->placeholder('-'),
@@ -205,6 +205,7 @@ class OrderResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('order_number')
+                    ->label('Order request')
                     ->searchable()
                     ->copyable()
                     ->description(fn (Order $record): string => collect([
@@ -223,6 +224,7 @@ class OrderResource extends Resource
                     ->formatStateUsing(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->label() : (OrderStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->color() : (OrderStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                 TextColumn::make('payment_status')
+                    ->label('Manual payment status')
                     ->badge()
                     ->formatStateUsing(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->label() : (OrderPaymentStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->color() : (OrderPaymentStatus::tryFrom((string) $state)?->color() ?? 'gray')),
@@ -245,7 +247,7 @@ class OrderResource extends Resource
             ])
             ->filters([
                 Filter::make('open_fulfilment')
-                    ->label('Open fulfilment')
+                    ->label('Open requests')
                     ->query(fn (Builder $query): Builder => $query->whereIn('status', [
                         OrderStatus::Pending->value,
                         OrderStatus::Confirmed->value,
@@ -295,7 +297,7 @@ class OrderResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 Action::make('changeStatus')
-                    ->label('Update Status')
+                    ->label('Update request status')
                     ->form([
                         Select::make('status')
                             ->options([
@@ -339,7 +341,7 @@ class OrderResource extends Resource
                         }
 
                         Notification::make()
-                            ->title('Order status updated.')
+                            ->title('Order request status updated.')
                             ->success()
                             ->send();
                     }),

@@ -57,8 +57,11 @@ export function formatCommunityRelativeTime(
   return formatter.format(diffSeconds, "second")
 }
 
-export function getCommunityUserName(user?: CommunityUser | null) {
-  return user?.name ?? user?.username ?? "Community member"
+export function getCommunityUserName(
+  user?: CommunityUser | null,
+  fallback = "Community member",
+) {
+  return user?.name ?? user?.username ?? fallback
 }
 
 export function getCommunityUserInitials(user?: CommunityUser | null) {

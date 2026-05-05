@@ -15,7 +15,7 @@ import {
   getUserProfile,
 } from "@/lib/api/users"
 import { getAccountCopy } from "@/lib/account-copy"
-import { getLocalizedHref, type Locale } from "@/lib/i18n"
+import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
 import type { Address, StoreOrder, UserNotification, UserProfile } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCart } from "@/hooks/useCart"
@@ -30,6 +30,7 @@ import {
   formatAddressSummary,
   getDefaultAddress,
   getOrderStatusClasses,
+  getOrderStatusLabel,
 } from "@/components/account/account-utils"
 
 type AccountOverviewPageProps = {
@@ -40,6 +41,7 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
   const session = useAuthSession()
   const { cart } = useCart()
   const copy = getAccountCopy(locale)
+  const siteMessages = getMessages(locale)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [orders, setOrders] = useState<StoreOrder[]>([])
   const [totalOrders, setTotalOrders] = useState(0)
@@ -197,7 +199,7 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
               <AccountStatCard
                 label={copy.overview.postsLabel}
                 value={postsCount}
-                detail={`${commentsCount} comments`}
+                detail={`${commentsCount} ${siteMessages.community.post.comments}`}
               />
               <AccountStatCard
                 label={copy.overview.savedPostsLabel}
@@ -272,7 +274,7 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
                           <span
                             className={`rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${getOrderStatusClasses(order.status)}`}
                           >
-                            {order.status}
+                            {getOrderStatusLabel(order.status, siteMessages.orderStatuses)}
                           </span>
                         </div>
                         <div className="mt-4 flex flex-wrap gap-3">

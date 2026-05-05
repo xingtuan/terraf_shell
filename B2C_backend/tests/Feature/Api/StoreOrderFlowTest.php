@@ -81,7 +81,7 @@ class StoreOrderFlowTest extends TestCase
 
         $orderNumber = $orderResponse->json('data.order_number');
 
-        $this->assertMatchesRegularExpression('/^SHF-\d{6}$/', $orderNumber);
+        $this->assertMatchesRegularExpression('/^OXP-\d{6}$/', $orderNumber);
         $this->assertDatabaseHas('orders', [
             'order_number' => $orderNumber,
             'user_id' => $user->id,
@@ -155,7 +155,7 @@ class StoreOrderFlowTest extends TestCase
 
         $order = Order::query()->create([
             'user_id' => $user->id,
-            'order_number' => 'SHF-000001',
+            'order_number' => 'OXP-000001',
             'status' => 'pending',
             'subtotal_usd' => 48.00,
             'shipping_usd' => 15.00,
