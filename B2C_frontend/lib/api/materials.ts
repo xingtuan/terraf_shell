@@ -81,6 +81,9 @@ export function materialInfoToDetail(material: MaterialInfo): MaterialDetail {
 
 export async function getMaterialInfo(options: ApiRequestOverrides = {}) {
   return requestApi<MaterialInfo>("/materials", {
+    query: {
+      locale: options.locale,
+    },
     baseUrl: options.baseUrl,
   })
 }
@@ -105,7 +108,10 @@ export async function getMaterialSpecs(
   options: ApiRequestOverrides = {},
 ): Promise<MaterialSpec[]> {
   try {
-    const response = await getMaterialInfo(options)
+    const response = await getMaterialInfo({
+      ...options,
+      locale: options.locale ?? locale,
+    })
 
     return materialInfoToSpecs(response.data)
   } catch {

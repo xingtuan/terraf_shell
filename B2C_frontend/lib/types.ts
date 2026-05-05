@@ -6,6 +6,8 @@ export type JsonObject = {
   [key: string]: JsonValue
 }
 
+export type LocalizedStringSet = Partial<Record<"en" | "ko" | "zh", string>>
+
 export type ProductStockStatus =
   | "in_stock"
   | "low_stock"
@@ -266,9 +268,12 @@ export interface MaterialSpec {
   material_id?: number
   key?: string | null
   label: string
+  label_translations?: LocalizedStringSet
   value: string
+  value_translations?: LocalizedStringSet
   unit?: string | null
   detail?: string | null
+  detail_translations?: LocalizedStringSet
   icon: MaterialSpecIcon
   status?: string | null
   sort_order?: number
@@ -282,9 +287,13 @@ export interface MaterialStorySection {
   id: EntityId
   material_id?: number
   title: string
+  title_translations?: LocalizedStringSet
   subtitle?: string | null
+  subtitle_translations?: LocalizedStringSet
   content: string
+  content_translations?: LocalizedStringSet
   highlight?: string | null
+  highlight_translations?: LocalizedStringSet
   status?: string | null
   sort_order?: number
   media_url?: string | null
@@ -297,10 +306,15 @@ export interface MaterialApplication {
   id: EntityId
   material_id?: number
   title: string
+  title_translations?: LocalizedStringSet
   subtitle?: string | null
+  subtitle_translations?: LocalizedStringSet
   description: string
+  description_translations?: LocalizedStringSet
   audience?: string | null
+  audience_translations?: LocalizedStringSet
   cta_label?: string | null
+  cta_label_translations?: LocalizedStringSet
   cta_url?: string | null
   status?: string | null
   sort_order?: number
@@ -313,11 +327,16 @@ export interface MaterialApplication {
 export interface MaterialSummary {
   id: number
   title: string
+  title_translations?: LocalizedStringSet
   slug: string
   headline?: string | null
+  headline_translations?: LocalizedStringSet
   summary?: string | null
+  summary_translations?: LocalizedStringSet
   story_overview?: string | null
+  story_overview_translations?: LocalizedStringSet
   science_overview?: string | null
+  science_overview_translations?: LocalizedStringSet
   status?: string | null
   is_featured: boolean
   sort_order?: number
@@ -393,10 +412,14 @@ export interface MaterialInfo {
 export interface ArticleSummary {
   id: number
   title: string
+  title_translations?: LocalizedStringSet
   slug: string
   excerpt?: string | null
+  excerpt_translations?: LocalizedStringSet
   content?: string | null
+  content_translations?: LocalizedStringSet
   category?: string | null
+  category_translations?: LocalizedStringSet
   status?: string | null
   sort_order?: number
   media_url?: string | null
@@ -420,9 +443,13 @@ export interface HomeSection {
   id: number
   key: string
   title?: string | null
+  title_translations?: LocalizedStringSet
   subtitle?: string | null
+  subtitle_translations?: LocalizedStringSet
   content?: string | null
+  content_translations?: LocalizedStringSet
   cta_label?: string | null
+  cta_label_translations?: LocalizedStringSet
   cta_url?: string | null
   payload?: HomeSectionPayload | null
   status?: string | null

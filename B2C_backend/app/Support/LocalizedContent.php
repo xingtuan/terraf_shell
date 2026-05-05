@@ -59,7 +59,7 @@ class LocalizedContent
 
         $fallbackValue = is_string($fallback) ? trim($fallback) : '';
 
-        if ($normalized === [] && $fallbackValue !== '') {
+        if ($fallbackValue !== '' && ! array_key_exists(self::DEFAULT_LOCALE, $normalized)) {
             $normalized[self::DEFAULT_LOCALE] = $fallbackValue;
         }
 
@@ -106,7 +106,7 @@ class LocalizedContent
             )
         ));
 
-        if ($normalized === [] && $fallbackItems !== []) {
+        if ($fallbackItems !== [] && ! array_key_exists(self::DEFAULT_LOCALE, $normalized)) {
             $normalized[self::DEFAULT_LOCALE] = $fallbackItems;
         }
 
@@ -120,12 +120,13 @@ class LocalizedContent
     ): ?string {
         $normalized = self::normalizeStringTranslations($translations, $fallback);
         $locale = self::resolveLocale($requestedLocale);
+        $fallbackValue = is_string($fallback) && trim($fallback) !== '' ? trim($fallback) : null;
         $firstValue = reset($normalized);
 
         return $normalized[$locale]
             ?? $normalized[self::DEFAULT_LOCALE]
+            ?? $fallbackValue
             ?? (is_string($firstValue) ? $firstValue : null)
-            ?? self::normalizeStringTranslations([], $fallback)[self::DEFAULT_LOCALE]
             ?? null;
     }
 

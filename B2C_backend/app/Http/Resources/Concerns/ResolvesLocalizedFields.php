@@ -9,9 +9,7 @@ trait ResolvesLocalizedFields
 {
     protected function locale(Request $request): string
     {
-        return LocalizedContent::resolveLocale(
-            $request->query('locale', $request->header('X-Locale'))
-        );
+        return LocalizedContent::resolveLocale($request->query('locale'));
     }
 
     protected function localizedString(Request $request, string $attribute): ?string

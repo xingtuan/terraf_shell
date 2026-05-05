@@ -94,6 +94,24 @@ class MaterialCmsTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.name', 'OXP');
 
+        $this->getJson('/api/materials?locale=zh')
+            ->assertOk()
+            ->assertJsonPath('data.tagline', '海洋遗产，以匠人工艺重塑。')
+            ->assertJsonPath('data.origin', '从沿海废弃物流中回收的牡蛎壳')
+            ->assertJsonPath('data.process_steps.0.title', '收集')
+            ->assertJsonPath('data.properties.0.label', '轻量化')
+            ->assertJsonPath('data.models.0.name', '1.5 轻盈版')
+            ->assertJsonPath('data.colors.0.name', '海骨白');
+
+        $this->getJson('/api/materials?locale=ko')
+            ->assertOk()
+            ->assertJsonPath('data.tagline', '바다의 유산을 장인의 기술로 다시 빚다.')
+            ->assertJsonPath('data.origin', '해안 폐기물 흐름에서 회수한 굴 껍데기')
+            ->assertJsonPath('data.process_steps.1.title', '열 정화')
+            ->assertJsonPath('data.properties.1.label', '충격 저항성')
+            ->assertJsonPath('data.models.0.name', '1.5 라이트')
+            ->assertJsonPath('data.colors.1.name', '포지드 애시');
+
         $this->getJson('/api/home-sections')
             ->assertOk()
             ->assertJsonCount(1, 'data')

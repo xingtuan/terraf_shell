@@ -20,6 +20,7 @@ import {
   buildHeroContent,
   buildMaterialFactsContent,
   buildMaterialStoryContent,
+  resolveLocalizedApiString,
   resolveCmsHref,
 } from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
@@ -106,7 +107,12 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
       ? primaryMaterial.specs
       : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
 
-  const heroContent = buildHeroContent(messages.home.hero, primaryMaterial, heroSection)
+  const heroContent = buildHeroContent(
+    messages.home.hero,
+    primaryMaterial,
+    heroSection,
+    locale,
+  )
   const storyContent = buildMaterialStoryContent(
     messages.home.materialStory,
     primaryMaterial,
@@ -119,6 +125,7 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
     messages.home.materialFacts,
     primaryMaterial,
     scienceSection,
+    locale,
   )
   const credibilityContent = buildCredibilityContent(
     messages.home.credibility,
@@ -165,15 +172,34 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
       {(homepage.articles.length > 0 || articlesSection) ? (
         <ArticleFeedSection
           locale={locale}
-          eyebrow={articlesSection?.subtitle || messages.articleFeed.defaultEyebrow}
-          title={articlesSection?.title || messages.articleFeed.defaultTitle}
+          eyebrow={resolveLocalizedApiString(
+            articlesSection,
+            "subtitle",
+            locale,
+            messages.articleFeed.defaultEyebrow,
+          )}
+          title={resolveLocalizedApiString(
+            articlesSection,
+            "title",
+            locale,
+            messages.articleFeed.defaultTitle,
+          )}
           description={
-            articlesSection?.content ||
-            messages.articleFeed.defaultDescription
+            resolveLocalizedApiString(
+              articlesSection,
+              "content",
+              locale,
+              messages.articleFeed.defaultDescription,
+            )
           }
           articles={homepage.articles}
           cta={{
-            label: articlesSection?.cta_label || messages.articleFeed.defaultCta,
+            label: resolveLocalizedApiString(
+              articlesSection,
+              "cta_label",
+              locale,
+              messages.articleFeed.defaultCta,
+            ),
             href: resolveCmsHref(
               locale,
               articlesSection?.cta_url,

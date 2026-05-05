@@ -2,6 +2,86 @@ import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { HomeSection, MaterialDetail, MaterialSpec } from "@/lib/types"
 
 type HomeMessages = SiteMessages["home"]
+type LocalizedRecord = object
+
+function nonEmptyString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value : null
+}
+
+function recordValue(
+  source: LocalizedRecord | null | undefined,
+  key: string,
+): unknown {
+  return source ? (source as Record<string, unknown>)[key] : undefined
+}
+
+function getTranslationSet(
+  source: LocalizedRecord | null | undefined,
+  field: string,
+) {
+  const translations = recordValue(source, `${field}_translations`)
+
+  if (
+    translations === null ||
+    translations === undefined ||
+    typeof translations !== "object" ||
+    Array.isArray(translations)
+  ) {
+    return null
+  }
+
+  return translations as Record<string, unknown>
+}
+
+function getRequestedApiString(
+  source: LocalizedRecord | null | undefined,
+  field: string,
+  locale: Locale,
+) {
+  const translations = getTranslationSet(source, field)
+  const translatedValue = nonEmptyString(translations?.[locale])
+
+  if (translatedValue) {
+    return translatedValue
+  }
+
+  if (locale === "en") {
+    return nonEmptyString(recordValue(source, field)) ?? nonEmptyString(translations?.en)
+  }
+
+  return null
+}
+
+function getLastResortApiString(
+  source: LocalizedRecord | null | undefined,
+  field: string,
+) {
+  const translations = getTranslationSet(source, field)
+  const firstTranslatedValue = Object.values(translations ?? {}).find(
+    (value): value is string => Boolean(nonEmptyString(value)),
+  )
+
+  return (
+    nonEmptyString(recordValue(source, field)) ??
+    nonEmptyString(translations?.en) ??
+    firstTranslatedValue ??
+    null
+  )
+}
+
+export function resolveLocalizedApiString(
+  source: LocalizedRecord | null | undefined,
+  field: string,
+  locale: Locale,
+  fallback?: string | null,
+): string {
+  return (
+    getRequestedApiString(source, field, locale) ??
+    nonEmptyString(fallback) ??
+    getLastResortApiString(source, field) ??
+    ""
+  )
+}
 
 function isLocalPreviewOrigin(href: string) {
   try {
@@ -120,6 +200,7 @@ export function buildHeroContent(
   fallback: HomeMessages["hero"],
   material?: MaterialDetail | null,
   heroSection?: HomeSection | null,
+  locale?: Locale,
 ): HomeMessages["hero"] {
   const indicators = material?.specs
     .slice(0, 3)
@@ -130,7 +211,10 @@ export function buildHeroContent(
     ...fallback,
     // Hero copy (eyebrow/title/description) is fully locale-driven.
     // Only indicators pull from live material data; CTA label can be CMS-controlled.
-    primaryCta: heroSection?.cta_label || fallback.primaryCta,
+    primaryCta:
+      locale && heroSection
+        ? resolveLocalizedApiString(heroSection, "cta_label", locale, fallback.primaryCta)
+        : heroSection?.cta_label || fallback.primaryCta,
     indicators: indicators?.length ? indicators : fallback.indicators,
   }
 }
@@ -185,6 +269,7 @@ export function buildMaterialFactsContent(
   fallback: HomeMessages["materialFacts"],
   material?: MaterialDetail | null,
   scienceSection?: HomeSection | null,
+  locale?: Locale,
 ): HomeMessages["materialFacts"] {
   const infoCards =
     material !== null && material !== undefined
@@ -193,24 +278,49 @@ export function buildMaterialFactsContent(
             label: fallback.infoCards[0]?.label ?? "Material",
             value:
               material.applications.length > 0 || (material.applications_count ?? 0) > 0
-                ? `${material.applications_count ?? material.applications.length} application areas`
+                ? fallback.infoCards[0]?.value || material.title
                 : material.title,
           },
           {
             label: fallback.infoCards[1]?.label ?? "Applications",
-            value: material.status === "published" ? "Live backend content" : material.title,
+            value:
+              material.status === "published"
+                ? fallback.infoCards[1]?.value || material.title
+                : material.title,
           },
         ]
       : fallback.infoCards
 
+  const sectionEyebrow =
+    locale && scienceSection
+      ? resolveLocalizedApiString(scienceSection, "subtitle", locale, fallback.eyebrow)
+      : scienceSection?.subtitle || fallback.eyebrow
+  const sectionTitle =
+    locale && scienceSection
+      ? resolveLocalizedApiString(scienceSection, "title", locale, fallback.title)
+      : scienceSection?.title || fallback.title
+  const sectionContent =
+    locale && scienceSection
+      ? resolveLocalizedApiString(
+          scienceSection,
+          "content",
+          locale,
+          fallback.sheetDescription,
+        )
+      : scienceSection?.content || fallback.sheetDescription
+  const sectionCta =
+    locale && scienceSection
+      ? resolveLocalizedApiString(scienceSection, "cta_label", locale, fallback.sheetCta)
+      : scienceSection?.cta_label || fallback.sheetCta
+
   return {
     ...fallback,
-    eyebrow: scienceSection?.subtitle || fallback.eyebrow,
-    title: scienceSection?.title || material?.headline || fallback.title,
-    sheetTitle: scienceSection?.title || fallback.sheetTitle,
+    eyebrow: sectionEyebrow,
+    title: sectionTitle || material?.headline || fallback.title,
+    sheetTitle: sectionTitle || fallback.sheetTitle,
     sheetDescription:
-      scienceSection?.content || material?.science_overview || fallback.sheetDescription,
-    sheetCta: scienceSection?.cta_label || fallback.sheetCta,
+      sectionContent || material?.science_overview || fallback.sheetDescription,
+    sheetCta: sectionCta,
     infoCards,
     note: material?.science_overview || fallback.note,
   }
