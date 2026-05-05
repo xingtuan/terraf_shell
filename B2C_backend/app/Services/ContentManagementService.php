@@ -147,6 +147,8 @@ class ContentManagementService
                 'summary' => $data['summary'] ?? null,
                 'story_overview' => $data['story_overview'] ?? null,
                 'science_overview' => $data['science_overview'] ?? null,
+                'certifications' => $data['certifications'] ?? null,
+                'technical_downloads' => $data['technical_downloads'] ?? null,
                 'is_featured' => (bool) ($data['is_featured'] ?? false),
                 'sort_order' => $data['sort_order'] ?? 0,
             ], $data);
@@ -167,6 +169,8 @@ class ContentManagementService
                 'summary' => $data['summary'] ?? $material->summary,
                 'story_overview' => $data['story_overview'] ?? $material->story_overview,
                 'science_overview' => $data['science_overview'] ?? $material->science_overview,
+                'certifications' => $data['certifications'] ?? $material->certifications,
+                'technical_downloads' => $data['technical_downloads'] ?? $material->technical_downloads,
                 'is_featured' => $data['is_featured'] ?? $material->is_featured,
                 'sort_order' => $data['sort_order'] ?? $material->sort_order,
             ], $data, $material);

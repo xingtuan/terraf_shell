@@ -25,6 +25,12 @@ class MaterialInfolist
                 TextEntry::make('science_overview')
                     ->placeholder('-')
                     ->columnSpanFull(),
+                TextEntry::make('certifications')
+                    ->label('Certifications / tests')
+                    ->formatStateUsing(fn ($state): string => is_array($state) ? (string) count($state).' records' : '-'),
+                TextEntry::make('technical_downloads')
+                    ->label('Technical downloads')
+                    ->formatStateUsing(fn ($state): string => is_array($state) ? (string) count($state).' records' : '-'),
                 TextEntry::make('status'),
                 IconEntry::make('is_featured')
                     ->boolean(),

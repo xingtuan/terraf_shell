@@ -28,6 +28,8 @@ class MaterialContentSeeder extends Seeder
                 'summary' => 'Designed for premium interior objects, hospitality programs, and future collaborative product development.',
                 'story_overview' => 'Recovered oyster shells are cleaned, refined, and transformed into a premium composite that balances tactile quality with circular material storytelling.',
                 'science_overview' => 'The material story is supported through measurable durability, reuse potential, and a lower-waste sourcing narrative that can be adapted for premium B2B and design-led applications.',
+                'certifications' => [],
+                'technical_downloads' => [],
                 'status' => PublishStatus::Published->value,
                 'is_featured' => true,
                 'sort_order' => 1,

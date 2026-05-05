@@ -9,6 +9,10 @@ import { HeroSection } from "@/components/sections/hero"
 import { MaterialFactsSection } from "@/components/sections/material-facts"
 import { MaterialStorySection } from "@/components/sections/material-story"
 import { OpenSourceLegacySection } from "@/components/sections/open-source-legacy"
+import {
+  PilotProjectsSection,
+  TrustAndCredibilitySection,
+} from "@/components/sections/trust-and-b2b-sections"
 import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { getHomepageContent, getHomeSections, findHomeSection } from "@/lib/api/homepage"
 import { getFeaturedMaterial, getMaterial, getMaterialSpecs } from "@/lib/api/materials"
@@ -169,45 +173,43 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
         ]}
       />
       <CredibilitySection content={credibilityContent} />
-      {(homepage.articles.length > 0 || articlesSection) ? (
-        <ArticleFeedSection
-          locale={locale}
-          eyebrow={resolveLocalizedApiString(
+      <TrustAndCredibilitySection content={messages.trustAndCredibility} />
+      <PilotProjectsSection content={messages.pilotProjects} />
+      <ArticleFeedSection
+        locale={locale}
+        eyebrow={resolveLocalizedApiString(
+          articlesSection,
+          "subtitle",
+          locale,
+          messages.articleFeed.defaultEyebrow,
+        )}
+        title={resolveLocalizedApiString(
+          articlesSection,
+          "title",
+          locale,
+          messages.articleFeed.defaultTitle,
+        )}
+        description={resolveLocalizedApiString(
+          articlesSection,
+          "content",
+          locale,
+          messages.articleFeed.defaultDescription,
+        )}
+        articles={homepage.articles}
+        cta={{
+          label: resolveLocalizedApiString(
             articlesSection,
-            "subtitle",
+            "cta_label",
             locale,
-            messages.articleFeed.defaultEyebrow,
-          )}
-          title={resolveLocalizedApiString(
-            articlesSection,
-            "title",
+            messages.articleFeed.defaultCta,
+          ),
+          href: resolveCmsHref(
             locale,
-            messages.articleFeed.defaultTitle,
-          )}
-          description={
-            resolveLocalizedApiString(
-              articlesSection,
-              "content",
-              locale,
-              messages.articleFeed.defaultDescription,
-            )
-          }
-          articles={homepage.articles}
-          cta={{
-            label: resolveLocalizedApiString(
-              articlesSection,
-              "cta_label",
-              locale,
-              messages.articleFeed.defaultCta,
-            ),
-            href: resolveCmsHref(
-              locale,
-              articlesSection?.cta_url,
-              getLocalizedHref(locale, "articles"),
-            ),
-          }}
-        />
-      ) : null}
+            articlesSection?.cta_url,
+            getLocalizedHref(locale, "articles"),
+          ),
+        }}
+      />
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />
     </>
   )

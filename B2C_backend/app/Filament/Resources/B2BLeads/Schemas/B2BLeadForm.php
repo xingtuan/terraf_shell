@@ -29,6 +29,12 @@ class B2BLeadForm
                                 Placeholder::make('lead_type')
                                     ->label('Lead type')
                                     ->content(fn (?B2BLead $record): string => $record ? (B2BLeadType::tryFrom($record->lead_type)?->label() ?? $record->lead_type) : '-'),
+                                Placeholder::make('interest_type')
+                                    ->label('Interest type')
+                                    ->content(fn (?B2BLead $record): string => $record?->interest_type ?: 'Not specified.'),
+                                Placeholder::make('application_type')
+                                    ->label('Application')
+                                    ->content(fn (?B2BLead $record): string => $record?->application_type ?: 'Not specified.'),
                                 Placeholder::make('name')
                                     ->content(fn (?B2BLead $record): string => $record?->name ?? '-'),
                                 Placeholder::make('company_name')
@@ -48,6 +54,15 @@ class B2BLeadForm
                                 Placeholder::make('company_website')
                                     ->label('Website')
                                     ->content(fn (?B2BLead $record): string => $record?->company_website ?: 'No website provided.'),
+                                Placeholder::make('estimated_quantity')
+                                    ->label('Estimated quantity')
+                                    ->content(fn (?B2BLead $record): string => $record?->estimated_quantity ?: 'Not specified.'),
+                                Placeholder::make('timeline')
+                                    ->content(fn (?B2BLead $record): string => $record?->timeline ?: 'Not specified.'),
+                                Placeholder::make('expected_use_case')
+                                    ->label('Expected use case')
+                                    ->content(fn (?B2BLead $record): string => $record?->expected_use_case ?: 'Not specified.')
+                                    ->columnSpanFull(),
                                 Placeholder::make('message')
                                     ->content(fn (?B2BLead $record): string => $record?->message ?? '-')
                                     ->columnSpanFull(),

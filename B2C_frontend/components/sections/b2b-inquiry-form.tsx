@@ -11,7 +11,7 @@ import {
 } from "@/lib/api/leads"
 import { BRAND_DISPLAY_NAME } from "@/lib/brand"
 import type { Locale, SiteMessages } from "@/lib/i18n"
-import type { LeadFormType, LeadFormValues } from "@/lib/types"
+import type { LeadFormType, LeadFormValues, LeadInterestType } from "@/lib/types"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
@@ -44,6 +44,7 @@ const leadFieldMaxLengths: Partial<Record<LeadFormField, number>> = {
   companyWebsite: 2048,
   jobTitle: 120,
   application: 150,
+  volume: 120,
   timeline: 120,
   message: 5000,
   collaborationGoal: 1000,
@@ -67,6 +68,7 @@ const leadFieldLabels: Partial<Record<LeadFormField, string>> = {
   companyWebsite: "Company website",
   jobTitle: "Job title",
   application: "Application",
+  volume: "Estimated quantity",
   timeline: "Target timeline",
   message: "Project details",
   collaborationGoal: "Collaboration goal",
@@ -81,43 +83,64 @@ const leadFieldLabels: Partial<Record<LeadFormField, string>> = {
 
 const leadTypeOptions: Array<{
   id: LeadFormType
+  interestType: LeadInterestType
   label: string
   description: string
 }> = [
   {
-    id: "inquiry",
-    label: "Raw material inquiry",
-    description: "Pellet supply, raw material buying, and pilot demand.",
-  },
-  {
-    id: "business_contact",
-    label: "Business contact",
-    description: "General contact for brands, buyers, and commercial teams.",
-  },
-  {
-    id: "partnership_inquiry",
-    label: "Partnership",
-    description: "Collaboration requests for brands, studios, and strategic partners.",
-  },
-  {
     id: "sample_request",
+    interestType: "sample_request",
     label: "Sample request",
     description: "Evaluation kits, material notes, and shipping details.",
   },
   {
-    id: "university_collaboration",
-    label: "University",
-    description: "Research studios, labs, and academic collaboration programs.",
+    id: "inquiry",
+    interestType: "pellet_supply",
+    label: "Pellet supply",
+    description: "Pellet supply, raw material buying, and pilot demand.",
   },
   {
     id: "product_development_collaboration",
+    interestType: "product_development",
     label: "Product development",
     description: "Co-development for a new product or application line.",
+  },
+  {
+    id: "bulk_order",
+    interestType: "bulk_order",
+    label: "Bulk order",
+    description: "Commercial quantities, hospitality programs, and production planning.",
+  },
+  {
+    id: "partnership_inquiry",
+    interestType: "partnership",
+    label: "Partnership",
+    description: "Collaboration requests for brands, studios, and strategic partners.",
+  },
+  {
+    id: "other",
+    interestType: "other",
+    label: "Other",
+    description: "Use this when the project does not fit the common paths.",
   },
 ]
 
 function isLeadFormType(value: string | null): value is LeadFormType {
   return leadTypeOptions.some((option) => option.id === value)
+}
+
+function getInterestTypeForLeadType(type: LeadFormType): LeadInterestType {
+  return (
+    leadTypeOptions.find((option) => option.id === type)?.interestType ??
+    "pellet_supply"
+  )
+}
+
+function getLeadTypeForInterestType(interestType: LeadInterestType): LeadFormType {
+  return (
+    leadTypeOptions.find((option) => option.interestType === interestType)?.id ??
+    "inquiry"
+  )
 }
 
 function createInitialValues(
@@ -127,6 +150,7 @@ function createInitialValues(
 ): LeadFormValues {
   return {
     type,
+    interestType: getInterestTypeForLeadType(type),
     name: "",
     companyName: "",
     organizationType: "",
@@ -198,6 +222,9 @@ function validateLeadForm(values: LeadFormValues): FieldErrors {
   validateMaxLength(errors, "country", values.country)
   validateMaxLength(errors, "region", values.region)
   validateMaxLength(errors, "jobTitle", values.jobTitle)
+  validateMaxLength(errors, "application", values.application)
+  validateMaxLength(errors, "volume", values.volume)
+  validateMaxLength(errors, "timeline", values.timeline)
   validateMaxLength(errors, "message", values.message)
 
   if (values.companyWebsite.trim()) {
@@ -216,13 +243,8 @@ function validateLeadForm(values: LeadFormValues): FieldErrors {
     errors.message = "Project details are required."
   }
 
-  if (values.type === "inquiry") {
-    if (!values.application.trim()) {
-      errors.application = "Application is required."
-    }
-
-    validateMaxLength(errors, "application", values.application)
-    validateMaxLength(errors, "timeline", values.timeline)
+  if (!values.application.trim()) {
+    errors.application = "Application is required."
   }
 
   if (
@@ -330,6 +352,7 @@ export function B2BInquiryFormSection({
     const nextType = isLeadFormType(leadTypeFromUrl)
       ? leadTypeFromUrl
       : defaultLeadType
+    const nextInterestType = getInterestTypeForLeadType(nextType)
     const productSlug = normalizeSearchValue(searchParams.get("product"))
     const productName = normalizeSearchValue(searchParams.get("productName"))
     const productCategory = normalizeSearchValue(searchParams.get("category"))
@@ -351,13 +374,12 @@ export function B2BInquiryFormSection({
       return {
         ...currentValues,
         type: nextType,
+        interestType: nextInterestType,
         metadata: Object.keys(nextMetadata).length > 0 ? nextMetadata : undefined,
         application:
           currentValues.application.trim() !== ""
             ? currentValues.application
-            : nextType === "inquiry"
-              ? productName || ""
-              : currentValues.application,
+            : productName || currentValues.application,
         materialInterest:
           currentValues.materialInterest.trim() !== ""
             ? currentValues.materialInterest
@@ -370,7 +392,12 @@ export function B2BInquiryFormSection({
 
   const fields = content.fields
   const placeholders = content.placeholders
-  const panelCopy = getPanelCopy(values.type)
+  const localizedLeadTypeOptions = leadTypeOptions.map((option) => ({
+    ...option,
+    ...(content.interestOptions[option.interestType] ?? {}),
+  }))
+  const panelCopy =
+    content.panelCopy[values.interestType] ?? getPanelCopy(values.type)
   const productContext =
     typeof values.metadata?.product_name === "string"
       ? values.metadata.product_name
@@ -403,8 +430,8 @@ export function B2BInquiryFormSection({
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {leadTypeOptions.map((option) => {
-            const isActive = option.id === values.type
+          {localizedLeadTypeOptions.map((option) => {
+            const isActive = option.interestType === values.interestType
 
             return (
               <button
@@ -419,7 +446,11 @@ export function B2BInquiryFormSection({
                   setSubmission(null)
                   setErrorMessage(null)
                   setFieldErrors({})
-                  updateField("type", option.id)
+                  setValues((currentValues) => ({
+                    ...currentValues,
+                    type: getLeadTypeForInterestType(option.interestType),
+                    interestType: option.interestType,
+                  }))
                 }}
               >
                 <p className="text-sm uppercase tracking-[0.16em] text-primary">
@@ -445,7 +476,7 @@ export function B2BInquiryFormSection({
             </div>
             {productContext ? (
               <div className="mt-6 rounded-2xl border border-border/60 bg-card px-4 py-3 text-sm text-foreground">
-                Product context: {productContext}
+                {content.productContextLabel}: {productContext}
               </div>
             ) : null}
             <p className="mt-8 text-sm text-muted-foreground">
@@ -494,6 +525,11 @@ export function B2BInquiryFormSection({
               })
             }}
           >
+            <div className="mb-6">
+              <p className="text-sm uppercase tracking-[0.18em] text-primary">
+                {content.groups.contact}
+              </p>
+            </div>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <label className="space-y-2">
                 <span className="text-sm text-foreground">{fields.name}</span>
@@ -548,58 +584,88 @@ export function B2BInquiryFormSection({
                 ) : null}
               </label>
 
-              {values.type === "inquiry" ? (
-                <>
-                  <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm text-foreground">
-                      {fields.application}
-                    </span>
-                    <Input
-                      value={values.application}
-                      onChange={(event) =>
-                        updateField("application", event.target.value)
-                      }
-                      placeholder={placeholders.application}
-                    />
-                    {fieldErrors.application ? (
-                      <p className="text-sm text-destructive">
-                        {fieldErrors.application}
-                      </p>
-                    ) : null}
-                  </label>
+              <label className="space-y-2">
+                <span className="text-sm text-foreground">{fields.country}</span>
+                <Input
+                  value={values.country}
+                  onChange={(event) => updateField("country", event.target.value)}
+                  placeholder={placeholders.country}
+                />
+                {fieldErrors.country ? (
+                  <p className="text-sm text-destructive">{fieldErrors.country}</p>
+                ) : null}
+              </label>
 
-                  <label className="space-y-2">
-                    <span className="text-sm text-foreground">{fields.volume}</span>
-                    <Input
-                      value={values.volume}
-                      onChange={(event) => updateField("volume", event.target.value)}
-                      placeholder={placeholders.volume}
-                    />
-                  </label>
+              <label className="space-y-2">
+                <span className="text-sm text-foreground">{fields.region}</span>
+                <Input
+                  value={values.region}
+                  onChange={(event) => updateField("region", event.target.value)}
+                  placeholder={placeholders.region}
+                />
+                {fieldErrors.region ? (
+                  <p className="text-sm text-destructive">{fieldErrors.region}</p>
+                ) : null}
+              </label>
 
-                  <label className="space-y-2">
-                    <span className="text-sm text-foreground">{fields.timeline}</span>
-                    <Input
-                      value={values.timeline}
-                      onChange={(event) =>
-                        updateField("timeline", event.target.value)
-                      }
-                      placeholder={placeholders.timeline}
-                    />
-                  </label>
-                </>
-              ) : null}
+              <div className="pt-4 sm:col-span-2">
+                <p className="text-sm uppercase tracking-[0.18em] text-primary">
+                  {content.groups.project}
+                </p>
+              </div>
+
+              <label className="space-y-2 sm:col-span-2">
+                <span className="text-sm text-foreground">{fields.application}</span>
+                <Input
+                  value={values.application}
+                  onChange={(event) =>
+                    updateField("application", event.target.value)
+                  }
+                  placeholder={placeholders.application}
+                />
+                {fieldErrors.application ? (
+                  <p className="text-sm text-destructive">
+                    {fieldErrors.application}
+                  </p>
+                ) : null}
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-sm text-foreground">{fields.volume}</span>
+                <Input
+                  value={values.volume}
+                  onChange={(event) => updateField("volume", event.target.value)}
+                  placeholder={placeholders.volume}
+                />
+                {fieldErrors.volume ? (
+                  <p className="text-sm text-destructive">{fieldErrors.volume}</p>
+                ) : null}
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-sm text-foreground">{fields.timeline}</span>
+                <Input
+                  value={values.timeline}
+                  onChange={(event) => updateField("timeline", event.target.value)}
+                  placeholder={placeholders.timeline}
+                />
+                {fieldErrors.timeline ? (
+                  <p className="text-sm text-destructive">{fieldErrors.timeline}</p>
+                ) : null}
+              </label>
 
               {values.type === "business_contact" ? (
                 <>
                   <label className="space-y-2">
-                    <span className="text-sm text-foreground">Organization type</span>
+                    <span className="text-sm text-foreground">
+                      {fields.organizationType}
+                    </span>
                     <Input
                       value={values.organizationType}
                       onChange={(event) =>
                         updateField("organizationType", event.target.value)
                       }
-                      placeholder="Brand, studio, manufacturer..."
+                      placeholder={placeholders.organizationType}
                     />
                     {fieldErrors.organizationType ? (
                       <p className="text-sm text-destructive">
@@ -609,11 +675,11 @@ export function B2BInquiryFormSection({
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-sm text-foreground">Job title</span>
+                    <span className="text-sm text-foreground">{fields.jobTitle}</span>
                     <Input
                       value={values.jobTitle}
                       onChange={(event) => updateField("jobTitle", event.target.value)}
-                      placeholder="Founder, buyer, project lead..."
+                      placeholder={placeholders.jobTitle}
                     />
                     {fieldErrors.jobTitle ? (
                       <p className="text-sm text-destructive">
@@ -622,32 +688,16 @@ export function B2BInquiryFormSection({
                     ) : null}
                   </label>
 
-                  <label className="space-y-2">
-                    <span className="text-sm text-foreground">Country</span>
-                    <Input
-                      value={values.country}
-                      onChange={(event) => updateField("country", event.target.value)}
-                      placeholder="Country"
-                    />
-                  </label>
-
-                  <label className="space-y-2">
-                    <span className="text-sm text-foreground">Region</span>
-                    <Input
-                      value={values.region}
-                      onChange={(event) => updateField("region", event.target.value)}
-                      placeholder="City or region"
-                    />
-                  </label>
-
                   <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm text-foreground">Company website</span>
+                    <span className="text-sm text-foreground">
+                      {fields.companyWebsite}
+                    </span>
                     <Input
                       value={values.companyWebsite}
                       onChange={(event) =>
                         updateField("companyWebsite", event.target.value)
                       }
-                      placeholder="https://company.com"
+                      placeholder={placeholders.companyWebsite}
                     />
                     {fieldErrors.companyWebsite ? (
                       <p className="text-sm text-destructive">
@@ -661,13 +711,15 @@ export function B2BInquiryFormSection({
               {values.type === "sample_request" ? (
                 <>
                   <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm text-foreground">Material interest</span>
+                    <span className="text-sm text-foreground">
+                      {fields.materialInterest}
+                    </span>
                     <Input
                       value={values.materialInterest}
                       onChange={(event) =>
                         updateField("materialInterest", event.target.value)
                       }
-                      placeholder="Pressed panel, pellets, tabletop material..."
+                      placeholder={placeholders.materialInterest}
                     />
                     {fieldErrors.materialInterest ? (
                       <p className="text-sm text-destructive">
@@ -677,13 +729,15 @@ export function B2BInquiryFormSection({
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-sm text-foreground">Quantity estimate</span>
+                    <span className="text-sm text-foreground">
+                      {fields.quantityEstimate}
+                    </span>
                     <Input
                       value={values.quantityEstimate}
                       onChange={(event) =>
                         updateField("quantityEstimate", event.target.value)
                       }
-                      placeholder="10 sheets, 5 kg, pilot set..."
+                      placeholder={placeholders.quantityEstimate}
                     />
                     {fieldErrors.quantityEstimate ? (
                       <p className="text-sm text-destructive">
@@ -693,13 +747,15 @@ export function B2BInquiryFormSection({
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-sm text-foreground">Shipping country</span>
+                    <span className="text-sm text-foreground">
+                      {fields.shippingCountry}
+                    </span>
                     <Input
                       value={values.shippingCountry}
                       onChange={(event) =>
                         updateField("shippingCountry", event.target.value)
                       }
-                      placeholder="Shipping country"
+                      placeholder={placeholders.shippingCountry}
                     />
                     {fieldErrors.shippingCountry ? (
                       <p className="text-sm text-destructive">
@@ -709,13 +765,15 @@ export function B2BInquiryFormSection({
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-sm text-foreground">Shipping region</span>
+                    <span className="text-sm text-foreground">
+                      {fields.shippingRegion}
+                    </span>
                     <Input
                       value={values.shippingRegion}
                       onChange={(event) =>
                         updateField("shippingRegion", event.target.value)
                       }
-                      placeholder="State, city, or region"
+                      placeholder={placeholders.shippingRegion}
                     />
                     {fieldErrors.shippingRegion ? (
                       <p className="text-sm text-destructive">
@@ -725,14 +783,16 @@ export function B2BInquiryFormSection({
                   </label>
 
                   <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm text-foreground">Shipping address</span>
+                    <span className="text-sm text-foreground">
+                      {fields.shippingAddress}
+                    </span>
                     <Textarea
                       value={values.shippingAddress}
                       onChange={(event) =>
                         updateField("shippingAddress", event.target.value)
                       }
                       className="min-h-24"
-                      placeholder="Shipping address"
+                      placeholder={placeholders.shippingAddress}
                     />
                     {fieldErrors.shippingAddress ? (
                       <p className="text-sm text-destructive">
@@ -742,14 +802,14 @@ export function B2BInquiryFormSection({
                   </label>
 
                   <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm text-foreground">Intended use</span>
+                    <span className="text-sm text-foreground">{fields.intendedUse}</span>
                     <Textarea
                       value={values.intendedUse}
                       onChange={(event) =>
                         updateField("intendedUse", event.target.value)
                       }
                       className="min-h-24"
-                      placeholder="How will the sample be evaluated?"
+                      placeholder={placeholders.intendedUse}
                     />
                     {fieldErrors.intendedUse ? (
                       <p className="text-sm text-destructive">
@@ -765,13 +825,15 @@ export function B2BInquiryFormSection({
                 values.type === "product_development_collaboration") ? (
                 <>
                   <label className="space-y-2">
-                    <span className="text-sm text-foreground">Organization type</span>
+                    <span className="text-sm text-foreground">
+                      {fields.organizationType}
+                    </span>
                     <Input
                       value={values.organizationType}
                       onChange={(event) =>
                         updateField("organizationType", event.target.value)
                       }
-                      placeholder="University, studio, brand..."
+                      placeholder={placeholders.organizationType}
                     />
                     {fieldErrors.organizationType ? (
                       <p className="text-sm text-destructive">
@@ -792,14 +854,16 @@ export function B2BInquiryFormSection({
                   </label>
 
                   <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm text-foreground">Collaboration goal</span>
+                    <span className="text-sm text-foreground">
+                      {fields.collaborationGoal}
+                    </span>
                     <Textarea
                       value={values.collaborationGoal}
                       onChange={(event) =>
                         updateField("collaborationGoal", event.target.value)
                       }
                       className="min-h-24"
-                      placeholder="What are you trying to build, test, or explore?"
+                      placeholder={placeholders.collaborationGoal}
                     />
                     {fieldErrors.collaborationGoal ? (
                       <p className="text-sm text-destructive">
@@ -809,13 +873,15 @@ export function B2BInquiryFormSection({
                   </label>
 
                   <label className="space-y-2 sm:col-span-2">
-                    <span className="text-sm text-foreground">Project stage</span>
+                    <span className="text-sm text-foreground">
+                      {fields.projectStage}
+                    </span>
                     <Input
                       value={values.projectStage}
                       onChange={(event) =>
                         updateField("projectStage", event.target.value)
                       }
-                      placeholder="Discovery, prototype, curriculum planning..."
+                      placeholder={placeholders.projectStage}
                     />
                     {fieldErrors.projectStage ? (
                       <p className="text-sm text-destructive">

@@ -3,19 +3,128 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Material;
+use App\Services\ContentManagementService;
+use App\Support\LocalizedContent;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MaterialController extends Controller
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, ContentManagementService $contentManagementService): JsonResponse
     {
-        return $this->successResponse($this->payload($this->locale($request)));
+        $locale = $this->locale($request);
+        $material = $contentManagementService->listPublicMaterials(['featured' => true])->first()
+            ?? $contentManagementService->listPublicMaterials()->first();
+
+        if ($material instanceof Material) {
+            try {
+                return $this->successResponse(
+                    $this->cmsPayload(
+                        $contentManagementService->findPublicMaterial($material->slug),
+                        $locale
+                    )
+                );
+            } catch (ModelNotFoundException) {
+                // Fall through to the legacy static payload.
+            }
+        }
+
+        return $this->successResponse($this->payload($locale));
     }
 
-    public function show(Request $request, string $identifier): JsonResponse
+    public function show(
+        Request $request,
+        string $identifier,
+        ContentManagementService $contentManagementService
+    ): JsonResponse {
+        $locale = $this->locale($request);
+
+        try {
+            return $this->successResponse(
+                $this->cmsPayload(
+                    $contentManagementService->findPublicMaterial($identifier),
+                    $locale
+                )
+            );
+        } catch (ModelNotFoundException) {
+            return $this->successResponse($this->payload($locale));
+        }
+    }
+
+    private function cmsPayload(Material $material, string $locale): array
     {
-        return $this->successResponse($this->payload($this->locale($request)));
+        $fallback = $this->payload($locale);
+        $title = LocalizedContent::resolveString(
+            $material->title_translations,
+            $locale,
+            $material->title,
+        ) ?? $fallback['name'];
+        $headline = LocalizedContent::resolveString(
+            $material->headline_translations,
+            $locale,
+            $material->headline,
+        );
+        $summary = LocalizedContent::resolveString(
+            $material->summary_translations,
+            $locale,
+            $material->summary,
+        );
+
+        $processSteps = $material->storySections
+            ->values()
+            ->map(fn ($section, int $index): array => [
+                'step' => $index + 1,
+                'title' => LocalizedContent::resolveString(
+                    $section->title_translations,
+                    $locale,
+                    $section->title,
+                ) ?? (string) ($index + 1),
+                'body' => LocalizedContent::resolveString(
+                    $section->content_translations,
+                    $locale,
+                    $section->content,
+                ) ?? '',
+            ])
+            ->filter(fn (array $step): bool => trim((string) $step['title']) !== '' || trim((string) $step['body']) !== '')
+            ->values()
+            ->all();
+
+        $properties = $material->specs
+            ->values()
+            ->map(fn ($spec): array => [
+                'key' => $spec->key ?? '',
+                'label' => LocalizedContent::resolveString(
+                    $spec->label_translations,
+                    $locale,
+                    $spec->label,
+                ) ?? '',
+                'value' => trim(collect([
+                    LocalizedContent::resolveString($spec->value_translations, $locale, $spec->value),
+                    $spec->unit,
+                ])->filter()->implode(' ')),
+                'vs' => LocalizedContent::resolveString(
+                    $spec->detail_translations,
+                    $locale,
+                    $spec->detail,
+                ) ?? '',
+            ])
+            ->filter(fn (array $property): bool => trim((string) $property['label']) !== '' || trim((string) $property['value']) !== '')
+            ->values()
+            ->all();
+
+        return [
+            'name' => $title,
+            'tagline' => $headline ?: $title,
+            'origin' => $summary ?: ($fallback['origin'] ?? ''),
+            'process_steps' => $processSteps !== [] ? $processSteps : $fallback['process_steps'],
+            'properties' => $properties !== [] ? $properties : $fallback['properties'],
+            'certifications' => is_array($material->certifications) ? $material->certifications : [],
+            'technical_downloads' => is_array($material->technical_downloads) ? $material->technical_downloads : [],
+            'models' => $fallback['models'],
+            'colors' => $fallback['colors'],
+        ];
     }
 
     private function locale(Request $request): string
@@ -30,7 +139,12 @@ class MaterialController extends Controller
      */
     private function payload(string $locale): array
     {
-        return $this->payloads()[$locale] ?? $this->payloads()['en'];
+        $payload = $this->payloads()[$locale] ?? $this->payloads()['en'];
+
+        $payload['certifications'] = [];
+        $payload['technical_downloads'] = [];
+
+        return $payload;
     }
 
     /**
@@ -69,67 +183,41 @@ class MaterialController extends Controller
                     [
                         'key' => 'weight',
                         'label' => 'Lightweight',
-                        'value' => '1.5-1.6 specific gravity',
-                        'vs' => '35% lighter than ceramic (2.4)',
+                        'value' => 'Lower-density target',
+                        'vs' => 'Depends on final formulation and product geometry',
                     ],
                     [
                         'key' => 'strength',
-                        'label' => 'Impact Resistant',
-                        'value' => 'Unbreakable integrity',
-                        'vs' => 'Overcomes ceramic chipping & cracking',
+                        'label' => 'Durability',
+                        'value' => 'Compression-moulding compatible',
+                        'vs' => 'Requires final application testing',
                     ],
                     [
                         'key' => 'absorption',
-                        'label' => 'Zero Absorption',
-                        'value' => '0.00% water absorption',
-                        'vs' => 'No odour, no staining, no bacteria',
+                        'label' => 'Water Resistance',
+                        'value' => 'Testing pending',
+                        'vs' => 'Depends on final formulation and test conditions',
                     ],
                     [
                         'key' => 'antibacterial',
-                        'label' => 'Natural Antibacterial',
-                        'value' => 'Weak alkaline inhibition',
-                        'vs' => 'No artificial coatings needed',
+                        'label' => 'Surface Hygiene Review',
+                        'value' => 'Application testing required',
+                        'vs' => 'Food-contact claims need approved documents',
                     ],
                     [
                         'key' => 'grip',
                         'label' => 'Mineral Grip',
                         'value' => 'Fine mineral texture surface',
-                        'vs' => 'Non-slip even when wet with soap',
+                        'vs' => 'Slip resistance depends on final finish',
                     ],
                     [
                         'key' => 'otr',
                         'label' => 'Selective Flow',
-                        'value' => 'OTR 500 cc/m2/day',
-                        'vs' => 'Breathable yet moisture-blocking',
+                        'value' => 'Data available on request',
+                        'vs' => 'Barrier data depends on application testing',
                     ],
                 ],
-                'certifications' => [
-                    [
-                        'key' => 'absorption',
-                        'label' => 'Water Absorption Test',
-                        'value' => '0.00%',
-                    ],
-                    [
-                        'key' => 'toxicity',
-                        'label' => 'Toxicity Test',
-                        'value' => 'Zero heavy metals, zero microplastics',
-                    ],
-                    [
-                        'key' => 'acid',
-                        'label' => 'Acid/Corrosion Resistance',
-                        'value' => 'No surface degradation',
-                    ],
-                    [
-                        'key' => 'fire',
-                        'label' => 'Non-Toxic Fireproof',
-                        'value' => 'Non-flammable, zero toxic gas',
-                    ],
-                    [
-                        'key' => 'otr',
-                        'label' => 'OTR Data',
-                        'value' => '500 cc/m2/day certified',
-                    ],
-                ],
+                'certifications' => [],
                 'models' => [
                     [
                         'id' => 'lite_15',
@@ -191,67 +279,41 @@ class MaterialController extends Controller
                     [
                         'key' => 'weight',
                         'label' => '轻量化',
-                        'value' => '比重 1.5–1.6',
-                        'vs' => '比传统陶瓷（2.4）轻约 35%',
+                        'value' => '低密度目标',
+                        'vs' => '取决于最终配方与产品结构',
                     ],
                     [
                         'key' => 'strength',
-                        'label' => '抗冲击',
-                        'value' => '高强度整体结构',
-                        'vs' => '减少陶瓷常见的崩边与开裂问题',
+                        'label' => '耐用性',
+                        'value' => '适配压缩成型',
+                        'vs' => '需要按最终应用测试',
                     ],
                     [
                         'key' => 'absorption',
-                        'label' => '零吸水',
-                        'value' => '0.00% 吸水率',
-                        'vs' => '不易残留气味、污渍与细菌',
+                        'label' => '耐水性',
+                        'value' => '测试待确认',
+                        'vs' => '取决于最终配方和测试条件',
                     ],
                     [
                         'key' => 'antibacterial',
-                        'label' => '天然抗菌',
-                        'value' => '弱碱性抑菌',
-                        'vs' => '无需人工抗菌涂层',
+                        'label' => '表面卫生评估',
+                        'value' => '需按应用测试',
+                        'vs' => '食品接触声明需有已批准文件',
                     ],
                     [
                         'key' => 'grip',
                         'label' => '矿物防滑触感',
                         'value' => '细腻矿物纹理表面',
-                        'vs' => '即使沾水或皂液也能保持防滑',
+                        'vs' => '防滑表现取决于最终表面处理',
                     ],
                     [
                         'key' => 'otr',
                         'label' => '选择性透气',
-                        'value' => 'OTR 500 cc/m²/天',
-                        'vs' => '可透气，同时阻隔湿气',
+                        'value' => '数据可按需提供',
+                        'vs' => '阻隔数据取决于应用测试',
                     ],
                 ],
-                'certifications' => [
-                    [
-                        'key' => 'absorption',
-                        'label' => '吸水率测试',
-                        'value' => '0.00%',
-                    ],
-                    [
-                        'key' => 'toxicity',
-                        'label' => '毒性测试',
-                        'value' => '零重金属、零微塑料',
-                    ],
-                    [
-                        'key' => 'acid',
-                        'label' => '耐酸/耐腐蚀',
-                        'value' => '表面无降解',
-                    ],
-                    [
-                        'key' => 'fire',
-                        'label' => '无毒防火',
-                        'value' => '不燃，无有毒气体',
-                    ],
-                    [
-                        'key' => 'otr',
-                        'label' => 'OTR 数据',
-                        'value' => '认证 500 cc/m²/天',
-                    ],
-                ],
+                'certifications' => [],
                 'models' => [
                     [
                         'id' => 'lite_15',
@@ -313,67 +375,41 @@ class MaterialController extends Controller
                     [
                         'key' => 'weight',
                         'label' => '경량',
-                        'value' => '비중 1.5–1.6',
-                        'vs' => '기존 세라믹(2.4)보다 약 35% 가벼움',
+                        'value' => '저밀도 목표',
+                        'vs' => '최종 배합과 제품 형상에 따라 달라짐',
                     ],
                     [
                         'key' => 'strength',
-                        'label' => '충격 저항성',
-                        'value' => '쉽게 깨지지 않는 일체 구조',
-                        'vs' => '세라믹의 모서리 깨짐과 균열 문제를 줄임',
+                        'label' => '내구성',
+                        'value' => '압축성형 호환',
+                        'vs' => '최종 적용 시험 필요',
                     ],
                     [
                         'key' => 'absorption',
-                        'label' => '무흡수',
-                        'value' => '흡수율 0.00%',
-                        'vs' => '냄새, 얼룩, 세균이 남기 어려움',
+                        'label' => '내수성',
+                        'value' => '시험 대기',
+                        'vs' => '최종 배합과 시험 조건에 따라 달라짐',
                     ],
                     [
                         'key' => 'antibacterial',
-                        'label' => '천연 항균',
-                        'value' => '약알칼리성 항균 작용',
-                        'vs' => '인공 항균 코팅 불필요',
+                        'label' => '표면 위생 검토',
+                        'value' => '적용 시험 필요',
+                        'vs' => '식품 접촉 주장은 승인 문서 필요',
                     ],
                     [
                         'key' => 'grip',
                         'label' => '미네랄 그립',
                         'value' => '미세한 미네랄 질감 표면',
-                        'vs' => '물이나 비누가 닿아도 미끄러짐을 줄임',
+                        'vs' => '미끄럼 저항은 최종 마감에 따라 달라짐',
                     ],
                     [
                         'key' => 'otr',
                         'label' => '선택적 투과',
-                        'value' => 'OTR 500 cc/m²/일',
-                        'vs' => '숨은 통하게 하고 습기는 막음',
+                        'value' => '자료 요청 가능',
+                        'vs' => '차단 데이터는 적용 시험에 따라 달라짐',
                     ],
                 ],
-                'certifications' => [
-                    [
-                        'key' => 'absorption',
-                        'label' => '흡수율 시험',
-                        'value' => '0.00%',
-                    ],
-                    [
-                        'key' => 'toxicity',
-                        'label' => '독성 시험',
-                        'value' => '중금속 0, 미세플라스틱 0',
-                    ],
-                    [
-                        'key' => 'acid',
-                        'label' => '내산/내식성',
-                        'value' => '표면 열화 없음',
-                    ],
-                    [
-                        'key' => 'fire',
-                        'label' => '무독성 난연',
-                        'value' => '불연성, 유독 가스 없음',
-                    ],
-                    [
-                        'key' => 'otr',
-                        'label' => 'OTR 데이터',
-                        'value' => '500 cc/m²/일 인증',
-                    ],
-                ],
+                'certifications' => [],
                 'models' => [
                     [
                         'id' => 'lite_15',

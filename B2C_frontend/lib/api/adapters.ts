@@ -27,6 +27,7 @@ import type {
   Address,
   CartSummary,
   CartSummaryItem,
+  CertificationCardInput,
   Product,
   ProductAppliedFilterChip,
   ProductCatalogMeta,
@@ -35,6 +36,7 @@ import type {
   ProductImage,
   ProductSeo,
   ProductSpecification,
+  TechnicalDownload,
   NotificationTargetSummary,
   ShippingAddressSnapshot,
   StoreOrder,
@@ -95,6 +97,12 @@ export function normalizeMaterialSummary(material: MaterialSummary): MaterialSum
     title: material.title ?? "",
     slug: material.slug ?? "",
     media_url: resolveApiUrl(material.media_url),
+    certifications: ensureArray(material.certifications)
+      .map(normalizeCertificationEntry)
+      .filter((entry): entry is CertificationCardInput => Boolean(entry)),
+    technical_downloads: ensureArray(material.technical_downloads)
+      .map(normalizeTechnicalDownload)
+      .filter((entry): entry is TechnicalDownload => Boolean(entry)),
   }
 }
 
@@ -174,6 +182,73 @@ function normalizeProductSeo(seo?: ProductSeo | null): ProductSeo | null {
   return {
     title: seo.title ?? null,
     description: seo.description ?? null,
+  }
+}
+
+function normalizeCertificationEntry(
+  entry: CertificationCardInput | null | undefined,
+): CertificationCardInput | null {
+  if (typeof entry === "string") {
+    const trimmed = entry.trim()
+
+    return trimmed ? trimmed : null
+  }
+
+  if (!isJsonObject(entry)) {
+    return null
+  }
+
+  return {
+    key: typeof entry.key === "string" ? entry.key : null,
+    name: typeof entry.name === "string" ? entry.name : null,
+    label: typeof entry.label === "string" ? entry.label : null,
+    result:
+      typeof entry.result === "string" || typeof entry.result === "number"
+        ? entry.result
+        : null,
+    value:
+      typeof entry.value === "string" || typeof entry.value === "number"
+        ? entry.value
+        : null,
+    unit: typeof entry.unit === "string" ? entry.unit : null,
+    status: typeof entry.status === "string" ? entry.status : null,
+    description:
+      typeof entry.description === "string" ? entry.description : null,
+    issuer: typeof entry.issuer === "string" ? entry.issuer : null,
+    tested_at: typeof entry.tested_at === "string" ? entry.tested_at : null,
+    document_url: resolveApiUrl(
+      typeof entry.document_url === "string" ? entry.document_url : null,
+    ),
+  }
+}
+
+function normalizeTechnicalDownload(
+  download: TechnicalDownload | null | undefined,
+): TechnicalDownload | null {
+  if (!isJsonObject(download)) {
+    return null
+  }
+
+  return {
+    title: typeof download.title === "string" ? download.title : null,
+    label: typeof download.label === "string" ? download.label : null,
+    type: typeof download.type === "string" ? download.type : null,
+    url: resolveApiUrl(
+      typeof download.url === "string"
+        ? download.url
+        : typeof download.document_url === "string"
+          ? download.document_url
+          : typeof download.href === "string"
+            ? download.href
+            : null,
+    ),
+    document_url: resolveApiUrl(
+      typeof download.document_url === "string" ? download.document_url : null,
+    ),
+    href: resolveApiUrl(typeof download.href === "string" ? download.href : null),
+    status: typeof download.status === "string" ? download.status : null,
+    description:
+      typeof download.description === "string" ? download.description : null,
   }
 }
 
@@ -286,9 +361,12 @@ export function normalizeProduct(
     specifications: ensureArray(product.specifications).map(
       normalizeProductSpecification,
     ),
-    certifications: ensureArray(product.certifications).map((item) =>
-      String(item),
-    ),
+    certifications: ensureArray(product.certifications)
+      .map(normalizeCertificationEntry)
+      .filter((entry): entry is CertificationCardInput => Boolean(entry)),
+    technical_downloads: ensureArray(product.technical_downloads)
+      .map(normalizeTechnicalDownload)
+      .filter((entry): entry is TechnicalDownload => Boolean(entry)),
     care_instructions: ensureArray(product.care_instructions).map((item) =>
       String(item),
     ),

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Materials\Schemas;
 
 use App\Enums\PublishStatus;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
@@ -99,6 +100,89 @@ class MaterialForm
                             ->columnSpanFull(),
                         Textarea::make('science_overview_translations.zh')
                             ->label('Science overview')
+                            ->columnSpanFull(),
+                    ]),
+                Section::make('Certifications & technical evidence')
+                    ->description('Publish only confirmed data. Mark unapproved records as pending, in testing, or client confirmation pending in the issuer/description fields.')
+                    ->schema([
+                        Repeater::make('certifications')
+                            ->label('Certifications and tests')
+                            ->addActionLabel('Add certification or test')
+                            ->collapsible()
+                            ->reorderableWithButtons()
+                            ->defaultItems(0)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Certification / test name')
+                                    ->required()
+                                    ->maxLength(180),
+                                Select::make('status')
+                                    ->options([
+                                        'certified' => 'Certified',
+                                        'tested' => 'Tested',
+                                        'in_testing' => 'In testing',
+                                        'pending' => 'Pending',
+                                        'not_applicable' => 'Not applicable',
+                                    ])
+                                    ->required()
+                                    ->default('pending'),
+                                TextInput::make('result')
+                                    ->label('Value / result')
+                                    ->maxLength(120),
+                                TextInput::make('unit')
+                                    ->maxLength(40),
+                                TextInput::make('issuer')
+                                    ->label('Issuing body / lab')
+                                    ->maxLength(180)
+                                    ->helperText('Use "Client confirmation pending" when a lab is not approved for publication.'),
+                                DatePicker::make('tested_at')
+                                    ->label('Test date'),
+                                TextInput::make('document_url')
+                                    ->label('Document URL')
+                                    ->url()
+                                    ->maxLength(2048),
+                                Textarea::make('description')
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+                        Repeater::make('technical_downloads')
+                            ->label('Technical downloads')
+                            ->addActionLabel('Add download')
+                            ->collapsible()
+                            ->reorderableWithButtons()
+                            ->defaultItems(0)
+                            ->schema([
+                                TextInput::make('title')
+                                    ->required()
+                                    ->maxLength(180),
+                                Select::make('type')
+                                    ->options([
+                                        'material_data_sheet' => 'Material data sheet',
+                                        'product_specification_sheet' => 'Product specification sheet',
+                                        'certification_document' => 'Certification document',
+                                        'safety_food_contact_document' => 'Safety / food-contact document',
+                                        'catalogue' => 'Catalogue',
+                                    ])
+                                    ->required(),
+                                Select::make('status')
+                                    ->options([
+                                        'available' => 'Available',
+                                        'on_request' => 'Available on request',
+                                        'pending' => 'Pending upload',
+                                    ])
+                                    ->default('on_request')
+                                    ->required(),
+                                TextInput::make('url')
+                                    ->label('File URL')
+                                    ->url()
+                                    ->maxLength(2048),
+                                Textarea::make('description')
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(2)
                             ->columnSpanFull(),
                     ]),
                 Section::make('Specifications')

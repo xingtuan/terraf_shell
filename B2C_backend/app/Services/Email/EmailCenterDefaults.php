@@ -110,6 +110,12 @@ class EmailCenterDefaults
             $key === 'order.created' => '<p>Hello {{ user.name }},</p><p>Your order request {{ order.order_number }} has been submitted. Our team will review stock, shipping, tax, and payment details, then contact you by email.</p><p>Online payment is not available yet.</p><p>Status: {{ order.status }}</p><p>Total estimate: {{ order.total }} {{ order.currency }}</p><p>{{ order.items }}</p><p><a href="{{ order_url }}">View order request</a></p><p>Shipping: {{ shipping.address }}</p>',
             $key === 'order.cancelled' => '<p>Hello {{ user.name }},</p><p>Order request {{ order.order_number }} was cancelled.</p><p><a href="{{ order_url }}">View order request</a></p>',
             str_starts_with($key, 'order.') => '<p>Hello {{ user.name }},</p><p>Order request {{ order.order_number }} is currently {{ order.status }}.</p><p>Total estimate: {{ order.total }} {{ order.currency }}</p><p>{{ order.items }}</p><p><a href="{{ order_url }}">View order request</a></p><p>Shipping: {{ shipping.address }}</p>',
+            $key === 'inquiry.submitted_user_confirmation'
+                || $key === 'b2b_lead.submitted_user_confirmation'
+                || $key === 'partnership_inquiry.submitted_user_confirmation'
+                || $key === 'sample_request.submitted_user_confirmation' => '<p>Hello {{ inquiry.name }},</p><p>We have received your B2B enquiry. Our team will review your application and contact you with the next steps.</p><p>Reference: {{ lead.reference }}</p><p>Company: {{ inquiry.company }}</p><p>Interest type: {{ inquiry.interest_type }}</p><p>Application: {{ inquiry.application }}</p>',
+            $key === 'inquiry.submitted_admin_notification'
+                || $key === 'b2b_lead.submitted_admin_notification' => '<p>A new B2B enquiry has been submitted.</p><p>Reference: {{ lead.reference }}</p><p>Company: {{ inquiry.company }}</p><p>Contact person: {{ inquiry.name }} ({{ inquiry.email }})</p><p>Interest type: {{ inquiry.interest_type }}</p><p>Application: {{ inquiry.application }}</p><p>Estimated quantity: {{ inquiry.estimated_quantity }}</p><p>Message: {{ inquiry.message }}</p>',
             str_contains($key, 'inquiry') || str_contains($key, 'lead') || str_contains($key, 'sample_request') => '<p>Hello {{ inquiry.name }},</p><p>Reference: {{ lead.reference }}</p><p>Company: {{ inquiry.company }}</p><p>Message: {{ inquiry.message }}</p><p>Status: {{ lead.status }}</p>',
             $key === 'community.post_rejected' => '<p>Hello {{ user.name }},</p><p>Your post "{{ post.title }}" needs updates.</p><p>Reason: {{ reason }}</p><p><a href="{{ edit_url }}">Edit post</a></p>',
             str_starts_with($key, 'community.') => '<p>Hello {{ user.name }},</p><p>{{ actor.name }} sent an update about "{{ post.title }}".</p><p><a href="{{ post_url }}">View post</a></p>',
@@ -134,7 +140,7 @@ class EmailCenterDefaults
             str_starts_with($key, 'auth.email_verification') => ['verification_url'],
             $key === 'auth.password_reset' => ['reset_url', 'expires_minutes'],
             str_starts_with($key, 'order.') => ['order.order_number', 'order.status', 'order.total', 'order.currency', 'order.items', 'order_url', 'shipping.address', 'customer_note'],
-            str_contains($key, 'inquiry') || str_contains($key, 'lead') || str_contains($key, 'sample_request') => ['inquiry.name', 'inquiry.email', 'inquiry.company', 'inquiry.message', 'inquiry.type', 'lead.reference', 'lead.status', 'assignee.name'],
+            str_contains($key, 'inquiry') || str_contains($key, 'lead') || str_contains($key, 'sample_request') => ['inquiry.name', 'inquiry.email', 'inquiry.company', 'inquiry.message', 'inquiry.type', 'inquiry.interest_type', 'inquiry.application', 'inquiry.estimated_quantity', 'inquiry.timeline', 'lead.reference', 'lead.status', 'lead.interest_type', 'lead.application_type', 'lead.expected_use_case', 'lead.estimated_quantity', 'lead.timeline', 'assignee.name'],
             str_starts_with($key, 'community.') => ['post.title', 'post.slug', 'post_url', 'moderator.name', 'actor.name', 'reason', 'edit_url', 'announcement.title', 'announcement.body'],
             str_contains($key, 'announcement') => ['announcement.title', 'announcement.body'],
             default => [],

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Products\Schemas;
 use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
@@ -147,6 +148,89 @@ class ProductForm
                             ->columns(2)
                             ->columnSpanFull(),
                     ]),
+                Section::make('Material proof & downloads')
+                    ->description('Use cautious, evidence-backed wording. Leave uncertain documents pending or available on request.')
+                    ->schema([
+                        Repeater::make('certifications')
+                            ->label('Certifications and tests')
+                            ->addActionLabel('Add certification or test')
+                            ->collapsible()
+                            ->reorderableWithButtons()
+                            ->defaultItems(0)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Certification / test name')
+                                    ->required()
+                                    ->maxLength(180),
+                                Select::make('status')
+                                    ->options([
+                                        'certified' => 'Certified',
+                                        'tested' => 'Tested',
+                                        'in_testing' => 'In testing',
+                                        'pending' => 'Pending',
+                                        'not_applicable' => 'Not applicable',
+                                    ])
+                                    ->required()
+                                    ->default('pending'),
+                                TextInput::make('result')
+                                    ->label('Value / result')
+                                    ->maxLength(120),
+                                TextInput::make('unit')
+                                    ->maxLength(40),
+                                TextInput::make('issuer')
+                                    ->label('Issuing body / lab')
+                                    ->maxLength(180)
+                                    ->helperText('Use "Client confirmation pending" when a lab is not approved for publication.'),
+                                DatePicker::make('tested_at')
+                                    ->label('Test date'),
+                                TextInput::make('document_url')
+                                    ->label('Document URL')
+                                    ->url()
+                                    ->maxLength(2048),
+                                Textarea::make('description')
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+                        Repeater::make('technical_downloads')
+                            ->label('Technical downloads')
+                            ->addActionLabel('Add download')
+                            ->collapsible()
+                            ->reorderableWithButtons()
+                            ->defaultItems(0)
+                            ->schema([
+                                TextInput::make('title')
+                                    ->required()
+                                    ->maxLength(180),
+                                Select::make('type')
+                                    ->options([
+                                        'material_data_sheet' => 'Material data sheet',
+                                        'product_specification_sheet' => 'Product specification sheet',
+                                        'certification_document' => 'Certification document',
+                                        'safety_food_contact_document' => 'Safety / food-contact document',
+                                        'catalogue' => 'Catalogue',
+                                    ])
+                                    ->required(),
+                                Select::make('status')
+                                    ->options([
+                                        'available' => 'Available',
+                                        'on_request' => 'Available on request',
+                                        'pending' => 'Pending upload',
+                                    ])
+                                    ->default('on_request')
+                                    ->required(),
+                                TextInput::make('url')
+                                    ->label('File URL')
+                                    ->url()
+                                    ->maxLength(2048),
+                                Textarea::make('description')
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+                    ]),
                 Section::make('Media & Related Products')
                     ->schema([
                         Grid::make(2)
@@ -252,10 +336,6 @@ class ProductForm
                     ->maxLength(255),
                 TagsInput::make("features_translations.{$locale}")
                     ->label('Features')
-                    ->separator(',')
-                    ->columnSpanFull(),
-                TagsInput::make("certifications_translations.{$locale}")
-                    ->label('Certifications')
                     ->separator(',')
                     ->columnSpanFull(),
                 TagsInput::make("care_instructions_translations.{$locale}")

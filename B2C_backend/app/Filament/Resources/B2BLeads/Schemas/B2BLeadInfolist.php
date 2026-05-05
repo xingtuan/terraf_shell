@@ -24,11 +24,18 @@ class B2BLeadInfolist
                                     ->label('Lead type')
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => B2BLeadType::tryFrom($state)?->label() ?? $state),
+                                TextEntry::make('interest_type')
+                                    ->label('Interest type')
+                                    ->badge()
+                                    ->placeholder('Not specified.'),
                                 TextEntry::make('status')
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
                                     ->color(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->color() ?? 'gray'),
                                 TextEntry::make('inquiry_type'),
+                                TextEntry::make('application_type')
+                                    ->label('Application')
+                                    ->placeholder('Not specified.'),
                                 TextEntry::make('name'),
                                 TextEntry::make('company_name')
                                     ->label('Company / Institution'),
@@ -51,6 +58,15 @@ class B2BLeadInfolist
                                 TextEntry::make('source_page')
                                     ->label('CTA source')
                                     ->placeholder('Not tracked.'),
+                                TextEntry::make('estimated_quantity')
+                                    ->label('Estimated quantity')
+                                    ->placeholder('Not specified.'),
+                                TextEntry::make('timeline')
+                                    ->placeholder('Not specified.'),
+                                TextEntry::make('expected_use_case')
+                                    ->label('Expected use case')
+                                    ->placeholder('Not specified.')
+                                    ->columnSpanFull(),
                                 TextEntry::make('message')
                                     ->columnSpanFull(),
                             ]),

@@ -147,11 +147,22 @@
     }
   },
   "certificationsAtAGlance": {
-    "eyebrow": "Certified performance",
+    "eyebrow": "Material evidence",
     "title": "Certifications at a glance",
-    "description": "A quick view of the material tests and performance data behind OXP.",
-    "productDescription": "Verified material and product claims for this item.",
-    "verifiedLabel": "Verified"
+    "description": "A quick view of available tests, pending certifications, and technical evidence behind OXP.",
+    "productDescription": "Available product and material evidence for this item.",
+    "verifiedLabel": "Certified",
+    "emptyMessage": "Certification data is being prepared. Please contact us for the latest material information.",
+    "issuerLabel": "Issuer / lab",
+    "testedAtLabel": "Test date",
+    "downloadLabel": "Download document",
+    "statusLabels": {
+      "certified": "Certified",
+      "tested": "Tested",
+      "in_testing": "In testing",
+      "pending": "Pending",
+      "not_applicable": "Not applicable"
+    }
   },
   "meta": {
     "siteName": "OXP",
@@ -473,12 +484,12 @@
       "body": "OXP begins with discarded oyster shell waste. The shells are collected, purified, refined into mineral-rich pellets, and compression-moulded into premium products."
     },
     "properties": {
-      "weight": "35% lighter than traditional ceramics, with specific gravity 1.5-1.6 versus 2.4.",
-      "strength": "Unbreakable high-impact resistance built for repeated commercial and daily use.",
-      "absorption": "0.00% water absorption rate, helping prevent odour retention and bacterial growth.",
-      "antibacterial": "Natural weak-alkaline antibacterial performance without artificial coating.",
-      "grip": "Mineral grip texture that stays non-slip even when wet.",
-      "otr": "OTR 500 cc/m²·day for breathable yet moisture-blocking performance."
+      "weight": "Lower-density targets depend on final formulation, moulding, and product geometry.",
+      "strength": "Durability should be confirmed against the final product shape and use case.",
+      "absorption": "Water resistance data is being prepared and depends on final formulation and testing.",
+      "antibacterial": "Food-contact or hygiene claims should be supported by approved documents.",
+      "grip": "Grip and slip resistance should be checked for the final surface finish.",
+      "otr": "Barrier and breathability data should be reviewed against the intended application."
     },
     "process": {
       "step1": "Collection: oyster shell waste is recovered and sorted from coastal processing streams.",
@@ -488,10 +499,10 @@
     },
     "certifications": {
       "title": "Certifications & Test Data",
-      "waterAbsorption": "Water Absorption 0.00%",
+      "waterAbsorption": "Water Absorption Test",
       "toxicityHeavyMetals": "Toxicity / Heavy Metals",
       "acidResistance": "Acid Resistance",
-      "nonToxicFireproof": "Non-Toxic Fireproof",
+      "nonToxicFireproof": "Fire Behaviour Review",
       "otrData": "OTR Data"
     }
   },
@@ -506,6 +517,109 @@
     "sheetTitleSuffix": "Material Sheet",
     "modelsLabel": "Models",
     "colorsLabel": "Colors"
+  },
+  "materialProof": {
+    "proofPoints": {
+      "eyebrow": "Proof points",
+      "title": "Material proof without overclaiming.",
+      "description": "OXP is presented as a material platform under active testing and client review, with claims tied to available evidence.",
+      "cards": [
+        {
+          "title": "Recycled oyster shell source",
+          "description": "Built around recovered oyster shell input from coastal waste streams."
+        },
+        {
+          "title": "Lower plastic dependency",
+          "description": "Designed to reduce reliance on conventional plastic in selected applications."
+        },
+        {
+          "title": "Compression moulding compatible",
+          "description": "Developed for compression moulding workflows and product prototyping."
+        },
+        {
+          "title": "Product and tableware applications",
+          "description": "Suitable applications depend on final formulation, use case, and testing."
+        },
+        {
+          "title": "Technical review available",
+          "description": "Testing and certification data can be shared as documents become approved."
+        }
+      ]
+    },
+    "technicalDownloads": {
+      "eyebrow": "Technical downloads",
+      "title": "Documents for material and product review",
+      "description": "Material data sheets, product specification sheets, certification documents, safety or food-contact documents, and catalogues can be attached from admin.",
+      "emptyTitle": "Technical documents are available on request.",
+      "emptyDescription": "Final PDFs and client-approved documents will be added after upload or publication approval.",
+      "fileLabel": "Technical document",
+      "downloadLabel": "Download",
+      "onRequestLabel": "Available on request"
+    },
+    "comparison": {
+      "eyebrow": "Material comparison",
+      "title": "OXP compared with conventional materials",
+      "description": "A cautious comparison for early material review. Final suitability depends on formulation and testing.",
+      "columns": [
+        "Criteria",
+        "OXP",
+        "Conventional plastic",
+        "Ceramic",
+        "Paper-based alternatives"
+      ],
+      "rows": [
+        {
+          "label": "Material source",
+          "oxp": "Recovered oyster shell with binder system depending on formulation.",
+          "plastic": "Fossil-derived or recycled polymer depending on grade.",
+          "ceramic": "Mineral clay fired at high temperature.",
+          "paper": "Wood or fibre pulp with coatings depending on application."
+        },
+        {
+          "label": "Weight",
+          "oxp": "Depends on grade and filler ratio.",
+          "plastic": "Often lightweight.",
+          "ceramic": "Often heavier.",
+          "paper": "Usually lightweight."
+        },
+        {
+          "label": "Durability",
+          "oxp": "Depends on final formulation and testing.",
+          "plastic": "Varies widely by polymer and wall thickness.",
+          "ceramic": "Hard but can chip or break.",
+          "paper": "Usually suited to short-life applications."
+        },
+        {
+          "label": "Heat resistance",
+          "oxp": "Depends on final formulation and testing.",
+          "plastic": "Varies by polymer.",
+          "ceramic": "Generally strong after firing.",
+          "paper": "Depends on coating and structure."
+        },
+        {
+          "label": "Water resistance",
+          "oxp": "Requires product-specific validation.",
+          "plastic": "Generally water resistant.",
+          "ceramic": "Generally water resistant when glazed.",
+          "paper": "Depends on coating."
+        },
+        {
+          "label": "End-of-life",
+          "oxp": "Depends on binder system, local recycling, and client requirements.",
+          "plastic": "Depends on resin type and recycling access.",
+          "ceramic": "Long-lived but difficult to recycle at scale.",
+          "paper": "Often recyclable or compostable only when coatings allow."
+        },
+        {
+          "label": "Best application",
+          "oxp": "Premium objects, samples, tableware concepts, and B2B product development.",
+          "plastic": "Lightweight mass production and flexible formats.",
+          "ceramic": "Long-life dining and heat-tolerant objects.",
+          "paper": "Short-term packaging and serviceware."
+        }
+      ],
+      "disclaimer": "Some material specifications and certifications may depend on final formulation, application, and client testing requirements."
+    }
   },
   "storePage": {
     "intro": {
@@ -578,40 +692,202 @@
   },
   "b2bPage": {
     "intro": {
-      "eyebrow": "B2B Supply",
-      "title": "Source oyster shell pellets or develop finished products with OXP.",
-      "description": "For manufacturers, hospitality groups, designers, and premium brands looking for oyster shell material supply, samples, or co-development.",
-      "primaryCta": "Send Inquiry",
-      "secondaryCta": "Review Material Facts"
+      "eyebrow": "B2B collaboration",
+      "title": "Build with OXP materials",
+      "description": "Explore recycled oyster-shell based materials for product development, pilot production, and bulk supply.",
+      "primaryCta": "Request a sample",
+      "secondaryCta": "Review material data"
+    },
+    "process": {
+      "eyebrow": "Collaboration flow",
+      "title": "How B2B collaboration works",
+      "steps": [
+        {
+          "title": "Tell us your application",
+          "description": "Share product category, intended use, market, and technical constraints."
+        },
+        {
+          "title": "Request sample or material data",
+          "description": "Ask for available sample options, data sheets, or product references."
+        },
+        {
+          "title": "Review technical compatibility",
+          "description": "We check fit against formulation, manufacturing, and testing requirements."
+        },
+        {
+          "title": "Prototype or pilot production",
+          "description": "Suitable projects can move into prototype review or a small pilot run."
+        },
+        {
+          "title": "Confirm supply and production plan",
+          "description": "Quantity, timing, documents, and production scope are confirmed before supply."
+        }
+      ]
+    },
+    "ctaStrip": {
+      "sample": "Request a sample",
+      "materialData": "Ask for material data sheet",
+      "requirements": "Submit product requirements",
+      "bulkSupply": "Discuss bulk supply"
+    },
+    "applications": {
+      "eyebrow": "B2B applications",
+      "title": "Application paths for review",
+      "cards": [
+        {
+          "title": "Tableware",
+          "description": "Dining objects, serviceware concepts, and hospitality product lines."
+        },
+        {
+          "title": "Packaging",
+          "description": "Material exploration for rigid formats and client-specific trials."
+        },
+        {
+          "title": "Product components",
+          "description": "Components and surface parts where mineral material storytelling matters."
+        },
+        {
+          "title": "Hospitality and event supply",
+          "description": "Sample-led review for venues, hotels, events, and dining programs."
+        },
+        {
+          "title": "Design and prototype projects",
+          "description": "Early-stage product development, swatches, and concept validation."
+        },
+        {
+          "title": "Education / research collaboration",
+          "description": "University, lab, and classroom review where scope is clearly confirmed."
+        }
+      ]
+    },
+    "afterSubmit": {
+      "eyebrow": "After submission",
+      "title": "What happens after you submit",
+      "items": [
+        "We review your application and material needs.",
+        "We confirm whether OXP is suitable for your use case.",
+        "We share available specifications or sample options.",
+        "We discuss timeline, quantity, and next steps."
+      ]
     },
     "form": {
       "eyebrow": "Start a Project",
-      "title": "Tell us how you plan to use OXP pellets or finished objects.",
-      "description": "Send a lightweight project brief directly to the Laravel backend. This keeps the workflow simple while giving the team a real submission record.",
+      "title": "Submit your B2B material request",
+      "description": "Keep the first brief concise. The team can follow up for drawings, testing requirements, and final documents.",
+      "groups": {
+        "contact": "Contact details",
+        "project": "Project requirements",
+        "material": "Material interest"
+      },
+      "interestOptions": {
+        "sample_request": {
+          "label": "Sample request",
+          "description": "Evaluation kits, material notes, and shipping details."
+        },
+        "pellet_supply": {
+          "label": "Pellet supply",
+          "description": "Raw material buying, pilot supply, and formulation review."
+        },
+        "product_development": {
+          "label": "Product development",
+          "description": "Prototype or co-development request for a new product line."
+        },
+        "bulk_order": {
+          "label": "Bulk order",
+          "description": "Commercial quantities, hospitality programs, and production planning."
+        },
+        "partnership": {
+          "label": "Partnership",
+          "description": "Brand, studio, education, or industry collaboration."
+        },
+        "other": {
+          "label": "Other",
+          "description": "Use this when the project does not fit the common paths."
+        }
+      },
+      "panelCopy": {
+        "sample_request": [
+          "Sample handling supports material evaluation and technical review.",
+          "We collect shipping context and intended use before confirming availability.",
+          "Sample options may depend on current production and approved documents."
+        ],
+        "pellet_supply": [
+          "Pellet supply requests are reviewed against application and formulation needs.",
+          "Available data sheets and sample options can be shared after review.",
+          "Supply is not guaranteed until quantity, timeline, and compatibility are confirmed."
+        ],
+        "product_development": [
+          "Product development requests should explain the target object and use case.",
+          "We review technical compatibility before prototype or pilot planning.",
+          "Final specifications depend on formulation, production method, and testing."
+        ],
+        "bulk_order": [
+          "Bulk supply requests should include quantity, timeline, and target market.",
+          "The team will confirm production fit and available documentation.",
+          "Commercial terms are handled after feasibility review."
+        ],
+        "partnership": [
+          "Partnership requests are reviewed for scope, publication approval, and technical fit.",
+          "Pilot and case-study details are published only after client confirmation.",
+          "University and industry collaborations can be marked in testing or pending."
+        ],
+        "other": [
+          "Use this path for unusual applications or early exploratory questions.",
+          "The team will route your request to the right review path.",
+          "Uncertain claims and certifications remain pending until verified."
+        ]
+      },
       "fields": {
         "name": "Name",
         "company": "Company",
+        "organizationType": "Organisation type",
         "email": "Email",
         "phone": "Phone",
-        "application": "Application",
-        "volume": "Estimated volume",
+        "country": "Country / region",
+        "region": "City or region",
+        "companyWebsite": "Company website",
+        "jobTitle": "Job title",
+        "application": "Application type",
+        "volume": "Estimated quantity / volume",
         "timeline": "Target timeline",
+        "materialInterest": "Material interest",
+        "quantityEstimate": "Sample quantity estimate",
+        "shippingCountry": "Shipping country",
+        "shippingRegion": "Shipping region",
+        "shippingAddress": "Shipping address",
+        "intendedUse": "Expected use case",
+        "collaborationGoal": "Collaboration goal",
+        "projectStage": "Project stage",
         "message": "Project details"
       },
       "placeholders": {
         "name": "Your name",
-        "company": "Company or studio",
+        "company": "Company or organisation",
+        "organizationType": "Brand, studio, manufacturer, university...",
         "email": "Work email",
         "phone": "Optional phone number",
-        "application": "Pellet supply, tableware line, hospitality project...",
+        "country": "Country",
+        "region": "City, state, or region",
+        "companyWebsite": "https://company.com",
+        "jobTitle": "Founder, buyer, project lead...",
+        "application": "Tableware, packaging, component, hospitality project...",
         "volume": "Pilot run, annual demand, sample quantity...",
         "timeline": "Quarter, launch date, or development window",
+        "materialInterest": "Pellets, pressed panel, tabletop material, product sample...",
+        "quantityEstimate": "10 sheets, 5 kg, pilot set...",
+        "shippingCountry": "Shipping country",
+        "shippingRegion": "State, city, or region",
+        "shippingAddress": "Shipping address",
+        "intendedUse": "How will the sample or material be evaluated?",
+        "collaborationGoal": "What are you trying to build, test, or explore?",
+        "projectStage": "Discovery, prototype, curriculum planning...",
         "message": "Share shape requirements, target market, finish expectations, or certification needs."
       },
       "submit": "Send Inquiry",
       "success": "Your inquiry has been submitted successfully.",
       "referenceLabel": "Reference",
-      "disclaimer": "Submissions are stored in the backend inquiry table with a default status of new."
+      "productContextLabel": "Product context",
+      "disclaimer": "Submitting this form does not guarantee supply, certification, or production approval. The team will confirm fit and next steps."
     }
   },
   "communityPage": {
@@ -668,13 +944,63 @@
   "articleFeed": {
     "fallbackExcerpt": "The latest OXP editorial updates are now available through the backend content API.",
     "emptyTitle": "No articles published yet",
-    "emptyDescription": "This section is connected to the backend article feed, but there are no published updates available right now.",
+    "emptyDescription": "Updates will be published here as the project progresses.",
     "badgeLabel": "OXP Update",
     "readArticle": "Read article",
     "defaultEyebrow": "Latest Updates",
     "defaultTitle": "The newest material and studio updates.",
     "defaultDescription": "Published articles now come from the backend CMS and can be surfaced without rebuilding the frontend.",
     "defaultCta": "View all updates"
+  },
+  "trustAndCredibility": {
+    "eyebrow": "Trust and credibility",
+    "title": "Built for responsible material innovation",
+    "description": "Credibility blocks are written to support B2B review without inventing unapproved customers, awards, or certifications.",
+    "cards": [
+      {
+        "title": "Research-backed material development",
+        "description": "Material claims are prepared for technical review and should be tied to approved evidence."
+      },
+      {
+        "title": "Oyster shell waste stream reuse",
+        "description": "The material story focuses on recovered shell input and responsible sourcing communication."
+      },
+      {
+        "title": "Pilot production ready",
+        "description": "Suitable projects can be reviewed for prototype or pilot production planning."
+      },
+      {
+        "title": "Technical data for B2B review",
+        "description": "Data sheets and test documents can be shared when available or marked as pending."
+      },
+      {
+        "title": "Designed for product applications",
+        "description": "Product and tableware suitability depends on formulation, application, and testing."
+      }
+    ],
+    "disclaimer": "Some material specifications and certifications may depend on final formulation, application, and client testing requirements."
+  },
+  "pilotProjects": {
+    "eyebrow": "Pilot projects",
+    "title": "Pilot projects and collaborations",
+    "description": "Client, partner, and case-study names are shown only after approval. Until then, transparent placeholders keep the site credible.",
+    "items": [
+      {
+        "title": "Pilot collaboration details coming soon",
+        "status": "Coming soon",
+        "description": "Project details will be added after client approval."
+      },
+      {
+        "title": "University and industry review in progress",
+        "status": "In testing",
+        "description": "Research or review partners can be named after confirmation."
+      },
+      {
+        "title": "Client-provided case studies pending approval",
+        "status": "Client confirmation pending",
+        "description": "Case studies remain hidden or generic until publication is approved."
+      }
+    ]
   },
   "userNav": {
     "myAccount": "My Account",

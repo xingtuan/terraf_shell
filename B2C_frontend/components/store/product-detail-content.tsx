@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 
 import { CertificationsAtAGlance } from "@/components/sections/certifications-at-a-glance"
+import { TechnicalDownloadsSection } from "@/components/sections/material-proof-sections"
 import { ProductAvailabilityBadge } from "@/components/store/ProductAvailabilityBadge"
 import { ProductGallery } from "@/components/store/ProductGallery"
 import { ProductCard } from "@/components/store/ProductCard"
@@ -41,11 +42,6 @@ export function ProductDetailContent({
   const certificationMessages = messages.certificationsAtAGlance
   const relatedProducts = product.related_products ?? []
   const maxQuantity = getProductQuantityLimit(product)
-  const hasSupportingDetails = Boolean(
-    product.certifications?.length ||
-      product.material_benefits?.length ||
-      product.care_instructions?.length,
-  )
   const [quantity, setQuantity] = useState(1)
 
   useEffect(() => {
@@ -301,55 +297,63 @@ export function ProductDetailContent({
             </section>
           ) : null}
 
-          {hasSupportingDetails ? (
-            <section className="grid gap-6">
-              <CertificationsAtAGlance
-                certifications={product.certifications ?? []}
-                eyebrow={certificationMessages.eyebrow}
-                title={certificationMessages.title}
-                description={certificationMessages.productDescription}
-                variant="product"
-                verifiedLabel={certificationMessages.verifiedLabel}
-              />
+          <section className="grid gap-6">
+            <CertificationsAtAGlance
+              certifications={product.certifications ?? []}
+              eyebrow={certificationMessages.eyebrow}
+              title={certificationMessages.title}
+              description={certificationMessages.productDescription}
+              variant="product"
+              verifiedLabel={certificationMessages.verifiedLabel}
+              emptyMessage={certificationMessages.emptyMessage}
+              statusLabels={certificationMessages.statusLabels}
+              issuerLabel={certificationMessages.issuerLabel}
+              testedAtLabel={certificationMessages.testedAtLabel}
+              downloadLabel={certificationMessages.downloadLabel}
+            />
 
-              {product.material_benefits?.length ? (
-                <article className="rounded-[2rem] border border-border/60 bg-card p-8">
-                  <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                    {t.materialBenefits}
-                  </p>
-                  <div className="mt-6 space-y-4">
-                    {(product.material_benefits ?? []).map((benefit) => (
-                      <div key={benefit} className="flex gap-3">
-                        <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
-                        <p className="text-sm leading-relaxed text-foreground">
-                          {benefit}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </article>
-              ) : null}
-
-              {product.care_instructions?.length ? (
-                <article className="rounded-[2rem] border border-border/60 bg-card p-8">
-                  <p className="text-sm uppercase tracking-[0.2em] text-primary">
-                    {t.care}
-                  </p>
-                  <div className="mt-6 space-y-3">
-                    {(product.care_instructions ?? []).map((instruction) => (
-                      <p
-                        key={instruction}
-                        className="text-sm leading-relaxed text-muted-foreground"
-                      >
-                        {instruction}
+            {product.material_benefits?.length ? (
+              <article className="rounded-[2rem] border border-border/60 bg-card p-8">
+                <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                  {t.materialBenefits}
+                </p>
+                <div className="mt-6 space-y-4">
+                  {(product.material_benefits ?? []).map((benefit) => (
+                    <div key={benefit} className="flex gap-3">
+                      <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
+                      <p className="text-sm leading-relaxed text-foreground">
+                        {benefit}
                       </p>
-                    ))}
-                  </div>
-                </article>
-              ) : null}
-            </section>
-          ) : null}
+                    </div>
+                  ))}
+                </div>
+              </article>
+            ) : null}
+
+            {product.care_instructions?.length ? (
+              <article className="rounded-[2rem] border border-border/60 bg-card p-8">
+                <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                  {t.care}
+                </p>
+                <div className="mt-6 space-y-3">
+                  {(product.care_instructions ?? []).map((instruction) => (
+                    <p
+                      key={instruction}
+                      className="text-sm leading-relaxed text-muted-foreground"
+                    >
+                      {instruction}
+                    </p>
+                  ))}
+                </div>
+              </article>
+            ) : null}
+          </section>
         </div>
+
+        <TechnicalDownloadsSection
+          content={messages.materialProof.technicalDownloads}
+          downloads={product.technical_downloads ?? []}
+        />
 
         {supportCards.length > 0 ? (
           <section className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">

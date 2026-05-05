@@ -18,6 +18,11 @@ class B2BLead extends Model
     protected $fillable = [
         'reference',
         'lead_type',
+        'interest_type',
+        'application_type',
+        'expected_use_case',
+        'estimated_quantity',
+        'timeline',
         'name',
         'company_name',
         'organization_type',

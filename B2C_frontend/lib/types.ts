@@ -30,6 +30,40 @@ export interface ProductSpecification {
   group?: string | null
 }
 
+export type CertificationStatus =
+  | "certified"
+  | "tested"
+  | "in_testing"
+  | "pending"
+  | "not_applicable"
+
+export interface CertificationRecord {
+  key?: string | null
+  name?: string | null
+  label?: string | null
+  result?: string | number | null
+  value?: string | number | null
+  unit?: string | null
+  status?: CertificationStatus | string | null
+  description?: string | null
+  issuer?: string | null
+  tested_at?: string | null
+  document_url?: string | null
+}
+
+export type CertificationCardInput = string | CertificationRecord
+
+export interface TechnicalDownload {
+  title?: string | null
+  label?: string | null
+  type?: string | null
+  url?: string | null
+  document_url?: string | null
+  href?: string | null
+  status?: string | null
+  description?: string | null
+}
+
 export interface ProductSeo {
   title?: string | null
   description?: string | null
@@ -94,7 +128,8 @@ export interface Product {
   dimensions?: string | null
   weight_grams?: number | null
   specifications?: ProductSpecification[]
-  certifications?: string[]
+  certifications?: CertificationCardInput[]
+  technical_downloads?: TechnicalDownload[]
   care_instructions?: string[]
   material_benefits?: string[]
   seo?: ProductSeo | null
@@ -341,6 +376,8 @@ export interface MaterialSummary {
   is_featured: boolean
   sort_order?: number
   media_url?: string | null
+  certifications?: CertificationCardInput[]
+  technical_downloads?: TechnicalDownload[]
   specs_count?: number
   story_sections_count?: number
   applications_count?: number
@@ -369,19 +406,18 @@ export interface MaterialProperty {
 }
 
 export interface MaterialCertification {
-  key: string
-  label: string
-  value: string
+  key?: string
+  label?: string
+  name?: string
+  value?: string
+  result?: string
+  unit?: string | null
+  status?: CertificationStatus | string | null
+  description?: string | null
+  issuer?: string | null
+  tested_at?: string | null
+  document_url?: string | null
 }
-
-export type CertificationCardInput =
-  | string
-  | {
-      key?: string | null
-      label?: string | null
-      value?: string | null
-      description?: string | null
-    }
 
 export interface MaterialModelInfo {
   id: string
@@ -405,6 +441,7 @@ export interface MaterialInfo {
   process_steps: MaterialProcessStep[]
   properties: MaterialProperty[]
   certifications: MaterialCertification[]
+  technical_downloads?: TechnicalDownload[]
   models: MaterialModelInfo[]
   colors: MaterialColorInfo[]
 }
@@ -473,7 +510,15 @@ export type LeadType =
   | "university_collaboration"
   | "product_development_collaboration"
 
-export type LeadFormType = LeadType | "inquiry"
+export type LeadFormType = LeadType | "inquiry" | "bulk_order" | "other"
+
+export type LeadInterestType =
+  | "sample_request"
+  | "pellet_supply"
+  | "product_development"
+  | "bulk_order"
+  | "partnership"
+  | "other"
 
 export interface LeadContext {
   locale: string
@@ -485,6 +530,11 @@ export interface BaseLeadPayload extends LeadContext {
   name: string
   companyName: string
   organizationType?: string | null
+  interestType?: LeadInterestType | null
+  applicationType?: string | null
+  expectedUseCase?: string | null
+  estimatedQuantity?: string | null
+  timeline?: string | null
   email: string
   phone?: string | null
   country?: string | null
@@ -526,6 +576,7 @@ export interface CollaborationLeadPayload extends BaseLeadPayload {
 
 export interface LeadFormValues extends LeadContext {
   type: LeadFormType
+  interestType: LeadInterestType
   name: string
   companyName: string
   organizationType: string

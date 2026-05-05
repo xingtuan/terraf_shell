@@ -20,12 +20,35 @@ class MaterialCmsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_public_material_endpoint_returns_static_oxp_payload_and_homepage_still_returns_published_content(): void
+    public function test_public_material_endpoint_returns_cms_material_payload_and_homepage_still_returns_published_content(): void
     {
         $material = Material::factory()->published()->create([
             'slug' => 'oyster-shell-material',
             'is_featured' => true,
             'sort_order' => 1,
+            'headline' => "Ocean's Legacy, Crafted with Artisan Tech.",
+            'headline_translations' => [
+                'zh' => '海洋遗产，以匠人工艺重塑。',
+                'ko' => '바다의 유산을 장인의 기술로 다시 빚다.',
+            ],
+            'summary' => 'Recycled oyster shells collected from coastal waste streams',
+            'summary_translations' => [
+                'zh' => '从沿海废弃物流中回收的牡蛎壳',
+                'ko' => '해안 폐기물 흐름에서 회수한 굴 껍데기',
+            ],
+            'certifications' => [
+                [
+                    'name' => 'Water Absorption Test',
+                    'result' => null,
+                    'unit' => null,
+                    'status' => 'pending',
+                    'description' => 'Client confirmation pending before publication.',
+                    'issuer' => 'Client confirmation pending',
+                    'tested_at' => null,
+                    'document_url' => null,
+                ],
+            ],
+            'technical_downloads' => [],
         ]);
         Material::factory()->create([
             'slug' => 'draft-material',
@@ -34,6 +57,10 @@ class MaterialCmsTest extends TestCase
         MaterialSpec::factory()->published()->create([
             'material_id' => $material->id,
             'label' => 'Durability',
+            'label_translations' => [
+                'zh' => '轻量化',
+                'ko' => '충격 저항성',
+            ],
             'sort_order' => 1,
         ]);
         MaterialSpec::factory()->create([
@@ -44,6 +71,10 @@ class MaterialCmsTest extends TestCase
         MaterialStorySection::factory()->published()->create([
             'material_id' => $material->id,
             'title' => 'Recovery process',
+            'title_translations' => [
+                'zh' => '收集',
+                'ko' => '열 정화',
+            ],
             'sort_order' => 1,
         ]);
         MaterialStorySection::factory()->create([
@@ -81,18 +112,22 @@ class MaterialCmsTest extends TestCase
         $this->getJson('/api/materials')
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.name', 'OXP')
-            ->assertJsonPath('data.tagline', "Ocean's Legacy, Crafted with Artisan Tech.")
-            ->assertJsonPath('data.origin', 'Recycled oyster shells collected from coastal waste streams')
-            ->assertJsonCount(4, 'data.process_steps')
-            ->assertJsonCount(6, 'data.properties')
-            ->assertJsonCount(5, 'data.certifications')
+            ->assertJsonPath('data.name', $material->title)
+            ->assertJsonPath('data.tagline', $material->headline)
+            ->assertJsonPath('data.origin', $material->summary)
+            ->assertJsonCount(1, 'data.process_steps')
+            ->assertJsonCount(1, 'data.properties')
+            ->assertJsonCount(1, 'data.certifications')
+            ->assertJsonPath('data.certifications.0.name', 'Water Absorption Test')
+            ->assertJsonPath('data.certifications.0.status', 'pending')
+            ->assertJsonCount(0, 'data.technical_downloads')
             ->assertJsonPath('data.models.0.id', 'lite_15')
             ->assertJsonPath('data.colors.1.id', 'forged_ash');
 
         $this->getJson('/api/materials/oyster-shell-material')
             ->assertOk()
-            ->assertJsonPath('data.name', 'OXP');
+            ->assertJsonPath('data.name', $material->title)
+            ->assertJsonPath('data.certifications.0.status', 'pending');
 
         $this->getJson('/api/materials?locale=zh')
             ->assertOk()
@@ -107,8 +142,8 @@ class MaterialCmsTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.tagline', '바다의 유산을 장인의 기술로 다시 빚다.')
             ->assertJsonPath('data.origin', '해안 폐기물 흐름에서 회수한 굴 껍데기')
-            ->assertJsonPath('data.process_steps.1.title', '열 정화')
-            ->assertJsonPath('data.properties.1.label', '충격 저항성')
+            ->assertJsonPath('data.process_steps.0.title', '열 정화')
+            ->assertJsonPath('data.properties.0.label', '충격 저항성')
             ->assertJsonPath('data.models.0.name', '1.5 라이트')
             ->assertJsonPath('data.colors.1.name', '포지드 애시');
 
@@ -136,7 +171,8 @@ class MaterialCmsTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.tagline', '海洋遗产，以匠人工艺重塑。')
             ->assertJsonPath('data.origin', '从沿海废弃物流中回收的牡蛎壳')
-            ->assertJsonPath('data.certifications.0.label', '吸水率测试');
+            ->assertJsonCount(0, 'data.certifications')
+            ->assertJsonCount(0, 'data.technical_downloads');
 
         $response->assertDontSee([
             "Ocean's Legacy, Crafted with Artisan Tech.",

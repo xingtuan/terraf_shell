@@ -147,11 +147,22 @@
     }
   },
   "certificationsAtAGlance": {
-    "eyebrow": "인증 성능",
+    "eyebrow": "소재 증빙",
     "title": "인증 한눈에 보기",
-    "description": "OXP 소재의 테스트 인증과 성능 데이터를 빠르게 확인하세요.",
-    "productDescription": "이 제품과 관련된 소재 및 제품 인증 정보입니다.",
-    "verifiedLabel": "인증됨"
+    "description": "OXP와 관련된 시험, 진행 중인 인증, 기술 근거를 한눈에 확인합니다.",
+    "productDescription": "이 제품에 연결된 제품 및 소재 증빙 정보입니다.",
+    "verifiedLabel": "인증됨",
+    "emptyMessage": "인증 데이터는 준비 중입니다. 최신 소재 정보는 문의해 주세요.",
+    "issuerLabel": "발급 기관 / 시험소",
+    "testedAtLabel": "시험일",
+    "downloadLabel": "문서 다운로드",
+    "statusLabels": {
+      "certified": "인증됨",
+      "tested": "시험 완료",
+      "in_testing": "시험 중",
+      "pending": "대기 중",
+      "not_applicable": "해당 없음"
+    }
   },
   "meta": {
     "siteName": "OXP",
@@ -473,12 +484,12 @@
       "body": "OXP은 버려지는 굴패각 폐기물에서 시작합니다. 수거된 패각은 정화와 정제를 거쳐 미네랄이 풍부한 펠릿으로 만들어지고, 다시 압축성형을 통해 프리미엄 제품으로 완성됩니다."
     },
     "properties": {
-      "weight": "비중 1.5-1.6으로 일반 도자기 2.4 대비 약 35% 가볍습니다.",
-      "strength": "반복 사용 환경에도 견디는 비파손 고내충격 소재입니다.",
-      "absorption": "흡수율 0.00%로 냄새 배임과 세균 번식 가능성을 줄입니다.",
-      "antibacterial": "인공 코팅 없이도 천연 약알칼리 항균 특성을 제공합니다.",
-      "grip": "젖은 상태에서도 미끄럽지 않은 미네랄 그립 텍스처를 유지합니다.",
-      "otr": "OTR 500 cc/m²·day로 통기성과 차습성을 함께 제공합니다."
+      "weight": "저밀도 목표는 최종 배합, 성형 조건, 제품 형상에 따라 달라집니다.",
+      "strength": "내구성은 최종 제품 형상과 사용 환경에 따라 확인해야 합니다.",
+      "absorption": "내수 데이터는 준비 중이며 최종 배합과 시험에 따라 달라집니다.",
+      "antibacterial": "식품 접촉 또는 위생 관련 주장은 승인된 문서로 뒷받침되어야 합니다.",
+      "grip": "그립감과 미끄럼 저항은 최종 표면 마감 기준으로 확인해야 합니다.",
+      "otr": "차단성과 통기성 데이터는 적용 목적에 맞춰 검토해야 합니다."
     },
     "process": {
       "step1": "수거: 해안 가공 공정에서 굴패각 폐기물을 회수하고 선별합니다.",
@@ -488,10 +499,10 @@
     },
     "certifications": {
       "title": "인증 및 시험 데이터",
-      "waterAbsorption": "흡수율 0.00%",
+      "waterAbsorption": "흡수율 시험",
       "toxicityHeavyMetals": "유해성 / 중금속",
       "acidResistance": "내산성",
-      "nonToxicFireproof": "무독성 난연",
+      "nonToxicFireproof": "화재 거동 검토",
       "otrData": "OTR 데이터"
     }
   },
@@ -506,6 +517,109 @@
     "sheetTitleSuffix": "소재 시트",
     "modelsLabel": "모델",
     "colorsLabel": "색상"
+  },
+  "materialProof": {
+    "proofPoints": {
+      "eyebrow": "증빙 포인트",
+      "title": "과장 없이 제시하는 소재 근거.",
+      "description": "OXP는 시험과 고객 검토가 진행되는 소재 플랫폼으로, 모든 주장은 확인 가능한 근거와 연결되어야 합니다.",
+      "cards": [
+        {
+          "title": "재생 굴 패각 원료",
+          "description": "해안 폐기물 흐름에서 회수한 굴 패각 원료를 중심으로 개발됩니다."
+        },
+        {
+          "title": "플라스틱 의존도 저감",
+          "description": "선택된 적용 분야에서 기존 플라스틱 의존도를 낮추는 방향으로 설계됩니다."
+        },
+        {
+          "title": "압축 성형 호환",
+          "description": "압축 성형 공정과 제품 프로토타이핑을 고려해 개발됩니다."
+        },
+        {
+          "title": "제품 및 테이블웨어 적용",
+          "description": "적합성은 최종 배합, 사용 조건, 시험 결과에 따라 달라집니다."
+        },
+        {
+          "title": "기술 검토 가능",
+          "description": "승인된 시험 및 인증 자료는 준비되는 대로 공유할 수 있습니다."
+        }
+      ]
+    },
+    "technicalDownloads": {
+      "eyebrow": "기술 자료",
+      "title": "소재 및 제품 검토용 문서",
+      "description": "소재 데이터 시트, 제품 사양서, 인증 문서, 안전/식품 접촉 문서, 카탈로그를 관리자에서 연결할 수 있습니다.",
+      "emptyTitle": "기술 문서는 요청 시 제공됩니다.",
+      "emptyDescription": "최종 PDF와 고객 승인 문서는 업로드 또는 게시 승인 후 추가됩니다.",
+      "fileLabel": "기술 문서",
+      "downloadLabel": "다운로드",
+      "onRequestLabel": "요청 시 제공"
+    },
+    "comparison": {
+      "eyebrow": "소재 비교",
+      "title": "OXP와 기존 소재 비교",
+      "description": "초기 소재 검토를 위한 신중한 비교입니다. 최종 적합성은 배합과 시험에 따라 달라집니다.",
+      "columns": [
+        "기준",
+        "OXP",
+        "기존 플라스틱",
+        "세라믹",
+        "종이 기반 대안"
+      ],
+      "rows": [
+        {
+          "label": "소재 원천",
+          "oxp": "회수 굴 패각과 배합에 따른 바인더 시스템.",
+          "plastic": "등급에 따라 화석 기반 또는 재생 폴리머.",
+          "ceramic": "고온 소성된 광물성 점토.",
+          "paper": "용도에 따라 코팅이 적용된 목재 또는 섬유 펄프."
+        },
+        {
+          "label": "무게",
+          "oxp": "등급과 충전 비율에 따라 달라집니다.",
+          "plastic": "대체로 가벼운 편입니다.",
+          "ceramic": "대체로 무거운 편입니다.",
+          "paper": "보통 가볍습니다."
+        },
+        {
+          "label": "내구성",
+          "oxp": "최종 배합과 시험에 따라 달라집니다.",
+          "plastic": "폴리머와 두께에 따라 크게 달라집니다.",
+          "ceramic": "단단하지만 깨지거나 이가 나갈 수 있습니다.",
+          "paper": "주로 단기 사용에 적합합니다."
+        },
+        {
+          "label": "내열성",
+          "oxp": "최종 배합과 시험에 따라 달라집니다.",
+          "plastic": "폴리머에 따라 다릅니다.",
+          "ceramic": "소성 후 일반적으로 강합니다.",
+          "paper": "코팅과 구조에 따라 다릅니다."
+        },
+        {
+          "label": "내수성",
+          "oxp": "제품별 검증이 필요합니다.",
+          "plastic": "일반적으로 내수성이 있습니다.",
+          "ceramic": "유약 처리 시 일반적으로 내수성이 있습니다.",
+          "paper": "코팅에 따라 달라집니다."
+        },
+        {
+          "label": "사용 후 처리",
+          "oxp": "바인더, 지역 재활용 조건, 고객 요구사항에 따라 달라집니다.",
+          "plastic": "수지 종류와 재활용 접근성에 따라 다릅니다.",
+          "ceramic": "오래 쓰이지만 대규모 재활용은 어렵습니다.",
+          "paper": "코팅 조건에 따라 재활용 또는 퇴비화 가능성이 달라집니다."
+        },
+        {
+          "label": "적합한 적용",
+          "oxp": "프리미엄 오브제, 샘플, 테이블웨어 컨셉, B2B 제품 개발.",
+          "plastic": "경량 대량 생산과 유연한 형태.",
+          "ceramic": "장기 사용 다이닝 및 내열 오브제.",
+          "paper": "단기 포장과 서비스웨어."
+        }
+      ],
+      "disclaimer": "일부 소재 사양과 인증은 최종 배합, 적용 분야, 고객 시험 요구사항에 따라 달라질 수 있습니다."
+    }
   },
   "storePage": {
     "intro": {
@@ -578,40 +692,202 @@
   },
   "b2bPage": {
     "intro": {
-      "eyebrow": "B2B 공급",
-      "title": "OXP과 함께 굴 패각 펠릿을 공급받거나 완제품을 공동 개발하세요.",
-      "description": "굴 패각 소재 공급, 샘플, 공동 개발이 필요한 제조사, 호스피탈리티 그룹, 디자이너, 프리미엄 브랜드를 위한 페이지입니다.",
-      "primaryCta": "문의 보내기",
-      "secondaryCta": "소재 정보 보기"
+      "eyebrow": "B2B 협업",
+      "title": "OXP 소재로 제품을 개발하세요",
+      "description": "제품 개발, 파일럿 생산, 대량 공급을 위한 재생 굴 패각 기반 소재를 검토해 보세요.",
+      "primaryCta": "샘플 요청",
+      "secondaryCta": "소재 데이터 검토"
+    },
+    "process": {
+      "eyebrow": "협업 흐름",
+      "title": "B2B 협업 방식",
+      "steps": [
+        {
+          "title": "적용 분야 공유",
+          "description": "제품 카테고리, 사용 목적, 시장, 기술 제약을 알려주세요."
+        },
+        {
+          "title": "샘플 또는 소재 데이터 요청",
+          "description": "가능한 샘플, 데이터 시트, 제품 레퍼런스를 요청할 수 있습니다."
+        },
+        {
+          "title": "기술 적합성 검토",
+          "description": "배합, 제조 방식, 시험 요구사항에 맞는지 확인합니다."
+        },
+        {
+          "title": "프로토타입 또는 파일럿",
+          "description": "적합한 프로젝트는 프로토타입 검토나 소규모 파일럿으로 이어질 수 있습니다."
+        },
+        {
+          "title": "공급 및 생산 계획 확정",
+          "description": "수량, 일정, 문서, 생산 범위를 공급 전에 확인합니다."
+        }
+      ]
+    },
+    "ctaStrip": {
+      "sample": "샘플 요청",
+      "materialData": "소재 데이터 시트 요청",
+      "requirements": "제품 요구사항 제출",
+      "bulkSupply": "대량 공급 논의"
+    },
+    "applications": {
+      "eyebrow": "B2B 적용 분야",
+      "title": "검토 가능한 적용 경로",
+      "cards": [
+        {
+          "title": "테이블웨어",
+          "description": "다이닝 오브제, 서비스웨어 컨셉, 호스피탈리티 제품군."
+        },
+        {
+          "title": "패키징",
+          "description": "경질 형태와 고객별 시험을 위한 소재 탐색."
+        },
+        {
+          "title": "제품 부품",
+          "description": "소재 스토리텔링이 중요한 부품과 표면 파트."
+        },
+        {
+          "title": "호스피탈리티 및 이벤트 공급",
+          "description": "공간, 호텔, 이벤트, 다이닝 프로그램을 위한 샘플 기반 검토."
+        },
+        {
+          "title": "디자인 및 프로토타입",
+          "description": "초기 제품 개발, 스와치, 컨셉 검증."
+        },
+        {
+          "title": "교육 / 연구 협업",
+          "description": "범위가 명확히 확인된 대학, 연구소, 교육용 검토."
+        }
+      ]
+    },
+    "afterSubmit": {
+      "eyebrow": "제출 후",
+      "title": "제출 후 진행 방식",
+      "items": [
+        "적용 분야와 소재 요구사항을 검토합니다.",
+        "OXP가 해당 사용처에 적합한지 확인합니다.",
+        "가능한 사양서 또는 샘플 옵션을 공유합니다.",
+        "일정, 수량, 다음 단계를 논의합니다."
+      ]
     },
     "form": {
       "eyebrow": "프로젝트 시작",
-      "title": "OXP 펠릿 또는 완제품을 어떻게 활용할지 알려주세요.",
-      "description": "이 폼은 이제 Laravel 백엔드에 직접 연결되어 실제 문의 레코드를 생성하면서도 기존의 간결한 프런트엔드 흐름을 유지합니다.",
+      "title": "B2B 소재 요청 제출",
+      "description": "첫 브리프는 간결하게 작성해 주세요. 도면, 시험 요구사항, 최종 문서는 이후 확인할 수 있습니다.",
+      "groups": {
+        "contact": "연락처 정보",
+        "project": "프로젝트 요구사항",
+        "material": "소재 관심 분야"
+      },
+      "interestOptions": {
+        "sample_request": {
+          "label": "샘플 요청",
+          "description": "평가 키트, 소재 노트, 배송 정보를 위한 요청입니다."
+        },
+        "pellet_supply": {
+          "label": "펠릿 공급",
+          "description": "원료 구매, 파일럿 공급, 배합 검토를 위한 요청입니다."
+        },
+        "product_development": {
+          "label": "제품 개발",
+          "description": "신제품 라인 프로토타입 또는 공동 개발 요청입니다."
+        },
+        "bulk_order": {
+          "label": "대량 주문",
+          "description": "상업 수량, 호스피탈리티 프로그램, 생산 계획 논의입니다."
+        },
+        "partnership": {
+          "label": "파트너십",
+          "description": "브랜드, 스튜디오, 교육, 산업 협업 요청입니다."
+        },
+        "other": {
+          "label": "기타",
+          "description": "일반 경로에 맞지 않는 프로젝트에 사용하세요."
+        }
+      },
+      "panelCopy": {
+        "sample_request": [
+          "샘플은 소재 평가와 기술 검토를 지원합니다.",
+          "배송 정보와 사용 목적을 확인한 뒤 가능 여부를 안내합니다.",
+          "샘플 옵션은 현재 생산 상황과 승인된 문서에 따라 달라질 수 있습니다."
+        ],
+        "pellet_supply": [
+          "펠릿 공급 요청은 적용 분야와 배합 요구사항을 기준으로 검토됩니다.",
+          "가능한 데이터 시트와 샘플 옵션은 검토 후 공유됩니다.",
+          "수량, 일정, 적합성이 확인되기 전에는 공급이 보장되지 않습니다."
+        ],
+        "product_development": [
+          "제품 개발 요청에는 목표 제품과 사용처가 포함되어야 합니다.",
+          "프로토타입 또는 파일럿 계획 전에 기술 적합성을 검토합니다.",
+          "최종 사양은 배합, 생산 방식, 시험에 따라 달라집니다."
+        ],
+        "bulk_order": [
+          "대량 공급 요청에는 수량, 일정, 목표 시장이 필요합니다.",
+          "생산 적합성과 제공 가능한 문서를 확인합니다.",
+          "상업 조건은 가능성 검토 이후 논의합니다."
+        ],
+        "partnership": [
+          "파트너십 요청은 범위, 게시 승인, 기술 적합성을 기준으로 검토됩니다.",
+          "파일럿과 사례 정보는 고객 확인 후 게시됩니다.",
+          "대학 및 산업 협업은 시험 중 또는 대기 상태로 표시할 수 있습니다."
+        ],
+        "other": [
+          "특수 적용 분야나 초기 질문은 이 경로를 사용하세요.",
+          "팀이 적절한 검토 경로로 요청을 연결합니다.",
+          "불확실한 주장과 인증은 검증 전까지 대기 상태로 유지됩니다."
+        ]
+      },
       "fields": {
         "name": "이름",
         "company": "회사명",
+        "organizationType": "조직 유형",
         "email": "이메일",
         "phone": "전화번호",
+        "country": "국가 / 지역",
+        "region": "도시 또는 지역",
+        "companyWebsite": "회사 웹사이트",
+        "jobTitle": "직함",
         "application": "적용 분야",
-        "volume": "예상 물량",
+        "volume": "예상 수량 / 물량",
         "timeline": "목표 일정",
+        "materialInterest": "관심 소재",
+        "quantityEstimate": "샘플 수량 예상",
+        "shippingCountry": "배송 국가",
+        "shippingRegion": "배송 지역",
+        "shippingAddress": "배송 주소",
+        "intendedUse": "예상 사용처",
+        "collaborationGoal": "협업 목표",
+        "projectStage": "프로젝트 단계",
         "message": "프로젝트 상세"
       },
       "placeholders": {
         "name": "담당자 이름",
-        "company": "회사 또는 스튜디오명",
+        "company": "회사 또는 기관명",
+        "organizationType": "브랜드, 스튜디오, 제조사, 대학 등",
         "email": "업무용 이메일",
         "phone": "선택 입력",
-        "application": "펠릿 공급, 테이블웨어 라인, 호스피탈리티 프로젝트 등",
+        "country": "국가",
+        "region": "도시, 주, 지역",
+        "companyWebsite": "https://company.com",
+        "jobTitle": "대표, 바이어, 프로젝트 리드 등",
+        "application": "테이블웨어, 패키징, 부품, 호스피탈리티 프로젝트 등",
         "volume": "파일럿 물량, 연간 수요, 샘플 수량 등",
         "timeline": "분기, 런칭 일정, 개발 기간 등",
+        "materialInterest": "펠릿, 패널, 테이블탑 소재, 제품 샘플 등",
+        "quantityEstimate": "시트 10장, 5kg, 파일럿 세트 등",
+        "shippingCountry": "배송 국가",
+        "shippingRegion": "주, 도시 또는 지역",
+        "shippingAddress": "배송 주소",
+        "intendedUse": "샘플 또는 소재를 어떻게 평가할 예정인가요?",
+        "collaborationGoal": "무엇을 만들거나 시험하거나 탐색하려고 하나요?",
+        "projectStage": "탐색, 프로토타입, 커리큘럼 기획 등",
         "message": "형상 요구사항, 목표 시장, 마감 기대치, 인증 필요사항을 공유해주세요."
       },
       "submit": "문의 보내기",
       "success": "문의가 성공적으로 제출되었습니다.",
       "referenceLabel": "접수 번호",
-      "disclaimer": "제출 내용은 백엔드 리드 시스템에 저장되며 기본 상태로 팀 후속 검토를 기다립니다."
+      "productContextLabel": "제품 맥락",
+      "disclaimer": "폼 제출은 공급, 인증, 생산 승인을 보장하지 않습니다. 팀이 적합성과 다음 단계를 확인합니다."
     }
   },
   "communityPage": {
@@ -668,13 +944,63 @@
   "articleFeed": {
     "fallbackExcerpt": "최신 OXP 에디토리얼 업데이트는 이제 백엔드 콘텐츠 API를 통해 제공됩니다.",
     "emptyTitle": "아직 게시된 아티클이 없습니다",
-    "emptyDescription": "이 섹션은 백엔드 아티클 피드에 연결되어 있지만, 현재 게시된 업데이트가 없습니다.",
+    "emptyDescription": "프로젝트가 진행되면서 업데이트가 이곳에 게시됩니다.",
     "badgeLabel": "OXP 업데이트",
     "readArticle": "아티클 읽기",
     "defaultEyebrow": "최신 업데이트",
     "defaultTitle": "최신 소재 및 스튜디오 업데이트.",
     "defaultDescription": "게시된 아티클은 이제 백엔드 CMS에서 불러오며, 프런트엔드를 다시 빌드하지 않아도 노출할 수 있습니다.",
     "defaultCta": "모든 업데이트 보기"
+  },
+  "trustAndCredibility": {
+    "eyebrow": "신뢰와 검증",
+    "title": "책임 있는 소재 혁신을 위해 설계되었습니다",
+    "description": "승인되지 않은 고객, 수상, 인증을 만들지 않고 B2B 검토에 필요한 신뢰 요소를 제시합니다.",
+    "cards": [
+      {
+        "title": "연구 기반 소재 개발",
+        "description": "소재 주장은 기술 검토와 승인된 근거에 연결되어야 합니다."
+      },
+      {
+        "title": "굴 패각 폐기물 흐름 재사용",
+        "description": "회수 패각 원료와 책임 있는 소싱 커뮤니케이션에 집중합니다."
+      },
+      {
+        "title": "파일럿 생산 검토 가능",
+        "description": "적합한 프로젝트는 프로토타입 또는 파일럿 생산 계획으로 검토할 수 있습니다."
+      },
+      {
+        "title": "B2B 검토용 기술 데이터",
+        "description": "데이터 시트와 시험 문서는 제공 가능하거나 대기 상태로 표시됩니다."
+      },
+      {
+        "title": "제품 적용을 위한 설계",
+        "description": "제품 및 테이블웨어 적합성은 배합, 적용, 시험에 따라 달라집니다."
+      }
+    ],
+    "disclaimer": "일부 소재 사양과 인증은 최종 배합, 적용 분야, 고객 시험 요구사항에 따라 달라질 수 있습니다."
+  },
+  "pilotProjects": {
+    "eyebrow": "파일럿 프로젝트",
+    "title": "파일럿 프로젝트와 협업",
+    "description": "고객, 파트너, 사례 이름은 승인 후에만 표시합니다. 그 전에는 투명한 자리표시자로 신뢰를 유지합니다.",
+    "items": [
+      {
+        "title": "파일럿 협업 상세 내용 공개 예정",
+        "status": "공개 예정",
+        "description": "프로젝트 상세 내용은 고객 승인 후 추가됩니다."
+      },
+      {
+        "title": "대학 및 산업 검토 진행 중",
+        "status": "시험 중",
+        "description": "연구 또는 검토 파트너는 확인 후 이름을 표시할 수 있습니다."
+      },
+      {
+        "title": "고객 제공 사례 승인 대기",
+        "status": "고객 확인 대기",
+        "description": "사례는 게시 승인이 완료될 때까지 숨기거나 일반 문구로 유지합니다."
+      }
+    ]
   },
   "userNav": {
     "myAccount": "내 계정",

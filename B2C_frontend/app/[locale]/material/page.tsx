@@ -3,10 +3,19 @@ import { CollaborationSection } from "@/components/sections/collaboration"
 import { CertificationsAtAGlance } from "@/components/sections/certifications-at-a-glance"
 import { CredibilitySection } from "@/components/sections/credibility"
 import { FinalCtaSection } from "@/components/sections/final-cta"
+import {
+  MaterialComparisonSection,
+  MaterialProofPointsSection,
+  TechnicalDownloadsSection,
+} from "@/components/sections/material-proof-sections"
 import { MaterialFactsSection } from "@/components/sections/material-facts"
 import { MaterialFamilySection } from "@/components/sections/material-family"
 import { MaterialStorySection } from "@/components/sections/material-story"
 import { OpenSourceLegacySection } from "@/components/sections/open-source-legacy"
+import {
+  PilotProjectsSection,
+  TrustAndCredibilitySection,
+} from "@/components/sections/trust-and-b2b-sections"
 import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { PageIntro } from "@/components/page-intro"
 import {
@@ -21,6 +30,12 @@ import type { MaterialInfo } from "@/lib/types"
 
 type MaterialPageProps = {
   params: Promise<{ locale: string }>
+}
+
+function cleanCertificationText(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : null
 }
 
 export default async function MaterialPage({ params }: MaterialPageProps) {
@@ -46,6 +61,31 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   const specs = materialInfo
     ? materialInfoToSpecs(materialInfo)
     : await getMaterialSpecs(locale, materialRequestOptions)
+  const certificationSummaries = (materialInfo?.certifications ?? [])
+    .map((certification) => {
+      const title = cleanCertificationText(
+        certification.label ?? certification.name ?? certification.key,
+      )
+      const measuredResult = [certification.result, certification.unit]
+        .filter(Boolean)
+        .join(" ")
+      const result = cleanCertificationText(
+        certification.value ||
+          measuredResult ||
+          certification.description ||
+          certification.status,
+      )
+
+      return title && result
+        ? {
+            title,
+            result,
+          }
+        : null
+    })
+    .filter((summary): summary is { title: string; result: string } =>
+      Boolean(summary),
+    )
   const whyItMattersContent = materialInfo
     ? {
         ...messages.home.whyItMatters,
@@ -81,8 +121,8 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
         ...messages.home.materialFacts,
         title: materialInfo.tagline,
         sheetTitle: `${materialInfo.name} ${messages.materialPage.sheetTitleSuffix}`,
-        sheetDescription: materialInfo.certifications
-          .map((certification) => `${certification.label}: ${certification.value}`)
+        sheetDescription: certificationSummaries
+          .map((certification) => `${certification.title}: ${certification.result}`)
           .join(" / "),
         infoCards: [
           {
@@ -101,10 +141,12 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
     ? {
         ...messages.home.credibility,
         title: materialInfo.tagline,
-        benefits: materialInfo.certifications.map((certification) => certification.value),
-        features: materialInfo.certifications.map((certification) => ({
-          title: certification.label,
-          description: certification.value,
+        benefits: certificationSummaries.map(
+          (certification) => certification.result,
+        ),
+        features: certificationSummaries.map((certification) => ({
+          title: certification.title,
+          description: certification.result,
         })),
       }
     : messages.home.credibility
@@ -135,6 +177,7 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
         specs={specs}
         sheetHref={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}
       />
+      <MaterialProofPointsSection content={messages.materialProof.proofPoints} />
       <CertificationsAtAGlance
         certifications={materialInfo?.certifications ?? []}
         eyebrow={certificationMessages.eyebrow}
@@ -142,8 +185,20 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
         description={certificationMessages.description}
         variant="material"
         verifiedLabel={certificationMessages.verifiedLabel}
+        emptyMessage={certificationMessages.emptyMessage}
+        statusLabels={certificationMessages.statusLabels}
+        issuerLabel={certificationMessages.issuerLabel}
+        testedAtLabel={certificationMessages.testedAtLabel}
+        downloadLabel={certificationMessages.downloadLabel}
       />
+      <TechnicalDownloadsSection
+        content={messages.materialProof.technicalDownloads}
+        downloads={materialInfo?.technical_downloads ?? []}
+      />
+      <MaterialComparisonSection content={messages.materialProof.comparison} />
       <CredibilitySection content={credibilityContent} />
+      <TrustAndCredibilitySection content={messages.trustAndCredibility} />
+      <PilotProjectsSection content={messages.pilotProjects} />
       <CollaborationSection
         locale={locale}
         content={messages.home.collaboration}

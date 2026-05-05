@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\B2BLeads\Tables;
 
+use App\Enums\B2BInterestType;
 use App\Enums\B2BLeadStatus;
 use App\Enums\B2BLeadType;
 use App\Filament\Support\PanelAccess;
@@ -33,12 +34,21 @@ class B2BLeadsTable
                     ->label('Type')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => B2BLeadType::tryFrom($state)?->label() ?? $state),
+                TextColumn::make('interest_type')
+                    ->label('Interest')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => $state ? (B2BInterestType::tryFrom($state)?->label() ?? $state) : 'Not specified')
+                    ->toggleable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('inquiry_type')
                     ->label('Request')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('application_type')
+                    ->label('Application')
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('name')
@@ -81,6 +91,9 @@ class B2BLeadsTable
                 SelectFilter::make('lead_type')
                     ->label('Lead type')
                     ->options(B2BLeadType::options()),
+                SelectFilter::make('interest_type')
+                    ->label('Interest type')
+                    ->options(B2BInterestType::options()),
                 SelectFilter::make('status')
                     ->options(B2BLeadStatus::options()),
                 SelectFilter::make('assigned_to')
@@ -89,10 +102,12 @@ class B2BLeadsTable
                     ->searchable()
                     ->preload(),
                 Filter::make('organization')
-                    ->label('Company / Region')
+                    ->label('Company / Application / Region')
                     ->schema([
                         TextInput::make('company_name')
                             ->label('Company / institution'),
+                        TextInput::make('application_type')
+                            ->label('Application'),
                         TextInput::make('region')
                             ->label('Region'),
                     ])
@@ -101,6 +116,10 @@ class B2BLeadsTable
                             ->when(
                                 filled($data['company_name'] ?? null),
                                 fn (Builder $builder): Builder => $builder->where('company_name', 'like', '%'.trim((string) $data['company_name']).'%')
+                            )
+                            ->when(
+                                filled($data['application_type'] ?? null),
+                                fn (Builder $builder): Builder => $builder->where('application_type', 'like', '%'.trim((string) $data['application_type']).'%')
                             )
                             ->when(
                                 filled($data['region'] ?? null),

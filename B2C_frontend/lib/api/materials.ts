@@ -53,6 +53,8 @@ export function materialInfoToDetail(material: MaterialInfo): MaterialDetail {
       .map((certification) => `${certification.label}: ${certification.value}`)
       .join(" | "),
     is_featured: true,
+    certifications: material.certifications,
+    technical_downloads: material.technical_downloads ?? [],
     specs,
     story_sections: material.process_steps.map((step, index) => ({
       id: step.step,

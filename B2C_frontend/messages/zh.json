@@ -147,11 +147,22 @@
     }
   },
   "certificationsAtAGlance": {
-    "eyebrow": "认证性能",
+    "eyebrow": "材料证据",
     "title": "认证数据一览",
-    "description": "快速查看 OXP 材料背后的测试认证与性能数据。",
-    "productDescription": "该产品相关的材料与产品认证信息。",
-    "verifiedLabel": "已认证"
+    "description": "快速查看 OXP 相关的测试、待确认认证与技术证据。",
+    "productDescription": "该产品可展示的产品与材料证据。",
+    "verifiedLabel": "已认证",
+    "emptyMessage": "认证数据正在准备中。请联系我们获取最新材料信息。",
+    "issuerLabel": "发证机构 / 实验室",
+    "testedAtLabel": "测试日期",
+    "downloadLabel": "下载文件",
+    "statusLabels": {
+      "certified": "已认证",
+      "tested": "已测试",
+      "in_testing": "测试中",
+      "pending": "待确认",
+      "not_applicable": "不适用"
+    }
   },
   "meta": {
     "siteName": "OXP",
@@ -473,12 +484,12 @@
       "body": "OXP 始于被丢弃的牡蛎壳废弃物。回收后的贝壳经过净化与精制，制成富含矿物的颗粒，再通过压缩成型转化为高端产品。"
     },
     "properties": {
-      "weight": "比重 1.5-1.6，相比传统陶瓷 2.4 轻约 35%。",
-      "strength": "具备不易破损的高抗冲击表现，适合高频重复使用。",
-      "absorption": "吸水率 0.00%，有助于减少异味残留和细菌滋生。",
-      "antibacterial": "无需人工涂层即可提供天然弱碱性抗菌特性。",
-      "grip": "矿物防滑纹理在潮湿状态下也能保持稳定握持感。",
-      "otr": "OTR 500 cc/m²·day，兼具可呼吸性与阻湿表现。"
+      "weight": "低密度目标取决于最终配方、成型条件和产品结构。",
+      "strength": "耐用性需结合最终产品形态和使用场景确认。",
+      "absorption": "耐水数据正在准备中，并取决于最终配方和测试。",
+      "antibacterial": "食品接触或卫生相关声明需由已批准文件支持。",
+      "grip": "握持与防滑表现需按最终表面处理进行确认。",
+      "otr": "阻隔与透气数据应结合目标应用进行审查。"
     },
     "process": {
       "step1": "回收收集：从沿海加工链回收并筛选牡蛎壳废弃物。",
@@ -488,10 +499,10 @@
     },
     "certifications": {
       "title": "认证与测试数据",
-      "waterAbsorption": "吸水率 0.00%",
+      "waterAbsorption": "吸水率测试",
       "toxicityHeavyMetals": "毒性 / 重金属",
       "acidResistance": "耐酸性",
-      "nonToxicFireproof": "无毒阻燃",
+      "nonToxicFireproof": "燃烧行为评估",
       "otrData": "OTR 数据"
     }
   },
@@ -506,6 +517,109 @@
     "sheetTitleSuffix": "材料说明",
     "modelsLabel": "型号",
     "colorsLabel": "颜色"
+  },
+  "materialProof": {
+    "proofPoints": {
+      "eyebrow": "证据要点",
+      "title": "不过度承诺的材料证据。",
+      "description": "OXP 作为正在测试和客户审核中的材料平台，所有主张都应与可确认的证据相连接。",
+      "cards": [
+        {
+          "title": "再生牡蛎壳来源",
+          "description": "围绕沿海废弃物流中回收的牡蛎壳原料开发。"
+        },
+        {
+          "title": "降低塑料依赖",
+          "description": "在特定应用中减少对传统塑料的依赖。"
+        },
+        {
+          "title": "兼容压缩模塑",
+          "description": "面向压缩模塑流程与产品原型开发。"
+        },
+        {
+          "title": "产品与餐具应用",
+          "description": "适用性取决于最终配方、使用场景和测试结果。"
+        },
+        {
+          "title": "可进行技术审核",
+          "description": "测试与认证资料在获得批准后可按需分享。"
+        }
+      ]
+    },
+    "technicalDownloads": {
+      "eyebrow": "技术下载",
+      "title": "用于材料与产品审核的文件",
+      "description": "可在后台关联材料数据表、产品规格书、认证文件、安全/食品接触文件和目录。",
+      "emptyTitle": "技术文件可按需提供。",
+      "emptyDescription": "最终 PDF 和客户批准文件将在上传或发布批准后添加。",
+      "fileLabel": "技术文件",
+      "downloadLabel": "下载",
+      "onRequestLabel": "按需提供"
+    },
+    "comparison": {
+      "eyebrow": "材料对比",
+      "title": "OXP 与传统材料对比",
+      "description": "用于早期材料评审的谨慎对比。最终适用性取决于配方和测试。",
+      "columns": [
+        "标准",
+        "OXP",
+        "传统塑料",
+        "陶瓷",
+        "纸基替代品"
+      ],
+      "rows": [
+        {
+          "label": "材料来源",
+          "oxp": "回收牡蛎壳以及随配方变化的粘结系统。",
+          "plastic": "取决于等级的化石基或再生聚合物。",
+          "ceramic": "高温烧制的矿物黏土。",
+          "paper": "根据应用带有不同涂层的木浆或纤维浆。"
+        },
+        {
+          "label": "重量",
+          "oxp": "取决于等级和填充比例。",
+          "plastic": "通常较轻。",
+          "ceramic": "通常较重。",
+          "paper": "通常较轻。"
+        },
+        {
+          "label": "耐用性",
+          "oxp": "取决于最终配方和测试。",
+          "plastic": "随聚合物和壁厚变化很大。",
+          "ceramic": "坚硬但可能崩边或破裂。",
+          "paper": "通常适合短期应用。"
+        },
+        {
+          "label": "耐热性",
+          "oxp": "取决于最终配方和测试。",
+          "plastic": "随聚合物变化。",
+          "ceramic": "烧制后通常较强。",
+          "paper": "取决于涂层和结构。"
+        },
+        {
+          "label": "防水性",
+          "oxp": "需要按产品验证。",
+          "plastic": "通常具有防水性。",
+          "ceramic": "上釉后通常具有防水性。",
+          "paper": "取决于涂层。"
+        },
+        {
+          "label": "生命周期末端",
+          "oxp": "取决于粘结系统、本地回收条件和客户要求。",
+          "plastic": "取决于树脂类型和回收条件。",
+          "ceramic": "寿命长，但难以规模化回收。",
+          "paper": "只有在涂层允许时才更容易回收或堆肥。"
+        },
+        {
+          "label": "最佳应用",
+          "oxp": "高端物件、样品、餐具概念和 B2B 产品开发。",
+          "plastic": "轻量化量产和柔性格式。",
+          "ceramic": "长期餐饮使用和耐热物件。",
+          "paper": "短期包装和服务用品。"
+        }
+      ],
+      "disclaimer": "部分材料规格和认证可能取决于最终配方、应用方式和客户测试要求。"
+    }
   },
   "storePage": {
     "intro": {
@@ -578,40 +692,202 @@
   },
   "b2bPage": {
     "intro": {
-      "eyebrow": "B2B 供应",
-      "title": "与 OXP 合作采购牡蛎壳颗粒或共同开发成品。",
-      "description": "面向制造商、餐饮酒店集团、设计师与高端品牌，提供牡蛎壳材料供应、样品与联合开发。",
-      "primaryCta": "发送询盘",
-      "secondaryCta": "查看材料事实"
+      "eyebrow": "B2B 合作",
+      "title": "使用 OXP 材料开发产品",
+      "description": "探索基于再生牡蛎壳的材料，用于产品开发、试生产和批量供应。",
+      "primaryCta": "申请样品",
+      "secondaryCta": "查看材料数据"
+    },
+    "process": {
+      "eyebrow": "合作流程",
+      "title": "B2B 合作如何进行",
+      "steps": [
+        {
+          "title": "告诉我们应用方向",
+          "description": "说明产品类别、预期用途、市场和技术限制。"
+        },
+        {
+          "title": "申请样品或材料数据",
+          "description": "可申请可用样品、数据表或产品参考。"
+        },
+        {
+          "title": "评估技术兼容性",
+          "description": "我们会根据配方、制造方式和测试要求评估适配性。"
+        },
+        {
+          "title": "原型或试生产",
+          "description": "合适的项目可进入原型评审或小规模试产。"
+        },
+        {
+          "title": "确认供应与生产计划",
+          "description": "在供应前确认数量、时间、文件和生产范围。"
+        }
+      ]
+    },
+    "ctaStrip": {
+      "sample": "申请样品",
+      "materialData": "索取材料数据表",
+      "requirements": "提交产品需求",
+      "bulkSupply": "讨论批量供应"
+    },
+    "applications": {
+      "eyebrow": "B2B 应用",
+      "title": "可评估的应用路径",
+      "cards": [
+        {
+          "title": "餐具",
+          "description": "餐饮物件、服务用品概念和酒店餐饮产品线。"
+        },
+        {
+          "title": "包装",
+          "description": "用于硬质形态和客户特定测试的材料探索。"
+        },
+        {
+          "title": "产品部件",
+          "description": "适合强调矿物材料故事的部件和表面件。"
+        },
+        {
+          "title": "酒店与活动供应",
+          "description": "面向场地、酒店、活动和餐饮项目的样品评审。"
+        },
+        {
+          "title": "设计与原型项目",
+          "description": "早期产品开发、样片和概念验证。"
+        },
+        {
+          "title": "教育 / 研究合作",
+          "description": "范围明确后用于大学、实验室和教学评审。"
+        }
+      ]
+    },
+    "afterSubmit": {
+      "eyebrow": "提交后",
+      "title": "提交后会发生什么",
+      "items": [
+        "我们会评估你的应用方向和材料需求。",
+        "我们会确认 OXP 是否适合你的使用场景。",
+        "我们会分享可用规格或样品选项。",
+        "我们会讨论时间、数量和下一步。"
+      ]
     },
     "form": {
       "eyebrow": "启动项目",
-      "title": "告诉我们你计划如何使用 OXP 颗粒或成品。",
-      "description": "该表单现已直接连接 Laravel 后端，可提交真实询盘记录，同时保留简洁的前端交互流程。",
+      "title": "提交你的 B2B 材料需求",
+      "description": "第一份需求保持简洁即可。图纸、测试要求和最终文件可在后续沟通中确认。",
+      "groups": {
+        "contact": "联系信息",
+        "project": "项目需求",
+        "material": "材料兴趣"
+      },
+      "interestOptions": {
+        "sample_request": {
+          "label": "样品申请",
+          "description": "用于评估包、材料说明和配送信息。"
+        },
+        "pellet_supply": {
+          "label": "颗粒供应",
+          "description": "用于原料采购、试点供应和配方评估。"
+        },
+        "product_development": {
+          "label": "产品开发",
+          "description": "用于新产品线的原型或共同开发。"
+        },
+        "bulk_order": {
+          "label": "批量订单",
+          "description": "用于商业数量、酒店项目和生产计划。"
+        },
+        "partnership": {
+          "label": "合作",
+          "description": "品牌、设计工作室、教育或产业合作。"
+        },
+        "other": {
+          "label": "其他",
+          "description": "当项目不适合常见路径时使用。"
+        }
+      },
+      "panelCopy": {
+        "sample_request": [
+          "样品流程支持材料评估和技术审核。",
+          "我们会先收集配送背景和预期用途，再确认可用性。",
+          "样品选项可能取决于当前生产情况和已批准文件。"
+        ],
+        "pellet_supply": [
+          "颗粒供应请求会根据应用和配方需求评估。",
+          "可用数据表和样品选项会在评估后分享。",
+          "数量、时间和兼容性确认前不保证供应。"
+        ],
+        "product_development": [
+          "产品开发请求应说明目标物件和使用场景。",
+          "在原型或试产计划前会评估技术适配性。",
+          "最终规格取决于配方、生产方法和测试。"
+        ],
+        "bulk_order": [
+          "批量供应请求应包含数量、时间和目标市场。",
+          "团队会确认生产适配性和可提供文件。",
+          "商业条款会在可行性评估后处理。"
+        ],
+        "partnership": [
+          "合作请求会根据范围、发布批准和技术适配性评估。",
+          "试点和案例信息仅在客户确认后发布。",
+          "大学和产业合作可标记为测试中或待确认。"
+        ],
+        "other": [
+          "特殊应用或早期探索问题可使用此路径。",
+          "团队会将请求转到合适的评估流程。",
+          "不确定的主张和认证会在验证前保持待确认状态。"
+        ]
+      },
       "fields": {
         "name": "姓名",
         "company": "公司",
+        "organizationType": "组织类型",
         "email": "邮箱",
         "phone": "电话",
+        "country": "国家 / 地区",
+        "region": "城市或地区",
+        "companyWebsite": "公司网站",
+        "jobTitle": "职位",
         "application": "应用方向",
-        "volume": "预估量级",
+        "volume": "预估数量 / 量级",
         "timeline": "目标时间",
+        "materialInterest": "材料兴趣",
+        "quantityEstimate": "样品数量预估",
+        "shippingCountry": "配送国家",
+        "shippingRegion": "配送地区",
+        "shippingAddress": "配送地址",
+        "intendedUse": "预期用途",
+        "collaborationGoal": "合作目标",
+        "projectStage": "项目阶段",
         "message": "项目详情"
       },
       "placeholders": {
         "name": "你的姓名",
-        "company": "公司或工作室",
+        "company": "公司或机构",
+        "organizationType": "品牌、工作室、制造商、大学等",
         "email": "工作邮箱",
         "phone": "可选联系电话",
-        "application": "颗粒供应、餐具系列、酒店项目等",
+        "country": "国家",
+        "region": "城市、省/州或地区",
+        "companyWebsite": "https://company.com",
+        "jobTitle": "创始人、采购、项目负责人等",
+        "application": "餐具、包装、部件、酒店项目等",
         "volume": "试产规模、年度需求、样品数量等",
         "timeline": "季度、发布日期或开发周期",
+        "materialInterest": "颗粒、压制板、桌面材料、产品样品等",
+        "quantityEstimate": "10 张板、5 kg、试点套装等",
+        "shippingCountry": "配送国家",
+        "shippingRegion": "省/州、城市或地区",
+        "shippingAddress": "配送地址",
+        "intendedUse": "你计划如何评估样品或材料？",
+        "collaborationGoal": "你希望构建、测试或探索什么？",
+        "projectStage": "探索、原型、课程规划等",
         "message": "请说明形态要求、目标市场、表面方向或认证需求。"
       },
       "submit": "发送询盘",
       "success": "你的询盘已成功提交。",
       "referenceLabel": "编号",
-      "disclaimer": "提交内容会写入后端线索系统，并以默认状态保存供团队跟进。"
+      "productContextLabel": "产品上下文",
+      "disclaimer": "提交表单不代表供应、认证或生产批准。团队会确认适配性和下一步。"
     }
   },
   "communityPage": {
@@ -668,13 +944,63 @@
   "articleFeed": {
     "fallbackExcerpt": "最新的 OXP 编辑内容现已可通过后端内容 API 获取。",
     "emptyTitle": "尚未发布文章",
-    "emptyDescription": "此区域已连接到后端文章流，但目前还没有已发布的更新。",
+    "emptyDescription": "项目推进过程中，更新内容会发布在这里。",
     "badgeLabel": "OXP 更新",
     "readArticle": "阅读文章",
     "defaultEyebrow": "最新更新",
     "defaultTitle": "最新的材料与工作室更新。",
     "defaultDescription": "已发布文章现可直接来自后端 CMS，无需重新构建前端即可展示。",
     "defaultCta": "查看全部更新"
+  },
+  "trustAndCredibility": {
+    "eyebrow": "信任与可信度",
+    "title": "为负责任的材料创新而构建",
+    "description": "这些可信度模块用于支持 B2B 审查，不会虚构未获批准的客户、奖项或认证。",
+    "cards": [
+      {
+        "title": "基于研究的材料开发",
+        "description": "材料声明应准备好接受技术审查，并与已批准的证据相连接。"
+      },
+      {
+        "title": "牡蛎壳废物流再利用",
+        "description": "材料叙事聚焦回收贝壳输入与负责任的来源沟通。"
+      },
+      {
+        "title": "可进入试点生产评估",
+        "description": "合适的项目可进入原型或试点生产计划评估。"
+      },
+      {
+        "title": "用于 B2B 审查的技术数据",
+        "description": "数据表和测试文件可在可用时共享，或清楚标记为待提供。"
+      },
+      {
+        "title": "面向产品应用设计",
+        "description": "产品与餐具适用性取决于最终配方、应用场景和测试。"
+      }
+    ],
+    "disclaimer": "部分材料规格和认证可能取决于最终配方、应用场景以及客户测试要求。"
+  },
+  "pilotProjects": {
+    "eyebrow": "试点项目",
+    "title": "试点项目与合作",
+    "description": "客户、合作伙伴和案例名称仅在获得批准后展示。在此之前，透明的占位内容可保持可信度。",
+    "items": [
+      {
+        "title": "试点合作详情即将公布",
+        "status": "即将公布",
+        "description": "项目详情将在客户批准后补充。"
+      },
+      {
+        "title": "大学与行业评审进行中",
+        "status": "测试中",
+        "description": "研究或评审伙伴可在确认后署名。"
+      },
+      {
+        "title": "客户提供案例待批准",
+        "status": "客户确认待定",
+        "description": "案例研究会在发布获批前保持隐藏或使用通用说明。"
+      }
+    ]
   },
   "userNav": {
     "myAccount": "我的账户",

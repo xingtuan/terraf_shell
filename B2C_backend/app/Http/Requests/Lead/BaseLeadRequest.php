@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Lead;
 
+use App\Enums\B2BInterestType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 abstract class BaseLeadRequest extends FormRequest
 {
@@ -21,6 +23,12 @@ abstract class BaseLeadRequest extends FormRequest
             'name' => ['required', 'string', 'max:100'],
             'company_name' => ['required', 'string', 'max:150'],
             'organization_type' => ['nullable', 'string', 'max:80'],
+            'interest_type' => ['nullable', Rule::in(B2BInterestType::values())],
+            'application_type' => ['nullable', 'string', 'max:150'],
+            'expected_use_case' => ['nullable', 'string', 'max:1000'],
+            'estimated_quantity' => ['nullable', 'string', 'max:120'],
+            'timeline' => ['nullable', 'string', 'max:120'],
+            'inquiry_type' => ['nullable', 'string', 'max:150'],
             'email' => ['required', 'string', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:40'],
             'country' => ['nullable', 'string', 'max:120'],
@@ -32,5 +40,4 @@ abstract class BaseLeadRequest extends FormRequest
             'metadata' => ['nullable', 'array'],
         ];
     }
-
 }

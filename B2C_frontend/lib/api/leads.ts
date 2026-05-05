@@ -32,6 +32,10 @@ const leadFieldMap = {
   organization_type: "organizationType",
   company_website: "companyWebsite",
   job_title: "jobTitle",
+  interest_type: "interestType",
+  application_type: "application",
+  expected_use_case: "message",
+  estimated_quantity: "volume",
   inquiry_type: "application",
   collaboration_type: "type",
   collaboration_goal: "collaborationGoal",
@@ -91,6 +95,12 @@ function buildBaseLeadBody(payload: BaseLeadPayload) {
     region: normalizeOptionalText(payload.region),
     company_website: normalizeOptionalText(payload.companyWebsite),
     job_title: normalizeOptionalText(payload.jobTitle),
+    interest_type: normalizeOptionalText(payload.interestType),
+    application_type: normalizeOptionalText(payload.applicationType),
+    expected_use_case: normalizeOptionalText(payload.expectedUseCase),
+    estimated_quantity: normalizeOptionalText(payload.estimatedQuantity),
+    timeline: normalizeOptionalText(payload.timeline),
+    inquiry_type: normalizeOptionalText(payload.applicationType),
     message: normalizeRequiredText(payload.message),
     source_page: buildSourcePage(payload),
     metadata: buildMetadata(payload),
@@ -211,6 +221,11 @@ export async function submitLeadForm(values: LeadFormValues) {
       return submitBusinessContactLead({
         ...values,
         companyName: values.companyName,
+        interestType: values.interestType,
+        applicationType: values.application,
+        expectedUseCase: values.message,
+        estimatedQuantity: values.volume,
+        timeline: values.timeline,
         message: values.message.trim(),
       })
     case "partnership_inquiry":
@@ -218,6 +233,10 @@ export async function submitLeadForm(values: LeadFormValues) {
         ...values,
         companyName: values.companyName,
         organizationType: values.organizationType,
+        interestType: values.interestType,
+        applicationType: values.application,
+        expectedUseCase: values.collaborationGoal.trim() || values.message,
+        estimatedQuantity: values.volume,
         collaborationType: "partnership_inquiry",
         collaborationGoal: values.collaborationGoal.trim(),
         projectStage: values.projectStage.trim() || null,
@@ -228,6 +247,12 @@ export async function submitLeadForm(values: LeadFormValues) {
       return submitSampleRequestLead({
         ...values,
         companyName: values.companyName,
+        interestType: values.interestType,
+        applicationType: values.application,
+        expectedUseCase: values.intendedUse.trim() || values.message,
+        estimatedQuantity:
+          values.quantityEstimate.trim() || values.volume.trim() || null,
+        timeline: values.timeline.trim() || null,
         materialInterest: values.materialInterest.trim(),
         quantityEstimate: values.quantityEstimate.trim() || null,
         shippingCountry: values.shippingCountry.trim() || null,
@@ -241,6 +266,10 @@ export async function submitLeadForm(values: LeadFormValues) {
         ...values,
         companyName: values.companyName,
         organizationType: values.organizationType,
+        interestType: values.interestType,
+        applicationType: values.application,
+        expectedUseCase: values.collaborationGoal.trim() || values.message,
+        estimatedQuantity: values.volume,
         collaborationGoal: values.collaborationGoal.trim(),
         projectStage: values.projectStage.trim() || null,
         timeline: values.timeline.trim() || null,
@@ -251,16 +280,27 @@ export async function submitLeadForm(values: LeadFormValues) {
         ...values,
         companyName: values.companyName,
         organizationType: values.organizationType,
+        interestType: values.interestType,
+        applicationType: values.application,
+        expectedUseCase: values.collaborationGoal.trim() || values.message,
+        estimatedQuantity: values.volume,
         collaborationGoal: values.collaborationGoal.trim(),
         projectStage: values.projectStage.trim() || null,
         timeline: values.timeline.trim() || null,
         message: values.message.trim(),
       })
+    case "bulk_order":
+    case "other":
     case "inquiry":
     default:
       return submitInquiryLead({
         ...values,
         companyName: values.companyName,
+        interestType: values.interestType,
+        applicationType: values.application,
+        expectedUseCase: values.message,
+        estimatedQuantity: values.volume,
+        timeline: values.timeline,
         inquiryType:
           values.application.trim() || values.inquiryType.trim() || "General Inquiry",
         message: buildInquiryMessage(values),

@@ -6,6 +6,14 @@ import { CollaborationSection } from "@/components/sections/collaboration"
 import { CredibilitySection } from "@/components/sections/credibility"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { MaterialFactsSection } from "@/components/sections/material-facts"
+import {
+  B2BAfterSubmitSection,
+  B2BApplicationsSection,
+  B2BCtaStrip,
+  B2BProcessSection,
+  PilotProjectsSection,
+  TrustAndCredibilitySection,
+} from "@/components/sections/trust-and-b2b-sections"
 import { getFeaturedMaterial, getMaterialSpecs } from "@/lib/api/materials"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
@@ -72,6 +80,9 @@ export default async function B2BPage({ params }: B2BPageProps) {
           `${getLocalizedHref(locale, "b2b")}?leadType=product_development_collaboration#inquiry`,
         ]}
       />
+      <B2BProcessSection content={messages.b2bPage.process} />
+      <B2BCtaStrip locale={locale} content={messages.b2bPage.ctaStrip} />
+      <B2BApplicationsSection content={messages.b2bPage.applications} />
       <MaterialFactsSection
         locale={locale}
         content={materialFactsContent}
@@ -79,6 +90,8 @@ export default async function B2BPage({ params }: B2BPageProps) {
         sheetHref={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}
       />
       <CredibilitySection content={credibilityContent} />
+      <TrustAndCredibilitySection content={messages.trustAndCredibility} />
+      <PilotProjectsSection content={messages.pilotProjects} />
       <Suspense fallback={null}>
         <B2BInquiryFormSection
           locale={locale}
@@ -88,6 +101,7 @@ export default async function B2BPage({ params }: B2BPageProps) {
           defaultLeadType="inquiry"
         />
       </Suspense>
+      <B2BAfterSubmitSection content={messages.b2bPage.afterSubmit} />
       <FinalCtaSection locale={locale} content={messages.home.finalCta} />
     </>
   )

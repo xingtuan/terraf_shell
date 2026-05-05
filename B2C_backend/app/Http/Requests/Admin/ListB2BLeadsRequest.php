@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Enums\B2BInterestType;
 use App\Enums\B2BLeadStatus;
 use App\Enums\B2BLeadType;
 use App\Enums\UserRole;
@@ -24,6 +25,8 @@ class ListB2BLeadsRequest extends FormRequest
         return [
             'search' => ['nullable', 'string', 'max:255'],
             'lead_type' => ['nullable', Rule::in(B2BLeadType::values())],
+            'interest_type' => ['nullable', Rule::in(B2BInterestType::values())],
+            'application_type' => ['nullable', 'string', 'max:150'],
             'status' => ['nullable', Rule::in(B2BLeadStatus::values())],
             'assigned_to' => [
                 'nullable',
@@ -32,8 +35,11 @@ class ListB2BLeadsRequest extends FormRequest
                 ),
             ],
             'country' => ['nullable', 'string', 'max:120'],
+            'company_name' => ['nullable', 'string', 'max:150'],
             'organization_type' => ['nullable', 'string', 'max:80'],
             'source_page' => ['nullable', 'string', 'max:120'],
+            'created_from' => ['nullable', 'date'],
+            'created_until' => ['nullable', 'date'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.config('community.pagination.max_per_page')],
         ];
     }

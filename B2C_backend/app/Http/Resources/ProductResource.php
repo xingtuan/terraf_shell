@@ -4,10 +4,10 @@ namespace App\Http\Resources;
 
 use App\Http\Resources\Concerns\ResolvesLocalizedFields;
 use App\Models\Product;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 /** @mixin Product */
 class ProductResource extends JsonResource
@@ -97,7 +97,8 @@ class ProductResource extends JsonResource
             'dimensions' => $this->localizedString($request, 'dimensions'),
             'weight_grams' => $this->weight_grams !== null ? (int) $this->weight_grams : null,
             'specifications' => $this->specifications($request),
-            'certifications' => $this->localizedArray($request, 'certifications'),
+            'certifications' => $this->normalizedJsonEntries($this->certifications ?? []),
+            'technical_downloads' => $this->normalizedJsonEntries($this->technical_downloads ?? []),
             'care_instructions' => $this->localizedArray($request, 'care_instructions'),
             'material_benefits' => $this->localizedArray($request, 'material_benefits'),
             'seo' => [
@@ -275,6 +276,29 @@ class ProductResource extends JsonResource
         return collect($this->specifications ?? [])
             ->map(fn (mixed $entry): array => is_array($entry) ? $entry : [])
             ->filter(fn (array $entry): bool => Arr::has($entry, ['label', 'value']))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private function normalizedJsonEntries(mixed $entries): array
+    {
+        if (! is_array($entries)) {
+            return [];
+        }
+
+        return collect($entries)
+            ->filter(function (mixed $entry): bool {
+                if (is_string($entry)) {
+                    return trim($entry) !== '';
+                }
+
+                return is_array($entry) && collect($entry)
+                    ->filter(fn (mixed $value): bool => filled($value))
+                    ->isNotEmpty();
+            })
             ->values()
             ->all();
     }

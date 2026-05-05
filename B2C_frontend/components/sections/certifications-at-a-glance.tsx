@@ -1,5 +1,7 @@
 import {
   BadgeCheck,
+  CalendarDays,
+  Download,
   Droplets,
   Flame,
   FlaskConical,
@@ -19,14 +21,24 @@ type CertificationsAtAGlanceProps = {
   variant?: "material" | "product"
   className?: string
   verifiedLabel?: string
+  emptyMessage?: string
+  statusLabels?: Record<string, string>
+  issuerLabel?: string
+  testedAtLabel?: string
+  downloadLabel?: string
 }
 
 type NormalizedCertificationCard = {
   id: string
   key?: string
   title: string
-  value?: string
+  result?: string
+  unit?: string
+  status: string
   description?: string
+  issuer?: string
+  testedAt?: string
+  documentUrl?: string
 }
 
 const certificationIcons: Record<string, LucideIcon> = {
@@ -38,6 +50,10 @@ const certificationIcons: Record<string, LucideIcon> = {
 }
 
 function cleanText(value: unknown): string | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value)
+  }
+
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
     : undefined
@@ -46,7 +62,6 @@ function cleanText(value: unknown): string | undefined {
 function normalizeCertification(
   certification: CertificationCardInput | null | undefined,
   index: number,
-  verifiedLabel: string,
 ): NormalizedCertificationCard | null {
   if (!certification) {
     return null
@@ -59,7 +74,7 @@ function normalizeCertification(
       ? {
           id: `certification-string-${index}-${title}`,
           title,
-          value: verifiedLabel,
+          status: "pending",
         }
       : null
   }
@@ -70,17 +85,29 @@ function normalizeCertification(
 
   const key = cleanText(certification.key)
   const label = cleanText(certification.label)
+  const name = cleanText(certification.name)
   const value = cleanText(certification.value)
+  const result = cleanText(certification.result)
+  const unit = cleanText(certification.unit)
+  const status = cleanText(certification.status)?.toLowerCase() ?? "pending"
   const description = cleanText(certification.description)
-  const title = label ?? key ?? value
+  const issuer = cleanText(certification.issuer)
+  const testedAt = cleanText(certification.tested_at)
+  const documentUrl = cleanText(certification.document_url)
+  const title = name ?? label ?? key ?? value ?? result
 
   return title
     ? {
         id: `certification-object-${index}-${key ?? label ?? value}`,
         key,
         title,
-        value: value && value !== title ? value : undefined,
+        result: result ?? (value && value !== title ? value : undefined),
+        unit,
+        status,
         description,
+        issuer,
+        testedAt,
+        documentUrl,
       }
     : null
 }
@@ -97,16 +124,17 @@ export function CertificationsAtAGlance({
   variant = "material",
   className,
   verifiedLabel = "Verified",
+  emptyMessage = "Certification data is being prepared. Please contact us for the latest material information.",
+  statusLabels = {},
+  issuerLabel = "Issuer / lab",
+  testedAtLabel = "Test date",
+  downloadLabel = "Download document",
 }: CertificationsAtAGlanceProps) {
   const cards = (certifications ?? [])
     .map((certification, index) =>
-      normalizeCertification(certification, index, verifiedLabel),
+      normalizeCertification(certification, index),
     )
     .filter((card): card is NormalizedCertificationCard => Boolean(card))
-
-  if (cards.length === 0) {
-    return null
-  }
 
   const isMaterialVariant = variant === "material"
   const hasHeader = Boolean(eyebrow || title || description)
@@ -143,43 +171,80 @@ export function CertificationsAtAGlance({
           </div>
         ) : null}
 
-        <div
-          className={cn(
-            "grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5",
-            cards.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-3",
-          )}
-        >
-          {cards.map((card) => {
-            const Icon = getCertificationIcon(card.key)
+        {cards.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-border/70 bg-background/80 p-8">
+            <p className="max-w-3xl text-base leading-relaxed text-muted-foreground">
+              {emptyMessage}
+            </p>
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5",
+              cards.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-3",
+            )}
+          >
+            {cards.map((card) => {
+              const Icon = getCertificationIcon(card.key)
+              const statusLabel =
+                statusLabels[card.status] ??
+                statusLabels[card.status.replace(/-/g, "_")] ??
+                (card.status === "certified" ? verifiedLabel : card.status)
+              const result = [card.result, card.unit].filter(Boolean).join(" ")
 
-            return (
-              <article
-                key={card.id}
-                className="group flex min-h-48 flex-col rounded-2xl border border-border/60 bg-background/80 p-5 shadow-sm shadow-foreground/[0.02] transition-colors hover:border-primary/35 md:p-6"
-              >
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-                    <Icon className="h-5 w-5" />
+              return (
+                <article
+                  key={card.id}
+                  className="group flex min-h-56 flex-col rounded-2xl border border-border/60 bg-background/80 p-5 shadow-sm shadow-foreground/[0.02] transition-colors hover:border-primary/35 md:p-6"
+                >
+                  <div className="mb-5 flex items-center justify-between gap-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <span className="rounded-full border border-border/60 bg-card px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
+                      {statusLabel}
+                    </span>
                   </div>
-                  <BadgeCheck className="h-5 w-5 shrink-0 text-primary/55" />
-                </div>
-                <h3 className="text-sm font-medium leading-snug text-foreground [overflow-wrap:anywhere]">
-                  {card.title}
-                </h3>
-                {card.value ? (
-                  <p className="mt-4 font-serif text-2xl leading-tight text-primary [overflow-wrap:anywhere]">
-                    {card.value}
-                  </p>
-                ) : null}
-                {card.description ? (
-                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground [overflow-wrap:anywhere]">
-                    {card.description}
-                  </p>
-                ) : null}
-              </article>
-            )
-          })}
-        </div>
+                  <h3 className="text-sm font-medium leading-snug text-foreground [overflow-wrap:anywhere]">
+                    {card.title}
+                  </h3>
+                  {result ? (
+                    <p className="mt-4 font-serif text-2xl leading-tight text-primary [overflow-wrap:anywhere]">
+                      {result}
+                    </p>
+                  ) : null}
+                  {card.description ? (
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground [overflow-wrap:anywhere]">
+                      {card.description}
+                    </p>
+                  ) : null}
+                  <div className="mt-auto space-y-2 pt-5 text-xs text-muted-foreground">
+                    {card.issuer ? (
+                      <p>
+                        {issuerLabel}: {card.issuer}
+                      </p>
+                    ) : null}
+                    {card.testedAt ? (
+                      <p className="flex items-center gap-2">
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        {testedAtLabel}: {card.testedAt}
+                      </p>
+                    ) : null}
+                    {card.documentUrl ? (
+                      <a
+                        href={card.documentUrl}
+                        className="inline-flex items-center gap-2 text-primary"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                        {downloadLabel}
+                      </a>
+                    ) : null}
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        )}
       </div>
     </section>
   )

@@ -179,6 +179,8 @@ class B2BLeadService
             fputcsv($handle, [
                 'reference',
                 'lead_type',
+                'interest_type',
+                'application_type',
                 'inquiry_type',
                 'status',
                 'name',
@@ -190,6 +192,9 @@ class B2BLeadService
                 'region',
                 'company_website',
                 'job_title',
+                'expected_use_case',
+                'estimated_quantity',
+                'timeline',
                 'source_page',
                 'collaboration_type',
                 'material_interest',
@@ -208,6 +213,8 @@ class B2BLeadService
                 fputcsv($handle, [
                     $lead->reference ?: sprintf('INQ-%06d', $lead->id),
                     $lead->lead_type,
+                    $lead->interest_type,
+                    $lead->application_type,
                     $lead->inquiry_type,
                     $lead->status,
                     $lead->name,
@@ -219,6 +226,9 @@ class B2BLeadService
                     $lead->region,
                     $lead->company_website,
                     $lead->job_title,
+                    $lead->expected_use_case,
+                    $lead->estimated_quantity,
+                    $lead->timeline,
                     $lead->source_page,
                     $lead->partnershipInquiry?->collaboration_type,
                     $lead->sampleRequest?->material_interest,
@@ -236,6 +246,11 @@ class B2BLeadService
         $lead = DB::transaction(function () use ($type, $data, $detailCreator): B2BLead {
             $lead = B2BLead::query()->create([
                 'lead_type' => $type->value,
+                'interest_type' => $data['interest_type'] ?? null,
+                'application_type' => $data['application_type'] ?? ($data['inquiry_type'] ?? null),
+                'expected_use_case' => $data['expected_use_case'] ?? null,
+                'estimated_quantity' => $data['estimated_quantity'] ?? ($data['quantity_estimate'] ?? null),
+                'timeline' => $data['timeline'] ?? null,
                 'name' => $data['name'],
                 'company_name' => $data['company_name'],
                 'organization_type' => $data['organization_type'] ?? null,
@@ -245,7 +260,7 @@ class B2BLeadService
                 'region' => $data['region'] ?? null,
                 'company_website' => $data['company_website'] ?? null,
                 'job_title' => $data['job_title'] ?? null,
-                'inquiry_type' => $data['inquiry_type'] ?? $type->label(),
+                'inquiry_type' => $data['inquiry_type'] ?? $data['application_type'] ?? $type->label(),
                 'message' => $data['message'],
                 'source_page' => $data['source_page'] ?? null,
                 'status' => B2BLeadStatus::New->value,
@@ -338,12 +353,22 @@ class B2BLeadService
                     ->orWhere('company_name', 'like', '%'.$search.'%')
                     ->orWhere('email', 'like', '%'.$search.'%')
                     ->orWhere('message', 'like', '%'.$search.'%')
-                    ->orWhere('inquiry_type', 'like', '%'.$search.'%');
+                    ->orWhere('inquiry_type', 'like', '%'.$search.'%')
+                    ->orWhere('application_type', 'like', '%'.$search.'%')
+                    ->orWhere('interest_type', 'like', '%'.$search.'%');
             });
         }
 
         if (! empty($filters['lead_type'])) {
             $query->where('lead_type', $filters['lead_type']);
+        }
+
+        if (! empty($filters['interest_type'])) {
+            $query->where('interest_type', $filters['interest_type']);
+        }
+
+        if (! empty($filters['application_type'])) {
+            $query->where('application_type', 'like', '%'.$filters['application_type'].'%');
         }
 
         if (! empty($filters['status'])) {
@@ -358,12 +383,24 @@ class B2BLeadService
             $query->where('country', 'like', '%'.$filters['country'].'%');
         }
 
+        if (! empty($filters['company_name'])) {
+            $query->where('company_name', 'like', '%'.$filters['company_name'].'%');
+        }
+
         if (! empty($filters['organization_type'])) {
             $query->where('organization_type', 'like', '%'.$filters['organization_type'].'%');
         }
 
         if (! empty($filters['source_page'])) {
             $query->where('source_page', 'like', '%'.$filters['source_page'].'%');
+        }
+
+        if (! empty($filters['created_from'])) {
+            $query->whereDate('created_at', '>=', $filters['created_from']);
+        }
+
+        if (! empty($filters['created_until'])) {
+            $query->whereDate('created_at', '<=', $filters['created_until']);
         }
     }
 

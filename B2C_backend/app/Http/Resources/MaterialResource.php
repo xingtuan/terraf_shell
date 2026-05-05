@@ -25,6 +25,8 @@ class MaterialResource extends JsonResource
             'summary' => $this->localizedString($request, 'summary'),
             'story_overview' => $this->localizedString($request, 'story_overview'),
             'science_overview' => $this->localizedString($request, 'science_overview'),
+            'certifications' => $this->certifications ?? [],
+            'technical_downloads' => $this->technical_downloads ?? [],
             'title_translations' => $this->localizedStringSet('title'),
             'headline_translations' => $this->localizedStringSet('headline'),
             'summary_translations' => $this->localizedStringSet('summary'),
