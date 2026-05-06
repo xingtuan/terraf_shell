@@ -493,7 +493,7 @@
           "code": "MXP",
           "name": "Mineral XP",
           "source": "미네랄 경로",
-          "description": "MXP는 현재 이 웹사이트에서 활성 소재 라인으로 소개되지 않습니다. 비활성 상태로 유지하고 확정된 사용 가능 제품처럼 표현하지 마세요.",
+          "description": "MXP는 현재 이 웹사이트에서 활성 소재 라인으로 소개되지 않습니다. ",
           "status": "inactive"
         }
       ]

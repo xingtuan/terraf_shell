@@ -493,7 +493,7 @@
           "code": "MXP",
           "name": "Mineral XP",
           "source": "矿物路径",
-          "description": "MXP 目前不在本站作为可用材料线展示。保持非激活状态，不要把它写成已确认可用产品。",
+          "description": "MXP 目前不在本站作为可用材料线展示。",
           "status": "inactive"
         }
       ]

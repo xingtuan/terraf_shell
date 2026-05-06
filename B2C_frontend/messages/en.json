@@ -493,7 +493,7 @@
           "code": "MXP",
           "name": "Mineral XP",
           "source": "Mineral pathway",
-          "description": "MXP is not currently introduced on this website. Keep it inactive and do not present it as a confirmed available line.",
+          "description": "MXP is not currently introduced on this website. ",
           "status": "inactive"
         }
       ]
