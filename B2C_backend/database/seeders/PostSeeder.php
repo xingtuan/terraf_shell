@@ -38,15 +38,13 @@ class PostSeeder extends Seeder
 
         Post::factory()
             ->count(12)
-            ->create([
+            ->state(fn (): array => [
                 'status' => ContentStatus::Approved->value,
+                'user_id' => $users->random()->id,
+                'category_id' => $categories->random()->id,
             ])
+            ->create()
             ->each(function (Post $post) use ($users, $categories, $tags): void {
-                $post->update([
-                    'user_id' => $users->random()->id,
-                    'category_id' => $categories->random()->id,
-                ]);
-
                 $post->tags()->sync($tags->random(rand(2, 4))->pluck('id'));
 
                 $comments = Comment::factory()
