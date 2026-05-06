@@ -374,7 +374,7 @@
         {
           "name": "Terrafin",
           "formula": "ƒ(Biomass) = XP Composite",
-          "description": "The material function. The XP Material Family is built from regional waste streams, with OXP as the confirmed oyster-shell line and additional XP material lines prepared for future client confirmation."
+          "description": "The material function. The XP Material Family includes OXP as the current oyster-shell line and CXP as a separate Terrafin family line; MXP is not currently introduced on this website."
         },
         {
           "name": "Terrafactory",
@@ -447,28 +447,54 @@
       ]
     },
     "materialFamily": {
-      "eyebrow": "XP Material Family",
-      "title": "OXP today, with additional XP material lines prepared for client confirmation.",
-      "intro": "OXP is the confirmed oyster-shell line. Additional XP material lines are prepared for future client confirmation.",
-      "comingSoonLabel": "Future confirmation",
+      "eyebrow": "Terrafin XP Material Family",
+      "title": "Product-driven Bio-CCUS: the carbon lockdown cycle.",
+      "intro": "Terrafin frames its XP materials as product-driven carbon lockdown pathways. OXP is the current oyster-shell material on this site, CXP is a separate Terrafin carbon-product line, and MXP is not currently introduced on this website.",
+      "diagram": {
+        "title": "Terrafin carbon lockdown cycle",
+        "alt": "Terrafin diagram showing carbon emission, carbon flux, and carbon lockdown pathways across OXP, CXP, BXP, shells, biomass, bio-char, and fossil fuels.",
+        "caption": "Red marks carbon emission, green marks carbon flux, and purple marks product-driven carbon lockdown."
+      },
+      "legend": [
+        {
+          "label": "Carbon emission",
+          "description": "Red arrow pathway"
+        },
+        {
+          "label": "Carbon flux",
+          "description": "Green arrow pathway"
+        },
+        {
+          "label": "Carbon lockdown",
+          "description": "Purple product-driven pathway"
+        }
+      ],
+      "badges": {
+        "current": "Current website line",
+        "sibling": "Terrafin family line",
+        "inactive": "Not currently introduced"
+      },
       "lines": [
         {
           "code": "OXP",
           "name": "Oyster Shell XP",
-          "source": "Reclaimed oyster shell — South Korea",
+          "source": "Recovered oyster shell — South Korea",
+          "description": "The current OXP material line converts recovered oyster shells into premium material products through the shell-carbonate pathway.",
           "status": "available"
         },
         {
           "code": "CXP",
           "name": "Carbon XP",
-          "source": "Additional XP material line prepared for future client confirmation.",
-          "status": "coming_soon"
+          "source": "Biomass and carbon-product pathway",
+          "description": "CXP is another Terrafin product line connected to biomass, farm, forest, and bio-char carbon-lockdown routes.",
+          "status": "sibling"
         },
         {
           "code": "MXP",
           "name": "Mineral XP",
-          "source": "Additional XP material line prepared for future client confirmation.",
-          "status": "coming_soon"
+          "source": "Mineral pathway",
+          "description": "MXP is not currently introduced on this website. Keep it inactive and do not present it as a confirmed available line.",
+          "status": "inactive"
         }
       ]
     },

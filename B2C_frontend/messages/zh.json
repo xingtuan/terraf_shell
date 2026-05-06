@@ -374,7 +374,7 @@
         {
           "name": "Terrafin",
           "formula": "ƒ(生物质) = XP复合材料",
-          "description": "材料功能。XP Material Family 基于区域废料流开发，OXP 是已确认的牡蛎壳产品线，其他 XP 材料线正等待客户最终确认。"
+          "description": "材料功能。XP 材料家族包含本站当前的牡蛎壳材料线 OXP，以及另一个 Terrafin 家族产品线 CXP；MXP 目前不在本站展示。"
         },
         {
           "name": "Terrafactory",
@@ -447,28 +447,54 @@
       ]
     },
     "materialFamily": {
-      "eyebrow": "XP Material Family",
-      "title": "当前为 OXP，其他 XP 材料线正等待客户确认。",
-      "intro": "OXP 是已确认的牡蛎壳产品线。其他 XP 材料线正等待客户未来确认。",
-      "comingSoonLabel": "待确认",
+      "eyebrow": "Terrafin XP 材料家族",
+      "title": "产品驱动的 Bio-CCUS：碳锁定循环。",
+      "intro": "Terrafin 将 XP 材料家族解释为以产品承载的碳锁定路径。OXP 是本站当前展示的牡蛎壳材料，CXP 是另一个 Terrafin 碳产品线，MXP 目前不在本站作为可用材料线展示。",
+      "diagram": {
+        "title": "Terrafin 碳锁定循环",
+        "alt": "Terrafin 示意图，展示 OXP、CXP、BXP、贝壳、生物质、生物炭与化石燃料之间的碳排放、碳流动与碳锁定路径。",
+        "caption": "红色表示碳排放，绿色表示碳流动，紫色表示以产品承载的碳锁定。"
+      },
+      "legend": [
+        {
+          "label": "碳排放",
+          "description": "红色箭头路径"
+        },
+        {
+          "label": "碳流动",
+          "description": "绿色箭头路径"
+        },
+        {
+          "label": "碳锁定",
+          "description": "紫色产品承载路径"
+        }
+      ],
+      "badges": {
+        "current": "本站当前产品线",
+        "sibling": "Terrafin 家族产品线",
+        "inactive": "暂未在本站展示"
+      },
       "lines": [
         {
           "code": "OXP",
           "name": "Oyster Shell XP",
           "source": "再生牡蛎壳——韩国",
+          "description": "OXP 是本站当前材料线，将回收牡蛎壳通过贝壳碳酸盐路径转化为高端材料产品。",
           "status": "available"
         },
         {
           "code": "CXP",
           "name": "Carbon XP",
-          "source": "其他 XP 材料线正等待客户未来确认。",
-          "status": "coming_soon"
+          "source": "生物质与碳产品路径",
+          "description": "CXP 是 Terrafin 的另一条产品线，关联森林、农田、生物质与生物炭等碳锁定路径。",
+          "status": "sibling"
         },
         {
           "code": "MXP",
           "name": "Mineral XP",
-          "source": "其他 XP 材料线正等待客户未来确认。",
-          "status": "coming_soon"
+          "source": "矿物路径",
+          "description": "MXP 目前不在本站作为可用材料线展示。保持非激活状态，不要把它写成已确认可用产品。",
+          "status": "inactive"
         }
       ]
     },
