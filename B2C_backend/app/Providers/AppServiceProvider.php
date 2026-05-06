@@ -6,6 +6,7 @@ use App\Filesystem\AzureFilesystemAdapter as LaravelAzureFilesystemAdapter;
 use App\Models\B2BLead;
 use App\Models\Comment;
 use App\Models\Inquiry;
+use App\Models\Order;
 use App\Models\PartnershipInquiry;
 use App\Models\Post;
 use App\Models\Report;
@@ -130,6 +131,7 @@ class AppServiceProvider extends ServiceProvider
             'report' => Report::class,
             'inquiry' => Inquiry::class,
             'b2b_lead' => B2BLead::class,
+            'order' => Order::class,
             'partnership_inquiry' => PartnershipInquiry::class,
             'sample_request' => SampleRequest::class,
         ]);

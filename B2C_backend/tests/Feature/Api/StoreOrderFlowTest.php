@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\Address;
 use App\Models\Cart;
+use App\Models\EmailLog;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -99,6 +100,18 @@ class StoreOrderFlowTest extends TestCase
             'quantity' => 2,
             'unit_price_usd' => '48.00',
             'subtotal_usd' => '96.00',
+        ]);
+        $this->assertDatabaseHas('email_logs', [
+            'event_key' => 'order.created',
+            'status' => EmailLog::STATUS_SKIPPED,
+            'skip_reason' => 'global_disabled',
+            'related_type' => 'order',
+        ]);
+        $this->assertDatabaseHas('email_logs', [
+            'event_key' => 'order.admin_new_order',
+            'status' => EmailLog::STATUS_SKIPPED,
+            'skip_reason' => 'global_disabled',
+            'related_type' => 'order',
         ]);
         $this->assertDatabaseCount('cart_items', 0);
     }

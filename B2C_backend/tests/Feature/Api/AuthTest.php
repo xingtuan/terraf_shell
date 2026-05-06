@@ -2,10 +2,13 @@
 
 namespace Tests\Feature\Api;
 
-use App\Support\StorageUrl;
+use App\Models\EmailEvent;
+use App\Models\EmailLog;
+use App\Models\EmailSetting;
+use App\Models\EmailTemplate;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Services\Email\EmailDispatchService;
+use App\Support\StorageUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
@@ -38,7 +41,12 @@ class AuthTest extends TestCase
 
         $user = User::query()->firstOrFail();
 
-        Notification::assertSentTo($user, VerifyEmail::class);
+        Notification::assertNothingSent();
+        $this->assertDatabaseHas('email_logs', [
+            'event_key' => 'auth.email_verification',
+            'status' => EmailLog::STATUS_SKIPPED,
+            'skip_reason' => 'global_disabled',
+        ]);
 
         $token = $response->json('data.token');
 
@@ -60,6 +68,30 @@ class AuthTest extends TestCase
         $this->getJson($verificationUrl)
             ->assertOk()
             ->assertJsonPath('data.email_verified', true);
+    }
+
+    public function test_registration_succeeds_even_when_verification_email_dispatch_fails(): void
+    {
+        $this->mock(EmailDispatchService::class, function ($mock): void {
+            $mock->shouldReceive('sendEventSafely')
+                ->once()
+                ->andReturnNull();
+        });
+
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'Taylor Example',
+            'email' => 'taylor@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $response
+            ->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.user.email', 'taylor@example.com');
+
+        $this->assertNotEmpty($response->json('data.token'));
+        $this->assertDatabaseHas('users', ['email' => 'taylor@example.com']);
     }
 
     public function test_authenticated_user_can_update_expanded_profile_and_email_change_requires_reverification(): void
@@ -89,7 +121,12 @@ class AuthTest extends TestCase
             ->assertJsonPath('data.email', 'new-john@example.com')
             ->assertJsonPath('data.email_verified', false);
 
-        Notification::assertSentTo($user->fresh(), VerifyEmail::class);
+        Notification::assertNothingSent();
+        $this->assertDatabaseHas('email_logs', [
+            'event_key' => 'auth.email_verification',
+            'status' => EmailLog::STATUS_SKIPPED,
+            'skip_reason' => 'global_disabled',
+        ]);
     }
 
     public function test_authenticated_user_can_update_profile_with_preuploaded_avatar_path(): void
@@ -210,7 +247,7 @@ class AuthTest extends TestCase
 
     public function test_user_can_request_password_reset_and_log_in_with_new_password(): void
     {
-        Notification::fake();
+        $this->enableEmailCenter(['auth.password_reset']);
 
         $user = User::factory()->create([
             'email' => 'reset-me@example.com',
@@ -220,17 +257,12 @@ class AuthTest extends TestCase
             'email' => $user->email,
         ])->assertOk();
 
-        $token = null;
-
-        Notification::assertSentTo(
-            $user,
-            ResetPassword::class,
-            function (ResetPassword $notification) use (&$token): bool {
-                $token = $notification->token;
-
-                return true;
-            }
-        );
+        $resetUrl = EmailLog::query()
+            ->where('event_key', 'auth.password_reset')
+            ->firstOrFail()
+            ->payload['reset_url'];
+        parse_str((string) parse_url($resetUrl, PHP_URL_QUERY), $query);
+        $token = (string) ($query['token'] ?? '');
 
         $this->postJson('/api/auth/reset-password', [
             'email' => $user->email,
@@ -243,5 +275,43 @@ class AuthTest extends TestCase
             'email' => $user->email,
             'password' => 'newpassword123',
         ])->assertOk();
+    }
+
+    /**
+     * @param  array<int, string>  $events
+     */
+    private function enableEmailCenter(array $events): void
+    {
+        EmailSetting::query()->create([
+            'is_enabled' => true,
+            'mailer' => 'array',
+            'from_address' => 'hello@example.com',
+            'from_name' => 'OXP',
+            'admin_recipients' => [['email' => 'ops@example.com', 'name' => 'Ops']],
+            'use_queue' => false,
+        ]);
+
+        foreach ($events as $eventKey) {
+            EmailEvent::query()->create([
+                'key' => $eventKey,
+                'category' => 'Auth',
+                'name' => $eventKey,
+                'is_enabled' => true,
+                'recipient_type' => 'user',
+                'template_key' => $eventKey,
+                'use_queue' => false,
+            ]);
+
+            EmailTemplate::query()->create([
+                'key' => $eventKey,
+                'locale' => 'en',
+                'name' => "{$eventKey} en",
+                'subject' => 'Subject {{ user.name }}',
+                'html_body' => '<p><a href="{{ reset_url }}">Reset</a></p>',
+                'text_body' => 'Reset {{ reset_url }}',
+                'available_variables' => ['user.name', 'user.email', 'reset_url'],
+                'is_active' => true,
+            ]);
+        }
     }
 }

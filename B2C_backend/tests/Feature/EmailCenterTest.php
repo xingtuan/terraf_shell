@@ -52,6 +52,14 @@ class EmailCenterTest extends TestCase
         $this->assertSame('********', $settings->fresh()->maskedApiKey());
     }
 
+    public function test_runtime_email_delivery_is_disabled_until_admin_enables_it(): void
+    {
+        $settings = app(MailSettingsService::class)->getRuntimeSettings();
+
+        $this->assertFalse($settings['is_enabled']);
+        $this->assertSame('config', $settings['source']);
+    }
+
     public function test_only_admin_can_access_email_center(): void
     {
         $admin = User::factory()->admin()->create();
@@ -110,6 +118,26 @@ class EmailCenterTest extends TestCase
         ]);
 
         $this->assertSame('en', $log->fresh()->locale);
+    }
+
+    public function test_array_mailer_sends_to_named_user_recipient(): void
+    {
+        $this->enableEmailCenter(['auth.email_verification']);
+
+        $user = User::factory()->create([
+            'name' => 'Named Recipient',
+            'email' => 'named@example.com',
+        ]);
+
+        $log = app(EmailDispatchService::class)->sendEvent('auth.email_verification', [
+            'user' => $user,
+            'verification_url' => 'https://example.com/verify',
+        ], [
+            'sync' => true,
+        ]);
+
+        $this->assertSame(EmailLog::STATUS_SENT, $log->fresh()->status);
+        $this->assertNull($log->fresh()->error_message);
     }
 
     public function test_template_renderer_replaces_variables_and_does_not_execute_code(): void
@@ -191,8 +219,14 @@ class EmailCenterTest extends TestCase
             'shipping_country' => 'NZ',
         ])->assertCreated();
 
-        $this->assertDatabaseHas('email_logs', ['event_key' => 'order.created']);
-        $this->assertDatabaseHas('email_logs', ['event_key' => 'order.admin_new_order']);
+        $this->assertDatabaseHas('email_logs', [
+            'event_key' => 'order.created',
+            'related_type' => 'order',
+        ]);
+        $this->assertDatabaseHas('email_logs', [
+            'event_key' => 'order.admin_new_order',
+            'related_type' => 'order',
+        ]);
     }
 
     public function test_inquiry_submission_dispatches_user_and_admin_emails(): void

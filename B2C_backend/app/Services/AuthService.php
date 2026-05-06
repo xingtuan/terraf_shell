@@ -103,16 +103,12 @@ class AuthService
         $user = User::query()->where('email', $data['email'])->first();
 
         if (! $user instanceof User) {
-            Password::sendResetLink([
-                'email' => $data['email'],
-            ]);
-
             return;
         }
 
         $token = Password::broker()->createToken($user);
         $resetUrl = $this->passwordResetUrl($user, $token);
-        $log = $this->emailDispatchService->sendEvent(
+        $log = $this->emailDispatchService->sendEventSafely(
             'auth.password_reset',
             $this->emailPayloadFactory->forUser($user, [
                 'reset_url' => $resetUrl,
@@ -124,12 +120,8 @@ class AuthService
             ],
         );
 
-        if ($log?->status === 'skipped') {
+        if (! $log || in_array($log->status, ['skipped', 'failed'], true)) {
             Password::broker()->deleteToken($user);
-
-            Password::sendResetLink([
-                'email' => $data['email'],
-            ]);
         }
     }
 
@@ -147,7 +139,7 @@ class AuthService
 
                 event(new PasswordReset($user));
 
-                $this->emailDispatchService->sendEvent(
+                $this->emailDispatchService->sendEventSafely(
                     'auth.password_reset_success',
                     $this->emailPayloadFactory->forUser($user),
                     [
@@ -189,7 +181,7 @@ class AuthService
         }
 
         if ($wasUnverified) {
-            $this->emailDispatchService->sendEvent(
+            $this->emailDispatchService->sendEventSafely(
                 'auth.welcome',
                 $this->emailPayloadFactory->forUser($user),
                 ['related' => $user],
@@ -210,7 +202,7 @@ class AuthService
             ]
         );
 
-        $log = $this->emailDispatchService->sendEvent(
+        $this->emailDispatchService->sendEventSafely(
             $eventKey,
             $this->emailPayloadFactory->forUser($user, [
                 'verification_url' => $verificationUrl,
@@ -220,10 +212,6 @@ class AuthService
                 'idempotency_key' => $eventKey.':'.$user->id.':'.$user->email,
             ],
         );
-
-        if ($log?->status === 'skipped') {
-            $user->sendEmailVerificationNotification();
-        }
     }
 
     private function passwordResetUrl(User $user, string $token): string

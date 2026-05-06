@@ -79,7 +79,7 @@ class ProfileService
                 ]
             );
 
-            $log = $this->emailDispatchService->sendEvent(
+            $this->emailDispatchService->sendEventSafely(
                 'auth.email_verification',
                 $this->emailPayloadFactory->forUser($updatedUser, [
                     'verification_url' => $verificationUrl,
@@ -89,10 +89,6 @@ class ProfileService
                     'idempotency_key' => 'auth.email_verification:'.$updatedUser->id.':'.$updatedUser->email,
                 ],
             );
-
-            if ($log?->status === 'skipped') {
-                $updatedUser->sendEmailVerificationNotification();
-            }
         }
 
         return $updatedUser;

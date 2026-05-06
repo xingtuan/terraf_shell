@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -90,7 +91,7 @@ class EmailDispatchService
             'bcc' => $this->normalizeRecipients($options['bcc'] ?? []),
             'subject' => $rendered['subject'],
             'status' => EmailLog::STATUS_QUEUED,
-            'related_type' => $this->relatedModel($options) ? get_class($this->relatedModel($options)) : null,
+            'related_type' => $this->relatedModelType($options),
             'related_id' => $this->relatedModel($options)?->getKey(),
             'user_id' => $this->payloadUser($payload)?->id,
             'payload' => $this->mailSettings->sanitizePayload(array_merge($this->serializePayload($payload), [
@@ -108,9 +109,25 @@ class EmailDispatchService
             return $log->fresh();
         }
 
-        DB::afterCommit(fn () => SendEmailEventJob::dispatch($log->id));
+        $this->queueLog($log);
 
         return $log;
+    }
+
+    public function sendEventSafely(string $eventKey, array $payload, array $options = []): ?EmailLog
+    {
+        try {
+            return $this->sendEvent($eventKey, $payload, $options);
+        } catch (Throwable $throwable) {
+            Log::warning('Email event dispatch failed.', [
+                'event_key' => $eventKey,
+                'related_type' => $this->relatedModel($options) ? get_class($this->relatedModel($options)) : null,
+                'related_id' => $this->relatedModel($options)?->getKey(),
+                'exception' => $throwable,
+            ]);
+
+            return null;
+        }
     }
 
     public function sendLog(EmailLog $log): EmailLog
@@ -219,7 +236,7 @@ class EmailDispatchService
             'subject' => null,
             'status' => EmailLog::STATUS_SKIPPED,
             'skip_reason' => $reason,
-            'related_type' => $this->relatedModel($options) ? get_class($this->relatedModel($options)) : null,
+            'related_type' => $this->relatedModelType($options),
             'related_id' => $this->relatedModel($options)?->getKey(),
             'user_id' => $this->payloadUser($payload)?->id,
             'payload' => $this->mailSettings->sanitizePayload($this->serializePayload($payload)),
@@ -330,7 +347,10 @@ class EmailDispatchService
 
         foreach ($recipients ?? [] as $recipient) {
             if (filled($recipient['name'] ?? null)) {
-                $mailRecipients[$recipient['email']] = $recipient['name'];
+                $mailRecipients[] = [
+                    'email' => $recipient['email'],
+                    'name' => $recipient['name'],
+                ];
             } else {
                 $mailRecipients[] = $recipient['email'];
             }
@@ -412,6 +432,59 @@ class EmailDispatchService
         return ($options['related'] ?? null) instanceof Model ? $options['related'] : null;
     }
 
+    private function relatedModelType(array $options): ?string
+    {
+        $related = $this->relatedModel($options);
+
+        if (! $related instanceof Model) {
+            return null;
+        }
+
+        try {
+            return $related->getMorphClass();
+        } catch (Throwable) {
+            return get_class($related);
+        }
+    }
+
+    private function queueLog(EmailLog $log): void
+    {
+        $dispatch = function () use ($log): void {
+            try {
+                SendEmailEventJob::dispatch($log->id);
+            } catch (Throwable $throwable) {
+                $this->markLogFailed($log, $throwable);
+
+                Log::warning('Email event queue dispatch failed.', [
+                    'email_log_id' => $log->id,
+                    'event_key' => $log->event_key,
+                    'exception' => $throwable,
+                ]);
+            }
+        };
+
+        try {
+            DB::afterCommit($dispatch);
+        } catch (Throwable $throwable) {
+            $this->markLogFailed($log, $throwable);
+
+            Log::warning('Email event after-commit registration failed.', [
+                'email_log_id' => $log->id,
+                'event_key' => $log->event_key,
+                'exception' => $throwable,
+            ]);
+        }
+    }
+
+    private function markLogFailed(EmailLog $log, Throwable $throwable): void
+    {
+        $log->forceFill([
+            'status' => EmailLog::STATUS_FAILED,
+            'failed_at' => now(),
+            'error_message' => Str::limit($throwable->getMessage(), 2000, ''),
+        ])->save();
+    }
+
     private function defaultIdempotencyKey(string $eventKey, array $payload, array $options): ?string
     {
         if (Str::startsWith($eventKey, ['order.', 'auth.'])) {
@@ -419,7 +492,7 @@ class EmailDispatchService
             $user = $this->payloadUser($payload);
 
             return collect([
-                $related?->getMorphClass(),
+                $this->relatedModelType($options),
                 $related?->getKey(),
                 $user?->id,
                 $eventKey,

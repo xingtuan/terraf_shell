@@ -55,7 +55,7 @@ class MailSettingsService
 
         return [
             'source' => 'config',
-            'is_enabled' => true,
+            'is_enabled' => false,
             'mailer' => (string) config('mail.default', 'log'),
             'host' => config('mail.mailers.smtp.host'),
             'port' => config('mail.mailers.smtp.port'),

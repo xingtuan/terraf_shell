@@ -399,7 +399,7 @@ class NotificationService
 
                 if ($sendEmail) {
                     foreach ($users as $recipient) {
-                        $this->emailDispatchService->sendEvent(
+                        $this->emailDispatchService->sendEventSafely(
                             'community.system_announcement',
                             $this->emailPayloadFactory->forUser($recipient, [
                                 'actor' => [
@@ -437,7 +437,7 @@ class NotificationService
 
         $payload['user'] = $recipient;
 
-        $this->emailDispatchService->sendEvent(
+        $this->emailDispatchService->sendEventSafely(
             $eventKey,
             $payload,
             [

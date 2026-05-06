@@ -12,8 +12,10 @@ use App\Services\Email\EmailPayloadFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class B2BLeadService
 {
@@ -137,7 +139,7 @@ class B2BLeadService
 
             DB::afterCommit(function () use ($lead, $changes): void {
                 if (isset($changes['assigned_to']) && $lead->assignee instanceof User) {
-                    $this->emailDispatchService->sendEvent(
+                    $this->emailDispatchService->sendEventSafely(
                         'lead.assigned_admin_notification',
                         $this->emailPayloadFactory->forLead($lead),
                         [
@@ -149,7 +151,7 @@ class B2BLeadService
                 }
 
                 if (isset($changes['status'])) {
-                    $this->emailDispatchService->sendEvent(
+                    $this->emailDispatchService->sendEventSafely(
                         'lead.status_changed_user_update',
                         $this->emailPayloadFactory->forLead($lead),
                         [
@@ -299,12 +301,12 @@ class B2BLeadService
             ? 'inquiry.submitted_admin_notification'
             : 'b2b_lead.submitted_admin_notification';
 
-        $this->emailDispatchService->sendEvent($userEvent, $payload, [
+        $this->emailDispatchService->sendEventSafely($userEvent, $payload, [
             'related' => $lead,
             'idempotency_key' => $userEvent.':'.$lead->id,
         ]);
 
-        $adminLog = $this->emailDispatchService->sendEvent($adminEvent, $payload, [
+        $adminLog = $this->emailDispatchService->sendEventSafely($adminEvent, $payload, [
             'related' => $lead,
             'idempotency_key' => $adminEvent.':'.$lead->id,
         ]);
@@ -338,7 +340,14 @@ class B2BLeadService
             return;
         }
 
-        Mail::to($recipients->all())->send(new B2BLeadSubmittedMail($lead));
+        try {
+            Mail::to($recipients->all())->send(new B2BLeadSubmittedMail($lead));
+        } catch (Throwable $throwable) {
+            Log::warning('Legacy B2B lead admin email failed.', [
+                'lead_id' => $lead->id,
+                'exception' => $throwable,
+            ]);
+        }
     }
 
     private function applyFilters(Builder $query, array $filters): void

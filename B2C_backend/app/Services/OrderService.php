@@ -27,8 +27,7 @@ class OrderService
         string $note = '',
         ?string $guestEmail = null,
         string $shippingMethodCode = 'standard',
-    ): Order
-    {
+    ): Order {
         $cart->loadMissing(['user', 'items.product']);
 
         if ($cart->user_id === null && blank($guestEmail)) {
@@ -151,12 +150,12 @@ class OrderService
         DB::afterCommit(function () use ($order): void {
             $payload = $this->emailPayloadFactory->forOrder($order);
 
-            $this->emailDispatchService->sendEvent('order.created', $payload, [
+            $this->emailDispatchService->sendEventSafely('order.created', $payload, [
                 'related' => $order,
                 'idempotency_key' => 'order.created:'.$order->id,
             ]);
 
-            $this->emailDispatchService->sendEvent('order.admin_new_order', $payload, [
+            $this->emailDispatchService->sendEventSafely('order.admin_new_order', $payload, [
                 'related' => $order,
                 'idempotency_key' => 'order.admin_new_order:'.$order->id,
             ]);
@@ -180,7 +179,7 @@ class OrderService
 
         $order = $order->fresh(['user', 'items.product']);
 
-        DB::afterCommit(fn () => $this->emailDispatchService->sendEvent(
+        DB::afterCommit(fn () => $this->emailDispatchService->sendEventSafely(
             'order.cancelled',
             $this->emailPayloadFactory->forOrder($order),
             [
@@ -198,7 +197,7 @@ class OrderService
         $status = $order->status instanceof OrderStatus ? $order->status->value : (string) $order->status;
         $eventKey = $status === OrderStatus::Shipped->value ? 'order.shipped' : 'order.status_changed';
 
-        DB::afterCommit(fn () => $this->emailDispatchService->sendEvent(
+        DB::afterCommit(fn () => $this->emailDispatchService->sendEventSafely(
             $eventKey,
             $this->emailPayloadFactory->forOrder($order, [
                 'order' => [
