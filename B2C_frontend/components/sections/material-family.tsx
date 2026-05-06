@@ -19,7 +19,7 @@ const legendDotClasses = [
 
 export function MaterialFamilySection({ locale, content }: MaterialFamilySectionProps) {
   const { sectionRef, isVisible } = useSectionInView<HTMLElement>(0.2)
-  const diagramSrc = locale === "ko" ? "/image/terraf_ko.jpg" : "/image/terraf_en.jpg"
+  const diagramSrc = locale === "ko" ? "/images/terraf_ko.jpg" : "/images/terraf_en.jpg"
 
   return (
     <section ref={sectionRef} className="bg-background py-24 lg:py-32">
