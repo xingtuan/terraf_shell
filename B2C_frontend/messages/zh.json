@@ -161,6 +161,7 @@
       "tested": "已测试",
       "in_testing": "测试中",
       "pending": "待确认",
+      "demo": "演示",
       "not_applicable": "不适用"
     }
   },

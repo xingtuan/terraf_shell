@@ -151,7 +151,7 @@
     "title": "Certifications at a glance",
     "description": "A quick view of available tests, pending certifications, and technical evidence behind OXP.",
     "productDescription": "Available product and material evidence for this item.",
-    "verifiedLabel": "Certified",
+    "verifiedLabel": "Verified",
     "emptyMessage": "Certification data is being prepared. Please contact us for the latest material information.",
     "issuerLabel": "Issuer / lab",
     "testedAtLabel": "Test date",
@@ -161,6 +161,7 @@
       "tested": "Tested",
       "in_testing": "In testing",
       "pending": "Pending",
+      "demo": "Demo",
       "not_applicable": "Not applicable"
     }
   },

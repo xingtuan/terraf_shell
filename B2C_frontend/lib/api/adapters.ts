@@ -42,10 +42,26 @@ import type {
   StoreOrder,
   StoreOrderItem,
   UserNotification,
+  LocalizedStringSet,
 } from "@/lib/types"
 
 function isJsonObject(value: unknown): value is JsonObject {
   return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function normalizeLocalizedStringSet(value: unknown): LocalizedStringSet | undefined {
+  if (!isJsonObject(value)) {
+    return undefined
+  }
+
+  const entries = Object.entries(value).filter(
+    (entry): entry is ["en" | "ko" | "zh", string] =>
+      ["en", "ko", "zh"].includes(entry[0]) &&
+      typeof entry[1] === "string" &&
+      entry[1].trim().length > 0,
+  )
+
+  return entries.length ? Object.fromEntries(entries) : undefined
 }
 
 export function normalizeHomeSection(section: HomeSection): HomeSection {
@@ -201,20 +217,29 @@ function normalizeCertificationEntry(
   return {
     key: typeof entry.key === "string" ? entry.key : null,
     name: typeof entry.name === "string" ? entry.name : null,
+    name_translations: normalizeLocalizedStringSet(entry.name_translations),
     label: typeof entry.label === "string" ? entry.label : null,
+    label_translations: normalizeLocalizedStringSet(entry.label_translations),
     result:
       typeof entry.result === "string" || typeof entry.result === "number"
         ? entry.result
         : null,
+    result_translations: normalizeLocalizedStringSet(entry.result_translations),
     value:
       typeof entry.value === "string" || typeof entry.value === "number"
         ? entry.value
         : null,
+    value_translations: normalizeLocalizedStringSet(entry.value_translations),
     unit: typeof entry.unit === "string" ? entry.unit : null,
     status: typeof entry.status === "string" ? entry.status : null,
+    verified: typeof entry.verified === "boolean" ? entry.verified : null,
     description:
       typeof entry.description === "string" ? entry.description : null,
+    description_translations: normalizeLocalizedStringSet(
+      entry.description_translations,
+    ),
     issuer: typeof entry.issuer === "string" ? entry.issuer : null,
+    issuer_translations: normalizeLocalizedStringSet(entry.issuer_translations),
     tested_at: typeof entry.tested_at === "string" ? entry.tested_at : null,
     document_url: resolveApiUrl(
       typeof entry.document_url === "string" ? entry.document_url : null,

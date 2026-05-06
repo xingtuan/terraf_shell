@@ -35,18 +35,26 @@ export type CertificationStatus =
   | "tested"
   | "in_testing"
   | "pending"
+  | "demo"
   | "not_applicable"
 
 export interface CertificationRecord {
   key?: string | null
   name?: string | null
+  name_translations?: LocalizedStringSet
   label?: string | null
+  label_translations?: LocalizedStringSet
   result?: string | number | null
+  result_translations?: LocalizedStringSet
   value?: string | number | null
+  value_translations?: LocalizedStringSet
   unit?: string | null
   status?: CertificationStatus | string | null
+  verified?: boolean | null
   description?: string | null
+  description_translations?: LocalizedStringSet
   issuer?: string | null
+  issuer_translations?: LocalizedStringSet
   tested_at?: string | null
   document_url?: string | null
 }
@@ -413,10 +421,21 @@ export interface MaterialCertification {
   result?: string
   unit?: string | null
   status?: CertificationStatus | string | null
+  verified?: boolean | null
   description?: string | null
   issuer?: string | null
   tested_at?: string | null
   document_url?: string | null
+}
+
+export interface MaterialApplicationInfo {
+  id: EntityId
+  title: string
+  subtitle?: string | null
+  description: string
+  audience?: string | null
+  cta_label?: string | null
+  cta_url?: string | null
 }
 
 export interface MaterialModelInfo {
@@ -442,6 +461,7 @@ export interface MaterialInfo {
   properties: MaterialProperty[]
   certifications: MaterialCertification[]
   technical_downloads?: TechnicalDownload[]
+  applications?: MaterialApplicationInfo[]
   models: MaterialModelInfo[]
   colors: MaterialColorInfo[]
 }

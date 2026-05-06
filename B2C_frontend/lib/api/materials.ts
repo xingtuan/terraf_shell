@@ -41,6 +41,33 @@ export function materialInfoToSpecs(material: MaterialInfo): MaterialSpec[] {
 
 export function materialInfoToDetail(material: MaterialInfo): MaterialDetail {
   const specs = materialInfoToSpecs(material)
+  const cmsApplications =
+    material.applications?.map((application, index) => ({
+      id: application.id,
+      title: application.title,
+      subtitle: application.subtitle,
+      description: application.description,
+      audience: application.audience,
+      cta_label: application.cta_label,
+      cta_url: application.cta_url,
+      sort_order: index,
+    })) ?? []
+  const fallbackApplications = [
+    ...material.models.map((model, index) => ({
+      id: `model-${model.id}`,
+      title: model.name,
+      subtitle: model.finish,
+      description: model.description,
+      sort_order: index,
+    })),
+    ...material.colors.map((color, index) => ({
+      id: `color-${color.id}`,
+      title: color.name,
+      subtitle: color.temp,
+      description: color.description,
+      sort_order: material.models.length + index,
+    })),
+  ]
 
   return {
     id: 1,
@@ -62,22 +89,10 @@ export function materialInfoToDetail(material: MaterialInfo): MaterialDetail {
       content: step.body,
       sort_order: index,
     })),
-    applications: [
-      ...material.models.map((model, index) => ({
-        id: `model-${model.id}`,
-        title: model.name,
-        subtitle: model.finish,
-        description: model.description,
-        sort_order: index,
-      })),
-      ...material.colors.map((color, index) => ({
-        id: `color-${color.id}`,
-        title: color.name,
-        subtitle: color.temp,
-        description: color.description,
-        sort_order: material.models.length + index,
-      })),
-    ].slice(0, 4),
+    applications: (cmsApplications.length ? cmsApplications : fallbackApplications).slice(
+      0,
+      4,
+    ),
   }
 }
 

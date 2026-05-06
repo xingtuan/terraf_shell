@@ -8,6 +8,34 @@ function nonEmptyString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null
 }
 
+export function isLikelyEnglishOnly(value: unknown): boolean {
+  const text = nonEmptyString(value)
+
+  if (!text) {
+    return false
+  }
+
+  const containsLocalizedScript = /[\u3400-\u9fff\uac00-\ud7af]/u.test(text)
+  const containsEnglishWord = /[A-Za-z]{3,}/.test(text)
+
+  return containsEnglishWord && !containsLocalizedScript
+}
+
+export function resolveLocalizedApiValue(
+  value: unknown,
+  fallback: string | null | undefined,
+  locale: Locale,
+): string {
+  const cleanedValue = nonEmptyString(value)
+  const cleanedFallback = nonEmptyString(fallback)
+
+  if (cleanedValue && (locale === "en" || !isLikelyEnglishOnly(cleanedValue))) {
+    return cleanedValue
+  }
+
+  return cleanedFallback ?? ""
+}
+
 function recordValue(
   source: LocalizedRecord | null | undefined,
   key: string,
@@ -188,12 +216,19 @@ export function resolveCmsHref(
   )
 }
 
-function buildSpecIndicator(spec: MaterialSpec) {
-  if (spec.value && spec.label) {
-    return `${spec.label}: ${spec.value}`
+function buildSpecIndicator(spec: MaterialSpec, locale?: Locale) {
+  const label = locale
+    ? resolveLocalizedApiValue(spec.label, null, locale)
+    : spec.label
+  const value = locale
+    ? resolveLocalizedApiValue(spec.value, null, locale)
+    : spec.value
+
+  if (value && label) {
+    return `${label}: ${value}`
   }
 
-  return spec.label || spec.value
+  return label || value
 }
 
 export function buildHeroContent(
@@ -204,7 +239,7 @@ export function buildHeroContent(
 ): HomeMessages["hero"] {
   const indicators = material?.specs
     .slice(0, 3)
-    .map(buildSpecIndicator)
+    .map((spec) => buildSpecIndicator(spec, locale))
     .filter(Boolean)
 
   return {
@@ -222,6 +257,7 @@ export function buildHeroContent(
 export function buildMaterialStoryContent(
   fallback: HomeMessages["materialStory"],
   material?: MaterialDetail | null,
+  locale?: Locale,
 ): HomeMessages["materialStory"] {
   if (!material?.story_sections.length) {
     return fallback
@@ -229,17 +265,21 @@ export function buildMaterialStoryContent(
 
   return {
     ...fallback,
-    title: material.story_overview || fallback.title,
+    title: locale
+      ? resolveLocalizedApiValue(material.story_overview, fallback.title, locale)
+      : material.story_overview || fallback.title,
     steps: material.story_sections.slice(0, 4).map((section, index) => ({
       number: String(index + 1).padStart(2, "0"),
       title:
-        section.title ||
-        section.subtitle ||
+        (locale
+          ? resolveLocalizedApiValue(section.title, section.subtitle, locale)
+          : section.title || section.subtitle) ||
         fallback.steps[index]?.title ||
         fallback.title,
       description:
-        section.content ||
-        section.highlight ||
+        (locale
+          ? resolveLocalizedApiValue(section.content, section.highlight, locale)
+          : section.content || section.highlight) ||
         fallback.steps[index]?.description ||
         "",
     })),
@@ -249,6 +289,7 @@ export function buildMaterialStoryContent(
 export function buildApplicationsContent(
   fallback: HomeMessages["applications"],
   material?: MaterialDetail | null,
+  locale?: Locale,
 ): HomeMessages["applications"] {
   if (!material?.applications.length) {
     return fallback
@@ -256,11 +297,27 @@ export function buildApplicationsContent(
 
   return {
     ...fallback,
-    title: material.summary || fallback.title,
-    items: material.applications.slice(0, 4).map((application) => ({
-      title: application.title,
+    title: locale
+      ? resolveLocalizedApiValue(material.summary, fallback.title, locale)
+      : material.summary || fallback.title,
+    items: material.applications.slice(0, 4).map((application, index) => ({
+      title: locale
+        ? resolveLocalizedApiValue(
+            application.title,
+            fallback.items[index]?.title,
+            locale,
+          )
+        : application.title,
       description:
-        application.description || application.audience || fallback.items[0]?.description || "",
+        (locale
+          ? resolveLocalizedApiValue(
+              application.description,
+              application.audience || fallback.items[index]?.description,
+              locale,
+            )
+          : application.description || application.audience) ||
+        fallback.items[index]?.description ||
+        "",
     })),
   }
 }
@@ -329,26 +386,52 @@ export function buildMaterialFactsContent(
 export function buildCredibilityContent(
   fallback: HomeMessages["credibility"],
   material?: MaterialDetail | null,
+  locale?: Locale,
 ): HomeMessages["credibility"] {
   if (!material) {
     return fallback
   }
 
   const benefits = [
-    material.summary,
-    material.story_overview,
-    material.science_overview,
-    ...material.specs.slice(0, 2).map((spec) => spec.detail || buildSpecIndicator(spec)),
+    locale
+      ? resolveLocalizedApiValue(material.summary, null, locale)
+      : material.summary,
+    locale
+      ? resolveLocalizedApiValue(material.story_overview, null, locale)
+      : material.story_overview,
+    locale
+      ? resolveLocalizedApiValue(material.science_overview, null, locale)
+      : material.science_overview,
+    ...material.specs
+      .slice(0, 2)
+      .map((spec) =>
+        locale
+          ? resolveLocalizedApiValue(
+              spec.detail,
+              buildSpecIndicator(spec, locale),
+              locale,
+            )
+          : spec.detail || buildSpecIndicator(spec),
+      ),
   ].filter((value): value is string => Boolean(value && value.trim()))
 
   const features = material.specs.slice(0, 4).map((spec) => ({
-    title: spec.label,
-    description: [spec.value, spec.detail].filter(Boolean).join(". "),
+    title: locale
+      ? resolveLocalizedApiValue(spec.label, fallback.features[0]?.title, locale)
+      : spec.label,
+    description: [
+      locale ? resolveLocalizedApiValue(spec.value, null, locale) : spec.value,
+      locale ? resolveLocalizedApiValue(spec.detail, null, locale) : spec.detail,
+    ]
+      .filter(Boolean)
+      .join(". "),
   }))
 
   return {
     ...fallback,
-    title: material.headline || fallback.title,
+    title: locale
+      ? resolveLocalizedApiValue(material.headline, fallback.title, locale)
+      : material.headline || fallback.title,
     benefits: benefits.length ? benefits.slice(0, 4) : fallback.benefits,
     features: features.length ? features : fallback.features,
   }

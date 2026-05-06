@@ -121,8 +121,8 @@ class MaterialCmsTest extends TestCase
             ->assertJsonPath('data.certifications.0.name', 'Water Absorption Test')
             ->assertJsonPath('data.certifications.0.status', 'pending')
             ->assertJsonCount(0, 'data.technical_downloads')
-            ->assertJsonPath('data.models.0.id', 'lite_15')
-            ->assertJsonPath('data.colors.1.id', 'forged_ash');
+            ->assertJsonPath('data.models.0.id', 'demo_pellet')
+            ->assertJsonPath('data.colors.1.id', 'thermal_ash');
 
         $this->getJson('/api/materials/oyster-shell-material')
             ->assertOk()
@@ -135,8 +135,8 @@ class MaterialCmsTest extends TestCase
             ->assertJsonPath('data.origin', '从沿海废弃物流中回收的牡蛎壳')
             ->assertJsonPath('data.process_steps.0.title', '收集')
             ->assertJsonPath('data.properties.0.label', '轻量化')
-            ->assertJsonPath('data.models.0.name', '1.5 轻盈版')
-            ->assertJsonPath('data.colors.0.name', '海骨白');
+            ->assertJsonPath('data.models.0.name', '演示颗粒原料')
+            ->assertJsonPath('data.colors.0.name', '牡蛎矿物白');
 
         $this->getJson('/api/materials?locale=ko')
             ->assertOk()
@@ -144,8 +144,8 @@ class MaterialCmsTest extends TestCase
             ->assertJsonPath('data.origin', '해안 폐기물 흐름에서 회수한 굴 껍데기')
             ->assertJsonPath('data.process_steps.0.title', '열 정화')
             ->assertJsonPath('data.properties.0.label', '충격 저항성')
-            ->assertJsonPath('data.models.0.name', '1.5 라이트')
-            ->assertJsonPath('data.colors.1.name', '포지드 애시');
+            ->assertJsonPath('data.models.0.name', '데모 펠릿 원료')
+            ->assertJsonPath('data.colors.1.name', '써멀 애시');
 
         $this->getJson('/api/home-sections')
             ->assertOk()
@@ -169,8 +169,8 @@ class MaterialCmsTest extends TestCase
     {
         $response = $this->getJson('/api/materials?locale=zh')
             ->assertOk()
-            ->assertJsonPath('data.tagline', '海洋遗产，以匠人工艺重塑。')
-            ->assertJsonPath('data.origin', '从沿海废弃物流中回收的牡蛎壳')
+            ->assertJsonPath('data.tagline', '一种基于回收牡蛎壳、具备科学验证方向的高端材料平台。')
+            ->assertJsonPath('data.origin', '面向高端室内物件、酒店餐饮项目、餐具概念以及未来联合产品开发。')
             ->assertJsonCount(0, 'data.certifications')
             ->assertJsonCount(0, 'data.technical_downloads');
 

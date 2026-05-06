@@ -35,6 +35,7 @@ type NormalizedCertificationCard = {
   result?: string
   unit?: string
   status: string
+  verified?: boolean | null
   description?: string
   issuer?: string
   testedAt?: string
@@ -43,10 +44,16 @@ type NormalizedCertificationCard = {
 
 const certificationIcons: Record<string, LucideIcon> = {
   absorption: Droplets,
+  water_absorption: Droplets,
   toxicity: ShieldCheck,
   acid: FlaskConical,
   fire: Flame,
+  thermal_process: Flame,
   otr: Wind,
+  compressive_stability: ShieldCheck,
+  surface_safety: FlaskConical,
+  material_origin: BadgeCheck,
+  demo_disclaimer: BadgeCheck,
 }
 
 function cleanText(value: unknown): string | undefined {
@@ -90,6 +97,8 @@ function normalizeCertification(
   const result = cleanText(certification.result)
   const unit = cleanText(certification.unit)
   const status = cleanText(certification.status)?.toLowerCase() ?? "pending"
+  const verified =
+    typeof certification.verified === "boolean" ? certification.verified : null
   const description = cleanText(certification.description)
   const issuer = cleanText(certification.issuer)
   const testedAt = cleanText(certification.tested_at)
@@ -104,6 +113,7 @@ function normalizeCertification(
         result: result ?? (value && value !== title ? value : undefined),
         unit,
         status,
+        verified,
         description,
         issuer,
         testedAt,
@@ -186,10 +196,16 @@ export function CertificationsAtAGlance({
           >
             {cards.map((card) => {
               const Icon = getCertificationIcon(card.key)
+              const statusKey =
+                card.status === "demo" || card.verified === false
+                  ? "demo"
+                  : card.status
               const statusLabel =
-                statusLabels[card.status] ??
-                statusLabels[card.status.replace(/-/g, "_")] ??
-                (card.status === "certified" ? verifiedLabel : card.status)
+                card.verified === true
+                  ? verifiedLabel
+                  : statusLabels[statusKey] ??
+                    statusLabels[statusKey.replace(/-/g, "_")] ??
+                    statusKey
               const result = [card.result, card.unit].filter(Boolean).join(" ")
 
               return (

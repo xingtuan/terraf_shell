@@ -120,10 +120,12 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
   const storyContent = buildMaterialStoryContent(
     messages.home.materialStory,
     primaryMaterial,
+    locale,
   )
   const applicationsContent = buildApplicationsContent(
     messages.home.applications,
     primaryMaterial,
+    locale,
   )
   const materialFactsContent = buildMaterialFactsContent(
     messages.home.materialFacts,
@@ -134,6 +136,7 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
   const credibilityContent = buildCredibilityContent(
     messages.home.credibility,
     primaryMaterial,
+    locale,
   )
 
   return (

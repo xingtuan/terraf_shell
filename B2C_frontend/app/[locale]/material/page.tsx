@@ -21,10 +21,15 @@ import { PageIntro } from "@/components/page-intro"
 import {
   getMaterialInfo,
   getMaterialSpecs,
+  materialInfoToDetail,
   materialInfoToSpecs,
 } from "@/lib/api/materials"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
+import {
+  buildApplicationsContent,
+  resolveLocalizedApiValue,
+} from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
 import type { MaterialInfo } from "@/lib/types"
 
@@ -58,22 +63,31 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   }
 
   const intro = messages.materialPage.intro
+  const materialDetail = materialInfo ? materialInfoToDetail(materialInfo) : null
   const specs = materialInfo
     ? materialInfoToSpecs(materialInfo)
     : await getMaterialSpecs(locale, materialRequestOptions)
   const certificationSummaries = (materialInfo?.certifications ?? [])
     .map((certification) => {
       const title = cleanCertificationText(
-        certification.label ?? certification.name ?? certification.key,
+        resolveLocalizedApiValue(
+          certification.label ?? certification.name ?? certification.key,
+          null,
+          locale,
+        ),
       )
       const measuredResult = [certification.result, certification.unit]
         .filter(Boolean)
         .join(" ")
       const result = cleanCertificationText(
-        certification.value ||
-          measuredResult ||
-          certification.description ||
-          certification.status,
+        resolveLocalizedApiValue(
+          certification.value ||
+            measuredResult ||
+            certification.description ||
+            certification.status,
+          null,
+          locale,
+        ),
       )
 
       return title && result
@@ -89,13 +103,30 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   const whyItMattersContent = materialInfo
     ? {
         ...messages.home.whyItMatters,
-        title: materialInfo.tagline,
-        cards: materialInfo.properties.slice(0, 3).map((property) => ({
-          title: property.label,
-          description: `${property.value}. ${property.vs}`,
+        title: resolveLocalizedApiValue(
+          materialInfo.tagline,
+          messages.home.whyItMatters.title,
+          locale,
+        ),
+        cards: materialInfo.properties.slice(0, 3).map((property, index) => ({
+          title: resolveLocalizedApiValue(
+            property.label,
+            messages.home.whyItMatters.cards[index]?.title,
+            locale,
+          ),
+          description: [
+            resolveLocalizedApiValue(property.value, null, locale),
+            resolveLocalizedApiValue(property.vs, null, locale),
+          ]
+            .filter(Boolean)
+            .join(". "),
         })),
         stats: [
-          materialInfo.origin,
+          resolveLocalizedApiValue(
+            materialInfo.origin,
+            messages.home.whyItMatters.stats[0],
+            locale,
+          ),
           materialInfo.models
             .map((model) => `${model.name} (${model.finish}): ${model.description}`)
             .join(" "),
@@ -108,19 +139,44 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   const storyContent = materialInfo
     ? {
         ...messages.home.materialStory,
-        title: materialInfo.tagline,
+        title: resolveLocalizedApiValue(
+          materialInfo.process_steps.map((step) => step.title).join(" -> "),
+          messages.home.materialStory.title,
+          locale,
+        ),
         steps: materialInfo.process_steps.map((step) => ({
           number: String(step.step).padStart(2, "0"),
-          title: step.title,
-          description: step.body,
+          title: resolveLocalizedApiValue(
+            step.title,
+            messages.home.materialStory.steps[step.step - 1]?.title,
+            locale,
+          ),
+          description: resolveLocalizedApiValue(
+            step.body,
+            messages.home.materialStory.steps[step.step - 1]?.description,
+            locale,
+          ),
         })),
       }
     : messages.home.materialStory
+  const applicationsContent = buildApplicationsContent(
+    messages.home.applications,
+    materialDetail,
+    locale,
+  )
   const materialFactsContent = materialInfo
     ? {
         ...messages.home.materialFacts,
-        title: materialInfo.tagline,
-        sheetTitle: `${materialInfo.name} ${messages.materialPage.sheetTitleSuffix}`,
+        title: resolveLocalizedApiValue(
+          materialInfo.tagline,
+          messages.home.materialFacts.title,
+          locale,
+        ),
+        sheetTitle: `${resolveLocalizedApiValue(
+          materialInfo.name,
+          messages.home.materialFacts.sheetTitle,
+          locale,
+        )} ${messages.materialPage.sheetTitleSuffix}`,
         sheetDescription: certificationSummaries
           .map((certification) => `${certification.title}: ${certification.result}`)
           .join(" / "),
@@ -134,13 +190,21 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
             value: materialInfo.colors.map((color) => color.name).join(", "),
           },
         ],
-        note: materialInfo.origin,
+        note: resolveLocalizedApiValue(
+          materialInfo.origin,
+          messages.home.materialFacts.note,
+          locale,
+        ),
       }
     : messages.home.materialFacts
   const credibilityContent = materialInfo
     ? {
         ...messages.home.credibility,
-        title: materialInfo.tagline,
+        title: resolveLocalizedApiValue(
+          materialInfo.tagline,
+          messages.home.credibility.title,
+          locale,
+        ),
         benefits: certificationSummaries.map(
           (certification) => certification.result,
         ),
@@ -155,8 +219,12 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
     <>
       <PageIntro
         eyebrow={intro.eyebrow}
-        title={materialInfo?.tagline || intro.title}
-        description={materialInfo?.origin || intro.description}
+        title={resolveLocalizedApiValue(materialInfo?.tagline, intro.title, locale)}
+        description={resolveLocalizedApiValue(
+          materialInfo?.origin,
+          intro.description,
+          locale,
+        )}
         primaryAction={{
           label: intro.primaryCta,
           href: `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
@@ -170,7 +238,7 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
       <WhyItMattersSection content={whyItMattersContent} />
       <MaterialStorySection content={storyContent} />
       <OpenSourceLegacySection content={messages.home.openSourceLegacy} />
-      <ApplicationsSection content={messages.home.applications} />
+      <ApplicationsSection content={applicationsContent} />
       <MaterialFactsSection
         locale={locale}
         content={materialFactsContent}

@@ -112,9 +112,15 @@ class MaterialForm
                             ->reorderableWithButtons()
                             ->defaultItems(0)
                             ->schema([
+                                TextInput::make('key')
+                                    ->label('Internal key')
+                                    ->maxLength(120),
                                 TextInput::make('name')
                                     ->label('Certification / test name')
                                     ->required()
+                                    ->maxLength(180),
+                                TextInput::make('label')
+                                    ->label('Display label')
                                     ->maxLength(180),
                                 Select::make('status')
                                     ->options([
@@ -122,10 +128,17 @@ class MaterialForm
                                         'tested' => 'Tested',
                                         'in_testing' => 'In testing',
                                         'pending' => 'Pending',
+                                        'demo' => 'Demo / provisional',
                                         'not_applicable' => 'Not applicable',
                                     ])
                                     ->required()
                                     ->default('pending'),
+                                Toggle::make('verified')
+                                    ->label('Verified')
+                                    ->helperText('Only enable when a final approved evidence record exists.'),
+                                TextInput::make('value')
+                                    ->label('Display value')
+                                    ->maxLength(120),
                                 TextInput::make('result')
                                     ->label('Value / result')
                                     ->maxLength(120),
@@ -144,6 +157,18 @@ class MaterialForm
                                 Textarea::make('description')
                                     ->rows(3)
                                     ->columnSpanFull(),
+                                TextInput::make('label_translations.en')
+                                    ->label('Label (EN)'),
+                                TextInput::make('value_translations.en')
+                                    ->label('Value (EN)'),
+                                TextInput::make('label_translations.ko')
+                                    ->label('Label (KO)'),
+                                TextInput::make('value_translations.ko')
+                                    ->label('Value (KO)'),
+                                TextInput::make('label_translations.zh')
+                                    ->label('Label (ZH)'),
+                                TextInput::make('value_translations.zh')
+                                    ->label('Value (ZH)'),
                             ])
                             ->columns(2)
                             ->columnSpanFull(),

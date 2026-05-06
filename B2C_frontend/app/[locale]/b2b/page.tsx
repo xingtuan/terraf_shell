@@ -35,7 +35,7 @@ export default async function B2BPage({ params }: B2BPageProps) {
   let material = null
 
   try {
-    material = await getFeaturedMaterial({ baseUrl: apiBaseUrl })
+    material = await getFeaturedMaterial({ baseUrl: apiBaseUrl, locale })
   } catch {
     material = null
   }
@@ -43,17 +43,19 @@ export default async function B2BPage({ params }: B2BPageProps) {
   const fallbackSpecs =
     material?.specs.length
       ? material.specs
-      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl })
+      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
 
   const intro = messages.b2bPage.intro
   const materialFactsContent = buildMaterialFactsContent(
     messages.home.materialFacts,
     material,
     null,
+    locale,
   )
   const credibilityContent = buildCredibilityContent(
     messages.home.credibility,
     material,
+    locale,
   )
 
   return (

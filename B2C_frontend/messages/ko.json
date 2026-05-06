@@ -161,6 +161,7 @@
       "tested": "시험 완료",
       "in_testing": "시험 중",
       "pending": "대기 중",
+      "demo": "데모",
       "not_applicable": "해당 없음"
     }
   },
