@@ -24,17 +24,28 @@ class EmailPayloadFactory
         $status = $order->status instanceof \BackedEnum
             ? $order->status->value
             : (string) $order->status;
+        $customer = $order->user ?: [
+            'name' => $order->shipping_name,
+            'email' => $order->guest_email,
+        ];
+        $frontendUrl = rtrim((string) (config('services.frontend.url') ?: config('app.url')), '/');
+        $orderUrl = $order->guest_order_token
+            ? $frontendUrl.'/en/store/order-submitted/'.$order->order_number.'?token='.$order->guest_order_token
+            : $frontendUrl.'/en/account/orders/'.$order->order_number;
 
         return array_replace_recursive([
-            'user' => $order->user,
+            'user' => $customer,
             'order' => [
                 'id' => $order->id,
                 'order_number' => $order->order_number,
                 'status' => $status,
+                'customer_type' => $order->user_id === null ? 'Guest checkout' : 'Registered account',
                 'total' => '$'.number_format((float) $order->total_usd, 2),
                 'subtotal' => '$'.number_format((float) $order->subtotal_usd, 2),
                 'shipping' => '$'.number_format((float) $order->shipping_usd, 2),
+                'tax' => '$'.number_format((float) $order->tax_amount, 2),
                 'currency' => $order->currency,
+                'shipping_method' => $order->shipping_method_label,
                 'items' => $order->items->map(fn ($item): array => [
                     'name' => $item->product_name,
                     'sku' => $item->product_sku,
@@ -43,7 +54,7 @@ class EmailPayloadFactory
                     'subtotal' => '$'.number_format((float) $item->subtotal_usd, 2),
                 ])->all(),
             ],
-            'order_url' => rtrim((string) config('app.url'), '/').'/orders/'.$order->order_number,
+            'order_url' => $orderUrl,
             'shipping' => [
                 'address' => collect([
                     $order->shipping_name,

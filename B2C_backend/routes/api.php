@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SampleRequestController;
 use App\Http\Controllers\Api\SearchController;
+use App\Http\Controllers\Api\StoreShippingController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UserController;
@@ -94,6 +95,9 @@ Route::get('/product-categories', [PublicProductCategoryController::class, 'inde
 Route::get('/products', [PublicProductController::class, 'index']);
 Route::get('/products/featured', [PublicProductController::class, 'featured']);
 Route::get('/products/{slug}', [PublicProductController::class, 'show']);
+Route::get('/store/address-search', [StoreShippingController::class, 'addressSearch']);
+Route::get('/store/address-details', [StoreShippingController::class, 'addressDetails']);
+Route::post('/store/shipping-options', [StoreShippingController::class, 'shippingOptions']);
 Route::prefix('cart')->group(function (): void {
     Route::get('/', [CartController::class, 'show']);
     Route::post('/items', [CartController::class, 'addItem']);
@@ -111,6 +115,8 @@ Route::middleware('throttle:leads')->group(function (): void {
     Route::post('/university-collaborations', [PartnershipInquiryController::class, 'storeUniversity']);
     Route::post('/product-development-collaborations', [PartnershipInquiryController::class, 'storeProductDevelopment']);
 });
+Route::post('/orders', [OrderController::class, 'store']);
+Route::get('/orders/guest/{orderNumber}', [OrderController::class, 'showGuest']);
 Route::get('/users/{user}/posts', [UserController::class, 'posts']);
 Route::get('/users/{user}/favorites', [UserController::class, 'favorites']);
 Route::get('/users/{user}/comments', [UserController::class, 'comments']);
@@ -131,7 +137,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->whereNumber('notification');
     Route::apiResource('orders', OrderController::class)
-        ->only(['index', 'show', 'store', 'destroy'])
+        ->only(['index', 'show', 'destroy'])
         ->parameters(['orders' => 'orderNumber']);
     Route::apiResource('addresses', AddressController::class)
         ->only(['index', 'store', 'update', 'destroy']);

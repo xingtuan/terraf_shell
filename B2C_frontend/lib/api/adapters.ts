@@ -398,6 +398,27 @@ export function normalizeProduct(
     material_benefits: ensureArray(product.material_benefits).map((item) =>
       String(item),
     ),
+    selling_points: ensureArray(product.selling_points).map((item) =>
+      String(item),
+    ),
+    shipping_notes: ensureArray(product.shipping_notes).map((item) =>
+      String(item),
+    ),
+    return_notes: ensureArray(product.return_notes).map((item) =>
+      String(item),
+    ),
+    product_faqs: ensureArray(product.product_faqs)
+      .map((faq) =>
+        isJsonObject(faq)
+          ? {
+              question: typeof faq.question === "string" ? faq.question : null,
+              answer: typeof faq.answer === "string" ? faq.answer : null,
+            }
+          : null,
+      )
+      .filter((faq): faq is { question: string | null; answer: string | null } =>
+        Boolean(faq?.question && faq.answer),
+      ),
     seo: normalizeProductSeo(product.seo),
     related_products:
       depth >= 1
@@ -490,6 +511,7 @@ export function normalizeCartSummary(cart: CartSummary): CartSummary {
     ...cart,
     id: Number(cart.id ?? 0),
     item_count: Number(cart.item_count ?? 0),
+    currency: cart.currency ?? "NZD",
     subtotal_usd:
       cart.subtotal_usd === null || cart.subtotal_usd === undefined
         ? "0.00"
@@ -513,6 +535,9 @@ export function normalizeCartSummary(cart: CartSummary): CartSummary {
       cart.free_shipping_threshold_usd === undefined
         ? "200.00"
         : String(cart.free_shipping_threshold_usd),
+    tax_label: cart.tax_label ?? null,
+    prices_include_tax: Boolean(cart.prices_include_tax ?? true),
+    shipping_notice: cart.shipping_notice ?? null,
     items: ensureArray(cart.items).map(normalizeCartSummaryItem),
   }
 }
@@ -561,6 +586,9 @@ export function normalizeStoreOrderItem(item: StoreOrderItem): StoreOrderItem {
 export function normalizeStoreOrder(order: StoreOrder): StoreOrder {
   return {
     ...order,
+    is_guest: Boolean(order.is_guest),
+    guest_email: order.guest_email ?? null,
+    guest_order_token: order.guest_order_token ?? null,
     item_count: Number(order.item_count ?? 0),
     subtotal_usd:
       order.subtotal_usd === null || order.subtotal_usd === undefined
@@ -578,6 +606,37 @@ export function normalizeStoreOrder(order: StoreOrder): StoreOrder {
       order.total_usd === null || order.total_usd === undefined
         ? "0.00"
         : String(order.total_usd),
+    tax: order.tax
+      ? {
+          label: order.tax.label ?? null,
+          rate:
+            order.tax.rate === null || order.tax.rate === undefined
+              ? null
+              : Number(order.tax.rate),
+          amount:
+            order.tax.amount === null || order.tax.amount === undefined
+              ? null
+              : String(order.tax.amount),
+          included: Boolean(order.tax.included ?? true),
+        }
+      : undefined,
+    shipping_method: order.shipping_method
+      ? {
+          code: order.shipping_method.code ?? null,
+          label: order.shipping_method.label ?? null,
+          service_code: order.shipping_method.service_code ?? null,
+          eta_min_days:
+            order.shipping_method.eta_min_days === null ||
+            order.shipping_method.eta_min_days === undefined
+              ? null
+              : Number(order.shipping_method.eta_min_days),
+          eta_max_days:
+            order.shipping_method.eta_max_days === null ||
+            order.shipping_method.eta_max_days === undefined
+              ? null
+              : Number(order.shipping_method.eta_max_days),
+        }
+      : undefined,
     shipping_address: normalizeShippingAddress(order.shipping_address),
     items: ensureArray(order.items).map(normalizeStoreOrderItem),
   }

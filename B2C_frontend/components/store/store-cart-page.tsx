@@ -243,27 +243,28 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t.estimatedShipping}</span>
-                <span className="text-foreground">
-                  {formatCurrencyAmount(cart.estimated_shipping_usd, locale)}
-                </span>
+                <span className="text-muted-foreground">{t.shipping}</span>
+                <span className="text-foreground">{t.shippingCalculatedAtCheckout}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t.estimatedTax}</span>
+                <span className="text-muted-foreground">
+                  {cart.tax_label ?? t.gstIncluded}
+                </span>
                 <span className="text-foreground">
                   {formatCurrencyAmount(cart.estimated_tax_usd, locale)}
                 </span>
               </div>
               <div className="flex items-center justify-between border-t border-border/60 pt-4 text-base font-medium">
-                <span className="text-foreground">{t.estimatedTotal}</span>
+                <span className="text-foreground">{t.subtotal}</span>
                 <span className="text-foreground">
-                  {formatCurrencyAmount(cart.estimated_total_usd, locale)}
+                  {formatCurrencyAmount(cart.subtotal_usd, locale)}
                 </span>
               </div>
             </div>
 
             <div className="mt-6 rounded-3xl bg-background p-5 text-sm leading-relaxed text-muted-foreground">
-              {t.freeShippingNote.replace("{threshold}", formatCurrencyAmount(cart.free_shipping_threshold_usd, locale))}
+              <p>{t.shippingAtCheckoutNote}</p>
+              <p className="mt-2">{t.noAccountRequired}</p>
             </div>
 
             <div className="mt-8 space-y-3">
@@ -271,18 +272,21 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                 type="button"
                 className="w-full"
                 onClick={() => {
-                  const checkoutHref = getLocalizedHref(locale, "store/checkout")
-
-                  if (!session.user) {
-                    setIsAuthOpen(true)
-                    return
-                  }
-
-                  router.push(checkoutHref)
+                  router.push(getLocalizedHref(locale, "store/checkout"))
                 }}
               >
-                {session.user ? t.proceedToCheckout : t.signInToCheckout}
+                {session.user ? t.proceedToCheckout : t.checkoutAsGuest}
               </Button>
+              {!session.user ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setIsAuthOpen(true)}
+                >
+                  {t.signInForSavedAddresses}
+                </Button>
+              ) : null}
               <Button asChild variant="outline" className="w-full">
                 <Link href={getLocalizedHref(locale, "store")}>
                   {t.continueShopping}

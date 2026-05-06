@@ -87,6 +87,74 @@ export function ProductDetailContent({
       ),
     [locale, product, t],
   )
+  const sellingPoints =
+    product.selling_points?.length
+      ? product.selling_points
+      : [
+          t.recoveredShellBadge,
+          t.premiumSurfaceBadge,
+          t.nzDeliveryBadge,
+        ]
+  const useCaseLabels = product.use_case_labels?.length
+    ? product.use_case_labels
+    : [product.category_label || t.defaultUseCase]
+  const atAGlance = [
+    product.dimensions
+      ? { label: t.glanceDimensions, value: product.dimensions }
+      : null,
+    product.weight_grams
+      ? { label: t.glanceWeight, value: `${product.weight_grams} g` }
+      : null,
+    product.finish_label ? { label: t.glanceFinish, value: product.finish_label } : null,
+    product.color_label ? { label: t.glanceColor, value: product.color_label } : null,
+    useCaseLabels.length
+      ? { label: t.glanceUseCase, value: useCaseLabels.join(", ") }
+      : null,
+    product.care_instructions?.[0]
+      ? { label: t.glanceCare, value: product.care_instructions[0] }
+      : null,
+    product.lead_time
+      ? { label: t.glanceLeadTime, value: product.lead_time }
+      : null,
+    product.stock_status_label
+      ? { label: t.glanceStock, value: product.stock_status_label }
+      : null,
+  ].filter((item): item is { label: string; value: string } => Boolean(item))
+  const reassuranceItems = [
+    t.reassuranceNzDelivery,
+    t.reassuranceShippingCalculated,
+    t.reassuranceEmailConfirmation,
+    supportsProjectEnquiry(product) ? t.reassuranceTradeQuote : null,
+  ].filter((item): item is string => Boolean(item))
+  const productFaqs = (product.product_faqs ?? [])
+    .filter((faq) => faq.question && faq.answer)
+    .map((faq) => ({
+      question: faq.question ?? "",
+      answer: faq.answer ?? "",
+    }))
+  const faqs = [
+    ...productFaqs,
+    {
+      question: t.faqOysterShellQuestion,
+      answer: t.faqOysterShellAnswer,
+    },
+    {
+      question: t.faqShippingQuestion,
+      answer: t.faqShippingAnswer,
+    },
+    {
+      question: t.faqSampleQuestion,
+      answer: product.sample_request_enabled
+        ? t.faqSampleAvailableAnswer
+        : t.faqSampleUnavailableAnswer,
+    },
+    {
+      question: t.faqB2bQuestion,
+      answer: supportsProjectEnquiry(product)
+        ? t.faqB2bAvailableAnswer
+        : t.faqB2bUnavailableAnswer,
+    },
+  ]
 
   return (
     <section className="bg-background py-20 lg:py-24">
@@ -138,6 +206,23 @@ export function ProductDetailContent({
                 {product.subtitle}
               </p>
             ) : null}
+
+            <p className="mt-5 text-sm font-medium text-foreground">
+              {t.oxpMaterialLine}
+            </p>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {[t.recoveredShellBadge, t.nzDeliveryBadge, t.hospitalityReadyBadge]
+                .concat(product.sample_request_enabled ? [t.sampleAvailableBadge] : [])
+                .map((badge) => (
+                  <span
+                    key={badge}
+                    className="rounded-full border border-border/70 bg-background px-3 py-1 text-xs uppercase tracking-[0.16em] text-muted-foreground"
+                  >
+                    {badge}
+                  </span>
+                ))}
+            </div>
 
             <div className="mt-8 rounded-[1.75rem] border border-border/60 bg-background p-6">
               <div className="flex flex-wrap items-start justify-between gap-6">
@@ -270,6 +355,89 @@ export function ProductDetailContent({
           </div>
         </div>
 
+        {atAGlance.length > 0 ? (
+          <section className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                  {t.glanceEyebrow}
+                </p>
+                <h2 className="mt-3 font-serif text-3xl text-foreground">
+                  {t.glanceTitle}
+                </h2>
+              </div>
+              <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+                {t.glanceDescription}
+              </p>
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {atAGlance.map((item) => (
+                <article
+                  key={item.label}
+                  className="rounded-3xl border border-border/60 bg-background p-5"
+                >
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    {item.label}
+                  </p>
+                  <p className="mt-3 text-base font-medium text-foreground">
+                    {item.value}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                {t.whyOxpEyebrow}
+              </p>
+              <h2 className="mt-3 font-serif text-3xl text-foreground">
+                {t.whyOxpTitle}
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                {t.whyOxpDescription}
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {sellingPoints.slice(0, 3).map((point) => (
+                <article
+                  key={point}
+                  className="rounded-3xl border border-border/60 bg-background p-5"
+                >
+                  <p className="text-sm leading-relaxed text-foreground">{point}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
+          <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+            <div>
+              <p className="text-sm uppercase tracking-[0.2em] text-primary">
+                {t.bestForEyebrow}
+              </p>
+              <h2 className="mt-3 font-serif text-3xl text-foreground">
+                {t.bestForTitle}
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {useCaseLabels.map((useCase) => (
+                <span
+                  key={useCase}
+                  className="rounded-full border border-border/70 bg-background px-4 py-2 text-sm text-foreground"
+                >
+                  {useCase}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
           {product.specifications?.length ? (
             <section className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
@@ -305,7 +473,7 @@ export function ProductDetailContent({
               description={certificationMessages.productDescription}
               variant="product"
               verifiedLabel={certificationMessages.verifiedLabel}
-              emptyMessage={certificationMessages.emptyMessage}
+              emptyMessage={t.certificationsOnRequest}
               statusLabels={certificationMessages.statusLabels}
               issuerLabel={certificationMessages.issuerLabel}
               testedAtLabel={certificationMessages.testedAtLabel}
@@ -389,6 +557,48 @@ export function ProductDetailContent({
             </div>
           </section>
         ) : null}
+
+        <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <article className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
+            <p className="text-sm uppercase tracking-[0.2em] text-primary">
+              {t.reassuranceEyebrow}
+            </p>
+            <h2 className="mt-3 font-serif text-3xl text-foreground">
+              {t.reassuranceTitle}
+            </h2>
+            <div className="mt-6 space-y-4">
+              {reassuranceItems.map((item) => (
+                <div key={item} className="flex gap-3">
+                  <span className="mt-1 size-2 shrink-0 rounded-full bg-primary" />
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {item}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
+            <p className="text-sm uppercase tracking-[0.2em] text-primary">
+              {t.faqEyebrow}
+            </p>
+            <h2 className="mt-3 font-serif text-3xl text-foreground">
+              {t.faqTitle}
+            </h2>
+            <div className="mt-6 divide-y divide-border/60">
+              {faqs.map((faq) => (
+                <details key={faq.question} className="group py-4 first:pt-0 last:pb-0">
+                  <summary className="cursor-pointer list-none text-sm font-medium text-foreground">
+                    {faq.question}
+                  </summary>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </article>
+        </section>
 
         {relatedProducts.length > 0 ? (
           <section>

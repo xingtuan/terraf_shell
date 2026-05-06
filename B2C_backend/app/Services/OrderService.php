@@ -7,9 +7,10 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Services\Email\EmailDispatchService;
 use App\Services\Email\EmailPayloadFactory;
-use App\Support\StorePricing;
+use App\Services\Shipping\ShippingQuoteService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class OrderService
@@ -17,15 +18,22 @@ class OrderService
     public function __construct(
         private readonly EmailDispatchService $emailDispatchService,
         private readonly EmailPayloadFactory $emailPayloadFactory,
+        private readonly ShippingQuoteService $shippingQuoteService,
     ) {}
 
-    public function createFromCart(Cart $cart, array $shippingData, string $note = ''): Order
+    public function createFromCart(
+        Cart $cart,
+        array $shippingData,
+        string $note = '',
+        ?string $guestEmail = null,
+        string $shippingMethodCode = 'standard',
+    ): Order
     {
         $cart->loadMissing(['user', 'items.product']);
 
-        if ($cart->user_id === null) {
+        if ($cart->user_id === null && blank($guestEmail)) {
             throw ValidationException::withMessages([
-                'cart' => ['Order requests can only be created for authenticated users.'],
+                'guest_email' => ['An email address is required for guest checkout.'],
             ]);
         }
 
@@ -67,17 +75,50 @@ class OrderService
         });
 
         $subtotal = (float) $items->sum('subtotal_usd');
-        $shipping = StorePricing::shippingForSubtotal($subtotal);
-        $total = StorePricing::totalForSubtotal($subtotal);
+        $quoteAddress = [
+            'line1' => $shippingData['shipping_address_line1'],
+            'line2' => $shippingData['shipping_address_line2'] ?? null,
+            'city' => $shippingData['shipping_city'],
+            'region' => $shippingData['shipping_state_province'] ?? null,
+            'postcode' => $shippingData['shipping_postal_code'] ?? null,
+            'country' => $shippingData['shipping_country'],
+            'is_rural' => $shippingData['shipping_is_rural'] ?? null,
+        ];
+        $selectedShipping = $this->shippingQuoteService->selectedOption(
+            $cart,
+            $quoteAddress,
+            $shippingMethodCode,
+        );
+        $shippingOption = $selectedShipping['option'];
+        $shipping = (float) $selectedShipping['totals']['shipping'];
+        $tax = (float) $selectedShipping['totals']['tax'];
+        $total = (float) $selectedShipping['totals']['total'];
 
-        $order = DB::transaction(function () use ($cart, $shippingData, $note, $items, $subtotal, $shipping, $total): Order {
+        $order = DB::transaction(function () use (
+            $cart,
+            $shippingData,
+            $note,
+            $guestEmail,
+            $items,
+            $subtotal,
+            $shipping,
+            $tax,
+            $total,
+            $shippingOption,
+            $selectedShipping,
+        ): Order {
             $order = Order::query()->create([
                 'user_id' => $cart->user_id,
+                'guest_email' => $cart->user_id === null ? Str::lower((string) $guestEmail) : null,
+                'guest_order_token' => $cart->user_id === null ? Str::random(64) : null,
                 'status' => OrderStatus::Pending,
                 'subtotal_usd' => $subtotal,
                 'shipping_usd' => $shipping,
+                'tax_amount' => $tax,
+                'shipping_amount' => $shipping,
+                'total_amount' => $total,
                 'total_usd' => $total,
-                'currency' => 'USD',
+                'currency' => (string) $selectedShipping['totals']['currency'],
                 'shipping_name' => $shippingData['shipping_name'],
                 'shipping_phone' => $shippingData['shipping_phone'] ?? null,
                 'shipping_address_line1' => $shippingData['shipping_address_line1'],
@@ -86,6 +127,12 @@ class OrderService
                 'shipping_state_province' => $shippingData['shipping_state_province'] ?? null,
                 'shipping_postal_code' => $shippingData['shipping_postal_code'] ?? null,
                 'shipping_country' => $shippingData['shipping_country'],
+                'shipping_method_code' => $shippingOption['code'],
+                'shipping_method_label' => $shippingOption['label'],
+                'shipping_service_code' => $shippingOption['service_code'] ?? null,
+                'shipping_eta_min_days' => $shippingOption['eta_min_days'] ?? null,
+                'shipping_eta_max_days' => $shippingOption['eta_max_days'] ?? null,
+                'shipping_quote_snapshot' => $selectedShipping['snapshot'],
                 'customer_note' => $note !== '' ? $note : null,
                 'payment_method' => 'manual',
             ]);

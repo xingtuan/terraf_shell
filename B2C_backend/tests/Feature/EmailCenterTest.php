@@ -182,9 +182,12 @@ class EmailCenterTest extends TestCase
         Sanctum::actingAs($user);
 
         $this->postJson('/api/orders', [
+            'shipping_method_code' => 'standard',
             'shipping_name' => 'OXP Buyer',
+            'shipping_phone' => '+64 21 000 000',
             'shipping_address_line1' => '123 Ocean Road',
             'shipping_city' => 'Auckland',
+            'shipping_postal_code' => '1010',
             'shipping_country' => 'NZ',
         ])->assertCreated();
 

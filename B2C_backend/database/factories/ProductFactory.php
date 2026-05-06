@@ -68,6 +68,23 @@ class ProductFactory extends Factory
                 'Oyster-shell composite narrative for premium storytelling.',
                 'Lighter handling than traditional heavy ceramic programs.',
             ],
+            'selling_points' => [
+                'Made with recovered oyster shell OXP material.',
+                'Premium surface feel for considered spaces.',
+            ],
+            'shipping_notes' => [
+                'New Zealand delivery only.',
+                'Shipping calculated at checkout.',
+            ],
+            'return_notes' => [
+                'Order confirmation and next steps are sent by email.',
+            ],
+            'product_faqs' => [
+                [
+                    'question' => 'Is this made from oyster shell?',
+                    'answer' => 'This product uses Terrafin OXP material, a material line made with recovered oyster shell.',
+                ],
+            ],
             'use_cases' => fake()->randomElements(array_keys(Product::USE_CASE_OPTIONS), fake()->numberBetween(1, 3)),
             'status' => ProductStatus::Draft->value,
             'sort_order' => 0,

@@ -18,14 +18,30 @@ class OrderResource extends JsonResource
 
         return [
             'order_number' => $this->order_number,
+            'is_guest' => $this->user_id === null,
+            'guest_email' => $this->guest_email,
+            'guest_order_token' => $this->guest_order_token,
             'status' => $this->status?->value ?? (string) $this->status,
             'payment_status' => $this->payment_status?->value ?? (string) $this->payment_status,
             'item_count' => (int) $this->items->sum('quantity'),
             'subtotal_usd' => number_format((float) $this->subtotal_usd, 2, '.', ''),
             'shipping_usd' => number_format((float) $this->shipping_usd, 2, '.', ''),
-            'tax_usd' => '0.00',
+            'tax_usd' => number_format((float) $this->tax_amount, 2, '.', ''),
+            'tax' => [
+                'label' => data_get($this->shipping_quote_snapshot, 'tax.label', 'GST included'),
+                'rate' => (float) data_get($this->shipping_quote_snapshot, 'tax.rate', 0.15),
+                'amount' => number_format((float) $this->tax_amount, 2, '.', ''),
+                'included' => (bool) data_get($this->shipping_quote_snapshot, 'tax.included', true),
+            ],
             'total_usd' => number_format((float) $this->total_usd, 2, '.', ''),
             'currency' => $this->currency,
+            'shipping_method' => [
+                'code' => $this->shipping_method_code,
+                'label' => $this->shipping_method_label,
+                'service_code' => $this->shipping_service_code,
+                'eta_min_days' => $this->shipping_eta_min_days,
+                'eta_max_days' => $this->shipping_eta_max_days,
+            ],
             'shipping_address' => [
                 'name' => $this->shipping_name,
                 'phone' => $this->shipping_phone,

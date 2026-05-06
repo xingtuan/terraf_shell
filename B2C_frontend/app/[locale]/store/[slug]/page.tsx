@@ -65,23 +65,49 @@ export default async function ProductDetailPage({
     )
   }
 
+  const productUrl = getLocalizedHref(locale, `store/${product.slug}`)
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description:
+      product.seo?.description ??
+      product.short_description ??
+      product.subtitle ??
+      undefined,
+    sku: product.sku ?? undefined,
+    brand: {
+      "@type": "Brand",
+      name: "Terrafin OXP",
+    },
+    image: (product.gallery_images ?? [])
+      .map((image) => image.media_url)
+      .filter(Boolean),
+    offers: {
+      "@type": "Offer",
+      price: product.price_usd,
+      priceCurrency: product.currency ?? "NZD",
+      availability: product.can_add_to_cart
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: productUrl,
+      itemCondition: "https://schema.org/NewCondition",
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "NZ",
+        },
+      },
+    },
+  }
+
   return (
     <>
-      <PageIntro
-        eyebrow={product.category_label || t.pageFallbackEyebrow}
-        title={product.name}
-        description={
-          product.subtitle ||
-          product.short_description ||
-          t.pageFallbackDescription
-        }
-        primaryAction={{
-          label: t.backToStore,
-          href: getLocalizedHref(locale, "store"),
-        }}
-        secondaryAction={{
-          label: messages.header.contact,
-          href: getLocalizedHref(locale, "contact"),
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c"),
         }}
       />
       <ProductDetailContent locale={locale} product={product} />

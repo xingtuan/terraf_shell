@@ -9,14 +9,17 @@ use App\Models\Address;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\OrderService;
+use App\Services\Shipping\ShippingQuoteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
     public function __construct(
         private readonly CartService $cartService,
         private readonly OrderService $orderService,
+        private readonly ShippingQuoteService $shippingQuoteService,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -50,12 +53,25 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request): JsonResponse
     {
         $validated = $request->validated();
+        $user = $request->user('sanctum');
         $address = null;
 
         if (filled($validated['address_id'] ?? null)) {
             $address = Address::query()
-                ->where('user_id', $request->user()->id)
+                ->where('user_id', $user?->id)
                 ->findOrFail((int) $validated['address_id']);
+
+            if (strtoupper((string) $address->country) !== 'NZ') {
+                throw ValidationException::withMessages([
+                    'address_id' => ['Saved checkout addresses must be in New Zealand.'],
+                ]);
+            }
+
+            if (blank($address->postal_code)) {
+                throw ValidationException::withMessages([
+                    'address_id' => ['Saved checkout addresses need a New Zealand postcode.'],
+                ]);
+            }
         }
 
         $shippingData = $address ? [
@@ -67,6 +83,7 @@ class OrderController extends Controller
             'shipping_state_province' => $address->state_province,
             'shipping_postal_code' => $address->postal_code,
             'shipping_country' => $address->country,
+            'shipping_is_rural' => null,
         ] : [
             'shipping_name' => $validated['shipping_name'],
             'shipping_phone' => $validated['shipping_phone'] ?? null,
@@ -76,13 +93,26 @@ class OrderController extends Controller
             'shipping_state_province' => $validated['shipping_state_province'] ?? null,
             'shipping_postal_code' => $validated['shipping_postal_code'] ?? null,
             'shipping_country' => $validated['shipping_country'],
+            'shipping_is_rural' => $validated['shipping_is_rural'] ?? null,
         ];
+
+        $this->shippingQuoteService->validateAddress([
+            'line1' => $shippingData['shipping_address_line1'],
+            'line2' => $shippingData['shipping_address_line2'] ?? null,
+            'city' => $shippingData['shipping_city'],
+            'region' => $shippingData['shipping_state_province'] ?? null,
+            'postcode' => $shippingData['shipping_postal_code'] ?? null,
+            'country' => $shippingData['shipping_country'],
+            'is_rural' => $shippingData['shipping_is_rural'] ?? null,
+        ]);
 
         $cart = $this->cartService->getOrCreateCart($request);
         $order = $this->orderService->createFromCart(
             $cart,
             $shippingData,
             (string) ($validated['customer_note'] ?? ''),
+            $user === null ? (string) ($validated['guest_email'] ?? '') : null,
+            (string) $validated['shipping_method_code'],
         );
 
         return $this->successResponse(
@@ -90,6 +120,24 @@ class OrderController extends Controller
             'Order request submitted successfully.',
             201,
         );
+    }
+
+    public function showGuest(Request $request, string $orderNumber): JsonResponse
+    {
+        $token = trim((string) $request->query('token', ''));
+
+        if ($token === '') {
+            abort(404);
+        }
+
+        $order = Order::query()
+            ->where('order_number', $orderNumber)
+            ->whereNull('user_id')
+            ->where('guest_order_token', $token)
+            ->with(['items.product'])
+            ->firstOrFail();
+
+        return $this->successResponse(new OrderResource($order));
     }
 
     public function destroy(Request $request, string $orderNumber): JsonResponse

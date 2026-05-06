@@ -77,6 +77,11 @@ export interface ProductSeo {
   description?: string | null
 }
 
+export interface ProductFaq {
+  question?: string | null
+  answer?: string | null
+}
+
 export interface ProductImage {
   id: number
   product_id?: number
@@ -140,6 +145,10 @@ export interface Product {
   technical_downloads?: TechnicalDownload[]
   care_instructions?: string[]
   material_benefits?: string[]
+  selling_points?: string[]
+  shipping_notes?: string[]
+  return_notes?: string[]
+  product_faqs?: ProductFaq[]
   seo?: ProductSeo | null
   related_products?: Product[]
   sort_order?: number
@@ -160,11 +169,15 @@ export interface CartSummaryItem {
 export interface CartSummary {
   id: number
   item_count: number
+  currency?: string
   subtotal_usd: string
   estimated_shipping_usd?: string
   estimated_tax_usd?: string
   estimated_total_usd?: string
   free_shipping_threshold_usd?: string
+  tax_label?: string | null
+  prices_include_tax?: boolean
+  shipping_notice?: string | null
   items: CartSummaryItem[]
 }
 
@@ -206,6 +219,21 @@ export interface ShippingAddressSnapshot {
   country: string
 }
 
+export interface ShippingMethodSnapshot {
+  code?: string | null
+  label?: string | null
+  service_code?: string | null
+  eta_min_days?: number | null
+  eta_max_days?: number | null
+}
+
+export interface StoreOrderTaxSnapshot {
+  label?: string | null
+  rate?: number | null
+  amount?: string | null
+  included?: boolean
+}
+
 export interface StoreOrderItem {
   product_id: number
   product_name: string
@@ -218,6 +246,9 @@ export interface StoreOrderItem {
 
 export interface StoreOrder {
   order_number: string
+  is_guest?: boolean
+  guest_email?: string | null
+  guest_order_token?: string | null
   status: StoreOrderStatus
   payment_status: StoreOrderPaymentStatus
   item_count?: number
@@ -226,6 +257,8 @@ export interface StoreOrder {
   tax_usd?: string
   total_usd: string
   currency?: string
+  tax?: StoreOrderTaxSnapshot
+  shipping_method?: ShippingMethodSnapshot
   shipping_address: ShippingAddressSnapshot
   customer_note?: string | null
   items: StoreOrderItem[]
@@ -234,6 +267,68 @@ export interface StoreOrder {
   shipped_at?: string | null
   delivered_at?: string | null
   cancelled_at?: string | null
+}
+
+export interface AddressSearchResult {
+  id: string
+  label: string
+  postcode?: string | null
+  city?: string | null
+  is_rural?: boolean | null
+}
+
+export interface AddressSearchResponse {
+  items: AddressSearchResult[]
+  unavailable: boolean
+  source: string
+}
+
+export interface NzAddress {
+  line1: string
+  line2?: string | null
+  suburb?: string | null
+  city: string
+  region?: string | null
+  postcode: string
+  country: "NZ"
+  is_rural?: boolean | null
+}
+
+export interface AddressDetailsResponse {
+  address: NzAddress | null
+  unavailable: boolean
+  source: string
+}
+
+export interface ShippingOption {
+  code: string
+  label: string
+  description?: string | null
+  amount: string
+  currency: string
+  eta_min_days?: number | null
+  eta_max_days?: number | null
+  service_code?: string | null
+  is_default?: boolean
+  source?: string
+  rural_surcharge?: string | null
+}
+
+export interface ShippingQuote {
+  options: ShippingOption[]
+  tax: {
+    label: string
+    rate: number
+    amount: string
+    included: boolean
+  }
+  totals: {
+    subtotal: string
+    shipping: string
+    tax: string
+    total: string
+    currency: string
+  }
 }
 
 export interface ProductCategory {

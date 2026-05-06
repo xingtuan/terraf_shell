@@ -101,6 +101,10 @@ class ProductResource extends JsonResource
             'technical_downloads' => $this->normalizedJsonEntries($this->technical_downloads ?? []),
             'care_instructions' => $this->localizedArray($request, 'care_instructions'),
             'material_benefits' => $this->localizedArray($request, 'material_benefits'),
+            'selling_points' => $this->localizedArray($request, 'selling_points'),
+            'shipping_notes' => $this->localizedArray($request, 'shipping_notes'),
+            'return_notes' => $this->localizedArray($request, 'return_notes'),
+            'product_faqs' => $this->normalizedJsonEntries($this->product_faqs ?? []),
             'seo' => [
                 'title' => $this->localizedString($request, 'seo_title') ?? $title,
                 'description' => $this->localizedString($request, 'seo_description') ?? $shortDescription,

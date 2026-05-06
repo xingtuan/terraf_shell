@@ -61,6 +61,7 @@ class StoreOrderFlowTest extends TestCase
         $this->assertDatabaseCount('cart_items', 1);
 
         $orderResponse = $this->postJson('/api/orders', [
+            'shipping_method_code' => 'standard',
             'shipping_name' => 'OXP Buyer',
             'shipping_phone' => '+64-21-000-000',
             'shipping_address_line1' => '123 Ocean Road',
@@ -74,8 +75,11 @@ class StoreOrderFlowTest extends TestCase
             ->assertJsonPath('data.status', 'pending')
             ->assertJsonPath('data.payment_status', 'unpaid')
             ->assertJsonPath('data.subtotal_usd', '96.00')
-            ->assertJsonPath('data.shipping_usd', '15.00')
-            ->assertJsonPath('data.total_usd', '111.00')
+            ->assertJsonPath('data.shipping_usd', '8.00')
+            ->assertJsonPath('data.tax_usd', '13.57')
+            ->assertJsonPath('data.total_usd', '104.00')
+            ->assertJsonPath('data.currency', 'NZD')
+            ->assertJsonPath('data.shipping_method.code', 'standard')
             ->assertJsonPath('data.items.0.product_id', $product->id)
             ->assertJsonPath('data.items.0.quantity', 2);
 
@@ -86,6 +90,8 @@ class StoreOrderFlowTest extends TestCase
             'order_number' => $orderNumber,
             'user_id' => $user->id,
             'shipping_country' => 'NZ',
+            'shipping_method_code' => 'standard',
+            'tax_amount' => '13.57',
             'status' => 'pending',
         ]);
         $this->assertDatabaseHas('order_items', [
@@ -95,6 +101,256 @@ class StoreOrderFlowTest extends TestCase
             'subtotal_usd' => '96.00',
         ]);
         $this->assertDatabaseCount('cart_items', 0);
+    }
+
+    public function test_guest_cart_can_create_guest_order_request(): void
+    {
+        $product = Product::factory()->published()->create([
+            'price_usd' => 48.00,
+            'is_active' => true,
+            'in_stock' => true,
+        ]);
+
+        $this->getJson('/api/cart')->assertOk();
+
+        $sessionKey = Cart::query()
+            ->whereNull('user_id')
+            ->value('session_key');
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/cart/items', [
+                'product_id' => $product->id,
+                'quantity' => 2,
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertOk();
+
+        $orderResponse = $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/orders', [
+                'guest_email' => 'guest@example.com',
+                'shipping_method_code' => 'standard',
+                'shipping_name' => 'Guest Buyer',
+                'shipping_phone' => '+64 21 000 000',
+                'shipping_address_line1' => '7 Queen Street',
+                'shipping_address_line2' => 'Auckland Central',
+                'shipping_city' => 'Auckland',
+                'shipping_state_province' => 'Auckland',
+                'shipping_postal_code' => '1010',
+                'shipping_country' => 'NZ',
+                'customer_note' => 'Please email delivery timing.',
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.is_guest', true)
+            ->assertJsonPath('data.guest_email', 'guest@example.com')
+            ->assertJsonPath('data.subtotal_usd', '96.00')
+            ->assertJsonPath('data.shipping_usd', '8.00')
+            ->assertJsonPath('data.tax_usd', '13.57')
+            ->assertJsonPath('data.total_usd', '104.00')
+            ->assertJsonPath('data.shipping_method.code', 'standard')
+            ->assertJsonPath('data.items.0.quantity', 2);
+
+        $orderNumber = $orderResponse->json('data.order_number');
+        $guestToken = $orderResponse->json('data.guest_order_token');
+
+        $this->assertNotEmpty($guestToken);
+        $this->assertDatabaseHas('orders', [
+            'order_number' => $orderNumber,
+            'user_id' => null,
+            'guest_email' => 'guest@example.com',
+            'shipping_country' => 'NZ',
+            'shipping_method_code' => 'standard',
+        ]);
+        $this->assertDatabaseCount('cart_items', 0);
+    }
+
+    public function test_guest_order_lookup_requires_valid_token(): void
+    {
+        $product = Product::factory()->published()->create([
+            'price_usd' => 35.00,
+            'is_active' => true,
+            'in_stock' => true,
+        ]);
+
+        $this->getJson('/api/cart')->assertOk();
+
+        $sessionKey = Cart::query()
+            ->whereNull('user_id')
+            ->value('session_key');
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/cart/items', [
+                'product_id' => $product->id,
+                'quantity' => 1,
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertOk();
+
+        $orderResponse = $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/orders', [
+                'guest_email' => 'lookup@example.com',
+                'shipping_method_code' => 'standard',
+                'shipping_name' => 'Lookup Buyer',
+                'shipping_phone' => '+64 21 000 001',
+                'shipping_address_line1' => '100 Lambton Quay',
+                'shipping_city' => 'Wellington',
+                'shipping_state_province' => 'Wellington',
+                'shipping_postal_code' => '6011',
+                'shipping_country' => 'NZ',
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertCreated();
+
+        $orderNumber = $orderResponse->json('data.order_number');
+        $guestToken = $orderResponse->json('data.guest_order_token');
+
+        $this->getJson("/api/orders/guest/{$orderNumber}?token={$guestToken}")
+            ->assertOk()
+            ->assertJsonPath('data.order_number', $orderNumber)
+            ->assertJsonPath('data.guest_email', 'lookup@example.com');
+
+        $this->getJson("/api/orders/guest/{$orderNumber}?token=wrong-token")
+            ->assertNotFound();
+    }
+
+    public function test_order_creation_rejects_non_new_zealand_shipping(): void
+    {
+        $product = Product::factory()->published()->create([
+            'price_usd' => 48.00,
+            'is_active' => true,
+            'in_stock' => true,
+        ]);
+
+        $this->getJson('/api/cart')->assertOk();
+
+        $sessionKey = Cart::query()
+            ->whereNull('user_id')
+            ->value('session_key');
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/cart/items', [
+                'product_id' => $product->id,
+                'quantity' => 1,
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertOk();
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/orders', [
+                'guest_email' => 'guest@example.com',
+                'shipping_method_code' => 'standard',
+                'shipping_name' => 'Guest Buyer',
+                'shipping_phone' => '+61 400 000 000',
+                'shipping_address_line1' => '1 George Street',
+                'shipping_city' => 'Sydney',
+                'shipping_state_province' => 'NSW',
+                'shipping_postal_code' => '2000',
+                'shipping_country' => 'AU',
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['shipping_country']);
+    }
+
+    public function test_selected_shipping_method_must_be_available_after_server_recalculation(): void
+    {
+        $product = Product::factory()->published()->create([
+            'price_usd' => 48.00,
+            'is_active' => true,
+            'in_stock' => true,
+        ]);
+
+        $this->getJson('/api/cart')->assertOk();
+
+        $sessionKey = Cart::query()
+            ->whereNull('user_id')
+            ->value('session_key');
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/cart/items', [
+                'product_id' => $product->id,
+                'quantity' => 1,
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertOk();
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/orders', [
+                'guest_email' => 'guest@example.com',
+                'shipping_method_code' => 'overnight',
+                'shipping_name' => 'Guest Buyer',
+                'shipping_phone' => '+64 21 000 000',
+                'shipping_address_line1' => '7 Queen Street',
+                'shipping_city' => 'Auckland',
+                'shipping_state_province' => 'Auckland',
+                'shipping_postal_code' => '1010',
+                'shipping_country' => 'NZ',
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['shipping_method_code']);
+    }
+
+    public function test_shipping_and_address_lookup_fall_back_without_nz_post_credentials(): void
+    {
+        config()->set('store.nzpost.enabled', true);
+        config()->set('store.nzpost.api_key', null);
+        config()->set('store.nzpost.client_id', null);
+        config()->set('store.nzpost.client_secret', null);
+
+        $product = Product::factory()->published()->create([
+            'price_usd' => 48.00,
+            'is_active' => true,
+            'in_stock' => true,
+        ]);
+
+        $this->getJson('/api/store/address-search?query=Auckland')
+            ->assertOk()
+            ->assertJsonPath('data.unavailable', true)
+            ->assertJsonPath('data.source', 'fallback')
+            ->assertJsonPath('data.items.0.city', 'Auckland');
+
+        $this->getJson('/api/cart')->assertOk();
+
+        $sessionKey = Cart::query()
+            ->whereNull('user_id')
+            ->value('session_key');
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/cart/items', [
+                'product_id' => $product->id,
+                'quantity' => 1,
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertOk();
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/store/shipping-options', [
+                'address' => [
+                    'line1' => '7 Queen Street',
+                    'city' => 'Auckland',
+                    'region' => 'Auckland',
+                    'postcode' => '1010',
+                    'country' => 'NZ',
+                    'is_rural' => false,
+                ],
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.options.0.code', 'standard')
+            ->assertJsonPath('data.options.0.amount', '8.00')
+            ->assertJsonPath('data.tax.label', 'GST included')
+            ->assertJsonPath('data.totals.total', '56.00');
     }
 
     public function test_guest_cart_accepts_pre_rebrand_cookie_name(): void

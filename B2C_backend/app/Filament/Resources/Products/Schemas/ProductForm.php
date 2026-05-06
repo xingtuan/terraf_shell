@@ -118,6 +118,18 @@ class ProductForm
                                 TextInput::make('weight_grams')
                                     ->numeric()
                                     ->minValue(0),
+                                TagsInput::make('selling_points')
+                                    ->label('Selling points')
+                                    ->separator(',')
+                                    ->columnSpanFull(),
+                                TagsInput::make('shipping_notes')
+                                    ->label('Shipping notes')
+                                    ->separator(',')
+                                    ->columnSpanFull(),
+                                TagsInput::make('return_notes')
+                                    ->label('Return notes')
+                                    ->separator(',')
+                                    ->columnSpanFull(),
                             ]),
                     ]),
                 self::localeSection('en', 'English', true),
@@ -125,6 +137,23 @@ class ProductForm
                 self::localeSection('zh', 'Chinese'),
                 Section::make('Specifications')
                     ->schema([
+                        Repeater::make('product_faqs')
+                            ->label('Product FAQs')
+                            ->addActionLabel('Add FAQ')
+                            ->collapsible()
+                            ->reorderableWithButtons()
+                            ->defaultItems(0)
+                            ->schema([
+                                TextInput::make('question')
+                                    ->required()
+                                    ->maxLength(180),
+                                Textarea::make('answer')
+                                    ->required()
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
                         Repeater::make('specifications')
                             ->label('Technical specifications')
                             ->addActionLabel('Add specification')

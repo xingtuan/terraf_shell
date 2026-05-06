@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Services\Store\TaxService;
 use App\Support\StorePricing;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -18,17 +19,21 @@ class CartResource extends JsonResource
     {
         $this->loadMissing(['items.product']);
         $subtotal = (float) $this->total();
-        $estimatedShipping = StorePricing::shippingForSubtotal($subtotal);
-        $estimatedTax = StorePricing::taxForSubtotal($subtotal);
+        $taxService = app(TaxService::class);
+        $estimatedTax = $taxService->taxForTotal($subtotal);
 
         return [
             'id' => $this->id,
             'item_count' => $this->itemCount(),
+            'currency' => (string) config('store.currency', 'NZD'),
             'subtotal_usd' => number_format($subtotal, 2, '.', ''),
-            'estimated_shipping_usd' => number_format($estimatedShipping, 2, '.', ''),
+            'estimated_shipping_usd' => number_format(0, 2, '.', ''),
             'estimated_tax_usd' => number_format($estimatedTax, 2, '.', ''),
-            'estimated_total_usd' => number_format($subtotal + $estimatedShipping + $estimatedTax, 2, '.', ''),
-            'free_shipping_threshold_usd' => number_format(StorePricing::FREE_SHIPPING_THRESHOLD, 2, '.', ''),
+            'estimated_total_usd' => number_format($subtotal, 2, '.', ''),
+            'free_shipping_threshold_usd' => number_format((float) config('store.shipping.free_shipping_threshold', StorePricing::FREE_SHIPPING_THRESHOLD), 2, '.', ''),
+            'tax_label' => $taxService->label(),
+            'prices_include_tax' => $taxService->pricesIncludeGst(),
+            'shipping_notice' => 'Shipping calculated at checkout.',
             'items' => $this->items->map(function (CartItem $item) use ($request): array {
                 $product = $item->product;
                 $lineTotal = (float) $item->unit_price_usd * $item->quantity;
