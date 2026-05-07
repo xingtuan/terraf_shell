@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('posts', function (Blueprint $table): void {
-            $table->longText('content_json')->nullable()->after('content');
-            $table->string('cover_image_url', 2048)->nullable()->after('funding_url');
-            $table->string('cover_image_path', 1024)->nullable()->after('cover_image_url');
-            $table->unsignedSmallInteger('reading_time')->default(0)->after('cover_image_path');
+            if (!Schema::hasColumn('posts', 'content_json')) {
+                $table->longText('content_json')->nullable()->after('content');
+            }
+            if (!Schema::hasColumn('posts', 'cover_image_url')) {
+                $table->string('cover_image_url', 2048)->nullable()->after('funding_url');
+            }
+            if (!Schema::hasColumn('posts', 'cover_image_path')) {
+                $table->string('cover_image_path', 1024)->nullable()->after('cover_image_url');
+            }
+            if (!Schema::hasColumn('posts', 'reading_time')) {
+                $table->unsignedSmallInteger('reading_time')->default(0)->after('cover_image_path');
+            }
         });
     }
 
