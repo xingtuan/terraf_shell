@@ -10,7 +10,7 @@ enum AdminNavigationGroup: string implements HasLabel
     case StoreOperations = 'store_operations';
     case B2BLeads = 'b2b_leads';
     case Community = 'community';
-    case Content = 'content';
+    case Content = 'content_cms';
     case EmailCenter = 'email_center';
     case UsersGovernance = 'users_governance';
     case MediaLibrary = 'media_library';

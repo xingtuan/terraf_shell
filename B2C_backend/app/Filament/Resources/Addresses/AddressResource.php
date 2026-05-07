@@ -93,7 +93,7 @@ class AddressResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Customer')
+                Section::make(__('admin.sections.customer'))
                     ->schema([
                         TextEntry::make('user.name')
                             ->label(__('admin.fields.customer')),
@@ -107,7 +107,7 @@ class AddressResource extends Resource
                             ->boolean(),
                     ])
                     ->columns(2),
-                Section::make('Address')
+                Section::make(__('admin.fields.address'))
                     ->schema([
                         TextEntry::make('recipient_name')
                             ->label(__('admin.fields.recipient')),

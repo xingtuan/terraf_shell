@@ -515,18 +515,29 @@ GET    /api/articles/{id_or_slug}
 ```
 GET    /api/product-categories
 GET    /api/products
+GET    /api/products/featured
 GET    /api/products/{slug}
+GET    /api/store/address-search?query=Auckland
+GET    /api/store/address-details?id={address_id}
+POST   /api/store/shipping-options
 GET    /api/cart
 POST   /api/cart/items
 PATCH  /api/cart/items/{id}
 DELETE /api/cart/items/{id}
+DELETE /api/cart
 GET    /api/addresses
 POST   /api/addresses
 PATCH  /api/addresses/{id}
 DELETE /api/addresses/{id}
+POST   /api/orders                         # Guest or registered checkout
 GET    /api/orders
 GET    /api/orders/{id}
+GET    /api/orders/guest/{orderNumber}?token={guest_order_token}
 ```
+
+Storefront commerce is live. Product catalog responses include variants, dynamic attributes, product images, and selling fields. Cart supports guest sessions and registered users. Checkout does not require login: guest orders require `guest_email` and return `guest_order_token` for lookup; authenticated orders remain available under the account order routes.
+
+Shipping is New Zealand-only. The backend validates NZ addresses, attempts NZ Post address/rate calls when configured, falls back to local NZ address examples and configured fallback rates when NZ Post is unavailable, and records GST/tax snapshots on the order.
 
 ### B2B Leads
 
@@ -680,8 +691,9 @@ The Filament admin panel at `/admin` is for internal staff only.
 - CMS content management for all material and article types
 - B2B lead management with status tracking, internal notes, and CSV export
 - Store operations for products, variants, carts, addresses, guest orders, and manual payment state
+- Shipping Settings page for NZ-only delivery status, origin/fallback rate visibility, NZ Post configuration status, and safe lookup/quote tests
 - Media library review for uploaded files and linked objects
-- Korean, English, and Chinese admin locale switching
+- Korean, English, and Chinese admin locale switching with matching `lang/*/admin.php` key structures and English fallback
 - Handover readiness checks for database, storage, mail, queue, demo data, failed jobs, and writable paths
 - System announcement broadcasting to targeted user roles
 

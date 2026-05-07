@@ -69,33 +69,33 @@ class EmailSettings extends Page
         return $schema
             ->statePath('data')
             ->components([
-                Section::make('Delivery Status')
+                Section::make(__('admin.sections.delivery_status'))
                     ->schema([
                         Placeholder::make('sending_enabled')
-                            ->label('Email sending')
-                            ->content(fn (): string => ($this->data['is_enabled'] ?? false) ? 'Enabled' : 'Disabled'),
+                            ->label(__('admin.fields.email_sending'))
+                            ->content(fn (): string => ($this->data['is_enabled'] ?? false) ? __('admin.system.enabled') : __('admin.system.disabled')),
                         Placeholder::make('selected_mailer')
-                            ->label('Selected provider')
+                            ->label(__('admin.fields.provider'))
                             ->content(fn (): string => (string) ($this->data['mailer'] ?? config('mail.default'))),
                         Placeholder::make('failed_count')
-                            ->label('Failed emails')
+                            ->label(__('admin.fields.failed_emails'))
                             ->content(fn (): string => number_format(EmailLog::query()->where('status', EmailLog::STATUS_FAILED)->count())),
                         Placeholder::make('last_sent')
-                            ->label('Last sent email')
-                            ->content(fn (): string => EmailLog::query()->where('status', EmailLog::STATUS_SENT)->latest('sent_at')->first()?->sent_at?->toDateTimeString() ?? 'No sent email logged.'),
+                            ->label(__('admin.fields.last_sent_email'))
+                            ->content(fn (): string => EmailLog::query()->where('status', EmailLog::STATUS_SENT)->latest('sent_at')->first()?->sent_at?->toDateTimeString() ?? __('admin.placeholders.no_sent_email_logged')),
                     ])
                     ->columns(4),
-                Section::make('Global Delivery')
+                Section::make(__('admin.sections.email_global_delivery'))
                     ->schema([
                         Toggle::make('is_enabled')
-                            ->label('Enable email sending')
+                            ->label(__('admin.fields.enable_email_sending'))
                             ->helperText('When disabled, Email Center creates skipped logs and user-facing actions still succeed.'),
                         Select::make('mailer')
                             ->options(array_combine(MailSettingsService::MAILERS, MailSettingsService::MAILERS))
                             ->required()
                             ->live(),
                         Toggle::make('use_queue')
-                            ->label('Send through queue')
+                            ->label(__('admin.fields.send_through_queue'))
                             ->default(true),
                     ])
                     ->columns(3),
@@ -121,13 +121,13 @@ class EmailSettings extends Page
                                 TextInput::make('timeout')->numeric()->minValue(1)->maxValue(120),
                             ]),
                     ]),
-                Section::make('Provider Credentials')
+                Section::make(__('admin.sections.email_provider_credentials'))
                     ->visible(fn (Get $get): bool => in_array($get('mailer'), ['mailgun', 'ses', 'postmark', 'resend'], true))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('api_key')
-                                    ->label('API key / secret')
+                                    ->label(__('admin.fields.api_key_secret'))
                                     ->password()
                                     ->revealable()
                                     ->helperText('Leave masked or empty to keep the current key.'),
@@ -137,28 +137,28 @@ class EmailSettings extends Page
                                     ->visible(fn (Get $get): bool => $get('mailer') === 'ses'),
                             ]),
                     ]),
-                Section::make('Sender Identity')
+                Section::make(__('admin.sections.email_sender_identity'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextInput::make('from_address')->email()->required(),
-                                TextInput::make('from_name')->required()->maxLength(255),
-                                TextInput::make('reply_to_address')->email(),
-                                TextInput::make('reply_to_name')->maxLength(255),
+                                TextInput::make('from_address')->label(__('admin.fields.from_address'))->email()->required(),
+                                TextInput::make('from_name')->label(__('admin.fields.from_name'))->required()->maxLength(255),
+                                TextInput::make('reply_to_address')->label(__('admin.fields.reply_to_address'))->email(),
+                                TextInput::make('reply_to_name')->label(__('admin.fields.reply_to_name'))->maxLength(255),
                             ]),
                     ]),
-                Section::make('Admin Recipients')
+                Section::make(__('admin.sections.email_admin_recipients'))
                     ->schema([
                         TagsInput::make('admin_recipients')
                             ->label('Admin email recipients')
                             ->placeholder('ops@example.com')
                             ->helperText('Used for admin recipient email events. Active admin users are used when this is empty.'),
                     ]),
-                Section::make('Test Tools')
+                Section::make(__('admin.sections.email_test_tools'))
                     ->schema([
                         TextInput::make('test_email')
                             ->email()
-                            ->label('Send test email to'),
+                            ->label(__('admin.fields.send_test_email_to')),
                     ]),
             ]);
     }
@@ -193,7 +193,7 @@ class EmailSettings extends Page
 
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
             Notification::make()
-                ->title('Enter a valid test email address.')
+                ->title(__('admin.notifications.test_email_invalid'))
                 ->danger()
                 ->send();
 
@@ -204,7 +204,7 @@ class EmailSettings extends Page
         $this->lastTestResult = "Log #{$log->id}: {$log->status}".($log->error_message ? ' - '.$log->error_message : '');
 
         $notification = Notification::make()
-            ->title($log->status === EmailLog::STATUS_FAILED ? 'Test email failed.' : 'Test email logged.')
+            ->title($log->status === EmailLog::STATUS_FAILED ? __('admin.notifications.test_email_failed') : __('admin.notifications.test_email_logged'))
             ->body($this->lastTestResult);
 
         $log->status === EmailLog::STATUS_FAILED

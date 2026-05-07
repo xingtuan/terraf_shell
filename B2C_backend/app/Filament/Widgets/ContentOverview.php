@@ -19,9 +19,14 @@ class ContentOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected ?string $heading = 'Content Overview';
+    protected ?string $heading = null;
 
     protected ?string $description = 'Website publishing status across homepage, materials, and articles.';
+
+    protected function getHeading(): ?string
+    {
+        return __('admin.widgets.content_overview');
+    }
 
     protected function getStats(): array
     {

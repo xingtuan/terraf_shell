@@ -89,7 +89,8 @@ All pages are under the `[locale]` dynamic segment. The root path `/` redirects 
 | `/[locale]/store` | B2C product store |
 | `/[locale]/store/[slug]` | Product detail |
 | `/[locale]/store/cart` | Shopping cart |
-| `/[locale]/store/checkout` | Checkout |
+| `/[locale]/store/checkout` | Guest or registered checkout |
+| `/[locale]/store/order-submitted/[orderNumber]` | Guest order confirmation by token |
 | `/[locale]/store/orders` | Order list |
 | `/[locale]/store/orders/[orderNumber]` | Order detail |
 | `/[locale]/b2b` | B2B partnership and inquiry page |
@@ -195,7 +196,7 @@ lib/
     orders.ts                       # Orders
     addresses.ts                    # User addresses
     media.ts                        # Media upload
-    products.ts                     # ⚠ Mock only — no backend endpoint yet
+    products.ts                     # Live product catalog API
     community.ts                    # ⚠ Mock only — no backend endpoint yet
     adapters.ts                     # Response transformation helpers
     normalizers.ts                  # Data normalization utilities
@@ -203,7 +204,7 @@ lib/
   auth/
     token-storage.ts                # localStorage wrapper for Sanctum tokens
   data/                             # Intentional fallback/mock data
-    products.ts                     # Product mock data (pending backend)
+    products.ts                     # Product fallback data for offline/non-API rendering paths
     materials.ts                    # Material spec fallback data
     community.ts                    # Community idea card mock data
   i18n.ts                           # Locale list, message loading, URL helpers
@@ -306,9 +307,11 @@ The following API modules make real requests to the Laravel backend:
 | `articles.ts` | `/api/articles` |
 | `homepage.ts` | `/api/homepage` |
 | `leads.ts` | `/api/business-contacts`, `/api/partnership-inquiries`, etc. |
+| `products.ts` | `/api/products`, `/api/products/{slug}` |
 | `cart.ts` | `/api/cart` |
-| `orders.ts` | `/api/orders` |
+| `orders.ts` | `/api/orders`, `/api/orders/guest/{orderNumber}` |
 | `addresses.ts` | `/api/addresses` |
+| `shipping.ts` | `/api/store/address-search`, `/api/store/address-details`, `/api/store/shipping-options` |
 | `media.ts` | `/api/media/upload` |
 
 ### Mock-Only Modules
@@ -317,7 +320,6 @@ These modules return local data from `lib/data/` because the corresponding backe
 
 | Module | Reason |
 |---|---|
-| `products.ts` | Product catalog public API not yet exposed on the backend |
 | `community.ts` | Community idea submission API not yet implemented |
 
 These are deliberate boundaries, not technical debt. The page structure and components are already in place and will adopt live data when the backend endpoints are ready.
@@ -338,7 +340,7 @@ Showcases the oyster shell material with specs, story sections, certifications, 
 
 ### Store Page
 
-Product grid with category filtering. Currently renders from mock data (`lib/data/products.ts`).
+Product grid with category filtering. The product catalog is live through `GET /api/products`; local product data remains only as fallback content for non-API paths.
 
 ### B2B Page
 
@@ -368,7 +370,7 @@ The visual language follows a premium, minimal, editorial style:
 
 ## Next Steps for Backend Integration
 
-1. **Product catalog** — Connect `lib/api/products.ts` to `GET /api/products` and `GET /api/product-categories`
+1. **Product catalog QA** — Continue verifying live `/api/products` filtering, variants, attributes, and localized content against seeded/admin data.
 2. **Community idea cards** — Implement idea submission and listing API endpoints, then wire `lib/api/community.ts`
-3. **Checkout flow** — Integrate `POST /api/orders` and payment processing
+3. **Payments** — Checkout currently creates manual-payment order requests for guest and registered users; a full payment gateway is intentionally not implemented yet.
 4. **Community advanced UI** — Add create-post form, reply thread, follow button, report dialog, notification center, and full user profile page

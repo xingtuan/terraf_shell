@@ -17,6 +17,7 @@ import {
   getShippingOptions,
   searchAddresses,
 } from "@/lib/api/shipping"
+import { clearCartSessionKey } from "@/lib/cart/session"
 import { getLocalizedHref, getMessages, isValidLocale, type Locale } from "@/lib/i18n"
 import type { Address, AddressSearchResult, NzAddress, ShippingQuote } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
@@ -350,6 +351,10 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           }
 
       const order = await createOrder(payload, session.token)
+
+      if (!session.token || order.is_guest) {
+        clearCartSessionKey()
+      }
 
       await loadCart()
 

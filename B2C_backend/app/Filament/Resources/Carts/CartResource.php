@@ -45,7 +45,7 @@ class CartResource extends Resource
                     ->sortable(),
                 TextColumn::make('user.name')
                     ->label(__('admin.fields.customer'))
-                    ->placeholder('Guest / session cart')
+                    ->placeholder(__('admin.placeholders.guest_session_cart'))
                     ->searchable()
                     ->description(fn (Cart $record): string => $record->user?->email ?: ($record->session_key ? 'Session: '.$record->session_key : '-')),
                 TextColumn::make('item_count')
@@ -53,7 +53,7 @@ class CartResource extends Resource
                     ->state(fn (Cart $record): int => $record->itemCount())
                     ->numeric(),
                 TextColumn::make('estimated_total')
-                    ->label('Estimated total')
+                    ->label(__('admin.fields.estimated_total'))
                     ->state(fn (Cart $record): string => '$'.$record->total().' NZD'),
                 TextColumn::make('expires_at')
                     ->dateTime()
@@ -66,12 +66,12 @@ class CartResource extends Resource
             ])
             ->filters([
                 Filter::make('abandoned')
-                    ->label('Abandoned carts')
+                    ->label(__('admin.filters.abandoned_carts'))
                     ->query(fn (Builder $query): Builder => $query
                         ->where('updated_at', '<=', now()->subDays(7))
                         ->whereHas('items')),
                 Filter::make('guest')
-                    ->label('Guest carts')
+                    ->label(__('admin.filters.guest_carts'))
                     ->query(fn (Builder $query): Builder => $query->whereNull('user_id')),
             ])
             ->recordActions([
@@ -83,21 +83,23 @@ class CartResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Cart')
+                Section::make(__('admin.sections.cart'))
                     ->schema([
                         TextEntry::make('id')
                             ->label('ID'),
                         TextEntry::make('user.name')
                             ->label(__('admin.fields.customer'))
-                            ->placeholder('Guest / session cart'),
+                            ->placeholder(__('admin.placeholders.guest_session_cart')),
                         TextEntry::make('user.email')
                             ->label(__('admin.fields.email'))
                             ->placeholder('-')
                             ->copyable(),
                         TextEntry::make('session_key')
+                            ->label(__('admin.fields.session_key'))
                             ->copyable()
                             ->placeholder('-'),
                         TextEntry::make('expires_at')
+                            ->label(__('admin.fields.expires_at'))
                             ->dateTime()
                             ->placeholder('-'),
                         TextEntry::make('updated_at')
@@ -105,19 +107,19 @@ class CartResource extends Resource
                             ->dateTime(),
                     ])
                     ->columns(2),
-                Section::make('Items')
+                Section::make(__('admin.sections.items'))
                     ->schema([
                         RepeatableEntry::make('items')
                             ->hiddenLabel()
                             ->schema([
                                 TextEntry::make('product.name')
-                                    ->label('Product'),
+                                    ->label(__('admin.fields.product')),
                                 TextEntry::make('variant.sku')
-                                    ->label('SKU')
+                                    ->label(__('admin.fields.sku'))
                                     ->placeholder(fn ($record): ?string => $record->product?->effectiveSku()),
                                 TextEntry::make('quantity'),
                                 TextEntry::make('unit_price_amount')
-                                    ->label('Unit price')
+                                    ->label(__('admin.fields.unit_price'))
                                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2).' NZD'),
                             ])
                             ->columns(4),

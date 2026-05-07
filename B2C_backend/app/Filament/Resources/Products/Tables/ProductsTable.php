@@ -31,7 +31,7 @@ class ProductsTable
                 ->orderByDesc('created_at'))
             ->columns([
                 ImageColumn::make('image_url')
-                    ->label('Image')
+                    ->label(__('admin.fields.image'))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x96?text=Product'),
                 TextColumn::make('name')
@@ -42,9 +42,9 @@ class ProductsTable
                         $record->slug,
                     ])->filter()->implode(' | ')),
                 TextColumn::make('category.name')
-                    ->label('Category')
+                    ->label(__('admin.resources.product_category'))
                     ->badge()
-                    ->placeholder('Uncategorized')
+                    ->placeholder(__('admin.placeholders.uncategorized'))
                     ->searchable(),
                 TextColumn::make('sku')
                     ->label('SKU')
@@ -56,9 +56,9 @@ class ProductsTable
                     ->formatStateUsing(fn (string $state): string => ProductStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => ProductStatus::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('stock_status')
-                    ->label('Stock')
+                    ->label(__('admin.fields.stock'))
                     ->badge()
-                    ->formatStateUsing(fn (?string $state, Product $record): string => Product::labelForOption(Product::STOCK_STATUS_OPTIONS, $record->effectiveStockStatus()) ?? 'Unknown')
+                    ->formatStateUsing(fn (?string $state, Product $record): string => filled($record->effectiveStockStatus()) ? __("admin.products.stock_status.{$record->effectiveStockStatus()}") : __('admin.placeholders.unknown'))
                     ->color(fn (?string $state, Product $record): string => match ($record->effectiveStockStatus()) {
                         'in_stock' => 'success',
                         'low_stock' => 'warning',
@@ -67,36 +67,36 @@ class ProductsTable
                         default => 'gray',
                     }),
                 TextColumn::make('price_usd')
-                    ->label('Price (NZD)')
+                    ->label(__('admin.fields.price').' (NZD)')
                     ->formatStateUsing(fn ($state, Product $record): string => '$'.number_format((float) ($record->effectivePrice() ?? $state), 2)),
                 TextColumn::make('stock_quantity')
-                    ->label('Qty')
+                    ->label(__('admin.fields.quantity'))
                     ->state(fn (Product $record): ?int => $record->effectiveStockQuantity())
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('featured')
-                    ->label('Featured')
+                    ->label(__('admin.fields.featured'))
                     ->boolean(),
                 IconColumn::make('is_bestseller')
-                    ->label('Bestseller')
+                    ->label(__('admin.fields.bestseller'))
                     ->boolean()
                     ->toggleable(),
                 IconColumn::make('is_new')
-                    ->label('New')
+                    ->label(__('admin.fields.new_arrival'))
                     ->boolean()
                     ->toggleable(),
                 IconColumn::make('inquiry_only')
-                    ->label('Inquiry only')
+                    ->label(__('admin.fields.inquiry_only'))
                     ->boolean(),
                 TextColumn::make('published_at')
-                    ->label('Published')
+                    ->label(__('admin.fields.published'))
                     ->dateTime()
                     ->sortable()
-                    ->placeholder('Draft'),
+                    ->placeholder(__('admin.placeholders.draft')),
             ])
             ->filters([
                 SelectFilter::make('category_id')
-                    ->label('Category')
+                    ->label(__('admin.resources.product_category'))
                     ->options(fn (): array => ProductCategory::query()
                         ->ordered()
                         ->pluck('name', 'id')
@@ -106,37 +106,37 @@ class ProductsTable
                 SelectFilter::make('status')
                     ->options(ProductStatus::options()),
                 SelectFilter::make('stock_status')
-                    ->label('Stock status')
-                    ->options(Product::STOCK_STATUS_OPTIONS),
+                    ->label(__('admin.fields.stock_status'))
+                    ->options(fn (): array => self::stockStatusOptions()),
                 TernaryFilter::make('featured')
-                    ->label('Featured'),
+                    ->label(__('admin.fields.featured')),
                 TernaryFilter::make('is_bestseller')
-                    ->label('Bestseller'),
+                    ->label(__('admin.fields.bestseller')),
                 TernaryFilter::make('is_new')
-                    ->label('New arrival'),
+                    ->label(__('admin.fields.new_arrival')),
                 TernaryFilter::make('inquiry_only')
-                    ->label('Inquiry only'),
+                    ->label(__('admin.fields.inquiry_only')),
                 TernaryFilter::make('sample_request_enabled')
-                    ->label('Sample request enabled'),
+                    ->label(__('admin.fields.sample_request_enabled')),
             ])
             ->recordActions([
                 EditAction::make()
-                    ->label('Manage'),
+                    ->label(__('admin.actions.manage')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('activate')
-                        ->label('Activate')
+                        ->label(__('admin.actions.activate'))
                         ->action(fn ($records) => $records->each->update(['is_active' => true])),
                     BulkAction::make('deactivate')
-                        ->label('Deactivate')
+                        ->label(__('admin.actions.deactivate'))
                         ->requiresConfirmation()
                         ->action(fn ($records) => $records->each->update(['is_active' => false])),
                     BulkAction::make('mark_featured')
-                        ->label('Mark featured')
+                        ->label(__('admin.actions.mark_featured'))
                         ->action(fn ($records) => $records->each->update(['featured' => true])),
                     BulkAction::make('mark_sold_out')
-                        ->label('Mark sold out')
+                        ->label(__('admin.actions.mark_sold_out'))
                         ->requiresConfirmation()
                         ->action(fn ($records) => $records->each->update([
                             'stock_status' => 'sold_out',
@@ -146,5 +146,15 @@ class ProductsTable
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function stockStatusOptions(): array
+    {
+        return collect(array_keys(Product::STOCK_STATUS_OPTIONS))
+            ->mapWithKeys(fn (string $status): array => [$status => __("admin.products.stock_status.{$status}")])
+            ->all();
     }
 }

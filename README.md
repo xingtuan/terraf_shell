@@ -148,10 +148,13 @@ All backend endpoints return a consistent envelope:
 | Notifications | `lib/api/notifications.ts` | `GET /api/notifications` | Live |
 | Search | `lib/api/search.ts` | `GET /api/search/posts` | Live |
 | User profiles | `lib/api/users.ts` | `GET /api/users/{id}` | Live |
-| Product catalog | `lib/api/products.ts` | *(not implemented)* | Mock only |
+| Product catalog | `lib/api/products.ts` | `GET /api/products`, `GET /api/products/{slug}` | Live |
+| Cart | `lib/api/cart.ts` | `/api/cart` and `/api/cart/items` | Live |
+| Checkout / orders | `lib/api/orders.ts` | `POST /api/orders`, `/api/orders/*` | Live |
+| Shipping quotes | `lib/api/shipping.ts` | `/api/store/address-search`, `/api/store/shipping-options` | Live |
 | Community idea cards | `lib/api/community.ts` | *(not implemented)* | Mock only |
 
-The mock-only modules are **intentional design boundaries**, not hidden TODOs. The backend models and migrations for products exist but the public API endpoints are not yet exposed.
+The remaining mock-only community idea card module is an intentional design boundary. Product catalog, cart, guest checkout, registered checkout, NZ-only shipping quotes, and NZ Post-backed address lookup now use live backend routes.
 
 ---
 
@@ -242,6 +245,11 @@ NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api
 | `SANCTUM_STATEFUL_DOMAINS` | `localhost:3000` | Domains allowed for Sanctum SPA auth |
 | `FRONTEND_URL` | `http://localhost:3000` | CORS origin for the frontend |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:3000` | Comma-separated CORS origins |
+| `STORE_STANDARD_SHIPPING_RATE` / `STORE_EXPRESS_SHIPPING_RATE` | `8` / `14` | NZ-only fallback shipping rates |
+| `STORE_RURAL_SHIPPING_SURCHARGE` | `5` | Rural delivery fallback surcharge |
+| `STORE_GST_RATE` | `0.15` | GST rate used by store tax snapshots |
+| `NZPOST_ENABLED` | `false` | Enables NZ Post lookup/rate attempts when credentials are configured |
+| `NZPOST_API_KEY` / `NZPOST_CLIENT_ID` / `NZPOST_CLIENT_SECRET` | *(empty)* | NZ Post credentials; never displayed in admin |
 
 ---
 

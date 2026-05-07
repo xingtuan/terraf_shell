@@ -54,12 +54,12 @@ class ProductVariantResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Variant')
+            Section::make(__('admin.sections.variant'))
                 ->schema([
                     Grid::make(3)
                         ->schema([
                             Select::make('product_id')
-                                ->label('Product')
+                                ->label(__('admin.fields.product'))
                                 ->options(fn (): array => Product::query()->orderBy('name')->pluck('name', 'id')->all())
                                 ->searchable()
                                 ->preload()
@@ -73,7 +73,7 @@ class ProductVariantResource extends Resource
                             KeyValue::make('option_values')
                                 ->columnSpanFull(),
                             TextInput::make('price_amount')
-                                ->label('Price (NZD)')
+                                ->label(__('admin.fields.price').' (NZD)')
                                 ->numeric()
                                 ->prefix('$')
                                 ->required(),
@@ -112,9 +112,9 @@ class ProductVariantResource extends Resource
                                 ->directory('cms/products/variants')
                                 ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
                             Toggle::make('is_default')
-                                ->label('Default variant'),
+                                ->label(__('admin.fields.is_default')),
                             Toggle::make('is_active')
-                                ->label('Active')
+                                ->label(__('admin.account_status.active'))
                                 ->default(true),
                             TextInput::make('sort_order')
                                 ->numeric()
@@ -130,7 +130,7 @@ class ProductVariantResource extends Resource
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['product.category'])->ordered())
             ->columns([
                 TextColumn::make('product.name')
-                    ->label('Product')
+                    ->label(__('admin.fields.product'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('sku')
@@ -140,16 +140,16 @@ class ProductVariantResource extends Resource
                     ->formatStateUsing(fn (?string $state, ProductVariant $record): string => $record->displayTitle())
                     ->description(fn (ProductVariant $record): string => collect($record->option_values ?? [])->map(fn ($value, $key): string => $key.': '.$value)->implode(' | ')),
                 TextColumn::make('price_amount')
-                    ->label('Price')
+                    ->label(__('admin.fields.price'))
                     ->money('NZD')
                     ->sortable(),
                 TextColumn::make('stock_quantity')
-                    ->label('Stock')
+                    ->label(__('admin.fields.stock'))
                     ->sortable()
-                    ->placeholder('Untracked'),
+                    ->placeholder(__('admin.placeholders.untracked')),
                 TextColumn::make('stock_status')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => ProductVariant::STOCK_STATUS_OPTIONS[$state] ?? (string) $state)
+                    ->formatStateUsing(fn (?string $state): string => filled($state) ? __("admin.products.stock_status.{$state}") : '-')
                     ->color(fn (?string $state): string => match ($state) {
                         'in_stock' => 'success',
                         'low_stock' => 'warning',
@@ -159,7 +159,7 @@ class ProductVariantResource extends Resource
                     }),
                 TextColumn::make('inventory_policy')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => ProductVariant::INVENTORY_POLICY_OPTIONS[$state] ?? (string) $state),
+                    ->formatStateUsing(fn (?string $state): string => filled($state) ? __("admin.products.inventory_policy.{$state}") : '-'),
                 IconColumn::make('is_active')
                     ->boolean(),
                 IconColumn::make('is_default')
@@ -167,17 +167,18 @@ class ProductVariantResource extends Resource
             ])
             ->filters([
                 TernaryFilter::make('is_active')
-                    ->label('Active'),
+                    ->label(__('admin.account_status.active')),
                 SelectFilter::make('stock_status')
-                    ->options(ProductVariant::STOCK_STATUS_OPTIONS),
+                    ->options(fn (): array => self::stockStatusOptions()),
                 SelectFilter::make('inventory_policy')
-                    ->options(ProductVariant::INVENTORY_POLICY_OPTIONS),
+                    ->options(fn (): array => self::inventoryPolicyOptions()),
                 Filter::make('low_stock')
+                    ->label(__('admin.filters.low_stock'))
                     ->query(fn (Builder $query): Builder => $query
                         ->whereNotNull('stock_quantity')
                         ->whereColumn('stock_quantity', '<=', 'low_stock_threshold')),
                 SelectFilter::make('category_id')
-                    ->label('Product category')
+                    ->label(__('admin.resources.product_category'))
                     ->options(fn (): array => ProductCategory::query()->ordered()->pluck('name', 'id')->all())
                     ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
                         ? $query->whereHas('product', fn (Builder $productQuery) => $productQuery->where('category_id', $data['value']))
@@ -186,11 +187,11 @@ class ProductVariantResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 Action::make('setDefault')
-                    ->label('Set as default')
+                    ->label(__('admin.actions.set_default'))
                     ->action(fn (ProductVariant $record): bool => $record->forceFill(['is_default' => true, 'is_active' => true])->save())
                     ->visible(fn (ProductVariant $record): bool => ! $record->is_default),
                 Action::make('duplicate')
-                    ->label('Duplicate')
+                    ->label(__('admin.actions.duplicate'))
                     ->action(function (ProductVariant $record): void {
                         $copy = $record->replicate(['sku', 'is_default']);
                         $baseSku = $record->sku.'_COPY';
@@ -212,8 +213,10 @@ class ProductVariantResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('activate')
+                        ->label(__('admin.actions.activate'))
                         ->action(fn ($records) => $records->each->update(['is_active' => true])),
                     BulkAction::make('deactivate')
+                        ->label(__('admin.actions.deactivate'))
                         ->requiresConfirmation()
                         ->action(fn ($records) => $records->each->update(['is_active' => false])),
                     DeleteBulkAction::make(),
@@ -224,23 +227,20 @@ class ProductVariantResource extends Resource
     public static function adjustStockAction(): Action
     {
         return Action::make('adjustStock')
-            ->label('Adjust stock')
+            ->label(__('admin.actions.adjust_stock'))
             ->form([
                 TextInput::make('change_quantity')
-                    ->label('Change quantity')
+                    ->label(__('admin.fields.change_quantity'))
                     ->numeric()
                     ->required()
-                    ->helperText('Use a negative number to reduce stock.'),
+                    ->helperText(__('admin.help.stock_adjustment_negative')),
                 Select::make('reason')
-                    ->options([
-                        'manual_adjustment' => 'Manual adjustment',
-                        'stock_received' => 'Stock received',
-                        'damage' => 'Damage',
-                        'correction' => 'Correction',
-                    ])
+                    ->label(__('admin.fields.reason'))
+                    ->options(fn (): array => self::stockAdjustmentReasons())
                     ->default('manual_adjustment')
                     ->required(),
                 TextInput::make('note')
+                    ->label(__('admin.fields.note'))
                     ->maxLength(255),
             ])
             ->action(fn (ProductVariant $record, array $data) => $record->adjustStock(
@@ -254,6 +254,36 @@ class ProductVariantResource extends Resource
     public static function canViewAny(): bool
     {
         return PanelAccess::isAdmin();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function stockStatusOptions(): array
+    {
+        return collect(array_keys(ProductVariant::STOCK_STATUS_OPTIONS))
+            ->mapWithKeys(fn (string $status): array => [$status => __("admin.products.stock_status.{$status}")])
+            ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function inventoryPolicyOptions(): array
+    {
+        return collect(array_keys(ProductVariant::INVENTORY_POLICY_OPTIONS))
+            ->mapWithKeys(fn (string $policy): array => [$policy => __("admin.products.inventory_policy.{$policy}")])
+            ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function stockAdjustmentReasons(): array
+    {
+        return collect(['manual_adjustment', 'stock_received', 'damage', 'correction'])
+            ->mapWithKeys(fn (string $reason): array => [$reason => __("admin.products.stock_adjustment_reason.{$reason}")])
+            ->all();
     }
 
     public static function canView(Model $record): bool

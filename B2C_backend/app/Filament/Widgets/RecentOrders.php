@@ -11,15 +11,21 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 
 class RecentOrders extends TableWidget
 {
-    protected static ?string $heading = 'Order Request Backlog';
+    protected static ?string $heading = null;
 
     protected static ?int $sort = 7;
 
     protected int|string|array $columnSpan = 'full';
+
+    protected function getTableHeading(): string|Htmlable|null
+    {
+        return __('admin.widgets.order_backlog');
+    }
 
     public function table(Table $table): Table
     {
@@ -36,11 +42,11 @@ class RecentOrders extends TableWidget
                 ->latest())
             ->columns([
                 TextColumn::make('order_number')
-                    ->label('Order request')
+                    ->label(__('admin.fields.order_number'))
                     ->copyable()
                     ->searchable(),
                 TextColumn::make('user.name')
-                    ->label('Customer')
+                    ->label(__('admin.fields.customer'))
                     ->description(fn (Order $record): string => $record->user?->email ?? 'Customer email unavailable')
                     ->searchable(),
                 TextColumn::make('status')
@@ -48,18 +54,18 @@ class RecentOrders extends TableWidget
                     ->formatStateUsing(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->label() : (OrderStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->color() : (OrderStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                 TextColumn::make('payment_status')
-                    ->label('Payment instructions')
+                    ->label(__('admin.fields.payment_status'))
                     ->badge()
                     ->formatStateUsing(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->label() : (OrderPaymentStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->color() : (OrderPaymentStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                 TextColumn::make('total_usd')
-                    ->label('Total')
+                    ->label(__('admin.fields.total'))
                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                 TextColumn::make('shipping_country')
-                    ->label('Ship to')
+                    ->label(__('admin.fields.shipping'))
                     ->placeholder('-'),
                 TextColumn::make('created_at')
-                    ->label('Submitted')
+                    ->label(__('admin.fields.created_at'))
                     ->dateTime()
                     ->since(),
             ])

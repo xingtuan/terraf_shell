@@ -25,7 +25,7 @@ class ModerationQueue extends Page
 
     protected static ?string $slug = 'moderation-queue';
 
-    protected ?string $subheading = 'Approve or reject pending community posts and comments from one screen.';
+    protected ?string $subheading = null;
 
     public static function canAccess(): bool
     {
@@ -40,6 +40,11 @@ class ModerationQueue extends Page
     public function getTitle(): string
     {
         return __('admin.pages.moderation_queue');
+    }
+
+    public function getSubheading(): ?string
+    {
+        return __('admin.pages.moderation_queue_subheading');
     }
 
     public static function getNavigationBadge(): ?string

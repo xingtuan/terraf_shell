@@ -53,20 +53,20 @@ class OrderResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Order Request Review')
+                Section::make(__('admin.sections.order_review'))
                     ->schema([
                         Placeholder::make('order_number')
-                            ->label('Order Request Number')
+                            ->label(__('admin.fields.order_number'))
                             ->content(fn (Order $record): string => $record->order_number),
                         Placeholder::make('payment_method')
-                            ->label('Payment Handling')
-                            ->content(fn (Order $record): string => $record->payment_method ?: 'Manual follow-up'),
+                            ->label(__('admin.fields.payment_method'))
+                            ->content(fn (Order $record): string => $record->payment_method ?: __('admin.placeholders.manual_follow_up')),
                         Placeholder::make('payment_reference')
-                            ->label('Manual Payment Reference')
-                            ->content(fn (Order $record): string => $record->payment_reference ?: 'Not captured'),
+                            ->label(__('admin.fields.payment_reference'))
+                            ->content(fn (Order $record): string => $record->payment_reference ?: __('admin.placeholders.not_captured')),
                         Placeholder::make('customer_note_summary')
-                            ->label('Customer Note')
-                            ->content(fn (Order $record): string => $record->customer_note ?: 'No customer note.')
+                            ->label(__('admin.fields.customer_note'))
+                            ->content(fn (Order $record): string => $record->customer_note ?: __('admin.placeholders.no_customer_note'))
                             ->columnSpanFull(),
                         Select::make('status')
                             ->options(OrderStatus::options())
@@ -87,7 +87,7 @@ class OrderResource extends Resource
     {
         return $schema
             ->components([
-                InfolistSection::make('Order Request Info')
+                InfolistSection::make(__('admin.sections.order_info'))
                     ->schema([
                         TextEntry::make('order_number')
                             ->copyable(),
@@ -103,19 +103,19 @@ class OrderResource extends Resource
                             ->dateTime(),
                     ])
                     ->columns(2),
-                InfolistSection::make('Customer')
+                InfolistSection::make(__('admin.sections.customer'))
                     ->schema([
                         TextEntry::make('user.name')
-                            ->label('Name')
+                            ->label(__('admin.fields.name'))
                             ->url(fn (Order $record): ?string => $record->user ? UserFilamentResource::getUrl('view', ['record' => $record->user]) : null)
                             ->placeholder('-'),
                         TextEntry::make('user.email')
-                            ->label('Email')
+                            ->label(__('admin.fields.email'))
                             ->copyable()
                             ->placeholder('-'),
                     ])
                     ->columns(2),
-                InfolistSection::make('Shipping Address')
+                InfolistSection::make(__('admin.sections.shipping_address'))
                     ->schema([
                         TextEntry::make('shipping_name'),
                         TextEntry::make('shipping_phone')
@@ -131,7 +131,7 @@ class OrderResource extends Resource
                         TextEntry::make('shipping_country'),
                     ])
                     ->columns(2),
-                InfolistSection::make('Manual Payment')
+                InfolistSection::make(__('admin.sections.manual_payment'))
                     ->schema([
                         TextEntry::make('payment_method')
                             ->placeholder('-'),
@@ -140,68 +140,68 @@ class OrderResource extends Resource
                             ->copyable(),
                     ])
                     ->columns(2),
-                InfolistSection::make('Order Items')
+                InfolistSection::make(__('admin.sections.order_items'))
                     ->schema([
                         RepeatableEntry::make('items')
                             ->hiddenLabel()
                             ->schema([
                                 TextEntry::make('product_name')
-                                    ->label('Product'),
+                                    ->label(__('admin.fields.product')),
                                 TextEntry::make('variant_title')
-                                    ->label('Variant')
+                                    ->label(__('admin.fields.variant'))
                                     ->placeholder('-'),
                                 TextEntry::make('variant_sku')
-                                    ->label('SKU')
+                                    ->label(__('admin.fields.sku'))
                                     ->copyable()
                                     ->placeholder('-'),
                                 TextEntry::make('quantity'),
                                 TextEntry::make('unit_price_usd')
-                                    ->label('Unit Price (NZD)')
+                                    ->label(__('admin.fields.unit_price').' (NZD)')
                                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                                 TextEntry::make('subtotal_usd')
-                                    ->label('Subtotal (NZD)')
+                                    ->label(__('admin.fields.subtotal').' (NZD)')
                                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                             ])
                             ->columns(6),
                     ]),
-                InfolistSection::make('Totals')
+                InfolistSection::make(__('admin.sections.totals'))
                     ->schema([
                         TextEntry::make('subtotal_usd')
-                            ->label('Subtotal (NZD)')
+                            ->label(__('admin.fields.subtotal').' (NZD)')
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                         TextEntry::make('shipping_usd')
-                            ->label('Shipping (NZD)')
+                            ->label(__('admin.fields.shipping').' (NZD)')
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                         TextEntry::make('total_usd')
-                            ->label('Total (NZD)')
+                            ->label(__('admin.fields.total').' (NZD)')
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                     ])
                     ->columns(3),
-                InfolistSection::make('Admin Note')
+                InfolistSection::make(__('admin.sections.admin_note'))
                     ->schema([
                         TextEntry::make('customer_note')
-                            ->label('Customer note')
+                            ->label(__('admin.fields.customer_note'))
                             ->placeholder('-'),
                         TextEntry::make('admin_note')
-                            ->label('Internal note')
+                            ->label(__('admin.fields.admin_note'))
                             ->placeholder('-'),
                     ]),
-                InfolistSection::make('Timeline')
+                InfolistSection::make(__('admin.sections.timeline'))
                     ->schema([
                         TextEntry::make('confirmed_at')
-                            ->label('Confirmed')
+                            ->label(__('admin.orders.status.confirmed'))
                             ->dateTime()
                             ->placeholder('-'),
                         TextEntry::make('shipped_at')
-                            ->label('Shipped')
+                            ->label(__('admin.orders.status.shipped'))
                             ->dateTime()
                             ->placeholder('-'),
                         TextEntry::make('delivered_at')
-                            ->label('Delivered')
+                            ->label(__('admin.orders.status.delivered'))
                             ->dateTime()
                             ->placeholder('-'),
                         TextEntry::make('cancelled_at')
-                            ->label('Cancelled')
+                            ->label(__('admin.orders.status.cancelled'))
                             ->dateTime()
                             ->placeholder('-'),
                     ])
@@ -216,7 +216,7 @@ class OrderResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('order_number')
-                    ->label('Order request')
+                    ->label(__('admin.fields.order_number'))
                     ->searchable()
                     ->copyable()
                     ->description(fn (Order $record): string => collect([
@@ -224,7 +224,7 @@ class OrderResource extends Resource
                         $record->payment_reference ?: null,
                     ])->filter()->implode(' | ')),
                 TextColumn::make('user.name')
-                    ->label('Customer')
+                    ->label(__('admin.fields.customer'))
                     ->searchable()
                     ->description(fn (Order $record): string => collect([
                         $record->user?->email ?: $record->guest_email,
@@ -240,24 +240,24 @@ class OrderResource extends Resource
                     ->formatStateUsing(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->label() : (OrderStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->color() : (OrderStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                 TextColumn::make('payment_status')
-                    ->label('Manual payment status')
+                    ->label(__('admin.fields.payment_status'))
                     ->badge()
                     ->formatStateUsing(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->label() : (OrderPaymentStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->color() : (OrderPaymentStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                 TextColumn::make('total_usd')
-                    ->label('Total (NZD)')
+                    ->label(__('admin.fields.total').' (NZD)')
                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                 TextColumn::make('items_count')
-                    ->label('Items')
+                    ->label(__('admin.sections.items'))
                     ->numeric(),
                 TextColumn::make('shipping_country')
-                    ->label('Ship to')
+                    ->label(__('admin.fields.shipping'))
                     ->toggleable(),
                 TextColumn::make('shipping_city')
-                    ->label('City')
+                    ->label(__('admin.fields.city'))
                     ->toggleable(),
                 TextColumn::make('customer_note')
-                    ->label('Customer note')
+                    ->label(__('admin.fields.customer_note'))
                     ->limit(40)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
@@ -266,7 +266,7 @@ class OrderResource extends Resource
             ])
             ->filters([
                 Filter::make('open_fulfilment')
-                    ->label('Open requests')
+                    ->label(__('admin.filters.open_orders'))
                     ->query(fn (Builder $query): Builder => $query->whereIn('status', [
                         OrderStatus::Pending->value,
                         OrderStatus::Confirmed->value,
@@ -278,12 +278,12 @@ class OrderResource extends Resource
                 SelectFilter::make('payment_status')
                     ->options(OrderPaymentStatus::options()),
                 Filter::make('guest_or_registered')
-                    ->label('Customer type')
+                    ->label(__('admin.filters.guest_or_registered'))
                     ->schema([
                         Select::make('type')
                             ->options([
-                                'guest' => 'Guest',
-                                'registered' => 'Registered',
+                                'guest' => __('admin.fields.guest'),
+                                'registered' => __('admin.fields.registered'),
                             ]),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -292,7 +292,7 @@ class OrderResource extends Resource
                             ->when(($data['type'] ?? null) === 'registered', fn (Builder $builder): Builder => $builder->whereNotNull('user_id'));
                     }),
                 SelectFilter::make('shipping_country')
-                    ->label('Ship to country')
+                    ->label(__('admin.fields.country'))
                     ->options(fn (): array => Order::query()
                         ->whereNotNull('shipping_country')
                         ->select('shipping_country')
@@ -301,7 +301,7 @@ class OrderResource extends Resource
                         ->pluck('shipping_country', 'shipping_country')
                         ->all()),
                 SelectFilter::make('shipping_city')
-                    ->label('Ship to city')
+                    ->label(__('admin.fields.city'))
                     ->options(fn (): array => Order::query()
                         ->whereNotNull('shipping_city')
                         ->select('shipping_city')
@@ -320,9 +320,9 @@ class OrderResource extends Resource
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label('Created from'),
+                            ->label(__('admin.fields.created_at').' from'),
                         DatePicker::make('created_until')
-                            ->label('Created until'),
+                            ->label(__('admin.fields.created_at').' until'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -370,7 +370,7 @@ class OrderResource extends Resource
                             ->options(OrderPaymentStatus::options())
                             ->required(),
                         Textarea::make('payment_reference')
-                            ->label('Manual payment reference')
+                            ->label(__('admin.fields.payment_reference'))
                             ->rows(2)
                             ->maxLength(255),
                     ])

@@ -43,12 +43,12 @@ class MediaFileResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 ImageColumn::make('url')
-                    ->label('Preview')
+                    ->label(__('admin.fields.preview'))
                     ->state(fn (MediaFile $record): ?string => str_starts_with((string) $record->mime_type, 'image/') ? $record->url : null)
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x96?text=File'),
                 TextColumn::make('original_name')
-                    ->label('File')
+                    ->label(__('admin.fields.file'))
                     ->searchable()
                     ->description(fn (MediaFile $record): string => $record->path ?: ($record->url ?: '-'))
                     ->limit(50),
@@ -58,31 +58,31 @@ class MediaFileResource extends Resource
                 TextColumn::make('mime_type')
                     ->toggleable(),
                 TextColumn::make('linked_object')
-                    ->label('Linked object')
+                    ->label(__('admin.fields.linked_object'))
                     ->state(fn (MediaFile $record): string => $record->fileable_type
                         ? class_basename($record->fileable_type).' #'.$record->fileable_id
-                        : 'Unlinked')
+                        : __('admin.placeholders.unlinked'))
                     ->toggleable(),
                 TextColumn::make('user.email')
-                    ->label('Uploaded by')
+                    ->label(__('admin.fields.uploaded_by'))
                     ->placeholder('-')
                     ->toggleable(),
                 TextColumn::make('size')
-                    ->label('Size')
+                    ->label(__('admin.fields.size'))
                     ->formatStateUsing(fn (?int $state): string => $state === null ? '-' : number_format($state / 1024, 1).' KB')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Uploaded')
+                    ->label(__('admin.fields.uploaded'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('type')
                     ->options([
-                        'image' => 'Image',
-                        'document' => 'Document',
-                        'video' => 'Video',
-                        'other' => 'Other',
+                        'image' => __('admin.media.type.image'),
+                        'document' => __('admin.media.type.document'),
+                        'video' => __('admin.media.type.video'),
+                        'other' => __('admin.media.type.other'),
                     ]),
                 SelectFilter::make('category')
                     ->options(fn (): array => MediaFile::query()
@@ -108,14 +108,14 @@ class MediaFileResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Preview')
+                Section::make(__('admin.sections.preview'))
                     ->schema([
                         ImageEntry::make('url')
-                            ->label('Image preview')
+                            ->label(__('admin.fields.image_preview'))
                             ->visible(fn (MediaFile $record): bool => str_starts_with((string) $record->mime_type, 'image/'))
                             ->height(240),
                     ]),
-                Section::make('File')
+                Section::make(__('admin.sections.file'))
                     ->schema([
                         TextEntry::make('original_name'),
                         TextEntry::make('type')
@@ -136,19 +136,19 @@ class MediaFileResource extends Resource
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
-                Section::make('Ownership')
+                Section::make(__('admin.sections.ownership'))
                     ->schema([
                         TextEntry::make('user.email')
-                            ->label('Uploaded by')
+                            ->label(__('admin.fields.uploaded_by'))
                             ->placeholder('-'),
                         TextEntry::make('fileable_type')
-                            ->label('Linked type')
+                            ->label(__('admin.fields.linked_type'))
                             ->placeholder('-'),
                         TextEntry::make('fileable_id')
-                            ->label('Linked ID')
+                            ->label(__('admin.fields.linked_id'))
                             ->placeholder('-'),
                         TextEntry::make('created_at')
-                            ->label('Uploaded')
+                            ->label(__('admin.fields.uploaded'))
                             ->dateTime(),
                     ])
                     ->columns(2),

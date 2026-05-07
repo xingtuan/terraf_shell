@@ -100,5 +100,6 @@ export function clearCartSessionKey() {
 
   window.localStorage.removeItem(CART_SESSION_STORAGE_KEY)
   window.localStorage.removeItem(LEGACY_CART_SESSION_STORAGE_KEY)
+  clearDocumentCookie(CART_SESSION_STORAGE_KEY)
   clearDocumentCookie(LEGACY_CART_SESSION_STORAGE_KEY)
 }

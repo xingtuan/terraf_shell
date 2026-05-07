@@ -42,7 +42,7 @@ class InventoryResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Inventory')
+            Section::make(__('admin.sections.inventory'))
                 ->schema([
                     TextInput::make('stock_quantity')
                         ->numeric()
@@ -69,19 +69,19 @@ class InventoryResource extends Resource
                 ->ordered())
             ->columns([
                 TextColumn::make('product.name')
-                    ->label('Product')
+                    ->label(__('admin.fields.product'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('sku')
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('stock_quantity')
-                    ->label('Stock')
+                    ->label(__('admin.fields.stock'))
                     ->sortable()
-                    ->placeholder('Untracked'),
+                    ->placeholder(__('admin.placeholders.untracked')),
                 TextColumn::make('stock_status')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => ProductVariant::STOCK_STATUS_OPTIONS[$state] ?? (string) $state)
+                    ->formatStateUsing(fn (?string $state): string => filled($state) ? __("admin.products.stock_status.{$state}") : '-')
                     ->color(fn (?string $state): string => match ($state) {
                         'in_stock' => 'success',
                         'low_stock' => 'warning',
@@ -91,9 +91,9 @@ class InventoryResource extends Resource
                     }),
                 TextColumn::make('inventory_policy')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => ProductVariant::INVENTORY_POLICY_OPTIONS[$state] ?? (string) $state),
+                    ->formatStateUsing(fn (?string $state): string => filled($state) ? __("admin.products.inventory_policy.{$state}") : '-'),
                 TextColumn::make('inventoryAdjustments.reason')
-                    ->label('Recent adjustments')
+                    ->label(__('admin.fields.reason'))
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->toggleable(),
@@ -102,10 +102,11 @@ class InventoryResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('stock_status')
-                    ->options(ProductVariant::STOCK_STATUS_OPTIONS),
+                    ->options(fn (): array => self::stockStatusOptions()),
                 SelectFilter::make('inventory_policy')
-                    ->options(ProductVariant::INVENTORY_POLICY_OPTIONS),
+                    ->options(fn (): array => self::inventoryPolicyOptions()),
                 Filter::make('low_stock')
+                    ->label(__('admin.filters.low_stock'))
                     ->query(fn (Builder $query): Builder => $query
                         ->whereNotNull('stock_quantity')
                         ->whereColumn('stock_quantity', '<=', 'low_stock_threshold')),
@@ -119,6 +120,26 @@ class InventoryResource extends Resource
     public static function canViewAny(): bool
     {
         return PanelAccess::isAdmin();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function stockStatusOptions(): array
+    {
+        return collect(array_keys(ProductVariant::STOCK_STATUS_OPTIONS))
+            ->mapWithKeys(fn (string $status): array => [$status => __("admin.products.stock_status.{$status}")])
+            ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function inventoryPolicyOptions(): array
+    {
+        return collect(array_keys(ProductVariant::INVENTORY_POLICY_OPTIONS))
+            ->mapWithKeys(fn (string $policy): array => [$policy => __("admin.products.inventory_policy.{$policy}")])
+            ->all();
     }
 
     public static function canEdit(Model $record): bool

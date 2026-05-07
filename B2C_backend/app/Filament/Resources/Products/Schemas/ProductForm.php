@@ -145,7 +145,7 @@ class ProductForm
                                                             ->valueLabel('Value')
                                                             ->columnSpanFull(),
                                                         TextInput::make('price_amount')
-                                                            ->label('Price (NZD)')
+                                                            ->label(__('admin.fields.price').' (NZD)')
                                                             ->numeric()
                                                             ->prefix('$')
                                                             ->required(),
@@ -184,9 +184,9 @@ class ProductForm
                                                             ->directory('cms/products/variants')
                                                             ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
                                                         Toggle::make('is_default')
-                                                            ->label('Default variant'),
+                                                            ->label(__('admin.fields.is_default')),
                                                         Toggle::make('is_active')
-                                                            ->label('Active')
+                                                            ->label(__('admin.account_status.active'))
                                                             ->default(true),
                                                         TextInput::make('sort_order')
                                                             ->numeric()

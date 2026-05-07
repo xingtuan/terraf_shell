@@ -59,6 +59,10 @@ class AdminResourcesAccessTest extends TestCase
             ->assertOk();
 
         $this->actingAs($admin)
+            ->get('/admin/shipping-settings')
+            ->assertOk();
+
+        $this->actingAs($admin)
             ->get('/admin/system-handover-readiness')
             ->assertOk();
     }
@@ -134,6 +138,10 @@ class AdminResourcesAccessTest extends TestCase
 
         $this->actingAs($moderator)
             ->get('/admin/media-files')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
+            ->get('/admin/shipping-settings')
             ->assertForbidden();
 
         $this->actingAs($moderator)

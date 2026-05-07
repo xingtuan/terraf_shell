@@ -181,7 +181,7 @@ class B2BLeadsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->label('Review'),
+                    ->label(__('admin.actions.review')),
                 Action::make('assign')
                     ->label(__('admin.actions.assign'))
                     ->icon('heroicon-o-user-plus')
@@ -268,7 +268,7 @@ class B2BLeadsTable
                         );
 
                         Notification::make()
-                            ->title('Lead archived.')
+                            ->title(__('admin.notifications.lead_archived'))
                             ->success()
                             ->send();
                     }),

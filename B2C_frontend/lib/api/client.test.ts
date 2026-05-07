@@ -6,6 +6,7 @@ import {
   getErrorMessage,
   getFieldErrors,
   getLocalizedErrorMessage,
+  requestApi,
 } from "./client.ts"
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -61,6 +62,38 @@ describe("ApiError", () => {
 })
 
 // ── getErrorMessage ───────────────────────────────────────────────────────────
+
+describe("requestApi auth header", () => {
+  it("omits Authorization when token is null and sends it when token is present", async () => {
+    const originalFetch = globalThis.fetch
+    const authorizationHeaders: Array<string | null> = []
+
+    globalThis.fetch = (async (_input: RequestInfo | URL, init?: RequestInit) => {
+      authorizationHeaders.push(new Headers(init?.headers).get("Authorization"))
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: null,
+          data: { ok: true },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      )
+    }) as typeof fetch
+
+    try {
+      await requestApi<{ ok: boolean }>("/orders", { token: null })
+      await requestApi<{ ok: boolean }>("/orders", { token: "auth-token" })
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+
+    assert.deepEqual(authorizationHeaders, [null, "Bearer auth-token"])
+  })
+})
 
 describe("getErrorMessage", () => {
   it("returns first field error when errors are present", () => {

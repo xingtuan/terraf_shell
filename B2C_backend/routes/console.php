@@ -6,6 +6,7 @@ use App\Services\Email\EmailDispatchService;
 use App\Services\Email\EmailTemplateRenderer;
 use Database\Seeders\EmailCenterSeeder;
 use Illuminate\Foundation\Inspiring;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Console\Command\Command;
 
@@ -72,3 +73,51 @@ Artisan::command('email:center:preview {eventKey} {--locale=en}', function (stri
 
     return Command::SUCCESS;
 })->purpose('Preview a rendered Email Center template');
+
+Artisan::command('admin:check-translations', function (): int {
+    $locales = ['en', 'ko', 'zh'];
+    $keysByLocale = [];
+
+    foreach ($locales as $locale) {
+        $path = lang_path("{$locale}/admin.php");
+
+        if (! file_exists($path)) {
+            $this->error("Missing admin translation file: {$path}");
+
+            return Command::FAILURE;
+        }
+
+        $translations = require $path;
+        $keysByLocale[$locale] = array_keys(Arr::dot($translations));
+        sort($keysByLocale[$locale]);
+    }
+
+    $referenceKeys = $keysByLocale['en'];
+    $failed = false;
+
+    foreach ($locales as $locale) {
+        $missing = array_values(array_diff($referenceKeys, $keysByLocale[$locale]));
+        $extra = array_values(array_diff($keysByLocale[$locale], $referenceKeys));
+
+        if ($missing !== [] || $extra !== []) {
+            $failed = true;
+            $this->error("admin.php key mismatch for [{$locale}].");
+
+            foreach ($missing as $key) {
+                $this->line("  missing: {$key}");
+            }
+
+            foreach ($extra as $key) {
+                $this->line("  extra: {$key}");
+            }
+        }
+    }
+
+    if ($failed) {
+        return Command::FAILURE;
+    }
+
+    $this->info('Admin translation keys match for en, ko, and zh.');
+
+    return Command::SUCCESS;
+})->purpose('Verify admin translation keys across en, ko, and zh');
