@@ -10,7 +10,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cart_items', function (Blueprint $table): void {
+            $table->dropForeign(['cart_id']);
             $table->dropUnique(['cart_id', 'product_id']);
+            $table->foreign('cart_id')->references('id')->on('carts')->cascadeOnDelete();
+
             $table->foreignId('product_variant_id')
                 ->nullable()
                 ->after('product_id')
@@ -109,7 +112,9 @@ return new class extends Migration
                 'unit_price_amount',
                 'currency',
             ]);
+            $table->dropForeign(['cart_id']);
             $table->unique(['cart_id', 'product_id']);
+            $table->foreign('cart_id')->references('id')->on('carts')->cascadeOnDelete();
         });
     }
 };
