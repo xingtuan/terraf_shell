@@ -8,21 +8,26 @@ use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\MediaFile;
+use App\Support\StorageUrl;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class MediaFileResource extends Resource
 {
@@ -52,9 +57,29 @@ class MediaFileResource extends Resource
                     ->searchable()
                     ->description(fn (MediaFile $record): string => $record->path ?: ($record->url ?: '-'))
                     ->limit(50),
+                TextColumn::make('disk')
+                    ->label('Disk')
+                    ->badge()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('path')
+                    ->label(__('admin.fields.path'))
+                    ->copyable()
+                    ->limit(45)
+                    ->toggleable(),
+                TextColumn::make('public_url')
+                    ->label('Public URL')
+                    ->state(fn (MediaFile $record): ?string => $record->url)
+                    ->copyable()
+                    ->limit(45)
+                    ->toggleable(),
                 TextColumn::make('type')
                     ->badge()
                     ->searchable(),
+                TextColumn::make('category')
+                    ->badge()
+                    ->placeholder('-')
+                    ->toggleable(),
                 TextColumn::make('mime_type')
                     ->toggleable(),
                 TextColumn::make('linked_object')
@@ -79,11 +104,20 @@ class MediaFileResource extends Resource
             ->filters([
                 SelectFilter::make('type')
                     ->options([
-                        'image' => __('admin.media.type.image'),
-                        'document' => __('admin.media.type.document'),
-                        'video' => __('admin.media.type.video'),
-                        'other' => __('admin.media.type.other'),
+                        'images' => __('admin.media.type.image'),
+                        'documents' => __('admin.media.type.document'),
+                        'videos' => __('admin.media.type.video'),
+                        'audios' => 'Audio',
+                        'others' => __('admin.media.type.other'),
                     ]),
+                SelectFilter::make('disk')
+                    ->options(fn (): array => MediaFile::query()
+                        ->whereNotNull('disk')
+                        ->select('disk')
+                        ->distinct()
+                        ->orderBy('disk')
+                        ->pluck('disk', 'disk')
+                        ->all()),
                 SelectFilter::make('category')
                     ->options(fn (): array => MediaFile::query()
                         ->whereNotNull('category')
@@ -92,15 +126,74 @@ class MediaFileResource extends Resource
                         ->orderBy('category')
                         ->pluck('category', 'category')
                         ->all()),
+                Filter::make('created_at')
+                    ->schema([
+                        DatePicker::make('created_from')->label('Uploaded from'),
+                        DatePicker::make('created_until')->label('Uploaded until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['created_from'] ?? null, fn (Builder $builder, string $date): Builder => $builder->whereDate('created_at', '>=', $date))
+                            ->when($data['created_until'] ?? null, fn (Builder $builder, string $date): Builder => $builder->whereDate('created_at', '<=', $date));
+                    }),
             ])
             ->recordActions([
                 ViewAction::make(),
+                Action::make('copyPublicUrl')
+                    ->label('Copy public URL')
+                    ->icon('heroicon-o-clipboard')
+                    ->action(function (MediaFile $record): void {
+                        Notification::make()
+                            ->title('Public URL is copyable from the URL column.')
+                            ->body((string) $record->url)
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('testExists')
+                    ->label('Test file exists')
+                    ->icon('heroicon-o-check-circle')
+                    ->action(function (MediaFile $record): void {
+                        $exists = Storage::disk($record->disk ?: (string) config('community.uploads.disk'))->exists($record->path);
+
+                        Notification::make()
+                            ->title($exists ? 'File exists on disk.' : 'File is missing from disk.')
+                            ->{$exists ? 'success' : 'danger'}()
+                            ->send();
+                    }),
+                Action::make('regenerateUrl')
+                    ->label('Regenerate URL')
+                    ->icon('heroicon-o-arrow-path')
+                    ->action(function (MediaFile $record): void {
+                        $record->forceFill([
+                            'url' => StorageUrl::publicResolve($record->path, $record->disk),
+                        ])->save();
+
+                        Notification::make()
+                            ->title('Public URL regenerated.')
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('download')
                     ->label(__('admin.actions.download'))
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn (MediaFile $record): ?string => $record->url)
                     ->openUrlInNewTab()
                     ->visible(fn (MediaFile $record): bool => filled($record->url)),
+                Action::make('deleteSafe')
+                    ->label(__('admin.actions.delete'))
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (MediaFile $record): bool => PanelAccess::isAdmin() && blank($record->fileable_type) && blank($record->fileable_id))
+                    ->action(function (MediaFile $record): void {
+                        Storage::disk($record->disk ?: (string) config('community.uploads.disk'))->delete($record->path);
+                        $record->delete();
+
+                        Notification::make()
+                            ->title(__('admin.notifications.deleted'))
+                            ->success()
+                            ->send();
+                    }),
             ]);
     }
 
@@ -120,6 +213,14 @@ class MediaFileResource extends Resource
                         TextEntry::make('original_name'),
                         TextEntry::make('type')
                             ->badge(),
+                        TextEntry::make('disk')
+                            ->label('Disk')
+                            ->badge()
+                            ->placeholder('-'),
+                        TextEntry::make('category')
+                            ->label('Category')
+                            ->badge()
+                            ->placeholder('-'),
                         TextEntry::make('mime_type')
                             ->placeholder('-'),
                         TextEntry::make('size')

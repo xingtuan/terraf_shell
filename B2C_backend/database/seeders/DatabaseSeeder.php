@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             MaterialContentSeeder::class,
             ProductSeeder::class,
             EmailCenterSeeder::class,
+            DefaultAppSettingsSeeder::class,
         ]);
     }
 }

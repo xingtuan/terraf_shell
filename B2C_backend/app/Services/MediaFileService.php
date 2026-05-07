@@ -27,6 +27,7 @@ class MediaFileService
 
             return MediaFile::query()->create([
                 'user_id' => $user?->id,
+                'disk' => $stored['disk'],
                 'original_name' => $stored['original_name'],
                 'path' => $stored['path'],
                 'url' => $this->mediaService->publicUrl($stored['path']),
@@ -54,7 +55,7 @@ class MediaFileService
         }
 
         DB::transaction(function () use ($mediaFile): void {
-            $this->mediaService->delete($mediaFile->path);
+            $this->mediaService->deletePath($mediaFile->path, $mediaFile->disk);
             $mediaFile->delete();
         });
     }

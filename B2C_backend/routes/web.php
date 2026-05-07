@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Install\InstallController;
 use App\Http\Controllers\MediaController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,11 @@ Route::get('/', function (): JsonResponse {
             'health_check' => '/up',
         ],
     ]);
+});
+
+Route::middleware('throttle:install')->group(function (): void {
+    Route::get('/install', [InstallController::class, 'index'])->name('install.index');
+    Route::post('/install', [InstallController::class, 'store'])->name('install.store');
 });
 
 Route::get('/media/files/{disk}/{path}', [MediaController::class, 'show'])

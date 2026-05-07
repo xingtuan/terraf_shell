@@ -34,7 +34,7 @@ class EmailSettings extends Page
 
     protected static ?string $navigationLabel = null;
 
-    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::EmailCenter;
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemSettings;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-envelope';
 
@@ -56,7 +56,7 @@ class EmailSettings extends Page
 
     public static function getNavigationLabel(): string
     {
-        return __('admin.pages.email_settings_nav');
+        return __('admin.pages.mail_settings_nav');
     }
 
     public function getTitle(): string

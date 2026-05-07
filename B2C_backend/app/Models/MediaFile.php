@@ -12,6 +12,7 @@ class MediaFile extends Model
 {
     protected $fillable = [
         'user_id',
+        'disk',
         'original_name',
         'path',
         'url',
@@ -38,7 +39,10 @@ class MediaFile extends Model
     protected function url(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value, array $attributes): ?string => StorageUrl::resolve($attributes['path'] ?? null) ?? $value,
+            get: fn (?string $value, array $attributes): ?string => StorageUrl::resolve(
+                $attributes['path'] ?? null,
+                $attributes['disk'] ?? null,
+            ) ?? $value,
         );
     }
 

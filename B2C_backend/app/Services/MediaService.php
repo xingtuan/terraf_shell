@@ -3,14 +3,17 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Support\StorageUrl;
+use App\Services\Storage\StorageManagerService;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RuntimeException;
 
 class MediaService
 {
+    public function __construct(
+        private readonly StorageManagerService $storage,
+    ) {}
+
     /**
      * Store a community attachment and return the legacy idea_media payload.
      *
@@ -22,7 +25,7 @@ class MediaService
         $isImage = $this->isImageMime($stored['mime']);
 
         return [
-            'disk' => $this->disk(),
+            'disk' => $stored['disk'],
             'original_name' => $stored['original_name'],
             'file_name' => basename($stored['path']),
             'extension' => strtolower((string) pathinfo($stored['path'], PATHINFO_EXTENSION)),
@@ -68,7 +71,7 @@ class MediaService
     /**
      * Upload a file to the configured storage disk.
      *
-     * @return array{url: string, path: string, type: string, mime: string, size: int, original_name: string}
+     * @return array{url: string, path: string, disk: string, type: string, mime: string, size: int, original_name: string}
      */
     public function upload(UploadedFile $file, ?string $category = null): array
     {
@@ -85,11 +88,12 @@ class MediaService
             throw new RuntimeException('Unable to read the uploaded file.');
         }
 
-        Storage::disk($this->disk())->put($path, $contents, 'public');
+        $this->storage->put($path, $contents, ['visibility' => 'public']);
 
         return [
             'url' => $this->url($path),
             'path' => $path,
+            'disk' => $this->disk(),
             'type' => $type,
             'mime' => $mime,
             'size' => (int) ($file->getSize() ?? 0),
@@ -106,7 +110,7 @@ class MediaService
             return;
         }
 
-        Storage::disk($this->disk())->delete($path);
+        $this->storage->delete($path);
     }
 
     /**
@@ -114,7 +118,7 @@ class MediaService
      */
     public function move(string $oldPath, string $newPath): bool
     {
-        return Storage::disk($this->disk())->move($oldPath, $newPath);
+        return $this->storage->move($oldPath, $newPath);
     }
 
     /**
@@ -126,7 +130,7 @@ class MediaService
             return;
         }
 
-        Storage::disk($disk ?: $this->disk())->delete($path);
+        $this->storage->delete($path, $disk ?: $this->disk());
     }
 
     /**
@@ -134,7 +138,7 @@ class MediaService
      */
     public function disk(): string
     {
-        return (string) config('community.uploads.disk', env('COMMUNITY_UPLOAD_DISK', 'azure'));
+        return $this->storage->disk();
     }
 
     /**
@@ -142,7 +146,7 @@ class MediaService
      */
     public function url(string $path): string
     {
-        return (string) StorageUrl::resolve($path, $this->disk());
+        return $this->storage->url($path);
     }
 
     /**
@@ -150,7 +154,7 @@ class MediaService
      */
     public function publicUrl(string $path): string
     {
-        return (string) StorageUrl::publicResolve($path, $this->disk());
+        return $this->storage->publicUrl($path);
     }
 
     /**

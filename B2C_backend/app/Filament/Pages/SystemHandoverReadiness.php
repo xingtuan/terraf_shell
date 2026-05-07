@@ -21,7 +21,7 @@ class SystemHandoverReadiness extends Page
 
     protected static ?string $navigationLabel = null;
 
-    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemHandover;
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemSettings;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
 
@@ -55,7 +55,7 @@ class SystemHandoverReadiness extends Page
         return [
             $this->row(__('admin.system.checks.app_name'), (string) config('app.name'), 'ok'),
             $this->row(__('admin.system.checks.app_url'), (string) config('app.url'), filled(config('app.url')) ? 'ok' : 'warning'),
-            $this->row(__('admin.system.checks.frontend_url'), (string) config('app.frontend_url', env('FRONTEND_URL', '')), filled(config('app.frontend_url', env('FRONTEND_URL', ''))) ? 'ok' : 'warning'),
+            $this->row(__('admin.system.checks.frontend_url'), (string) config('app.frontend_url', config('services.frontend.url', '')), filled(config('app.frontend_url', config('services.frontend.url', ''))) ? 'ok' : 'warning'),
             $this->row(__('admin.system.checks.environment'), (string) config('app.env'), app()->environment('production') ? 'ok' : 'warning'),
             $this->databaseRow(),
             $this->storageRow($uploadDisk),

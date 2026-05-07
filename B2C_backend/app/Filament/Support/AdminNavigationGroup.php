@@ -14,6 +14,7 @@ enum AdminNavigationGroup: string implements HasLabel
     case EmailCenter = 'email_center';
     case UsersGovernance = 'users_governance';
     case MediaLibrary = 'media_library';
+    case SystemSettings = 'system_settings';
     case SystemHandover = 'system_handover';
 
     public function getLabel(): string

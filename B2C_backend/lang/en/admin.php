@@ -20,6 +20,7 @@ return [
         'email_center' => 'Email Center',
         'users_governance' => 'Users & Governance',
         'media_library' => 'Media Library',
+        'system_settings' => 'System / Settings',
         'system_handover' => 'System / Handover',
     ],
 
@@ -71,8 +72,15 @@ return [
     ],
 
     'pages' => [
+        'application_settings' => 'Application Settings',
+        'storage_settings' => 'Storage Settings',
+        'nz_post_settings' => 'NZ Post Settings',
+        'tax_settings' => 'Tax Settings',
+        'community_settings' => 'Community Settings',
+        'feature_flags' => 'Feature Flags',
         'email_settings' => 'Email Settings',
         'email_settings_nav' => 'Settings',
+        'mail_settings_nav' => 'Mail Settings',
         'moderation_queue' => 'Moderation Queue',
         'moderation_queue_subheading' => 'Approve or reject pending community posts and comments from one screen.',
         'moderation_settings' => 'Moderation Settings',

@@ -20,6 +20,7 @@ return [
         'email_center' => 'Email Center',
         'users_governance' => '用户与治理',
         'media_library' => '媒体库',
+        'system_settings' => '系统 / 设置',
         'system_handover' => '系统 / 交付',
     ],
 
@@ -71,8 +72,15 @@ return [
     ],
 
     'pages' => [
+        'application_settings' => 'Application Settings',
+        'storage_settings' => 'Storage Settings',
+        'nz_post_settings' => 'NZ Post Settings',
+        'tax_settings' => 'Tax Settings',
+        'community_settings' => 'Community Settings',
+        'feature_flags' => 'Feature Flags',
         'email_settings' => 'Email Center 设置',
         'email_settings_nav' => '设置',
+        'mail_settings_nav' => '邮件设置',
         'moderation_queue' => '审核队列',
         'moderation_queue_subheading' => '在一个页面批准或拒绝待审核的社区帖子和评论。',
         'moderation_settings' => '审核设置',

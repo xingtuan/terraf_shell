@@ -20,6 +20,7 @@ return [
         'email_center' => 'Email Center',
         'users_governance' => '사용자 및 거버넌스',
         'media_library' => '미디어 라이브러리',
+        'system_settings' => '시스템 / 설정',
         'system_handover' => '시스템 / 인수인계',
     ],
 
@@ -71,8 +72,15 @@ return [
     ],
 
     'pages' => [
+        'application_settings' => 'Application Settings',
+        'storage_settings' => 'Storage Settings',
+        'nz_post_settings' => 'NZ Post Settings',
+        'tax_settings' => 'Tax Settings',
+        'community_settings' => 'Community Settings',
+        'feature_flags' => 'Feature Flags',
         'email_settings' => 'Email Center 설정',
         'email_settings_nav' => '설정',
+        'mail_settings_nav' => '메일 설정',
         'moderation_queue' => '모더레이션 대기열',
         'moderation_queue_subheading' => '대기 중인 커뮤니티 게시물과 댓글을 한 화면에서 승인하거나 거절합니다.',
         'moderation_settings' => '모더레이션 설정',

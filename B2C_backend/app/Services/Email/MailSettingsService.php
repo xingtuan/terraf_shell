@@ -4,6 +4,7 @@ namespace App\Services\Email;
 
 use App\Models\EmailSetting;
 use App\Models\User;
+use App\Services\Settings\SettingsService;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -20,6 +21,10 @@ class MailSettingsService
         'log',
         'array',
     ];
+
+    public function __construct(
+        private readonly SettingsService $settings,
+    ) {}
 
     public function getDatabaseSettings(): ?EmailSetting
     {
@@ -197,6 +202,7 @@ class MailSettingsService
         }
 
         $settings->save();
+        $this->syncToRuntimeSettings($settings, $actor);
 
         return $settings;
     }
@@ -266,5 +272,30 @@ class MailSettingsService
         }
 
         return $payload;
+    }
+
+    private function syncToRuntimeSettings(EmailSetting $settings, ?User $actor): void
+    {
+        $payload = [
+            'mail.enabled' => ['value' => (bool) $settings->is_enabled, 'type' => 'boolean', 'updated_by' => $actor],
+            'mail.mailer' => ['value' => $settings->mailer, 'type' => 'string', 'updated_by' => $actor],
+            'mail.host' => ['value' => $settings->host, 'type' => 'string', 'updated_by' => $actor],
+            'mail.port' => ['value' => $settings->port, 'type' => 'integer', 'updated_by' => $actor],
+            'mail.username' => ['value' => $settings->username, 'type' => 'string', 'updated_by' => $actor],
+            'mail.encryption' => ['value' => $settings->encryption, 'type' => 'string', 'updated_by' => $actor],
+            'mail.from_address' => ['value' => $settings->from_address, 'type' => 'string', 'updated_by' => $actor],
+            'mail.from_name' => ['value' => $settings->from_name, 'type' => 'string', 'updated_by' => $actor],
+        ];
+
+        if (filled($settings->password)) {
+            $payload['mail.password'] = [
+                'value' => $settings->password,
+                'type' => 'string',
+                'is_secret' => true,
+                'updated_by' => $actor,
+            ];
+        }
+
+        $this->settings->setMany($payload);
     }
 }

@@ -153,5 +153,6 @@ class AppServiceProvider extends ServiceProvider
                 strtolower((string) $request->input('email')).'|'.$request->ip()
             )
         );
+        RateLimiter::for('install', fn ($request): Limit => Limit::perMinute(5)->by($request->ip()));
     }
 }

@@ -5,12 +5,14 @@ namespace App\Filament\Pages;
 use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Models\Cart;
+use App\Services\Settings\SettingsService;
 use App\Services\Shipping\AddressLookupService;
 use App\Services\Shipping\NzPostClient;
 use App\Services\Shipping\ShippingQuoteService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -34,7 +36,7 @@ class ShippingSettings extends Page
 
     protected static ?string $navigationLabel = null;
 
-    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemSettings;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-truck';
 
@@ -42,9 +44,16 @@ class ShippingSettings extends Page
 
     protected static ?string $slug = 'shipping-settings';
 
-    public function mount(): void
+    public function mount(SettingsService $settings): void
     {
         $this->form->fill([
+            'nz_only' => $settings->boolean('shipping.nz_only', true),
+            'origin_city' => $settings->string('shipping.origin_city', (string) config('store.shipping.origin.city', '')),
+            'origin_postcode' => $settings->string('shipping.origin_postcode', (string) config('store.shipping.origin.postcode', '')),
+            'free_shipping_threshold' => $settings->get('shipping.free_shipping_threshold', config('store.shipping.free_shipping_threshold', 200)),
+            'fallback_standard_amount' => $settings->get('shipping.fallback_standard_amount', config('store.shipping.standard_rate', 8)),
+            'fallback_express_amount' => $settings->get('shipping.fallback_express_amount', config('store.shipping.express_rate', 14)),
+            'rural_surcharge' => $settings->get('shipping.rural_surcharge', config('store.shipping.rural_surcharge', 5)),
             'address_lookup_query' => 'Auckland',
             'shipping_quote_postcode' => (string) (config('store.shipping.origin.postcode') ?: '1010'),
         ]);
@@ -94,30 +103,36 @@ class ShippingSettings extends Page
                     ->schema([
                         Grid::make(3)
                             ->schema([
-                                Placeholder::make('origin_city')
+                                Toggle::make('nz_only')
+                                    ->label('NZ-only shipping'),
+                                TextInput::make('origin_city')
                                     ->label(__('admin.fields.origin_city'))
-                                    ->content(fn (): string => $this->displayValue(config('store.shipping.origin.city'))),
-                                Placeholder::make('origin_postcode')
+                                    ->maxLength(120),
+                                TextInput::make('origin_postcode')
                                     ->label(__('admin.fields.origin_postcode'))
-                                    ->content(fn (): string => $this->displayValue(config('store.shipping.origin.postcode'))),
+                                    ->maxLength(20),
                                 Placeholder::make('origin_country')
                                     ->label(__('admin.fields.origin_country'))
                                     ->content(fn (): string => $this->displayValue(config('store.shipping.origin.country', 'NZ'))),
                                 Placeholder::make('default_package_weight')
                                     ->label(__('admin.fields.default_package_weight'))
                                     ->content('500 g'),
-                                Placeholder::make('free_shipping_threshold')
+                                TextInput::make('free_shipping_threshold')
                                     ->label(__('admin.fields.free_shipping_threshold'))
-                                    ->content(fn (): string => $this->money(config('store.shipping.free_shipping_threshold', 200))),
-                                Placeholder::make('standard_rate')
+                                    ->numeric()
+                                    ->minValue(0),
+                                TextInput::make('fallback_standard_amount')
                                     ->label(__('admin.fields.standard_shipping_amount'))
-                                    ->content(fn (): string => $this->money(config('store.shipping.standard_rate', 8))),
-                                Placeholder::make('express_rate')
+                                    ->numeric()
+                                    ->minValue(0),
+                                TextInput::make('fallback_express_amount')
                                     ->label(__('admin.fields.express_shipping_amount'))
-                                    ->content(fn (): string => $this->money(config('store.shipping.express_rate', 14))),
-                                Placeholder::make('rural_surcharge')
+                                    ->numeric()
+                                    ->minValue(0),
+                                TextInput::make('rural_surcharge')
                                     ->label(__('admin.fields.rural_surcharge'))
-                                    ->content(fn (): string => $this->money(config('store.shipping.rural_surcharge', 5))),
+                                    ->numeric()
+                                    ->minValue(0),
                                 Placeholder::make('tax')
                                     ->label(__('admin.fields.tax_label'))
                                     ->content(fn (): string => sprintf(
@@ -144,6 +159,26 @@ class ShippingSettings extends Page
                             ]),
                     ]),
             ]);
+    }
+
+    public function save(SettingsService $settings): void
+    {
+        $state = $this->form->getState();
+
+        $settings->setMany([
+            'shipping.nz_only' => ['value' => (bool) ($state['nz_only'] ?? true), 'type' => 'boolean'],
+            'shipping.origin_city' => ['value' => $state['origin_city'] ?? null, 'type' => 'string'],
+            'shipping.origin_postcode' => ['value' => $state['origin_postcode'] ?? null, 'type' => 'string'],
+            'shipping.free_shipping_threshold' => ['value' => (float) ($state['free_shipping_threshold'] ?? 200), 'type' => 'float'],
+            'shipping.fallback_standard_amount' => ['value' => (float) ($state['fallback_standard_amount'] ?? 8), 'type' => 'float'],
+            'shipping.fallback_express_amount' => ['value' => (float) ($state['fallback_express_amount'] ?? 14), 'type' => 'float'],
+            'shipping.rural_surcharge' => ['value' => (float) ($state['rural_surcharge'] ?? 5), 'type' => 'float'],
+        ]);
+
+        Notification::make()
+            ->title(__('admin.notifications.saved'))
+            ->success()
+            ->send();
     }
 
     public function testAddressLookup(AddressLookupService $addressLookupService): void
@@ -209,6 +244,7 @@ class ShippingSettings extends Page
                 EmbeddedSchema::make('form'),
             ])
                 ->id('form')
+                ->livewireSubmitHandler('save')
                 ->footer([
                     Actions::make($this->getFormActions()),
                 ]),
@@ -218,6 +254,10 @@ class ShippingSettings extends Page
     protected function getFormActions(): array
     {
         return [
+            Action::make('save')
+                ->label(__('admin.actions.save_settings'))
+                ->submit('save')
+                ->requiresConfirmation(),
             Action::make('testAddressLookup')
                 ->label(__('admin.actions.test_address_lookup'))
                 ->action('testAddressLookup'),

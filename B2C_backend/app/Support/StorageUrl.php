@@ -15,7 +15,7 @@ class StorageUrl
             return null;
         }
 
-        $resolvedDisk = (string) ($disk ?: config('community.uploads.disk', env('COMMUNITY_UPLOAD_DISK', 'azure')));
+        $resolvedDisk = (string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public')));
 
         if ($resolvedDisk === 'azure' && self::shouldUseAzureSignedUrls()) {
             return Storage::disk($resolvedDisk)->temporaryUrl(
@@ -36,7 +36,7 @@ class StorageUrl
             return null;
         }
 
-        $resolvedDisk = (string) ($disk ?: config('community.uploads.disk', env('COMMUNITY_UPLOAD_DISK', 'azure')));
+        $resolvedDisk = (string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public')));
 
         if ($resolvedDisk === 'azure') {
             $baseUrl = self::azureBaseUrl();
