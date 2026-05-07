@@ -1,0 +1,153 @@
+<?php
+
+namespace App\Filament\Pages;
+
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\PanelAccess;
+use App\Models\EmailSetting;
+use App\Models\Post;
+use App\Models\User;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
+
+class SystemHandoverReadiness extends Page
+{
+    protected string $view = 'filament.pages.system-handover-readiness';
+
+    protected static ?string $title = null;
+
+    protected static ?string $navigationLabel = null;
+
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemHandover;
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
+
+    protected static ?int $navigationSort = 10;
+
+    protected static ?string $slug = 'system-handover-readiness';
+
+    public static function canAccess(): bool
+    {
+        return PanelAccess::isAdmin();
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.system_handover_readiness');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.system_handover_readiness');
+    }
+
+    /**
+     * @return array<int, array{label: string, value: string, status: string, detail?: string}>
+     */
+    public function checks(): array
+    {
+        $emailSetting = Schema::hasTable('email_settings') ? EmailSetting::query()->latest('id')->first() : null;
+        $uploadDisk = (string) config('community.uploads.disk', config('filesystems.default'));
+
+        return [
+            $this->row(__('admin.system.checks.app_name'), (string) config('app.name'), 'ok'),
+            $this->row(__('admin.system.checks.app_url'), (string) config('app.url'), filled(config('app.url')) ? 'ok' : 'warning'),
+            $this->row(__('admin.system.checks.frontend_url'), (string) config('app.frontend_url', env('FRONTEND_URL', '')), filled(config('app.frontend_url', env('FRONTEND_URL', ''))) ? 'ok' : 'warning'),
+            $this->row(__('admin.system.checks.environment'), (string) config('app.env'), app()->environment('production') ? 'ok' : 'warning'),
+            $this->databaseRow(),
+            $this->storageRow($uploadDisk),
+            $this->row(__('admin.system.checks.mail_enabled'), $emailSetting?->is_enabled ? __('admin.system.enabled') : __('admin.system.disabled'), $emailSetting?->is_enabled ? 'ok' : 'warning'),
+            $this->row(__('admin.system.checks.mail_provider'), (string) ($emailSetting?->mailer ?: config('mail.default')), 'ok', __('admin.system.secrets_hidden')),
+            $this->row(__('admin.system.checks.queue_connection'), (string) config('queue.default'), config('queue.default') === 'sync' ? 'warning' : 'ok'),
+            $this->row(__('admin.system.checks.cache_driver'), (string) config('cache.default'), 'ok'),
+            $this->row(__('admin.system.checks.session_driver'), (string) config('session.driver'), 'ok'),
+            $this->row(__('admin.system.checks.upload_disk'), $uploadDisk, 'ok'),
+            $this->row(__('admin.system.checks.storage_link'), file_exists(public_path('storage')) ? __('admin.system.yes') : __('admin.system.no'), file_exists(public_path('storage')) ? 'ok' : 'warning'),
+            $this->row(__('admin.system.checks.key_admin'), User::query()->where('role', 'admin')->exists() ? __('admin.system.yes') : __('admin.system.no'), User::query()->where('role', 'admin')->exists() ? 'ok' : 'error'),
+            $this->row(__('admin.system.checks.demo_data'), $this->demoDataExists() ? __('admin.system.yes') : __('admin.system.no'), $this->demoDataExists() ? 'warning' : 'ok'),
+            $this->row(__('admin.system.checks.failed_jobs'), __('admin.system.failed_jobs', ['count' => $this->failedJobsCount()]), $this->failedJobsCount() > 0 ? 'error' : 'ok'),
+            $this->row(__('admin.system.checks.php_version'), PHP_VERSION, version_compare(PHP_VERSION, '8.3.0', '>=') ? 'ok' : 'error'),
+            $this->row(__('admin.system.checks.laravel_version'), app()->version(), 'ok'),
+            $this->row(__('admin.system.checks.writable_storage'), storage_path(), is_writable(storage_path()) ? 'ok' : 'error'),
+            $this->row(__('admin.system.checks.writable_bootstrap_cache'), base_path('bootstrap/cache'), is_writable(base_path('bootstrap/cache')) ? 'ok' : 'error'),
+            $this->lastMigrationRow(),
+        ];
+    }
+
+    /**
+     * @return array{label: string, value: string, status: string, detail?: string}
+     */
+    private function row(string $label, string $value, string $status, ?string $detail = null): array
+    {
+        return array_filter([
+            'label' => $label,
+            'value' => $value,
+            'status' => $status,
+            'detail' => $detail,
+        ], fn ($value): bool => $value !== null);
+    }
+
+    /**
+     * @return array{label: string, value: string, status: string, detail?: string}
+     */
+    private function databaseRow(): array
+    {
+        try {
+            DB::select('select 1');
+
+            return $this->row(__('admin.system.checks.database'), __('admin.system.connected'), 'ok', (string) config('database.default'));
+        } catch (Throwable $throwable) {
+            return $this->row(__('admin.system.checks.database'), __('admin.system.failed'), 'error', $throwable->getMessage());
+        }
+    }
+
+    /**
+     * @return array{label: string, value: string, status: string, detail?: string}
+     */
+    private function storageRow(string $disk): array
+    {
+        try {
+            Storage::disk($disk);
+
+            return $this->row(__('admin.system.checks.storage_disk'), __('admin.system.configured'), 'ok', $disk);
+        } catch (Throwable $throwable) {
+            return $this->row(__('admin.system.checks.storage_disk'), __('admin.system.failed'), 'error', $throwable->getMessage());
+        }
+    }
+
+    private function demoDataExists(): bool
+    {
+        return Schema::hasColumn('posts', 'is_demo_content')
+            && Post::query()->where('is_demo_content', true)->exists();
+    }
+
+    private function failedJobsCount(): int
+    {
+        return Schema::hasTable('failed_jobs') ? (int) DB::table('failed_jobs')->count() : 0;
+    }
+
+    /**
+     * @return array{label: string, value: string, status: string, detail?: string}
+     */
+    private function lastMigrationRow(): array
+    {
+        if (! Schema::hasTable('migrations')) {
+            return $this->row(__('admin.system.checks.last_migration'), __('admin.system.not_available'), 'warning');
+        }
+
+        $migration = DB::table('migrations')
+            ->orderByDesc('batch')
+            ->orderByDesc('id')
+            ->first();
+
+        return $this->row(
+            __('admin.system.checks.last_migration'),
+            $migration?->migration ?: __('admin.system.not_available'),
+            $migration ? 'ok' : 'warning',
+            $migration ? __('admin.system.batch', ['batch' => $migration->batch]) : null,
+        );
+    }
+}

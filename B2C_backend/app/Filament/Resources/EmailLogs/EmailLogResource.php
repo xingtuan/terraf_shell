@@ -4,6 +4,8 @@ namespace App\Filament\Resources\EmailLogs;
 
 use App\Filament\Resources\EmailLogs\Pages\ListEmailLogs;
 use App\Filament\Resources\EmailLogs\Pages\ViewEmailLog;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\EmailEvent;
 use App\Models\EmailLog;
@@ -28,11 +30,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class EmailLogResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = EmailLog::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Email Center';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::EmailCenter;
 
     protected static ?string $navigationLabel = 'Logs';
 

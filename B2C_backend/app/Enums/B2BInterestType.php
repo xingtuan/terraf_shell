@@ -25,13 +25,6 @@ enum B2BInterestType: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::SampleRequest => 'Sample request',
-            self::PelletSupply => 'Pellet supply',
-            self::ProductDevelopment => 'Product development',
-            self::BulkOrder => 'Bulk order',
-            self::Partnership => 'Partnership',
-            self::Other => 'Other',
-        };
+        return __("admin.leads.interest.{$this->value}");
     }
 }

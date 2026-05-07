@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Api;
 
-use App\Support\StorageUrl;
 use App\Models\User;
+use App\Support\StorageUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;

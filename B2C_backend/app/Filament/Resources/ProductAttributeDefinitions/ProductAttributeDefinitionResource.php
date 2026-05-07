@@ -5,6 +5,8 @@ namespace App\Filament\Resources\ProductAttributeDefinitions;
 use App\Filament\Resources\ProductAttributeDefinitions\Pages\CreateProductAttributeDefinition;
 use App\Filament\Resources\ProductAttributeDefinitions\Pages\EditProductAttributeDefinition;
 use App\Filament\Resources\ProductAttributeDefinitions\Pages\ListProductAttributeDefinitions;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\ProductAttributeDefinition;
 use BackedEnum;
@@ -31,11 +33,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductAttributeDefinitionResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = ProductAttributeDefinition::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAdjustmentsHorizontal;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Shop';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
     protected static ?string $navigationLabel = 'Product Attributes';
 

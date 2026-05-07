@@ -4,6 +4,7 @@ namespace App\Filament\Resources\FundingCampaigns\Schemas;
 
 use App\Enums\FundingCampaignStatus;
 use App\Models\Post;
+use App\Rules\ExternalSafeUrl;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -43,7 +44,9 @@ class FundingCampaignForm
                                 TextInput::make('external_crowdfunding_url')
                                     ->label('External crowdfunding URL')
                                     ->url()
+                                    ->rule(new ExternalSafeUrl)
                                     ->maxLength(2048)
+                                    ->helperText('Use a valid external http/https funding page. Unsafe protocols are rejected.')
                                     ->columnSpanFull(),
                             ]),
                     ]),

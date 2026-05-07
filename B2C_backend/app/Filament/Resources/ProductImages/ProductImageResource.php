@@ -7,6 +7,8 @@ use App\Filament\Resources\ProductImages\Pages\EditProductImage;
 use App\Filament\Resources\ProductImages\Pages\ListProductImages;
 use App\Filament\Resources\ProductImages\Schemas\ProductImageForm;
 use App\Filament\Resources\ProductImages\Tables\ProductImagesTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\ProductImage;
 use BackedEnum;
@@ -19,13 +21,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductImageResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = ProductImage::class;
 
     protected static bool $shouldRegisterNavigation = false;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Shop';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::MediaLibrary;
 
     protected static ?string $navigationLabel = 'Product Media';
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\MediaController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 Route::get('/', function (): JsonResponse {
     return response()->json([
@@ -20,3 +21,13 @@ Route::get('/', function (): JsonResponse {
 Route::get('/media/files/{disk}/{path}', [MediaController::class, 'show'])
     ->where('path', '.*')
     ->name('media.files.show');
+
+Route::get('/admin/locale/{locale}', function (string $locale) {
+    abort_unless(in_array($locale, ['en', 'ko', 'zh'], true), 404);
+
+    session(['admin_locale' => $locale]);
+
+    $previous = url()->previous();
+
+    return redirect(Str::contains($previous, '/admin') ? $previous : '/admin');
+})->name('admin.locale.switch');

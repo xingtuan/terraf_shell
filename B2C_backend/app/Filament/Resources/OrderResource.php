@@ -8,6 +8,8 @@ use App\Filament\Resources\OrderResource\Pages\EditOrder;
 use App\Filament\Resources\OrderResource\Pages\ListOrders;
 use App\Filament\Resources\OrderResource\Pages\ViewOrder;
 use App\Filament\Resources\Users\UserResource as UserFilamentResource;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Order;
 use App\Services\OrderService;
@@ -16,7 +18,6 @@ use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -24,6 +25,7 @@ use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -35,11 +37,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = Order::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Shop';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
     protected static ?string $navigationLabel = 'Orders';
 
@@ -223,9 +227,14 @@ class OrderResource extends Resource
                     ->label('Customer')
                     ->searchable()
                     ->description(fn (Order $record): string => collect([
-                        $record->user?->email,
+                        $record->user?->email ?: $record->guest_email,
                         $record->shipping_country,
                     ])->filter()->implode(' | ') ?: '-'),
+                TextColumn::make('guest_email')
+                    ->label(__('admin.fields.guest_email'))
+                    ->copyable()
+                    ->placeholder('-')
+                    ->toggleable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->label() : (OrderStatus::tryFrom((string) $state)?->label() ?? (string) $state))
@@ -243,6 +252,9 @@ class OrderResource extends Resource
                     ->numeric(),
                 TextColumn::make('shipping_country')
                     ->label('Ship to')
+                    ->toggleable(),
+                TextColumn::make('shipping_city')
+                    ->label('City')
                     ->toggleable(),
                 TextColumn::make('customer_note')
                     ->label('Customer note')
@@ -265,6 +277,20 @@ class OrderResource extends Resource
                     ->options(OrderStatus::options()),
                 SelectFilter::make('payment_status')
                     ->options(OrderPaymentStatus::options()),
+                Filter::make('guest_or_registered')
+                    ->label('Customer type')
+                    ->schema([
+                        Select::make('type')
+                            ->options([
+                                'guest' => 'Guest',
+                                'registered' => 'Registered',
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(($data['type'] ?? null) === 'guest', fn (Builder $builder): Builder => $builder->whereNull('user_id'))
+                            ->when(($data['type'] ?? null) === 'registered', fn (Builder $builder): Builder => $builder->whereNotNull('user_id'));
+                    }),
                 SelectFilter::make('shipping_country')
                     ->label('Ship to country')
                     ->options(fn (): array => Order::query()
@@ -273,6 +299,15 @@ class OrderResource extends Resource
                         ->distinct()
                         ->orderBy('shipping_country')
                         ->pluck('shipping_country', 'shipping_country')
+                        ->all()),
+                SelectFilter::make('shipping_city')
+                    ->label('Ship to city')
+                    ->options(fn (): array => Order::query()
+                        ->whereNotNull('shipping_city')
+                        ->select('shipping_city')
+                        ->distinct()
+                        ->orderBy('shipping_city')
+                        ->pluck('shipping_city', 'shipping_city')
                         ->all()),
                 SelectFilter::make('payment_method')
                     ->options(fn (): array => Order::query()
@@ -304,7 +339,7 @@ class OrderResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 Action::make('changeStatus')
-                    ->label('Update request status')
+                    ->label(__('admin.actions.update_order_status'))
                     ->form([
                         Select::make('status')
                             ->options([
@@ -320,39 +355,113 @@ class OrderResource extends Resource
                         'status' => $record->status instanceof OrderStatus ? $record->status->value : (string) $record->status,
                     ])
                     ->action(function (Order $record, array $data): void {
-                        $status = OrderStatus::from($data['status']);
-                        $payload = ['status' => $status];
-
-                        if ($status === OrderStatus::Confirmed && $record->confirmed_at === null) {
-                            $payload['confirmed_at'] = now();
-                        }
-
-                        if ($status === OrderStatus::Shipped && $record->shipped_at === null) {
-                            $payload['shipped_at'] = now();
-                        }
-
-                        if ($status === OrderStatus::Delivered && $record->delivered_at === null) {
-                            $payload['delivered_at'] = now();
-                        }
-
-                        if ($status === OrderStatus::Cancelled && $record->cancelled_at === null) {
-                            $payload['cancelled_at'] = now();
-                        }
-
-                        $previousStatus = $record->status instanceof OrderStatus ? $record->status->value : (string) $record->status;
-
-                        $record->forceFill($payload)->save();
-
-                        if ($previousStatus !== $status->value) {
-                            app(OrderService::class)->dispatchStatusChangedEmail($record->fresh(['user', 'items.product.variants', 'items.variant']), $previousStatus);
-                        }
+                        self::updateOrderStatus($record, OrderStatus::from($data['status']));
 
                         Notification::make()
-                            ->title('Order request status updated.')
+                            ->title(__('admin.notifications.order_status_updated'))
                             ->success()
                             ->send();
                     }),
+                Action::make('changePaymentStatus')
+                    ->label(__('admin.actions.update_payment_status'))
+                    ->icon('heroicon-o-credit-card')
+                    ->form([
+                        Select::make('payment_status')
+                            ->options(OrderPaymentStatus::options())
+                            ->required(),
+                        Textarea::make('payment_reference')
+                            ->label('Manual payment reference')
+                            ->rows(2)
+                            ->maxLength(255),
+                    ])
+                    ->fillForm(fn (Order $record): array => [
+                        'payment_status' => $record->payment_status instanceof OrderPaymentStatus ? $record->payment_status->value : (string) $record->payment_status,
+                        'payment_reference' => $record->payment_reference,
+                    ])
+                    ->action(function (Order $record, array $data): void {
+                        $record->forceFill([
+                            'payment_status' => OrderPaymentStatus::from($data['payment_status']),
+                            'payment_reference' => $data['payment_reference'] ?? $record->payment_reference,
+                        ])->save();
+
+                        Notification::make()
+                            ->title(__('admin.notifications.payment_status_updated'))
+                            ->success()
+                            ->send();
+                    }),
+                Action::make('addInternalNote')
+                    ->label(__('admin.actions.add_internal_note'))
+                    ->icon('heroicon-o-pencil-square')
+                    ->form([
+                        Textarea::make('admin_note')
+                            ->label(__('admin.fields.admin_note'))
+                            ->rows(5)
+                            ->maxLength(255)
+                            ->required(),
+                    ])
+                    ->fillForm(fn (Order $record): array => [
+                        'admin_note' => $record->admin_note,
+                    ])
+                    ->action(function (Order $record, array $data): void {
+                        $record->forceFill(['admin_note' => $data['admin_note']])->save();
+
+                        Notification::make()
+                            ->title(__('admin.notifications.internal_note_added'))
+                            ->success()
+                            ->send();
+                    }),
+                self::statusAction('markConfirmed', __('admin.actions.mark_confirmed'), OrderStatus::Confirmed, 'info'),
+                self::statusAction('markProcessing', __('admin.actions.mark_processing'), OrderStatus::Processing, 'warning'),
+                self::statusAction('markShipped', __('admin.actions.mark_shipped'), OrderStatus::Shipped, 'purple'),
+                self::statusAction('markDelivered', __('admin.actions.mark_delivered'), OrderStatus::Delivered, 'success'),
+                self::statusAction('cancelOrder', __('admin.actions.cancel_order'), OrderStatus::Cancelled, 'danger'),
             ]);
+    }
+
+    private static function statusAction(string $name, string $label, OrderStatus $status, string $color): Action
+    {
+        return Action::make($name)
+            ->label($label)
+            ->color($color)
+            ->requiresConfirmation()
+            ->visible(fn (Order $record): bool => ($record->status instanceof OrderStatus ? $record->status : OrderStatus::tryFrom((string) $record->status)) !== $status)
+            ->action(function (Order $record) use ($status): void {
+                self::updateOrderStatus($record, $status);
+
+                Notification::make()
+                    ->title(__('admin.notifications.order_status_updated'))
+                    ->success()
+                    ->send();
+            });
+    }
+
+    private static function updateOrderStatus(Order $record, OrderStatus $status): void
+    {
+        $payload = ['status' => $status];
+
+        if ($status === OrderStatus::Confirmed && $record->confirmed_at === null) {
+            $payload['confirmed_at'] = now();
+        }
+
+        if ($status === OrderStatus::Shipped && $record->shipped_at === null) {
+            $payload['shipped_at'] = now();
+        }
+
+        if ($status === OrderStatus::Delivered && $record->delivered_at === null) {
+            $payload['delivered_at'] = now();
+        }
+
+        if ($status === OrderStatus::Cancelled && $record->cancelled_at === null) {
+            $payload['cancelled_at'] = now();
+        }
+
+        $previousStatus = $record->status instanceof OrderStatus ? $record->status->value : (string) $record->status;
+
+        $record->forceFill($payload)->save();
+
+        if ($previousStatus !== $status->value) {
+            app(OrderService::class)->dispatchStatusChangedEmail($record->fresh(['user', 'items.product.variants', 'items.variant']), $previousStatus);
+        }
     }
 
     public static function getEloquentQuery(): Builder

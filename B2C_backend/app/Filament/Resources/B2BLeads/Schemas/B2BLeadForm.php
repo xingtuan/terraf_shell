@@ -7,6 +7,7 @@ use App\Enums\B2BLeadType;
 use App\Enums\UserRole;
 use App\Models\B2BLead;
 use App\Models\User;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -111,6 +112,16 @@ class B2BLeadForm
                                 Select::make('status')
                                     ->options(B2BLeadStatus::options())
                                     ->required(),
+                                Select::make('priority')
+                                    ->label(__('admin.fields.priority'))
+                                    ->options([
+                                        'low' => __('admin.leads.priority.low'),
+                                        'normal' => __('admin.leads.priority.normal'),
+                                        'high' => __('admin.leads.priority.high'),
+                                        'urgent' => __('admin.leads.priority.urgent'),
+                                    ])
+                                    ->default('normal')
+                                    ->required(),
                                 Select::make('assigned_to')
                                     ->label('Assigned owner')
                                     ->options(fn (): array => User::query()
@@ -121,6 +132,8 @@ class B2BLeadForm
                                     ->placeholder('Unassigned')
                                     ->searchable()
                                     ->preload(),
+                                DateTimePicker::make('follow_up_at')
+                                    ->label(__('admin.fields.follow_up_at')),
                                 Textarea::make('internal_notes')
                                     ->rows(6)
                                     ->columnSpanFull(),

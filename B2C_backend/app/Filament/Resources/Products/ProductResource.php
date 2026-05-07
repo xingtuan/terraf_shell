@@ -7,6 +7,8 @@ use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Tables\ProductsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Product;
 use BackedEnum;
@@ -18,11 +20,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = Product::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Shop';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
     protected static ?string $navigationLabel = 'Products';
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\FundingCampaignStatus;
+use App\Rules\ExternalSafeUrl;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,7 +26,8 @@ class UpdateFundingCampaignRequest extends FormRequest
             'external_crowdfunding_url' => [
                 Rule::requiredIf($this->boolean('support_enabled')),
                 'nullable',
-                'url',
+                'url:http,https',
+                new ExternalSafeUrl,
                 'max:2048',
             ],
             'campaign_status' => ['required', Rule::in(FundingCampaignStatus::values())],

@@ -2,8 +2,8 @@
 
 namespace App\Http\Resources;
 
-use App\Models\IdeaMedia;
 use App\Enums\IdeaMediaSourceType;
+use App\Models\IdeaMedia;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

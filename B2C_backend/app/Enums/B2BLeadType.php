@@ -33,12 +33,6 @@ enum B2BLeadType: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::BusinessContact => 'Business Contact',
-            self::PartnershipInquiry => 'Partnership Inquiry',
-            self::SampleRequest => 'Sample Request',
-            self::UniversityCollaboration => 'University Collaboration Request',
-            self::ProductDevelopmentCollaboration => 'Product Development Collaboration Request',
-        };
+        return __("admin.leads.type.{$this->value}");
     }
 }

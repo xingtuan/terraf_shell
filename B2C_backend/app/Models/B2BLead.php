@@ -36,8 +36,10 @@ class B2BLead extends Model
         'message',
         'source_page',
         'status',
+        'priority',
         'internal_notes',
         'assigned_to',
+        'follow_up_at',
         'reviewed_by',
         'reviewed_at',
         'metadata',
@@ -47,6 +49,7 @@ class B2BLead extends Model
     {
         return [
             'metadata' => 'array',
+            'follow_up_at' => 'datetime',
             'reviewed_at' => 'datetime',
         ];
     }

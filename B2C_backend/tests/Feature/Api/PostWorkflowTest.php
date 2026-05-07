@@ -3,8 +3,8 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Post;
-use App\Support\StorageUrl;
 use App\Models\User;
+use App\Support\StorageUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;

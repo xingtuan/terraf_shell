@@ -32,6 +32,10 @@ class B2BLeadInfolist
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
                                     ->color(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->color() ?? 'gray'),
+                                TextEntry::make('priority')
+                                    ->label(__('admin.fields.priority'))
+                                    ->badge()
+                                    ->formatStateUsing(fn (?string $state): string => $state ? __("admin.leads.priority.{$state}") : __('admin.leads.priority.normal')),
                                 TextEntry::make('inquiry_type'),
                                 TextEntry::make('application_type')
                                     ->label('Application')
@@ -79,6 +83,10 @@ class B2BLeadInfolist
                         TextEntry::make('assignee.name')
                             ->label('Owner')
                             ->placeholder('Unassigned.'),
+                        TextEntry::make('follow_up_at')
+                            ->label(__('admin.fields.follow_up_at'))
+                            ->dateTime()
+                            ->placeholder('-'),
                         TextEntry::make('reviewer.name')
                             ->label('Reviewed by')
                             ->placeholder('Unassigned.'),

@@ -31,6 +31,6 @@ class EditEnquiry extends EditRecord
 
     protected function getSavedNotificationTitle(): ?string
     {
-        return 'Enquiry updated';
+        return __('admin.notifications.lead_updated');
     }
 }

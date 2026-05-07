@@ -41,6 +41,14 @@ class InquiryService
                 $inquiry->status = $data['status'];
             }
 
+            if (array_key_exists('priority', $data) && $data['priority'] !== $inquiry->priority) {
+                $changes['priority'] = [
+                    'from' => $inquiry->priority,
+                    'to' => $data['priority'],
+                ];
+                $inquiry->priority = $data['priority'];
+            }
+
             if (array_key_exists('internal_notes', $data) && $data['internal_notes'] !== $inquiry->internal_notes) {
                 $changes['internal_notes'] = true;
                 $inquiry->internal_notes = $data['internal_notes'];
@@ -52,6 +60,14 @@ class InquiryService
                     'to' => $nextAssignedTo,
                 ];
                 $inquiry->assigned_to = $nextAssignedTo;
+            }
+
+            if (array_key_exists('follow_up_at', $data) && $data['follow_up_at'] !== optional($inquiry->follow_up_at)->toDateTimeString()) {
+                $changes['follow_up_at'] = [
+                    'from' => optional($inquiry->follow_up_at)->toDateTimeString(),
+                    'to' => $data['follow_up_at'],
+                ];
+                $inquiry->follow_up_at = $data['follow_up_at'];
             }
 
             if ($changes === []) {

@@ -42,9 +42,10 @@ class PostSeeder extends Seeder
                 'status' => ContentStatus::Approved->value,
                 'user_id' => $users->random()->id,
                 'category_id' => $categories->random()->id,
+                'is_demo_content' => true,
             ])
             ->create()
-            ->each(function (Post $post) use ($users, $categories, $tags): void {
+            ->each(function (Post $post) use ($users, $tags): void {
                 $post->tags()->sync($tags->random(rand(2, 4))->pluck('id'));
 
                 $comments = Comment::factory()

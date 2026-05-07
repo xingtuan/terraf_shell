@@ -7,6 +7,8 @@ use App\Filament\Resources\AdminActionLogs\Pages\ViewAdminActionLog;
 use App\Filament\Resources\AdminActionLogs\Schemas\AdminActionLogForm;
 use App\Filament\Resources\AdminActionLogs\Schemas\AdminActionLogInfolist;
 use App\Filament\Resources\AdminActionLogs\Tables\AdminActionLogsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\AdminActionLog;
 use BackedEnum;
@@ -19,11 +21,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class AdminActionLogResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = AdminActionLog::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Insights';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::UsersGovernance;
 
     protected static ?string $navigationLabel = 'Admin Action Logs';
 

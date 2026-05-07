@@ -15,7 +15,7 @@ class ListB2BLeads extends ListRecords
     {
         return [
             Action::make('export')
-                ->label('Export CSV')
+                ->label(__('admin.actions.export'))
                 ->icon('heroicon-o-arrow-down-tray')
                 ->action(fn () => app(B2BLeadService::class)->exportForAdmin([])),
         ];

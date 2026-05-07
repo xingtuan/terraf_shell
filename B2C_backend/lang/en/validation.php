@@ -15,17 +15,17 @@ return [
     'custom' => [
         'email' => [
             'required' => 'Email address is required.',
-            'email'    => 'Please enter a valid email address.',
-            'unique'   => 'This email is already registered. Try signing in instead.',
+            'email' => 'Please enter a valid email address.',
+            'unique' => 'This email is already registered. Try signing in instead.',
         ],
         'password' => [
-            'required'  => 'Password is required.',
+            'required' => 'Password is required.',
             'confirmed' => "Passwords don't match.",
-            'min'       => 'Password must be at least 8 characters.',
+            'min' => 'Password must be at least 8 characters.',
         ],
         'name' => [
             'required' => 'Please enter your full name.',
-            'max'      => 'Name must be :max characters or fewer.',
+            'max' => 'Name must be :max characters or fewer.',
         ],
         'company_name' => [
             'required' => 'Company name is required.',
@@ -47,7 +47,7 @@ return [
         ],
         'country' => [
             'required' => 'Country is required.',
-            'size'     => 'Country must be a 2-letter ISO code.',
+            'size' => 'Country must be a 2-letter ISO code.',
         ],
         'collaboration_goal' => [
             'required' => 'Collaboration goal is required.',
@@ -64,17 +64,17 @@ return [
     ],
 
     'attributes' => [
-        'email'              => 'email address',
-        'password'           => 'password',
-        'name'               => 'name',
-        'company_name'       => 'company name',
-        'message'            => 'project details',
-        'company_website'    => 'company website',
-        'recipient_name'     => 'recipient name',
-        'address_line1'      => 'address',
+        'email' => 'email address',
+        'password' => 'password',
+        'name' => 'name',
+        'company_name' => 'company name',
+        'message' => 'project details',
+        'company_website' => 'company website',
+        'recipient_name' => 'recipient name',
+        'address_line1' => 'address',
         'collaboration_goal' => 'collaboration goal',
-        'material_interest'  => 'material interest',
-        'intended_use'       => 'intended use',
-        'inquiry_type'       => 'application',
+        'material_interest' => 'material interest',
+        'intended_use' => 'intended use',
+        'inquiry_type' => 'application',
     ],
 ];

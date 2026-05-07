@@ -6,6 +6,7 @@ use App\Enums\IdeaMediaKind;
 use App\Enums\IdeaMediaType;
 use App\Models\IdeaMedia;
 use App\Models\Post;
+use App\Rules\ExternalSafeUrl;
 use App\Rules\ValidTiptapDocument;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -35,9 +36,9 @@ class UpdatePostRequest extends FormRequest
         return [
             'title' => ['sometimes', 'required', 'string', 'max:100'],
             'content' => ['sometimes', 'required', 'string', 'min:20'],
-            'content_json' => ['nullable', 'string', new ValidTiptapDocument()],
+            'content_json' => ['nullable', 'string', new ValidTiptapDocument],
             'excerpt' => ['nullable', 'string', 'max:500'],
-            'funding_url' => ['nullable', 'url', 'max:2048'],
+            'funding_url' => ['nullable', 'url:http,https', new ExternalSafeUrl, 'max:2048'],
             'cover_image_url' => ['nullable', 'url', 'max:2048'],
             'cover_image_path' => ['nullable', 'string', 'max:1024'],
             'reading_time' => ['nullable', 'integer', 'min:0', 'max:999'],

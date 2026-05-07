@@ -11,6 +11,8 @@ enum B2BLeadStatus: string
     case InDiscussion = 'in_discussion';
     case Archived = 'archived';
     case Qualified = 'qualified';
+    case FollowUp = 'follow_up';
+    case Resolved = 'resolved';
     case Closed = 'closed';
 
     public static function values(): array
@@ -33,6 +35,8 @@ enum B2BLeadStatus: string
             self::Contacted->value,
             self::SampleSent->value,
             self::InDiscussion->value,
+            self::FollowUp->value,
+            self::Resolved->value,
             self::Closed->value,
             self::Archived->value,
         ];
@@ -47,16 +51,7 @@ enum B2BLeadStatus: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::New => 'New',
-            self::InReview => 'Reviewing',
-            self::Contacted => 'Contacted',
-            self::SampleSent => 'Sample sent',
-            self::InDiscussion => 'In discussion',
-            self::Archived => 'Archived',
-            self::Qualified => 'Qualified',
-            self::Closed => 'Closed',
-        };
+        return __("admin.leads.status.{$this->value}");
     }
 
     public function color(): string
@@ -69,6 +64,8 @@ enum B2BLeadStatus: string
             self::InDiscussion => 'primary',
             self::Archived => 'gray',
             self::Qualified => 'success',
+            self::FollowUp => 'warning',
+            self::Resolved => 'success',
             self::Closed => 'primary',
         };
     }

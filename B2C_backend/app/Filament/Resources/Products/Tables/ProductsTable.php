@@ -46,6 +46,11 @@ class ProductsTable
                     ->badge()
                     ->placeholder('Uncategorized')
                     ->searchable(),
+                TextColumn::make('sku')
+                    ->label('SKU')
+                    ->state(fn (Product $record): ?string => $record->effectiveSku())
+                    ->searchable()
+                    ->copyable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => ProductStatus::tryFrom($state)?->label() ?? $state)
@@ -64,9 +69,22 @@ class ProductsTable
                 TextColumn::make('price_usd')
                     ->label('Price (NZD)')
                     ->formatStateUsing(fn ($state, Product $record): string => '$'.number_format((float) ($record->effectivePrice() ?? $state), 2)),
+                TextColumn::make('stock_quantity')
+                    ->label('Qty')
+                    ->state(fn (Product $record): ?int => $record->effectiveStockQuantity())
+                    ->numeric()
+                    ->sortable(),
                 IconColumn::make('featured')
                     ->label('Featured')
                     ->boolean(),
+                IconColumn::make('is_bestseller')
+                    ->label('Bestseller')
+                    ->boolean()
+                    ->toggleable(),
+                IconColumn::make('is_new')
+                    ->label('New')
+                    ->boolean()
+                    ->toggleable(),
                 IconColumn::make('inquiry_only')
                     ->label('Inquiry only')
                     ->boolean(),
@@ -92,6 +110,10 @@ class ProductsTable
                     ->options(Product::STOCK_STATUS_OPTIONS),
                 TernaryFilter::make('featured')
                     ->label('Featured'),
+                TernaryFilter::make('is_bestseller')
+                    ->label('Bestseller'),
+                TernaryFilter::make('is_new')
+                    ->label('New arrival'),
                 TernaryFilter::make('inquiry_only')
                     ->label('Inquiry only'),
                 TernaryFilter::make('sample_request_enabled')

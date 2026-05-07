@@ -3,13 +3,14 @@
 namespace App\Filament\Resources\B2BLeads;
 
 use App\Enums\B2BLeadStatus;
-use App\Enums\B2BLeadType;
 use App\Filament\Resources\B2BLeads\Pages\EditB2BLead;
 use App\Filament\Resources\B2BLeads\Pages\ListB2BLeads;
 use App\Filament\Resources\B2BLeads\Pages\ViewB2BLead;
 use App\Filament\Resources\B2BLeads\Schemas\B2BLeadForm;
 use App\Filament\Resources\B2BLeads\Schemas\B2BLeadInfolist;
 use App\Filament\Resources\B2BLeads\Tables\B2BLeadsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\B2BLead;
 use BackedEnum;
@@ -22,11 +23,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class B2BLeadResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = B2BLead::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Leads / Growth';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::B2BLeads;
 
     protected static ?string $navigationLabel = 'Partnership & Sample Leads';
 
@@ -97,10 +100,10 @@ class B2BLeadResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         $count = static::getModel()::query()
-            ->where('lead_type', '!=', B2BLeadType::BusinessContact->value)
             ->whereIn('status', [
                 B2BLeadStatus::New->value,
                 B2BLeadStatus::InReview->value,
+                B2BLeadStatus::FollowUp->value,
             ])
             ->count();
 

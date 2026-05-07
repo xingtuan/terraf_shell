@@ -31,6 +31,6 @@ class EditB2BLead extends EditRecord
 
     protected function getSavedNotificationTitle(): ?string
     {
-        return 'B2B lead updated';
+        return __('admin.notifications.lead_updated');
     }
 }

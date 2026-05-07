@@ -99,6 +99,14 @@ class B2BLeadService
                 $lead->status = $data['status'];
             }
 
+            if (array_key_exists('priority', $data) && $data['priority'] !== $lead->priority) {
+                $changes['priority'] = [
+                    'from' => $lead->priority,
+                    'to' => $data['priority'],
+                ];
+                $lead->priority = $data['priority'];
+            }
+
             if (array_key_exists('internal_notes', $data) && $data['internal_notes'] !== $lead->internal_notes) {
                 $changes['internal_notes'] = true;
                 $lead->internal_notes = $data['internal_notes'];
@@ -110,6 +118,14 @@ class B2BLeadService
                     'to' => $nextAssignedTo,
                 ];
                 $lead->assigned_to = $nextAssignedTo;
+            }
+
+            if (array_key_exists('follow_up_at', $data) && $data['follow_up_at'] !== optional($lead->follow_up_at)->toDateTimeString()) {
+                $changes['follow_up_at'] = [
+                    'from' => optional($lead->follow_up_at)->toDateTimeString(),
+                    'to' => $data['follow_up_at'],
+                ];
+                $lead->follow_up_at = $data['follow_up_at'];
             }
 
             if ($changes === []) {
@@ -384,6 +400,10 @@ class B2BLeadService
             $query->where('status', $filters['status']);
         }
 
+        if (! empty($filters['priority'])) {
+            $query->where('priority', $filters['priority']);
+        }
+
         if (array_key_exists('assigned_to', $filters) && filled($filters['assigned_to'])) {
             $query->where('assigned_to', (int) $filters['assigned_to']);
         }
@@ -402,6 +422,10 @@ class B2BLeadService
 
         if (! empty($filters['source_page'])) {
             $query->where('source_page', 'like', '%'.$filters['source_page'].'%');
+        }
+
+        if (! empty($filters['follow_up_before'])) {
+            $query->whereDate('follow_up_at', '<=', $filters['follow_up_before']);
         }
 
         if (! empty($filters['created_from'])) {

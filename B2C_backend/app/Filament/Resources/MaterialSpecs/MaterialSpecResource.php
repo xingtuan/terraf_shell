@@ -9,6 +9,8 @@ use App\Filament\Resources\MaterialSpecs\Pages\ViewMaterialSpec;
 use App\Filament\Resources\MaterialSpecs\Schemas\MaterialSpecForm;
 use App\Filament\Resources\MaterialSpecs\Schemas\MaterialSpecInfolist;
 use App\Filament\Resources\MaterialSpecs\Tables\MaterialSpecsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\MaterialSpec;
 use BackedEnum;
@@ -21,13 +23,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class MaterialSpecResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = MaterialSpec::class;
 
     protected static bool $shouldRegisterNavigation = false;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
     protected static ?string $navigationLabel = 'Material Specs';
 

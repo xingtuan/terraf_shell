@@ -9,6 +9,8 @@ use App\Filament\Resources\Enquiries\Pages\ViewEnquiry;
 use App\Filament\Resources\Enquiries\Schemas\EnquiryForm;
 use App\Filament\Resources\Enquiries\Schemas\EnquiryInfolist;
 use App\Filament\Resources\Enquiries\Tables\EnquiriesTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Inquiry;
 use BackedEnum;
@@ -21,11 +23,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class EnquiryResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = Inquiry::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Leads / Growth';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::B2BLeads;
 
     protected static ?string $navigationLabel = 'General Enquiries';
 

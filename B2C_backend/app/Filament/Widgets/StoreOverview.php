@@ -21,9 +21,14 @@ class StoreOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected ?string $heading = 'Store Overview';
+    protected ?string $heading = null;
 
     protected ?string $description = 'Catalogue health and fulfilment workload for the storefront.';
+
+    protected function getHeading(): ?string
+    {
+        return __('admin.widgets.store_overview');
+    }
 
     protected function getStats(): array
     {

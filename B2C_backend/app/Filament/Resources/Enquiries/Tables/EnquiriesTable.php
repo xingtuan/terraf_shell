@@ -10,6 +10,9 @@ use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -56,9 +59,26 @@ class EnquiriesTable
                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->color() ?? 'gray')
                     ->sortable(),
+                TextColumn::make('priority')
+                    ->label(__('admin.fields.priority'))
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => $state ? __("admin.leads.priority.{$state}") : __('admin.leads.priority.normal'))
+                    ->color(fn (?string $state): string => match ($state) {
+                        'urgent' => 'danger',
+                        'high' => 'warning',
+                        'low' => 'gray',
+                        default => 'info',
+                    })
+                    ->sortable(),
                 TextColumn::make('assignee.name')
                     ->label('Owner')
                     ->placeholder('Unassigned')
+                    ->toggleable(),
+                TextColumn::make('follow_up_at')
+                    ->label(__('admin.fields.follow_up_at'))
+                    ->dateTime()
+                    ->sortable()
+                    ->placeholder('-')
                     ->toggleable(),
                 TextColumn::make('source_page')
                     ->label('Source')
@@ -71,6 +91,14 @@ class EnquiriesTable
             ->filters([
                 SelectFilter::make('status')
                     ->options(B2BLeadStatus::enquiryOptions()),
+                SelectFilter::make('priority')
+                    ->label(__('admin.fields.priority'))
+                    ->options([
+                        'low' => __('admin.leads.priority.low'),
+                        'normal' => __('admin.leads.priority.normal'),
+                        'high' => __('admin.leads.priority.high'),
+                        'urgent' => __('admin.leads.priority.urgent'),
+                    ]),
                 SelectFilter::make('assigned_to')
                     ->relationship('assignee', 'name')
                     ->label('Owner')
@@ -129,8 +157,40 @@ class EnquiriesTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('followUp')
+                    ->label(__('admin.actions.add_note'))
+                    ->icon('heroicon-o-calendar-days')
+                    ->schema([
+                        DateTimePicker::make('follow_up_at')
+                            ->label(__('admin.fields.follow_up_at')),
+                        Select::make('priority')
+                            ->label(__('admin.fields.priority'))
+                            ->options([
+                                'low' => __('admin.leads.priority.low'),
+                                'normal' => __('admin.leads.priority.normal'),
+                                'high' => __('admin.leads.priority.high'),
+                                'urgent' => __('admin.leads.priority.urgent'),
+                            ])
+                            ->required(),
+                        Textarea::make('internal_notes')
+                            ->label(__('admin.fields.admin_note'))
+                            ->rows(4),
+                    ])
+                    ->fillForm(fn (Inquiry $record): array => [
+                        'follow_up_at' => $record->follow_up_at,
+                        'priority' => $record->priority ?: 'normal',
+                        'internal_notes' => $record->internal_notes,
+                    ])
+                    ->action(function (Inquiry $record, array $data): void {
+                        app(InquiryService::class)->updateForAdmin($record, $data, PanelAccess::user());
+
+                        Notification::make()
+                            ->title(__('admin.notifications.lead_updated'))
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('archive')
-                    ->label('Archive')
+                    ->label(__('admin.actions.archive'))
                     ->color('gray')
                     ->requiresConfirmation()
                     ->visible(fn (Inquiry $record): bool => $record->status !== B2BLeadStatus::Archived->value)

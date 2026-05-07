@@ -38,7 +38,7 @@ class ProductForm
                 Tabs::make('Shop product management')
                     ->persistTab()
                     ->tabs([
-                        Tab::make('Overview')
+                        Tab::make('Basic Info')
                             ->schema([
                                 Section::make('Catalogue settings')
                                     ->schema([
@@ -117,7 +117,7 @@ class ProductForm
                                             ->content(fn (?Product $record): string => self::publishChecklist($record)),
                                     ]),
                             ]),
-                        Tab::make('Variants & SKU')
+                        Tab::make('Pricing & Inventory')
                             ->schema([
                                 Section::make('Variant management')
                                     ->description('Variant SKU, NZD price, inventory, and option values drive storefront purchasing.')
@@ -196,7 +196,7 @@ class ProductForm
                                             ->columnSpanFull(),
                                     ]),
                             ]),
-                        Tab::make('Inventory')
+                        Tab::make('Stock Fallback')
                             ->schema([
                                 Section::make('Legacy inventory fallback')
                                     ->description('Used only when a product has no active variant.')
@@ -424,7 +424,7 @@ class ProductForm
                                             ->columnSpanFull(),
                                     ]),
                             ]),
-                        Tab::make('Media')
+                        Tab::make('Images')
                             ->schema([
                                 Section::make('Media & related products')
                                     ->schema([

@@ -3,6 +3,9 @@
 namespace App\Filesystem;
 
 use Illuminate\Filesystem\FilesystemAdapter as LaravelFilesystemAdapter;
+use Illuminate\Support\Carbon;
+use League\Flysystem\Config;
+use MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper;
 
 class AzureFilesystemAdapter extends LaravelFilesystemAdapter
 {
@@ -40,12 +43,12 @@ class AzureFilesystemAdapter extends LaravelFilesystemAdapter
         if (method_exists($adapter, 'temporaryUrl')) {
             $expirationDate = $expiration instanceof \DateTimeInterface
                 ? $expiration
-                : \Illuminate\Support\Carbon::parse($expiration);
+                : Carbon::parse($expiration);
 
             return $adapter->temporaryUrl(
-                $path, 
-                $expirationDate, 
-                new \League\Flysystem\Config($options)
+                $path,
+                $expirationDate,
+                new Config($options)
             );
         }
 
@@ -53,25 +56,25 @@ class AzureFilesystemAdapter extends LaravelFilesystemAdapter
         $accountName = $config['name'] ?? '';
         $accountKey = $config['key'] ?? '';
         $container = $config['container'] ?? '';
-        
+
         if ($accountName === '' || $accountKey === '' || $container === '') {
             throw new \RuntimeException('Azure storage account name, key, and container are required to generate temporary URLs.');
         }
 
-        $helper = new \MicrosoftAzure\Storage\Blob\BlobSharedAccessSignatureHelper(
-            $accountName, 
+        $helper = new BlobSharedAccessSignatureHelper(
+            $accountName,
             $accountKey
         );
 
         $expirationDate = $expiration instanceof \DateTimeInterface
             ? $expiration
-            : \Illuminate\Support\Carbon::parse($expiration);
+            : Carbon::parse($expiration);
 
         $expiry = $expirationDate->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d\TH:i:s\Z');
-        
+
         $queryString = $helper->generateBlobServiceSharedAccessSignatureToken(
             'b',
-            $container . '/' . ltrim($path, '/'),
+            $container.'/'.ltrim($path, '/'),
             'r',
             $expiry,
             '',      // start
@@ -80,13 +83,14 @@ class AzureFilesystemAdapter extends LaravelFilesystemAdapter
         );
 
         $baseUrl = $config['url'] ?? null;
-        
+
         if (is_string($baseUrl) && $baseUrl !== '') {
-            return rtrim($baseUrl, '/') . '/' . ltrim($path, '/') . '?' . $queryString;
+            return rtrim($baseUrl, '/').'/'.ltrim($path, '/').'?'.$queryString;
         }
 
         // Fallback if 'url' config is not explicitly set
         $fallbackUrl = "https://{$accountName}.blob.core.windows.net/{$container}";
-        return $fallbackUrl . '/' . ltrim($path, '/') . '?' . $queryString;
+
+        return $fallbackUrl.'/'.ltrim($path, '/').'?'.$queryString;
     }
 }

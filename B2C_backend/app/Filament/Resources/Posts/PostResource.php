@@ -9,6 +9,8 @@ use App\Filament\Resources\Posts\Pages\ViewPost;
 use App\Filament\Resources\Posts\Schemas\PostForm;
 use App\Filament\Resources\Posts\Schemas\PostInfolist;
 use App\Filament\Resources\Posts\Tables\PostsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Post;
 use BackedEnum;
@@ -22,11 +24,13 @@ use Illuminate\Support\Str;
 
 class PostResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = Post::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
     protected static ?string $navigationLabel = 'Concepts';
 

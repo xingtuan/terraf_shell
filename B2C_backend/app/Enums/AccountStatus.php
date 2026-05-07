@@ -22,11 +22,7 @@ enum AccountStatus: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::Active => 'Active',
-            self::Restricted => 'Restricted',
-            self::Banned => 'Banned',
-        };
+        return __("admin.account_status.{$this->value}");
     }
 
     public function color(): string

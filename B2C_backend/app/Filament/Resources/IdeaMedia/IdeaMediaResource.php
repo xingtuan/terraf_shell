@@ -9,6 +9,8 @@ use App\Filament\Resources\IdeaMedia\Pages\ViewIdeaMedia;
 use App\Filament\Resources\IdeaMedia\Schemas\IdeaMediaForm;
 use App\Filament\Resources\IdeaMedia\Schemas\IdeaMediaInfolist;
 use App\Filament\Resources\IdeaMedia\Tables\IdeaMediaTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\IdeaMedia;
 use BackedEnum;
@@ -21,11 +23,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class IdeaMediaResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = IdeaMedia::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::MediaLibrary;
 
     protected static ?string $navigationLabel = 'Concept Media';
 

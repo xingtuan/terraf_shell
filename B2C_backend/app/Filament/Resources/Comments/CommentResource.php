@@ -8,6 +8,8 @@ use App\Filament\Resources\Comments\Pages\ViewComment;
 use App\Filament\Resources\Comments\Schemas\CommentForm;
 use App\Filament\Resources\Comments\Schemas\CommentInfolist;
 use App\Filament\Resources\Comments\Tables\CommentsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Comment;
 use BackedEnum;
@@ -20,11 +22,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class CommentResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = Comment::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
     protected static ?string $navigationLabel = 'Comments';
 

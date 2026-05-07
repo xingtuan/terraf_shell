@@ -21,10 +21,7 @@ enum PublishStatus: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::Draft => 'Draft',
-            self::Published => 'Published',
-        };
+        return __("admin.publish_status.{$this->value}");
     }
 
     public function color(): string

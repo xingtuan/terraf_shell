@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Posts\Schemas;
 use App\Enums\ContentStatus;
 use App\Filament\Support\PanelAccess;
 use App\Models\User;
+use App\Rules\ExternalSafeUrl;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -65,6 +66,9 @@ class PostForm
                                 Toggle::make('is_featured')
                                     ->label('Featured')
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
+                                Toggle::make('is_demo_content')
+                                    ->label('Demo seed content')
+                                    ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 Textarea::make('excerpt')
                                     ->rows(4)
                                     ->helperText('Leave blank to generate an excerpt from the content.')
@@ -72,7 +76,9 @@ class PostForm
                                 TextInput::make('funding_url')
                                     ->label('Funding URL')
                                     ->url()
+                                    ->rule(new ExternalSafeUrl)
                                     ->maxLength(2048)
+                                    ->helperText('External http/https URLs only. javascript: and data: URLs are rejected.')
                                     ->placeholder('https://www.gofundme.com/... or https://www.kickstarter.com/...')
                                     ->columnSpanFull(),
                                 Textarea::make('content')

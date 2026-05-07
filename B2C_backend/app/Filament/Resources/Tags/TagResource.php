@@ -9,6 +9,8 @@ use App\Filament\Resources\Tags\Pages\ViewTag;
 use App\Filament\Resources\Tags\Schemas\TagForm;
 use App\Filament\Resources\Tags\Schemas\TagInfolist;
 use App\Filament\Resources\Tags\Tables\TagsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Tag;
 use BackedEnum;
@@ -21,11 +23,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class TagResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = Tag::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
     protected static ?string $navigationLabel = 'Concept Tags';
 

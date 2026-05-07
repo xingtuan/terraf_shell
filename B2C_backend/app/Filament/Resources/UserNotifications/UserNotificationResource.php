@@ -7,6 +7,8 @@ use App\Filament\Resources\UserNotifications\Pages\ViewUserNotification;
 use App\Filament\Resources\UserNotifications\Schemas\UserNotificationForm;
 use App\Filament\Resources\UserNotifications\Schemas\UserNotificationInfolist;
 use App\Filament\Resources\UserNotifications\Tables\UserNotificationsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\UserNotification;
 use BackedEnum;
@@ -19,11 +21,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserNotificationResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = UserNotification::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::UsersGovernance;
 
     protected static ?string $navigationLabel = 'Announcements';
 

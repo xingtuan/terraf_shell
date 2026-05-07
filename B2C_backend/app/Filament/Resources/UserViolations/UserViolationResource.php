@@ -9,6 +9,8 @@ use App\Filament\Resources\UserViolations\Pages\ViewUserViolation;
 use App\Filament\Resources\UserViolations\Schemas\UserViolationForm;
 use App\Filament\Resources\UserViolations\Schemas\UserViolationInfolist;
 use App\Filament\Resources\UserViolations\Tables\UserViolationsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\UserViolation;
 use BackedEnum;
@@ -21,11 +23,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserViolationResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = UserViolation::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Governance';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::UsersGovernance;
 
     protected static ?string $navigationLabel = 'User Violations';
 

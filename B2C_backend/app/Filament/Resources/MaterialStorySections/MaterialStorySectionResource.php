@@ -9,6 +9,8 @@ use App\Filament\Resources\MaterialStorySections\Pages\ViewMaterialStorySection;
 use App\Filament\Resources\MaterialStorySections\Schemas\MaterialStorySectionForm;
 use App\Filament\Resources\MaterialStorySections\Schemas\MaterialStorySectionInfolist;
 use App\Filament\Resources\MaterialStorySections\Tables\MaterialStorySectionsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\MaterialStorySection;
 use BackedEnum;
@@ -21,13 +23,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class MaterialStorySectionResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = MaterialStorySection::class;
 
     protected static bool $shouldRegisterNavigation = false;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
     protected static ?string $navigationLabel = 'Story Sections';
 

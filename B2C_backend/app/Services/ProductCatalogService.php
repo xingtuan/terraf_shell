@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -133,7 +134,7 @@ class ProductCatalogService
     }
 
     /**
-     * @param  \Illuminate\Database\Eloquent\Builder<Product>  $query
+     * @param  Builder<Product>  $query
      */
     private function findByIdentifier(string $identifier, $query): Product
     {

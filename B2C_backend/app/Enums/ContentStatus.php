@@ -23,12 +23,7 @@ enum ContentStatus: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::Pending => 'Pending',
-            self::Approved => 'Approved',
-            self::Rejected => 'Rejected',
-            self::Hidden => 'Hidden',
-        };
+        return __("admin.content_status.{$this->value}");
     }
 
     public function color(): string

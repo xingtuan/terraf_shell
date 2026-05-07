@@ -6,6 +6,7 @@ use App\Enums\B2BLeadStatus;
 use App\Enums\UserRole;
 use App\Models\Inquiry;
 use App\Models\User;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -64,6 +65,16 @@ class EnquiryForm
                                 Select::make('status')
                                     ->options(B2BLeadStatus::enquiryOptions())
                                     ->required(),
+                                Select::make('priority')
+                                    ->label(__('admin.fields.priority'))
+                                    ->options([
+                                        'low' => __('admin.leads.priority.low'),
+                                        'normal' => __('admin.leads.priority.normal'),
+                                        'high' => __('admin.leads.priority.high'),
+                                        'urgent' => __('admin.leads.priority.urgent'),
+                                    ])
+                                    ->default('normal')
+                                    ->required(),
                                 Select::make('assigned_to')
                                     ->label('Assigned owner')
                                     ->options(fn (): array => User::query()
@@ -74,6 +85,8 @@ class EnquiryForm
                                     ->placeholder('Unassigned')
                                     ->searchable()
                                     ->preload(),
+                                DateTimePicker::make('follow_up_at')
+                                    ->label(__('admin.fields.follow_up_at')),
                                 Textarea::make('internal_notes')
                                     ->label('Internal notes')
                                     ->rows(6)

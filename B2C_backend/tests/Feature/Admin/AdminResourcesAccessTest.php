@@ -39,11 +39,27 @@ class AdminResourcesAccessTest extends TestCase
             ->assertOk();
 
         $this->actingAs($admin)
+            ->get('/admin/carts')
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get('/admin/addresses')
+            ->assertOk();
+
+        $this->actingAs($admin)
             ->get('/admin/b2-b-leads')
             ->assertOk();
 
         $this->actingAs($admin)
             ->get('/admin/funding-campaigns')
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get('/admin/media-files')
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get('/admin/system-handover-readiness')
             ->assertOk();
     }
 
@@ -101,11 +117,27 @@ class AdminResourcesAccessTest extends TestCase
             ->assertForbidden();
 
         $this->actingAs($moderator)
+            ->get('/admin/carts')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
+            ->get('/admin/addresses')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
             ->get('/admin/b2-b-leads')
             ->assertForbidden();
 
         $this->actingAs($moderator)
             ->get('/admin/funding-campaigns')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
+            ->get('/admin/media-files')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
+            ->get('/admin/system-handover-readiness')
             ->assertForbidden();
 
         $this->actingAs($moderator)

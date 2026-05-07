@@ -9,6 +9,8 @@ use App\Filament\Resources\MaterialApplications\Pages\ViewMaterialApplication;
 use App\Filament\Resources\MaterialApplications\Schemas\MaterialApplicationForm;
 use App\Filament\Resources\MaterialApplications\Schemas\MaterialApplicationInfolist;
 use App\Filament\Resources\MaterialApplications\Tables\MaterialApplicationsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\MaterialApplication;
 use BackedEnum;
@@ -21,13 +23,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class MaterialApplicationResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = MaterialApplication::class;
 
     protected static bool $shouldRegisterNavigation = false;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
     protected static ?string $navigationLabel = 'Applications';
 

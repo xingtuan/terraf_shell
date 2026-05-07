@@ -5,6 +5,8 @@ namespace App\Filament\Resources\ProductVariants;
 use App\Filament\Resources\ProductVariants\Pages\CreateProductVariant;
 use App\Filament\Resources\ProductVariants\Pages\EditProductVariant;
 use App\Filament\Resources\ProductVariants\Pages\ListProductVariants;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -37,11 +39,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductVariantResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = ProductVariant::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquares2x2;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Shop';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
     protected static ?string $navigationLabel = 'Product Variants';
 

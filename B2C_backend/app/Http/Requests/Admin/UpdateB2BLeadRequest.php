@@ -23,7 +23,9 @@ class UpdateB2BLeadRequest extends FormRequest
     {
         return [
             'status' => ['nullable', Rule::in(B2BLeadStatus::values())],
+            'priority' => ['nullable', Rule::in(['low', 'normal', 'high', 'urgent'])],
             'internal_notes' => ['nullable', 'string', 'max:5000'],
+            'follow_up_at' => ['nullable', 'date'],
             'assigned_to' => [
                 'nullable',
                 Rule::exists('users', 'id')->where(
@@ -36,7 +38,7 @@ class UpdateB2BLeadRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            if (! $this->hasAny(['status', 'internal_notes', 'assigned_to'])) {
+            if (! $this->hasAny(['status', 'priority', 'internal_notes', 'assigned_to', 'follow_up_at'])) {
                 $validator->errors()->add('status', 'Provide at least one field to update.');
             }
         });

@@ -70,6 +70,10 @@ class PostsTable
                 IconColumn::make('is_featured')
                     ->label('Featured')
                     ->boolean(),
+                IconColumn::make('is_demo_content')
+                    ->label('Demo')
+                    ->boolean()
+                    ->toggleable(),
                 IconColumn::make('fundingCampaign.support_enabled')
                     ->label('Support')
                     ->boolean()
@@ -152,6 +156,8 @@ class PostsTable
                         }),
                         blank: fn (Builder $query): Builder => $query,
                     ),
+                TernaryFilter::make('is_demo_content')
+                    ->label('Demo content'),
                 Filter::make('creator_profile')
                     ->label('Creator profile')
                     ->schema([
@@ -308,6 +314,22 @@ class PostsTable
 
                             Notification::make()
                                 ->title('Selected concepts approved successfully.')
+                                ->success()
+                                ->send();
+                        }),
+                    BulkAction::make('deleteDemoContent')
+                        ->label(__('admin.actions.clean_demo_content'))
+                        ->icon('heroicon-o-trash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->visible(fn (): bool => PanelAccess::isAdmin())
+                        ->action(function (): void {
+                            Post::query()
+                                ->where('is_demo_content', true)
+                                ->delete();
+
+                            Notification::make()
+                                ->title(__('admin.notifications.demo_content_cleaned'))
                                 ->success()
                                 ->send();
                         }),

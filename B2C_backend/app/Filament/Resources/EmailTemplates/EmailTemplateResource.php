@@ -4,6 +4,8 @@ namespace App\Filament\Resources\EmailTemplates;
 
 use App\Filament\Resources\EmailTemplates\Pages\EditEmailTemplate;
 use App\Filament\Resources\EmailTemplates\Pages\ListEmailTemplates;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\EmailTemplate;
 use App\Services\Email\EmailCenterDefaults;
@@ -34,11 +36,13 @@ use Illuminate\Support\HtmlString;
 
 class EmailTemplateResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = EmailTemplate::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Email Center';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::EmailCenter;
 
     protected static ?string $navigationLabel = 'Templates';
 

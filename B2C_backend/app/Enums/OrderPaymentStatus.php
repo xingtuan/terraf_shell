@@ -22,11 +22,7 @@ enum OrderPaymentStatus: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::Unpaid => 'Awaiting payment',
-            self::Paid => 'Paid manually',
-            self::Refunded => 'Refunded manually',
-        };
+        return __("admin.orders.payment_status.{$this->value}");
     }
 
     public function color(): string

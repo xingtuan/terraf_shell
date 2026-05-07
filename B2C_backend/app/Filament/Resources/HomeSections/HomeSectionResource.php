@@ -9,6 +9,8 @@ use App\Filament\Resources\HomeSections\Pages\ViewHomeSection;
 use App\Filament\Resources\HomeSections\Schemas\HomeSectionForm;
 use App\Filament\Resources\HomeSections\Schemas\HomeSectionInfolist;
 use App\Filament\Resources\HomeSections\Tables\HomeSectionsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\HomeSection;
 use BackedEnum;
@@ -20,11 +22,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class HomeSectionResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = HomeSection::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
     protected static ?string $navigationLabel = 'Homepage Sections';
 

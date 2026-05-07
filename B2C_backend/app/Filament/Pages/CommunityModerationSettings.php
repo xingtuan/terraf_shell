@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\CommunitySubmissionPolicy;
+use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Services\CommunityModerationPolicyService;
 use Filament\Actions\Action;
@@ -20,11 +21,11 @@ class CommunityModerationSettings extends Page
 {
     public ?array $data = [];
 
-    protected static ?string $title = 'Community Moderation Settings';
+    protected static ?string $title = null;
 
-    protected static ?string $navigationLabel = 'Moderation Settings';
+    protected static ?string $navigationLabel = null;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Governance';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::UsersGovernance;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-adjustments-horizontal';
 
@@ -42,6 +43,16 @@ class CommunityModerationSettings extends Page
     public static function canAccess(): bool
     {
         return PanelAccess::isAdmin();
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.moderation_settings');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.community_moderation_settings');
     }
 
     public function form(Schema $schema): Schema
@@ -107,7 +118,7 @@ class CommunityModerationSettings extends Page
     {
         return [
             Action::make('save')
-                ->label('Save settings')
+                ->label(__('admin.actions.save_settings'))
                 ->submit('save'),
         ];
     }

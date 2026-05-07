@@ -22,11 +22,7 @@ enum ProductStatus: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::Draft => 'Draft',
-            self::Published => 'Published',
-            self::Archived => 'Archived',
-        };
+        return __("admin.products.status.{$this->value}");
     }
 
     public function color(): string

@@ -660,13 +660,15 @@ The Filament admin panel at `/admin` is for internal staff only.
 
 | Group | Contents |
 |---|---|
-| Community | Concepts, comments, idea media, reports |
-| Content | Materials, specs, story sections, applications, articles, homepage sections |
+| Dashboard | Store, lead, and moderation widgets |
+| Store Operations | Products, categories, product media, variants, inventory, carts, addresses, orders |
+| B2B / Leads | Unified lead center and legacy general enquiries |
+| Community | Concepts, comments, reports, funding campaigns, moderation queue |
+| Content / CMS | Materials, specs, story sections, applications, articles, homepage sections |
 | Email Center | Mail settings, event switches, templates, logs |
-| Growth | B2B leads, funding campaigns |
-| Governance | Users, violations, moderation logs, admin action logs |
-| Taxonomy | Categories, tags |
-| System | Notifications |
+| Users & Governance | Users, violations, notifications, moderation logs, admin action logs |
+| Media Library | Uploaded media, product media, idea media |
+| System / Handover | Handover readiness checks |
 
 ### Panel Capabilities
 
@@ -677,6 +679,10 @@ The Filament admin panel at `/admin` is for internal staff only.
 - Comment, report, violation, and audit log workflows
 - CMS content management for all material and article types
 - B2B lead management with status tracking, internal notes, and CSV export
+- Store operations for products, variants, carts, addresses, guest orders, and manual payment state
+- Media library review for uploaded files and linked objects
+- Korean, English, and Chinese admin locale switching
+- Handover readiness checks for database, storage, mail, queue, demo data, failed jobs, and writable paths
 - System announcement broadcasting to targeted user roles
 
 ---

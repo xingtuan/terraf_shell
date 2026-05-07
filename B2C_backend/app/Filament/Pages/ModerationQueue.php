@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\ContentStatus;
+use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Filament\Widgets\PendingCommentsQueue;
 use App\Filament\Widgets\PendingPostsQueue;
@@ -12,11 +13,11 @@ use Filament\Pages\Page;
 
 class ModerationQueue extends Page
 {
-    protected static ?string $title = 'Moderation Queue';
+    protected static ?string $title = null;
 
-    protected static ?string $navigationLabel = 'Moderation Queue';
+    protected static ?string $navigationLabel = null;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
 
@@ -29,6 +30,16 @@ class ModerationQueue extends Page
     public static function canAccess(): bool
     {
         return PanelAccess::isStaff();
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.moderation_queue');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.moderation_queue');
     }
 
     public static function getNavigationBadge(): ?string

@@ -25,6 +25,7 @@ class LoginRequest extends FormRequest
 
         if (is_array($decodedJson)) {
             $this->merge($decodedJson);
+
             return;
         }
 
@@ -54,5 +55,4 @@ class LoginRequest extends FormRequest
             'device_name' => ['nullable', 'string', 'max:100'],
         ];
     }
-
 }

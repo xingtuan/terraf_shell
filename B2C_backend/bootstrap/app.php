@@ -2,6 +2,7 @@
 
 use App\Middleware\EnsureUserHasRole;
 use App\Middleware\EnsureUserNotBanned;
+use App\Middleware\SetLocaleFromHeader;
 use App\Support\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -23,7 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
-        $middleware->append(\App\Middleware\SetLocaleFromHeader::class);
+        $middleware->append(SetLocaleFromHeader::class);
 
         $middleware->alias([
             'not_banned' => EnsureUserNotBanned::class,

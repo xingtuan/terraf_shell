@@ -30,5 +30,4 @@ class StoreAddressRequest extends FormRequest
             'is_default' => ['nullable', 'boolean'],
         ];
     }
-
 }

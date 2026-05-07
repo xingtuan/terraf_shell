@@ -9,6 +9,8 @@ use App\Filament\Resources\Articles\Pages\ViewArticle;
 use App\Filament\Resources\Articles\Schemas\ArticleForm;
 use App\Filament\Resources\Articles\Schemas\ArticleInfolist;
 use App\Filament\Resources\Articles\Tables\ArticlesTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Article;
 use BackedEnum;
@@ -20,11 +22,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ArticleResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = Article::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Content';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
     protected static ?string $navigationLabel = 'Articles';
 

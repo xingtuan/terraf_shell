@@ -9,6 +9,8 @@ use App\Filament\Resources\Categories\Pages\ViewCategory;
 use App\Filament\Resources\Categories\Schemas\CategoryForm;
 use App\Filament\Resources\Categories\Schemas\CategoryInfolist;
 use App\Filament\Resources\Categories\Tables\CategoriesTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Category;
 use BackedEnum;
@@ -21,11 +23,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class CategoryResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = Category::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
     protected static ?string $navigationLabel = 'Concept Categories';
 

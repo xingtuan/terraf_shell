@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Filament\Resources\Posts\PostResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\FundingCampaign;
+use App\Models\IdeaMedia;
 use App\Models\Post;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;
@@ -18,28 +19,35 @@ class CommunityStatsOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected ?string $heading = 'Community Health';
+    protected ?string $heading = null;
 
     protected ?string $description = 'Platform growth and content volume at a glance.';
 
+    protected function getHeading(): ?string
+    {
+        return __('admin.widgets.community_health');
+    }
+
     protected function getStats(): array
     {
-        $totalUsers     = User::query()->count();
-        $creators       = User::query()->whereIn('role', [UserRole::Creator->value, 'user'])->count();
-        $bannedUsers    = User::query()->where('is_banned', true)->count();
-        $totalConcepts  = Post::query()->count();
-        $published      = Post::query()->where('status', ContentStatus::Approved->value)->count();
-        $featured       = Post::query()->where('is_featured', true)->count();
+        $totalUsers = User::query()->count();
+        $creators = User::query()->whereIn('role', [UserRole::Creator->value, 'user'])->count();
+        $bannedUsers = User::query()->where('is_banned', true)->count();
+        $totalConcepts = Post::query()->count();
+        $published = Post::query()->where('status', ContentStatus::Approved->value)->count();
+        $featured = Post::query()->where('is_featured', true)->count();
         $supportEnabled = FundingCampaign::query()->where('support_enabled', true)->count();
+        $demoContent = Post::query()->where('is_demo_content', true)->count();
+        $recentUploads = IdeaMedia::query()->where('created_at', '>=', now()->subDays(7))->count();
 
         return [
             Stat::make('Total users', number_format($totalUsers))
-                ->description(number_format($creators) . ' creators')
+                ->description(number_format($creators).' creators')
                 ->color('primary')
                 ->icon('heroicon-o-users')
                 ->url(UserResource::getUrl()),
             Stat::make('Published concepts', number_format($published))
-                ->description(number_format($totalConcepts) . ' total concepts')
+                ->description(number_format($totalConcepts).' total concepts')
                 ->color('success')
                 ->icon('heroicon-o-light-bulb')
                 ->url(PostResource::getUrl()),
@@ -52,6 +60,16 @@ class CommunityStatsOverview extends StatsOverviewWidget
                 ->description('Concepts with an active funding CTA')
                 ->color('warning')
                 ->icon('heroicon-o-heart')
+                ->url(PostResource::getUrl()),
+            Stat::make('Recent uploads', number_format($recentUploads))
+                ->description('Community media uploaded in the last 7 days')
+                ->color('info')
+                ->icon('heroicon-o-photo')
+                ->url(PostResource::getUrl()),
+            Stat::make('Demo content', number_format($demoContent))
+                ->description('Seeded records to clean before launch')
+                ->color($demoContent > 0 ? 'warning' : 'success')
+                ->icon('heroicon-o-trash')
                 ->url(PostResource::getUrl()),
             Stat::make('Banned users', number_format($bannedUsers))
                 ->description('Accounts currently blocked')

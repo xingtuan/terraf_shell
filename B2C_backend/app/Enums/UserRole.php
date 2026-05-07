@@ -24,13 +24,7 @@ enum UserRole: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::Visitor => 'Visitor',
-            self::Creator => 'Creator',
-            self::SmePartner => 'SME Partner',
-            self::Moderator => 'Moderator',
-            self::Admin => 'Admin',
-        };
+        return __("admin.roles.{$this->value}");
     }
 
     public function color(): string

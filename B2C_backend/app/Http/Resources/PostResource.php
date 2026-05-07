@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\FundingCampaign;
 use App\Models\Post;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -85,7 +86,7 @@ class PostResource extends JsonResource
         ];
     }
 
-    private function visibleFundingCampaign(Request $request, ?\App\Models\User $viewer = null): ?FundingCampaign
+    private function visibleFundingCampaign(Request $request, ?User $viewer = null): ?FundingCampaign
     {
         if (! $this->relationLoaded('fundingCampaign') || ! ($this->fundingCampaign instanceof FundingCampaign)) {
             return null;

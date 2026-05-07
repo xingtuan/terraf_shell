@@ -11,6 +11,8 @@ use App\Filament\Resources\ModerationLogs\Tables\ModerationLogsTable;
 use App\Filament\Resources\Posts\PostResource as PostAdminResource;
 use App\Filament\Resources\Reports\ReportResource as ReportAdminResource;
 use App\Filament\Resources\Users\UserResource as UserAdminResource;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Comment;
 use App\Models\ModerationLog;
@@ -28,11 +30,13 @@ use Illuminate\Support\Str;
 
 class ModerationLogResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = ModerationLog::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Insights';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::UsersGovernance;
 
     protected static ?string $navigationLabel = 'Moderation Logs';
 

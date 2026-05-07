@@ -18,15 +18,21 @@ class LeadOperationsOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected ?string $heading = 'Lead Operations';
+    protected ?string $heading = null;
 
     protected ?string $description = 'Inbound enquiry, partnership, and sample-request workload.';
+
+    public function getHeading(): ?string
+    {
+        return __('admin.widgets.lead_operations');
+    }
 
     protected function getStats(): array
     {
         $openEnquiriesQuery = Inquiry::query()->whereNotIn('status', [
             B2BLeadStatus::Archived->value,
             B2BLeadStatus::Closed->value,
+            B2BLeadStatus::Resolved->value,
         ]);
 
         $openOpportunityQuery = B2BLead::query()
@@ -34,9 +40,38 @@ class LeadOperationsOverview extends StatsOverviewWidget
             ->whereNotIn('status', [
                 B2BLeadStatus::Archived->value,
                 B2BLeadStatus::Closed->value,
+                B2BLeadStatus::Resolved->value,
             ]);
 
         return [
+            Stat::make(
+                'New leads this week',
+                number_format(
+                    B2BLead::query()->where('created_at', '>=', now()->startOfWeek())->count(),
+                ),
+            )
+                ->description('All lead types submitted since Monday')
+                ->color('info')
+                ->icon('heroicon-o-sparkles')
+                ->url(B2BLeadResource::getUrl()),
+            Stat::make(
+                'Overdue follow-ups',
+                number_format(
+                    B2BLead::query()
+                        ->whereNotNull('follow_up_at')
+                        ->where('follow_up_at', '<', now())
+                        ->whereNotIn('status', [
+                            B2BLeadStatus::Archived->value,
+                            B2BLeadStatus::Closed->value,
+                            B2BLeadStatus::Resolved->value,
+                        ])
+                        ->count(),
+                ),
+            )
+                ->description('Open leads past their follow-up date')
+                ->color('danger')
+                ->icon('heroicon-o-calendar-days')
+                ->url(B2BLeadResource::getUrl()),
             Stat::make(
                 'New enquiries',
                 number_format(

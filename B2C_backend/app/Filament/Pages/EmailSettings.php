@@ -2,11 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Models\EmailLog;
 use App\Services\Email\EmailDispatchService;
 use App\Services\Email\MailSettingsService;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
@@ -28,11 +30,11 @@ class EmailSettings extends Page
 
     public ?string $lastTestResult = null;
 
-    protected static ?string $title = 'Email Settings';
+    protected static ?string $title = null;
 
-    protected static ?string $navigationLabel = 'Settings';
+    protected static ?string $navigationLabel = null;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Email Center';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::EmailCenter;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-envelope';
 
@@ -52,11 +54,37 @@ class EmailSettings extends Page
         return PanelAccess::isAdmin();
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.email_settings_nav');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.email_settings');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->statePath('data')
             ->components([
+                Section::make('Delivery Status')
+                    ->schema([
+                        Placeholder::make('sending_enabled')
+                            ->label('Email sending')
+                            ->content(fn (): string => ($this->data['is_enabled'] ?? false) ? 'Enabled' : 'Disabled'),
+                        Placeholder::make('selected_mailer')
+                            ->label('Selected provider')
+                            ->content(fn (): string => (string) ($this->data['mailer'] ?? config('mail.default'))),
+                        Placeholder::make('failed_count')
+                            ->label('Failed emails')
+                            ->content(fn (): string => number_format(EmailLog::query()->where('status', EmailLog::STATUS_FAILED)->count())),
+                        Placeholder::make('last_sent')
+                            ->label('Last sent email')
+                            ->content(fn (): string => EmailLog::query()->where('status', EmailLog::STATUS_SENT)->latest('sent_at')->first()?->sent_at?->toDateTimeString() ?? 'No sent email logged.'),
+                    ])
+                    ->columns(4),
                 Section::make('Global Delivery')
                     ->schema([
                         Toggle::make('is_enabled')
@@ -154,7 +182,7 @@ class EmailSettings extends Page
         ]));
 
         Notification::make()
-            ->title('Email settings saved.')
+            ->title(__('admin.notifications.saved'))
             ->success()
             ->send();
     }
@@ -202,10 +230,10 @@ class EmailSettings extends Page
     {
         return [
             Action::make('save')
-                ->label('Save settings')
+                ->label(__('admin.actions.save_settings'))
                 ->submit('save'),
             Action::make('sendTest')
-                ->label('Send test email')
+                ->label(__('admin.actions.send_test_email'))
                 ->action('sendTest'),
         ];
     }

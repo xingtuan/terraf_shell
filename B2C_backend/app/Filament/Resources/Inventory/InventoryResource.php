@@ -5,10 +5,14 @@ namespace App\Filament\Resources\Inventory;
 use App\Filament\Resources\Inventory\Pages\EditInventoryVariant;
 use App\Filament\Resources\Inventory\Pages\ListInventory;
 use App\Filament\Resources\ProductVariants\ProductVariantResource as VariantActions;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\ProductVariant;
 use BackedEnum;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -23,11 +27,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class InventoryResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = ProductVariant::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCircleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Shop';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
     protected static ?string $navigationLabel = 'Inventory';
 
@@ -38,16 +44,16 @@ class InventoryResource extends Resource
         return $schema->components([
             Section::make('Inventory')
                 ->schema([
-                    \Filament\Forms\Components\TextInput::make('stock_quantity')
+                    TextInput::make('stock_quantity')
                         ->numeric()
                         ->minValue(0),
-                    \Filament\Forms\Components\Select::make('stock_status')
+                    Select::make('stock_status')
                         ->options(ProductVariant::STOCK_STATUS_OPTIONS)
                         ->required(),
-                    \Filament\Forms\Components\Select::make('inventory_policy')
+                    Select::make('inventory_policy')
                         ->options(ProductVariant::INVENTORY_POLICY_OPTIONS)
                         ->required(),
-                    \Filament\Forms\Components\TextInput::make('low_stock_threshold')
+                    TextInput::make('low_stock_threshold')
                         ->numeric()
                         ->minValue(0),
                 ])

@@ -28,6 +28,7 @@ class ListB2BLeadsRequest extends FormRequest
             'interest_type' => ['nullable', Rule::in(B2BInterestType::values())],
             'application_type' => ['nullable', 'string', 'max:150'],
             'status' => ['nullable', Rule::in(B2BLeadStatus::values())],
+            'priority' => ['nullable', Rule::in(['low', 'normal', 'high', 'urgent'])],
             'assigned_to' => [
                 'nullable',
                 Rule::exists('users', 'id')->where(
@@ -38,6 +39,7 @@ class ListB2BLeadsRequest extends FormRequest
             'company_name' => ['nullable', 'string', 'max:150'],
             'organization_type' => ['nullable', 'string', 'max:80'],
             'source_page' => ['nullable', 'string', 'max:120'],
+            'follow_up_before' => ['nullable', 'date'],
             'created_from' => ['nullable', 'date'],
             'created_until' => ['nullable', 'date'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.config('community.pagination.max_per_page')],

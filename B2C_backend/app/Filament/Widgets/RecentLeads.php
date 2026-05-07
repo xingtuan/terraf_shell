@@ -16,11 +16,16 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentLeads extends TableWidget
 {
-    protected static ?string $heading = 'Lead Backlog';
+    protected static ?string $heading = null;
 
     protected static ?int $sort = 8;
 
     protected int|string|array $columnSpan = 'full';
+
+    public function getTableHeading(): ?string
+    {
+        return __('admin.widgets.lead_backlog');
+    }
 
     public function table(Table $table): Table
     {

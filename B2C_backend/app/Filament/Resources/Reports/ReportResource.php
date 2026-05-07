@@ -12,6 +12,8 @@ use App\Filament\Resources\Reports\Schemas\ReportForm;
 use App\Filament\Resources\Reports\Schemas\ReportInfolist;
 use App\Filament\Resources\Reports\Tables\ReportsTable;
 use App\Filament\Resources\Users\UserResource as UserAdminResource;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Comment;
 use App\Models\Post;
@@ -28,11 +30,13 @@ use Illuminate\Support\Str;
 
 class ReportResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = Report::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Governance';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::UsersGovernance;
 
     protected static ?string $navigationLabel = 'Reports';
 

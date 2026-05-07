@@ -22,9 +22,14 @@ class ModerationOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
-    protected ?string $heading = 'Moderation Overview';
+    protected ?string $heading = null;
 
     protected ?string $description = 'Community backlog and governance signals for staff review.';
+
+    protected function getHeading(): ?string
+    {
+        return __('admin.widgets.moderation_overview');
+    }
 
     protected function getStats(): array
     {

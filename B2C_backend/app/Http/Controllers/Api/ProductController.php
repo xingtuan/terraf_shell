@@ -9,9 +9,9 @@ use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Support\PaginatesResources;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller

@@ -5,6 +5,8 @@ namespace App\Filament\Resources\ProductAttributeValues;
 use App\Filament\Resources\ProductAttributeValues\Pages\CreateProductAttributeValue;
 use App\Filament\Resources\ProductAttributeValues\Pages\EditProductAttributeValue;
 use App\Filament\Resources\ProductAttributeValues\Pages\ListProductAttributeValues;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\ProductAttributeDefinition;
 use App\Models\ProductAttributeValue;
@@ -32,11 +34,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductAttributeValueResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = ProductAttributeValue::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSwatch;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Shop';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
     protected static ?string $navigationLabel = 'Attribute Values';
 

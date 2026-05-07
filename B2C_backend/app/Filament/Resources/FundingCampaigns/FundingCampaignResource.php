@@ -9,6 +9,8 @@ use App\Filament\Resources\FundingCampaigns\Pages\ViewFundingCampaign;
 use App\Filament\Resources\FundingCampaigns\Schemas\FundingCampaignForm;
 use App\Filament\Resources\FundingCampaigns\Schemas\FundingCampaignInfolist;
 use App\Filament\Resources\FundingCampaigns\Tables\FundingCampaignsTable;
+use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\FundingCampaign;
 use BackedEnum;
@@ -21,11 +23,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class FundingCampaignResource extends Resource
 {
+    use HasAdminResourceTranslations;
+
     protected static ?string $model = FundingCampaign::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Community';
+    protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
     protected static ?string $navigationLabel = 'Funding Campaigns';
 
