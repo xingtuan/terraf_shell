@@ -21,7 +21,7 @@ class ShippingQuoteService
      */
     public function quote(Cart $cart, array $address): array
     {
-        $cart->loadMissing(['items.product']);
+        $cart->loadMissing(['items.product', 'items.variant']);
         $this->validateAddress($address);
 
         $subtotal = $this->subtotal($cart);
@@ -159,7 +159,7 @@ class ShippingQuoteService
             ],
             'items' => $cart->items->map(fn (CartItem $item): array => [
                 'quantity' => $item->quantity,
-                'weight_grams' => $item->product?->weight_grams ?? 500,
+                'weight_grams' => $item->variant?->weight_grams ?? $item->product?->weight_grams ?? 500,
             ])->values()->all(),
         ]);
 

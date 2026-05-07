@@ -22,7 +22,7 @@ class ProductCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Store';
+    protected static string|\UnitEnum|null $navigationGroup = 'Shop';
 
     protected static ?string $navigationLabel = 'Product Categories';
 

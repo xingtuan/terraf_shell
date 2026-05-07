@@ -14,7 +14,7 @@ class OrderResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $this->loadMissing(['items.product']);
+        $this->loadMissing(['items.product.variants', 'items.product.attributeAssignments.definition', 'items.product.attributeAssignments.attributeValue', 'items.variant']);
 
         return [
             'order_number' => $this->order_number,

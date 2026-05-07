@@ -91,6 +91,6 @@ class Order extends Model
 
     public function getFormattedTotalAttribute(): string
     {
-        return '$'.number_format((float) $this->total_usd, 2).' USD';
+        return '$'.number_format((float) $this->total_usd, 2).' '.($this->currency ?: 'NZD');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\OrderStatus;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\ProductVariant;
 use App\Services\Email\EmailDispatchService;
 use App\Services\Email\EmailPayloadFactory;
 use App\Services\Shipping\ShippingQuoteService;
@@ -28,7 +29,7 @@ class OrderService
         ?string $guestEmail = null,
         string $shippingMethodCode = 'standard',
     ): Order {
-        $cart->loadMissing(['user', 'items.product']);
+        $cart->loadMissing(['user', 'items.product.variants', 'items.variant']);
 
         if ($cart->user_id === null && blank($guestEmail)) {
             throw ValidationException::withMessages([
@@ -45,35 +46,55 @@ class OrderService
         $items = $cart->items->map(function ($item) {
             $product = $item->product;
 
-            if ($product === null || ! $product->canBePurchased()) {
+            $variant = $item->variant ?? $product?->defaultVariant();
+
+            if ($product !== null && $variant === null) {
+                $variant = $product->ensureDefaultVariant();
+                $item->forceFill(['product_variant_id' => $variant->id])->save();
+            }
+
+            if (
+                $product === null
+                || $variant === null
+                || ! $product->is_active
+                || ! $product->isPublished()
+                || $product->inquiry_only
+                || ! $variant->isPurchasable()
+            ) {
                 throw ValidationException::withMessages([
                     'cart' => ['One or more items in your cart are no longer available.'],
                 ]);
             }
 
-            if (
-                $product->stock_quantity !== null
-                && in_array($product->stock_status, ['in_stock', 'low_stock'], true)
-                && $item->quantity > $product->stock_quantity
-            ) {
+            if (! $variant->canFulfillQuantity((int) $item->quantity)) {
                 throw ValidationException::withMessages([
                     'cart' => ['One or more items exceed available stock.'],
                 ]);
             }
 
-            $unitPrice = (float) $product->price_usd;
+            $unitPrice = $variant->effectivePrice();
 
             return [
-                'product_id' => $product->id,
-                'product_name' => $product->name,
-                'product_sku' => $product->sku ?? $product->slug,
-                'quantity' => $item->quantity,
-                'unit_price_usd' => $unitPrice,
-                'subtotal_usd' => $unitPrice * $item->quantity,
+                'variant' => $variant,
+                'snapshot' => [
+                    'product_id' => $product->id,
+                    'product_variant_id' => $variant->id,
+                    'product_name' => $product->name,
+                    'product_sku' => $product->sku ?? $product->slug,
+                    'product_title' => $product->name,
+                    'variant_title' => $variant->displayTitle(),
+                    'variant_sku' => $variant->sku,
+                    'option_values' => $variant->option_values ?? [],
+                    'quantity' => $item->quantity,
+                    'unit_price_usd' => $unitPrice,
+                    'unit_price_amount' => $unitPrice,
+                    'currency' => $variant->currency ?: 'NZD',
+                    'subtotal_usd' => $unitPrice * $item->quantity,
+                ],
             ];
         });
 
-        $subtotal = (float) $items->sum('subtotal_usd');
+        $subtotal = (float) $items->sum(fn (array $item): float => (float) $item['snapshot']['subtotal_usd']);
         $quoteAddress = [
             'line1' => $shippingData['shipping_address_line1'],
             'line2' => $shippingData['shipping_address_line2'] ?? null,
@@ -137,7 +158,11 @@ class OrderService
             ]);
 
             foreach ($items as $item) {
-                $order->items()->create($item);
+                $snapshot = $item['snapshot'];
+                $variant = $item['variant'];
+
+                $order->items()->create($snapshot);
+                $this->deductVariantStock($variant, (int) $snapshot['quantity']);
             }
 
             $cart->items()->delete();
@@ -145,7 +170,7 @@ class OrderService
             return $order;
         });
 
-        $order = $order->fresh(['user', 'items.product']);
+        $order = $order->fresh(['user', 'items.product.variants', 'items.variant']);
 
         DB::afterCommit(function () use ($order): void {
             $payload = $this->emailPayloadFactory->forOrder($order);
@@ -172,12 +197,26 @@ class OrderService
             ]);
         }
 
-        $order->forceFill([
-            'status' => OrderStatus::Cancelled,
-            'cancelled_at' => now(),
-        ])->save();
+        DB::transaction(function () use ($order): void {
+            $order->loadMissing(['items.variant']);
 
-        $order = $order->fresh(['user', 'items.product']);
+            foreach ($order->items as $item) {
+                $variant = $item->variant;
+
+                if ($variant === null || $variant->inventory_policy !== 'deny' || $variant->stock_quantity === null) {
+                    continue;
+                }
+
+                $variant->adjustStock((int) $item->quantity, 'order_cancelled', 'Order '.$order->order_number.' cancelled.');
+            }
+
+            $order->forceFill([
+                'status' => OrderStatus::Cancelled,
+                'cancelled_at' => now(),
+            ])->save();
+        });
+
+        $order = $order->fresh(['user', 'items.product.variants', 'items.variant']);
 
         DB::afterCommit(fn () => $this->emailDispatchService->sendEventSafely(
             'order.cancelled',
@@ -193,7 +232,7 @@ class OrderService
 
     public function dispatchStatusChangedEmail(Order $order, ?string $previousStatus = null): void
     {
-        $order->loadMissing(['user', 'items.product']);
+        $order->loadMissing(['user', 'items.product.variants', 'items.variant']);
         $status = $order->status instanceof OrderStatus ? $order->status->value : (string) $order->status;
         $eventKey = $status === OrderStatus::Shipped->value ? 'order.shipped' : 'order.status_changed';
 
@@ -215,8 +254,21 @@ class OrderService
     {
         return Order::query()
             ->where('user_id', $userId)
-            ->with(['items.product'])
+            ->with(['items.product.variants', 'items.variant'])
             ->latest()
             ->get();
+    }
+
+    private function deductVariantStock(ProductVariant $variant, int $quantity): void
+    {
+        if ($variant->inventory_policy !== 'deny' || $variant->stock_quantity === null) {
+            return;
+        }
+
+        $variant->adjustStock(
+            -1 * max(1, $quantity),
+            'order_created',
+            'Stock reserved during order creation.',
+        );
     }
 }

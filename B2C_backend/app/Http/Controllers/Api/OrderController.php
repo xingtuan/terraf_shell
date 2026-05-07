@@ -28,7 +28,7 @@ class OrderController extends Controller
 
         $orders = Order::query()
             ->where('user_id', $request->user()->id)
-            ->with(['items.product'])
+            ->with(['items.product.variants', 'items.variant'])
             ->latest()
             ->paginate($perPage)
             ->withQueryString();
@@ -44,7 +44,7 @@ class OrderController extends Controller
         $order = Order::query()
             ->where('user_id', $request->user()->id)
             ->where('order_number', $orderNumber)
-            ->with(['items.product'])
+            ->with(['items.product.variants', 'items.variant'])
             ->firstOrFail();
 
         return $this->successResponse(new OrderResource($order));
@@ -134,7 +134,7 @@ class OrderController extends Controller
             ->where('order_number', $orderNumber)
             ->whereNull('user_id')
             ->where('guest_order_token', $token)
-            ->with(['items.product'])
+            ->with(['items.product.variants', 'items.variant'])
             ->firstOrFail();
 
         return $this->successResponse(new OrderResource($order));

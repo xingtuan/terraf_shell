@@ -29,6 +29,7 @@ import type {
   CartSummaryItem,
   CertificationCardInput,
   Product,
+  ProductAttribute,
   ProductAppliedFilterChip,
   ProductCatalogMeta,
   ProductCategory,
@@ -36,6 +37,7 @@ import type {
   ProductImage,
   ProductSeo,
   ProductSpecification,
+  ProductVariant,
   TechnicalDownload,
   NotificationTargetSummary,
   ShippingAddressSnapshot,
@@ -190,6 +192,79 @@ function normalizeProductSpecification(
   }
 }
 
+function normalizeProductAttribute(attribute: ProductAttribute): ProductAttribute {
+  return {
+    ...attribute,
+    key: attribute.key ?? null,
+    label: attribute.label ?? null,
+    value: attribute.value ?? null,
+    display_label: attribute.display_label ?? null,
+    type: attribute.type ?? null,
+    unit: attribute.unit ?? null,
+    color_hex: attribute.color_hex ?? null,
+    is_filterable: Boolean(attribute.is_filterable),
+    is_variant_option: Boolean(attribute.is_variant_option),
+    is_searchable: Boolean(attribute.is_searchable),
+    is_specification: Boolean(attribute.is_specification),
+  }
+}
+
+function normalizeProductVariant(variant?: ProductVariant | null): ProductVariant | null {
+  if (!variant) {
+    return null
+  }
+
+  return {
+    ...variant,
+    id: Number(variant.id ?? 0),
+    product_id:
+      variant.product_id === null || variant.product_id === undefined
+        ? undefined
+        : Number(variant.product_id),
+    sku: variant.sku ?? "",
+    title: variant.title ?? null,
+    display_title: variant.display_title ?? variant.title ?? variant.sku ?? "",
+    option_values: isJsonObject(variant.option_values)
+      ? variant.option_values
+      : {},
+    price_amount:
+      variant.price_amount === null || variant.price_amount === undefined
+        ? "0.00"
+        : String(variant.price_amount),
+    compare_at_price_amount:
+      variant.compare_at_price_amount === null ||
+      variant.compare_at_price_amount === undefined
+        ? null
+        : String(variant.compare_at_price_amount),
+    currency: variant.currency ?? "NZD",
+    stock_quantity:
+      variant.stock_quantity === null || variant.stock_quantity === undefined
+        ? null
+        : Number(variant.stock_quantity),
+    stock_status: variant.stock_status ?? null,
+    stock_status_label: variant.stock_status_label ?? null,
+    inventory_policy: variant.inventory_policy ?? null,
+    inventory_policy_label: variant.inventory_policy_label ?? null,
+    low_stock_threshold: Number(variant.low_stock_threshold ?? 5),
+    weight_grams:
+      variant.weight_grams === null || variant.weight_grams === undefined
+        ? null
+        : Number(variant.weight_grams),
+    dimensions: isJsonObject(variant.dimensions) ? variant.dimensions : null,
+    image_url: resolveApiUrl(variant.image_url),
+    media_path: variant.media_path ?? null,
+    is_default: Boolean(variant.is_default),
+    is_active: Boolean(variant.is_active ?? true),
+    is_in_stock: Boolean(variant.is_in_stock),
+    is_low_stock: Boolean(variant.is_low_stock),
+    can_add_to_cart: Boolean(variant.can_add_to_cart),
+    availability_label: variant.availability_label ?? variant.stock_status_label ?? null,
+    sort_order: Number(variant.sort_order ?? 0),
+    created_at: variant.created_at ?? null,
+    updated_at: variant.updated_at ?? null,
+  }
+}
+
 function normalizeProductSeo(seo?: ProductSeo | null): ProductSeo | null {
   if (!seo) {
     return null
@@ -282,8 +357,12 @@ export function normalizeProduct(
   depth = 0,
 ): Product {
   const title = product.title ?? product.name ?? ""
+  const defaultVariant = normalizeProductVariant(product.default_variant)
+  const variants = ensureArray(product.variants)
+    .map(normalizeProductVariant)
+    .filter((variant): variant is ProductVariant => Boolean(variant))
   const primaryImageUrl = resolveApiUrl(
-    product.primary_image_url ?? product.image_url,
+    defaultVariant?.image_url ?? product.primary_image_url ?? product.image_url,
   )
   const galleryImages = ensureArray(product.gallery_images).map(normalizeProductImage)
 
@@ -331,43 +410,70 @@ export function normalizeProduct(
     color_label: product.color_label ?? null,
     technique: product.technique ?? "",
     technique_label: product.technique_label ?? null,
-    currency: product.currency ?? "USD",
-    price_usd:
-      product.price_usd === null || product.price_usd === undefined
-        ? "0.00"
-        : String(product.price_usd),
-    price:
-      product.price === null || product.price === undefined
+    currency: defaultVariant?.currency ?? product.currency ?? "NZD",
+    price_amount:
+      defaultVariant?.price_amount ??
+      (product.price_amount === null || product.price_amount === undefined
         ? product.price_usd === null || product.price_usd === undefined
           ? "0.00"
           : String(product.price_usd)
-        : String(product.price),
-    compare_at_price_usd:
-      product.compare_at_price_usd === null ||
-      product.compare_at_price_usd === undefined
-        ? null
-        : String(product.compare_at_price_usd),
-    compare_at_price:
-      product.compare_at_price === null || product.compare_at_price === undefined
+        : String(product.price_amount)),
+    price_usd:
+      defaultVariant?.price_amount ??
+      (product.price_usd === null || product.price_usd === undefined
+        ? "0.00"
+        : String(product.price_usd)),
+    price:
+      defaultVariant?.price_amount ??
+      (product.price === null || product.price === undefined
+        ? product.price_usd === null || product.price_usd === undefined
+          ? "0.00"
+          : String(product.price_usd)
+        : String(product.price)),
+    compare_at_price_amount:
+      defaultVariant?.compare_at_price_amount ??
+      (product.compare_at_price_amount === null ||
+      product.compare_at_price_amount === undefined
         ? product.compare_at_price_usd === null ||
           product.compare_at_price_usd === undefined
           ? null
           : String(product.compare_at_price_usd)
-        : String(product.compare_at_price),
+        : String(product.compare_at_price_amount)),
+    compare_at_price_usd:
+      defaultVariant?.compare_at_price_amount ??
+      (product.compare_at_price_usd === null ||
+      product.compare_at_price_usd === undefined
+        ? null
+        : String(product.compare_at_price_usd)),
+    compare_at_price:
+      defaultVariant?.compare_at_price_amount ??
+      (product.compare_at_price === null || product.compare_at_price === undefined
+        ? product.compare_at_price_usd === null ||
+          product.compare_at_price_usd === undefined
+          ? null
+          : String(product.compare_at_price_usd)
+        : String(product.compare_at_price)),
     on_sale: Boolean(product.on_sale),
     featured: Boolean(product.featured),
     is_bestseller: Boolean(product.is_bestseller),
     is_new: Boolean(product.is_new),
-    in_stock: Boolean(product.in_stock),
-    can_add_to_cart: Boolean(product.can_add_to_cart ?? product.in_stock),
+    in_stock: Boolean(defaultVariant?.is_in_stock ?? product.in_stock),
+    can_add_to_cart: Boolean(
+      product.can_add_to_cart ?? defaultVariant?.can_add_to_cart ?? product.in_stock,
+    ),
     inquiry_only: Boolean(product.inquiry_only),
     sample_request_enabled: Boolean(product.sample_request_enabled),
     stock_quantity:
-      product.stock_quantity === null || product.stock_quantity === undefined
+      defaultVariant?.stock_quantity ??
+      (product.stock_quantity === null || product.stock_quantity === undefined
         ? null
-        : Number(product.stock_quantity),
-    stock_status: product.stock_status ?? null,
-    stock_status_label: product.stock_status_label ?? null,
+        : Number(product.stock_quantity)),
+    stock_status: defaultVariant?.stock_status ?? product.stock_status ?? null,
+    stock_status_label:
+      defaultVariant?.availability_label ??
+      defaultVariant?.stock_status_label ??
+      product.stock_status_label ??
+      null,
     lead_time: product.lead_time ?? null,
     availability_text: product.availability_text ?? null,
     primary_image_url: primaryImageUrl,
@@ -386,6 +492,9 @@ export function normalizeProduct(
     specifications: ensureArray(product.specifications).map(
       normalizeProductSpecification,
     ),
+    attributes: ensureArray(product.attributes).map(normalizeProductAttribute),
+    default_variant: defaultVariant,
+    variants,
     certifications: ensureArray(product.certifications)
       .map(normalizeCertificationEntry)
       .filter((entry): entry is CertificationCardInput => Boolean(entry)),
@@ -491,17 +600,40 @@ export function normalizeProductCatalogMeta(
 }
 
 export function normalizeCartSummaryItem(item: CartSummaryItem): CartSummaryItem {
+  const variant = normalizeProductVariant(item.variant)
+
   return {
     ...item,
+    product_variant_id:
+      item.product_variant_id === null || item.product_variant_id === undefined
+        ? variant?.id ?? null
+        : Number(item.product_variant_id),
     quantity: Number(item.quantity ?? 0),
+    unit_price_amount:
+      item.unit_price_amount === null || item.unit_price_amount === undefined
+        ? item.unit_price_usd === null || item.unit_price_usd === undefined
+          ? "0.00"
+          : String(item.unit_price_usd)
+        : String(item.unit_price_amount),
     unit_price_usd:
-      item.unit_price_usd === null || item.unit_price_usd === undefined
+      item.unit_price_amount === null || item.unit_price_amount === undefined
+        ? item.unit_price_usd === null || item.unit_price_usd === undefined
         ? "0.00"
-        : String(item.unit_price_usd),
+          : String(item.unit_price_usd)
+        : String(item.unit_price_amount),
+    currency: item.currency ?? variant?.currency ?? item.product?.currency ?? "NZD",
     line_total:
       item.line_total === null || item.line_total === undefined
         ? "0.00"
         : String(item.line_total),
+    variant_sku: item.variant_sku ?? variant?.sku ?? null,
+    variant_title: item.variant_title ?? variant?.display_title ?? null,
+    option_values: isJsonObject(item.option_values)
+      ? item.option_values
+      : variant?.option_values ?? {},
+    stock_status: item.stock_status ?? variant?.stock_status ?? null,
+    inventory_policy: item.inventory_policy ?? variant?.inventory_policy ?? null,
+    variant,
     product: item.product ? normalizeProduct(item.product) : null,
   }
 }
@@ -567,18 +699,40 @@ function normalizeShippingAddress(
 }
 
 export function normalizeStoreOrderItem(item: StoreOrderItem): StoreOrderItem {
+  const variant = normalizeProductVariant(item.variant)
+
   return {
     ...item,
+    product_variant_id:
+      item.product_variant_id === null || item.product_variant_id === undefined
+        ? variant?.id ?? null
+        : Number(item.product_variant_id),
     product_sku: item.product_sku ?? null,
+    product_title: item.product_title ?? item.product_name ?? null,
+    variant_title: item.variant_title ?? variant?.display_title ?? null,
+    variant_sku: item.variant_sku ?? variant?.sku ?? null,
+    option_values: isJsonObject(item.option_values)
+      ? item.option_values
+      : variant?.option_values ?? {},
     quantity: Number(item.quantity ?? 0),
+    unit_price_amount:
+      item.unit_price_amount === null || item.unit_price_amount === undefined
+        ? item.unit_price_usd === null || item.unit_price_usd === undefined
+          ? "0.00"
+          : String(item.unit_price_usd)
+        : String(item.unit_price_amount),
     unit_price_usd:
-      item.unit_price_usd === null || item.unit_price_usd === undefined
+      item.unit_price_amount === null || item.unit_price_amount === undefined
+        ? item.unit_price_usd === null || item.unit_price_usd === undefined
         ? "0.00"
-        : String(item.unit_price_usd),
+          : String(item.unit_price_usd)
+        : String(item.unit_price_amount),
+    currency: item.currency ?? variant?.currency ?? item.product?.currency ?? "NZD",
     subtotal_usd:
       item.subtotal_usd === null || item.subtotal_usd === undefined
         ? "0.00"
         : String(item.subtotal_usd),
+    variant,
     product: item.product ? normalizeProduct(item.product) : null,
   }
 }

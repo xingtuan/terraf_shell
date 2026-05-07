@@ -10,8 +10,11 @@ class CartItem extends Model
     protected $fillable = [
         'cart_id',
         'product_id',
+        'product_variant_id',
         'quantity',
         'unit_price_usd',
+        'unit_price_amount',
+        'currency',
     ];
 
     protected function casts(): array
@@ -19,6 +22,7 @@ class CartItem extends Model
         return [
             'quantity' => 'integer',
             'unit_price_usd' => 'decimal:2',
+            'unit_price_amount' => 'decimal:2',
         ];
     }
 
@@ -30,5 +34,10 @@ class CartItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Products\Tables;
 use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -22,7 +23,7 @@ class ProductsTable
     {
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
-                ->with('category')
+                ->with(['category', 'variants'])
                 ->orderByDesc('featured')
                 ->orderByDesc('is_bestseller')
                 ->orderBy('sort_order')
@@ -37,7 +38,7 @@ class ProductsTable
                     ->searchable()
                     ->sortable()
                     ->description(fn (Product $record): string => collect([
-                        $record->sku,
+                        $record->effectiveSku(),
                         $record->slug,
                     ])->filter()->implode(' | ')),
                 TextColumn::make('category.name')
@@ -52,8 +53,8 @@ class ProductsTable
                 TextColumn::make('stock_status')
                     ->label('Stock')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => Product::labelForOption(Product::STOCK_STATUS_OPTIONS, $state) ?? 'Unknown')
-                    ->color(fn (?string $state): string => match ($state) {
+                    ->formatStateUsing(fn (?string $state, Product $record): string => Product::labelForOption(Product::STOCK_STATUS_OPTIONS, $record->effectiveStockStatus()) ?? 'Unknown')
+                    ->color(fn (?string $state, Product $record): string => match ($record->effectiveStockStatus()) {
                         'in_stock' => 'success',
                         'low_stock' => 'warning',
                         'preorder', 'made_to_order' => 'info',
@@ -61,8 +62,8 @@ class ProductsTable
                         default => 'gray',
                     }),
                 TextColumn::make('price_usd')
-                    ->label('Price')
-                    ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
+                    ->label('Price (NZD)')
+                    ->formatStateUsing(fn ($state, Product $record): string => '$'.number_format((float) ($record->effectivePrice() ?? $state), 2)),
                 IconColumn::make('featured')
                     ->label('Featured')
                     ->boolean(),
@@ -102,6 +103,24 @@ class ProductsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('activate')
+                        ->label('Activate')
+                        ->action(fn ($records) => $records->each->update(['is_active' => true])),
+                    BulkAction::make('deactivate')
+                        ->label('Deactivate')
+                        ->requiresConfirmation()
+                        ->action(fn ($records) => $records->each->update(['is_active' => false])),
+                    BulkAction::make('mark_featured')
+                        ->label('Mark featured')
+                        ->action(fn ($records) => $records->each->update(['featured' => true])),
+                    BulkAction::make('mark_sold_out')
+                        ->label('Mark sold out')
+                        ->requiresConfirmation()
+                        ->action(fn ($records) => $records->each->update([
+                            'stock_status' => 'sold_out',
+                            'stock_quantity' => 0,
+                            'in_stock' => false,
+                        ])),
                     DeleteBulkAction::make(),
                 ]),
             ]);

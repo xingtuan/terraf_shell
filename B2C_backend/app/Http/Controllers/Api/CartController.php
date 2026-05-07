@@ -33,10 +33,11 @@ class CartController extends Controller
             $cart,
             (int) $request->validated('product_id'),
             (int) ($request->validated('quantity') ?? 1),
+            $this->variantIdFromValidated($request->validated()),
         );
 
         $response = $this->successResponse(
-            new CartResource($cart->fresh(['items.product'])),
+            new CartResource($cart->fresh(['items.product.variants', 'items.variant'])),
             'Item added to cart.',
         );
 
@@ -46,10 +47,15 @@ class CartController extends Controller
     public function updateItem(UpdateCartItemRequest $request, int $productId): JsonResponse
     {
         $cart = $this->cartService->getOrCreateCart($request);
-        $this->cartService->updateItem($cart, $productId, (int) $request->validated('quantity'));
+        $this->cartService->updateItem(
+            $cart,
+            $productId,
+            (int) $request->validated('quantity'),
+            $this->variantIdFromValidated($request->validated()),
+        );
 
         $response = $this->successResponse(
-            new CartResource($cart->fresh(['items.product'])),
+            new CartResource($cart->fresh(['items.product.variants', 'items.variant'])),
             'Cart updated.',
         );
 
@@ -59,10 +65,11 @@ class CartController extends Controller
     public function removeItem(Request $request, int $productId): JsonResponse
     {
         $cart = $this->cartService->getOrCreateCart($request);
-        $this->cartService->removeItem($cart, $productId);
+        $variantId = $request->integer('variant_id') ?: $request->integer('product_variant_id') ?: null;
+        $this->cartService->removeItem($cart, $productId, $variantId);
 
         $response = $this->successResponse(
-            new CartResource($cart->fresh(['items.product'])),
+            new CartResource($cart->fresh(['items.product.variants', 'items.variant'])),
             'Item removed from cart.',
         );
 
@@ -120,5 +127,15 @@ class CartController extends Controller
                 false,
                 'lax',
             );
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function variantIdFromValidated(array $validated): ?int
+    {
+        $variantId = $validated['variant_id'] ?? $validated['product_variant_id'] ?? null;
+
+        return $variantId !== null ? (int) $variantId : null;
     }
 }

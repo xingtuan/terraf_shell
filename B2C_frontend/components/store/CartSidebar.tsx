@@ -112,7 +112,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
               <div className="space-y-4">
                 {cart.items.map((item) => (
                   <article
-                    key={item.product_id}
+                    key={`${item.product_id}-${item.product_variant_id ?? "default"}`}
                     className="rounded-3xl border border-border/60 bg-card p-4"
                   >
                     <div className="flex gap-4">
@@ -135,12 +135,19 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                                 {item.product.stock_status_label}
                               </p>
                             ) : null}
+                            {item.variant_title || item.variant_sku ? (
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                {[item.variant_title, item.variant_sku ? `SKU ${item.variant_sku}` : null]
+                                  .filter(Boolean)
+                                  .join(" | ")}
+                              </p>
+                            ) : null}
                           </div>
                           <p className="text-sm font-medium text-foreground">
                             {formatCurrencyAmount(
                               item.line_total,
                               locale,
-                              item.product?.currency ?? "USD",
+                              item.currency ?? item.product?.currency ?? "NZD",
                             )}
                           </p>
                         </div>
@@ -151,7 +158,11 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                               type="button"
                               className="px-3 py-2 text-foreground transition-colors hover:bg-muted"
                               onClick={() => {
-                                void updateItem(item.product_id, item.quantity - 1)
+                                void updateItem(
+                                  item.product_id,
+                                  item.quantity - 1,
+                                  item.product_variant_id,
+                                )
                               }}
                               aria-label={t.decreaseQuantity}
                             >
@@ -172,7 +183,11 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                                   return
                                 }
 
-                                void updateItem(item.product_id, item.quantity + 1)
+                                void updateItem(
+                                  item.product_id,
+                                  item.quantity + 1,
+                                  item.product_variant_id,
+                                )
                               }}
                               aria-label={t.increaseQuantity}
                             >
@@ -184,7 +199,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                             type="button"
                             className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                             onClick={() => {
-                              void removeItem(item.product_id)
+                              void removeItem(item.product_id, item.product_variant_id)
                             }}
                           >
                             <Trash2 className="size-4" />

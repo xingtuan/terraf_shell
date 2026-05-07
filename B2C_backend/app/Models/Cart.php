@@ -60,7 +60,7 @@ class Cart extends Model
         $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
 
         $total = $items->sum(
-            fn (CartItem $item): float => (float) $item->unit_price_usd * $item->quantity
+            fn (CartItem $item): float => (float) ($item->unit_price_amount ?? $item->unit_price_usd) * $item->quantity
         );
 
         return number_format($total, 2, '.', '');

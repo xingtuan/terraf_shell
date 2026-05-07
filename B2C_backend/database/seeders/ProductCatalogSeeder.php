@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Enums\ProductStatus;
 use App\Models\Product;
+use App\Models\ProductAttributeAssignment;
+use App\Models\ProductAttributeDefinition;
 use App\Models\ProductCategory;
 use App\Models\ProductImage;
 use Illuminate\Database\Seeder;
@@ -175,7 +177,7 @@ class ProductCatalogSeeder extends Seeder
                 'certifications' => [],
                 'use_cases' => ['home_dining', 'hospitality_service', 'retail_gifting'],
                 'price_from' => 76,
-                'currency' => 'USD',
+                'currency' => 'NZD',
                 'featured' => true,
                 'is_bestseller' => true,
                 'is_new' => false,
@@ -276,7 +278,7 @@ class ProductCatalogSeeder extends Seeder
                 'certifications' => [],
                 'use_cases' => ['hospitality_service', 'home_dining'],
                 'price_from' => 96,
-                'currency' => 'USD',
+                'currency' => 'NZD',
                 'featured' => true,
                 'is_bestseller' => false,
                 'is_new' => false,
@@ -375,7 +377,7 @@ class ProductCatalogSeeder extends Seeder
                 'certifications' => [],
                 'use_cases' => ['home_dining', 'retail_gifting', 'hospitality_service'],
                 'price_from' => 58,
-                'currency' => 'USD',
+                'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => false,
                 'is_new' => true,
@@ -475,7 +477,7 @@ class ProductCatalogSeeder extends Seeder
                 'certifications' => [],
                 'use_cases' => ['interior_styling', 'retail_gifting', 'design_projects'],
                 'price_from' => 88,
-                'currency' => 'USD',
+                'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => false,
                 'is_new' => true,
@@ -574,7 +576,7 @@ class ProductCatalogSeeder extends Seeder
                 'certifications' => [],
                 'use_cases' => ['interior_styling', 'retail_gifting', 'home_dining'],
                 'price_from' => 64,
-                'currency' => 'USD',
+                'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => true,
                 'is_new' => false,
@@ -673,7 +675,7 @@ class ProductCatalogSeeder extends Seeder
                 'certifications' => [],
                 'use_cases' => ['design_projects', 'hospitality_service', 'interior_styling'],
                 'price_from' => 24,
-                'currency' => 'USD',
+                'currency' => 'NZD',
                 'featured' => true,
                 'is_bestseller' => false,
                 'is_new' => false,
@@ -772,7 +774,7 @@ class ProductCatalogSeeder extends Seeder
                 'certifications' => [],
                 'use_cases' => ['design_projects', 'hospitality_service', 'retail_gifting'],
                 'price_from' => 36,
-                'currency' => 'USD',
+                'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => false,
                 'is_new' => true,
@@ -871,7 +873,7 @@ class ProductCatalogSeeder extends Seeder
                 'certifications' => [],
                 'use_cases' => ['interior_styling', 'retail_gifting', 'hospitality_service'],
                 'price_from' => 72,
-                'currency' => 'USD',
+                'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => false,
                 'is_new' => false,
@@ -902,6 +904,11 @@ class ProductCatalogSeeder extends Seeder
             ]);
 
         $records = [];
+        $attributeDefinitions = ProductAttributeDefinition::query()
+            ->with('values')
+            ->whereIn('key', ['material_family', 'model', 'finish', 'color', 'technique', 'use_case'])
+            ->get()
+            ->keyBy('key');
 
         foreach ($products as $productData) {
             /** @var ProductCategory $category */
@@ -959,6 +966,24 @@ class ProductCatalogSeeder extends Seeder
                 ],
             );
 
+            $variant = $product->ensureDefaultVariant();
+            $variant->forceFill([
+                'sku' => $productData['sku'],
+                'title' => 'Default',
+                'price_amount' => $productData['price_usd'],
+                'compare_at_price_amount' => $productData['compare_at_price_usd'],
+                'currency' => 'NZD',
+                'stock_quantity' => $productData['stock_quantity'],
+                'stock_status' => $productData['stock_status'],
+                'inventory_policy' => 'deny',
+                'weight_grams' => $productData['weight_grams'],
+                'image_url' => $productData['image_url'],
+                'is_default' => true,
+                'is_active' => true,
+            ])->save();
+
+            $this->syncDynamicAttributes($product, $productData, $attributeDefinitions);
+
             foreach ($productData['gallery'] as $index => $mediaUrl) {
                 ProductImage::query()->updateOrCreate(
                     [
@@ -991,6 +1016,48 @@ class ProductCatalogSeeder extends Seeder
                 ->all();
 
             $records[$productData['slug']]->relatedProducts()->sync($relatedIds);
+        }
+    }
+
+    private function syncDynamicAttributes(Product $product, array $productData, mixed $attributeDefinitions): void
+    {
+        $assignments = [
+            'material_family' => ['oxp'],
+            'model' => [$productData['model']],
+            'finish' => [$productData['finish']],
+            'color' => [$productData['color']],
+            'technique' => [$productData['technique']],
+            'use_case' => $productData['use_cases'] ?? [],
+        ];
+
+        foreach ($assignments as $definitionKey => $values) {
+            $definition = $attributeDefinitions->get($definitionKey);
+
+            if ($definition === null) {
+                continue;
+            }
+
+            foreach ($values as $value) {
+                $attributeValue = $definition->values->firstWhere('value', $value);
+
+                if ($attributeValue === null) {
+                    continue;
+                }
+
+                ProductAttributeAssignment::query()->updateOrCreate(
+                    [
+                        'product_id' => $product->id,
+                        'attribute_definition_id' => $definition->id,
+                        'product_attribute_value_id' => $attributeValue->id,
+                    ],
+                    [
+                        'value_text' => null,
+                        'value_number' => null,
+                        'value_boolean' => null,
+                        'value_json' => null,
+                    ],
+                );
+            }
         }
     }
 }

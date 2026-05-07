@@ -27,7 +27,7 @@ type RawProductRecord = {
   technique: ProductTechnique
   category: ProductCategory
   price: number
-  currency: "USD"
+  currency: "NZD"
   inStock: true
   image: string
 }
@@ -107,7 +107,7 @@ export const productRecords: RawProductRecord[] = [
     technique: "Original Pure",
     category: "Tableware",
     price: 45,
-    currency: "USD",
+    currency: "NZD",
     inStock: true,
     image: "https://placehold.co/600x400?text=OXP+Dinner+Plate",
   },
@@ -130,7 +130,7 @@ export const productRecords: RawProductRecord[] = [
     technique: "Precision Inlay",
     category: "Tableware",
     price: 48,
-    currency: "USD",
+    currency: "NZD",
     inStock: true,
     image: "https://placehold.co/600x400?text=OXP+Side+Plate",
   },
@@ -153,7 +153,7 @@ export const productRecords: RawProductRecord[] = [
     technique: "Original Pure",
     category: "Tableware",
     price: 62,
-    currency: "USD",
+    currency: "NZD",
     inStock: true,
     image: "https://placehold.co/600x400?text=OXP+Coupe+Bowl",
   },
@@ -176,7 +176,7 @@ export const productRecords: RawProductRecord[] = [
     technique: "Driftwood Blend",
     category: "Tableware",
     price: 78,
-    currency: "USD",
+    currency: "NZD",
     inStock: true,
     image: "https://placehold.co/600x400?text=OXP+Serving+Bowl",
   },
@@ -199,7 +199,7 @@ export const productRecords: RawProductRecord[] = [
     technique: "Original Pure",
     category: "Planters",
     price: 85,
-    currency: "USD",
+    currency: "NZD",
     inStock: true,
     image: "https://placehold.co/600x400?text=OXP+Planter",
   },
@@ -222,7 +222,7 @@ export const productRecords: RawProductRecord[] = [
     technique: "Precision Inlay",
     category: "Wellness & Interior",
     price: 68,
-    currency: "USD",
+    currency: "NZD",
     inStock: true,
     image: "https://placehold.co/600x400?text=OXP+Wellness+Tray",
   },
@@ -245,7 +245,7 @@ export const productRecords: RawProductRecord[] = [
     technique: "Driftwood Blend",
     category: "Wellness & Interior",
     price: 92,
-    currency: "USD",
+    currency: "NZD",
     inStock: true,
     image: "https://placehold.co/600x400?text=OXP+Aroma+Object",
   },
@@ -268,7 +268,7 @@ export const productRecords: RawProductRecord[] = [
     technique: "Precision Inlay",
     category: "Architectural",
     price: 120,
-    currency: "USD",
+    currency: "NZD",
     inStock: true,
     image: "https://placehold.co/600x400?text=OXP+Panel+Tile",
   },

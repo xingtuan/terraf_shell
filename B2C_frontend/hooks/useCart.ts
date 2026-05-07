@@ -37,12 +37,20 @@ type CartContextValue = {
   closeCart: () => void
   toggleCart: () => void
   loadCart: () => Promise<CartSummary | null>
-  addItem: (productId: number, quantity: number) => Promise<CartSummary | null>
+  addItem: (
+    productId: number,
+    quantity: number,
+    variantId?: number | null,
+  ) => Promise<CartSummary | null>
   updateItem: (
     productId: number,
     quantity: number,
+    variantId?: number | null,
   ) => Promise<CartSummary | null>
-  removeItem: (productId: number) => Promise<CartSummary | null>
+  removeItem: (
+    productId: number,
+    variantId?: number | null,
+  ) => Promise<CartSummary | null>
   clearCart: () => Promise<void>
 }
 
@@ -150,12 +158,16 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }, [token])
 
-  async function addItemToCart(productId: number, quantity: number) {
+  async function addItemToCart(
+    productId: number,
+    quantity: number,
+    variantId?: number | null,
+  ) {
     setLoading(true)
     setError(null)
 
     try {
-      const nextCart = await addCartItem(productId, quantity, token)
+      const nextCart = await addCartItem(productId, quantity, token, variantId)
       syncCartSessionKeyFromCookie()
       setCart(nextCart)
       setIsOpen(true)
@@ -169,12 +181,16 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }
 
-  async function updateCartLine(productId: number, quantity: number) {
+  async function updateCartLine(
+    productId: number,
+    quantity: number,
+    variantId?: number | null,
+  ) {
     setLoading(true)
     setError(null)
 
     try {
-      const nextCart = await updateCartItem(productId, quantity, token)
+      const nextCart = await updateCartItem(productId, quantity, token, variantId)
       setCart(nextCart)
 
       return nextCart
@@ -186,12 +202,12 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }
 
-  async function removeCartLine(productId: number) {
+  async function removeCartLine(productId: number, variantId?: number | null) {
     setLoading(true)
     setError(null)
 
     try {
-      const nextCart = await removeCartItem(productId, token)
+      const nextCart = await removeCartItem(productId, token, variantId)
       setCart(nextCart)
 
       return nextCart

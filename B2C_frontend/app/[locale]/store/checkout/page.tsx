@@ -720,7 +720,10 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
 
           <div className="mt-6 space-y-4">
             {cart.items.map((item) => (
-              <div key={item.product_id} className="flex gap-4">
+              <div
+                key={`${item.product_id}-${item.product_variant_id ?? "default"}`}
+                className="flex gap-4"
+              >
                 <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted">
                   <Image
                     src={item.product?.primary_image_url || item.product?.image_url || "/placeholder.jpg"}
@@ -733,12 +736,19 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                   <p className="line-clamp-2 text-sm font-medium text-foreground">
                     {item.product?.name || t.productFallback}
                   </p>
+                  {item.variant_title || item.variant_sku ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {[item.variant_title, item.variant_sku ? `SKU ${item.variant_sku}` : null]
+                        .filter(Boolean)
+                        .join(" | ")}
+                    </p>
+                  ) : null}
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t.qty} {item.quantity} x{" "}
                     {formatCurrencyAmount(
                       item.unit_price_usd,
                       locale,
-                      item.product?.currency ?? currency,
+                      item.currency ?? item.product?.currency ?? currency,
                     )}
                   </p>
                 </div>

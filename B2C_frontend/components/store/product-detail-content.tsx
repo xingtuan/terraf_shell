@@ -24,12 +24,52 @@ import {
   getProductQuantityLimit,
   supportsProjectEnquiry,
 } from "@/lib/store/product-display"
-import type { Product } from "@/lib/types"
+import type { Product, ProductImage, ProductVariant } from "@/lib/types"
 import { useCart } from "@/hooks/useCart"
 
 type ProductDetailContentProps = {
   locale: Locale
   product: Product
+}
+
+function variantOptionSummary(variant?: ProductVariant | null) {
+  const options = Object.entries(variant?.option_values ?? {})
+    .filter(([, value]) => typeof value === "string" && value.trim().length > 0)
+    .map(([key, value]) => `${key.replace(/_/g, " ")}: ${String(value).replace(/_/g, " ")}`)
+
+  return options.length > 0
+    ? options.join(" / ")
+    : variant?.display_title || variant?.title || variant?.sku || ""
+}
+
+function productWithSelectedVariant(
+  product: Product,
+  variant?: ProductVariant | null,
+): Product {
+  if (!variant) {
+    return product
+  }
+
+  return {
+    ...product,
+    sku: variant.sku || product.sku,
+    currency: variant.currency ?? product.currency ?? "NZD",
+    price_amount: variant.price_amount,
+    price_usd: variant.price_amount,
+    price: variant.price_amount,
+    compare_at_price_amount: variant.compare_at_price_amount ?? null,
+    compare_at_price_usd: variant.compare_at_price_amount ?? null,
+    compare_at_price: variant.compare_at_price_amount ?? null,
+    stock_quantity: variant.stock_quantity ?? null,
+    stock_status: variant.stock_status ?? null,
+    stock_status_label:
+      variant.availability_label ?? variant.stock_status_label ?? product.stock_status_label,
+    in_stock: Boolean(variant.is_in_stock),
+    can_add_to_cart: Boolean(variant.can_add_to_cart) && !product.inquiry_only,
+    weight_grams: variant.weight_grams ?? product.weight_grams,
+    primary_image_url: variant.image_url ?? product.primary_image_url,
+    image_url: variant.image_url ?? product.image_url,
+  }
 }
 
 export function ProductDetailContent({
@@ -41,14 +81,64 @@ export function ProductDetailContent({
   const t = messages.productDetail
   const certificationMessages = messages.certificationsAtAGlance
   const relatedProducts = product.related_products ?? []
-  const maxQuantity = getProductQuantityLimit(product)
+  const activeVariants = useMemo(
+    () => (product.variants ?? []).filter((variant) => variant.is_active !== false),
+    [product.variants],
+  )
+  const initialVariantId =
+    product.default_variant?.id ??
+    activeVariants.find((variant) => variant.is_default)?.id ??
+    activeVariants[0]?.id ??
+    null
+  const [selectedVariantId, setSelectedVariantId] = useState<number | null>(
+    initialVariantId,
+  )
+  const selectedVariant = useMemo(
+    () =>
+      activeVariants.find((variant) => variant.id === selectedVariantId) ??
+      product.default_variant ??
+      activeVariants[0] ??
+      null,
+    [activeVariants, product.default_variant, selectedVariantId],
+  )
+  const selectedProduct = useMemo(
+    () => productWithSelectedVariant(product, selectedVariant),
+    [product, selectedVariant],
+  )
+  const maxQuantity = getProductQuantityLimit(selectedProduct)
   const [quantity, setQuantity] = useState(1)
+  const hasVariantSelector =
+    activeVariants.length > 1 ||
+    activeVariants.some(
+      (variant) => Object.keys(variant.option_values ?? {}).length > 0,
+    )
+  const selectedGalleryImages = useMemo<ProductImage[]>(() => {
+    if (!selectedVariant?.image_url) {
+      return product.gallery_images ?? []
+    }
+
+    const variantImage: ProductImage = {
+      id: -selectedVariant.id,
+      product_id: product.id,
+      alt_text: `${product.name} ${selectedVariant.display_title ?? ""}`.trim(),
+      caption: selectedVariant.display_title ?? null,
+      media_url: selectedVariant.image_url,
+      sort_order: -1,
+    }
+
+    return [
+      variantImage,
+      ...(product.gallery_images ?? []).filter(
+        (image) => image.media_url !== selectedVariant.image_url,
+      ),
+    ]
+  }, [product.gallery_images, product.id, product.name, selectedVariant])
 
   useEffect(() => {
     setQuantity((currentQuantity) =>
       Math.min(Math.max(currentQuantity, 1), maxQuantity),
     )
-  }, [maxQuantity, product.id])
+  }, [maxQuantity, product.id, selectedVariant?.id])
 
   const supportCards = useMemo(
     () =>
@@ -116,8 +206,8 @@ export function ProductDetailContent({
     product.lead_time
       ? { label: t.glanceLeadTime, value: product.lead_time }
       : null,
-    product.stock_status_label
-      ? { label: t.glanceStock, value: product.stock_status_label }
+    selectedProduct.stock_status_label
+      ? { label: t.glanceStock, value: selectedProduct.stock_status_label }
       : null,
   ].filter((item): item is { label: string; value: string } => Boolean(item))
   const reassuranceItems = [
@@ -162,7 +252,7 @@ export function ProductDetailContent({
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.02fr_0.98fr]">
           <ProductGallery
             title={product.name}
-            images={product.gallery_images ?? []}
+            images={selectedGalleryImages}
           />
 
           <div className="flex flex-col rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
@@ -229,44 +319,80 @@ export function ProductDetailContent({
                 <div>
                   <div className="flex flex-wrap items-end gap-3">
                     <p className="text-3xl font-medium text-foreground">
-                      {formatProductPrice(product, locale)}
+                      {formatProductPrice(selectedProduct, locale)}
                     </p>
-                    {product.compare_at_price_usd ? (
+                    {selectedProduct.compare_at_price_usd ? (
                       <p className="pb-1 text-base text-muted-foreground line-through">
                         {formatCurrencyAmount(
-                          product.compare_at_price_usd,
+                          selectedProduct.compare_at_price_usd,
                           locale,
-                          product.currency ?? "USD",
+                          selectedProduct.currency ?? "NZD",
                         )}
                       </p>
                     ) : null}
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <ProductAvailabilityBadge
-                      product={product}
+                      product={selectedProduct}
                       fallbackLabel={t.availabilityLabel}
                     />
                     <span className="text-sm text-muted-foreground">
-                      {getProductAvailabilitySummary(product, t.defaultAvailability)}
+                      {getProductAvailabilitySummary(selectedProduct, t.defaultAvailability)}
                     </span>
                   </div>
+                  {selectedProduct.sku ? (
+                    <p className="mt-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                      SKU {selectedProduct.sku}
+                    </p>
+                  ) : null}
                 </div>
 
-                {product.stock_quantity !== null &&
-                product.stock_status !== "sold_out" ? (
+                {selectedProduct.stock_quantity !== null &&
+                selectedProduct.stock_status !== "sold_out" ? (
                   <div className="rounded-2xl border border-border/60 px-4 py-3 text-right">
                     <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                       {t.batchStock}
                     </p>
                     <p className="mt-2 text-xl font-medium text-foreground">
-                      {product.stock_quantity}
+                      {selectedProduct.stock_quantity}
                     </p>
                   </div>
                 ) : null}
               </div>
 
+              {hasVariantSelector ? (
+                <div className="mt-6 border-t border-border/60 pt-5">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                    Options
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {activeVariants.map((variant) => {
+                      const isSelected = selectedVariant?.id === variant.id
+                      const label = variantOptionSummary(variant)
+
+                      return (
+                        <button
+                          key={variant.id}
+                          type="button"
+                          className={`rounded-full border px-4 py-2 text-sm transition-colors ${
+                            isSelected
+                              ? "border-foreground bg-foreground text-background"
+                              : "border-border/70 bg-background text-foreground hover:border-foreground/50"
+                          }`}
+                          onClick={() => {
+                            setSelectedVariantId(variant.id)
+                          }}
+                        >
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : null}
+
               <div className="mt-6 flex flex-wrap gap-3">
-                {product.can_add_to_cart ? (
+                {selectedProduct.can_add_to_cart ? (
                   <div className="flex items-center rounded-full border border-border/70">
                     <button
                       type="button"
@@ -294,11 +420,11 @@ export function ProductDetailContent({
                   </div>
                 ) : null}
 
-                {product.can_add_to_cart ? (
+                {selectedProduct.can_add_to_cart ? (
                   <Button
                     type="button"
                     onClick={() => {
-                      void addItem(product.id, quantity)
+                      void addItem(product.id, quantity, selectedVariant?.id ?? null)
                     }}
                   >
                     {t.addToCart}
@@ -320,9 +446,9 @@ export function ProductDetailContent({
                 ) : null}
               </div>
 
-              {!product.can_add_to_cart ? (
+              {!selectedProduct.can_add_to_cart ? (
                 <div className="mt-5 rounded-2xl border border-dashed border-border/70 bg-card p-4 text-sm leading-relaxed text-muted-foreground">
-                  {product.stock_status === "sold_out"
+                  {selectedProduct.stock_status === "sold_out"
                     ? t.soldOutMessage
                     : t.bulkOrderMessage}
                 </div>

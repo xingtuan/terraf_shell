@@ -154,7 +154,7 @@ export function AccountStorePage({ locale }: AccountStorePageProps) {
             <div className="mt-6 space-y-4">
               {cart.items.slice(0, 3).map((item) => (
                 <div
-                  key={item.product_id}
+                  key={`${item.product_id}-${item.product_variant_id ?? "default"}`}
                   className="rounded-[1.5rem] border border-border/60 bg-card p-4"
                 >
                   <div className="flex items-center justify-between gap-4">
@@ -165,12 +165,19 @@ export function AccountStorePage({ locale }: AccountStorePageProps) {
                       <p className="mt-1 text-sm text-muted-foreground">
                         {siteMessages.checkout.qty} {item.quantity}
                       </p>
+                      {item.variant_title || item.variant_sku ? (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {[item.variant_title, item.variant_sku ? `SKU ${item.variant_sku}` : null]
+                            .filter(Boolean)
+                            .join(" | ")}
+                        </p>
+                      ) : null}
                     </div>
                     <p className="text-sm font-medium text-foreground">
                       {formatCurrencyAmount(
                         item.line_total,
                         locale,
-                        item.product?.currency ?? "USD",
+                        item.currency ?? item.product?.currency ?? "NZD",
                       )}
                     </p>
                   </div>

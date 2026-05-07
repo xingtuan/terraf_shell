@@ -120,7 +120,7 @@ export function ProductCard({ locale, product }: ProductCardProps) {
                     {formatCurrencyAmount(
                       product.compare_at_price_usd,
                       locale,
-                      product.currency ?? "USD",
+                      product.currency ?? "NZD",
                     )}
                   </p>
                 ) : null}

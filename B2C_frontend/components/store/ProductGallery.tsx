@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 
 import type { ProductImage } from "@/lib/types"
@@ -25,6 +25,10 @@ export function ProductGallery({ title, images }: ProductGalleryProps) {
         ]
 
   const activeImage = galleryImages[activeIndex] ?? galleryImages[0]
+
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [images])
 
   return (
     <div className="space-y-4">

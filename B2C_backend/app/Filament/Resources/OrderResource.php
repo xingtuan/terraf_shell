@@ -39,9 +39,9 @@ class OrderResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Store';
+    protected static string|\UnitEnum|null $navigationGroup = 'Shop';
 
-    protected static ?string $navigationLabel = 'Order Requests';
+    protected static ?string $navigationLabel = 'Orders';
 
     protected static ?int $navigationSort = 10;
 
@@ -143,26 +143,33 @@ class OrderResource extends Resource
                             ->schema([
                                 TextEntry::make('product_name')
                                     ->label('Product'),
+                                TextEntry::make('variant_title')
+                                    ->label('Variant')
+                                    ->placeholder('-'),
+                                TextEntry::make('variant_sku')
+                                    ->label('SKU')
+                                    ->copyable()
+                                    ->placeholder('-'),
                                 TextEntry::make('quantity'),
                                 TextEntry::make('unit_price_usd')
-                                    ->label('Unit Price')
+                                    ->label('Unit Price (NZD)')
                                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                                 TextEntry::make('subtotal_usd')
-                                    ->label('Subtotal')
+                                    ->label('Subtotal (NZD)')
                                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                             ])
-                            ->columns(4),
+                            ->columns(6),
                     ]),
                 InfolistSection::make('Totals')
                     ->schema([
                         TextEntry::make('subtotal_usd')
-                            ->label('Subtotal')
+                            ->label('Subtotal (NZD)')
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                         TextEntry::make('shipping_usd')
-                            ->label('Shipping')
+                            ->label('Shipping (NZD)')
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                         TextEntry::make('total_usd')
-                            ->label('Total')
+                            ->label('Total (NZD)')
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                     ])
                     ->columns(3),
@@ -229,7 +236,7 @@ class OrderResource extends Resource
                     ->formatStateUsing(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->label() : (OrderPaymentStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->color() : (OrderPaymentStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                 TextColumn::make('total_usd')
-                    ->label('Total')
+                    ->label('Total (NZD)')
                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                 TextColumn::make('items_count')
                     ->label('Items')
@@ -337,7 +344,7 @@ class OrderResource extends Resource
                         $record->forceFill($payload)->save();
 
                         if ($previousStatus !== $status->value) {
-                            app(OrderService::class)->dispatchStatusChangedEmail($record->fresh(['user', 'items.product']), $previousStatus);
+                            app(OrderService::class)->dispatchStatusChangedEmail($record->fresh(['user', 'items.product.variants', 'items.variant']), $previousStatus);
                         }
 
                         Notification::make()
@@ -350,7 +357,7 @@ class OrderResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['user', 'items.product']);
+        return parent::getEloquentQuery()->with(['user', 'items.product.variants', 'items.variant']);
     }
 
     public static function canViewAny(): bool

@@ -94,7 +94,7 @@ class ProductFactory extends Factory
             'price_from' => $priceUsd,
             'price_usd' => $priceUsd,
             'compare_at_price_usd' => round($priceUsd * 1.15, 2),
-            'currency' => 'USD',
+            'currency' => 'NZD',
             'stock_quantity' => $stockQuantity,
             'stock_status' => 'in_stock',
             'in_stock' => true,
@@ -143,5 +143,12 @@ class ProductFactory extends Factory
             'stock_status' => 'sold_out',
             'published_at' => null,
         ]);
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Product $product): void {
+            $product->ensureDefaultVariant();
+        });
     }
 }

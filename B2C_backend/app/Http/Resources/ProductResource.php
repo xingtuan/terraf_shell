@@ -29,12 +29,20 @@ class ProductResource extends JsonResource
         $primaryImageUrl = $this->primaryImageUrl();
         $galleryImages = $this->galleryImages($request, $title, $subtitle, $primaryImageUrl);
         $useCases = $this->normalizedUseCases();
+        $defaultVariant = $this->defaultVariant();
+        $price = $this->effectivePrice() ?? 0.0;
+        $compareAtPrice = $this->effectiveCompareAtPrice();
+        $currency = $this->effectiveCurrency();
+        $stockStatus = $this->effectiveStockStatus();
+        $stockQuantity = $this->effectiveStockQuantity();
         $category = $this->resource->relationLoaded('category')
             ? $this->resource->getRelation('category')
             : null;
         $relatedProducts = $this->resource->relationLoaded('relatedProducts')
             ? $this->resource->getRelation('relatedProducts')
             : collect();
+        $includeVariants = $request->route()?->parameter('slug') !== null
+            || $request->boolean('include_variants');
 
         return [
             'id' => $this->id,
@@ -43,7 +51,7 @@ class ProductResource extends JsonResource
             'title_translations' => $this->localizedStringSet('name'),
             'name_translations' => $this->localizedStringSet('name'),
             'slug' => $this->slug,
-            'sku' => $this->sku,
+            'sku' => $this->effectiveSku(),
             'subtitle' => $subtitle,
             'subtitle_translations' => $this->localizedStringSet('subtitle') !== []
                 ? $this->localizedStringSet('subtitle')
@@ -62,26 +70,29 @@ class ProductResource extends JsonResource
             'color_label' => Product::labelForOption(Product::COLOR_OPTIONS, $this->color),
             'technique' => $this->technique,
             'technique_label' => Product::labelForOption(Product::TECHNIQUE_OPTIONS, $this->technique),
-            'currency' => $this->currency ?? 'USD',
-            'price_usd' => number_format((float) $this->price_usd, 2, '.', ''),
-            'price' => number_format((float) $this->price_usd, 2, '.', ''),
-            'compare_at_price_usd' => $this->compare_at_price_usd !== null
-                ? number_format((float) $this->compare_at_price_usd, 2, '.', '')
+            'currency' => $currency,
+            'price_amount' => number_format($price, 2, '.', ''),
+            'price_usd' => number_format($price, 2, '.', ''),
+            'price' => number_format($price, 2, '.', ''),
+            'compare_at_price_amount' => $compareAtPrice !== null
+                ? number_format($compareAtPrice, 2, '.', '')
                 : null,
-            'compare_at_price' => $this->compare_at_price_usd !== null
-                ? number_format((float) $this->compare_at_price_usd, 2, '.', '')
+            'compare_at_price_usd' => $compareAtPrice !== null
+                ? number_format($compareAtPrice, 2, '.', '')
                 : null,
-            'on_sale' => $this->compare_at_price_usd !== null
-                && (float) $this->compare_at_price_usd > (float) $this->price_usd,
+            'compare_at_price' => $compareAtPrice !== null
+                ? number_format($compareAtPrice, 2, '.', '')
+                : null,
+            'on_sale' => $compareAtPrice !== null && $compareAtPrice > $price,
             'featured' => (bool) $this->featured,
             'is_bestseller' => (bool) $this->is_bestseller,
             'is_new' => (bool) $this->is_new,
-            'in_stock' => (bool) $this->in_stock,
+            'in_stock' => $defaultVariant?->isInStock() ?? (bool) $this->in_stock,
             'can_add_to_cart' => $this->canBePurchased(),
             'inquiry_only' => (bool) $this->inquiry_only,
             'sample_request_enabled' => (bool) $this->sample_request_enabled,
-            'stock_quantity' => $this->stock_quantity !== null ? (int) $this->stock_quantity : null,
-            'stock_status' => $this->stock_status,
+            'stock_quantity' => $stockQuantity !== null ? (int) $stockQuantity : null,
+            'stock_status' => $stockStatus,
             'stock_status_label' => $this->stockStatusLabel(),
             'availability_text' => $this->localizedString($request, 'availability_text'),
             'lead_time' => $leadTime,
@@ -97,6 +108,13 @@ class ProductResource extends JsonResource
             'dimensions' => $this->localizedString($request, 'dimensions'),
             'weight_grams' => $this->weight_grams !== null ? (int) $this->weight_grams : null,
             'specifications' => $this->specifications($request),
+            'attributes' => $this->normalizedAttributes($request),
+            'default_variant' => $defaultVariant
+                ? (new ProductVariantResource($defaultVariant))->resolve($request)
+                : null,
+            'variants' => $includeVariants && $this->resource->relationLoaded('variants')
+                ? ProductVariantResource::collection($this->resource->getRelation('variants')->where('is_active', true))->resolve($request)
+                : [],
             'certifications' => $this->normalizedJsonEntries($this->certifications ?? []),
             'technical_downloads' => $this->normalizedJsonEntries($this->technical_downloads ?? []),
             'care_instructions' => $this->localizedArray($request, 'care_instructions'),
@@ -228,6 +246,31 @@ class ProductResource extends JsonResource
             'Application',
         );
 
+        $existingKeys = collect($specifications)->pluck('key')->all();
+
+        foreach ($this->normalizedAttributes($request) as $attribute) {
+            $key = (string) ($attribute['key'] ?? '');
+            $value = $attribute['display_label'] ?? $attribute['value'] ?? null;
+
+            if (
+                $key === ''
+                || in_array($key, $existingKeys, true)
+                || ! (bool) ($attribute['is_specification'] ?? false)
+                || ! is_scalar($value)
+            ) {
+                continue;
+            }
+
+            $this->appendSpecification(
+                $specifications,
+                $key,
+                (string) ($attribute['label'] ?? Str::headline($key)),
+                (string) $value,
+                isset($attribute['unit']) && is_string($attribute['unit']) ? $attribute['unit'] : null,
+                'Attributes',
+            );
+        }
+
         foreach ($this->normalizedSpecificationEntries() as $entry) {
             $value = trim((string) ($entry['value'] ?? ''));
 
@@ -282,6 +325,26 @@ class ProductResource extends JsonResource
             ->filter(fn (array $entry): bool => Arr::has($entry, ['label', 'value']))
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizedAttributes(Request $request): array
+    {
+        if (! $this->resource->relationLoaded('attributeAssignments')) {
+            return [];
+        }
+
+        return ProductAttributeResource::collection(
+            $this->resource->getRelation('attributeAssignments')
+                ->filter(fn ($assignment): bool => $assignment->definition !== null)
+                ->sortBy([
+                    fn ($assignment): int => (int) ($assignment->definition?->sort_order ?? 0),
+                    fn ($assignment): string => (string) ($assignment->definition?->label ?? ''),
+                ])
+                ->values(),
+        )->resolve($request);
     }
 
     /**

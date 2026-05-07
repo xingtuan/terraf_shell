@@ -15,6 +15,12 @@ export type ProductStockStatus =
   | "made_to_order"
   | "sold_out"
 
+export type ProductInventoryPolicy =
+  | "deny"
+  | "continue"
+  | "preorder"
+  | "inquiry_only"
+
 export type ProductSortOption =
   | "featured"
   | "newest"
@@ -28,6 +34,51 @@ export interface ProductSpecification {
   value: string
   unit?: string | null
   group?: string | null
+}
+
+export interface ProductAttribute {
+  key?: string | null
+  label?: string | null
+  value?: JsonValue
+  display_label?: string | null
+  type?: string | null
+  unit?: string | null
+  color_hex?: string | null
+  is_filterable?: boolean
+  is_variant_option?: boolean
+  is_searchable?: boolean
+  is_specification?: boolean
+}
+
+export interface ProductVariant {
+  id: number
+  product_id?: number
+  sku: string
+  title?: string | null
+  display_title?: string | null
+  option_values?: JsonObject
+  price_amount: string
+  compare_at_price_amount?: string | null
+  currency?: string
+  stock_quantity?: number | null
+  stock_status?: ProductStockStatus | null
+  stock_status_label?: string | null
+  inventory_policy?: ProductInventoryPolicy | null
+  inventory_policy_label?: string | null
+  low_stock_threshold?: number
+  weight_grams?: number | null
+  dimensions?: JsonObject | null
+  image_url?: string | null
+  media_path?: string | null
+  is_default?: boolean
+  is_active?: boolean
+  is_in_stock?: boolean
+  is_low_stock?: boolean
+  can_add_to_cart?: boolean
+  availability_label?: string | null
+  sort_order?: number
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 export type CertificationStatus =
@@ -115,8 +166,10 @@ export interface Product {
   technique: string
   technique_label?: string | null
   currency?: string
+  price_amount?: string
   price_usd: string
   price?: string
+  compare_at_price_amount?: string | null
   compare_at_price_usd?: string | null
   compare_at_price?: string | null
   on_sale?: boolean
@@ -141,6 +194,9 @@ export interface Product {
   dimensions?: string | null
   weight_grams?: number | null
   specifications?: ProductSpecification[]
+  attributes?: ProductAttribute[]
+  default_variant?: ProductVariant | null
+  variants?: ProductVariant[]
   certifications?: CertificationCardInput[]
   technical_downloads?: TechnicalDownload[]
   care_instructions?: string[]
@@ -160,9 +216,18 @@ export interface Product {
 
 export interface CartSummaryItem {
   product_id: number
+  product_variant_id?: number | null
   quantity: number
+  unit_price_amount?: string
   unit_price_usd: string
+  currency?: string
   line_total: string
+  variant_sku?: string | null
+  variant_title?: string | null
+  option_values?: JsonObject
+  stock_status?: ProductStockStatus | null
+  inventory_policy?: ProductInventoryPolicy | null
+  variant?: ProductVariant | null
   product: Product | null
 }
 
@@ -236,11 +301,19 @@ export interface StoreOrderTaxSnapshot {
 
 export interface StoreOrderItem {
   product_id: number
+  product_variant_id?: number | null
   product_name: string
   product_sku?: string | null
+  product_title?: string | null
+  variant_title?: string | null
+  variant_sku?: string | null
+  option_values?: JsonObject
   quantity: number
+  unit_price_amount?: string
   unit_price_usd: string
+  currency?: string
   subtotal_usd: string
+  variant?: ProductVariant | null
   product?: Product | null
 }
 

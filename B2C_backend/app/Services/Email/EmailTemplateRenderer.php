@@ -75,7 +75,7 @@ class EmailTemplateRenderer
                     'order_number' => 'OXP-000123',
                     'status' => 'pending',
                     'total' => '$128.00',
-                    'currency' => 'USD',
+                    'currency' => 'NZD',
                     'items' => [
                         ['name' => 'OXP Tidal Plate', 'quantity' => 2, 'subtotal' => '$128.00'],
                     ],

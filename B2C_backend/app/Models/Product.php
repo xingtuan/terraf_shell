@@ -117,6 +117,7 @@ class Product extends Model
         'media_url',
         'image_url',
         'price_from',
+        // Legacy single-SKU compatibility fields. New SKU, price, and stock logic lives on ProductVariant.
         'price_usd',
         'compare_at_price_usd',
         'currency',
@@ -250,7 +251,7 @@ class Product extends Model
 
             if ($product->price_usd !== null) {
                 $product->price_from = $product->price_usd;
-                $product->currency = 'USD';
+                $product->currency = 'NZD';
             }
 
             $rawMediaUrl = $product->getAttributes()['media_url'] ?? null;
@@ -339,6 +340,15 @@ class Product extends Model
 
     public function canBePurchased(): bool
     {
+        $variant = $this->defaultVariant();
+
+        if ($variant !== null) {
+            return $this->is_active
+                && $this->isPublished()
+                && ! $this->inquiry_only
+                && $variant->isPurchasable();
+        }
+
         return $this->is_active
             && $this->isPublished()
             && ! $this->inquiry_only
@@ -360,7 +370,11 @@ class Product extends Model
 
     public function stockStatusLabel(): string
     {
-        return self::labelForOption(self::STOCK_STATUS_OPTIONS, $this->stock_status) ?? 'Unavailable';
+        $variant = $this->defaultVariant();
+
+        return $variant?->availabilityLabel()
+            ?? self::labelForOption(self::STOCK_STATUS_OPTIONS, $this->stock_status)
+            ?? 'Unavailable';
     }
 
     /**
@@ -396,6 +410,34 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)->ordered();
+    }
+
+    public function activeVariants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class)
+            ->active()
+            ->ordered();
+    }
+
+    public function attributeAssignments(): HasMany
+    {
+        return $this->hasMany(ProductAttributeAssignment::class);
+    }
+
+    public function attributeValues(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ProductAttributeValue::class,
+            'product_attribute_assignments',
+            'product_id',
+            'product_attribute_value_id',
+        )->withPivot('attribute_definition_id', 'value_text', 'value_number', 'value_boolean', 'value_json')
+            ->withTimestamps();
+    }
+
     public function cartItems(): HasMany
     {
         return $this->hasMany(CartItem::class);
@@ -414,6 +456,115 @@ class Product extends Model
             'product_id',
             'related_product_id',
         )->withTimestamps();
+    }
+
+    public function defaultVariant(): ?ProductVariant
+    {
+        if ($this->relationLoaded('variants')) {
+            $variants = $this->variants;
+
+            return $variants->first(fn (ProductVariant $variant): bool => $variant->is_active && $variant->is_default)
+                ?? $variants->first(fn (ProductVariant $variant): bool => $variant->is_active);
+        }
+
+        return $this->variants()
+            ->where('is_active', true)
+            ->ordered()
+            ->first();
+    }
+
+    public function ensureDefaultVariant(): ProductVariant
+    {
+        $variant = $this->defaultVariant();
+
+        if ($variant !== null) {
+            return $variant;
+        }
+
+        $sku = $this->sku ?: self::normalizeSku($this->slug) ?: 'OXP_'.$this->id;
+        $candidate = $sku;
+        $suffix = 2;
+
+        while (ProductVariant::query()->where('sku', $candidate)->exists()) {
+            $candidate = $sku.'_'.$suffix;
+            $suffix++;
+        }
+
+        return $this->variants()->create([
+            'sku' => $candidate,
+            'title' => 'Default',
+            'price_amount' => $this->price_usd ?? $this->price_from ?? 0,
+            'compare_at_price_amount' => $this->compare_at_price_usd,
+            'currency' => 'NZD',
+            'stock_quantity' => $this->stock_quantity,
+            'stock_status' => $this->stock_status ?? 'in_stock',
+            'inventory_policy' => 'deny',
+            'low_stock_threshold' => 5,
+            'weight_grams' => $this->weight_grams,
+            'image_url' => $this->primaryImageUrl(),
+            'media_path' => $this->media_path,
+            'is_default' => true,
+            'is_active' => true,
+            'sort_order' => 0,
+        ]);
+    }
+
+    public function hasVariants(): bool
+    {
+        if ($this->relationLoaded('variants')) {
+            return $this->variants->where('is_active', true)->isNotEmpty();
+        }
+
+        return $this->variants()->where('is_active', true)->exists();
+    }
+
+    public function effectiveSku(): ?string
+    {
+        return $this->defaultVariant()?->sku ?? $this->sku;
+    }
+
+    public function effectivePrice(): ?float
+    {
+        $variant = $this->defaultVariant();
+
+        if ($variant !== null) {
+            return $variant->effectivePrice();
+        }
+
+        return $this->price_usd !== null ? (float) $this->price_usd : null;
+    }
+
+    public function effectiveCompareAtPrice(): ?float
+    {
+        $variant = $this->defaultVariant();
+
+        if ($variant !== null) {
+            return $variant->effectiveCompareAtPrice();
+        }
+
+        return $this->compare_at_price_usd !== null ? (float) $this->compare_at_price_usd : null;
+    }
+
+    public function effectiveCurrency(): string
+    {
+        return $this->defaultVariant()?->currency ?? $this->currency ?? 'NZD';
+    }
+
+    public function effectiveStockQuantity(): ?int
+    {
+        $variant = $this->defaultVariant();
+
+        return $variant !== null ? $variant->stock_quantity : $this->stock_quantity;
+    }
+
+    public function effectiveStockStatus(): ?string
+    {
+        return $this->defaultVariant()?->stock_status ?? $this->stock_status;
+    }
+
+    public function effectiveImageUrl(): ?string
+    {
+        return $this->defaultVariant()?->image_url ?? $this->primaryImageUrl();
     }
 
     public static function normalizeSku(?string $value): ?string

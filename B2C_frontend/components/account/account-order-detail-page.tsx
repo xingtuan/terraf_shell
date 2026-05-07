@@ -198,7 +198,7 @@ export function AccountOrderDetailPage({
               <div className="mt-6 space-y-4">
                 {order.items.map((item) => (
                   <div
-                    key={`${order.order_number}-${item.product_id}`}
+                    key={`${order.order_number}-${item.product_id}-${item.product_variant_id ?? "default"}`}
                     className="flex gap-4 rounded-[1.5rem] border border-border/60 bg-card p-4"
                   >
                     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-muted">
@@ -215,12 +215,19 @@ export function AccountOrderDetailPage({
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-foreground">{item.product_name}</p>
+                      {item.variant_title || item.variant_sku ? (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {[item.variant_title, item.variant_sku ? `SKU ${item.variant_sku}` : null]
+                            .filter(Boolean)
+                            .join(" | ")}
+                        </p>
+                      ) : null}
                       <p className="mt-1 text-sm text-muted-foreground">
                         {checkoutMessages.qty} {item.quantity} ·{" "}
                         {formatCurrencyAmount(
                           item.unit_price_usd,
                           locale,
-                          item.product?.currency ?? order.currency ?? "USD",
+                          item.currency ?? item.product?.currency ?? order.currency ?? "NZD",
                         )}
                       </p>
                     </div>

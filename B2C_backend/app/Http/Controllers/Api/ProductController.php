@@ -27,6 +27,9 @@ class ProductController extends Controller
             ->with([
                 'category',
                 'images',
+                'variants',
+                'attributeAssignments.definition',
+                'attributeAssignments.attributeValue',
             ])
             ->withSum('orderItems as units_sold', 'quantity');
 
@@ -66,7 +69,13 @@ class ProductController extends Controller
     {
         $products = Product::query()
             ->publicVisible()
-            ->with(['category', 'images'])
+            ->with([
+                'category',
+                'images',
+                'variants',
+                'attributeAssignments.definition',
+                'attributeAssignments.attributeValue',
+            ])
             ->where(fn ($query) => $query->where('featured', true)->orWhere('is_bestseller', true))
             ->ordered()
             ->limit(4)
@@ -82,9 +91,18 @@ class ProductController extends Controller
             ->with([
                 'category',
                 'images',
+                'variants',
+                'attributeAssignments.definition',
+                'attributeAssignments.attributeValue',
                 'relatedProducts' => fn ($query) => $query
                     ->publicVisible()
-                    ->with(['category', 'images'])
+                    ->with([
+                        'category',
+                        'images',
+                        'variants',
+                        'attributeAssignments.definition',
+                        'attributeAssignments.attributeValue',
+                    ])
                     ->ordered()
                     ->limit(4),
             ])
@@ -94,7 +112,13 @@ class ProductController extends Controller
         if ($product->relatedProducts->isEmpty()) {
             $fallbackProducts = Product::query()
                 ->publicVisible()
-                ->with(['category', 'images'])
+                ->with([
+                    'category',
+                    'images',
+                    'variants',
+                    'attributeAssignments.definition',
+                    'attributeAssignments.attributeValue',
+                ])
                 ->where('id', '!=', $product->id)
                 ->where('category', $product->category)
                 ->ordered()

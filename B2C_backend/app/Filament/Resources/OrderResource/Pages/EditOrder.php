@@ -33,7 +33,7 @@ class EditOrder extends EditRecord
 
         if ($this->previousStatus !== null && $this->previousStatus !== $status) {
             app(OrderService::class)->dispatchStatusChangedEmail(
-                $this->record->fresh(['user', 'items.product']),
+                $this->record->fresh(['user', 'items.product.variants', 'items.variant']),
                 $this->previousStatus,
             );
         }

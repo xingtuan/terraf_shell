@@ -81,7 +81,7 @@ export async function getProduct(
 export function formatCurrencyAmount(
   amount: string | number | null | undefined,
   locale: Locale,
-  currency = "USD",
+  currency = "NZD",
 ) {
   return new Intl.NumberFormat(getIntlLocale(locale), {
     style: "currency",
@@ -91,8 +91,12 @@ export function formatCurrencyAmount(
 }
 
 export function formatProductPrice(
-  product: Pick<Product, "price_usd" | "currency">,
+  product: Pick<Product, "price_usd" | "price_amount" | "currency">,
   locale: Locale,
 ) {
-  return formatCurrencyAmount(product.price_usd, locale, product.currency ?? "USD")
+  return formatCurrencyAmount(
+    product.price_amount ?? product.price_usd,
+    locale,
+    product.currency ?? "NZD",
+  )
 }

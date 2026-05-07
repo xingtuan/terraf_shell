@@ -20,7 +20,7 @@ class EmailPayloadFactory
 
     public function forOrder(Order $order, array $extra = []): array
     {
-        $order->loadMissing(['user', 'items.product']);
+        $order->loadMissing(['user', 'items.product', 'items.variant']);
         $status = $order->status instanceof \BackedEnum
             ? $order->status->value
             : (string) $order->status;
@@ -40,18 +40,20 @@ class EmailPayloadFactory
                 'order_number' => $order->order_number,
                 'status' => $status,
                 'customer_type' => $order->user_id === null ? 'Guest checkout' : 'Registered account',
-                'total' => '$'.number_format((float) $order->total_usd, 2),
-                'subtotal' => '$'.number_format((float) $order->subtotal_usd, 2),
-                'shipping' => '$'.number_format((float) $order->shipping_usd, 2),
-                'tax' => '$'.number_format((float) $order->tax_amount, 2),
+                'total' => '$'.number_format((float) $order->total_usd, 2).' '.($order->currency ?: 'NZD'),
+                'subtotal' => '$'.number_format((float) $order->subtotal_usd, 2).' '.($order->currency ?: 'NZD'),
+                'shipping' => '$'.number_format((float) $order->shipping_usd, 2).' '.($order->currency ?: 'NZD'),
+                'tax' => '$'.number_format((float) $order->tax_amount, 2).' '.($order->currency ?: 'NZD'),
                 'currency' => $order->currency,
                 'shipping_method' => $order->shipping_method_label,
                 'items' => $order->items->map(fn ($item): array => [
                     'name' => $item->product_name,
-                    'sku' => $item->product_sku,
+                    'sku' => $item->variant_sku ?? $item->product_sku,
+                    'variant' => $item->variant_title,
+                    'options' => $item->option_values ?? [],
                     'quantity' => $item->quantity,
-                    'unit_price' => '$'.number_format((float) $item->unit_price_usd, 2),
-                    'subtotal' => '$'.number_format((float) $item->subtotal_usd, 2),
+                    'unit_price' => '$'.number_format((float) ($item->unit_price_amount ?? $item->unit_price_usd), 2).' '.($item->currency ?: $order->currency ?: 'NZD'),
+                    'subtotal' => '$'.number_format((float) $item->subtotal_usd, 2).' '.($item->currency ?: $order->currency ?: 'NZD'),
                 ])->all(),
             ],
             'order_url' => $orderUrl,

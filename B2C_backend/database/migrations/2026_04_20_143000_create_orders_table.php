@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('subtotal_usd', 10, 2);
             $table->decimal('shipping_usd', 10, 2)->default(0);
             $table->decimal('total_usd', 10, 2);
-            $table->string('currency', 3)->default('USD');
+            $table->string('currency', 3)->default('NZD');
             $table->string('shipping_name');
             $table->string('shipping_phone')->nullable();
             $table->string('shipping_address_line1');

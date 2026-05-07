@@ -17,7 +17,7 @@ class CartResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $this->loadMissing(['items.product']);
+        $this->loadMissing(['items.product.variants', 'items.product.attributeAssignments.definition', 'items.product.attributeAssignments.attributeValue', 'items.variant']);
         $subtotal = (float) $this->total();
         $taxService = app(TaxService::class);
         $estimatedTax = $taxService->taxForTotal($subtotal);
@@ -36,13 +36,23 @@ class CartResource extends JsonResource
             'shipping_notice' => 'Shipping calculated at checkout.',
             'items' => $this->items->map(function (CartItem $item) use ($request): array {
                 $product = $item->product;
-                $lineTotal = (float) $item->unit_price_usd * $item->quantity;
+                $unitPrice = (float) ($item->unit_price_amount ?? $item->unit_price_usd);
+                $lineTotal = $unitPrice * $item->quantity;
 
                 return [
                     'product_id' => $item->product_id,
+                    'product_variant_id' => $item->product_variant_id,
                     'quantity' => $item->quantity,
-                    'unit_price_usd' => number_format((float) $item->unit_price_usd, 2, '.', ''),
+                    'unit_price_amount' => number_format($unitPrice, 2, '.', ''),
+                    'unit_price_usd' => number_format($unitPrice, 2, '.', ''),
+                    'currency' => $item->currency ?: (string) config('store.currency', 'NZD'),
                     'line_total' => number_format($lineTotal, 2, '.', ''),
+                    'variant_sku' => $item->variant?->sku,
+                    'variant_title' => $item->variant?->displayTitle(),
+                    'option_values' => $item->variant?->option_values ?? [],
+                    'stock_status' => $item->variant?->stock_status,
+                    'inventory_policy' => $item->variant?->inventory_policy,
+                    'variant' => $item->variant ? (new ProductVariantResource($item->variant))->resolve($request) : null,
                     'product' => $product ? (new ProductResource($product))->resolve($request) : null,
                 ];
             })->values()->all(),

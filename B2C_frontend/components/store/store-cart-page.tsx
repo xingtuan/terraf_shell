@@ -121,7 +121,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
           <section className="space-y-4">
             {cart.items.map((item) => (
               <article
-                key={item.product_id}
+                key={`${item.product_id}-${item.product_variant_id ?? "default"}`}
                 className="rounded-[2rem] border border-border/60 bg-card p-5"
               >
                 <div className="flex gap-4">
@@ -151,6 +151,22 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                             {item.product.subtitle}
                           </p>
                         ) : null}
+                        {item.variant_title || Object.keys(item.option_values ?? {}).length ? (
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            {[item.variant_title, item.variant_sku ? `SKU ${item.variant_sku}` : null]
+                              .filter(Boolean)
+                              .join(" | ")}
+                          </p>
+                        ) : null}
+                        {Object.keys(item.option_values ?? {}).length ? (
+                          <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                            {Object.entries(item.option_values ?? {}).map(([key, value]) => (
+                              <span key={key} className="rounded-full bg-muted px-2 py-1">
+                                {key.replace(/_/g, " ")}: {String(value).replace(/_/g, " ")}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
                         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.18em] text-muted-foreground">
                           {item.product?.stock_status_label ? (
                             <span>{item.product.stock_status_label}</span>
@@ -165,7 +181,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                           {formatCurrencyAmount(
                             item.unit_price_usd,
                             locale,
-                            item.product?.currency ?? "USD",
+                            item.currency ?? item.product?.currency ?? "NZD",
                           )}{" "}
                           {t.each}
                         </p>
@@ -173,7 +189,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                           {formatCurrencyAmount(
                             item.line_total,
                             locale,
-                            item.product?.currency ?? "USD",
+                            item.currency ?? item.product?.currency ?? "NZD",
                           )}
                         </p>
                       </div>
@@ -185,7 +201,11 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                           type="button"
                           className="px-3 py-2 text-foreground transition-colors hover:bg-muted"
                           onClick={() => {
-                            void updateItem(item.product_id, item.quantity - 1)
+                            void updateItem(
+                              item.product_id,
+                              item.quantity - 1,
+                              item.product_variant_id,
+                            )
                           }}
                           aria-label={t.decreaseQuantity}
                         >
@@ -206,7 +226,11 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                               return
                             }
 
-                            void updateItem(item.product_id, item.quantity + 1)
+                            void updateItem(
+                              item.product_id,
+                              item.quantity + 1,
+                              item.product_variant_id,
+                            )
                           }}
                           aria-label={t.increaseQuantity}
                         >
@@ -218,7 +242,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                         type="button"
                         className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                         onClick={() => {
-                          void removeItem(item.product_id)
+                          void removeItem(item.product_id, item.product_variant_id)
                         }}
                       >
                         <Trash2 className="size-4" />

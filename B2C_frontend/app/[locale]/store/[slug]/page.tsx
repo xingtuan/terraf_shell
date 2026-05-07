@@ -75,7 +75,7 @@ export default async function ProductDetailPage({
       product.short_description ??
       product.subtitle ??
       undefined,
-    sku: product.sku ?? undefined,
+    sku: product.default_variant?.sku ?? product.sku ?? undefined,
     brand: {
       "@type": "Brand",
       name: "Terrafin OXP",
@@ -85,7 +85,7 @@ export default async function ProductDetailPage({
       .filter(Boolean),
     offers: {
       "@type": "Offer",
-      price: product.price_usd,
+      price: product.price_amount ?? product.price_usd,
       priceCurrency: product.currency ?? "NZD",
       availability: product.can_add_to_cart
         ? "https://schema.org/InStock"

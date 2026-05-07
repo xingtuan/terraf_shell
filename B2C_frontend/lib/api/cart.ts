@@ -14,12 +14,14 @@ export async function addCartItem(
   productId: number,
   quantity: number,
   token?: string | null,
+  variantId?: number | null,
 ) {
   const response = await requestApi<CartSummary>("/cart/items", {
     method: "POST",
     token,
     body: {
       product_id: productId,
+      variant_id: variantId ?? undefined,
       quantity,
     },
   })
@@ -31,11 +33,13 @@ export async function updateCartItem(
   productId: number,
   quantity: number,
   token?: string | null,
+  variantId?: number | null,
 ) {
   const response = await requestApi<CartSummary>(`/cart/items/${productId}`, {
     method: "PATCH",
     token,
     body: {
+      variant_id: variantId ?? undefined,
       quantity,
     },
   })
@@ -43,10 +47,17 @@ export async function updateCartItem(
   return normalizeCartSummary(response.data)
 }
 
-export async function removeCartItem(productId: number, token?: string | null) {
+export async function removeCartItem(
+  productId: number,
+  token?: string | null,
+  variantId?: number | null,
+) {
   const response = await requestApi<CartSummary>(`/cart/items/${productId}`, {
     method: "DELETE",
     token,
+    query: {
+      variant_id: variantId ?? undefined,
+    },
   })
 
   return normalizeCartSummary(response.data)
