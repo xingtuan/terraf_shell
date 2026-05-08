@@ -14,58 +14,58 @@ class FundingCampaignInfolist
     {
         return $schema
             ->components([
-                Section::make('Campaign')
+                Section::make(__('admin.ui.campaign'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('post.title')
-                                    ->label('Concept')
+                                    ->label(__('admin.ui.concept'))
                                     ->columnSpanFull(),
                                 TextEntry::make('post.user.name')
-                                    ->label('Creator'),
+                                    ->label(__('admin.ui.creator')),
                                 TextEntry::make('campaign_status')
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => FundingCampaignStatus::tryFrom($state)?->label() ?? $state)
                                     ->color(fn (string $state): string => FundingCampaignStatus::tryFrom($state)?->color() ?? 'gray'),
                                 TextEntry::make('support_enabled')
-                                    ->label('Support enabled')
+                                    ->label(__('admin.ui.support_enabled'))
                                     ->state(fn ($record): string => $record->support_enabled ? 'Yes' : 'No')
                                     ->badge()
                                     ->color(fn (string $state): string => $state === 'Yes' ? 'success' : 'gray'),
                                 TextEntry::make('support_button_text')
-                                    ->label('Button text'),
+                                    ->label(__('admin.ui.button_text')),
                                 TextEntry::make('external_crowdfunding_url')
-                                    ->label('Crowdfunding URL')
-                                    ->placeholder('No external URL set.')
+                                    ->label(__('admin.ui.crowdfunding_url'))
+                                    ->placeholder(__('admin.ui.no_external_url_set'))
                                     ->url(fn (?string $state): ?string => filled($state) ? $state : null)
                                     ->openUrlInNewTab()
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Progress')
+                Section::make(__('admin.ui.progress'))
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 TextEntry::make('target_amount')
                                     ->money('USD')
-                                    ->placeholder('No target set.'),
+                                    ->placeholder(__('admin.ui.no_target_set')),
                                 TextEntry::make('pledged_amount')
                                     ->money('USD')
-                                    ->placeholder('No pledged amount set.'),
+                                    ->placeholder(__('admin.ui.no_pledged_amount_set')),
                                 TextEntry::make('backer_count')
-                                    ->label('Backers')
-                                    ->placeholder('No backer count.'),
+                                    ->label(__('admin.ui.backers'))
+                                    ->placeholder(__('admin.ui.no_backer_count')),
                                 TextEntry::make('campaign_start_at')
-                                    ->label('Starts')
+                                    ->label(__('admin.ui.starts'))
                                     ->dateTime()
-                                    ->placeholder('Not scheduled.'),
+                                    ->placeholder(__('admin.ui.not_scheduled')),
                                 TextEntry::make('campaign_end_at')
-                                    ->label('Ends')
+                                    ->label(__('admin.ui.ends'))
                                     ->dateTime()
-                                    ->placeholder('No end date.'),
+                                    ->placeholder(__('admin.ui.no_end_date')),
                             ]),
                         TextEntry::make('reward_description')
-                            ->placeholder('No reward description.')
+                            ->placeholder(__('admin.ui.no_reward_description'))
                             ->columnSpanFull(),
                     ]),
             ]);

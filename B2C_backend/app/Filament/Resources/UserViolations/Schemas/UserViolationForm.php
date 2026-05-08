@@ -18,7 +18,7 @@ class UserViolationForm
     {
         return $schema
             ->components([
-                Section::make('Violation')
+                Section::make(__('admin.ui.violation'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -32,7 +32,7 @@ class UserViolationForm
                                     ->relationship('report', 'id')
                                     ->searchable()
                                     ->preload()
-                                    ->label('Linked report')
+                                    ->label(__('admin.ui.linked_report'))
                                     ->disabled(fn (string $operation): bool => $operation === 'edit'),
                                 Select::make('subject_type')
                                     ->options([
@@ -40,11 +40,11 @@ class UserViolationForm
                                         'comment' => 'Comment',
                                         'user' => 'User',
                                     ])
-                                    ->label('Subject type')
+                                    ->label(__('admin.ui.subject_type'))
                                     ->disabled(fn (string $operation): bool => $operation === 'edit'),
                                 TextInput::make('subject_id')
                                     ->numeric()
-                                    ->label('Subject ID')
+                                    ->label(__('admin.ui.subject_id'))
                                     ->disabled(fn (string $operation): bool => $operation === 'edit'),
                                 Select::make('type')
                                     ->options(UserViolationType::options())

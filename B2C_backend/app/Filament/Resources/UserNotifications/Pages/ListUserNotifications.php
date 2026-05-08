@@ -23,7 +23,7 @@ class ListUserNotifications extends ListRecords
     {
         return [
             Action::make('announce')
-                ->label('Broadcast Announcement')
+                ->label(__('admin.ui.broadcast_announcement'))
                 ->icon('heroicon-o-megaphone')
                 ->visible(fn (): bool => PanelAccess::isAdmin())
                 ->schema([
@@ -34,20 +34,20 @@ class ListUserNotifications extends ListRecords
                         ->required()
                         ->rows(5),
                     TextInput::make('action_url')
-                        ->label('Action URL')
+                        ->label(__('admin.ui.action_url'))
                         ->url()
                         ->maxLength(2048),
                     Select::make('roles')
-                        ->label('Audience roles')
+                        ->label(__('admin.ui.audience_roles'))
                         ->multiple()
                         ->options([
                             UserRole::Creator->value => UserRole::Creator->label(),
                             UserRole::SmePartner->value => UserRole::SmePartner->label(),
                         ])
-                        ->helperText('Leave blank to send to all active users.'),
+                        ->helperText(__('admin.ui.leave_blank_to_send_to_all_active_users')),
                     Toggle::make('send_email')
-                        ->label('Also send email')
-                        ->helperText('Email sending still respects the Email Center system announcement switch.'),
+                        ->label(__('admin.ui.also_send_email'))
+                        ->helperText(__('admin.ui.email_sending_still_respects_the_email_center_system_announcement_switch')),
                 ])
                 ->action(function (array $data): void {
                     $count = app(NotificationService::class)->broadcastSystemAnnouncement(
@@ -72,7 +72,7 @@ class ListUserNotifications extends ListRecords
                     );
 
                     Notification::make()
-                        ->title("Announcement delivered to {$count} users.")
+                        ->title(__('admin.ui.announcement_delivered_to_users', ['count' => $count]))
                         ->success()
                         ->send();
                 }),

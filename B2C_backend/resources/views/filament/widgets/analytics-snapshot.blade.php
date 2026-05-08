@@ -16,7 +16,7 @@
         <div style="display:flex; align-items:center; gap:0.75rem; background:#fffbeb; border:1px solid #fde68a; border-radius:0.75rem; padding:1rem;">
             <x-filament::icon icon="heroicon-o-bolt" style="width:1.25rem;height:1.25rem;color:#f59e0b;flex-shrink:0;" />
             <div>
-                <div style="font-size:0.75rem;color:#6b7280;font-weight:500;">Total Engagement</div>
+                <div style="font-size:0.75rem;color:#6b7280;font-weight:500;">{{ __('admin.ui.analytics_total_engagement') }}</div>
                 <div style="font-size:1.5rem;font-weight:700;line-height:1.2;">{{ number_format((int)($summary['total_engagement'] ?? 0)) }}</div>
             </div>
         </div>
@@ -24,7 +24,7 @@
         <div style="display:flex; align-items:center; gap:0.75rem; background:#eff6ff; border:1px solid #bfdbfe; border-radius:0.75rem; padding:1rem;">
             <x-filament::icon icon="heroicon-o-eye" style="width:1.25rem;height:1.25rem;color:#3b82f6;flex-shrink:0;" />
             <div>
-                <div style="font-size:0.75rem;color:#6b7280;font-weight:500;">Total Views</div>
+                <div style="font-size:0.75rem;color:#6b7280;font-weight:500;">{{ __('admin.ui.analytics_total_views') }}</div>
                 <div style="font-size:1.5rem;font-weight:700;line-height:1.2;">{{ number_format((int)($summary['total_views'] ?? 0)) }}</div>
             </div>
         </div>
@@ -32,7 +32,7 @@
         <div style="display:flex; align-items:center; gap:0.75rem; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:0.75rem; padding:1rem;">
             <x-filament::icon icon="heroicon-o-briefcase" style="width:1.25rem;height:1.25rem;color:#8b5cf6;flex-shrink:0;" />
             <div>
-                <div style="font-size:0.75rem;color:#6b7280;font-weight:500;">B2B Leads</div>
+                <div style="font-size:0.75rem;color:#6b7280;font-weight:500;">{{ __('admin.ui.analytics_b2b_leads') }}</div>
                 <div style="font-size:1.5rem;font-weight:700;line-height:1.2;">{{ number_format((int)($summary['total_b2b_leads'] ?? 0)) }}</div>
             </div>
         </div>
@@ -40,7 +40,7 @@
         <div style="display:flex; align-items:center; gap:0.75rem; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:0.75rem; padding:1rem;">
             <x-filament::icon icon="heroicon-o-banknotes" style="width:1.25rem;height:1.25rem;color:#10b981;flex-shrink:0;" />
             <div>
-                <div style="font-size:0.75rem;color:#6b7280;font-weight:500;">Funding-Linked</div>
+                <div style="font-size:0.75rem;color:#6b7280;font-weight:500;">{{ __('admin.ui.analytics_funding_linked') }}</div>
                 <div style="font-size:1.5rem;font-weight:700;line-height:1.2;">{{ number_format((int)($summary['concepts_with_funding_campaigns'] ?? 0)) }}</div>
             </div>
         </div>
@@ -51,7 +51,7 @@
 
         {{-- Top Categories --}}
         <x-filament::section>
-            <x-slot name="heading">Top Categories</x-slot>
+            <x-slot name="heading">{{ __('admin.ui.analytics_top_categories') }}</x-slot>
 
             <div style="display:flex;flex-direction:column;gap:0.75rem;">
                 @forelse ($categories as $i => $category)
@@ -73,14 +73,14 @@
                         </div>
                     </div>
                 @empty
-                    <p style="font-size:0.875rem;color:#9ca3af;">No category analytics yet.</p>
+                    <p style="font-size:0.875rem;color:#9ca3af;">{{ __('admin.ui.analytics_no_category_yet') }}</p>
                 @endforelse
             </div>
         </x-filament::section>
 
         {{-- Active Schools / Companies --}}
         <x-filament::section>
-            <x-slot name="heading">Active Schools &amp; Companies</x-slot>
+            <x-slot name="heading">{{ __('admin.ui.analytics_active_schools_companies') }}</x-slot>
 
             <div style="display:flex;flex-direction:column;gap:0.75rem;">
                 @forelse ($schools as $school)
@@ -100,14 +100,14 @@
                         </div>
                     </div>
                 @empty
-                    <p style="font-size:0.875rem;color:#9ca3af;">No school or company activity yet.</p>
+                    <p style="font-size:0.875rem;color:#9ca3af;">{{ __('admin.ui.analytics_no_school_activity_yet') }}</p>
                 @endforelse
             </div>
         </x-filament::section>
 
         {{-- Funding-Ready Concepts --}}
         <x-filament::section>
-            <x-slot name="heading">Funding-Ready Concepts</x-slot>
+            <x-slot name="heading">{{ __('admin.ui.analytics_funding_ready_concepts') }}</x-slot>
 
             <div style="display:flex;flex-direction:column;gap:0.875rem;">
                 @forelse ($concepts as $concept)
@@ -136,7 +136,7 @@
                         @endif
                     </div>
                 @empty
-                    <p style="font-size:0.875rem;color:#9ca3af;">No funding-ready concepts yet.</p>
+                    <p style="font-size:0.875rem;color:#9ca3af;">{{ __('admin.ui.analytics_no_funding_concepts_yet') }}</p>
                 @endforelse
             </div>
         </x-filament::section>

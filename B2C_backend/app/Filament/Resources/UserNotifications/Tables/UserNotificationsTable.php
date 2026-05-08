@@ -19,11 +19,11 @@ class UserNotificationsTable
         return $table
             ->columns([
                 TextColumn::make('recipient.name')
-                    ->label('Recipient')
+                    ->label(__('admin.ui.recipient'))
                     ->searchable(),
                 TextColumn::make('actor.name')
-                    ->label('Actor')
-                    ->placeholder('System')
+                    ->label(__('admin.ui.actor'))
+                    ->placeholder(__('admin.ui.system'))
                     ->searchable(),
                 TextColumn::make('type')
                     ->badge()
@@ -36,14 +36,14 @@ class UserNotificationsTable
                     ->limit(70)
                     ->toggleable(),
                 IconColumn::make('is_read')
-                    ->label('Read')
+                    ->label(__('admin.ui.read'))
                     ->boolean(),
                 TextColumn::make('read_at')
-                    ->label('Read at')
+                    ->label(__('admin.ui.read_at'))
                     ->dateTime()
                     ->toggleable(),
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('admin.ui.created'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -51,9 +51,9 @@ class UserNotificationsTable
                 SelectFilter::make('type')
                     ->options(NotificationType::options()),
                 TernaryFilter::make('is_read')
-                    ->label('Read'),
+                    ->label(__('admin.ui.read')),
                 SelectFilter::make('recipient_role')
-                    ->label('Recipient role')
+                    ->label(__('admin.ui.recipient_role'))
                     ->options(UserRole::options())
                     ->query(fn (Builder $query, array $data): Builder => $query->when(
                         filled($data['value'] ?? null),

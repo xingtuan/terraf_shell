@@ -78,7 +78,7 @@ class ProductVariantResource extends Resource
                                 ->prefix('$')
                                 ->required(),
                             TextInput::make('compare_at_price_amount')
-                                ->label('Compare-at price (NZD)')
+                                ->label(__('admin.ui.compare_at_price_nzd'))
                                 ->numeric()
                                 ->prefix('$'),
                             Hidden::make('currency')

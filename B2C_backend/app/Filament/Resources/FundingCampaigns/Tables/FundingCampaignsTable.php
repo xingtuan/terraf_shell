@@ -18,14 +18,14 @@ class FundingCampaignsTable
         return $table
             ->columns([
                 TextColumn::make('post.title')
-                    ->label('Concept')
+                    ->label(__('admin.ui.concept'))
                     ->searchable()
                     ->limit(40),
                 TextColumn::make('post.user.name')
-                    ->label('Creator')
+                    ->label(__('admin.ui.creator'))
                     ->searchable(),
                 IconColumn::make('support_enabled')
-                    ->label('Support')
+                    ->label(__('admin.ui.support'))
                     ->boolean(),
                 TextColumn::make('campaign_status')
                     ->badge()
@@ -38,16 +38,16 @@ class FundingCampaignsTable
                     ->money('USD')
                     ->sortable(),
                 TextColumn::make('backer_count')
-                    ->label('Backers')
+                    ->label(__('admin.ui.backers'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('campaign_end_at')
-                    ->label('Ends')
+                    ->label(__('admin.ui.ends'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('updated_at')
-                    ->label('Updated')
+                    ->label(__('admin.ui.updated'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -55,7 +55,7 @@ class FundingCampaignsTable
                 SelectFilter::make('campaign_status')
                     ->options(FundingCampaignStatus::options()),
                 TernaryFilter::make('support_enabled')
-                    ->label('Support enabled'),
+                    ->label(__('admin.ui.support_enabled')),
             ])
             ->recordActions([
                 ViewAction::make(),

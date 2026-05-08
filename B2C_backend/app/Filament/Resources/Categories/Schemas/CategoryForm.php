@@ -17,7 +17,7 @@ class CategoryForm
     {
         return $schema
             ->components([
-                Section::make('Category')
+                Section::make(__('admin.ui.category'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -34,7 +34,7 @@ class CategoryForm
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
                                 Toggle::make('is_active')
-                                    ->label('Active')
+                                    ->label(__('admin.ui.active'))
                                     ->default(true),
                                 TextInput::make('sort_order')
                                     ->numeric()

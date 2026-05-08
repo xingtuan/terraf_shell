@@ -17,47 +17,47 @@ class ReportForm
     {
         return $schema
             ->components([
-                Section::make('Report')
+                Section::make(__('admin.ui.report'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Placeholder::make('reporter')
-                                    ->label('Reporter')
+                                    ->label(__('admin.ui.reporter'))
                                     ->content(fn (?Report $record): string => $record?->reporter?->name ? $record->reporter->name.' (@'.$record->reporter->username.')' : 'Unknown reporter'),
                                 Placeholder::make('status')
-                                    ->label('Status')
+                                    ->label(__('admin.ui.status'))
                                     ->content(fn (?Report $record): string => $record ? (ReportStatus::tryFrom($record->status)?->label() ?? ucfirst($record->status)) : '-'),
                                 Placeholder::make('target_type')
-                                    ->label('Target type')
+                                    ->label(__('admin.ui.target_type'))
                                     ->content(fn (?Report $record): string => $record ? ReportResource::targetTypeLabel($record->target_type) : '-'),
                                 Placeholder::make('target_id')
-                                    ->label('Target ID')
+                                    ->label(__('admin.ui.target_id'))
                                     ->content(fn (?Report $record): string => $record ? (string) $record->target_id : '-'),
                                 Placeholder::make('target_summary')
-                                    ->label('Target content')
+                                    ->label(__('admin.ui.target_content'))
                                     ->content(fn (?Report $record): string => $record ? ReportResource::targetSummary($record) : '-')
                                     ->columnSpanFull(),
                                 Placeholder::make('reason')
                                     ->content(fn (?Report $record): string => $record?->reason ?? '-'),
                                 Placeholder::make('description')
-                                    ->label('Reporter description')
+                                    ->label(__('admin.ui.reporter_description'))
                                     ->content(fn (?Report $record): string => $record?->description ?: 'No additional detail provided.')
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Review')
+                Section::make(__('admin.ui.review'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Textarea::make('moderator_note')
-                                    ->label('Moderator note')
+                                    ->label(__('admin.ui.moderator_note'))
                                     ->rows(5)
                                     ->columnSpanFull(),
                                 Placeholder::make('reviewed_by')
-                                    ->label('Reviewed by')
+                                    ->label(__('admin.ui.reviewed_by'))
                                     ->content(fn (?Report $record): string => $record?->reviewer?->name ?? 'Not reviewed yet.'),
                                 Placeholder::make('reviewed_at')
-                                    ->label('Reviewed at')
+                                    ->label(__('admin.ui.reviewed_at'))
                                     ->content(fn (?Report $record): string => $record?->reviewed_at?->toDateTimeString() ?? 'Not reviewed yet.'),
                             ]),
                     ]),

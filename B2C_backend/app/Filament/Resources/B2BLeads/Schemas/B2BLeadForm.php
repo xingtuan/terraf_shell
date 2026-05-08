@@ -21,28 +21,28 @@ class B2BLeadForm
     {
         return $schema
             ->components([
-                Section::make('Lead Details')
+                Section::make(__('admin.ui.lead_details'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Placeholder::make('reference')
                                     ->content(fn (?B2BLead $record): string => $record?->reference ?? 'Generated automatically'),
                                 Placeholder::make('lead_type')
-                                    ->label('Lead type')
+                                    ->label(__('admin.ui.lead_type'))
                                     ->content(fn (?B2BLead $record): string => $record ? (B2BLeadType::tryFrom($record->lead_type)?->label() ?? $record->lead_type) : '-'),
                                 Placeholder::make('interest_type')
-                                    ->label('Interest type')
+                                    ->label(__('admin.ui.interest_type'))
                                     ->content(fn (?B2BLead $record): string => $record?->interest_type ?: 'Not specified.'),
                                 Placeholder::make('application_type')
-                                    ->label('Application')
+                                    ->label(__('admin.ui.application'))
                                     ->content(fn (?B2BLead $record): string => $record?->application_type ?: 'Not specified.'),
                                 Placeholder::make('name')
                                     ->content(fn (?B2BLead $record): string => $record?->name ?? '-'),
                                 Placeholder::make('company_name')
-                                    ->label('Company / Institution')
+                                    ->label(__('admin.ui.company_institution'))
                                     ->content(fn (?B2BLead $record): string => $record?->company_name ?? '-'),
                                 Placeholder::make('email')
-                                    ->label('Email')
+                                    ->label(__('admin.ui.email'))
                                     ->content(fn (?B2BLead $record): string => $record?->email ?? '-'),
                                 Placeholder::make('phone')
                                     ->content(fn (?B2BLead $record): string => $record?->phone ?: 'No phone provided.'),
@@ -53,15 +53,15 @@ class B2BLeadForm
                                 Placeholder::make('source_page')
                                     ->content(fn (?B2BLead $record): string => $record?->source_page ?: 'No source page tracked.'),
                                 Placeholder::make('company_website')
-                                    ->label('Website')
+                                    ->label(__('admin.ui.website'))
                                     ->content(fn (?B2BLead $record): string => $record?->company_website ?: 'No website provided.'),
                                 Placeholder::make('estimated_quantity')
-                                    ->label('Estimated quantity')
+                                    ->label(__('admin.ui.estimated_quantity'))
                                     ->content(fn (?B2BLead $record): string => $record?->estimated_quantity ?: 'Not specified.'),
                                 Placeholder::make('timeline')
                                     ->content(fn (?B2BLead $record): string => $record?->timeline ?: 'Not specified.'),
                                 Placeholder::make('expected_use_case')
-                                    ->label('Expected use case')
+                                    ->label(__('admin.ui.expected_use_case'))
                                     ->content(fn (?B2BLead $record): string => $record?->expected_use_case ?: 'Not specified.')
                                     ->columnSpanFull(),
                                 Placeholder::make('message')
@@ -69,10 +69,10 @@ class B2BLeadForm
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Detail Records')
+                Section::make(__('admin.ui.detail_records'))
                     ->schema([
                         Placeholder::make('partnership_details')
-                            ->label('Partnership details')
+                            ->label(__('admin.ui.partnership_details'))
                             ->content(function (?B2BLead $record): string {
                                 if ($record?->partnershipInquiry === null) {
                                     return 'No partnership detail record attached.';
@@ -87,7 +87,7 @@ class B2BLeadForm
                             })
                             ->columnSpanFull(),
                         Placeholder::make('sample_request_details')
-                            ->label('Sample request details')
+                            ->label(__('admin.ui.sample_request_details'))
                             ->content(function (?B2BLead $record): string {
                                 if ($record?->sampleRequest === null) {
                                     return 'No sample request detail record attached.';
@@ -105,7 +105,7 @@ class B2BLeadForm
                             })
                             ->columnSpanFull(),
                     ]),
-                Section::make('Admin Review')
+                Section::make(__('admin.ui.admin_review'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -123,13 +123,13 @@ class B2BLeadForm
                                     ->default('normal')
                                     ->required(),
                                 Select::make('assigned_to')
-                                    ->label('Assigned owner')
+                                    ->label(__('admin.ui.assigned_owner'))
                                     ->options(fn (): array => User::query()
                                         ->whereIn('role', [UserRole::Admin->value, UserRole::Moderator->value])
                                         ->orderBy('name')
                                         ->pluck('name', 'id')
                                         ->all())
-                                    ->placeholder('Unassigned')
+                                    ->placeholder(__('admin.ui.unassigned'))
                                     ->searchable()
                                     ->preload(),
                                 DateTimePicker::make('follow_up_at')

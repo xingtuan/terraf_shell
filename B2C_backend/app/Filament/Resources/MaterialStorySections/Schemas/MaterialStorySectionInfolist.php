@@ -12,7 +12,7 @@ class MaterialStorySectionInfolist
         return $schema
             ->components([
                 TextEntry::make('material.title')
-                    ->label('Material'),
+                    ->label(__('admin.ui.material')),
                 TextEntry::make('title'),
                 TextEntry::make('subtitle')
                     ->placeholder('-'),

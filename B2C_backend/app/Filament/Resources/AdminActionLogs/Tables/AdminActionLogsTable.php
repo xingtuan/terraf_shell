@@ -17,12 +17,12 @@ class AdminActionLogsTable
         return $table
             ->columns([
                 TextColumn::make('actor.name')
-                    ->label('Actor')
-                    ->placeholder('System')
+                    ->label(__('admin.ui.actor'))
+                    ->placeholder(__('admin.ui.system'))
                     ->searchable(),
                 TextColumn::make('targetUser.name')
-                    ->label('Target user')
-                    ->placeholder('No target user')
+                    ->label(__('admin.ui.target_user'))
+                    ->placeholder(__('admin.ui.no_target_user_2'))
                     ->searchable(),
                 TextColumn::make('action')
                     ->badge()
@@ -30,20 +30,20 @@ class AdminActionLogsTable
                 TextColumn::make('description')
                     ->limit(70),
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('admin.ui.created'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('actor_user_id')
                     ->relationship('actor', 'name')
-                    ->label('Actor')
+                    ->label(__('admin.ui.actor'))
                     ->searchable()
                     ->preload(),
                 Filter::make('action')
                     ->schema([
                         TextInput::make('action')
-                            ->label('Action'),
+                            ->label(__('admin.ui.action')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query->when(
                         filled($data['action'] ?? null),

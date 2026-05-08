@@ -24,10 +24,10 @@ enum ReportStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Pending => 'Open',
-            self::Reviewed => 'Reviewed',
-            self::Resolved => 'Resolved',
-            self::Dismissed => 'Dismissed',
+            self::Pending => __('admin.report_status.pending'),
+            self::Reviewed => __('admin.report_status.reviewed'),
+            self::Resolved => __('admin.report_status.resolved'),
+            self::Dismissed => __('admin.report_status.dismissed'),
         };
     }
 

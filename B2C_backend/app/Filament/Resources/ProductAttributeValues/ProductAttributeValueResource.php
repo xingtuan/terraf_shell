@@ -49,12 +49,12 @@ class ProductAttributeValueResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Attribute value')
+            Section::make(__('admin.ui.attribute_value'))
                 ->schema([
                     Grid::make(2)
                         ->schema([
                             Select::make('attribute_definition_id')
-                                ->label('Attribute')
+                                ->label(__('admin.ui.attribute'))
                                 ->options(fn (): array => ProductAttributeDefinition::query()
                                     ->ordered()
                                     ->pluck('label', 'id')
@@ -70,8 +70,8 @@ class ProductAttributeValueResource extends Resource
                                 ->maxLength(160),
                             ColorPicker::make('color_hex'),
                             KeyValue::make('label_translations')
-                                ->keyLabel('Locale')
-                                ->valueLabel('Label')
+                                ->keyLabel(__('admin.ui.locale'))
+                                ->valueLabel(__('admin.ui.label'))
                                 ->columnSpanFull(),
                             Toggle::make('is_active')
                                 ->default(true),
@@ -90,7 +90,7 @@ class ProductAttributeValueResource extends Resource
             ->defaultSort('sort_order')
             ->columns([
                 TextColumn::make('definition.label')
-                    ->label('Attribute')
+                    ->label(__('admin.ui.attribute'))
                     ->searchable(),
                 TextColumn::make('value')
                     ->copyable()
@@ -98,13 +98,13 @@ class ProductAttributeValueResource extends Resource
                 TextColumn::make('label')
                     ->searchable(),
                 ColorColumn::make('color_hex')
-                    ->label('Color'),
+                    ->label(__('admin.ui.color')),
                 IconColumn::make('is_active')
                     ->boolean(),
             ])
             ->filters([
                 SelectFilter::make('attribute_definition_id')
-                    ->label('Attribute')
+                    ->label(__('admin.ui.attribute'))
                     ->options(fn (): array => ProductAttributeDefinition::query()
                         ->ordered()
                         ->pluck('label', 'id')

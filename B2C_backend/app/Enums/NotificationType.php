@@ -29,15 +29,15 @@ enum NotificationType: string
     public function label(): string
     {
         return match ($this) {
-            self::Comment => 'Comment',
-            self::Reply => 'Reply',
-            self::Like => 'Like',
-            self::Favorite => 'Favorite',
-            self::Follow => 'Follow',
-            self::SubmissionApproved => 'Submission Approved',
-            self::SubmissionRejected => 'Submission Rejected',
-            self::ConceptFeatured => 'Concept Featured',
-            self::SystemAnnouncement => 'System Announcement',
+            self::Comment => __('admin.notification_type.comment'),
+            self::Reply => __('admin.notification_type.reply'),
+            self::Like => __('admin.notification_type.like'),
+            self::Favorite => __('admin.notification_type.favorite'),
+            self::Follow => __('admin.notification_type.follow'),
+            self::SubmissionApproved => __('admin.notification_type.submission_approved'),
+            self::SubmissionRejected => __('admin.notification_type.submission_rejected'),
+            self::ConceptFeatured => __('admin.notification_type.concept_featured'),
+            self::SystemAnnouncement => __('admin.notification_type.system_announcement'),
         };
     }
 

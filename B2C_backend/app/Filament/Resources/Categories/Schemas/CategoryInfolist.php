@@ -14,26 +14,26 @@ class CategoryInfolist
     {
         return $schema
             ->components([
-                Section::make('Category')
+                Section::make(__('admin.ui.category'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('name'),
                                 TextEntry::make('slug'),
                                 TextEntry::make('is_active')
-                                    ->label('Status')
+                                    ->label(__('admin.ui.status'))
                                     ->badge()
                                     ->formatStateUsing(fn (bool $state): string => $state ? 'Active' : 'Inactive')
                                     ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                                 TextEntry::make('sort_order'),
                                 TextEntry::make('posts_count')
-                                    ->label('Posts')
+                                    ->label(__('admin.ui.posts'))
                                     ->state(fn (Category $record): int => (int) ($record->posts_count ?? $record->posts()->count())),
                                 TextEntry::make('updated_at')
-                                    ->label('Updated')
+                                    ->label(__('admin.ui.updated'))
                                     ->dateTime(),
                                 TextEntry::make('description')
-                                    ->placeholder('No description provided.')
+                                    ->placeholder(__('admin.ui.no_description_provided'))
                                     ->columnSpanFull(),
                             ]),
                     ]),

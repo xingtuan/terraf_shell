@@ -74,8 +74,8 @@ class RecentOrders extends TableWidget
                     ->url(fn (Order $record): string => OrderResource::getUrl('view', ['record' => $record])),
             ])
             ->paginated([8])
-            ->emptyStateHeading('No active order request backlog.')
-            ->emptyStateDescription('New order requests that need review will appear here.');
+            ->emptyStateHeading(__('admin.ui.no_active_order_request_backlog'))
+            ->emptyStateDescription(__('admin.ui.new_order_requests_that_need_review_will_appear_here'));
     }
 
     public static function canView(): bool

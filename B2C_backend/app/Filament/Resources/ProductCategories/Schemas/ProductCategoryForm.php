@@ -17,7 +17,7 @@ class ProductCategoryForm
     {
         return $schema
             ->components([
-                Section::make('Category Settings')
+                Section::make(__('admin.ui.category_settings'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -26,7 +26,7 @@ class ProductCategoryForm
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
                                 Toggle::make('is_active')
-                                    ->label('Active')
+                                    ->label(__('admin.ui.active'))
                                     ->default(true),
                                 TextInput::make('sort_order')
                                     ->numeric()
@@ -34,10 +34,10 @@ class ProductCategoryForm
                                     ->default(0),
                             ]),
                     ]),
-                Section::make('English')
+                Section::make(__('admin.ui.english'))
                     ->schema([
                         TextInput::make('name_translations.en')
-                            ->label('Name')
+                            ->label(__('admin.ui.name'))
                             ->required()
                             ->maxLength(255)
                             ->live(onBlur: true)
@@ -45,27 +45,27 @@ class ProductCategoryForm
                                 $set('slug', Str::slug((string) $state));
                             }),
                         Textarea::make('description_translations.en')
-                            ->label('Description')
+                            ->label(__('admin.ui.description'))
                             ->rows(4)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Korean')
+                Section::make(__('admin.ui.korean'))
                     ->schema([
                         TextInput::make('name_translations.ko')
-                            ->label('Name')
+                            ->label(__('admin.ui.name'))
                             ->maxLength(255),
                         Textarea::make('description_translations.ko')
-                            ->label('Description')
+                            ->label(__('admin.ui.description'))
                             ->rows(4)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Chinese')
+                Section::make(__('admin.ui.chinese'))
                     ->schema([
                         TextInput::make('name_translations.zh')
-                            ->label('Name')
+                            ->label(__('admin.ui.name'))
                             ->maxLength(255),
                         Textarea::make('description_translations.zh')
-                            ->label('Description')
+                            ->label(__('admin.ui.description'))
                             ->rows(4)
                             ->columnSpanFull(),
                     ]),

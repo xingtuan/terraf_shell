@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\Schemas;
 
 use App\Enums\ProductStatus;
+use App\Filament\Support\AdminOptions;
 use App\Models\Product;
 use App\Models\ProductAttributeDefinition;
 use App\Models\ProductCategory;
@@ -35,29 +36,29 @@ class ProductForm
             ->components([
                 Hidden::make('currency')
                     ->default('NZD'),
-                Tabs::make('Shop product management')
+                Tabs::make(__('admin.ui.shop_product_management'))
                     ->persistTab()
                     ->tabs([
-                        Tab::make('Basic Info')
+                        Tab::make(__('admin.ui.basic_info'))
                             ->schema([
-                                Section::make('Catalogue settings')
+                                Section::make(__('admin.ui.catalogue_settings'))
                                     ->schema([
                                         Grid::make(2)
                                             ->schema([
                                                 TextInput::make('name')
-                                                    ->label('Fallback name')
+                                                    ->label(__('admin.ui.fallback_name'))
                                                     ->maxLength(255)
-                                                    ->helperText('Used only when localized names are empty.'),
+                                                    ->helperText(__('admin.ui.used_only_when_localized_names_are_empty')),
                                                 TextInput::make('slug')
                                                     ->required()
                                                     ->maxLength(255)
                                                     ->unique(ignoreRecord: true),
                                                 TextInput::make('sku')
-                                                    ->label('Legacy default SKU')
+                                                    ->label(__('admin.ui.legacy_default_sku'))
                                                     ->maxLength(255)
-                                                    ->helperText('Compatibility field. Variant SKU is the storefront source of truth.'),
+                                                    ->helperText(__('admin.ui.compatibility_field_variant_sku_is_the_storefront_source_of_truth')),
                                                 Select::make('category_id')
-                                                    ->label('Product category')
+                                                    ->label(__('admin.ui.product_category'))
                                                     ->options(fn (): array => ProductCategory::query()
                                                         ->ordered()
                                                         ->pluck('name', 'id')
@@ -70,24 +71,24 @@ class ProductForm
                                                     ->required()
                                                     ->default(ProductStatus::Draft->value),
                                                 Select::make('category')
-                                                    ->label('Legacy category')
-                                                    ->options(Product::CATEGORY_OPTIONS)
+                                                    ->label(__('admin.ui.legacy_category'))
+                                                    ->options(fn (): array => AdminOptions::productCategories())
                                                     ->required(),
                                                 Select::make('model')
-                                                    ->label('Legacy model')
-                                                    ->options(Product::MODEL_OPTIONS)
+                                                    ->label(__('admin.ui.legacy_model'))
+                                                    ->options(fn (): array => AdminOptions::productModels())
                                                     ->required(),
                                                 Select::make('finish')
-                                                    ->label('Legacy finish')
-                                                    ->options(Product::FINISH_OPTIONS)
+                                                    ->label(__('admin.ui.legacy_finish'))
+                                                    ->options(fn (): array => AdminOptions::productFinishes())
                                                     ->required(),
                                                 Select::make('color')
-                                                    ->label('Legacy color')
-                                                    ->options(Product::COLOR_OPTIONS)
+                                                    ->label(__('admin.ui.legacy_color'))
+                                                    ->options(fn (): array => AdminOptions::productColors())
                                                     ->required(),
                                                 Select::make('technique')
-                                                    ->label('Legacy technique')
-                                                    ->options(Product::TECHNIQUE_OPTIONS)
+                                                    ->label(__('admin.ui.legacy_technique'))
+                                                    ->options(fn (): array => AdminOptions::productTechniques())
                                                     ->required(),
                                                 TextInput::make('sort_order')
                                                     ->numeric()
@@ -96,36 +97,36 @@ class ProductForm
                                                 DateTimePicker::make('published_at')
                                                     ->disabled(),
                                                 Toggle::make('is_active')
-                                                    ->label('Visible in store')
+                                                    ->label(__('admin.ui.visible_in_store'))
                                                     ->default(true),
                                                 Toggle::make('featured')
-                                                    ->label('Featured in store'),
+                                                    ->label(__('admin.ui.featured_in_store')),
                                                 Toggle::make('is_bestseller')
-                                                    ->label('Best seller'),
+                                                    ->label(__('admin.ui.best_seller')),
                                                 Toggle::make('is_new')
-                                                    ->label('New arrival'),
+                                                    ->label(__('admin.ui.new_arrival')),
                                                 Toggle::make('inquiry_only')
-                                                    ->label('Inquiry only'),
+                                                    ->label(__('admin.ui.inquiry_only')),
                                                 Toggle::make('sample_request_enabled')
-                                                    ->label('Sample request enabled'),
+                                                    ->label(__('admin.ui.sample_request_enabled')),
                                             ]),
                                     ]),
-                                Section::make('Publish checklist')
+                                Section::make(__('admin.ui.publish_checklist'))
                                     ->schema([
                                         Placeholder::make('checklist')
                                             ->hiddenLabel()
                                             ->content(fn (?Product $record): string => self::publishChecklist($record)),
                                     ]),
                             ]),
-                        Tab::make('Pricing & Inventory')
+                        Tab::make(__('admin.ui.pricing_inventory'))
                             ->schema([
-                                Section::make('Variant management')
-                                    ->description('Variant SKU, NZD price, inventory, and option values drive storefront purchasing.')
+                                Section::make(__('admin.ui.variant_management'))
+                                    ->description(__('admin.ui.variant_sku_nzd_price_inventory_and_option_values_drive_storefront_purchasing'))
                                     ->schema([
                                         Repeater::make('variants')
                                             ->relationship()
-                                            ->label('Product variants')
-                                            ->addActionLabel('Add variant')
+                                            ->label(__('admin.ui.product_variants'))
+                                            ->addActionLabel(__('admin.ui.add_variant'))
                                             ->orderColumn('sort_order')
                                             ->reorderableWithButtons()
                                             ->collapsible()
@@ -140,9 +141,9 @@ class ProductForm
                                                         TextInput::make('title')
                                                             ->maxLength(255),
                                                         KeyValue::make('option_values')
-                                                            ->label('Option values')
-                                                            ->keyLabel('Attribute key')
-                                                            ->valueLabel('Value')
+                                                            ->label(__('admin.ui.option_values'))
+                                                            ->keyLabel(__('admin.ui.attribute_key'))
+                                                            ->valueLabel(__('admin.ui.value'))
                                                             ->columnSpanFull(),
                                                         TextInput::make('price_amount')
                                                             ->label(__('admin.fields.price').' (NZD)')
@@ -150,7 +151,7 @@ class ProductForm
                                                             ->prefix('$')
                                                             ->required(),
                                                         TextInput::make('compare_at_price_amount')
-                                                            ->label('Compare-at price (NZD)')
+                                                            ->label(__('admin.ui.compare_at_price_nzd'))
                                                             ->numeric()
                                                             ->prefix('$'),
                                                         Hidden::make('currency')
@@ -159,11 +160,11 @@ class ProductForm
                                                             ->numeric()
                                                             ->minValue(0),
                                                         Select::make('stock_status')
-                                                            ->options(ProductVariant::STOCK_STATUS_OPTIONS)
+                                                            ->options(fn (): array => AdminOptions::variantStockStatuses())
                                                             ->default('in_stock')
                                                             ->required(),
                                                         Select::make('inventory_policy')
-                                                            ->options(ProductVariant::INVENTORY_POLICY_OPTIONS)
+                                                            ->options(fn (): array => AdminOptions::inventoryPolicies())
                                                             ->default('deny')
                                                             ->required(),
                                                         TextInput::make('low_stock_threshold')
@@ -196,42 +197,42 @@ class ProductForm
                                             ->columnSpanFull(),
                                     ]),
                             ]),
-                        Tab::make('Stock Fallback')
+                        Tab::make(__('admin.ui.stock_fallback'))
                             ->schema([
-                                Section::make('Legacy inventory fallback')
-                                    ->description('Used only when a product has no active variant.')
+                                Section::make(__('admin.ui.legacy_inventory_fallback'))
+                                    ->description(__('admin.ui.used_only_when_a_product_has_no_active_variant'))
                                     ->schema([
                                         Grid::make(2)
                                             ->schema([
                                                 TextInput::make('price_usd')
-                                                    ->label('Legacy price fallback (NZD)')
+                                                    ->label(__('admin.ui.legacy_price_fallback_nzd'))
                                                     ->numeric()
                                                     ->prefix('$')
                                                     ->required(),
                                                 TextInput::make('compare_at_price_usd')
-                                                    ->label('Legacy compare-at fallback (NZD)')
+                                                    ->label(__('admin.ui.legacy_compare_at_fallback_nzd'))
                                                     ->numeric()
                                                     ->prefix('$'),
                                                 Select::make('stock_status')
-                                                    ->options(Product::STOCK_STATUS_OPTIONS)
+                                                    ->options(fn (): array => AdminOptions::productStockStatuses())
                                                     ->required()
                                                     ->default('in_stock'),
                                                 TextInput::make('stock_quantity')
                                                     ->numeric()
                                                     ->minValue(0)
-                                                    ->helperText('Leave blank for preorder or made-to-order fallback items.'),
+                                                    ->helperText(__('admin.ui.leave_blank_for_preorder_or_made_to_order_fallback_items')),
                                                 TextInput::make('weight_grams')
                                                     ->numeric()
                                                     ->minValue(0),
                                             ]),
                                     ]),
                             ]),
-                        Tab::make('Storefront Content')
+                        Tab::make(__('admin.ui.storefront_content'))
                             ->schema([
                                 self::localeSection('en', 'English', true),
                                 self::localeSection('ko', 'Korean'),
                                 self::localeSection('zh', 'Chinese'),
-                                Section::make('Selling content')
+                                Section::make(__('admin.ui.selling_content'))
                                     ->schema([
                                         TagsInput::make('selling_points')
                                             ->separator(',')
@@ -243,8 +244,8 @@ class ProductForm
                                             ->separator(',')
                                             ->columnSpanFull(),
                                         Repeater::make('product_faqs')
-                                            ->label('Product FAQs')
-                                            ->addActionLabel('Add FAQ')
+                                            ->label(__('admin.ui.product_faqs'))
+                                            ->addActionLabel(__('admin.ui.add_faq'))
                                             ->collapsible()
                                             ->reorderableWithButtons()
                                             ->defaultItems(0)
@@ -261,19 +262,19 @@ class ProductForm
                                             ->columnSpanFull(),
                                     ]),
                             ]),
-                        Tab::make('Specifications & Attributes')
+                        Tab::make(__('admin.ui.specifications_attributes'))
                             ->schema([
-                                Section::make('Dynamic attributes')
+                                Section::make(__('admin.ui.dynamic_attributes'))
                                     ->schema([
                                         Repeater::make('attributeAssignments')
                                             ->relationship()
-                                            ->label('Product attributes')
-                                            ->addActionLabel('Assign attribute')
+                                            ->label(__('admin.ui.product_attributes'))
+                                            ->addActionLabel(__('admin.ui.assign_attribute'))
                                             ->collapsible()
                                             ->defaultItems(0)
                                             ->schema([
                                                 Select::make('attribute_definition_id')
-                                                    ->label('Attribute')
+                                                    ->label(__('admin.ui.attribute'))
                                                     ->options(fn (): array => ProductAttributeDefinition::query()
                                                         ->active()
                                                         ->ordered()
@@ -283,37 +284,37 @@ class ProductForm
                                                     ->preload()
                                                     ->required(),
                                                 Select::make('product_attribute_value_id')
-                                                    ->label('Predefined value')
+                                                    ->label(__('admin.ui.predefined_value'))
                                                     ->relationship('attributeValue', 'label')
                                                     ->searchable()
                                                     ->preload(),
                                                 TextInput::make('value_text')
-                                                    ->label('Text / rich text value')
+                                                    ->label(__('admin.ui.text_rich_text_value'))
                                                     ->columnSpanFull(),
                                                 TextInput::make('value_number')
                                                     ->numeric(),
                                                 Toggle::make('value_boolean')
-                                                    ->label('Boolean value'),
+                                                    ->label(__('admin.ui.boolean_value')),
                                                 KeyValue::make('value_json')
-                                                    ->label('JSON value')
+                                                    ->label(__('admin.ui.json_value'))
                                                     ->columnSpanFull(),
                                             ])
                                             ->columns(2)
                                             ->columnSpanFull(),
                                     ]),
-                                Section::make('Legacy specifications')
+                                Section::make(__('admin.ui.legacy_specifications'))
                                     ->schema([
                                         Select::make('use_cases')
                                             ->multiple()
-                                            ->options(Product::USE_CASE_OPTIONS)
+                                            ->options(fn (): array => AdminOptions::productUseCases())
                                             ->searchable()
                                             ->preload()
                                             ->columnSpanFull(),
                                         TextInput::make('dimensions')
                                             ->maxLength(255),
                                         Repeater::make('specifications')
-                                            ->label('Technical specifications')
-                                            ->addActionLabel('Add specification')
+                                            ->label(__('admin.ui.technical_specifications'))
+                                            ->addActionLabel(__('admin.ui.add_specification'))
                                             ->collapsible()
                                             ->reorderableWithButtons()
                                             ->defaultItems(0)
@@ -335,45 +336,39 @@ class ProductForm
                                             ->columnSpanFull(),
                                     ]),
                             ]),
-                        Tab::make('Material Proof')
+                        Tab::make(__('admin.ui.material_proof'))
                             ->schema([
-                                Section::make('Material proof & downloads')
-                                    ->description('Use cautious, evidence-backed wording. Leave uncertain documents pending or available on request.')
+                                Section::make(__('admin.ui.material_proof_downloads'))
+                                    ->description(__('admin.ui.use_cautious_evidence_backed_wording_leave_uncertain_documents_pending_da0c9c6e1f'))
                                     ->schema([
                                         Repeater::make('certifications')
-                                            ->label('Certifications and tests')
-                                            ->addActionLabel('Add certification or test')
+                                            ->label(__('admin.ui.certifications_and_tests'))
+                                            ->addActionLabel(__('admin.ui.add_certification_or_test'))
                                             ->collapsible()
                                             ->reorderableWithButtons()
                                             ->defaultItems(0)
                                             ->schema([
                                                 TextInput::make('name')
-                                                    ->label('Certification / test name')
+                                                    ->label(__('admin.ui.certification_test_name'))
                                                     ->required()
                                                     ->maxLength(180),
                                                 Select::make('status')
-                                                    ->options([
-                                                        'certified' => 'Certified',
-                                                        'tested' => 'Tested',
-                                                        'in_testing' => 'In testing',
-                                                        'pending' => 'Pending',
-                                                        'not_applicable' => 'Not applicable',
-                                                    ])
+                                                    ->options(fn (): array => AdminOptions::certificationStatuses())
                                                     ->required()
                                                     ->default('pending'),
                                                 TextInput::make('result')
-                                                    ->label('Value / result')
+                                                    ->label(__('admin.ui.value_result'))
                                                     ->maxLength(120),
                                                 TextInput::make('unit')
                                                     ->maxLength(40),
                                                 TextInput::make('issuer')
-                                                    ->label('Issuing body / lab')
+                                                    ->label(__('admin.ui.issuing_body_lab'))
                                                     ->maxLength(180)
-                                                    ->helperText('Use "Client confirmation pending" when a lab is not approved for publication.'),
+                                                    ->helperText(__('admin.ui.use_client_confirmation_pending_when_a_lab_is_not_approved_for_publication')),
                                                 DatePicker::make('tested_at')
-                                                    ->label('Test date'),
+                                                    ->label(__('admin.ui.test_date')),
                                                 TextInput::make('document_url')
-                                                    ->label('Document URL')
+                                                    ->label(__('admin.ui.document_url'))
                                                     ->url()
                                                     ->maxLength(2048),
                                                 Textarea::make('description')
@@ -383,8 +378,8 @@ class ProductForm
                                             ->columns(2)
                                             ->columnSpanFull(),
                                         Repeater::make('technical_downloads')
-                                            ->label('Technical downloads')
-                                            ->addActionLabel('Add download')
+                                            ->label(__('admin.ui.technical_downloads'))
+                                            ->addActionLabel(__('admin.ui.add_download'))
                                             ->collapsible()
                                             ->reorderableWithButtons()
                                             ->defaultItems(0)
@@ -393,24 +388,14 @@ class ProductForm
                                                     ->required()
                                                     ->maxLength(180),
                                                 Select::make('type')
-                                                    ->options([
-                                                        'material_data_sheet' => 'Material data sheet',
-                                                        'product_specification_sheet' => 'Product specification sheet',
-                                                        'certification_document' => 'Certification document',
-                                                        'safety_food_contact_document' => 'Safety / food-contact document',
-                                                        'catalogue' => 'Catalogue',
-                                                    ])
+                                                    ->options(fn (): array => AdminOptions::technicalDownloadTypes())
                                                     ->required(),
                                                 Select::make('status')
-                                                    ->options([
-                                                        'available' => 'Available',
-                                                        'on_request' => 'Available on request',
-                                                        'pending' => 'Pending upload',
-                                                    ])
+                                                    ->options(fn (): array => AdminOptions::technicalDownloadStatuses())
                                                     ->default('on_request')
                                                     ->required(),
                                                 TextInput::make('url')
-                                                    ->label('File URL')
+                                                    ->label(__('admin.ui.file_url'))
                                                     ->url()
                                                     ->maxLength(2048),
                                                 Textarea::make('description')
@@ -424,25 +409,25 @@ class ProductForm
                                             ->columnSpanFull(),
                                     ]),
                             ]),
-                        Tab::make('Images')
+                        Tab::make(__('admin.ui.images'))
                             ->schema([
-                                Section::make('Media & related products')
+                                Section::make(__('admin.ui.media_related_products'))
                                     ->schema([
                                         Grid::make(2)
                                             ->schema([
                                                 FileUpload::make('media_path')
-                                                    ->label('Primary image')
+                                                    ->label(__('admin.ui.primary_image'))
                                                     ->image()
                                                     ->disk((string) config('community.uploads.disk'))
                                                     ->directory('cms/products')
                                                     ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
                                                     ->imagePreviewHeight('180'),
                                                 TextInput::make('image_url')
-                                                    ->label('External primary image URL')
+                                                    ->label(__('admin.ui.external_primary_image_url'))
                                                     ->url()
                                                     ->maxLength(2048),
                                                 Select::make('relatedProducts')
-                                                    ->label('Related products')
+                                                    ->label(__('admin.ui.related_products'))
                                                     ->relationship('relatedProducts', 'name')
                                                     ->multiple()
                                                     ->searchable()
@@ -452,15 +437,15 @@ class ProductForm
                                             ]),
                                         Repeater::make('images')
                                             ->relationship()
-                                            ->label('Gallery images')
-                                            ->addActionLabel('Add gallery image')
+                                            ->label(__('admin.ui.gallery_images'))
+                                            ->addActionLabel(__('admin.ui.add_gallery_image'))
                                             ->orderColumn('sort_order')
                                             ->reorderableWithButtons()
                                             ->collapsible()
                                             ->grid(2)
                                             ->schema([
                                                 FileUpload::make('media_path')
-                                                    ->label('Image')
+                                                    ->label(__('admin.ui.image'))
                                                     ->image()
                                                     ->required()
                                                     ->disk((string) config('community.uploads.disk'))
@@ -468,32 +453,32 @@ class ProductForm
                                                     ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
                                                     ->imagePreviewHeight('140'),
                                                 TextInput::make('alt_text_translations.en')
-                                                    ->label('Alt text (EN)')
+                                                    ->label(__('admin.ui.alt_text_en'))
                                                     ->maxLength(255),
                                                 TextInput::make('caption_translations.en')
-                                                    ->label('Caption (EN)')
+                                                    ->label(__('admin.ui.caption_en'))
                                                     ->maxLength(255),
                                                 TextInput::make('alt_text_translations.ko')
-                                                    ->label('Alt text (KO)')
+                                                    ->label(__('admin.ui.alt_text_ko'))
                                                     ->maxLength(255),
                                                 TextInput::make('caption_translations.ko')
-                                                    ->label('Caption (KO)')
+                                                    ->label(__('admin.ui.caption_ko'))
                                                     ->maxLength(255),
                                                 TextInput::make('alt_text_translations.zh')
-                                                    ->label('Alt text (ZH)')
+                                                    ->label(__('admin.ui.alt_text_zh'))
                                                     ->maxLength(255),
                                                 TextInput::make('caption_translations.zh')
-                                                    ->label('Caption (ZH)')
+                                                    ->label(__('admin.ui.caption_zh'))
                                                     ->maxLength(255),
                                             ]),
                                     ]),
                             ]),
-                        Tab::make('B2B / Sample')
+                        Tab::make(__('admin.ui.b2b_sample'))
                             ->schema([
-                                Section::make('B2B conversion')
+                                Section::make(__('admin.ui.b2b_conversion'))
                                     ->schema([
                                         Placeholder::make('b2b_flags')
-                                            ->label('Conversion flags')
+                                            ->label(__('admin.ui.conversion_flags'))
                                             ->content('Sample request and inquiry-only flags are managed in Overview.'),
                                         TextInput::make('lead_time')
                                             ->maxLength(255),
@@ -503,9 +488,9 @@ class ProductForm
                                     ])
                                     ->columns(2),
                             ]),
-                        Tab::make('SEO')
+                        Tab::make(__('admin.ui.seo'))
                             ->schema([
-                                Section::make('Search metadata')
+                                Section::make(__('admin.ui.search_metadata'))
                                     ->schema([
                                         TextInput::make('seo_title')
                                             ->maxLength(255),
@@ -545,7 +530,7 @@ class ProductForm
         return Section::make($label)
             ->schema([
                 TextInput::make("name_translations.{$locale}")
-                    ->label('Name')
+                    ->label(__('admin.ui.name'))
                     ->required($isRequired)
                     ->maxLength(255)
                     ->live(onBlur: $isEnglish)
@@ -557,42 +542,42 @@ class ProductForm
                         $set('slug', Str::slug((string) $state));
                     }),
                 TextInput::make("subtitle_translations.{$locale}")
-                    ->label('Subtitle')
+                    ->label(__('admin.ui.subtitle'))
                     ->maxLength(255),
                 Textarea::make("short_description_translations.{$locale}")
-                    ->label('Short description')
+                    ->label(__('admin.ui.short_description'))
                     ->rows(4)
                     ->columnSpanFull(),
                 Textarea::make("full_description_translations.{$locale}")
-                    ->label('Full description')
+                    ->label(__('admin.ui.full_description'))
                     ->rows(8)
                     ->columnSpanFull(),
                 TextInput::make("availability_text_translations.{$locale}")
-                    ->label('Availability text')
+                    ->label(__('admin.ui.availability_text'))
                     ->maxLength(255),
                 TextInput::make("lead_time_translations.{$locale}")
-                    ->label('Lead time')
+                    ->label(__('admin.ui.lead_time'))
                     ->maxLength(255),
                 TextInput::make("dimensions_translations.{$locale}")
-                    ->label('Dimensions')
+                    ->label(__('admin.ui.dimensions'))
                     ->maxLength(255),
                 TagsInput::make("features_translations.{$locale}")
-                    ->label('Features')
+                    ->label(__('admin.ui.features'))
                     ->separator(',')
                     ->columnSpanFull(),
                 TagsInput::make("care_instructions_translations.{$locale}")
-                    ->label('Care instructions')
+                    ->label(__('admin.ui.care_instructions'))
                     ->separator(',')
                     ->columnSpanFull(),
                 TagsInput::make("material_benefits_translations.{$locale}")
-                    ->label('Material benefits')
+                    ->label(__('admin.ui.material_benefits'))
                     ->separator(',')
                     ->columnSpanFull(),
                 TextInput::make("seo_title_translations.{$locale}")
-                    ->label('SEO title')
+                    ->label(__('admin.ui.seo_title'))
                     ->maxLength(255),
                 Textarea::make("seo_description_translations.{$locale}")
-                    ->label('SEO description')
+                    ->label(__('admin.ui.seo_description'))
                     ->rows(3)
                     ->columnSpanFull(),
             ]);

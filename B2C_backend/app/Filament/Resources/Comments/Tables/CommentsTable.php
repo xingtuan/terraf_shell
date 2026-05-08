@@ -34,34 +34,34 @@ class CommentsTable
                 TextColumn::make('id')
                     ->sortable(),
                 TextColumn::make('post.title')
-                    ->label('Concept')
+                    ->label(__('admin.ui.concept'))
                     ->searchable()
                     ->limit(50),
                 TextColumn::make('user.name')
-                    ->label('Author')
+                    ->label(__('admin.ui.author'))
                     ->description(fn (Comment $record): string => collect([
                         '@'.$record->user->username,
                         $record->user->profile?->school_or_company,
                     ])->filter()->implode(' · '))
                     ->searchable(['name', 'username']),
                 TextColumn::make('parent_id')
-                    ->label('Thread')
+                    ->label(__('admin.ui.thread'))
                     ->formatStateUsing(fn (?int $state): string => $state ? '#'.$state : 'Top-level'),
                 TextColumn::make('content')
                     ->searchable()
                     ->limit(70),
                 TextColumn::make('likes_count')
-                    ->label('Likes')
+                    ->label(__('admin.ui.likes'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('replies_count')
-                    ->label('Replies')
+                    ->label(__('admin.ui.replies'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('reports_count')
-                    ->label('Reports')
+                    ->label(__('admin.ui.reports'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
@@ -71,7 +71,7 @@ class CommentsTable
                     ->color(fn (string $state): string => ContentStatus::tryFrom($state)?->color() ?? 'gray')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('admin.ui.created'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -80,21 +80,21 @@ class CommentsTable
                     ->options(ContentStatus::options()),
                 SelectFilter::make('post_id')
                     ->relationship('post', 'title')
-                    ->label('Concept')
+                    ->label(__('admin.ui.concept'))
                     ->searchable()
                     ->preload(),
                 TernaryFilter::make('reported')
-                    ->label('Reported')
+                    ->label(__('admin.ui.reported'))
                     ->queries(
                         true: fn (Builder $query): Builder => $query->whereHas('reports'),
                         false: fn (Builder $query): Builder => $query->whereDoesntHave('reports'),
                         blank: fn (Builder $query): Builder => $query,
                     ),
                 Filter::make('author')
-                    ->label('Author summary')
+                    ->label(__('admin.ui.author_summary'))
                     ->schema([
                         TextInput::make('creator')
-                            ->label('Creator'),
+                            ->label(__('admin.ui.creator')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
@@ -110,9 +110,9 @@ class CommentsTable
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label('Created from'),
+                            ->label(__('admin.ui.created_from')),
                         DatePicker::make('created_until')
-                            ->label('Created until'),
+                            ->label(__('admin.ui.created_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -123,16 +123,16 @@ class CommentsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                self::statusAction('approve', 'Approve', ContentStatus::Approved->value, 'success'),
-                self::statusAction('reject', 'Reject', ContentStatus::Rejected->value, 'danger'),
-                self::statusAction('hide', 'Hide', ContentStatus::Hidden->value, 'gray'),
+                self::statusAction('approve', __('admin.actions.approve'), ContentStatus::Approved->value, 'success'),
+                self::statusAction('reject', __('admin.actions.reject'), ContentStatus::Rejected->value, 'danger'),
+                self::statusAction('hide', __('admin.actions.hide'), ContentStatus::Hidden->value, 'gray'),
                 DeleteAction::make()
                     ->visible(fn (): bool => PanelAccess::isStaff()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('approveSelected')
-                        ->label('Approve selected')
+                        ->label(__('admin.ui.approve_selected'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
@@ -146,7 +146,7 @@ class CommentsTable
                             }
 
                             Notification::make()
-                                ->title('Selected comments approved successfully.')
+                                ->title(__('admin.ui.selected_comments_approved_successfully'))
                                 ->success()
                                 ->send();
                         }),
@@ -164,7 +164,7 @@ class CommentsTable
             ->visible(fn (Comment $record): bool => PanelAccess::isStaff() && $record->status !== $status)
             ->schema([
                 Textarea::make('reason')
-                    ->label('Moderation note')
+                    ->label(__('admin.ui.moderation_note'))
                     ->rows(3),
             ])
             ->requiresConfirmation()
@@ -177,7 +177,7 @@ class CommentsTable
                 );
 
                 Notification::make()
-                    ->title("Comment status updated to {$label}.")
+                    ->title(__('admin.ui.comment_status_updated_to_label', ['label' => $label]))
                     ->success()
                     ->send();
             });

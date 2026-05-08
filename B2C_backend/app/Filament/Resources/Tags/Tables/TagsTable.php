@@ -21,11 +21,11 @@ class TagsTable
                 TextColumn::make('slug')
                     ->searchable(),
                 TextColumn::make('posts_count')
-                    ->label('Posts')
+                    ->label(__('admin.ui.posts'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('updated_at')
-                    ->label('Updated')
+                    ->label(__('admin.ui.updated'))
                     ->dateTime()
                     ->sortable(),
             ])

@@ -22,7 +22,7 @@ class HomeSectionsTable
         return $table
             ->columns([
                 ImageColumn::make('media_url')
-                    ->label('Media')
+                    ->label(__('admin.ui.media'))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Home'),
                 TextColumn::make('key')
@@ -64,9 +64,9 @@ class HomeSectionsTable
                 Filter::make('updated_at')
                     ->schema([
                         DatePicker::make('updated_from')
-                            ->label('Updated from'),
+                            ->label(__('admin.ui.updated_from')),
                         DatePicker::make('updated_until')
-                            ->label('Updated until'),
+                            ->label(__('admin.ui.updated_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

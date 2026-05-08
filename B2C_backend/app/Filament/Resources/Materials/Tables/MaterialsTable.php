@@ -26,7 +26,7 @@ class MaterialsTable
             ->defaultSort('sort_order')
             ->columns([
                 ImageColumn::make('media_url')
-                    ->label('Media')
+                    ->label(__('admin.ui.media'))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Material'),
                 TextColumn::make('title')
@@ -41,18 +41,18 @@ class MaterialsTable
                     ->formatStateUsing(fn (string $state): string => PublishStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => PublishStatus::tryFrom($state)?->color() ?? 'gray'),
                 IconColumn::make('is_featured')
-                    ->label('Featured')
+                    ->label(__('admin.ui.featured'))
                     ->boolean(),
                 TextColumn::make('specs_count')
-                    ->label('Specs')
+                    ->label(__('admin.ui.specs'))
                     ->badge()
                     ->color('info'),
                 TextColumn::make('story_sections_count')
-                    ->label('Story')
+                    ->label(__('admin.ui.story'))
                     ->badge()
                     ->color('warning'),
                 TextColumn::make('applications_count')
-                    ->label('Applications')
+                    ->label(__('admin.ui.applications'))
                     ->badge()
                     ->color('success'),
                 TextColumn::make('sort_order')
@@ -70,13 +70,13 @@ class MaterialsTable
                 SelectFilter::make('status')
                     ->options(PublishStatus::options()),
                 TernaryFilter::make('is_featured')
-                    ->label('Featured'),
+                    ->label(__('admin.ui.featured')),
                 Filter::make('updated_at')
                     ->schema([
                         DatePicker::make('updated_from')
-                            ->label('Updated from'),
+                            ->label(__('admin.ui.updated_from')),
                         DatePicker::make('updated_until')
-                            ->label('Updated until'),
+                            ->label(__('admin.ui.updated_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

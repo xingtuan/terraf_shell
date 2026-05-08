@@ -15,7 +15,7 @@ class TagForm
     {
         return $schema
             ->components([
-                Section::make('Tag')
+                Section::make(__('admin.ui.tag'))
                     ->schema([
                         Grid::make(2)
                             ->schema([

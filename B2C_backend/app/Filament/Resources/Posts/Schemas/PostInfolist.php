@@ -17,7 +17,7 @@ class PostInfolist
     {
         return $schema
             ->components([
-                Section::make('Overview')
+                Section::make(__('admin.ui.overview'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -26,172 +26,172 @@ class PostInfolist
                                 TextEntry::make('title')
                                     ->columnSpanFull(),
                                 TextEntry::make('user.name')
-                                    ->label('Creator'),
+                                    ->label(__('admin.ui.creator')),
                                 TextEntry::make('user.username')
-                                    ->label('Username')
+                                    ->label(__('admin.ui.username'))
                                     ->state(fn (Post $record): string => '@'.$record->user->username),
                                 TextEntry::make('user.role')
-                                    ->label('Creator role')
+                                    ->label(__('admin.ui.creator_role'))
                                     ->badge(),
                                 TextEntry::make('user.profile.school_or_company')
-                                    ->label('School / Company')
-                                    ->placeholder('No organization assigned.'),
+                                    ->label(__('admin.ui.school_company'))
+                                    ->placeholder(__('admin.ui.no_organization_assigned')),
                                 TextEntry::make('user.profile.region')
-                                    ->label('Region')
-                                    ->placeholder('No region assigned.'),
+                                    ->label(__('admin.ui.region'))
+                                    ->placeholder(__('admin.ui.no_region_assigned')),
                                 TextEntry::make('category.name')
-                                    ->label('Category')
-                                    ->placeholder('No category assigned.'),
+                                    ->label(__('admin.ui.category'))
+                                    ->placeholder(__('admin.ui.no_category_assigned')),
                                 TextEntry::make('status')
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => ContentStatus::tryFrom($state)?->label() ?? ucfirst($state))
                                     ->color(fn (string $state): string => ContentStatus::tryFrom($state)?->color() ?? 'gray'),
                                 TextEntry::make('published_at')
                                     ->dateTime()
-                                    ->placeholder('Not published.'),
+                                    ->placeholder(__('admin.ui.not_published')),
                                 TextEntry::make('is_pinned')
-                                    ->label('Pinned')
+                                    ->label(__('admin.ui.pinned'))
                                     ->badge()
                                     ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
                                     ->color(fn (bool $state): string => $state ? 'warning' : 'gray'),
                                 TextEntry::make('is_featured')
-                                    ->label('Featured')
+                                    ->label(__('admin.ui.featured'))
                                     ->badge()
                                     ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
                                     ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                                 TextEntry::make('featuredBy.name')
-                                    ->label('Featured by')
-                                    ->placeholder('Not featured.'),
+                                    ->label(__('admin.ui.featured_by'))
+                                    ->placeholder(__('admin.ui.not_featured')),
                                 TextEntry::make('featured_at')
-                                    ->label('Featured at')
+                                    ->label(__('admin.ui.featured_at'))
                                     ->dateTime()
-                                    ->placeholder('Not featured.'),
+                                    ->placeholder(__('admin.ui.not_featured')),
                                 TextEntry::make('tags_list')
-                                    ->label('Tags')
+                                    ->label(__('admin.ui.tags'))
                                     ->state(fn (Post $record): string => $record->tags->pluck('name')->implode(', ') ?: 'No tags assigned.')
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Content')
+                Section::make(__('admin.ui.content'))
                     ->schema([
                         TextEntry::make('excerpt')
-                            ->placeholder('No excerpt available.')
+                            ->placeholder(__('admin.ui.no_excerpt_available'))
                             ->columnSpanFull(),
                         TextEntry::make('funding_url')
-                            ->label('Funding URL')
-                            ->placeholder('No funding link attached.')
+                            ->label(__('admin.ui.funding_url'))
+                            ->placeholder(__('admin.ui.no_funding_link_attached'))
                             ->url(fn (?string $state): ?string => filled($state) ? $state : null)
                             ->openUrlInNewTab()
                             ->columnSpanFull(),
                         TextEntry::make('content')
                             ->columnSpanFull(),
                     ]),
-                Section::make('Discovery Metrics')
+                Section::make(__('admin.ui.discovery_metrics'))
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 TextEntry::make('likes_count')
-                                    ->label('Likes'),
+                                    ->label(__('admin.ui.likes')),
                                 TextEntry::make('comments_count')
-                                    ->label('Comments'),
+                                    ->label(__('admin.ui.comments')),
                                 TextEntry::make('favorites_count')
-                                    ->label('Favorites'),
+                                    ->label(__('admin.ui.favorites')),
                                 TextEntry::make('engagement_score')
-                                    ->label('Engagement'),
+                                    ->label(__('admin.ui.engagement')),
                                 TextEntry::make('trending_score')
-                                    ->label('Trending'),
+                                    ->label(__('admin.ui.trending')),
                                 TextEntry::make('views_count')
-                                    ->label('Views'),
+                                    ->label(__('admin.ui.views')),
                             ]),
                     ]),
-                Section::make('Funding')
+                Section::make(__('admin.ui.funding'))
                     ->schema([
                         TextEntry::make('fundingCampaign.support_enabled')
-                            ->label('Support enabled')
+                            ->label(__('admin.ui.support_enabled'))
                             ->state(fn (Post $record): string => ($record->fundingCampaign?->support_enabled ?? false) ? 'Yes' : 'No')
                             ->badge()
                             ->color(fn (string $state): string => $state === 'Yes' ? 'success' : 'gray'),
                         TextEntry::make('fundingCampaign.campaign_status')
-                            ->label('Campaign status')
+                            ->label(__('admin.ui.campaign_status'))
                             ->badge()
-                            ->placeholder('No campaign attached.'),
+                            ->placeholder(__('admin.ui.no_campaign_attached')),
                         TextEntry::make('fundingCampaign.support_button_text')
-                            ->label('Support button')
-                            ->placeholder('No campaign attached.'),
+                            ->label(__('admin.ui.support_button'))
+                            ->placeholder(__('admin.ui.no_campaign_attached')),
                         TextEntry::make('fundingCampaign.external_crowdfunding_url')
-                            ->label('Crowdfunding URL')
-                            ->placeholder('No campaign attached.')
+                            ->label(__('admin.ui.crowdfunding_url'))
+                            ->placeholder(__('admin.ui.no_campaign_attached'))
                             ->url(fn (?string $state): ?string => filled($state) ? $state : null)
                             ->openUrlInNewTab(),
                         TextEntry::make('fundingCampaign.target_amount')
                             ->money('USD')
-                            ->placeholder('No target set.'),
+                            ->placeholder(__('admin.ui.no_target_set')),
                         TextEntry::make('fundingCampaign.pledged_amount')
                             ->money('USD')
-                            ->placeholder('No pledged amount set.'),
+                            ->placeholder(__('admin.ui.no_pledged_amount_set')),
                         TextEntry::make('fundingCampaign.backer_count')
-                            ->label('Backers')
-                            ->placeholder('No backer data.'),
+                            ->label(__('admin.ui.backers'))
+                            ->placeholder(__('admin.ui.no_backer_data')),
                         TextEntry::make('fundingCampaign.reward_description')
-                            ->label('Reward description')
-                            ->placeholder('No reward description.')
+                            ->label(__('admin.ui.reward_description'))
+                            ->placeholder(__('admin.ui.no_reward_description'))
                             ->columnSpanFull(),
                     ]),
-                Section::make('Media')
+                Section::make(__('admin.ui.media'))
                     ->schema([
                         RepeatableEntry::make('media')
-                            ->label('Idea media')
+                            ->label(__('admin.ui.idea_media'))
                             ->schema([
                                 ImageEntry::make('thumbnail_url')
-                                    ->label('Preview')
+                                    ->label(__('admin.ui.preview'))
                                     ->height(140),
                                 TextEntry::make('title')
-                                    ->placeholder('Untitled asset.'),
+                                    ->placeholder(__('admin.ui.untitled_asset')),
                                 TextEntry::make('kind')
                                     ->badge(),
                                 TextEntry::make('media_type')
-                                    ->label('Type')
+                                    ->label(__('admin.ui.type'))
                                     ->badge(),
                                 TextEntry::make('original_name')
-                                    ->label('Filename')
-                                    ->placeholder('No uploaded file.'),
+                                    ->label(__('admin.ui.filename'))
+                                    ->placeholder(__('admin.ui.no_uploaded_file')),
                                 TextEntry::make('mime_type')
-                                    ->label('MIME')
-                                    ->placeholder('Not available.'),
+                                    ->label(__('admin.ui.mime'))
+                                    ->placeholder(__('admin.ui.not_available')),
                                 TextEntry::make('size_bytes')
-                                    ->label('Size (bytes)')
+                                    ->label(__('admin.ui.size_bytes'))
                                     ->numeric()
-                                    ->placeholder('Not available.'),
+                                    ->placeholder(__('admin.ui.not_available')),
                                 TextEntry::make('url')
-                                    ->label('Stored URL')
-                                    ->placeholder('No stored URL.')
+                                    ->label(__('admin.ui.stored_url'))
+                                    ->placeholder(__('admin.ui.no_stored_url'))
                                     ->url(fn (?string $state): ?string => filled($state) ? $state : null)
                                     ->openUrlInNewTab(),
                                 TextEntry::make('external_url')
-                                    ->label('External URL')
-                                    ->placeholder('No external URL.')
+                                    ->label(__('admin.ui.external_url'))
+                                    ->placeholder(__('admin.ui.no_external_url'))
                                     ->url(fn (?string $state): ?string => filled($state) ? $state : null)
                                     ->openUrlInNewTab(),
                                 TextEntry::make('alt_text')
-                                    ->label('Alt text')
-                                    ->placeholder('No alt text provided.'),
+                                    ->label(__('admin.ui.alt_text'))
+                                    ->placeholder(__('admin.ui.no_alt_text_provided')),
                             ]),
                     ]),
-                Section::make('Moderation')
+                Section::make(__('admin.ui.moderation'))
                     ->schema([
                         TextEntry::make('reports_count')
-                            ->label('Reports')
+                            ->label(__('admin.ui.reports'))
                             ->state(fn (Post $record): int => (int) ($record->reports_count ?? $record->reports()->count())),
                         RepeatableEntry::make('moderationLogs')
-                            ->label('Review history')
+                            ->label(__('admin.ui.review_history'))
                             ->schema([
                                 TextEntry::make('action')
                                     ->badge(),
                                 TextEntry::make('actor.name')
-                                    ->label('Actor')
-                                    ->placeholder('System'),
+                                    ->label(__('admin.ui.actor'))
+                                    ->placeholder(__('admin.ui.system')),
                                 TextEntry::make('reason')
-                                    ->placeholder('No reason provided.')
+                                    ->placeholder(__('admin.ui.no_reason_provided'))
                                     ->columnSpanFull(),
                                 TextEntry::make('created_at')
                                     ->dateTime(),

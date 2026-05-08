@@ -14,48 +14,48 @@ class IdeaMediaInfolist
     {
         return $schema
             ->components([
-                Section::make('Media')
+                Section::make(__('admin.ui.media'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 ImageEntry::make('thumbnail_url')
-                                    ->label('Preview')
+                                    ->label(__('admin.ui.preview'))
                                     ->height(180),
                                 Grid::make(2)
                                     ->schema([
                                         TextEntry::make('post.title')
-                                            ->label('Concept')
+                                            ->label(__('admin.ui.concept'))
                                             ->columnSpanFull(),
                                         TextEntry::make('post.user.name')
-                                            ->label('Creator'),
+                                            ->label(__('admin.ui.creator')),
                                         TextEntry::make('media_type')
                                             ->badge(),
                                         TextEntry::make('kind')
                                             ->badge()
-                                            ->placeholder('Unclassified'),
+                                            ->placeholder(__('admin.ui.unclassified')),
                                         TextEntry::make('original_name')
-                                            ->label('Filename')
-                                            ->placeholder('No file name.'),
+                                            ->label(__('admin.ui.filename'))
+                                            ->placeholder(__('admin.ui.no_file_name')),
                                         TextEntry::make('mime_type')
-                                            ->label('MIME')
-                                            ->placeholder('No MIME type.'),
+                                            ->label(__('admin.ui.mime'))
+                                            ->placeholder(__('admin.ui.no_mime_type')),
                                         TextEntry::make('size_bytes')
-                                            ->label('Size (bytes)')
+                                            ->label(__('admin.ui.size_bytes'))
                                             ->numeric()
-                                            ->placeholder('Unknown size.'),
+                                            ->placeholder(__('admin.ui.unknown_size')),
                                         TextEntry::make('external_url')
-                                            ->label('External URL')
-                                            ->placeholder('No external URL.')
+                                            ->label(__('admin.ui.external_url'))
+                                            ->placeholder(__('admin.ui.no_external_url'))
                                             ->url(fn (?string $state): ?string => filled($state) ? $state : null)
                                             ->openUrlInNewTab(),
                                         TextEntry::make('url')
-                                            ->label('Stored URL')
-                                            ->placeholder('No stored URL.')
+                                            ->label(__('admin.ui.stored_url'))
+                                            ->placeholder(__('admin.ui.no_stored_url'))
                                             ->url(fn (?string $state): ?string => filled($state) ? $state : null)
                                             ->openUrlInNewTab()
                                             ->columnSpanFull(),
                                         TextEntry::make('alt_text')
-                                            ->placeholder('No alt text.')
+                                            ->placeholder(__('admin.ui.no_alt_text'))
                                             ->columnSpanFull(),
                                     ]),
                             ]),

@@ -19,7 +19,7 @@ class HomeSectionForm
     {
         return $schema
             ->components([
-                Section::make('Section Settings')
+                Section::make(__('admin.ui.section_settings'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -30,64 +30,64 @@ class HomeSectionForm
                                     ->required()
                                     ->default(PublishStatus::Draft->value),
                                 TextInput::make('cta_url')
-                                    ->label('CTA URL')
+                                    ->label(__('admin.ui.cta_url'))
                                     ->url(),
                                 TextInput::make('sort_order')
                                     ->required()
                                     ->numeric()
                                     ->default(0),
                                 FileUpload::make('media_path')
-                                    ->label('Uploaded media')
+                                    ->label(__('admin.ui.uploaded_media'))
                                     ->image()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('cms/home-sections')
                                     ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
                                 TextInput::make('media_url')
-                                    ->label('External media URL')
+                                    ->label(__('admin.ui.external_media_url'))
                                     ->url(),
                                 KeyValue::make('payload')
-                                    ->keyLabel('Setting')
-                                    ->valueLabel('Value')
+                                    ->keyLabel(__('admin.ui.setting'))
+                                    ->valueLabel(__('admin.ui.value'))
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
                                     ->disabled(),
                             ]),
                     ]),
-                Section::make('English')
+                Section::make(__('admin.ui.english'))
                     ->schema([
                         TextInput::make('title_translations.en')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('subtitle_translations.en')
-                            ->label('Subtitle'),
+                            ->label(__('admin.ui.subtitle')),
                         Textarea::make('content_translations.en')
-                            ->label('Content')
+                            ->label(__('admin.ui.content'))
                             ->columnSpanFull(),
                         TextInput::make('cta_label_translations.en')
-                            ->label('CTA label'),
+                            ->label(__('admin.ui.cta_label')),
                     ]),
-                Section::make('Korean')
+                Section::make(__('admin.ui.korean'))
                     ->schema([
                         TextInput::make('title_translations.ko')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('subtitle_translations.ko')
-                            ->label('Subtitle'),
+                            ->label(__('admin.ui.subtitle')),
                         Textarea::make('content_translations.ko')
-                            ->label('Content')
+                            ->label(__('admin.ui.content'))
                             ->columnSpanFull(),
                         TextInput::make('cta_label_translations.ko')
-                            ->label('CTA label'),
+                            ->label(__('admin.ui.cta_label')),
                     ]),
-                Section::make('Chinese')
+                Section::make(__('admin.ui.chinese'))
                     ->schema([
                         TextInput::make('title_translations.zh')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('subtitle_translations.zh')
-                            ->label('Subtitle'),
+                            ->label(__('admin.ui.subtitle')),
                         Textarea::make('content_translations.zh')
-                            ->label('Content')
+                            ->label(__('admin.ui.content'))
                             ->columnSpanFull(),
                         TextInput::make('cta_label_translations.zh')
-                            ->label('CTA label'),
+                            ->label(__('admin.ui.cta_label')),
                     ]),
             ]);
     }

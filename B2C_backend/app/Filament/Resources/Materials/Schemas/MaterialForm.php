@@ -23,7 +23,7 @@ class MaterialForm
     {
         return $schema
             ->components([
-                Section::make('Material Settings')
+                Section::make(__('admin.ui.material_settings'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -43,84 +43,84 @@ class MaterialForm
                                     ->default(0),
                                 self::mediaUpload('cms/materials'),
                                 TextInput::make('media_url')
-                                    ->label('External media URL')
+                                    ->label(__('admin.ui.external_media_url'))
                                     ->url(),
                                 DateTimePicker::make('published_at')
                                     ->disabled(),
                             ]),
                     ]),
-                Section::make('English')
+                Section::make(__('admin.ui.english'))
                     ->schema([
                         TextInput::make('title_translations.en')
-                            ->label('Title')
+                            ->label(__('admin.ui.title'))
                             ->required()
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (Set $set, ?string $state): void {
                                 $set('slug', Str::slug((string) $state));
                             }),
                         TextInput::make('headline_translations.en')
-                            ->label('Headline'),
+                            ->label(__('admin.ui.headline')),
                         Textarea::make('summary_translations.en')
-                            ->label('Summary')
+                            ->label(__('admin.ui.summary'))
                             ->columnSpanFull(),
                         Textarea::make('story_overview_translations.en')
-                            ->label('Story overview')
+                            ->label(__('admin.ui.story_overview'))
                             ->columnSpanFull(),
                         Textarea::make('science_overview_translations.en')
-                            ->label('Science overview')
+                            ->label(__('admin.ui.science_overview'))
                             ->columnSpanFull(),
                     ]),
-                Section::make('Korean')
+                Section::make(__('admin.ui.korean'))
                     ->schema([
                         TextInput::make('title_translations.ko')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('headline_translations.ko')
-                            ->label('Headline'),
+                            ->label(__('admin.ui.headline')),
                         Textarea::make('summary_translations.ko')
-                            ->label('Summary')
+                            ->label(__('admin.ui.summary'))
                             ->columnSpanFull(),
                         Textarea::make('story_overview_translations.ko')
-                            ->label('Story overview')
+                            ->label(__('admin.ui.story_overview'))
                             ->columnSpanFull(),
                         Textarea::make('science_overview_translations.ko')
-                            ->label('Science overview')
+                            ->label(__('admin.ui.science_overview'))
                             ->columnSpanFull(),
                     ]),
-                Section::make('Chinese')
+                Section::make(__('admin.ui.chinese'))
                     ->schema([
                         TextInput::make('title_translations.zh')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('headline_translations.zh')
-                            ->label('Headline'),
+                            ->label(__('admin.ui.headline')),
                         Textarea::make('summary_translations.zh')
-                            ->label('Summary')
+                            ->label(__('admin.ui.summary'))
                             ->columnSpanFull(),
                         Textarea::make('story_overview_translations.zh')
-                            ->label('Story overview')
+                            ->label(__('admin.ui.story_overview'))
                             ->columnSpanFull(),
                         Textarea::make('science_overview_translations.zh')
-                            ->label('Science overview')
+                            ->label(__('admin.ui.science_overview'))
                             ->columnSpanFull(),
                     ]),
-                Section::make('Certifications & technical evidence')
-                    ->description('Publish only confirmed data. Mark unapproved records as pending, in testing, or client confirmation pending in the issuer/description fields.')
+                Section::make(__('admin.ui.certifications_technical_evidence'))
+                    ->description(__('admin.ui.publish_only_confirmed_data_mark_unapproved_records_as_pending_in_test_a077be01c5'))
                     ->schema([
                         Repeater::make('certifications')
-                            ->label('Certifications and tests')
-                            ->addActionLabel('Add certification or test')
+                            ->label(__('admin.ui.certifications_and_tests'))
+                            ->addActionLabel(__('admin.ui.add_certification_or_test'))
                             ->collapsible()
                             ->reorderableWithButtons()
                             ->defaultItems(0)
                             ->schema([
                                 TextInput::make('key')
-                                    ->label('Internal key')
+                                    ->label(__('admin.ui.internal_key'))
                                     ->maxLength(120),
                                 TextInput::make('name')
-                                    ->label('Certification / test name')
+                                    ->label(__('admin.ui.certification_test_name'))
                                     ->required()
                                     ->maxLength(180),
                                 TextInput::make('label')
-                                    ->label('Display label')
+                                    ->label(__('admin.ui.display_label'))
                                     ->maxLength(180),
                                 Select::make('status')
                                     ->options([
@@ -134,47 +134,47 @@ class MaterialForm
                                     ->required()
                                     ->default('pending'),
                                 Toggle::make('verified')
-                                    ->label('Verified')
-                                    ->helperText('Only enable when a final approved evidence record exists.'),
+                                    ->label(__('admin.ui.verified'))
+                                    ->helperText(__('admin.ui.only_enable_when_a_final_approved_evidence_record_exists')),
                                 TextInput::make('value')
-                                    ->label('Display value')
+                                    ->label(__('admin.ui.display_value'))
                                     ->maxLength(120),
                                 TextInput::make('result')
-                                    ->label('Value / result')
+                                    ->label(__('admin.ui.value_result'))
                                     ->maxLength(120),
                                 TextInput::make('unit')
                                     ->maxLength(40),
                                 TextInput::make('issuer')
-                                    ->label('Issuing body / lab')
+                                    ->label(__('admin.ui.issuing_body_lab'))
                                     ->maxLength(180)
-                                    ->helperText('Use "Client confirmation pending" when a lab is not approved for publication.'),
+                                    ->helperText(__('admin.ui.use_client_confirmation_pending_when_a_lab_is_not_approved_for_publication')),
                                 DatePicker::make('tested_at')
-                                    ->label('Test date'),
+                                    ->label(__('admin.ui.test_date')),
                                 TextInput::make('document_url')
-                                    ->label('Document URL')
+                                    ->label(__('admin.ui.document_url'))
                                     ->url()
                                     ->maxLength(2048),
                                 Textarea::make('description')
                                     ->rows(3)
                                     ->columnSpanFull(),
                                 TextInput::make('label_translations.en')
-                                    ->label('Label (EN)'),
+                                    ->label(__('admin.ui.label_en')),
                                 TextInput::make('value_translations.en')
-                                    ->label('Value (EN)'),
+                                    ->label(__('admin.ui.value_en')),
                                 TextInput::make('label_translations.ko')
-                                    ->label('Label (KO)'),
+                                    ->label(__('admin.ui.label_ko')),
                                 TextInput::make('value_translations.ko')
-                                    ->label('Value (KO)'),
+                                    ->label(__('admin.ui.value_ko')),
                                 TextInput::make('label_translations.zh')
-                                    ->label('Label (ZH)'),
+                                    ->label(__('admin.ui.label_zh')),
                                 TextInput::make('value_translations.zh')
-                                    ->label('Value (ZH)'),
+                                    ->label(__('admin.ui.value_zh')),
                             ])
                             ->columns(2)
                             ->columnSpanFull(),
                         Repeater::make('technical_downloads')
-                            ->label('Technical downloads')
-                            ->addActionLabel('Add download')
+                            ->label(__('admin.ui.technical_downloads'))
+                            ->addActionLabel(__('admin.ui.add_download'))
                             ->collapsible()
                             ->reorderableWithButtons()
                             ->defaultItems(0)
@@ -200,7 +200,7 @@ class MaterialForm
                                     ->default('on_request')
                                     ->required(),
                                 TextInput::make('url')
-                                    ->label('File URL')
+                                    ->label(__('admin.ui.file_url'))
                                     ->url()
                                     ->maxLength(2048),
                                 Textarea::make('description')
@@ -210,13 +210,13 @@ class MaterialForm
                             ->columns(2)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Specifications')
-                    ->description('Structured attributes shown on material detail pages.')
+                Section::make(__('admin.ui.specifications'))
+                    ->description(__('admin.ui.structured_attributes_shown_on_material_detail_pages'))
                     ->schema([
                         Repeater::make('specs')
                             ->relationship()
-                            ->label('Specifications')
-                            ->addActionLabel('Add specification')
+                            ->label(__('admin.ui.specifications'))
+                            ->addActionLabel(__('admin.ui.add_specification'))
                             ->orderColumn('sort_order')
                             ->reorderableWithButtons()
                             ->collapsible()
@@ -225,7 +225,7 @@ class MaterialForm
                                 Grid::make(2)
                                     ->schema([
                                         TextInput::make('key')
-                                            ->label('Internal key')
+                                            ->label(__('admin.ui.internal_key'))
                                             ->maxLength(120),
                                         TextInput::make('unit')
                                             ->maxLength(40),
@@ -237,43 +237,43 @@ class MaterialForm
                                             ->default(PublishStatus::Draft->value),
                                         self::mediaUpload('cms/material-specs'),
                                         TextInput::make('media_url')
-                                            ->label('External media URL')
+                                            ->label(__('admin.ui.external_media_url'))
                                             ->url(),
                                     ]),
                                 TextInput::make('label_translations.en')
-                                    ->label('Label (EN)')
+                                    ->label(__('admin.ui.label_en'))
                                     ->required(),
                                 TextInput::make('value_translations.en')
-                                    ->label('Value (EN)')
+                                    ->label(__('admin.ui.value_en'))
                                     ->required(),
                                 Textarea::make('detail_translations.en')
-                                    ->label('Detail (EN)')
+                                    ->label(__('admin.ui.detail_en'))
                                     ->columnSpanFull(),
                                 TextInput::make('label_translations.ko')
-                                    ->label('Label (KO)'),
+                                    ->label(__('admin.ui.label_ko')),
                                 TextInput::make('value_translations.ko')
-                                    ->label('Value (KO)'),
+                                    ->label(__('admin.ui.value_ko')),
                                 Textarea::make('detail_translations.ko')
-                                    ->label('Detail (KO)')
+                                    ->label(__('admin.ui.detail_ko'))
                                     ->columnSpanFull(),
                                 TextInput::make('label_translations.zh')
-                                    ->label('Label (ZH)'),
+                                    ->label(__('admin.ui.label_zh')),
                                 TextInput::make('value_translations.zh')
-                                    ->label('Value (ZH)'),
+                                    ->label(__('admin.ui.value_zh')),
                                 Textarea::make('detail_translations.zh')
-                                    ->label('Detail (ZH)')
+                                    ->label(__('admin.ui.detail_zh'))
                                     ->columnSpanFull(),
                             ])
                             ->columns(2)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Story Sections')
-                    ->description('Narrative sections used across the material storytelling page.')
+                Section::make(__('admin.ui.story_sections_2'))
+                    ->description(__('admin.ui.narrative_sections_used_across_the_material_storytelling_page'))
                     ->schema([
                         Repeater::make('storySections')
                             ->relationship()
-                            ->label('Story sections')
-                            ->addActionLabel('Add story section')
+                            ->label(__('admin.ui.story_sections'))
+                            ->addActionLabel(__('admin.ui.add_story_section'))
                             ->orderColumn('sort_order')
                             ->reorderableWithButtons()
                             ->collapsible()
@@ -282,7 +282,7 @@ class MaterialForm
                                 Grid::make(2)
                                     ->schema([
                                         TextInput::make('highlight')
-                                            ->label('Default highlight')
+                                            ->label(__('admin.ui.default_highlight'))
                                             ->maxLength(255),
                                         Select::make('status')
                                             ->options(PublishStatus::options())
@@ -290,49 +290,49 @@ class MaterialForm
                                             ->default(PublishStatus::Draft->value),
                                         self::mediaUpload('cms/material-story-sections'),
                                         TextInput::make('media_url')
-                                            ->label('External media URL')
+                                            ->label(__('admin.ui.external_media_url'))
                                             ->url(),
                                     ]),
                                 TextInput::make('title_translations.en')
-                                    ->label('Title (EN)')
+                                    ->label(__('admin.ui.title_en'))
                                     ->required(),
                                 TextInput::make('subtitle_translations.en')
-                                    ->label('Subtitle (EN)'),
+                                    ->label(__('admin.ui.subtitle_en')),
                                 Textarea::make('content_translations.en')
-                                    ->label('Content (EN)')
+                                    ->label(__('admin.ui.content_en'))
                                     ->required()
                                     ->columnSpanFull(),
                                 TextInput::make('highlight_translations.en')
-                                    ->label('Highlight (EN)'),
+                                    ->label(__('admin.ui.highlight_en')),
                                 TextInput::make('title_translations.ko')
-                                    ->label('Title (KO)'),
+                                    ->label(__('admin.ui.title_ko')),
                                 TextInput::make('subtitle_translations.ko')
-                                    ->label('Subtitle (KO)'),
+                                    ->label(__('admin.ui.subtitle_ko')),
                                 Textarea::make('content_translations.ko')
-                                    ->label('Content (KO)')
+                                    ->label(__('admin.ui.content_ko'))
                                     ->columnSpanFull(),
                                 TextInput::make('highlight_translations.ko')
-                                    ->label('Highlight (KO)'),
+                                    ->label(__('admin.ui.highlight_ko')),
                                 TextInput::make('title_translations.zh')
-                                    ->label('Title (ZH)'),
+                                    ->label(__('admin.ui.title_zh')),
                                 TextInput::make('subtitle_translations.zh')
-                                    ->label('Subtitle (ZH)'),
+                                    ->label(__('admin.ui.subtitle_zh')),
                                 Textarea::make('content_translations.zh')
-                                    ->label('Content (ZH)')
+                                    ->label(__('admin.ui.content_zh'))
                                     ->columnSpanFull(),
                                 TextInput::make('highlight_translations.zh')
-                                    ->label('Highlight (ZH)'),
+                                    ->label(__('admin.ui.highlight_zh')),
                             ])
                             ->columns(2)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Applications')
-                    ->description('Audience-specific use cases and call-to-action blocks for the material.')
+                Section::make(__('admin.ui.applications'))
+                    ->description(__('admin.ui.audience_specific_use_cases_and_call_to_action_blocks_for_the_material'))
                     ->schema([
                         Repeater::make('applications')
                             ->relationship()
-                            ->label('Applications')
-                            ->addActionLabel('Add application')
+                            ->label(__('admin.ui.applications'))
+                            ->addActionLabel(__('admin.ui.add_application'))
                             ->orderColumn('sort_order')
                             ->reorderableWithButtons()
                             ->collapsible()
@@ -341,7 +341,7 @@ class MaterialForm
                                 Grid::make(2)
                                     ->schema([
                                         TextInput::make('cta_url')
-                                            ->label('CTA URL')
+                                            ->label(__('admin.ui.cta_url'))
                                             ->url(),
                                         Select::make('status')
                                             ->options(PublishStatus::options())
@@ -349,43 +349,43 @@ class MaterialForm
                                             ->default(PublishStatus::Draft->value),
                                         self::mediaUpload('cms/material-applications'),
                                         TextInput::make('media_url')
-                                            ->label('External media URL')
+                                            ->label(__('admin.ui.external_media_url'))
                                             ->url(),
                                     ]),
                                 TextInput::make('title_translations.en')
-                                    ->label('Title (EN)')
+                                    ->label(__('admin.ui.title_en'))
                                     ->required(),
                                 TextInput::make('subtitle_translations.en')
-                                    ->label('Subtitle (EN)'),
+                                    ->label(__('admin.ui.subtitle_en')),
                                 TextInput::make('audience_translations.en')
-                                    ->label('Audience (EN)'),
+                                    ->label(__('admin.ui.audience_en')),
                                 TextInput::make('cta_label_translations.en')
-                                    ->label('CTA label (EN)'),
+                                    ->label(__('admin.ui.cta_label_en')),
                                 Textarea::make('description_translations.en')
-                                    ->label('Description (EN)')
+                                    ->label(__('admin.ui.description_en'))
                                     ->required()
                                     ->columnSpanFull(),
                                 TextInput::make('title_translations.ko')
-                                    ->label('Title (KO)'),
+                                    ->label(__('admin.ui.title_ko')),
                                 TextInput::make('subtitle_translations.ko')
-                                    ->label('Subtitle (KO)'),
+                                    ->label(__('admin.ui.subtitle_ko')),
                                 TextInput::make('audience_translations.ko')
-                                    ->label('Audience (KO)'),
+                                    ->label(__('admin.ui.audience_ko')),
                                 TextInput::make('cta_label_translations.ko')
-                                    ->label('CTA label (KO)'),
+                                    ->label(__('admin.ui.cta_label_ko')),
                                 Textarea::make('description_translations.ko')
-                                    ->label('Description (KO)')
+                                    ->label(__('admin.ui.description_ko'))
                                     ->columnSpanFull(),
                                 TextInput::make('title_translations.zh')
-                                    ->label('Title (ZH)'),
+                                    ->label(__('admin.ui.title_zh')),
                                 TextInput::make('subtitle_translations.zh')
-                                    ->label('Subtitle (ZH)'),
+                                    ->label(__('admin.ui.subtitle_zh')),
                                 TextInput::make('audience_translations.zh')
-                                    ->label('Audience (ZH)'),
+                                    ->label(__('admin.ui.audience_zh')),
                                 TextInput::make('cta_label_translations.zh')
-                                    ->label('CTA label (ZH)'),
+                                    ->label(__('admin.ui.cta_label_zh')),
                                 Textarea::make('description_translations.zh')
-                                    ->label('Description (ZH)')
+                                    ->label(__('admin.ui.description_zh'))
                                     ->columnSpanFull(),
                             ])
                             ->columns(2)
@@ -397,7 +397,7 @@ class MaterialForm
     private static function mediaUpload(string $directory): FileUpload
     {
         return FileUpload::make('media_path')
-            ->label('Uploaded media')
+            ->label(__('admin.ui.uploaded_media'))
             ->image()
             ->disk((string) config('community.uploads.disk'))
             ->directory($directory)

@@ -29,19 +29,19 @@ class ReportsTable
                 TextColumn::make('id')
                     ->sortable(),
                 TextColumn::make('reporter.name')
-                    ->label('Reporter')
+                    ->label(__('admin.ui.reporter'))
                     ->description(fn (Report $record): string => '@'.$record->reporter->username)
                     ->searchable(['name', 'username']),
                 TextColumn::make('target_type')
-                    ->label('Target type')
+                    ->label(__('admin.ui.target_type'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => ReportResource::targetTypeLabel($state))
                     ->color('gray'),
                 TextColumn::make('target_id')
-                    ->label('Target ID')
+                    ->label(__('admin.ui.target_id'))
                     ->sortable(),
                 TextColumn::make('target_summary')
-                    ->label('Target')
+                    ->label(__('admin.ui.target'))
                     ->state(fn (Report $record): string => ReportResource::targetSummary($record))
                     ->limit(50),
                 TextColumn::make('reason')
@@ -53,16 +53,16 @@ class ReportsTable
                     ->color(fn (string $state): string => ReportStatus::tryFrom($state)?->color() ?? 'gray')
                     ->sortable(),
                 TextColumn::make('reviewer.name')
-                    ->label('Reviewed by')
-                    ->placeholder('Unassigned')
+                    ->label(__('admin.ui.reviewed_by'))
+                    ->placeholder(__('admin.ui.unassigned'))
                     ->toggleable(),
                 TextColumn::make('violations_count')
-                    ->label('Violations')
+                    ->label(__('admin.ui.violations'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('admin.ui.created'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -73,15 +73,15 @@ class ReportsTable
                     ->options(ReportResource::targetTypeOptions()),
                 SelectFilter::make('reviewed_by')
                     ->relationship('reviewer', 'name')
-                    ->label('Reviewed by')
+                    ->label(__('admin.ui.reviewed_by'))
                     ->searchable()
                     ->preload(),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label('Created from'),
+                            ->label(__('admin.ui.created_from')),
                         DatePicker::make('created_until')
-                            ->label('Created until'),
+                            ->label(__('admin.ui.created_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -93,13 +93,13 @@ class ReportsTable
                 ViewAction::make(),
                 EditAction::make(),
                 Action::make('viewTarget')
-                    ->label('View target')
+                    ->label(__('admin.ui.view_target'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (Report $record): ?string => ReportResource::targetAdminUrl($record))
                     ->visible(fn (Report $record): bool => filled(ReportResource::targetAdminUrl($record))),
-                self::statusAction('open', 'Mark as Open', ReportStatus::Pending->value, 'warning'),
-                self::statusAction('review', 'Mark as Reviewed', ReportStatus::Reviewed->value, 'info'),
-                self::statusAction('resolve', 'Mark as Resolved', ReportStatus::Resolved->value, 'success'),
+                self::statusAction('open', __('admin.ui.mark_as_open'), ReportStatus::Pending->value, 'warning'),
+                self::statusAction('review', __('admin.ui.mark_as_reviewed'), ReportStatus::Reviewed->value, 'info'),
+                self::statusAction('resolve', __('admin.actions.mark_resolved'), ReportStatus::Resolved->value, 'success'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -115,10 +115,10 @@ class ReportsTable
             ->visible(fn (Report $record): bool => PanelAccess::isStaff() && $record->status !== $status)
             ->schema([
                 Textarea::make('moderator_note')
-                    ->label('Moderator note')
+                    ->label(__('admin.ui.moderator_note'))
                     ->rows(4),
                 Textarea::make('reason')
-                    ->label('Audit note')
+                    ->label(__('admin.ui.audit_note'))
                     ->rows(3),
             ])
             ->requiresConfirmation()
@@ -137,7 +137,7 @@ class ReportsTable
                 }
 
                 Notification::make()
-                    ->title($label.' successfully.')
+                    ->title(__('admin.ui.status_action_completed', ['label' => $label]))
                     ->success()
                     ->send();
             });

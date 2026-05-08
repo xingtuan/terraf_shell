@@ -15,43 +15,43 @@ class UserNotificationInfolist
     {
         return $schema
             ->components([
-                Section::make('Notification')
+                Section::make(__('admin.ui.notification'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('recipient.name')
-                                    ->label('Recipient'),
+                                    ->label(__('admin.ui.recipient')),
                                 TextEntry::make('actor.name')
-                                    ->label('Actor')
-                                    ->placeholder('System'),
+                                    ->label(__('admin.ui.actor'))
+                                    ->placeholder(__('admin.ui.system')),
                                 TextEntry::make('type')
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => NotificationType::tryFrom($state)?->label() ?? $state)
                                     ->color(fn (string $state): string => NotificationType::tryFrom($state)?->color() ?? 'gray'),
                                 IconEntry::make('is_read')
-                                    ->label('Read')
+                                    ->label(__('admin.ui.read'))
                                     ->boolean(),
                                 TextEntry::make('title')
-                                    ->placeholder('No title.')
+                                    ->placeholder(__('admin.ui.no_title'))
                                     ->columnSpanFull(),
                                 TextEntry::make('body')
-                                    ->placeholder('No body.')
+                                    ->placeholder(__('admin.ui.no_body'))
                                     ->columnSpanFull(),
                                 TextEntry::make('action_url')
-                                    ->placeholder('No action URL.')
+                                    ->placeholder(__('admin.ui.no_action_url'))
                                     ->url(fn (?string $state): ?string => filled($state) ? $state : null)
                                     ->openUrlInNewTab()
                                     ->columnSpanFull(),
                                 TextEntry::make('target_type')
-                                    ->placeholder('No target.'),
+                                    ->placeholder(__('admin.ui.no_target')),
                                 TextEntry::make('target_id')
-                                    ->placeholder('No target.'),
+                                    ->placeholder(__('admin.ui.no_target')),
                                 TextEntry::make('read_at')
-                                    ->label('Read at')
+                                    ->label(__('admin.ui.read_at'))
                                     ->dateTime()
-                                    ->placeholder('Unread.'),
+                                    ->placeholder(__('admin.ui.unread')),
                                 TextEntry::make('created_at')
-                                    ->label('Created at')
+                                    ->label(__('admin.ui.created_at'))
                                     ->dateTime(),
                                 TextEntry::make('data')
                                     ->state(fn ($record): string => json_encode($record->data ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))

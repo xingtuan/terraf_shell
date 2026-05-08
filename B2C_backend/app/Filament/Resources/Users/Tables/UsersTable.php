@@ -32,11 +32,11 @@ class UsersTable
         return $table
             ->columns([
                 ImageColumn::make('profile.avatar_url')
-                    ->label('Avatar')
+                    ->label(__('admin.ui.avatar'))
                     ->circular()
                     ->defaultImageUrl('https://placehold.co/64x64?text=U'),
                 TextColumn::make('name')
-                    ->label('User')
+                    ->label(__('admin.ui.user'))
                     ->description(fn (User $record): string => '@'.$record->username)
                     ->searchable(['name', 'username', 'email'])
                     ->sortable(),
@@ -44,7 +44,7 @@ class UsersTable
                     ->searchable()
                     ->toggleable(),
                 IconColumn::make('email_verified_at')
-                    ->label('Verified')
+                    ->label(__('admin.ui.verified'))
                     ->boolean()
                     ->state(fn (User $record): bool => $record->email_verified_at !== null)
                     ->sortable(query: fn (Builder $query, string $direction): Builder => $query->orderBy('email_verified_at', $direction)),
@@ -54,57 +54,57 @@ class UsersTable
                     ->color(fn (string $state): string => UserRole::tryFrom($state)?->color() ?? 'gray')
                     ->sortable(),
                 TextColumn::make('account_status')
-                    ->label('Status')
+                    ->label(__('admin.ui.status'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state, User $record): string => AccountStatus::tryFrom($state ?? $record->accountStatusValue())?->label() ?? ucfirst((string) $state))
                     ->color(fn (?string $state, User $record): string => AccountStatus::tryFrom($state ?? $record->accountStatusValue())?->color() ?? 'gray'),
                 IconColumn::make('community_auto_approve')
-                    ->label('Direct approval')
+                    ->label(__('admin.ui.direct_approval'))
                     ->boolean()
                     ->toggleable(),
                 TextColumn::make('posts_count')
-                    ->label('Ideas')
+                    ->label(__('admin.ui.ideas'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('comments_count')
-                    ->label('Comments')
+                    ->label(__('admin.ui.comments'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('profile.school_or_company')
-                    ->label('School / Company')
+                    ->label(__('admin.ui.school_company'))
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('profile.region')
-                    ->label('Region')
+                    ->label(__('admin.ui.region'))
                     ->searchable()
                     ->toggleable(),
                 IconColumn::make('profile.open_to_collab')
-                    ->label('Open to Collab')
+                    ->label(__('admin.ui.open_to_collab'))
                     ->boolean()
                     ->toggleable(),
                 TextColumn::make('received_moderation_logs_count')
-                    ->label('Moderation')
+                    ->label(__('admin.ui.moderation'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('violations_count')
-                    ->label('Violations')
+                    ->label(__('admin.ui.violations'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('followers_count')
-                    ->label('Followers')
+                    ->label(__('admin.ui.followers'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('following_count')
-                    ->label('Following')
+                    ->label(__('admin.ui.following'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('admin.ui.created'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
@@ -115,23 +115,23 @@ class UsersTable
                 SelectFilter::make('account_status')
                     ->options(AccountStatus::options()),
                 TernaryFilter::make('email_verified_at')
-                    ->label('Email verified')
+                    ->label(__('admin.ui.email_verified'))
                     ->nullable(),
                 Filter::make('open_to_collab')
-                    ->label('Open to collaborate')
+                    ->label(__('admin.ui.open_to_collaborate'))
                     ->query(fn (Builder $query): Builder => $query->whereHas(
                         'profile',
                         fn (Builder $profileQuery): Builder => $profileQuery->where('open_to_collab', true)
                     )),
                 TernaryFilter::make('community_auto_approve')
-                    ->label('Direct community approval'),
+                    ->label(__('admin.ui.direct_community_approval')),
                 Filter::make('organization')
-                    ->label('School / Company')
+                    ->label(__('admin.ui.school_company'))
                     ->schema([
                         TextInput::make('school_or_company')
-                            ->label('School / company'),
+                            ->label(__('admin.ui.school_company_2')),
                         TextInput::make('region')
-                            ->label('Region'),
+                            ->label(__('admin.ui.region')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->whereHas('profile', function (Builder $profileQuery) use ($data): void {
@@ -157,9 +157,9 @@ class UsersTable
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label('Created from'),
+                            ->label(__('admin.ui.created_from')),
                         DatePicker::make('created_until')
-                            ->label('Created until'),
+                            ->label(__('admin.ui.created_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -172,7 +172,7 @@ class UsersTable
                 EditAction::make()
                     ->visible(fn (): bool => PanelAccess::isAdmin()),
                 Action::make('restrict')
-                    ->label('Restrict')
+                    ->label(__('admin.ui.restrict'))
                     ->icon('heroicon-o-exclamation-triangle')
                     ->color('warning')
                     ->visible(function (User $record): bool {
@@ -190,7 +190,7 @@ class UsersTable
                     })
                     ->schema([
                         Textarea::make('reason')
-                            ->label('Restriction reason')
+                            ->label(__('admin.ui.restriction_reason'))
                             ->required()
                             ->rows(3),
                     ])
@@ -203,13 +203,13 @@ class UsersTable
                         );
 
                         Notification::make()
-                            ->title('User restricted successfully.')
+                            ->title(__('admin.ui.user_restricted_successfully'))
                             ->success()
                             ->send();
                     })
                     ->requiresConfirmation(),
                 Action::make('resendVerification')
-                    ->label('Resend Verification')
+                    ->label(__('admin.ui.resend_verification'))
                     ->icon('heroicon-o-envelope')
                     ->color('info')
                     ->visible(fn (User $record): bool => PanelAccess::isAdmin() && $record->email_verified_at === null)
@@ -217,18 +217,18 @@ class UsersTable
                         app(AuthService::class)->sendVerificationNotification($record);
 
                         Notification::make()
-                            ->title('Verification email sent.')
+                            ->title(__('admin.ui.verification_email_sent'))
                             ->success()
                             ->send();
                     }),
                 Action::make('ban')
-                    ->label('Ban')
+                    ->label(__('admin.ui.ban'))
                     ->icon('heroicon-o-no-symbol')
                     ->color('danger')
                     ->visible(fn (User $record): bool => PanelAccess::isAdmin() && ! $record->isBanned())
                     ->schema([
                         Textarea::make('reason')
-                            ->label('Ban reason')
+                            ->label(__('admin.ui.ban_reason'))
                             ->required()
                             ->rows(3),
                     ])
@@ -241,13 +241,13 @@ class UsersTable
                         );
 
                         Notification::make()
-                            ->title('User banned successfully.')
+                            ->title(__('admin.ui.user_banned_successfully'))
                             ->success()
                             ->send();
                     })
                     ->requiresConfirmation(),
                 Action::make('activate')
-                    ->label('Activate')
+                    ->label(__('admin.ui.activate'))
                     ->icon('heroicon-o-arrow-path')
                     ->color('success')
                     ->visible(fn (User $record): bool => PanelAccess::isAdmin() && ! $record->isActive())
@@ -259,7 +259,7 @@ class UsersTable
                         );
 
                         Notification::make()
-                            ->title('User reactivated successfully.')
+                            ->title(__('admin.ui.user_reactivated_successfully'))
                             ->success()
                             ->send();
                     })

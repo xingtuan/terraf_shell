@@ -17,23 +17,23 @@ class CommentForm
     {
         return $schema
             ->components([
-                Section::make('Context')
+                Section::make(__('admin.ui.context'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Placeholder::make('post_context')
-                                    ->label('Post')
+                                    ->label(__('admin.ui.post'))
                                     ->content(fn (?Comment $record): string => $record?->post?->title ?? 'Unknown post'),
                                 Placeholder::make('author_context')
-                                    ->label('User')
+                                    ->label(__('admin.ui.user'))
                                     ->content(fn (?Comment $record): string => $record?->user?->name ? $record->user->name.' (@'.$record->user->username.')' : 'Unknown user'),
                                 Placeholder::make('parent_context')
-                                    ->label('Parent comment')
+                                    ->label(__('admin.ui.parent_comment'))
                                     ->content(fn (?Comment $record): string => filled($record?->parent?->content) ? str($record->parent->content)->limit(100)->toString() : 'Top-level comment')
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Moderation')
+                Section::make(__('admin.ui.moderation'))
                     ->schema([
                         Select::make('status')
                             ->options(ContentStatus::options())

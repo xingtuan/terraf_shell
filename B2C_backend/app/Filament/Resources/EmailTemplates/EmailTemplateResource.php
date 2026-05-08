@@ -51,7 +51,7 @@ class EmailTemplateResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Template')
+            Section::make(__('admin.ui.template'))
                 ->schema([
                     Grid::make(3)
                         ->schema([
@@ -70,28 +70,28 @@ class EmailTemplateResource extends Resource
                             TextInput::make('preheader')->maxLength(255)->columnSpanFull(),
                         ]),
                 ]),
-            Section::make('Body')
+            Section::make(__('admin.ui.body'))
                 ->schema([
                     Textarea::make('html_body')
-                        ->label('HTML body')
+                        ->label(__('admin.ui.html_body'))
                         ->rows(16)
                         ->required()
                         ->columnSpanFull(),
                     Textarea::make('text_body')
-                        ->label('Plain text body')
+                        ->label(__('admin.ui.plain_text_body'))
                         ->rows(10)
                         ->columnSpanFull(),
                 ]),
-            Section::make('Variables')
+            Section::make(__('admin.ui.variables'))
                 ->schema([
                     TagsInput::make('available_variables')
                         ->disabled()
                         ->dehydrated(false),
                     Placeholder::make('variable_help')
-                        ->label('Safe placeholders')
+                        ->label(__('admin.ui.safe_placeholders'))
                         ->content(fn (?EmailTemplate $record): HtmlString => new HtmlString(
-                            '<code>{{ user.name }}</code> style placeholders are escaped in HTML. Use triple braces only for trusted HTML fragments.'
-                            .'<br>Available: '.e(collect($record?->available_variables ?? [])->implode(', '))
+                            __('admin.email.template_placeholder_help', ['example' => '<code>{{ user.name }}</code>'])
+                            .'<br>'.__('admin.ui.available').': '.e(collect($record?->available_variables ?? [])->implode(', '))
                         )),
                 ]),
         ]);
@@ -132,9 +132,9 @@ class EmailTemplateResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 Action::make('preview')
-                    ->modalHeading('Template preview')
+                    ->modalHeading(__('admin.ui.template_preview'))
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close')
+                    ->modalCancelActionLabel(__('admin.actions.close'))
                     ->infolist(function (EmailTemplate $record): array {
                         $rendered = app(EmailTemplateRenderer::class)->render([
                             'subject' => $record->subject,
@@ -151,7 +151,7 @@ class EmailTemplateResource extends Resource
                         ];
                     }),
                 Action::make('sendTest')
-                    ->label('Send test')
+                    ->label(__('admin.ui.send_test'))
                     ->form([
                         TextInput::make('email')
                             ->email()
@@ -168,13 +168,13 @@ class EmailTemplateResource extends Resource
                         ]);
 
                         Notification::make()
-                            ->title('Test email logged.')
-                            ->body("Log #{$log?->id}: {$log?->status}")
+                            ->title(__('admin.ui.test_email_logged'))
+                            ->body(__('admin.email.test_result', ['id' => $log?->id, 'status' => $log?->status]))
                             ->success()
                             ->send();
                     }),
                 Action::make('resetDefault')
-                    ->label('Reset')
+                    ->label(__('admin.ui.reset'))
                     ->requiresConfirmation()
                     ->action(function (EmailTemplate $record): void {
                         $record->forceFill([
@@ -187,7 +187,7 @@ class EmailTemplateResource extends Resource
                         ])->save();
 
                         Notification::make()
-                            ->title('Template reset.')
+                            ->title(__('admin.ui.template_reset'))
                             ->success()
                             ->send();
                     }),

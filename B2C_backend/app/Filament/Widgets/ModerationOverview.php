@@ -46,22 +46,22 @@ class ModerationOverview extends StatsOverviewWidget
 
         return [
             Stat::make('Pending concepts', number_format($pendingPosts))
-                ->description('Posts waiting for moderation')
+                ->description(__('admin.ui.posts_waiting_for_moderation'))
                 ->color($pendingPosts > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-light-bulb')
                 ->url(ModerationQueue::getUrl()),
             Stat::make('Pending comments', number_format($pendingComments))
-                ->description('Replies waiting for moderation')
+                ->description(__('admin.ui.replies_waiting_for_moderation'))
                 ->color($pendingComments > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-chat-bubble-left-ellipsis')
                 ->url(ModerationQueue::getUrl()),
             Stat::make('Open reports', number_format($openReports))
-                ->description('User reports that still need action')
+                ->description(__('admin.ui.user_reports_that_still_need_action'))
                 ->color($openReports > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-flag')
                 ->url(ReportResource::getUrl()),
             Stat::make('Restricted users', number_format($restrictedUsers))
-                ->description('Banned or restricted community accounts')
+                ->description(__('admin.ui.banned_or_restricted_community_accounts'))
                 ->color('gray')
                 ->icon('heroicon-o-no-symbol')
                 ->url(UserResource::getUrl()),

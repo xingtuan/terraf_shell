@@ -25,11 +25,11 @@ enum FundingCampaignStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Draft => 'Draft',
-            self::Scheduled => 'Scheduled',
-            self::Live => 'Live',
-            self::Paused => 'Paused',
-            self::Ended => 'Ended',
+            self::Draft => __('admin.funding_campaign_status.draft'),
+            self::Scheduled => __('admin.funding_campaign_status.scheduled'),
+            self::Live => __('admin.funding_campaign_status.live'),
+            self::Paused => __('admin.funding_campaign_status.paused'),
+            self::Ended => __('admin.funding_campaign_status.ended'),
         };
     }
 

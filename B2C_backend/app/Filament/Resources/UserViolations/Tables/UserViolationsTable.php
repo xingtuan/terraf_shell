@@ -18,7 +18,7 @@ class UserViolationsTable
         return $table
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('User')
+                    ->label(__('admin.ui.user'))
                     ->searchable(),
                 TextColumn::make('type')
                     ->badge()
@@ -33,21 +33,21 @@ class UserViolationsTable
                     ->formatStateUsing(fn (string $state): string => UserViolationStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => UserViolationStatus::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('actor.name')
-                    ->label('Recorded by')
-                    ->placeholder('System')
+                    ->label(__('admin.ui.recorded_by'))
+                    ->placeholder(__('admin.ui.system'))
                     ->toggleable(),
                 TextColumn::make('report.id')
-                    ->label('Report')
-                    ->placeholder('None')
+                    ->label(__('admin.ui.report'))
+                    ->placeholder(__('admin.ui.none'))
                     ->toggleable(),
                 TextColumn::make('occurred_at')
-                    ->label('Occurred')
+                    ->label(__('admin.ui.occurred'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('resolved_at')
-                    ->label('Resolved')
+                    ->label(__('admin.ui.resolved'))
                     ->dateTime()
-                    ->placeholder('Open')
+                    ->placeholder(__('admin.ui.open'))
                     ->sortable()
                     ->toggleable(),
             ])

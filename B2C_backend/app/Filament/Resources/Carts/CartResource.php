@@ -41,7 +41,7 @@ class CartResource extends Resource
             ->defaultSort('updated_at', 'desc')
             ->columns([
                 TextColumn::make('id')
-                    ->label('ID')
+                    ->label(__('admin.ui.id'))
                     ->sortable(),
                 TextColumn::make('user.name')
                     ->label(__('admin.fields.customer'))
@@ -86,7 +86,7 @@ class CartResource extends Resource
                 Section::make(__('admin.sections.cart'))
                     ->schema([
                         TextEntry::make('id')
-                            ->label('ID'),
+                            ->label(__('admin.ui.id')),
                         TextEntry::make('user.name')
                             ->label(__('admin.fields.customer'))
                             ->placeholder(__('admin.placeholders.guest_session_cart')),

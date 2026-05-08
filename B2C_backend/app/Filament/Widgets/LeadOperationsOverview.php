@@ -50,7 +50,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                     B2BLead::query()->where('created_at', '>=', now()->startOfWeek())->count(),
                 ),
             )
-                ->description('All lead types submitted since Monday')
+                ->description(__('admin.ui.all_lead_types_submitted_since_monday'))
                 ->color('info')
                 ->icon('heroicon-o-sparkles')
                 ->url(B2BLeadResource::getUrl()),
@@ -68,7 +68,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                         ->count(),
                 ),
             )
-                ->description('Open leads past their follow-up date')
+                ->description(__('admin.ui.open_leads_past_their_follow_up_date'))
                 ->color('danger')
                 ->icon('heroicon-o-calendar-days')
                 ->url(B2BLeadResource::getUrl()),
@@ -78,7 +78,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                     Inquiry::query()->where('status', B2BLeadStatus::New->value)->count(),
                 ),
             )
-                ->description('Fresh contact form submissions awaiting triage')
+                ->description(__('admin.ui.fresh_contact_form_submissions_awaiting_triage'))
                 ->color('warning')
                 ->icon('heroicon-o-inbox-stack')
                 ->url(EnquiryResource::getUrl()),
@@ -88,7 +88,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                     (clone $openEnquiriesQuery)->whereNull('assigned_to')->count(),
                 ),
             )
-                ->description('Open enquiries without an owner')
+                ->description(__('admin.ui.open_enquiries_without_an_owner'))
                 ->color('danger')
                 ->icon('heroicon-o-user-plus')
                 ->url(EnquiryResource::getUrl()),
@@ -96,7 +96,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                 'Active B2B opportunities',
                 number_format((clone $openOpportunityQuery)->count()),
             )
-                ->description('Sample and collaboration leads still in progress')
+                ->description(__('admin.ui.sample_and_collaboration_leads_still_in_progress'))
                 ->color('warning')
                 ->icon('heroicon-o-briefcase')
                 ->url(B2BLeadResource::getUrl()),
@@ -106,7 +106,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                     B2BLead::query()->where('status', B2BLeadStatus::Qualified->value)->count(),
                 ),
             )
-                ->description('High-intent leads ready for conversion follow-up')
+                ->description(__('admin.ui.high_intent_leads_ready_for_conversion_follow_up'))
                 ->color('success')
                 ->icon('heroicon-o-check-badge')
                 ->url(B2BLeadResource::getUrl()),
@@ -116,7 +116,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                     B2BLead::query()->where('lead_type', B2BLeadType::SampleRequest->value)->count(),
                 ),
             )
-                ->description('Material sample submissions recorded to date')
+                ->description(__('admin.ui.material_sample_submissions_recorded_to_date'))
                 ->color('info')
                 ->icon('heroicon-o-beaker')
                 ->url(B2BLeadResource::getUrl()),
@@ -128,7 +128,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                         ->count(),
                 ),
             )
-                ->description('Partnership, university, and product-development flows')
+                ->description(__('admin.ui.partnership_university_and_product_development_flows'))
                 ->color('gray')
                 ->icon('heroicon-o-building-office-2')
                 ->url(B2BLeadResource::getUrl()),

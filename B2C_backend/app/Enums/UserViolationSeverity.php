@@ -24,10 +24,10 @@ enum UserViolationSeverity: string
     public function label(): string
     {
         return match ($this) {
-            self::Notice => 'Notice',
-            self::Warning => 'Warning',
-            self::Restriction => 'Restriction',
-            self::Ban => 'Ban',
+            self::Notice => __('admin.violation_severity.notice'),
+            self::Warning => __('admin.violation_severity.warning'),
+            self::Restriction => __('admin.violation_severity.restriction'),
+            self::Ban => __('admin.violation_severity.ban'),
         };
     }
 

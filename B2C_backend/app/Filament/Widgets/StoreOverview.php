@@ -57,22 +57,22 @@ class StoreOverview extends StatsOverviewWidget
 
         return [
             Stat::make('Order request backlog', number_format($orderBacklog))
-                ->description('Pending review, confirmed, processing, or shipped requests')
+                ->description(__('admin.ui.pending_review_confirmed_processing_or_shipped_requests'))
                 ->color($orderBacklog > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-shopping-bag')
                 ->url(OrderResource::getUrl()),
             Stat::make('Published products', number_format($liveProducts))
-                ->description('Active catalogue records visible to the storefront')
+                ->description(__('admin.ui.active_catalogue_records_visible_to_the_storefront'))
                 ->color('success')
                 ->icon('heroicon-o-cube')
                 ->url(ProductResource::getUrl()),
             Stat::make('Stock alerts', number_format($stockAlerts))
-                ->description('Products marked low stock or sold out')
+                ->description(__('admin.ui.products_marked_low_stock_or_sold_out'))
                 ->color($stockAlerts > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-exclamation-triangle')
                 ->url(ProductResource::getUrl()),
             Stat::make('Active categories', number_format($categories))
-                ->description('Storefront taxonomy groups in use')
+                ->description(__('admin.ui.storefront_taxonomy_groups_in_use'))
                 ->color('info')
                 ->icon('heroicon-o-squares-2x2')
                 ->url(ProductCategoryResource::getUrl()),
@@ -85,7 +85,7 @@ class StoreOverview extends StatsOverviewWidget
                         ->count(),
                 ),
             )
-                ->description('Order requests awaiting manual payment instructions or confirmation')
+                ->description(__('admin.ui.order_requests_awaiting_manual_payment_instructions_or_confirmation'))
                 ->color('warning')
                 ->icon('heroicon-o-credit-card')
                 ->url(OrderResource::getUrl()),
@@ -98,7 +98,7 @@ class StoreOverview extends StatsOverviewWidget
                         ->count(),
                 ),
             )
-                ->description('Catalogue items routed to contact-led conversion')
+                ->description(__('admin.ui.catalogue_items_routed_to_contact_led_conversion'))
                 ->color('gray')
                 ->icon('heroicon-o-chat-bubble-left-right')
                 ->url(ProductResource::getUrl()),

@@ -47,7 +47,7 @@ class ProductsTable
                     ->placeholder(__('admin.placeholders.uncategorized'))
                     ->searchable(),
                 TextColumn::make('sku')
-                    ->label('SKU')
+                    ->label(__('admin.ui.sku'))
                     ->state(fn (Product $record): ?string => $record->effectiveSku())
                     ->searchable()
                     ->copyable(),

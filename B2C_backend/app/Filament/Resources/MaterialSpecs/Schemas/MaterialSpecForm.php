@@ -18,7 +18,7 @@ class MaterialSpecForm
     {
         return $schema
             ->components([
-                Section::make('Specification Settings')
+                Section::make(__('admin.ui.specification_settings'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -37,48 +37,48 @@ class MaterialSpecForm
                                     ->numeric()
                                     ->default(0),
                                 FileUpload::make('media_path')
-                                    ->label('Uploaded media')
+                                    ->label(__('admin.ui.uploaded_media'))
                                     ->image()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('cms/material-specs')
                                     ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
                                 TextInput::make('media_url')
-                                    ->label('External media URL')
+                                    ->label(__('admin.ui.external_media_url'))
                                     ->url(),
                                 DateTimePicker::make('published_at')
                                     ->disabled(),
                             ]),
                     ]),
-                Section::make('English')
+                Section::make(__('admin.ui.english'))
                     ->schema([
                         TextInput::make('label_translations.en')
-                            ->label('Label')
+                            ->label(__('admin.ui.label'))
                             ->required(),
                         TextInput::make('value_translations.en')
-                            ->label('Value')
+                            ->label(__('admin.ui.value'))
                             ->required(),
                         Textarea::make('detail_translations.en')
-                            ->label('Detail')
+                            ->label(__('admin.ui.detail'))
                             ->columnSpanFull(),
                     ]),
-                Section::make('Korean')
+                Section::make(__('admin.ui.korean'))
                     ->schema([
                         TextInput::make('label_translations.ko')
-                            ->label('Label'),
+                            ->label(__('admin.ui.label')),
                         TextInput::make('value_translations.ko')
-                            ->label('Value'),
+                            ->label(__('admin.ui.value')),
                         Textarea::make('detail_translations.ko')
-                            ->label('Detail')
+                            ->label(__('admin.ui.detail'))
                             ->columnSpanFull(),
                     ]),
-                Section::make('Chinese')
+                Section::make(__('admin.ui.chinese'))
                     ->schema([
                         TextInput::make('label_translations.zh')
-                            ->label('Label'),
+                            ->label(__('admin.ui.label')),
                         TextInput::make('value_translations.zh')
-                            ->label('Value'),
+                            ->label(__('admin.ui.value')),
                         Textarea::make('detail_translations.zh')
-                            ->label('Detail')
+                            ->label(__('admin.ui.detail'))
                             ->columnSpanFull(),
                     ]),
             ]);

@@ -22,8 +22,8 @@ enum UserViolationStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Open => 'Open',
-            self::Resolved => 'Resolved',
+            self::Open => __('admin.violation_status.open'),
+            self::Resolved => __('admin.violation_status.resolved'),
         };
     }
 

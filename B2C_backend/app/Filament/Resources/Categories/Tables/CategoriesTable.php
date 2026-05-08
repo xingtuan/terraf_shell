@@ -22,24 +22,24 @@ class CategoriesTable
                 TextColumn::make('slug')
                     ->searchable(),
                 TextColumn::make('posts_count')
-                    ->label('Posts')
+                    ->label(__('admin.ui.posts'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('is_active')
-                    ->label('Status')
+                    ->label(__('admin.ui.status'))
                     ->badge()
                     ->formatStateUsing(fn (bool $state): string => $state ? 'Active' : 'Inactive')
                     ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                 TextColumn::make('sort_order')
                     ->sortable(),
                 TextColumn::make('updated_at')
-                    ->label('Updated')
+                    ->label(__('admin.ui.updated'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 TernaryFilter::make('is_active')
-                    ->label('Active'),
+                    ->label(__('admin.ui.active')),
             ])
             ->recordActions([
                 ViewAction::make(),

@@ -26,37 +26,37 @@ class ModerationLogsTable
                 TextColumn::make('id')
                     ->sortable(),
                 TextColumn::make('actor.name')
-                    ->label('Actor')
+                    ->label(__('admin.ui.actor'))
                     ->default('System')
                     ->searchable(),
                 TextColumn::make('action')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('subject_type')
-                    ->label('Subject type')
+                    ->label(__('admin.ui.subject_type'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => ModerationLogResource::subjectTypeLabel($state))
                     ->color('gray'),
                 TextColumn::make('subject_id')
-                    ->label('Subject ID')
+                    ->label(__('admin.ui.subject_id'))
                     ->sortable(),
                 TextColumn::make('subject_summary')
-                    ->label('Subject')
+                    ->label(__('admin.ui.subject'))
                     ->state(fn (ModerationLog $record): string => ModerationLogResource::subjectSummary($record))
                     ->limit(60),
                 TextColumn::make('targetUser.name')
-                    ->label('Target user')
-                    ->placeholder('No user target')
+                    ->label(__('admin.ui.target_user'))
+                    ->placeholder(__('admin.ui.no_user_target_2'))
                     ->toggleable(),
                 TextColumn::make('report_id')
-                    ->label('Report ID')
-                    ->placeholder('No linked report')
+                    ->label(__('admin.ui.report_id'))
+                    ->placeholder(__('admin.ui.no_linked_report_2'))
                     ->toggleable(),
                 TextColumn::make('reason')
                     ->limit(60)
                     ->default('No reason provided.'),
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('admin.ui.created'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -70,18 +70,18 @@ class ModerationLogsTable
                     ]),
                 SelectFilter::make('actor_user_id')
                     ->relationship('actor', 'name')
-                    ->label('Actor')
+                    ->label(__('admin.ui.actor'))
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('target_user_id')
                     ->relationship('targetUser', 'name')
-                    ->label('Target user')
+                    ->label(__('admin.ui.target_user'))
                     ->searchable()
                     ->preload(),
                 Filter::make('action')
                     ->schema([
                         TextInput::make('action')
-                            ->label('Action'),
+                            ->label(__('admin.ui.action')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query->when(
                         filled($data['action'] ?? null),
@@ -91,7 +91,7 @@ class ModerationLogsTable
             ->recordActions([
                 ViewAction::make(),
                 Action::make('viewSubject')
-                    ->label('View subject')
+                    ->label(__('admin.ui.view_subject'))
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (ModerationLog $record): ?string => ModerationLogResource::subjectAdminUrl($record))
                     ->visible(fn (ModerationLog $record): bool => filled(ModerationLogResource::subjectAdminUrl($record))),

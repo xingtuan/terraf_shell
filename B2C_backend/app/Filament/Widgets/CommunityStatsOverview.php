@@ -52,27 +52,27 @@ class CommunityStatsOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-light-bulb')
                 ->url(PostResource::getUrl()),
             Stat::make('Featured concepts', number_format($featured))
-                ->description('Editor-promoted on the platform')
+                ->description(__('admin.ui.editor_promoted_on_the_platform'))
                 ->color('info')
                 ->icon('heroicon-o-star')
                 ->url(PostResource::getUrl()),
             Stat::make('Support-enabled', number_format($supportEnabled))
-                ->description('Concepts with an active funding CTA')
+                ->description(__('admin.ui.concepts_with_an_active_funding_cta'))
                 ->color('warning')
                 ->icon('heroicon-o-heart')
                 ->url(PostResource::getUrl()),
             Stat::make('Recent uploads', number_format($recentUploads))
-                ->description('Community media uploaded in the last 7 days')
+                ->description(__('admin.ui.community_media_uploaded_in_the_last_7_days'))
                 ->color('info')
                 ->icon('heroicon-o-photo')
                 ->url(PostResource::getUrl()),
             Stat::make('Demo content', number_format($demoContent))
-                ->description('Seeded records to clean before launch')
+                ->description(__('admin.ui.seeded_records_to_clean_before_launch'))
                 ->color($demoContent > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-trash')
                 ->url(PostResource::getUrl()),
             Stat::make('Banned users', number_format($bannedUsers))
-                ->description('Accounts currently blocked')
+                ->description(__('admin.ui.accounts_currently_blocked'))
                 ->color($bannedUsers > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-no-symbol')
                 ->url(UserResource::getUrl()),

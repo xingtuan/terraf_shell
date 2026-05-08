@@ -15,7 +15,7 @@ class EnquiryInfolist
     {
         return $schema
             ->components([
-                Section::make('Enquiry')
+                Section::make(__('admin.ui.enquiry'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -30,61 +30,61 @@ class EnquiryInfolist
                                     ->badge()
                                     ->formatStateUsing(fn (?string $state): string => $state ? __("admin.leads.priority.{$state}") : __('admin.leads.priority.normal')),
                                 TextEntry::make('inquiry_type')
-                                    ->label('Enquiry type')
-                                    ->placeholder('General enquiry'),
+                                    ->label(__('admin.ui.enquiry_type'))
+                                    ->placeholder(__('admin.ui.general_enquiry')),
                                 TextEntry::make('subject')
                                     ->state(fn (Inquiry $record): string => $record->subject),
                                 TextEntry::make('source_page')
-                                    ->label('Source')
-                                    ->placeholder('Not tracked.'),
+                                    ->label(__('admin.ui.source'))
+                                    ->placeholder(__('admin.ui.not_tracked')),
                                 TextEntry::make('name'),
                                 TextEntry::make('email')
-                                    ->label('Email'),
+                                    ->label(__('admin.ui.email')),
                                 TextEntry::make('company_name')
-                                    ->label('Company / Organization'),
+                                    ->label(__('admin.ui.company_organization')),
                                 TextEntry::make('organization_type')
-                                    ->placeholder('Not specified.'),
+                                    ->placeholder(__('admin.ui.not_specified')),
                                 TextEntry::make('phone')
-                                    ->placeholder('Not provided.'),
+                                    ->placeholder(__('admin.ui.not_provided')),
                                 TextEntry::make('country')
-                                    ->placeholder('Not provided.'),
+                                    ->placeholder(__('admin.ui.not_provided')),
                                 TextEntry::make('region')
-                                    ->placeholder('Not provided.'),
+                                    ->placeholder(__('admin.ui.not_provided')),
                                 TextEntry::make('message')
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Admin Review')
+                Section::make(__('admin.ui.admin_review'))
                     ->schema([
                         TextEntry::make('internal_notes')
-                            ->label('Internal notes')
-                            ->placeholder('No internal notes yet.')
+                            ->label(__('admin.ui.internal_notes'))
+                            ->placeholder(__('admin.ui.no_internal_notes_yet'))
                             ->columnSpanFull(),
                         TextEntry::make('assignee.name')
-                            ->label('Owner')
-                            ->placeholder('Unassigned.'),
+                            ->label(__('admin.ui.owner'))
+                            ->placeholder(__('admin.ui.unassigned_2')),
                         TextEntry::make('follow_up_at')
                             ->label(__('admin.fields.follow_up_at'))
                             ->dateTime()
                             ->placeholder('-'),
                         TextEntry::make('reviewer.name')
-                            ->label('Reviewed by')
-                            ->placeholder('Not reviewed yet.'),
+                            ->label(__('admin.ui.reviewed_by'))
+                            ->placeholder(__('admin.ui.not_reviewed_yet')),
                         TextEntry::make('reviewed_at')
-                            ->label('Reviewed at')
+                            ->label(__('admin.ui.reviewed_at'))
                             ->dateTime()
-                            ->placeholder('Not reviewed yet.'),
+                            ->placeholder(__('admin.ui.not_reviewed_yet')),
                         TextEntry::make('created_at')
-                            ->label('Submitted at')
+                            ->label(__('admin.ui.submitted_at'))
                             ->dateTime(),
                         TextEntry::make('updated_at')
-                            ->label('Updated at')
+                            ->label(__('admin.ui.updated_at'))
                             ->dateTime(),
                     ]),
-                Section::make('Metadata')
+                Section::make(__('admin.ui.metadata'))
                     ->schema([
                         TextEntry::make('metadata_summary')
-                            ->label('Captured metadata')
+                            ->label(__('admin.ui.captured_metadata'))
                             ->state(function (Inquiry $record): string {
                                 if (($record->metadata ?? []) === []) {
                                     return 'No additional metadata captured.';

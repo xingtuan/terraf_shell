@@ -34,11 +34,11 @@ class B2BLeadsTable
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('lead_type')
-                    ->label('Type')
+                    ->label(__('admin.ui.type'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => B2BLeadType::tryFrom($state)?->label() ?? $state),
                 TextColumn::make('interest_type')
-                    ->label('Interest')
+                    ->label(__('admin.ui.interest'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => $state ? (B2BInterestType::tryFrom($state)?->label() ?? $state) : 'Not specified')
                     ->toggleable(),
@@ -58,17 +58,17 @@ class B2BLeadsTable
                     })
                     ->sortable(),
                 TextColumn::make('inquiry_type')
-                    ->label('Request')
+                    ->label(__('admin.ui.request'))
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('application_type')
-                    ->label('Application')
+                    ->label(__('admin.ui.application'))
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('company_name')
-                    ->label('Company / Institution')
+                    ->label(__('admin.ui.company_institution'))
                     ->searchable()
                     ->description(fn (B2BLead $record): string => collect([
                         $record->organization_type,
@@ -76,16 +76,16 @@ class B2BLeadsTable
                         $record->region,
                     ])->filter()->implode(' | ')),
                 TextColumn::make('email')
-                    ->label('Email')
+                    ->label(__('admin.ui.email'))
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('source_page')
-                    ->label('CTA source')
+                    ->label(__('admin.ui.cta_source'))
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('assignee.name')
-                    ->label('Owner')
-                    ->placeholder('Unassigned')
+                    ->label(__('admin.ui.owner'))
+                    ->placeholder(__('admin.ui.unassigned'))
                     ->toggleable(),
                 TextColumn::make('follow_up_at')
                     ->label(__('admin.fields.follow_up_at'))
@@ -95,25 +95,25 @@ class B2BLeadsTable
                     ->color(fn (?B2BLead $record): string => $record?->follow_up_at !== null && $record->follow_up_at->isPast() ? 'danger' : 'gray')
                     ->toggleable(),
                 TextColumn::make('reviewer.name')
-                    ->label('Reviewed by')
-                    ->placeholder('Not reviewed')
+                    ->label(__('admin.ui.reviewed_by'))
+                    ->placeholder(__('admin.ui.not_reviewed'))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('reviewed_at')
-                    ->label('Reviewed')
+                    ->label(__('admin.ui.reviewed'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->label('Submitted')
+                    ->label(__('admin.ui.submitted'))
                     ->dateTime()
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('lead_type')
-                    ->label('Lead type')
+                    ->label(__('admin.ui.lead_type'))
                     ->options(B2BLeadType::options()),
                 SelectFilter::make('interest_type')
-                    ->label('Interest type')
+                    ->label(__('admin.ui.interest_type'))
                     ->options(B2BInterestType::options()),
                 SelectFilter::make('status')
                     ->options(B2BLeadStatus::options()),
@@ -127,18 +127,18 @@ class B2BLeadsTable
                     ]),
                 SelectFilter::make('assigned_to')
                     ->relationship('assignee', 'name')
-                    ->label('Owner')
+                    ->label(__('admin.ui.owner'))
                     ->searchable()
                     ->preload(),
                 Filter::make('organization')
-                    ->label('Company / Application / Region')
+                    ->label(__('admin.ui.company_application_region'))
                     ->schema([
                         TextInput::make('company_name')
-                            ->label('Company / institution'),
+                            ->label(__('admin.ui.company_institution_2')),
                         TextInput::make('application_type')
-                            ->label('Application'),
+                            ->label(__('admin.ui.application')),
                         TextInput::make('region')
-                            ->label('Region'),
+                            ->label(__('admin.ui.region')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -156,7 +156,7 @@ class B2BLeadsTable
                             );
                     }),
                 Filter::make('overdue_followups')
-                    ->label('Overdue follow-ups')
+                    ->label(__('admin.ui.overdue_follow_ups'))
                     ->query(fn (Builder $query): Builder => $query
                         ->whereNotNull('follow_up_at')
                         ->where('follow_up_at', '<', now())
@@ -168,9 +168,9 @@ class B2BLeadsTable
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label('Submitted from'),
+                            ->label(__('admin.ui.submitted_from')),
                         DatePicker::make('created_until')
-                            ->label('Submitted until'),
+                            ->label(__('admin.ui.submitted_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

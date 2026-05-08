@@ -26,12 +26,12 @@ enum UserViolationType: string
     public function label(): string
     {
         return match ($this) {
-            self::ManualWarning => 'Manual Warning',
-            self::SensitiveWord => 'Sensitive Word',
-            self::ContentRejected => 'Content Rejected',
-            self::ContentHidden => 'Content Hidden',
-            self::AccountRestricted => 'Account Restricted',
-            self::AccountBanned => 'Account Banned',
+            self::ManualWarning => __('admin.violation_type.manual_warning'),
+            self::SensitiveWord => __('admin.violation_type.sensitive_word'),
+            self::ContentRejected => __('admin.violation_type.content_rejected'),
+            self::ContentHidden => __('admin.violation_type.content_hidden'),
+            self::AccountRestricted => __('admin.violation_type.account_restricted'),
+            self::AccountBanned => __('admin.violation_type.account_banned'),
         };
     }
 

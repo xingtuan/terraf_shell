@@ -18,7 +18,7 @@ class MaterialApplicationForm
     {
         return $schema
             ->components([
-                Section::make('Application Settings')
+                Section::make(__('admin.ui.application_settings'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -36,60 +36,60 @@ class MaterialApplicationForm
                                     ->numeric()
                                     ->default(0),
                                 FileUpload::make('media_path')
-                                    ->label('Uploaded media')
+                                    ->label(__('admin.ui.uploaded_media'))
                                     ->image()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('cms/material-applications')
                                     ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
                                 TextInput::make('media_url')
-                                    ->label('External media URL')
+                                    ->label(__('admin.ui.external_media_url'))
                                     ->url(),
                                 DateTimePicker::make('published_at')
                                     ->disabled(),
                             ]),
                     ]),
-                Section::make('English')
+                Section::make(__('admin.ui.english'))
                     ->schema([
                         TextInput::make('title_translations.en')
-                            ->label('Title')
+                            ->label(__('admin.ui.title'))
                             ->required(),
                         TextInput::make('subtitle_translations.en')
-                            ->label('Subtitle'),
+                            ->label(__('admin.ui.subtitle')),
                         TextInput::make('audience_translations.en')
-                            ->label('Audience'),
+                            ->label(__('admin.ui.audience')),
                         TextInput::make('cta_label_translations.en')
-                            ->label('CTA label'),
+                            ->label(__('admin.ui.cta_label')),
                         Textarea::make('description_translations.en')
-                            ->label('Description')
+                            ->label(__('admin.ui.description'))
                             ->required()
                             ->columnSpanFull(),
                     ]),
-                Section::make('Korean')
+                Section::make(__('admin.ui.korean'))
                     ->schema([
                         TextInput::make('title_translations.ko')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('subtitle_translations.ko')
-                            ->label('Subtitle'),
+                            ->label(__('admin.ui.subtitle')),
                         TextInput::make('audience_translations.ko')
-                            ->label('Audience'),
+                            ->label(__('admin.ui.audience')),
                         TextInput::make('cta_label_translations.ko')
-                            ->label('CTA label'),
+                            ->label(__('admin.ui.cta_label')),
                         Textarea::make('description_translations.ko')
-                            ->label('Description')
+                            ->label(__('admin.ui.description'))
                             ->columnSpanFull(),
                     ]),
-                Section::make('Chinese')
+                Section::make(__('admin.ui.chinese'))
                     ->schema([
                         TextInput::make('title_translations.zh')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('subtitle_translations.zh')
-                            ->label('Subtitle'),
+                            ->label(__('admin.ui.subtitle')),
                         TextInput::make('audience_translations.zh')
-                            ->label('Audience'),
+                            ->label(__('admin.ui.audience')),
                         TextInput::make('cta_label_translations.zh')
-                            ->label('CTA label'),
+                            ->label(__('admin.ui.cta_label')),
                         Textarea::make('description_translations.zh')
-                            ->label('Description')
+                            ->label(__('admin.ui.description'))
                             ->columnSpanFull(),
                     ]),
             ]);

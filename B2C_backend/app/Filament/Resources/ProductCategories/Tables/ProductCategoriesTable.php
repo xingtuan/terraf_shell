@@ -21,9 +21,9 @@ class ProductCategoriesTable
                     ->description(fn ($record): string => $record->slug),
                 TextColumn::make('products_count')
                     ->counts('products')
-                    ->label('Products'),
+                    ->label(__('admin.ui.products')),
                 IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label(__('admin.ui.active'))
                     ->boolean(),
                 TextColumn::make('sort_order')
                     ->numeric()
@@ -34,7 +34,7 @@ class ProductCategoriesTable
             ])
             ->filters([
                 TernaryFilter::make('is_active')
-                    ->label('Active'),
+                    ->label(__('admin.ui.active')),
             ])
             ->recordActions([
                 EditAction::make(),

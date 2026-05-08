@@ -56,7 +56,7 @@ class TaxSettings extends Page
     public function form(Schema $schema): Schema
     {
         return $schema->statePath('data')->components([
-            Section::make('GST')->schema([
+            Section::make(__('admin.ui.gst'))->schema([
                 Grid::make(2)->schema([
                     Toggle::make('gst_enabled')->label(__('admin.tax.fields.gst_enabled')),
                     Toggle::make('prices_include_gst')->label(__('admin.tax.fields.prices_include_gst')),

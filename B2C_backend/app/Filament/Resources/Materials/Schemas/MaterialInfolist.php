@@ -26,22 +26,22 @@ class MaterialInfolist
                     ->placeholder('-')
                     ->columnSpanFull(),
                 TextEntry::make('certifications')
-                    ->label('Certifications / tests')
+                    ->label(__('admin.ui.certifications_tests'))
                     ->formatStateUsing(fn ($state): string => is_array($state) ? (string) count($state).' records' : '-'),
                 TextEntry::make('technical_downloads')
-                    ->label('Technical downloads')
+                    ->label(__('admin.ui.technical_downloads'))
                     ->formatStateUsing(fn ($state): string => is_array($state) ? (string) count($state).' records' : '-'),
                 TextEntry::make('status'),
                 IconEntry::make('is_featured')
                     ->boolean(),
                 TextEntry::make('specs_count')
-                    ->label('Specifications')
+                    ->label(__('admin.ui.specifications'))
                     ->numeric(),
                 TextEntry::make('story_sections_count')
-                    ->label('Story sections')
+                    ->label(__('admin.ui.story_sections'))
                     ->numeric(),
                 TextEntry::make('applications_count')
-                    ->label('Applications')
+                    ->label(__('admin.ui.applications'))
                     ->numeric(),
                 TextEntry::make('sort_order')
                     ->numeric(),

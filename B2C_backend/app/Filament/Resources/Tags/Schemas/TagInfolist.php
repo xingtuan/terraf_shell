@@ -14,17 +14,17 @@ class TagInfolist
     {
         return $schema
             ->components([
-                Section::make('Tag')
+                Section::make(__('admin.ui.tag'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('name'),
                                 TextEntry::make('slug'),
                                 TextEntry::make('posts_count')
-                                    ->label('Posts')
+                                    ->label(__('admin.ui.posts'))
                                     ->state(fn (Tag $record): int => (int) ($record->posts_count ?? $record->posts()->count())),
                                 TextEntry::make('updated_at')
-                                    ->label('Updated')
+                                    ->label(__('admin.ui.updated'))
                                     ->dateTime(),
                             ]),
                     ]),

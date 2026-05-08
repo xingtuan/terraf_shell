@@ -13,29 +13,29 @@ class AdminActionLogInfolist
     {
         return $schema
             ->components([
-                Section::make('Action')
+                Section::make(__('admin.ui.action'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('actor.name')
-                                    ->label('Actor')
-                                    ->placeholder('System'),
+                                    ->label(__('admin.ui.actor'))
+                                    ->placeholder(__('admin.ui.system')),
                                 TextEntry::make('targetUser.name')
-                                    ->label('Target user')
-                                    ->placeholder('No target user.'),
+                                    ->label(__('admin.ui.target_user'))
+                                    ->placeholder(__('admin.ui.no_target_user')),
                                 TextEntry::make('action')
                                     ->badge(),
                                 TextEntry::make('created_at')
-                                    ->label('Created')
+                                    ->label(__('admin.ui.created'))
                                     ->dateTime(),
                                 TextEntry::make('subject_type')
-                                    ->label('Subject type')
-                                    ->placeholder('No subject.'),
+                                    ->label(__('admin.ui.subject_type'))
+                                    ->placeholder(__('admin.ui.no_subject')),
                                 TextEntry::make('subject_id')
-                                    ->label('Subject ID')
-                                    ->placeholder('No subject.'),
+                                    ->label(__('admin.ui.subject_id'))
+                                    ->placeholder(__('admin.ui.no_subject')),
                                 TextEntry::make('description')
-                                    ->placeholder('No description provided.')
+                                    ->placeholder(__('admin.ui.no_description_provided'))
                                     ->columnSpanFull(),
                                 TextEntry::make('metadata')
                                     ->state(fn ($record): string => json_encode($record->metadata ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))

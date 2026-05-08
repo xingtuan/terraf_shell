@@ -32,12 +32,12 @@ class EnquiriesTable
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('email')
-                    ->label('Contact')
+                    ->label(__('admin.ui.contact'))
                     ->searchable()
                     ->copyable()
                     ->description(fn (Inquiry $record): string => collect([$record->name, $record->phone])->filter()->implode(' | ')),
                 TextColumn::make('company_name')
-                    ->label('Company / Organization')
+                    ->label(__('admin.ui.company_organization'))
                     ->searchable()
                     ->description(fn (Inquiry $record): string => collect([
                         $record->organization_type,
@@ -45,7 +45,7 @@ class EnquiriesTable
                         $record->region,
                     ])->filter()->implode(' | ')),
                 TextColumn::make('message')
-                    ->label('Subject')
+                    ->label(__('admin.ui.subject'))
                     ->state(fn (Inquiry $record): string => $record->subject)
                     ->description(fn (Inquiry $record): string => collect([
                         $record->inquiry_type ?: 'General enquiry',
@@ -71,8 +71,8 @@ class EnquiriesTable
                     })
                     ->sortable(),
                 TextColumn::make('assignee.name')
-                    ->label('Owner')
-                    ->placeholder('Unassigned')
+                    ->label(__('admin.ui.owner'))
+                    ->placeholder(__('admin.ui.unassigned'))
                     ->toggleable(),
                 TextColumn::make('follow_up_at')
                     ->label(__('admin.fields.follow_up_at'))
@@ -81,10 +81,10 @@ class EnquiriesTable
                     ->placeholder('-')
                     ->toggleable(),
                 TextColumn::make('source_page')
-                    ->label('Source')
+                    ->label(__('admin.ui.source'))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->label('Submitted')
+                    ->label(__('admin.ui.submitted'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -101,11 +101,11 @@ class EnquiriesTable
                     ]),
                 SelectFilter::make('assigned_to')
                     ->relationship('assignee', 'name')
-                    ->label('Owner')
+                    ->label(__('admin.ui.owner'))
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('inquiry_type')
-                    ->label('Enquiry Type')
+                    ->label(__('admin.ui.enquiry_type_2'))
                     ->options(fn (): array => Inquiry::query()
                         ->whereNotNull('inquiry_type')
                         ->select('inquiry_type')
@@ -114,12 +114,12 @@ class EnquiriesTable
                         ->pluck('inquiry_type', 'inquiry_type')
                         ->all()),
                 Filter::make('company')
-                    ->label('Company / Organization')
+                    ->label(__('admin.ui.company_organization'))
                     ->schema([
                         TextInput::make('company_name')
-                            ->label('Company / organization'),
+                            ->label(__('admin.ui.company_organization_2')),
                         TextInput::make('organization_type')
-                            ->label('Organization type'),
+                            ->label(__('admin.ui.organization_type')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -135,7 +135,7 @@ class EnquiriesTable
                 Filter::make('email')
                     ->schema([
                         TextInput::make('email')
-                            ->label('Email'),
+                            ->label(__('admin.ui.email')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query->when(
                         filled($data['email'] ?? null),
@@ -144,9 +144,9 @@ class EnquiriesTable
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label('Submitted from'),
+                            ->label(__('admin.ui.submitted_from')),
                         DatePicker::make('created_until')
-                            ->label('Submitted until'),
+                            ->label(__('admin.ui.submitted_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -202,7 +202,7 @@ class EnquiriesTable
                         );
 
                         Notification::make()
-                            ->title('Enquiry archived.')
+                            ->title(__('admin.ui.enquiry_archived'))
                             ->success()
                             ->send();
                     }),

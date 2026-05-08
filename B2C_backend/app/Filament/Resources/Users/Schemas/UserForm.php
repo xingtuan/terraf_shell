@@ -20,12 +20,12 @@ class UserForm
     {
         return $schema
             ->components([
-                Section::make('Account')
+                Section::make(__('admin.ui.account'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('name')
-                                    ->label('Full name')
+                                    ->label(__('admin.ui.full_name'))
                                     ->required()
                                     ->maxLength(255),
                                 TextInput::make('username')
@@ -49,8 +49,8 @@ class UserForm
                                     ->required()
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 Toggle::make('community_auto_approve')
-                                    ->label('Direct community approval')
-                                    ->helperText('When the moderation policy allows trusted users, this account will be approved automatically.')
+                                    ->label(__('admin.ui.direct_community_approval'))
+                                    ->helperText(__('admin.ui.when_the_moderation_policy_allows_trusted_users_this_account_will_be_a_31293b5599'))
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 TextInput::make('password')
                                     ->password()
@@ -62,13 +62,13 @@ class UserForm
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Profile')
+                Section::make(__('admin.ui.profile'))
                     ->relationship('profile')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 FileUpload::make('avatar_path')
-                                    ->label('Avatar')
+                                    ->label(__('admin.ui.avatar'))
                                     ->image()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('avatars')
@@ -86,7 +86,7 @@ class UserForm
                                     ->url()
                                     ->maxLength(255),
                                 Toggle::make('open_to_collab')
-                                    ->label('Open to collaboration'),
+                                    ->label(__('admin.ui.open_to_collaboration')),
                             ]),
                     ]),
             ]);

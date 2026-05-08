@@ -20,22 +20,22 @@ class EnquiryForm
     {
         return $schema
             ->components([
-                Section::make('Enquiry Details')
+                Section::make(__('admin.ui.enquiry_details'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Placeholder::make('reference')
                                     ->content(fn (?Inquiry $record): string => $record?->reference ?? 'Generated automatically'),
                                 Placeholder::make('status_badge')
-                                    ->label('Current status')
+                                    ->label(__('admin.ui.current_status'))
                                     ->content(fn (?Inquiry $record): string => $record ? (B2BLeadStatus::tryFrom($record->status)?->label() ?? $record->status) : '-'),
                                 Placeholder::make('name')
                                     ->content(fn (?Inquiry $record): string => $record?->name ?? '-'),
                                 Placeholder::make('email')
-                                    ->label('Email')
+                                    ->label(__('admin.ui.email'))
                                     ->content(fn (?Inquiry $record): string => $record?->email ?? '-'),
                                 Placeholder::make('company_name')
-                                    ->label('Company / Organization')
+                                    ->label(__('admin.ui.company_organization'))
                                     ->content(fn (?Inquiry $record): string => $record?->company_name ?? '-'),
                                 Placeholder::make('organization_type')
                                     ->content(fn (?Inquiry $record): string => $record?->organization_type ?: 'Not specified.'),
@@ -46,10 +46,10 @@ class EnquiryForm
                                 Placeholder::make('phone')
                                     ->content(fn (?Inquiry $record): string => $record?->phone ?: 'No phone provided.'),
                                 Placeholder::make('source_page')
-                                    ->label('Source')
+                                    ->label(__('admin.ui.source'))
                                     ->content(fn (?Inquiry $record): string => $record?->source_page ?: 'No source tracked.'),
                                 Placeholder::make('inquiry_type')
-                                    ->label('Enquiry type')
+                                    ->label(__('admin.ui.enquiry_type'))
                                     ->content(fn (?Inquiry $record): string => $record?->inquiry_type ?: 'General enquiry'),
                                 Placeholder::make('subject')
                                     ->content(fn (?Inquiry $record): string => $record?->subject ?? '-'),
@@ -58,7 +58,7 @@ class EnquiryForm
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Admin Review')
+                Section::make(__('admin.ui.admin_review'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -76,19 +76,19 @@ class EnquiryForm
                                     ->default('normal')
                                     ->required(),
                                 Select::make('assigned_to')
-                                    ->label('Assigned owner')
+                                    ->label(__('admin.ui.assigned_owner'))
                                     ->options(fn (): array => User::query()
                                         ->whereIn('role', [UserRole::Admin->value, UserRole::Moderator->value])
                                         ->orderBy('name')
                                         ->pluck('name', 'id')
                                         ->all())
-                                    ->placeholder('Unassigned')
+                                    ->placeholder(__('admin.ui.unassigned'))
                                     ->searchable()
                                     ->preload(),
                                 DateTimePicker::make('follow_up_at')
                                     ->label(__('admin.fields.follow_up_at')),
                                 Textarea::make('internal_notes')
-                                    ->label('Internal notes')
+                                    ->label(__('admin.ui.internal_notes'))
                                     ->rows(6)
                                     ->maxLength(5000)
                                     ->columnSpanFull(),

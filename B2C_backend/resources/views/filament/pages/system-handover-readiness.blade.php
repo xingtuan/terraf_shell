@@ -3,9 +3,9 @@
         <table class="w-full divide-y divide-gray-200 text-sm dark:divide-gray-800">
             <thead class="bg-gray-50 dark:bg-gray-800/50">
                 <tr>
-                    <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-200">Check</th>
-                    <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-200">Value</th>
-                    <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-200">Status</th>
+                    <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-200">{{ __('admin.ui.requirement_check') }}</th>
+                    <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-200">{{ __('admin.ui.value') }}</th>
+                    <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-200">{{ __('admin.ui.status') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-gray-800">

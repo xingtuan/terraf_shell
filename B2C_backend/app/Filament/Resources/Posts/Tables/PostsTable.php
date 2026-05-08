@@ -36,7 +36,7 @@ class PostsTable
         return $table
             ->columns([
                 ImageColumn::make('cover_image')
-                    ->label('Image')
+                    ->label(__('admin.ui.image'))
                     ->state(fn (Post $record): ?string => $record->coverImageUrl())
                     ->defaultImageUrl('https://placehold.co/96x64?text=Post')
                     ->square(),
@@ -47,7 +47,7 @@ class PostsTable
                     ->sortable()
                     ->limit(60),
                 TextColumn::make('user.name')
-                    ->label('Creator')
+                    ->label(__('admin.ui.creator'))
                     ->description(fn (Post $record): string => collect([
                         '@'.$record->user->username,
                         $record->user->profile?->school_or_company,
@@ -56,7 +56,7 @@ class PostsTable
                     ->searchable(['name', 'username'])
                     ->sortable(),
                 TextColumn::make('category.name')
-                    ->label('Category')
+                    ->label(__('admin.ui.category'))
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('status')
@@ -65,60 +65,60 @@ class PostsTable
                     ->color(fn (string $state): string => ContentStatus::tryFrom($state)?->color() ?? 'gray')
                     ->sortable(),
                 IconColumn::make('is_pinned')
-                    ->label('Pinned')
+                    ->label(__('admin.ui.pinned'))
                     ->boolean(),
                 IconColumn::make('is_featured')
-                    ->label('Featured')
+                    ->label(__('admin.ui.featured'))
                     ->boolean(),
                 IconColumn::make('is_demo_content')
-                    ->label('Demo')
+                    ->label(__('admin.ui.demo'))
                     ->boolean()
                     ->toggleable(),
                 IconColumn::make('fundingCampaign.support_enabled')
-                    ->label('Support')
+                    ->label(__('admin.ui.support'))
                     ->boolean()
                     ->state(fn (Post $record): bool => (bool) ($record->fundingCampaign?->support_enabled ?? false)),
                 TextColumn::make('likes_count')
-                    ->label('Likes')
+                    ->label(__('admin.ui.likes'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('comments_count')
-                    ->label('Comments')
+                    ->label(__('admin.ui.comments'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('favorites_count')
-                    ->label('Favorites')
+                    ->label(__('admin.ui.favorites'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('engagement_score')
-                    ->label('Engagement')
+                    ->label(__('admin.ui.engagement'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('trending_score')
-                    ->label('Trending')
+                    ->label(__('admin.ui.trending'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('views_count')
-                    ->label('Views')
+                    ->label(__('admin.ui.views'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('reports_count')
-                    ->label('Reports')
+                    ->label(__('admin.ui.reports'))
                     ->numeric()
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label(__('admin.ui.created'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('published_at')
-                    ->label('Published')
+                    ->label(__('admin.ui.published'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
@@ -128,11 +128,11 @@ class PostsTable
                     ->options(ContentStatus::options()),
                 SelectFilter::make('category_id')
                     ->relationship('category', 'name')
-                    ->label('Category')
+                    ->label(__('admin.ui.category'))
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('tag')
-                    ->label('Tag')
+                    ->label(__('admin.ui.tag'))
                     ->options(fn (): array => Tag::query()->orderBy('name')->pluck('name', 'id')->all())
                     ->query(fn (Builder $query, array $data): Builder => $query->when(
                         filled($data['value'] ?? null),
@@ -142,11 +142,11 @@ class PostsTable
                         )
                     )),
                 TernaryFilter::make('is_featured')
-                    ->label('Featured'),
+                    ->label(__('admin.ui.featured')),
                 TernaryFilter::make('is_pinned')
-                    ->label('Pinned'),
+                    ->label(__('admin.ui.pinned')),
                 TernaryFilter::make('support_enabled')
-                    ->label('Support enabled')
+                    ->label(__('admin.ui.support_enabled'))
                     ->queries(
                         true: fn (Builder $query): Builder => $query->whereHas('fundingCampaign', fn (Builder $campaignQuery): Builder => $campaignQuery->where('support_enabled', true)),
                         false: fn (Builder $query): Builder => $query->where(function (Builder $builder): void {
@@ -157,16 +157,16 @@ class PostsTable
                         blank: fn (Builder $query): Builder => $query,
                     ),
                 TernaryFilter::make('is_demo_content')
-                    ->label('Demo content'),
+                    ->label(__('admin.ui.demo_content')),
                 Filter::make('creator_profile')
-                    ->label('Creator profile')
+                    ->label(__('admin.ui.creator_profile'))
                     ->schema([
                         TextInput::make('creator')
-                            ->label('Creator'),
+                            ->label(__('admin.ui.creator')),
                         TextInput::make('school_or_company')
-                            ->label('School / company'),
+                            ->label(__('admin.ui.school_company_2')),
                         TextInput::make('region')
-                            ->label('Region'),
+                            ->label(__('admin.ui.region')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->whereHas('user', function (Builder $userQuery) use ($data): void {
@@ -199,9 +199,9 @@ class PostsTable
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label('Created from'),
+                            ->label(__('admin.ui.created_from')),
                         DatePicker::make('created_until')
-                            ->label('Created until'),
+                            ->label(__('admin.ui.created_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -212,11 +212,11 @@ class PostsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                self::statusAction('approve', 'Approve', ContentStatus::Approved->value, 'success'),
-                self::statusAction('reject', 'Reject', ContentStatus::Rejected->value, 'danger'),
-                self::statusAction('hide', 'Hide', ContentStatus::Hidden->value, 'gray'),
+                self::statusAction('approve', __('admin.actions.approve'), ContentStatus::Approved->value, 'success'),
+                self::statusAction('reject', __('admin.actions.reject'), ContentStatus::Rejected->value, 'danger'),
+                self::statusAction('hide', __('admin.actions.hide'), ContentStatus::Hidden->value, 'gray'),
                 Action::make('pin')
-                    ->label('Pin')
+                    ->label(__('admin.ui.pin'))
                     ->icon('heroicon-o-map-pin')
                     ->color('warning')
                     ->visible(fn (Post $record): bool => PanelAccess::isAdmin() && ! $record->is_pinned)
@@ -233,12 +233,12 @@ class PostsTable
                         );
 
                         Notification::make()
-                            ->title('Concept pinned successfully.')
+                            ->title(__('admin.ui.concept_pinned_successfully'))
                             ->success()
                             ->send();
                     }),
                 Action::make('unpin')
-                    ->label('Unpin')
+                    ->label(__('admin.ui.unpin'))
                     ->icon('heroicon-o-map-pin')
                     ->color('gray')
                     ->visible(fn (Post $record): bool => PanelAccess::isAdmin() && $record->is_pinned)
@@ -255,12 +255,12 @@ class PostsTable
                         );
 
                         Notification::make()
-                            ->title('Concept unpinned successfully.')
+                            ->title(__('admin.ui.concept_unpinned_successfully'))
                             ->success()
                             ->send();
                     }),
                 Action::make('feature')
-                    ->label('Feature')
+                    ->label(__('admin.ui.feature'))
                     ->icon('heroicon-o-star')
                     ->color('success')
                     ->visible(fn (Post $record): bool => PanelAccess::isAdmin() && ! $record->is_featured)
@@ -272,12 +272,12 @@ class PostsTable
                         );
 
                         Notification::make()
-                            ->title('Concept featured successfully.')
+                            ->title(__('admin.ui.concept_featured_successfully'))
                             ->success()
                             ->send();
                     }),
                 Action::make('unfeature')
-                    ->label('Unfeature')
+                    ->label(__('admin.ui.unfeature'))
                     ->icon('heroicon-o-star')
                     ->color('gray')
                     ->visible(fn (Post $record): bool => PanelAccess::isAdmin() && $record->is_featured)
@@ -289,7 +289,7 @@ class PostsTable
                         );
 
                         Notification::make()
-                            ->title('Concept unfeatured successfully.')
+                            ->title(__('admin.ui.concept_unfeatured_successfully'))
                             ->success()
                             ->send();
                     }),
@@ -299,7 +299,7 @@ class PostsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('approveSelected')
-                        ->label('Approve selected')
+                        ->label(__('admin.ui.approve_selected'))
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
@@ -313,7 +313,7 @@ class PostsTable
                             }
 
                             Notification::make()
-                                ->title('Selected concepts approved successfully.')
+                                ->title(__('admin.ui.selected_concepts_approved_successfully'))
                                 ->success()
                                 ->send();
                         }),
@@ -347,7 +347,7 @@ class PostsTable
             ->visible(fn (Post $record): bool => PanelAccess::isStaff() && $record->status !== $status)
             ->schema([
                 Textarea::make('reason')
-                    ->label('Moderation note')
+                    ->label(__('admin.ui.moderation_note'))
                     ->rows(3),
             ])
             ->requiresConfirmation()
@@ -360,7 +360,7 @@ class PostsTable
                 );
 
                 Notification::make()
-                    ->title("Concept status updated to {$label}.")
+                    ->title(__('admin.ui.concept_status_updated_to_label', ['label' => $label]))
                     ->success()
                     ->send();
             });

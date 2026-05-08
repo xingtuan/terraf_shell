@@ -12,7 +12,7 @@ class MaterialSpecInfolist
         return $schema
             ->components([
                 TextEntry::make('material.title')
-                    ->label('Material'),
+                    ->label(__('admin.ui.material')),
                 TextEntry::make('key')
                     ->placeholder('-'),
                 TextEntry::make('label'),

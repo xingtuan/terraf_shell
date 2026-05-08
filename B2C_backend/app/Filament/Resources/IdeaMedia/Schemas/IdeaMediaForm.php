@@ -14,7 +14,7 @@ class IdeaMediaForm
     {
         return $schema
             ->components([
-                Section::make('Media')
+                Section::make(__('admin.ui.media'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -33,17 +33,17 @@ class IdeaMediaForm
                                     ->maxLength(255)
                                     ->columnSpanFull(),
                                 TextInput::make('original_name')
-                                    ->label('Original filename')
+                                    ->label(__('admin.ui.original_filename'))
                                     ->disabled(),
                                 TextInput::make('mime_type')
-                                    ->label('MIME type')
+                                    ->label(__('admin.ui.mime_type'))
                                     ->disabled(),
                                 TextInput::make('size_bytes')
-                                    ->label('Size (bytes)')
+                                    ->label(__('admin.ui.size_bytes'))
                                     ->numeric()
                                     ->disabled(),
                                 TextInput::make('external_url')
-                                    ->label('External URL')
+                                    ->label(__('admin.ui.external_url'))
                                     ->url()
                                     ->maxLength(2048),
                                 TextInput::make('sort_order')

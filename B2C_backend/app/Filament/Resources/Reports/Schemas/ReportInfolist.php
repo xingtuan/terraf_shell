@@ -17,7 +17,7 @@ class ReportInfolist
     {
         return $schema
             ->components([
-                Section::make('Overview')
+                Section::make(__('admin.ui.overview'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -27,51 +27,51 @@ class ReportInfolist
                                     ->formatStateUsing(fn (string $state): string => ReportStatus::tryFrom($state)?->label() ?? ucfirst($state))
                                     ->color(fn (string $state): string => ReportStatus::tryFrom($state)?->color() ?? 'gray'),
                                 TextEntry::make('reporter.name')
-                                    ->label('Reporter'),
+                                    ->label(__('admin.ui.reporter')),
                                 TextEntry::make('created_at')
-                                    ->label('Created')
+                                    ->label(__('admin.ui.created'))
                                     ->dateTime(),
                                 TextEntry::make('target_type')
-                                    ->label('Target type')
+                                    ->label(__('admin.ui.target_type'))
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => ReportResource::targetTypeLabel($state))
                                     ->color('gray'),
                                 TextEntry::make('target_id')
-                                    ->label('Target ID'),
+                                    ->label(__('admin.ui.target_id')),
                                 TextEntry::make('target_summary')
-                                    ->label('Target content')
+                                    ->label(__('admin.ui.target_content'))
                                     ->state(fn (Report $record): string => ReportResource::targetSummary($record))
                                     ->columnSpanFull(),
                                 TextEntry::make('violations_count')
-                                    ->label('Violations')
+                                    ->label(__('admin.ui.violations'))
                                     ->state(fn (Report $record): int => (int) ($record->violations_count ?? $record->violations()->count())),
                             ]),
                     ]),
-                Section::make('Reason')
+                Section::make(__('admin.ui.reason'))
                     ->schema([
                         TextEntry::make('reason'),
                         TextEntry::make('description')
-                            ->label('Reporter description')
-                            ->placeholder('No additional detail provided.')
+                            ->label(__('admin.ui.reporter_description'))
+                            ->placeholder(__('admin.ui.no_additional_detail_provided'))
                             ->columnSpanFull(),
                     ]),
-                Section::make('Review')
+                Section::make(__('admin.ui.review'))
                     ->schema([
                         TextEntry::make('moderator_note')
-                            ->placeholder('No moderator note recorded.')
+                            ->placeholder(__('admin.ui.no_moderator_note_recorded'))
                             ->columnSpanFull(),
                         TextEntry::make('reviewer.name')
-                            ->label('Reviewed by')
-                            ->placeholder('Not reviewed yet.'),
+                            ->label(__('admin.ui.reviewed_by'))
+                            ->placeholder(__('admin.ui.not_reviewed_yet')),
                         TextEntry::make('reviewed_at')
-                            ->label('Reviewed at')
+                            ->label(__('admin.ui.reviewed_at'))
                             ->dateTime()
-                            ->placeholder('Not reviewed yet.'),
+                            ->placeholder(__('admin.ui.not_reviewed_yet')),
                     ]),
-                Section::make('Governance')
+                Section::make(__('admin.ui.governance'))
                     ->schema([
                         RepeatableEntry::make('violations')
-                            ->label('Violation records')
+                            ->label(__('admin.ui.violation_records'))
                             ->schema([
                                 TextEntry::make('type')
                                     ->badge(),
@@ -80,19 +80,19 @@ class ReportInfolist
                                 TextEntry::make('status')
                                     ->badge(),
                                 TextEntry::make('reason')
-                                    ->placeholder('No reason recorded.')
+                                    ->placeholder(__('admin.ui.no_reason_recorded'))
                                     ->columnSpanFull(),
                             ]),
                         RepeatableEntry::make('moderationLogs')
-                            ->label('Moderation history')
+                            ->label(__('admin.ui.moderation_history_2'))
                             ->schema([
                                 TextEntry::make('action')
                                     ->badge(),
                                 TextEntry::make('actor.name')
-                                    ->label('Actor')
-                                    ->placeholder('System'),
+                                    ->label(__('admin.ui.actor'))
+                                    ->placeholder(__('admin.ui.system')),
                                 TextEntry::make('reason')
-                                    ->placeholder('No note provided.')
+                                    ->placeholder(__('admin.ui.no_note_provided'))
                                     ->columnSpanFull(),
                                 TextEntry::make('created_at')
                                     ->dateTime(),

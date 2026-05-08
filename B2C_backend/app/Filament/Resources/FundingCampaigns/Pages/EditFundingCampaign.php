@@ -20,7 +20,7 @@ class EditFundingCampaign extends EditRecord
         return [
             ViewAction::make(),
             Action::make('deleteCampaign')
-                ->label('Delete')
+                ->label(__('admin.ui.delete'))
                 ->color('danger')
                 ->requiresConfirmation()
                 ->action(function (): void {
@@ -32,7 +32,7 @@ class EditFundingCampaign extends EditRecord
                     );
 
                     Notification::make()
-                        ->title('Funding campaign deleted')
+                        ->title(__('admin.ui.funding_campaign_deleted'))
                         ->success()
                         ->send();
 

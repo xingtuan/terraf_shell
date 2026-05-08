@@ -18,7 +18,7 @@ class MaterialStorySectionForm
     {
         return $schema
             ->components([
-                Section::make('Story Section Settings')
+                Section::make(__('admin.ui.story_section_settings'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -26,7 +26,7 @@ class MaterialStorySectionForm
                                     ->relationship('material', 'title')
                                     ->required(),
                                 TextInput::make('highlight')
-                                    ->label('Default highlight'),
+                                    ->label(__('admin.ui.default_highlight')),
                                 Select::make('status')
                                     ->options(PublishStatus::options())
                                     ->required()
@@ -36,55 +36,55 @@ class MaterialStorySectionForm
                                     ->numeric()
                                     ->default(0),
                                 FileUpload::make('media_path')
-                                    ->label('Uploaded media')
+                                    ->label(__('admin.ui.uploaded_media'))
                                     ->image()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('cms/material-story-sections')
                                     ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
                                 TextInput::make('media_url')
-                                    ->label('External media URL')
+                                    ->label(__('admin.ui.external_media_url'))
                                     ->url(),
                                 DateTimePicker::make('published_at')
                                     ->disabled(),
                             ]),
                     ]),
-                Section::make('English')
+                Section::make(__('admin.ui.english'))
                     ->schema([
                         TextInput::make('title_translations.en')
-                            ->label('Title')
+                            ->label(__('admin.ui.title'))
                             ->required(),
                         TextInput::make('subtitle_translations.en')
-                            ->label('Subtitle'),
+                            ->label(__('admin.ui.subtitle')),
                         Textarea::make('content_translations.en')
-                            ->label('Content')
+                            ->label(__('admin.ui.content'))
                             ->required()
                             ->columnSpanFull(),
                         TextInput::make('highlight_translations.en')
-                            ->label('Highlight'),
+                            ->label(__('admin.ui.highlight')),
                     ]),
-                Section::make('Korean')
+                Section::make(__('admin.ui.korean'))
                     ->schema([
                         TextInput::make('title_translations.ko')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('subtitle_translations.ko')
-                            ->label('Subtitle'),
+                            ->label(__('admin.ui.subtitle')),
                         Textarea::make('content_translations.ko')
-                            ->label('Content')
+                            ->label(__('admin.ui.content'))
                             ->columnSpanFull(),
                         TextInput::make('highlight_translations.ko')
-                            ->label('Highlight'),
+                            ->label(__('admin.ui.highlight')),
                     ]),
-                Section::make('Chinese')
+                Section::make(__('admin.ui.chinese'))
                     ->schema([
                         TextInput::make('title_translations.zh')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('subtitle_translations.zh')
-                            ->label('Subtitle'),
+                            ->label(__('admin.ui.subtitle')),
                         Textarea::make('content_translations.zh')
-                            ->label('Content')
+                            ->label(__('admin.ui.content'))
                             ->columnSpanFull(),
                         TextInput::make('highlight_translations.zh')
-                            ->label('Highlight'),
+                            ->label(__('admin.ui.highlight')),
                     ]),
             ]);
     }

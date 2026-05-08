@@ -20,7 +20,7 @@ class ArticleForm
     {
         return $schema
             ->components([
-                Section::make('Article Settings')
+                Section::make(__('admin.ui.article_settings'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -37,10 +37,10 @@ class ArticleForm
                                     ->numeric()
                                     ->default(0),
                                 TextInput::make('media_url')
-                                    ->label('External media URL')
+                                    ->label(__('admin.ui.external_media_url'))
                                     ->url(),
                                 FileUpload::make('media_path')
-                                    ->label('Uploaded media')
+                                    ->label(__('admin.ui.uploaded_media'))
                                     ->image()
                                     ->disk((string) config('community.uploads.disk'))
                                     ->directory('cms/articles')
@@ -50,49 +50,49 @@ class ArticleForm
                                     ->disabled(),
                             ]),
                     ]),
-                Section::make('English')
+                Section::make(__('admin.ui.english'))
                     ->schema([
                         TextInput::make('title_translations.en')
-                            ->label('Title')
+                            ->label(__('admin.ui.title'))
                             ->required()
                             ->live(onBlur: true)
                             ->afterStateUpdated(function (Set $set, ?string $state): void {
                                 $set('slug', Str::slug((string) $state));
                             }),
                         TextInput::make('category_translations.en')
-                            ->label('Category'),
+                            ->label(__('admin.ui.category')),
                         Textarea::make('excerpt_translations.en')
-                            ->label('Excerpt')
+                            ->label(__('admin.ui.excerpt'))
                             ->columnSpanFull(),
                         Textarea::make('content_translations.en')
-                            ->label('Content')
+                            ->label(__('admin.ui.content'))
                             ->required()
                             ->columnSpanFull(),
                     ]),
-                Section::make('Korean')
+                Section::make(__('admin.ui.korean'))
                     ->schema([
                         TextInput::make('title_translations.ko')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('category_translations.ko')
-                            ->label('Category'),
+                            ->label(__('admin.ui.category')),
                         Textarea::make('excerpt_translations.ko')
-                            ->label('Excerpt')
+                            ->label(__('admin.ui.excerpt'))
                             ->columnSpanFull(),
                         Textarea::make('content_translations.ko')
-                            ->label('Content')
+                            ->label(__('admin.ui.content'))
                             ->columnSpanFull(),
                     ]),
-                Section::make('Chinese')
+                Section::make(__('admin.ui.chinese'))
                     ->schema([
                         TextInput::make('title_translations.zh')
-                            ->label('Title'),
+                            ->label(__('admin.ui.title')),
                         TextInput::make('category_translations.zh')
-                            ->label('Category'),
+                            ->label(__('admin.ui.category')),
                         Textarea::make('excerpt_translations.zh')
-                            ->label('Excerpt')
+                            ->label(__('admin.ui.excerpt'))
                             ->columnSpanFull(),
                         Textarea::make('content_translations.zh')
-                            ->label('Content')
+                            ->label(__('admin.ui.content'))
                             ->columnSpanFull(),
                     ]),
             ]);

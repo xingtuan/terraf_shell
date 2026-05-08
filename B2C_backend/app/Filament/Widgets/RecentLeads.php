@@ -39,29 +39,29 @@ class RecentLeads extends TableWidget
                 ->latest())
             ->columns([
                 TextColumn::make('reference')
-                    ->label('Reference')
+                    ->label(__('admin.ui.reference'))
                     ->copyable()
                     ->searchable(),
                 TextColumn::make('lead_type')
-                    ->label('Type')
+                    ->label(__('admin.ui.type'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => B2BLeadType::tryFrom($state)?->label() ?? $state),
                 TextColumn::make('name')
                     ->searchable()
                     ->description(fn (B2BLead $record): string => $record->company_name ?: 'No company provided'),
                 TextColumn::make('source_page')
-                    ->label('Source')
-                    ->placeholder('Not tracked')
+                    ->label(__('admin.ui.source'))
+                    ->placeholder(__('admin.ui.not_tracked_2'))
                     ->toggleable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('assignee.name')
-                    ->label('Owner')
-                    ->placeholder('Unassigned'),
+                    ->label(__('admin.ui.owner'))
+                    ->placeholder(__('admin.ui.unassigned')),
                 TextColumn::make('created_at')
-                    ->label('Submitted')
+                    ->label(__('admin.ui.submitted'))
                     ->dateTime()
                     ->since(),
             ])
@@ -72,8 +72,8 @@ class RecentLeads extends TableWidget
                         : B2BLeadResource::getUrl('view', ['record' => $record])),
             ])
             ->paginated([8])
-            ->emptyStateHeading('No open leads in the queue.')
-            ->emptyStateDescription('New enquiries and business-development submissions will appear here.');
+            ->emptyStateHeading(__('admin.ui.no_open_leads_in_the_queue'))
+            ->emptyStateDescription(__('admin.ui.new_enquiries_and_business_development_submissions_will_appear_here'));
     }
 
     public static function canView(): bool

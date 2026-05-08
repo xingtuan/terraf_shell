@@ -17,36 +17,36 @@ class IdeaMediaTable
         return $table
             ->columns([
                 ImageColumn::make('thumbnail_url')
-                    ->label('Preview')
+                    ->label(__('admin.ui.preview'))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x96?text=File'),
                 TextColumn::make('post.title')
-                    ->label('Concept')
+                    ->label(__('admin.ui.concept'))
                     ->searchable()
                     ->limit(40),
                 TextColumn::make('post.user.name')
-                    ->label('Creator')
+                    ->label(__('admin.ui.creator'))
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('media_type')
-                    ->label('Type')
+                    ->label(__('admin.ui.type'))
                     ->badge(),
                 TextColumn::make('kind')
                     ->badge()
-                    ->placeholder('Unclassified'),
+                    ->placeholder(__('admin.ui.unclassified')),
                 TextColumn::make('original_name')
-                    ->label('Filename')
+                    ->label(__('admin.ui.filename'))
                     ->searchable()
                     ->limit(40),
                 TextColumn::make('mime_type')
-                    ->label('MIME')
+                    ->label(__('admin.ui.mime'))
                     ->toggleable(),
                 TextColumn::make('size_bytes')
-                    ->label('Size (bytes)')
+                    ->label(__('admin.ui.size_bytes'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Uploaded')
+                    ->label(__('admin.ui.uploaded'))
                     ->dateTime()
                     ->sortable(),
             ])

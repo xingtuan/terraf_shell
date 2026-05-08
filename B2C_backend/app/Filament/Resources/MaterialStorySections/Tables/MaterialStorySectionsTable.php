@@ -22,11 +22,11 @@ class MaterialStorySectionsTable
         return $table
             ->columns([
                 ImageColumn::make('media_url')
-                    ->label('Media')
+                    ->label(__('admin.ui.media'))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Story'),
                 TextColumn::make('material.title')
-                    ->label('Material')
+                    ->label(__('admin.ui.material'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('title')
@@ -61,7 +61,7 @@ class MaterialStorySectionsTable
             ->filters([
                 SelectFilter::make('material_id')
                     ->relationship('material', 'title')
-                    ->label('Material')
+                    ->label(__('admin.ui.material'))
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('status')
@@ -69,9 +69,9 @@ class MaterialStorySectionsTable
                 Filter::make('updated_at')
                     ->schema([
                         DatePicker::make('updated_from')
-                            ->label('Updated from'),
+                            ->label(__('admin.ui.updated_from')),
                         DatePicker::make('updated_until')
-                            ->label('Updated until'),
+                            ->label(__('admin.ui.updated_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

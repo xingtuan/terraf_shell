@@ -16,12 +16,12 @@ class ProductImageForm
     {
         return $schema
             ->components([
-                Section::make('Media')
+                Section::make(__('admin.ui.media'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Select::make('product_id')
-                                    ->label('Product')
+                                    ->label(__('admin.ui.product'))
                                     ->relationship('product', 'name')
                                     ->searchable()
                                     ->preload()
@@ -32,7 +32,7 @@ class ProductImageForm
                                     ->required()
                                     ->default(0),
                                 FileUpload::make('media_path')
-                                    ->label('Image')
+                                    ->label(__('admin.ui.image'))
                                     ->image()
                                     ->required()
                                     ->disk((string) config('community.uploads.disk'))
@@ -41,31 +41,31 @@ class ProductImageForm
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('English')
+                Section::make(__('admin.ui.english'))
                     ->schema([
                         TextInput::make('alt_text_translations.en')
-                            ->label('Alt text')
+                            ->label(__('admin.ui.alt_text'))
                             ->maxLength(255),
                         TextInput::make('caption_translations.en')
-                            ->label('Caption')
+                            ->label(__('admin.ui.caption'))
                             ->maxLength(255),
                     ]),
-                Section::make('Korean')
+                Section::make(__('admin.ui.korean'))
                     ->schema([
                         TextInput::make('alt_text_translations.ko')
-                            ->label('Alt text')
+                            ->label(__('admin.ui.alt_text'))
                             ->maxLength(255),
                         TextInput::make('caption_translations.ko')
-                            ->label('Caption')
+                            ->label(__('admin.ui.caption'))
                             ->maxLength(255),
                     ]),
-                Section::make('Chinese')
+                Section::make(__('admin.ui.chinese'))
                     ->schema([
                         TextInput::make('alt_text_translations.zh')
-                            ->label('Alt text')
+                            ->label(__('admin.ui.alt_text'))
                             ->maxLength(255),
                         TextInput::make('caption_translations.zh')
-                            ->label('Caption')
+                            ->label(__('admin.ui.caption'))
                             ->maxLength(255),
                     ]),
             ]);

@@ -24,27 +24,27 @@ class RecentActivity extends TableWidget
             ->query(fn (): Builder => ModerationLog::query()->with(['actor', 'subject'])->latest())
             ->columns([
                 TextColumn::make('created_at')
-                    ->label('When')
+                    ->label(__('admin.ui.when'))
                     ->dateTime('d M Y, H:i')
                     ->since()
                     ->sortable()
                     ->tooltip(fn (ModerationLog $record): string => $record->created_at->format('d M Y, H:i:s')),
                 TextColumn::make('actor.name')
-                    ->label('By')
+                    ->label(__('admin.ui.by'))
                     ->default('System')
                     ->searchable()
                     ->icon('heroicon-m-user-circle'),
                 TextColumn::make('action')
-                    ->label('Action')
+                    ->label(__('admin.ui.action'))
                     ->badge()
                     ->searchable(),
                 TextColumn::make('subject_type')
-                    ->label('On')
+                    ->label(__('admin.ui.on'))
                     ->formatStateUsing(fn (string $state): string => ucfirst(class_basename($state)))
                     ->badge()
                     ->color('gray'),
                 TextColumn::make('reason')
-                    ->label('Note')
+                    ->label(__('admin.ui.note'))
                     ->limit(80)
                     ->default('—')
                     ->wrap(),
@@ -56,7 +56,7 @@ class RecentActivity extends TableWidget
             ->defaultSort('created_at', 'desc')
             ->paginated([10, 25])
             ->emptyStateIcon('heroicon-o-clipboard-document-list')
-            ->emptyStateHeading('No moderation activity yet.')
-            ->emptyStateDescription('Staff actions will appear here as they happen.');
+            ->emptyStateHeading(__('admin.ui.no_moderation_activity_yet'))
+            ->emptyStateDescription(__('admin.ui.staff_actions_will_appear_here_as_they_happen'));
     }
 }

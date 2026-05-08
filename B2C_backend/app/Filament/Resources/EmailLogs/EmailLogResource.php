@@ -63,7 +63,7 @@ class EmailLogResource extends Resource
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('to')
-                    ->label('To')
+                    ->label(__('admin.ui.to'))
                     ->formatStateUsing(fn ($state): string => collect($state ?? [])
                         ->map(fn (array $recipient): string => $recipient['email'] ?? '')
                         ->filter()
@@ -76,10 +76,10 @@ class EmailLogResource extends Resource
                     ->limit(70)
                     ->searchable(),
                 TextColumn::make('related_type')
-                    ->label('Related model')
+                    ->label(__('admin.ui.related_model'))
                     ->formatStateUsing(fn (?string $state, EmailLog $record): string => $state ? class_basename($state).' #'.$record->related_id : '-'),
                 TextColumn::make('error_message')
-                    ->label('Error')
+                    ->label(__('admin.ui.error'))
                     ->limit(50)
                     ->toggleable(),
                 TextColumn::make('sent_at')
@@ -111,8 +111,8 @@ class EmailLogResource extends Resource
                     }),
                 Filter::make('date')
                     ->schema([
-                        DatePicker::make('from')->label('From'),
-                        DatePicker::make('until')->label('Until'),
+                        DatePicker::make('from')->label(__('admin.ui.from')),
+                        DatePicker::make('until')->label(__('admin.ui.until')),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query
                         ->when($data['from'] ?? null, fn (Builder $builder, string $date): Builder => $builder->whereDate('created_at', '>=', $date))
@@ -131,7 +131,7 @@ class EmailLogResource extends Resource
                     ->requiresConfirmation()
                     ->action(fn (EmailLog $record): EmailLog => app(EmailDispatchService::class)->retry($record)),
                 Action::make('markIgnored')
-                    ->label('Mark ignored')
+                    ->label(__('admin.ui.mark_ignored'))
                     ->visible(fn (EmailLog $record): bool => $record->status === EmailLog::STATUS_FAILED)
                     ->requiresConfirmation()
                     ->action(fn (EmailLog $record): bool => $record->forceFill([
@@ -144,7 +144,7 @@ class EmailLogResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            InfolistSection::make('Delivery')
+            InfolistSection::make(__('admin.ui.delivery'))
                 ->schema([
                     TextEntry::make('status')->badge(),
                     TextEntry::make('event_key'),
@@ -159,22 +159,22 @@ class EmailLogResource extends Resource
                     TextEntry::make('failed_at')->dateTime()->placeholder('-'),
                 ])
                 ->columns(3),
-            InfolistSection::make('Recipients')
+            InfolistSection::make(__('admin.ui.recipients'))
                 ->schema([
                     KeyValueEntry::make('to'),
                     KeyValueEntry::make('cc'),
                     KeyValueEntry::make('bcc'),
                 ]),
-            InfolistSection::make('Rendered Content')
+            InfolistSection::make(__('admin.ui.rendered_content'))
                 ->schema([
                     TextEntry::make('rendered_subject')
                         ->state(fn (EmailLog $record): ?string => data_get($record->payload, '_rendered.subject')),
                     TextEntry::make('rendered_text')
-                        ->label('Body')
+                        ->label(__('admin.ui.body'))
                         ->state(fn (EmailLog $record): ?string => data_get($record->payload, '_rendered.text') ?: strip_tags((string) data_get($record->payload, '_rendered.html')))
                         ->columnSpanFull(),
                 ]),
-            InfolistSection::make('Payload')
+            InfolistSection::make(__('admin.ui.payload'))
                 ->schema([
                     KeyValueEntry::make('payload')->columnSpanFull(),
                 ]),

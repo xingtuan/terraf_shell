@@ -53,20 +53,20 @@ class EmailEventResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Email Stage')
+            Section::make(__('admin.ui.email_stage'))
                 ->schema([
                     Grid::make(2)
                         ->schema([
                             TextInput::make('category')->required()->maxLength(80),
                             TextInput::make('name')->required()->maxLength(255),
                             TextInput::make('key')->disabled()->dehydrated(false),
-                            Toggle::make('is_enabled')->label('Enabled'),
+                            Toggle::make('is_enabled')->label(__('admin.ui.enabled')),
                             Select::make('recipient_type')
                                 ->options([
-                                    'user' => 'User',
-                                    'admin' => 'Admin',
-                                    'both' => 'Both',
-                                    'custom' => 'Custom',
+                                    'user' => __('admin.email.recipient_type.user'),
+                                    'admin' => __('admin.email.recipient_type.admin'),
+                                    'both' => __('admin.email.recipient_type.both'),
+                                    'custom' => __('admin.email.recipient_type.custom'),
                                 ])
                                 ->required(),
                             Select::make('template_key')
@@ -80,7 +80,7 @@ class EmailEventResource extends Resource
                             TextInput::make('throttle_minutes')->numeric()->minValue(1),
                             Toggle::make('use_queue')->default(true),
                             TagsInput::make('custom_recipients')
-                                ->label('Custom recipients')
+                                ->label(__('admin.ui.custom_recipients'))
                                 ->columnSpanFull(),
                             TextInput::make('description')
                                 ->columnSpanFull()
@@ -103,18 +103,18 @@ class EmailEventResource extends Resource
                     ->searchable()
                     ->description(fn (EmailEvent $record): string => $record->key),
                 IconColumn::make('is_enabled')
-                    ->label('Enabled')
+                    ->label(__('admin.ui.enabled'))
                     ->boolean(),
                 ToggleColumn::make('is_enabled')
-                    ->label('Toggle'),
+                    ->label(__('admin.ui.toggle')),
                 TextColumn::make('recipient_type')
                     ->badge(),
                 TextColumn::make('template_key')
-                    ->label('Template')
+                    ->label(__('admin.ui.template'))
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('last_status')
-                    ->label('Last sent status')
+                    ->label(__('admin.ui.last_sent_status'))
                     ->state(fn (EmailEvent $record): string => $record->lastLog()?->status ?? '-')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -137,16 +137,16 @@ class EmailEventResource extends Resource
                         ->pluck('category', 'category')
                         ->all()),
                 SelectFilter::make('is_enabled')
-                    ->label('Enabled')
+                    ->label(__('admin.ui.enabled'))
                     ->options([
-                        1 => 'Enabled',
-                        0 => 'Disabled',
+                        1 => __('admin.system.enabled'),
+                        0 => __('admin.system.disabled'),
                     ]),
             ])
             ->recordActions([
                 EditAction::make(),
                 Action::make('sendSample')
-                    ->label('Send sample')
+                    ->label(__('admin.ui.send_sample'))
                     ->form([
                         TextInput::make('email')
                             ->email()
@@ -163,13 +163,13 @@ class EmailEventResource extends Resource
                         ]);
 
                         Notification::make()
-                            ->title('Sample email logged.')
-                            ->body("Log #{$log?->id}: {$log?->status}")
+                            ->title(__('admin.ui.sample_email_logged'))
+                            ->body(__('admin.email.test_result', ['id' => $log?->id, 'status' => $log?->status]))
                             ->success()
                             ->send();
                     }),
                 Action::make('resetDefaults')
-                    ->label('Reset defaults')
+                    ->label(__('admin.ui.reset_defaults'))
                     ->requiresConfirmation()
                     ->action(function (EmailEvent $record): void {
                         $default = EmailCenterDefaults::eventByKey($record->key);
@@ -188,7 +188,7 @@ class EmailEventResource extends Resource
                         }
 
                         Notification::make()
-                            ->title('Event defaults restored.')
+                            ->title(__('admin.ui.event_defaults_restored'))
                             ->success()
                             ->send();
                     }),
@@ -196,10 +196,10 @@ class EmailEventResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     BulkAction::make('enable')
-                        ->label('Enable selected')
+                        ->label(__('admin.ui.enable_selected'))
                         ->action(fn (Collection $records): int => EmailEvent::query()->whereKey($records->modelKeys())->update(['is_enabled' => true])),
                     BulkAction::make('disable')
-                        ->label('Disable selected')
+                        ->label(__('admin.ui.disable_selected'))
                         ->action(fn (Collection $records): int => EmailEvent::query()->whereKey($records->modelKeys())->update(['is_enabled' => false])),
                 ]),
             ]);

@@ -48,7 +48,7 @@ class ProductAttributeDefinitionResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Attribute definition')
+            Section::make(__('admin.ui.attribute_definition'))
                 ->schema([
                     Grid::make(2)
                         ->schema([
@@ -60,8 +60,8 @@ class ProductAttributeDefinitionResource extends Resource
                                 ->required()
                                 ->maxLength(160),
                             KeyValue::make('label_translations')
-                                ->keyLabel('Locale')
-                                ->valueLabel('Label')
+                                ->keyLabel(__('admin.ui.locale'))
+                                ->valueLabel(__('admin.ui.label'))
                                 ->columnSpanFull(),
                             Select::make('type')
                                 ->options(ProductAttributeDefinition::TYPE_OPTIONS)
@@ -82,12 +82,12 @@ class ProductAttributeDefinitionResource extends Resource
                                 ->default(0),
                         ]),
                 ]),
-            Section::make('Values')
+            Section::make(__('admin.ui.values'))
                 ->schema([
                     Repeater::make('values')
                         ->relationship()
-                        ->label('Allowed values')
-                        ->addActionLabel('Add value')
+                        ->label(__('admin.ui.allowed_values'))
+                        ->addActionLabel(__('admin.ui.add_value'))
                         ->reorderableWithButtons()
                         ->orderColumn('sort_order')
                         ->collapsible()
@@ -99,8 +99,8 @@ class ProductAttributeDefinitionResource extends Resource
                                 ->required()
                                 ->maxLength(160),
                             KeyValue::make('label_translations')
-                                ->keyLabel('Locale')
-                                ->valueLabel('Label')
+                                ->keyLabel(__('admin.ui.locale'))
+                                ->valueLabel(__('admin.ui.label'))
                                 ->columnSpanFull(),
                             ColorPicker::make('color_hex'),
                             Toggle::make('is_active')
@@ -129,16 +129,16 @@ class ProductAttributeDefinitionResource extends Resource
                 TextColumn::make('type')
                     ->badge(),
                 IconColumn::make('is_variant_option')
-                    ->label('Variant?')
+                    ->label(__('admin.ui.variant'))
                     ->boolean(),
                 IconColumn::make('is_filterable')
-                    ->label('Filterable?')
+                    ->label(__('admin.ui.filterable'))
                     ->boolean(),
                 IconColumn::make('is_specification')
-                    ->label('Specification?')
+                    ->label(__('admin.ui.specification'))
                     ->boolean(),
                 IconColumn::make('is_active')
-                    ->label('Active?')
+                    ->label(__('admin.ui.active_2'))
                     ->boolean(),
             ])
             ->filters([

@@ -58,7 +58,7 @@ class MediaFileResource extends Resource
                     ->description(fn (MediaFile $record): string => $record->path ?: ($record->url ?: '-'))
                     ->limit(50),
                 TextColumn::make('disk')
-                    ->label('Disk')
+                    ->label(__('admin.ui.disk'))
                     ->badge()
                     ->sortable()
                     ->toggleable(),
@@ -68,7 +68,7 @@ class MediaFileResource extends Resource
                     ->limit(45)
                     ->toggleable(),
                 TextColumn::make('public_url')
-                    ->label('Public URL')
+                    ->label(__('admin.ui.public_url'))
                     ->state(fn (MediaFile $record): ?string => $record->url)
                     ->copyable()
                     ->limit(45)
@@ -128,8 +128,8 @@ class MediaFileResource extends Resource
                         ->all()),
                 Filter::make('created_at')
                     ->schema([
-                        DatePicker::make('created_from')->label('Uploaded from'),
-                        DatePicker::make('created_until')->label('Uploaded until'),
+                        DatePicker::make('created_from')->label(__('admin.ui.uploaded_from')),
+                        DatePicker::make('created_until')->label(__('admin.ui.uploaded_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -140,17 +140,17 @@ class MediaFileResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 Action::make('copyPublicUrl')
-                    ->label('Copy public URL')
+                    ->label(__('admin.ui.copy_public_url'))
                     ->icon('heroicon-o-clipboard')
                     ->action(function (MediaFile $record): void {
                         Notification::make()
-                            ->title('Public URL is copyable from the URL column.')
+                            ->title(__('admin.ui.public_url_is_copyable_from_the_url_column'))
                             ->body((string) $record->url)
                             ->success()
                             ->send();
                     }),
                 Action::make('testExists')
-                    ->label('Test file exists')
+                    ->label(__('admin.ui.test_file_exists'))
                     ->icon('heroicon-o-check-circle')
                     ->action(function (MediaFile $record): void {
                         $exists = Storage::disk($record->disk ?: (string) config('community.uploads.disk'))->exists($record->path);
@@ -161,7 +161,7 @@ class MediaFileResource extends Resource
                             ->send();
                     }),
                 Action::make('regenerateUrl')
-                    ->label('Regenerate URL')
+                    ->label(__('admin.ui.regenerate_url'))
                     ->icon('heroicon-o-arrow-path')
                     ->action(function (MediaFile $record): void {
                         $record->forceFill([
@@ -169,7 +169,7 @@ class MediaFileResource extends Resource
                         ])->save();
 
                         Notification::make()
-                            ->title('Public URL regenerated.')
+                            ->title(__('admin.ui.public_url_regenerated'))
                             ->success()
                             ->send();
                     }),
@@ -214,11 +214,11 @@ class MediaFileResource extends Resource
                         TextEntry::make('type')
                             ->badge(),
                         TextEntry::make('disk')
-                            ->label('Disk')
+                            ->label(__('admin.ui.disk'))
                             ->badge()
                             ->placeholder('-'),
                         TextEntry::make('category')
-                            ->label('Category')
+                            ->label(__('admin.ui.category'))
                             ->badge()
                             ->placeholder('-'),
                         TextEntry::make('mime_type')

@@ -20,12 +20,12 @@ class FundingCampaignForm
     {
         return $schema
             ->components([
-                Section::make('Campaign')
+                Section::make(__('admin.ui.campaign'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Select::make('post_id')
-                                    ->label('Concept')
+                                    ->label(__('admin.ui.concept'))
                                     ->relationship('post', 'title')
                                     ->getOptionLabelFromRecordUsing(fn (Post $record): string => $record->title.' (#'.$record->id.')')
                                     ->searchable()
@@ -36,21 +36,21 @@ class FundingCampaignForm
                                     ->options(FundingCampaignStatus::options())
                                     ->required(),
                                 Toggle::make('support_enabled')
-                                    ->label('Support enabled')
+                                    ->label(__('admin.ui.support_enabled'))
                                     ->required(),
                                 TextInput::make('support_button_text')
                                     ->required()
                                     ->maxLength(120),
                                 TextInput::make('external_crowdfunding_url')
-                                    ->label('External crowdfunding URL')
+                                    ->label(__('admin.ui.external_crowdfunding_url'))
                                     ->url()
                                     ->rule(new ExternalSafeUrl)
                                     ->maxLength(2048)
-                                    ->helperText('Use a valid external http/https funding page. Unsafe protocols are rejected.')
+                                    ->helperText(__('admin.ui.use_a_valid_external_http_https_funding_page_unsafe_protocols_are_rejected'))
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Progress')
+                Section::make(__('admin.ui.progress'))
                     ->schema([
                         Grid::make(3)
                             ->schema([

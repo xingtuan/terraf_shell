@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
 
 class PendingPostsQueue extends TableWidget
 {
-    protected static ?string $heading = 'Pending Concepts';
+    protected static ?string $heading = null;
 
     protected int|string|array $columnSpan = 'full';
 
@@ -32,39 +32,39 @@ class PendingPostsQueue extends TableWidget
                 ->latest())
             ->columns([
                 TextColumn::make('title')
-                    ->label('Concept')
+                    ->label(__('admin.ui.concept'))
                     ->searchable()
                     ->description(fn (Post $record): string => Str::limit($record->excerpt ?: $record->content, 90))
                     ->wrap(),
                 TextColumn::make('user.name')
-                    ->label('Creator')
+                    ->label(__('admin.ui.creator'))
                     ->description(fn (Post $record): string => '@'.$record->user->username)
                     ->searchable(['name', 'username']),
                 TextColumn::make('category.name')
-                    ->label('Category')
+                    ->label(__('admin.ui.category'))
                     ->badge()
-                    ->placeholder('Uncategorized'),
+                    ->placeholder(__('admin.ui.uncategorized')),
                 TextColumn::make('reports_count')
-                    ->label('Reports')
+                    ->label(__('admin.ui.reports'))
                     ->badge()
                     ->color(fn (int $state): string => $state > 0 ? 'danger' : 'gray'),
                 TextColumn::make('created_at')
-                    ->label('Submitted')
+                    ->label(__('admin.ui.submitted'))
                     ->dateTime()
                     ->since(),
             ])
             ->recordActions([
                 Action::make('view')
-                    ->label('View')
+                    ->label(__('admin.ui.view'))
                     ->icon('heroicon-o-eye')
                     ->url(fn (Post $record): string => PostResource::getUrl('view', ['record' => $record])),
-                $this->statusAction('approve', 'Approve', ContentStatus::Approved->value, 'success'),
-                $this->statusAction('reject', 'Reject', ContentStatus::Rejected->value, 'danger'),
-                $this->statusAction('hide', 'Hide', ContentStatus::Hidden->value, 'gray'),
+                $this->statusAction('approve', __('admin.actions.approve'), ContentStatus::Approved->value, 'success'),
+                $this->statusAction('reject', __('admin.actions.reject'), ContentStatus::Rejected->value, 'danger'),
+                $this->statusAction('hide', __('admin.actions.hide'), ContentStatus::Hidden->value, 'gray'),
             ])
             ->paginated([10])
-            ->emptyStateHeading('No pending concepts.')
-            ->emptyStateDescription('New posts waiting for review will appear here.');
+            ->emptyStateHeading(__('admin.ui.no_pending_concepts'))
+            ->emptyStateDescription(__('admin.ui.new_posts_waiting_for_review_will_appear_here'));
     }
 
     public static function canView(): bool
@@ -79,7 +79,7 @@ class PendingPostsQueue extends TableWidget
             ->color($color)
             ->schema([
                 Textarea::make('reason')
-                    ->label('Moderation note')
+                    ->label(__('admin.ui.moderation_note'))
                     ->rows(3),
             ])
             ->requiresConfirmation()
@@ -92,9 +92,13 @@ class PendingPostsQueue extends TableWidget
                 );
 
                 Notification::make()
-                    ->title("Concept updated to {$label}.")
+                    ->title(__('admin.ui.concept_updated_to_label', ['label' => $label]))
                     ->success()
                     ->send();
             });
     }
 }
+    public function getTableHeading(): ?string
+    {
+        return __('admin.widgets.pending_posts');
+    }

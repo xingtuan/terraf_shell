@@ -15,19 +15,19 @@ class B2BLeadInfolist
     {
         return $schema
             ->components([
-                Section::make('Lead')
+                Section::make(__('admin.ui.lead'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('reference'),
                                 TextEntry::make('lead_type')
-                                    ->label('Lead type')
+                                    ->label(__('admin.ui.lead_type'))
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => B2BLeadType::tryFrom($state)?->label() ?? $state),
                                 TextEntry::make('interest_type')
-                                    ->label('Interest type')
+                                    ->label(__('admin.ui.interest_type'))
                                     ->badge()
-                                    ->placeholder('Not specified.'),
+                                    ->placeholder(__('admin.ui.not_specified')),
                                 TextEntry::make('status')
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
@@ -38,81 +38,81 @@ class B2BLeadInfolist
                                     ->formatStateUsing(fn (?string $state): string => $state ? __("admin.leads.priority.{$state}") : __('admin.leads.priority.normal')),
                                 TextEntry::make('inquiry_type'),
                                 TextEntry::make('application_type')
-                                    ->label('Application')
-                                    ->placeholder('Not specified.'),
+                                    ->label(__('admin.ui.application'))
+                                    ->placeholder(__('admin.ui.not_specified')),
                                 TextEntry::make('name'),
                                 TextEntry::make('company_name')
-                                    ->label('Company / Institution'),
+                                    ->label(__('admin.ui.company_institution')),
                                 TextEntry::make('organization_type')
-                                    ->placeholder('Not specified.'),
+                                    ->placeholder(__('admin.ui.not_specified')),
                                 TextEntry::make('job_title')
-                                    ->placeholder('Not specified.'),
+                                    ->placeholder(__('admin.ui.not_specified')),
                                 TextEntry::make('email')
-                                    ->label('Email'),
+                                    ->label(__('admin.ui.email')),
                                 TextEntry::make('phone')
-                                    ->placeholder('Not provided.'),
+                                    ->placeholder(__('admin.ui.not_provided')),
                                 TextEntry::make('country')
-                                    ->placeholder('Not provided.'),
+                                    ->placeholder(__('admin.ui.not_provided')),
                                 TextEntry::make('region')
-                                    ->placeholder('Not provided.'),
+                                    ->placeholder(__('admin.ui.not_provided')),
                                 TextEntry::make('company_website')
-                                    ->placeholder('Not provided.')
+                                    ->placeholder(__('admin.ui.not_provided'))
                                     ->url(fn (?string $state): ?string => filled($state) ? $state : null)
                                     ->openUrlInNewTab(),
                                 TextEntry::make('source_page')
-                                    ->label('CTA source')
-                                    ->placeholder('Not tracked.'),
+                                    ->label(__('admin.ui.cta_source'))
+                                    ->placeholder(__('admin.ui.not_tracked')),
                                 TextEntry::make('estimated_quantity')
-                                    ->label('Estimated quantity')
-                                    ->placeholder('Not specified.'),
+                                    ->label(__('admin.ui.estimated_quantity'))
+                                    ->placeholder(__('admin.ui.not_specified')),
                                 TextEntry::make('timeline')
-                                    ->placeholder('Not specified.'),
+                                    ->placeholder(__('admin.ui.not_specified')),
                                 TextEntry::make('expected_use_case')
-                                    ->label('Expected use case')
-                                    ->placeholder('Not specified.')
+                                    ->label(__('admin.ui.expected_use_case'))
+                                    ->placeholder(__('admin.ui.not_specified'))
                                     ->columnSpanFull(),
                                 TextEntry::make('message')
                                     ->columnSpanFull(),
                             ]),
                     ]),
-                Section::make('Review')
+                Section::make(__('admin.ui.review'))
                     ->schema([
                         TextEntry::make('internal_notes')
-                            ->placeholder('No internal notes yet.')
+                            ->placeholder(__('admin.ui.no_internal_notes_yet'))
                             ->columnSpanFull(),
                         TextEntry::make('assignee.name')
-                            ->label('Owner')
-                            ->placeholder('Unassigned.'),
+                            ->label(__('admin.ui.owner'))
+                            ->placeholder(__('admin.ui.unassigned_2')),
                         TextEntry::make('follow_up_at')
                             ->label(__('admin.fields.follow_up_at'))
                             ->dateTime()
                             ->placeholder('-'),
                         TextEntry::make('reviewer.name')
-                            ->label('Reviewed by')
-                            ->placeholder('Unassigned.'),
+                            ->label(__('admin.ui.reviewed_by'))
+                            ->placeholder(__('admin.ui.unassigned_2')),
                         TextEntry::make('reviewed_at')
-                            ->label('Reviewed at')
+                            ->label(__('admin.ui.reviewed_at'))
                             ->dateTime()
-                            ->placeholder('Not reviewed yet.'),
+                            ->placeholder(__('admin.ui.not_reviewed_yet')),
                         TextEntry::make('created_at')
-                            ->label('Submitted at')
+                            ->label(__('admin.ui.submitted_at'))
                             ->dateTime(),
                     ]),
-                Section::make('Structured Detail')
+                Section::make(__('admin.ui.structured_detail'))
                     ->schema([
                         TextEntry::make('partnershipInquiry.collaboration_type')
-                            ->label('Collaboration type')
-                            ->placeholder('No partnership detail attached.'),
+                            ->label(__('admin.ui.collaboration_type'))
+                            ->placeholder(__('admin.ui.no_partnership_detail_attached')),
                         TextEntry::make('partnershipInquiry.collaboration_goal')
-                            ->label('Collaboration goal')
-                            ->placeholder('No partnership detail attached.')
+                            ->label(__('admin.ui.collaboration_goal'))
+                            ->placeholder(__('admin.ui.no_partnership_detail_attached'))
                             ->columnSpanFull(),
                         TextEntry::make('sampleRequest.material_interest')
-                            ->label('Material interest')
-                            ->placeholder('No sample request detail attached.'),
+                            ->label(__('admin.ui.material_interest'))
+                            ->placeholder(__('admin.ui.no_sample_request_detail_attached')),
                         TextEntry::make('sampleRequest.intended_use')
-                            ->label('Intended use')
-                            ->placeholder('No sample request detail attached.')
+                            ->label(__('admin.ui.intended_use'))
+                            ->placeholder(__('admin.ui.no_sample_request_detail_attached'))
                             ->columnSpanFull(),
                     ]),
             ]);

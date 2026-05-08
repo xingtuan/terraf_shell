@@ -16,14 +16,14 @@ class ProductImagesTable
         return $table
             ->columns([
                 ImageColumn::make('media_url')
-                    ->label('Image')
+                    ->label(__('admin.ui.image'))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Media'),
                 TextColumn::make('product.name')
-                    ->label('Product')
+                    ->label(__('admin.ui.product'))
                     ->searchable(),
                 TextColumn::make('alt_text')
-                    ->label('Alt text')
+                    ->label(__('admin.ui.alt_text'))
                     ->searchable(),
                 TextColumn::make('sort_order')
                     ->numeric()
