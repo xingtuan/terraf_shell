@@ -95,8 +95,9 @@ class PendingCommentsQueue extends TableWidget
                     ->send();
             });
     }
-}
+
     public function getTableHeading(): ?string
     {
         return __('admin.widgets.pending_comments');
     }
+}
