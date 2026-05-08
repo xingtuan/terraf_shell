@@ -283,13 +283,29 @@ class MailSettingsService
             'mail.port' => ['value' => $settings->port, 'type' => 'integer', 'updated_by' => $actor],
             'mail.username' => ['value' => $settings->username, 'type' => 'string', 'updated_by' => $actor],
             'mail.encryption' => ['value' => $settings->encryption, 'type' => 'string', 'updated_by' => $actor],
+            'mail.domain' => ['value' => $settings->domain, 'type' => 'string', 'updated_by' => $actor],
+            'mail.region' => ['value' => $settings->region, 'type' => 'string', 'updated_by' => $actor],
             'mail.from_address' => ['value' => $settings->from_address, 'type' => 'string', 'updated_by' => $actor],
             'mail.from_name' => ['value' => $settings->from_name, 'type' => 'string', 'updated_by' => $actor],
+            'mail.reply_to_address' => ['value' => $settings->reply_to_address, 'type' => 'string', 'updated_by' => $actor],
+            'mail.reply_to_name' => ['value' => $settings->reply_to_name, 'type' => 'string', 'updated_by' => $actor],
+            'mail.admin_recipients' => ['value' => $settings->admin_recipients ?? [], 'type' => 'json', 'updated_by' => $actor],
+            'mail.timeout' => ['value' => $settings->timeout, 'type' => 'integer', 'updated_by' => $actor],
+            'mail.use_queue' => ['value' => (bool) $settings->use_queue, 'type' => 'boolean', 'updated_by' => $actor],
         ];
 
         if (filled($settings->password)) {
             $payload['mail.password'] = [
                 'value' => $settings->password,
+                'type' => 'string',
+                'is_secret' => true,
+                'updated_by' => $actor,
+            ];
+        }
+
+        if (filled($settings->api_key)) {
+            $payload['mail.api_key'] = [
+                'value' => $settings->api_key,
                 'type' => 'string',
                 'is_secret' => true,
                 'updated_by' => $actor,

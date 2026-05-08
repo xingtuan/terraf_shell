@@ -16,7 +16,8 @@ Steps shown by the installer:
 4. Storage settings: local or Azure, with Azure account/container/URL fields.
 5. Mail settings: log, array, or SMTP, sender identity.
 6. Admin account.
-7. Install.
+7. Install summary.
+8. Install complete by redirecting to `/admin`.
 
 During install, the app writes or updates only minimal bootstrap `.env` keys:
 
@@ -34,9 +35,19 @@ During install, the app writes or updates only minimal bootstrap `.env` keys:
 
 After migrations run, operational settings are saved into `app_settings`. The installer creates the admin user, creates a storage link for local storage, clears caches, creates `installed.lock`, and redirects to `/admin`.
 
+Safety behavior:
+
+- `storage/app/installing.lock` is created while install is running.
+- Duplicate install submissions are rejected with a recovery message.
+- Existing `.env` is backed up before writing.
+- `.env` is restored on failure when a backup exists.
+- `installed.lock` is created only after all install steps succeed.
+- Secret values are not flashed back to the page.
+- The route is CSRF protected and rate-limited by the `install` throttle.
+
 Recovery:
 
 - Remove `storage/app/installed.lock` only if this is truly a failed first install and no real production data exists.
+- Remove `storage/app/installing.lock` only after confirming no install process is active.
 - Fix bootstrap DB settings in `.env` if the app cannot reach the database.
 - Use `php artisan optimize:clear` after manual recovery changes.
-

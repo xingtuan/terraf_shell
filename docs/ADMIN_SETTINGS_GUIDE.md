@@ -20,3 +20,12 @@ Setting changes are cached under `app_settings.all`. Saving settings clears and 
 
 Setting changes made by an authenticated admin are recorded in `admin_action_logs` with secret values masked.
 
+## Final Delivery Additions
+
+- Settings Backup & Import exports non-secret JSON, imports only known non-secret keys, clears settings cache, and records audit logs through `SettingsService`.
+- Handover settings summary downloads a safe operational JSON without secrets.
+- Demo Cleanup removes only records explicitly marked as demo. It does not delete admin users, runtime settings, or CMS content.
+- Media Storage Scan counts media by disk, checks the first 200 records for missing files, exports a report, and provides dry-run migration actions only.
+- Storage test actions persist `storage.*.last_tested_at`, `storage.*.last_test_status`, and `storage.*.last_test_message`.
+- `app_setting_audit_logs` records actor, setting group/key, masked old/new values, secret flag, action, IP address, user agent, and timestamp.
+- High-risk settings pages require admin access via `PanelAccess::isAdmin()`.

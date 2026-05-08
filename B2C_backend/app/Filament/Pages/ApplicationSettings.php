@@ -21,9 +21,9 @@ class ApplicationSettings extends Page
 {
     use ManagesRuntimeSettings;
 
-    protected static ?string $title = 'Application Settings';
+    protected static ?string $title = null;
 
-    protected static ?string $navigationLabel = 'Application Settings';
+    protected static ?string $navigationLabel = null;
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemSettings;
 
@@ -43,25 +43,35 @@ class ApplicationSettings extends Page
         return PanelAccess::isAdmin();
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.application_settings');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.application_settings');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->statePath('data')
             ->components([
-                Section::make('Application')
+                Section::make(__('admin.application.sections.application'))
                     ->schema([
                         Grid::make(2)->schema([
-                            TextInput::make('site_name')->label('Site name')->required()->maxLength(255),
-                            TextInput::make('admin_brand_name')->label('Admin brand name')->maxLength(255),
-                            TextInput::make('app_url')->label('App URL')->url()->maxLength(255),
-                            TextInput::make('frontend_url')->label('Frontend URL')->url()->maxLength(255),
-                            TextInput::make('default_locale')->label('Default locale')->maxLength(8),
-                            TextInput::make('timezone')->label('Timezone')->maxLength(80),
-                            TextInput::make('contact_email')->label('Contact email')->email()->maxLength(255),
-                            TextInput::make('support_email')->label('Support email')->email()->maxLength(255),
+                            TextInput::make('site_name')->label(__('admin.application.fields.site_name'))->required()->maxLength(255),
+                            TextInput::make('admin_brand_name')->label(__('admin.application.fields.admin_brand_name'))->maxLength(255),
+                            TextInput::make('app_url')->label(__('admin.application.fields.app_url'))->url()->maxLength(255),
+                            TextInput::make('frontend_url')->label(__('admin.application.fields.frontend_url'))->url()->maxLength(255),
+                            TextInput::make('default_locale')->label(__('admin.application.fields.default_locale'))->maxLength(8),
+                            TextInput::make('timezone')->label(__('admin.application.fields.timezone'))->maxLength(80),
+                            TextInput::make('contact_email')->label(__('admin.application.fields.contact_email'))->email()->maxLength(255),
+                            TextInput::make('support_email')->label(__('admin.application.fields.support_email'))->email()->maxLength(255),
                         ]),
                         TagsInput::make('supported_locales')
-                            ->label('Supported locales')
+                            ->label(__('admin.application.fields.supported_locales'))
                             ->placeholder('en'),
                     ]),
             ]);

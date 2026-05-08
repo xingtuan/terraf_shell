@@ -4,6 +4,7 @@ namespace App\Services\Settings;
 
 use App\Models\AdminActionLog;
 use App\Models\AppSetting;
+use App\Models\AppSettingAuditLog;
 use App\Models\User;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -51,6 +52,13 @@ class SettingsService
         $type = (string) ($meta['type'] ?? $existing?->type ?? $this->inferType($value));
         $isSecret = (bool) ($meta['is_secret'] ?? $existing?->is_secret ?? $this->looksSecret($key));
         $isEncrypted = (bool) ($meta['is_encrypted'] ?? $existing?->is_encrypted ?? $isSecret);
+        $oldValue = $existing instanceof AppSetting
+            ? $this->castValue([
+                'value' => $existing->getRawOriginal('value'),
+                'type' => $existing->type,
+                'is_encrypted' => (bool) $existing->is_encrypted,
+            ])
+            : null;
 
         $payload = [
             'value' => $this->serializeValue($value, $type, $isEncrypted),
@@ -64,13 +72,13 @@ class SettingsService
             'updated_by' => $this->updatedBy($meta)?->id,
         ];
 
-        AppSetting::query()->updateOrCreate([
+        $record = AppSetting::query()->updateOrCreate([
             'group' => $group,
             'key' => $settingKey,
         ], $payload);
 
         $this->forgetCache();
-        $this->logChange($key, $value, $isSecret, $meta);
+        $this->logChange($record, $oldValue, $value, $isSecret, $existing instanceof AppSetting ? 'updated' : 'created', $meta);
     }
 
     /**
@@ -288,9 +296,66 @@ class SettingsService
     /**
      * @param  array<string, mixed>  $meta
      */
-    private function logChange(string $key, mixed $value, bool $isSecret, array $meta): void
+    private function maskForAudit(mixed $value, bool $isSecret): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if ($isSecret) {
+            return '[masked]';
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if (is_array($value)) {
+            return json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
+        return is_scalar($value) ? (string) $value : json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * @param  array<string, mixed>  $meta
+     */
+    private function requestContext(array $meta): array
+    {
+        $request = request();
+
+        return [
+            'ip_address' => $meta['ip_address'] ?? $request?->ip(),
+            'user_agent' => $meta['user_agent'] ?? $request?->userAgent(),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $meta
+     */
+    private function logChange(AppSetting $setting, mixed $oldValue, mixed $newValue, bool $isSecret, string $action, array $meta): void
     {
         $actor = $this->updatedBy($meta);
+        $context = $this->requestContext($meta);
+
+        if (Schema::hasTable('app_setting_audit_logs')) {
+            try {
+                AppSettingAuditLog::query()->create([
+                    'user_id' => $actor?->id,
+                    'group' => $setting->group,
+                    'key' => $setting->key,
+                    'old_value' => $this->maskForAudit($oldValue, $isSecret),
+                    'new_value' => $this->maskForAudit($newValue, $isSecret),
+                    'is_secret' => $isSecret,
+                    'action' => $action,
+                    'ip_address' => $context['ip_address'],
+                    'user_agent' => $context['user_agent'],
+                    'created_at' => now(),
+                ]);
+            } catch (Throwable) {
+                //
+            }
+        }
 
         if (! $actor instanceof User || ! Schema::hasTable('admin_action_logs')) {
             return;
@@ -300,10 +365,14 @@ class SettingsService
             AdminActionLog::query()->create([
                 'actor_user_id' => $actor->id,
                 'action' => 'setting.updated',
-                'description' => "Updated runtime setting {$key}.",
+                'description' => "Updated runtime setting {$setting->fullKey()}.",
                 'metadata' => [
-                    'key' => $key,
-                    'value' => $isSecret ? '[masked]' : $value,
+                    'key' => $setting->fullKey(),
+                    'old_value' => $this->maskForAudit($oldValue, $isSecret),
+                    'new_value' => $this->maskForAudit($newValue, $isSecret),
+                    'is_secret' => $isSecret,
+                    'action' => $action,
+                    'ip_address' => $context['ip_address'],
                 ],
             ]);
         } catch (Throwable) {

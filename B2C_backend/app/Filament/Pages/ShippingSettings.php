@@ -104,7 +104,7 @@ class ShippingSettings extends Page
                         Grid::make(3)
                             ->schema([
                                 Toggle::make('nz_only')
-                                    ->label('NZ-only shipping'),
+                                    ->label(__('admin.shipping.fields.nz_only_shipping')),
                                 TextInput::make('origin_city')
                                     ->label(__('admin.fields.origin_city'))
                                     ->maxLength(120),
@@ -116,7 +116,7 @@ class ShippingSettings extends Page
                                     ->content(fn (): string => $this->displayValue(config('store.shipping.origin.country', 'NZ'))),
                                 Placeholder::make('default_package_weight')
                                     ->label(__('admin.fields.default_package_weight'))
-                                    ->content('500 g'),
+                                    ->content(__('admin.shipping.default_package_weight_value')),
                                 TextInput::make('free_shipping_threshold')
                                     ->label(__('admin.fields.free_shipping_threshold'))
                                     ->numeric()
@@ -211,7 +211,7 @@ class ShippingSettings extends Page
 
         try {
             $quote = $shippingQuoteService->quote($cart, [
-                'line1' => 'Test address',
+                'line1' => __('admin.shipping.test_address_line1'),
                 'city' => (string) (config('store.shipping.origin.city') ?: 'Auckland'),
                 'region' => null,
                 'postcode' => $postcode !== '' ? $postcode : '1010',

@@ -21,9 +21,9 @@ class TaxSettings extends Page
 {
     use ManagesRuntimeSettings;
 
-    protected static ?string $title = 'Tax Settings';
+    protected static ?string $title = null;
 
-    protected static ?string $navigationLabel = 'Tax Settings';
+    protected static ?string $navigationLabel = null;
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemSettings;
 
@@ -43,15 +43,25 @@ class TaxSettings extends Page
         return PanelAccess::isAdmin();
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.tax_settings');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.tax_settings');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema->statePath('data')->components([
             Section::make('GST')->schema([
                 Grid::make(2)->schema([
-                    Toggle::make('gst_enabled')->label('GST enabled'),
-                    Toggle::make('prices_include_gst')->label('Prices include GST'),
-                    TextInput::make('gst_rate')->label('GST rate')->numeric()->minValue(0)->maxValue(1),
-                    TextInput::make('label')->label('Tax label')->maxLength(80),
+                    Toggle::make('gst_enabled')->label(__('admin.tax.fields.gst_enabled')),
+                    Toggle::make('prices_include_gst')->label(__('admin.tax.fields.prices_include_gst')),
+                    TextInput::make('gst_rate')->label(__('admin.tax.fields.gst_rate'))->numeric()->minValue(0)->maxValue(1),
+                    TextInput::make('label')->label(__('admin.tax.fields.tax_label'))->maxLength(80),
                 ]),
             ]),
         ]);

@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\CartService;
+use App\Services\Settings\SettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -228,6 +229,48 @@ class StoreOrderFlowTest extends TestCase
 
         $this->getJson("/api/orders/guest/{$orderNumber}?token=wrong-token")
             ->assertNotFound();
+    }
+
+    public function test_guest_checkout_can_be_disabled_by_runtime_setting_without_removing_route(): void
+    {
+        app(SettingsService::class)->set('feature.guest_checkout_enabled', false, [
+            'type' => 'boolean',
+        ]);
+
+        $product = Product::factory()->published()->create([
+            'price_usd' => 48.00,
+            'is_active' => true,
+            'in_stock' => true,
+        ]);
+
+        $this->getJson('/api/cart')->assertOk();
+
+        $sessionKey = Cart::query()
+            ->whereNull('user_id')
+            ->value('session_key');
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/cart/items', [
+                'product_id' => $product->id,
+                'quantity' => 1,
+            ], [
+                'Accept' => 'application/json',
+            ])
+            ->assertOk();
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->postJson('/api/orders', [
+                'guest_email' => 'guest@example.com',
+                'shipping_method_code' => 'standard',
+                'shipping_name' => 'Guest Buyer',
+                'shipping_phone' => '+64 21 000 000',
+                'shipping_address_line1' => '7 Queen Street',
+                'shipping_city' => 'Auckland',
+                'shipping_state_province' => 'Auckland',
+                'shipping_postal_code' => '1010',
+                'shipping_country' => 'NZ',
+            ])
+            ->assertForbidden();
     }
 
     public function test_order_creation_rejects_non_new_zealand_shipping(): void

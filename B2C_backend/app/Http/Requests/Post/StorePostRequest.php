@@ -7,9 +7,11 @@ use App\Enums\IdeaMediaType;
 use App\Models\Post;
 use App\Rules\ExternalSafeUrl;
 use App\Rules\ValidTiptapDocument;
+use App\Services\Settings\SettingsService;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class StorePostRequest extends FormRequest
@@ -35,7 +37,13 @@ class StorePostRequest extends FormRequest
             'content' => ['nullable', 'string', 'min:20', 'required_without:content_json'],
             'content_json' => ['nullable', 'string', new ValidTiptapDocument],
             'excerpt' => ['nullable', 'string', 'max:500'],
-            'funding_url' => ['nullable', 'url:http,https', new ExternalSafeUrl, 'max:2048'],
+            'funding_url' => [
+                'nullable',
+                Rule::prohibitedIf(! app(SettingsService::class)->boolean('feature.funding_links_enabled', true)),
+                'url:http,https',
+                new ExternalSafeUrl,
+                'max:2048',
+            ],
             'cover_image_url' => ['nullable', 'url', 'max:2048'],
             'cover_image_path' => ['nullable', 'string', 'max:1024'],
             'reading_time' => ['nullable', 'integer', 'min:0', 'max:999'],

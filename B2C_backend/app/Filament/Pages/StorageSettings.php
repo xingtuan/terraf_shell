@@ -31,9 +31,9 @@ class StorageSettings extends Page
 
     public ?string $lastTestResult = null;
 
-    protected static ?string $title = 'Storage Settings';
+    protected static ?string $title = null;
 
-    protected static ?string $navigationLabel = 'Storage Settings';
+    protected static ?string $navigationLabel = null;
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemSettings;
 
@@ -53,78 +53,99 @@ class StorageSettings extends Page
         return PanelAccess::isAdmin();
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.storage_settings');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.storage_settings');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->statePath('data')
             ->components([
-                Section::make('Status')
+                Section::make(__('admin.storage.sections.status'))
                     ->schema([
                         Grid::make(5)->schema([
                             Placeholder::make('active_driver')
-                                ->label('Active driver')
+                                ->label(__('admin.storage.fields.active_driver'))
                                 ->content(fn (): string => (string) ($this->data['default_driver'] ?? 'local')),
                             Placeholder::make('local_writable')
-                                ->label('Local writable')
-                                ->content(fn (): string => is_writable(storage_path('app/public')) ? 'OK' : 'Not writable'),
+                                ->label(__('admin.storage.fields.local_writable'))
+                                ->content(fn (): string => is_writable(storage_path('app/public')) ? __('admin.system.ok') : __('admin.system.not_configured')),
                             Placeholder::make('storage_link')
-                                ->label('Storage link')
-                                ->content(fn (): string => File::exists(public_path('storage')) ? 'Exists' : 'Missing'),
+                                ->label(__('admin.storage.fields.storage_link'))
+                                ->content(fn (): string => File::exists(public_path('storage')) ? __('admin.system.yes') : __('admin.system.no')),
                             Placeholder::make('azure_configured')
-                                ->label('Azure configured')
-                                ->content(fn (): string => $this->azureConfigured() ? 'Configured' : 'Not configured'),
+                                ->label(__('admin.storage.fields.azure_configured'))
+                                ->content(fn (): string => $this->azureConfigured() ? __('admin.system.configured') : __('admin.system.not_configured')),
                             Placeholder::make('last_tested')
-                                ->label('Last tested')
-                                ->content(fn (): string => (string) ($this->data['last_tested_at'] ?? 'Not tested')),
+                                ->label(__('admin.storage.fields.last_tested'))
+                                ->content(fn (): string => (string) ($this->data['last_tested_at'] ?: __('admin.storage.not_tested'))),
                         ]),
                         Placeholder::make('driver_switch_notice')
                             ->hiddenLabel()
-                            ->content('Switching the active driver affects new uploads only. Existing media remains on the disk recorded for that file.'),
+                            ->content(__('admin.storage.driver_switch_notice')),
+                        Grid::make(3)->schema([
+                            Placeholder::make('local_last_test')
+                                ->label(__('admin.storage.fields.local_last_test'))
+                                ->content(fn (): string => $this->formatTestSummary('local')),
+                            Placeholder::make('azure_last_test')
+                                ->label(__('admin.storage.fields.azure_last_test'))
+                                ->content(fn (): string => $this->formatTestSummary('azure')),
+                            Placeholder::make('overall_last_test')
+                                ->label(__('admin.storage.fields.overall_last_test'))
+                                ->content(fn (): string => $this->formatTestSummary('overall')),
+                        ]),
                     ]),
-                Section::make('Driver')
+                Section::make(__('admin.storage.sections.driver'))
                     ->schema([
                         Select::make('default_driver')
-                            ->label('Storage driver')
+                            ->label(__('admin.storage.fields.storage_driver'))
                             ->options([
-                                'local' => 'Local',
-                                'azure' => 'Azure Blob Storage',
+                                'local' => __('admin.storage.drivers.local'),
+                                'azure' => __('admin.storage.drivers.azure'),
                             ])
                             ->required()
                             ->live(),
                     ]),
-                Section::make('Local')
+                Section::make(__('admin.storage.sections.local'))
                     ->visible(fn (Get $get): bool => $get('default_driver') === 'local')
                     ->schema([
                         Grid::make(3)->schema([
                             Select::make('local_disk')
-                                ->label('Local disk')
+                                ->label(__('admin.storage.fields.local_disk'))
                                 ->options(['public' => 'public'])
                                 ->default('public')
                                 ->required(),
                             Placeholder::make('local_public_url')
-                                ->label('Public URL preview')
+                                ->label(__('admin.storage.fields.public_url_preview'))
                                 ->content(fn (): string => StorageUrl::publicResolve('health-checks/example.txt', $this->data['local_disk'] ?? 'public') ?? '-'),
                             Placeholder::make('storage_link_status')
-                                ->label('Storage link status')
-                                ->content(fn (): string => File::exists(public_path('storage')) ? 'Exists' : 'Missing'),
+                                ->label(__('admin.storage.fields.storage_link_status'))
+                                ->content(fn (): string => File::exists(public_path('storage')) ? __('admin.system.yes') : __('admin.system.no')),
                         ]),
                     ]),
-                Section::make('Azure')
+                Section::make(__('admin.storage.sections.azure'))
                     ->visible(fn (Get $get): bool => $get('default_driver') === 'azure')
                     ->schema([
                         Grid::make(2)->schema([
-                            TextInput::make('azure_account_name')->label('Account name')->maxLength(255),
+                            TextInput::make('azure_account_name')->label(__('admin.storage.fields.azure_account_name'))->maxLength(255),
                             TextInput::make('azure_account_key')
-                                ->label('Account key')
+                                ->label(__('admin.storage.fields.azure_account_key'))
                                 ->password()
                                 ->revealable()
-                                ->helperText('Leave masked or empty to keep the current key.'),
-                            TextInput::make('azure_container')->label('Container')->maxLength(255),
-                            TextInput::make('azure_url')->label('Storage URL')->url()->maxLength(255),
-                            Toggle::make('azure_use_sas_urls')->label('Use SAS URLs'),
-                            TextInput::make('azure_sas_ttl_minutes')->label('SAS TTL minutes')->numeric()->minValue(1),
+                                ->helperText(__('admin.storage.help.keep_secret')),
+                            TextInput::make('azure_container')->label(__('admin.storage.fields.azure_container'))->maxLength(255),
+                            TextInput::make('azure_url')->label(__('admin.storage.fields.azure_url'))->url()->maxLength(255),
+                            Toggle::make('azure_use_sas_urls')->label(__('admin.storage.fields.azure_use_sas_urls')),
+                            TextInput::make('azure_sas_ttl_minutes')->label(__('admin.storage.fields.azure_sas_ttl_minutes'))->numeric()->minValue(1),
                             Placeholder::make('azure_public_url')
-                                ->label('Public URL preview')
+                                ->label(__('admin.storage.fields.public_url_preview'))
                                 ->content(fn (): string => StorageUrl::publicResolve('health-checks/example.txt', 'azure') ?? '-')
                                 ->columnSpanFull(),
                         ]),
@@ -166,21 +187,25 @@ class StorageSettings extends Page
         Notification::make()->title(__('admin.notifications.saved'))->success()->send();
     }
 
-    public function testLocal(StorageManagerService $storage): void
+    public function testLocal(StorageManagerService $storage, SettingsService $settings): void
     {
         $result = $storage->test($this->data['local_disk'] ?? 'public');
+        $this->persistStorageTest($settings, 'local', $result->ok, $result->message);
         $this->notifyResult($result->ok, $result->message);
     }
 
-    public function testAzure(StorageManagerService $storage): void
+    public function testAzure(StorageManagerService $storage, SettingsService $settings): void
     {
         $result = $storage->test('azure');
+        $this->persistStorageTest($settings, 'azure', $result->ok, $result->message);
         $this->notifyResult($result->ok, $result->message);
     }
 
-    public function testUpload(StorageManagerService $storage): void
+    public function testUpload(StorageManagerService $storage, SettingsService $settings): void
     {
         $result = $storage->test($this->data['default_driver'] ?? null);
+        $scope = ($this->data['default_driver'] ?? 'local') === 'azure' ? 'azure' : 'local';
+        $this->persistStorageTest($settings, $scope, $result->ok, $result->message);
         $this->notifyResult($result->ok, $result->message);
     }
 
@@ -188,7 +213,7 @@ class StorageSettings extends Page
     {
         try {
             Artisan::call('storage:link');
-            $this->notifyResult(true, 'Storage link created or already exists.');
+            $this->notifyResult(true, __('admin.storage.messages.storage_link_created'));
         } catch (Throwable $throwable) {
             $this->notifyResult(false, $throwable->getMessage());
         }
@@ -197,7 +222,7 @@ class StorageSettings extends Page
     public function clearSettingsCache(SettingsService $settings): void
     {
         $settings->forgetCache();
-        $this->notifyResult(true, 'Runtime settings cache cleared.');
+        $this->notifyResult(true, __('admin.storage.messages.cache_cleared'));
     }
 
     public function rollbackDriver(SettingsService $settings): void
@@ -205,7 +230,7 @@ class StorageSettings extends Page
         $previous = $settings->string('storage.previous_driver', '');
 
         if ($previous === '') {
-            $this->notifyResult(false, 'No previous driver is recorded.');
+            $this->notifyResult(false, __('admin.storage.messages.no_previous_driver'));
 
             return;
         }
@@ -213,7 +238,7 @@ class StorageSettings extends Page
         $settings->set('storage.default_driver', $previous, ['type' => 'string']);
         $settings->warmCache();
         $this->form->fill($this->state($settings));
-        $this->notifyResult(true, "Rolled back to {$previous}.");
+        $this->notifyResult(true, __('admin.storage.messages.driver_rolled_back', ['driver' => $previous]));
     }
 
     public function content(Schema $schema): Schema
@@ -230,13 +255,13 @@ class StorageSettings extends Page
     {
         return [
             Action::make('save')->label(__('admin.actions.save_settings'))->submit('save')->requiresConfirmation(),
-            Action::make('testLocal')->label('Test local storage')->action('testLocal'),
-            Action::make('testAzure')->label('Test Azure connection')->action('testAzure'),
-            Action::make('testUpload')->label('Test upload')->action('testUpload'),
-            Action::make('createStorageLink')->label('Create storage link')->action('createStorageLink'),
-            Action::make('clearSettingsCache')->label('Clear settings cache')->action('clearSettingsCache'),
-            Action::make('rollbackDriver')->label('Roll back driver')->action('rollbackDriver')->requiresConfirmation(),
-            Action::make('migrateMedia')->label('Migrate media between disks')->disabled(),
+            Action::make('testLocal')->label(__('admin.storage.actions.test_local'))->action('testLocal'),
+            Action::make('testAzure')->label(__('admin.storage.actions.test_azure'))->action('testAzure'),
+            Action::make('testUpload')->label(__('admin.storage.actions.test_upload'))->action('testUpload'),
+            Action::make('createStorageLink')->label(__('admin.storage.actions.create_storage_link'))->action('createStorageLink'),
+            Action::make('clearSettingsCache')->label(__('admin.storage.actions.clear_settings_cache'))->action('clearSettingsCache'),
+            Action::make('rollbackDriver')->label(__('admin.storage.actions.rollback_driver'))->action('rollbackDriver')->requiresConfirmation(),
+            Action::make('migrateMedia')->label(__('admin.storage.actions.migrate_media'))->disabled(),
         ];
     }
 
@@ -252,6 +277,14 @@ class StorageSettings extends Page
             'azure_use_sas_urls' => $settings->boolean('storage.azure.use_sas_urls', (bool) config('community.uploads.azure.use_sas_urls', true)),
             'azure_sas_ttl_minutes' => $settings->integer('storage.azure.sas_ttl_minutes', (int) config('community.uploads.azure.signed_url_ttl_minutes', 10080)),
             'last_tested_at' => $settings->string('storage.last_tested_at', ''),
+            'last_test_status' => $settings->string('storage.last_test_status', ''),
+            'last_test_message' => $settings->string('storage.last_test_message', ''),
+            'local_last_tested_at' => $settings->string('storage.local.last_tested_at', ''),
+            'local_last_test_status' => $settings->string('storage.local.last_test_status', ''),
+            'local_last_test_message' => $settings->string('storage.local.last_test_message', ''),
+            'azure_last_tested_at' => $settings->string('storage.azure.last_tested_at', ''),
+            'azure_last_test_status' => $settings->string('storage.azure.last_test_status', ''),
+            'azure_last_test_message' => $settings->string('storage.azure.last_test_message', ''),
         ];
     }
 
@@ -264,10 +297,52 @@ class StorageSettings extends Page
 
     private function notifyResult(bool $ok, string $message): void
     {
+        $message = $this->safeStorageMessage($message);
         $this->lastTestResult = $message;
         Notification::make()
             ->title($message)
             ->{$ok ? 'success' : 'danger'}()
             ->send();
+    }
+
+    private function persistStorageTest(SettingsService $settings, string $scope, bool $ok, string $message): void
+    {
+        $safeMessage = $this->safeStorageMessage($message);
+        $timestamp = now()->toISOString();
+        $status = $ok ? 'ok' : 'error';
+
+        $settings->setMany([
+            "storage.{$scope}.last_tested_at" => ['value' => $timestamp, 'type' => 'string'],
+            "storage.{$scope}.last_test_status" => ['value' => $status, 'type' => 'string'],
+            "storage.{$scope}.last_test_message" => ['value' => $safeMessage, 'type' => 'string'],
+            'storage.last_tested_at' => ['value' => $timestamp, 'type' => 'string'],
+            'storage.last_test_status' => ['value' => $status, 'type' => 'string'],
+            'storage.last_test_message' => ['value' => $safeMessage, 'type' => 'string'],
+        ]);
+
+        $settings->warmCache();
+        $this->form->fill($this->state($settings));
+    }
+
+    private function formatTestSummary(string $scope): string
+    {
+        $prefix = $scope === 'overall' ? '' : "{$scope}_";
+        $status = (string) ($this->data[$prefix.'last_test_status'] ?? '');
+        $testedAt = (string) ($this->data[$prefix.'last_tested_at'] ?? '');
+        $message = (string) ($this->data[$prefix.'last_test_message'] ?? '');
+
+        if ($status === '' && $testedAt === '') {
+            return __('admin.storage.not_tested');
+        }
+
+        return trim(collect([$status, $testedAt, $message])->filter()->implode(' | '));
+    }
+
+    private function safeStorageMessage(string $message): string
+    {
+        return str($message)
+            ->replaceMatches('/[A-Za-z0-9+\/=]{32,}/', '[masked]')
+            ->limit(500)
+            ->toString();
     }
 }

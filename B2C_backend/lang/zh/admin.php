@@ -72,12 +72,12 @@ return [
     ],
 
     'pages' => [
-        'application_settings' => 'Application Settings',
-        'storage_settings' => 'Storage Settings',
-        'nz_post_settings' => 'NZ Post Settings',
-        'tax_settings' => 'Tax Settings',
-        'community_settings' => 'Community Settings',
-        'feature_flags' => 'Feature Flags',
+        'application_settings' => '应用设置',
+        'storage_settings' => '存储设置',
+        'nz_post_settings' => 'NZ Post 设置',
+        'tax_settings' => '税务设置',
+        'community_settings' => '社区设置',
+        'feature_flags' => '功能开关',
         'email_settings' => 'Email Center 设置',
         'email_settings_nav' => '设置',
         'mail_settings_nav' => '邮件设置',
@@ -88,6 +88,9 @@ return [
         'shipping_settings' => '配送设置',
         'shipping_settings_nav' => '配送设置',
         'system_handover_readiness' => '系统 / 交付准备状态',
+        'settings_backup_import' => '设置备份与导入',
+        'demo_cleanup' => '演示数据清理',
+        'media_storage_scan' => '媒体存储扫描',
     ],
 
     'widgets' => [
@@ -429,6 +432,353 @@ return [
         'quote_success' => '配送报价返回 :count 个选项。',
         'quote_failed' => '配送报价测试失败。',
         'not_tested' => '本会话尚未测试。',
+        'fields' => [
+            'nz_only_shipping' => '仅新西兰配送',
+        ],
+        'default_package_weight_value' => '500 g',
+        'test_address_line1' => '测试地址',
+    ],
+
+    'runtime' => [
+        'feature_disabled' => '此功能当前已停用。',
+        'guest_checkout_disabled' => '访客结账当前已停用。',
+    ],
+
+    'application' => [
+        'sections' => [
+            'application' => '应用',
+        ],
+        'fields' => [
+            'site_name' => '站点名称',
+            'admin_brand_name' => '后台品牌名称',
+            'app_url' => '应用 URL',
+            'frontend_url' => '前端 URL',
+            'default_locale' => '默认语言',
+            'timezone' => '时区',
+            'contact_email' => '联系邮箱',
+            'support_email' => '支持邮箱',
+            'supported_locales' => '支持语言',
+        ],
+    ],
+
+    'storage' => [
+        'not_tested' => '尚未测试',
+        'driver_switch_notice' => '切换活动驱动只影响新的上传。已有媒体会继续使用该文件记录的磁盘。',
+        'sections' => [
+            'status' => '状态',
+            'driver' => '驱动',
+            'local' => '本地',
+            'azure' => 'Azure',
+        ],
+        'drivers' => [
+            'local' => '本地',
+            'azure' => 'Azure Blob Storage',
+        ],
+        'fields' => [
+            'active_driver' => '活动驱动',
+            'local_writable' => '本地可写',
+            'storage_link' => '存储链接',
+            'azure_configured' => 'Azure 已配置',
+            'last_tested' => '最近测试',
+            'local_last_test' => '本地最近测试',
+            'azure_last_test' => 'Azure 最近测试',
+            'overall_last_test' => '整体最近测试',
+            'storage_driver' => '存储驱动',
+            'local_disk' => '本地磁盘',
+            'public_url_preview' => '公开 URL 预览',
+            'storage_link_status' => '存储链接状态',
+            'azure_account_name' => '账户名称',
+            'azure_account_key' => '账户密钥',
+            'azure_container' => '容器',
+            'azure_url' => '存储 URL',
+            'azure_use_sas_urls' => '使用 SAS URL',
+            'azure_sas_ttl_minutes' => 'SAS TTL 分钟',
+        ],
+        'help' => [
+            'keep_secret' => '如需保留当前密钥，请保持掩码值或留空。',
+        ],
+        'actions' => [
+            'test_local' => '测试本地存储',
+            'test_azure' => '测试 Azure 连接',
+            'test_upload' => '测试上传',
+            'create_storage_link' => '创建存储链接',
+            'clear_settings_cache' => '清除设置缓存',
+            'rollback_driver' => '回滚驱动',
+            'migrate_media' => '在磁盘间迁移媒体',
+        ],
+        'messages' => [
+            'storage_link_created' => '存储链接已创建或已存在。',
+            'cache_cleared' => '运行时设置缓存已清除。',
+            'no_previous_driver' => '没有记录上一个驱动。',
+            'driver_rolled_back' => '已回滚到 :driver。',
+        ],
+    ],
+
+    'tax' => [
+        'fields' => [
+            'gst_enabled' => '启用 GST',
+            'prices_include_gst' => '价格包含 GST',
+            'gst_rate' => 'GST 税率',
+            'tax_label' => '税费标签',
+        ],
+    ],
+
+    'feature_flags' => [
+        'sections' => [
+            'public_behavior' => '公开功能行为',
+        ],
+        'fields' => [
+            'b2c_store_enabled' => '启用 B2C 商店',
+            'b2b_inquiry_enabled' => '启用 B2B 咨询',
+            'community_enabled' => '启用社区',
+            'funding_links_enabled' => '启用筹资链接',
+            'guest_checkout_enabled' => '启用访客结账',
+            'email_sending_enabled' => '启用邮件发送',
+            'maintenance_notice_enabled' => '启用维护公告',
+            'maintenance_notice_message' => '维护公告消息',
+            'maintenance_notice_level' => '维护公告级别',
+        ],
+    ],
+
+    'community_settings' => [
+        'sections' => [
+            'uploads_moderation' => '社区上传与审核',
+        ],
+        'fields' => [
+            'allow_guest_upload' => '允许访客上传',
+            'max_files' => '最大文件数',
+            'max_file_size_kb' => '最大文件大小 KB',
+            'max_external_links' => '最大外部链接数',
+            'submission_policy' => '提交审核策略',
+            'sensitive_words_enabled' => '启用敏感词',
+            'allowed_extensions' => '允许的扩展名',
+            'sensitive_words' => '敏感词列表',
+            'default_funding_support_button_text' => '默认筹资支持按钮文案',
+        ],
+    ],
+
+    'community_moderation' => [
+        'subheading' => '控制提交内容是否需要审核，以及哪些用户可以跳过审核。',
+        'sections' => [
+            'submission_policy' => '提交策略',
+        ],
+        'fields' => [
+            'approval_mode' => '审批模式',
+            'trusted_users' => '信任用户',
+        ],
+        'help' => [
+            'submission_policy' => '选择社区帖子和评论的审批方式。',
+            'trusted_users' => '只有选择信任用户策略时，这些用户才会自动通过审核。',
+        ],
+        'messages' => [
+            'saved' => '社区审核设置已保存。',
+        ],
+        'policies' => [
+            'all_require_approval' => [
+                'label' => '所有内容都需要审批',
+                'help' => '每个新帖子和评论都会进入审核队列。',
+            ],
+            'trusted_users_auto_approve' => [
+                'label' => '信任用户自动通过',
+                'help' => '只有指定用户可以自动跳过审核。',
+            ],
+            'all_auto_approve' => [
+                'label' => '自动批准所有提交',
+                'help' => '所有社区帖子和评论会立即公开。',
+            ],
+        ],
+    ],
+
+    'nzpost' => [
+        'sections' => [
+            'api' => 'NZ Post API',
+        ],
+        'fields' => [
+            'configured_status' => '配置状态',
+            'enabled' => '启用',
+            'base_url' => 'API 基础 URL',
+            'client_id' => 'Client ID / API key ID',
+            'client_secret' => 'Client secret',
+            'api_key' => 'API key',
+            'sender_postcode' => '发件邮编',
+            'test_query' => '测试查询词',
+        ],
+        'help' => [
+            'keep_secret' => '如需保留当前值，请保持掩码值或留空。',
+        ],
+    ],
+
+    'email' => [
+        'sections' => [
+            'smtp' => 'SMTP',
+        ],
+        'fields' => [
+            'admin_recipients' => '管理员邮件收件人',
+        ],
+        'help' => [
+            'disabled_logs' => '停用后，Email Center 会记录跳过日志，用户操作仍会正常完成。',
+            'keep_password' => '如需保留当前密码，请保持掩码值或留空。',
+            'keep_key' => '如需保留当前密钥，请保持掩码值或留空。',
+            'admin_recipients' => '用于管理员收件人邮件事件。留空时使用活动管理员账户。',
+        ],
+        'encryption' => [
+            'none' => '无',
+        ],
+        'test_result' => '日志 #:id：:status',
+    ],
+
+    'settings_tools' => [
+        'sections' => [
+            'import' => '导入非密钥设置',
+            'reset' => '重置设置组',
+        ],
+        'fields' => [
+            'import_json' => '设置 JSON',
+            'reset_group' => '设置组',
+        ],
+        'help' => [
+            'import_json' => '粘贴不含密钥的设置导出 JSON。未知键和密钥字段会被拒绝。',
+        ],
+        'actions' => [
+            'export' => '导出非密钥 JSON',
+            'handover_summary' => '下载交付摘要',
+            'import' => '导入设置 JSON',
+            'reset_group' => '重置所选组',
+        ],
+        'messages' => [
+            'invalid_json' => '设置 JSON 无效。',
+            'unknown_keys' => '未知或不安全的设置键：:keys',
+            'imported' => '设置已导入，缓存已清除。',
+            'reset_group_required' => '请先选择设置组。',
+            'group_reset' => ':group 设置已按可用默认值重置。',
+        ],
+    ],
+
+    'demo_cleanup' => [
+        'sections' => [
+            'detected' => '检测到的演示数据',
+        ],
+        'fields' => [
+            'demo_posts' => '演示社区帖子',
+            'demo_comments' => '演示评论',
+            'demo_orders' => '演示订单',
+            'demo_leads' => '演示线索',
+            'demo_media' => '演示媒体',
+            'demo_users' => '演示用户',
+        ],
+        'actions' => [
+            'cleanup_community' => '清理已标记社区演示数据',
+        ],
+        'messages' => [
+            'cleaned' => '已清理标记的社区演示数据。',
+        ],
+        'help' => [
+            'safe_scope' => '只有明确标记为演示的数据才会被处理。管理员用户、运行时设置和 CMS 内容不会被此工具删除。',
+        ],
+    ],
+
+    'media_scan' => [
+        'sections' => [
+            'summary' => '媒体存储摘要',
+            'integrity' => '完整性扫描',
+        ],
+        'fields' => [
+            'total_files' => '媒体文件总数',
+            'local_files' => '本地文件',
+            'azure_files' => 'Azure 文件',
+            'total_size' => '已记录总大小',
+            'missing_files' => '前 200 条中缺失的文件',
+        ],
+        'actions' => [
+            'export_report' => '导出扫描报告',
+            'dry_run_local_to_azure' => '试运行：本地到 Azure',
+            'dry_run_azure_to_local' => '试运行：Azure 到本地',
+        ],
+        'messages' => [
+            'dry_run_ready' => '将检查 :count 个文件用于 :from 到 :to 迁移。没有移动任何文件。',
+        ],
+        'help' => [
+            'scan_limit' => '此轻量扫描会检查前 200 条媒体记录是否缺失文件。规划迁移前请先导出报告。',
+        ],
+    ],
+
+    'installer' => [
+        'title' => '安装 Terraf OXP',
+        'intro' => '这些步骤只需完成一次。安装成功后，安装器会被锁定并打开管理后台。',
+        'progress_label' => '安装进度',
+        'steps' => [
+            'requirements' => '环境要求',
+            'application' => '应用',
+            'database' => '数据库',
+            'storage' => '存储',
+            'mail' => '邮件',
+            'admin' => '管理员',
+            'summary' => '安装摘要',
+            'complete' => '安装完成',
+        ],
+        'sections' => [
+            'requirements' => '第 1 步 - 环境检查',
+            'application' => '第 2 步 - 应用设置',
+            'database' => '第 3 步 - 数据库设置',
+            'storage' => '第 4 步 - 存储设置',
+            'mail' => '第 5 步 - 邮件设置',
+            'admin' => '第 6 步 - 管理员账号',
+            'summary' => '第 7 步 - 安装摘要',
+        ],
+        'fields' => [
+            'app_name' => '应用名称',
+            'app_url' => '应用 URL',
+            'frontend_url' => '前端 URL',
+            'timezone' => '时区',
+            'locale' => '默认语言',
+            'connection' => '连接',
+            'host' => '主机',
+            'port' => '端口',
+            'database' => '数据库',
+            'username' => '用户名',
+            'password' => '密码',
+            'driver' => '驱动',
+            'azure_account_name' => 'Azure 账号名称',
+            'azure_account_key' => 'Azure 账号密钥',
+            'azure_container' => 'Azure 容器',
+            'azure_url' => 'Azure 存储 URL',
+            'mailer' => '邮件器',
+            'smtp_host' => 'SMTP 主机',
+            'smtp_port' => 'SMTP 端口',
+            'smtp_username' => 'SMTP 用户名',
+            'smtp_password' => 'SMTP 密码',
+            'encryption' => '加密',
+            'from_email' => '发件邮箱',
+            'from_name' => '发件名称',
+            'name' => '姓名',
+            'email' => '邮箱',
+            'confirm_password' => '确认密码',
+        ],
+        'requirements' => [
+            'php' => 'PHP 版本 >= 8.3',
+            'pdo' => 'PDO 扩展',
+            'storage' => 'storage 可写',
+            'bootstrap_cache' => 'bootstrap/cache 可写',
+            'env' => '.env 存在或根路径可写',
+            'public_storage' => 'public/storage 链接',
+            'loaded' => '已加载',
+            'missing' => '缺失',
+            'exists' => '存在',
+            'can_create' => '可在安装时创建',
+        ],
+        'messages' => [
+            'install_running' => '安装已在运行。如果这是过期锁，请确认没有安装进程后删除 storage/app/installing.lock。',
+            'lock_title' => '安装当前已锁定。',
+            'lock_body' => '可能有另一个安装请求正在运行。如果没有活动进程，请删除 storage/app/installing.lock 并刷新页面。',
+            'errors_title' => '当前还不能继续安装。',
+            'secrets_hidden' => '密钥不会显示在此页面。技术细节请查看 storage/logs/laravel.log。',
+            'requirement_ok' => '正常',
+            'requirement_check' => '需检查',
+            'db_failed' => '数据库连接失败。',
+            'install_failed' => '安装失败。若有备份，之前的 .env 文件已恢复。请查看 storage/logs/laravel.log，修正问题后，如 storage/app/installing.lock 仍存在请删除，再重新提交。',
+            'summary' => '安装器会备份当前 .env 文件，写入必要启动配置，执行迁移和种子，保存运行时设置，创建管理员账号，所有步骤成功后才写入 storage/app/installed.lock。',
+            'submit' => '安装并打开管理后台',
+        ],
     ],
 
     'system' => [
@@ -447,22 +797,34 @@ return [
         'secrets_hidden' => '密钥信息会刻意隐藏。',
         'failed_jobs' => ':count 个失败',
         'batch' => '批次 :batch',
+        'cors_sanctum_detail' => 'CORS: :cors | Sanctum: :sanctum',
         'checks' => [
             'app_name' => '应用名称',
             'app_url' => '应用 URL',
             'frontend_url' => '前端 URL',
+            'cors_sanctum' => 'CORS / Sanctum 一致性',
             'environment' => '环境',
             'database' => '数据库连接',
             'storage_disk' => '存储磁盘状态',
+            'active_storage_driver' => '活动存储驱动',
+            'local_storage' => '本地存储状态',
+            'azure_storage' => 'Azure 存储状态',
+            'storage_last_test' => '最近存储测试',
             'mail_enabled' => '邮件发送已启用',
             'mail_provider' => '邮件服务商',
+            'mail_last_test' => '最近邮件测试',
             'queue_connection' => '队列连接',
             'cache_driver' => '缓存驱动',
             'session_driver' => '会话驱动',
             'upload_disk' => '上传磁盘',
             'storage_link' => '存储链接存在',
+            'installed_lock' => 'installed.lock 存在',
+            'installing_lock' => 'installing.lock 存在',
             'key_admin' => '关键管理员账号存在',
             'demo_data' => '演示种子数据存在',
+            'demo_data_count' => '演示种子数据数量',
+            'public_settings_endpoint' => '公开设置端点',
+            'health_check' => '健康检查 API',
             'failed_jobs' => '存在失败任务',
             'php_version' => 'PHP 版本',
             'laravel_version' => 'Laravel 版本',

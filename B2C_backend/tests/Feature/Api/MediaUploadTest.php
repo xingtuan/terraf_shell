@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Models\User;
+use App\Services\Settings\SettingsService;
 use App\Support\StorageUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -129,6 +130,46 @@ class MediaUploadTest extends TestCase
         $this->assertDatabaseHas('media_files', [
             'user_id' => $owner->id,
             'path' => $path,
+        ]);
+    }
+
+    public function test_guest_upload_route_exists_but_runtime_setting_can_disable_it(): void
+    {
+        app(SettingsService::class)->set('community.allow_guest_upload', false, [
+            'type' => 'boolean',
+        ]);
+
+        $this->postJson('/api/media/upload/guest', [
+            'file' => UploadedFile::fake()->image('guest.png'),
+            'category' => 'community',
+        ])->assertForbidden();
+    }
+
+    public function test_guest_upload_route_allows_upload_when_runtime_setting_is_enabled(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+        Storage::fake('public');
+        app(SettingsService::class)->set('community.allow_guest_upload', true, [
+            'type' => 'boolean',
+        ]);
+
+        $response = $this->post('/api/media/upload/guest', [
+            'file' => UploadedFile::fake()->image('guest.png'),
+            'category' => 'community',
+        ], [
+            'Accept' => 'application/json',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $path = (string) $response->json('data.path');
+
+        Storage::disk('public')->assertExists($path);
+        $this->assertDatabaseHas('media_files', [
+            'path' => $path,
+            'user_id' => null,
         ]);
     }
 }

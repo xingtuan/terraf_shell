@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\FundingCampaign;
 use App\Models\Post;
 use App\Models\User;
+use App\Services\Settings\SettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -28,7 +29,8 @@ class PostResource extends JsonResource
     public function toArray(Request $request): array
     {
         $viewer = $request->user('sanctum') ?? $request->user();
-        $campaign = $this->visibleFundingCampaign($request, $viewer);
+        $fundingEnabled = app(SettingsService::class)->boolean('feature.funding_links_enabled', true);
+        $campaign = $fundingEnabled ? $this->visibleFundingCampaign($request, $viewer) : null;
 
         return [
             'id' => $this->id,
@@ -39,7 +41,7 @@ class PostResource extends JsonResource
             'content' => $this->content,
             'content_json' => $this->when($this->includeDetailFields, $this->content_json),
             'excerpt' => $this->excerpt,
-            'funding_url' => $this->funding_url,
+            'funding_url' => $fundingEnabled ? $this->funding_url : null,
             'cover_image_url' => $this->coverImageUrl(),
             'cover_image_path' => $this->when($this->includeDetailFields, $this->cover_image_path),
             'reading_time' => (int) ($this->reading_time ?? 0),

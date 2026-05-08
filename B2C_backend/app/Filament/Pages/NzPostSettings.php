@@ -26,9 +26,9 @@ class NzPostSettings extends Page
         save as saveRuntimeSettings;
     }
 
-    protected static ?string $title = 'NZ Post Settings';
+    protected static ?string $title = null;
 
-    protected static ?string $navigationLabel = 'NZ Post Settings';
+    protected static ?string $navigationLabel = null;
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemSettings;
 
@@ -52,21 +52,31 @@ class NzPostSettings extends Page
         return PanelAccess::isAdmin();
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.nz_post_settings');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.nz_post_settings');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema->statePath('data')->components([
-            Section::make('NZ Post API')->schema([
+            Section::make(__('admin.nzpost.sections.api'))->schema([
                 Placeholder::make('configured')
-                    ->label('Configured status')
-                    ->content(fn (): string => filled($this->data['api_key'] ?? null) || filled($this->data['client_secret'] ?? null) ? 'Configured' : 'Not configured'),
+                    ->label(__('admin.nzpost.fields.configured_status'))
+                    ->content(fn (): string => filled($this->data['api_key'] ?? null) || filled($this->data['client_secret'] ?? null) ? __('admin.system.configured') : __('admin.system.not_configured')),
                 Grid::make(2)->schema([
-                    Toggle::make('enabled')->label('Enabled'),
-                    TextInput::make('base_url')->label('API base URL')->url(),
-                    TextInput::make('client_id')->label('Client ID / API key ID'),
-                    TextInput::make('client_secret')->label('Client secret')->password()->revealable()->helperText('Leave masked or empty to keep the current value.'),
-                    TextInput::make('api_key')->label('API key')->password()->revealable()->helperText('Leave masked or empty to keep the current value.'),
-                    TextInput::make('sender_postcode')->label('Sender postcode'),
-                    TextInput::make('test_query')->label('Test lookup query'),
+                    Toggle::make('enabled')->label(__('admin.nzpost.fields.enabled')),
+                    TextInput::make('base_url')->label(__('admin.nzpost.fields.base_url'))->url(),
+                    TextInput::make('client_id')->label(__('admin.nzpost.fields.client_id')),
+                    TextInput::make('client_secret')->label(__('admin.nzpost.fields.client_secret'))->password()->revealable()->helperText(__('admin.nzpost.help.keep_secret')),
+                    TextInput::make('api_key')->label(__('admin.nzpost.fields.api_key'))->password()->revealable()->helperText(__('admin.nzpost.help.keep_secret')),
+                    TextInput::make('sender_postcode')->label(__('admin.nzpost.fields.sender_postcode')),
+                    TextInput::make('test_query')->label(__('admin.nzpost.fields.test_query')),
                 ]),
             ]),
         ]);
@@ -90,7 +100,7 @@ class NzPostSettings extends Page
         $count = count($result['items'] ?? []);
 
         Notification::make()
-            ->title("Address lookup returned {$count} result(s).")
+            ->title(__('admin.shipping.address_lookup_success', ['count' => $count, 'source' => $result['source'] ?? 'NZ Post']))
             ->success()
             ->send();
     }
@@ -103,7 +113,7 @@ class NzPostSettings extends Page
                 ->livewireSubmitHandler('save')
                 ->footer([Actions::make([
                     Action::make('save')->label(__('admin.actions.save_settings'))->submit('save')->requiresConfirmation(),
-                    Action::make('testLookup')->label('Test lookup')->action('testLookup'),
+                    Action::make('testLookup')->label(__('admin.actions.test_address_lookup'))->action('testLookup'),
                 ])]),
         ]);
     }

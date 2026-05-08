@@ -74,6 +74,8 @@ node scripts/check-i18n-keys.mjs
 | `NEXT_PUBLIC_MEDIA_BASE_URL` | *(empty)* | Optional CDN base URL for media assets served from Azure Blob Storage. |
 | `NEXT_PUBLIC_BRAND_CONTACT_EMAIL` | *(empty)* | Optional confirmed OXP contact email. Leave empty until the client confirms the final address. |
 
+Runtime feature visibility also comes from `GET /api/public-settings` when available. The frontend keeps environment/static fallbacks so local builds do not crash if the endpoint is unavailable.
+
 ---
 
 ## Routing
@@ -194,6 +196,7 @@ lib/
     inquiries.ts                    # Legacy wrapper → delegates to leads.ts
     cart.ts                         # Shopping cart
     orders.ts                       # Orders
+    public-settings.ts              # Safe runtime settings and feature flags
     addresses.ts                    # User addresses
     media.ts                        # Media upload
     products.ts                     # Live product catalog API

@@ -34,6 +34,12 @@ Rollback:
 Migration between disks:
 
 - Automatic media migration is intentionally not enabled in this sprint.
-- The admin page includes a disabled placeholder action for future migration.
+- Media Storage Scan counts files by disk, checks the first 200 records for missing files, exports a report, and provides dry-run local-to-Azure and Azure-to-local actions.
 - A future migration should copy files, verify checksums/existence, update recorded disks only after verification, and keep a rollback manifest.
 
+Test result persistence:
+
+- Local test results are stored in `storage.local.last_tested_at`, `storage.local.last_test_status`, and `storage.local.last_test_message`.
+- Azure test results are stored in `storage.azure.last_tested_at`, `storage.azure.last_test_status`, and `storage.azure.last_test_message`.
+- Upload test results are stored in `storage.last_tested_at`, `storage.last_test_status`, and `storage.last_test_message`.
+- Messages are sanitized before persistence and must not contain secrets.

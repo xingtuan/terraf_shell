@@ -22,9 +22,9 @@ class CommunitySettings extends Page
 {
     use ManagesRuntimeSettings;
 
-    protected static ?string $title = 'Community Settings';
+    protected static ?string $title = null;
 
-    protected static ?string $navigationLabel = 'Community Settings';
+    protected static ?string $navigationLabel = null;
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemSettings;
 
@@ -44,21 +44,31 @@ class CommunitySettings extends Page
         return PanelAccess::isAdmin();
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.community_settings');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.community_settings');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema->statePath('data')->components([
-            Section::make('Community uploads and moderation')->schema([
+            Section::make(__('admin.community_settings.sections.uploads_moderation'))->schema([
                 Grid::make(3)->schema([
-                    Toggle::make('allow_guest_upload')->label('Allow guest upload'),
-                    TextInput::make('max_files')->numeric()->minValue(1)->label('Max files'),
-                    TextInput::make('max_file_size_kb')->numeric()->minValue(1)->label('Max file size KB'),
-                    TextInput::make('max_external_links')->numeric()->minValue(0)->label('Max external links'),
-                    TextInput::make('submission_policy')->label('Submission policy'),
-                    Toggle::make('sensitive_words_enabled')->label('Sensitive words enabled'),
+                    Toggle::make('allow_guest_upload')->label(__('admin.community_settings.fields.allow_guest_upload')),
+                    TextInput::make('max_files')->numeric()->minValue(1)->label(__('admin.community_settings.fields.max_files')),
+                    TextInput::make('max_file_size_kb')->numeric()->minValue(1)->label(__('admin.community_settings.fields.max_file_size_kb')),
+                    TextInput::make('max_external_links')->numeric()->minValue(0)->label(__('admin.community_settings.fields.max_external_links')),
+                    TextInput::make('submission_policy')->label(__('admin.community_settings.fields.submission_policy')),
+                    Toggle::make('sensitive_words_enabled')->label(__('admin.community_settings.fields.sensitive_words_enabled')),
                 ]),
-                TagsInput::make('allowed_extensions')->label('Allowed extensions'),
-                TagsInput::make('sensitive_words')->label('Sensitive word list'),
-                TextInput::make('default_funding_support_button_text')->label('Default funding support button text'),
+                TagsInput::make('allowed_extensions')->label(__('admin.community_settings.fields.allowed_extensions')),
+                TagsInput::make('sensitive_words')->label(__('admin.community_settings.fields.sensitive_words')),
+                TextInput::make('default_funding_support_button_text')->label(__('admin.community_settings.fields.default_funding_support_button_text')),
             ]),
         ]);
     }

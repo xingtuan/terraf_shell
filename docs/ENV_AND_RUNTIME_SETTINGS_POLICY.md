@@ -40,3 +40,23 @@ Env values remain in config files as fallback for:
 
 Secrets in runtime settings are encrypted with Laravel encryption. Do not rotate `APP_KEY` without planning how encrypted settings will be recovered or re-entered.
 
+## Frontend URL, CORS, And Sanctum
+
+Bootstrap/server values that may require `.env` change, config clear, or process restart:
+
+- `APP_URL`
+- `FRONTEND_URL`
+- `CORS_ALLOWED_ORIGINS`
+- `SANCTUM_STATEFUL_DOMAINS`
+- `SESSION_DOMAIN`
+
+Runtime/display values:
+
+- `app.frontend_url` is shown in System / Handover Readiness and used for operator consistency checks.
+- `GET /api/public-settings` exposes only safe public feature flags and contact/support values.
+
+Policy:
+
+- Do not rely on runtime settings alone to change CORS or Sanctum behavior after route/config cache is built.
+- If `app.frontend_url` is not present in CORS or Sanctum values, the handover page should show a warning.
+- Public settings must never expose Azure, mail, NZ Post, database, filesystem path, or admin-only secret values.

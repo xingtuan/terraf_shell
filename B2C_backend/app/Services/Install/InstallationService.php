@@ -38,34 +38,34 @@ class InstallationService
     {
         return [
             'php' => [
-                'label' => 'PHP version >= 8.3',
+                'label' => __('admin.installer.requirements.php'),
                 'ok' => version_compare(PHP_VERSION, '8.3.0', '>='),
                 'detail' => PHP_VERSION,
             ],
             'pdo' => [
-                'label' => 'PDO extension',
+                'label' => __('admin.installer.requirements.pdo'),
                 'ok' => extension_loaded('pdo'),
-                'detail' => extension_loaded('pdo') ? 'Loaded' : 'Missing',
+                'detail' => extension_loaded('pdo') ? __('admin.installer.requirements.loaded') : __('admin.installer.requirements.missing'),
             ],
             'storage' => [
-                'label' => 'storage writable',
+                'label' => __('admin.installer.requirements.storage'),
                 'ok' => is_writable(storage_path()),
                 'detail' => storage_path(),
             ],
             'bootstrap_cache' => [
-                'label' => 'bootstrap/cache writable',
+                'label' => __('admin.installer.requirements.bootstrap_cache'),
                 'ok' => is_writable(base_path('bootstrap/cache')),
                 'detail' => base_path('bootstrap/cache'),
             ],
             'env' => [
-                'label' => '.env exists or base path writable',
+                'label' => __('admin.installer.requirements.env'),
                 'ok' => File::exists(base_path('.env')) ? is_writable(base_path('.env')) : is_writable(base_path()),
                 'detail' => base_path('.env'),
             ],
             'public_storage' => [
-                'label' => 'public/storage link',
+                'label' => __('admin.installer.requirements.public_storage'),
                 'ok' => File::exists(public_path('storage')),
-                'detail' => File::exists(public_path('storage')) ? 'Exists' : 'Can be created during install',
+                'detail' => File::exists(public_path('storage')) ? __('admin.installer.requirements.exists') : __('admin.installer.requirements.can_create'),
             ],
         ];
     }
@@ -79,6 +79,29 @@ class InstallationService
     public function lockPath(): string
     {
         return storage_path('app/installed.lock');
+    }
+
+    public function installingLockPath(): string
+    {
+        return storage_path('app/installing.lock');
+    }
+
+    public function isInstalling(): bool
+    {
+        return File::exists($this->installingLockPath());
+    }
+
+    public function createInstallingLock(): void
+    {
+        File::ensureDirectoryExists(dirname($this->installingLockPath()));
+        File::put($this->installingLockPath(), now()->toISOString());
+    }
+
+    public function clearInstallingLock(): void
+    {
+        if (File::exists($this->installingLockPath())) {
+            File::delete($this->installingLockPath());
+        }
     }
 
     public function databaseIsReachable(array $data): bool

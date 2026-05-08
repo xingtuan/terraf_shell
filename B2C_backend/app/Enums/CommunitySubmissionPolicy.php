@@ -22,19 +22,11 @@ enum CommunitySubmissionPolicy: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::AllRequireApproval => 'All content requires approval',
-            self::TrustedUsersAutoApprove => 'Trusted users are approved automatically',
-            self::AllAutoApprove => 'Approve all submissions automatically',
-        };
+        return __("admin.community_moderation.policies.{$this->value}.label");
     }
 
     public function helperText(): string
     {
-        return match ($this) {
-            self::AllRequireApproval => 'Every new post and comment is queued for moderation.',
-            self::TrustedUsersAutoApprove => 'Only designated users can bypass moderation automatically.',
-            self::AllAutoApprove => 'All community posts and comments go live immediately.',
-        };
+        return __("admin.community_moderation.policies.{$this->value}.help");
     }
 }

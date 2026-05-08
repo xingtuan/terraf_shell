@@ -4,6 +4,8 @@ Laravel 13 REST API backend for the OXP platform. It provides authentication, co
 
 The frontend is a separate Next.js application that consumes this service over REST with JSON responses.
 
+Current delivery status: product catalog APIs are live at `/api/products`, `/api/products/featured`, and `/api/products/{slug}`; cart APIs are live; checkout supports guest and registered users; guest order lookup uses order number plus `guest_order_token`; shipping is New Zealand only; NZ Post lookup/quote support is available when configured; runtime settings, storage driver switching, the web installer, public settings, health checks, admin localization, Email Center, media management, and System / Handover Readiness are implemented.
+
 ---
 
 ## Tech Stack
@@ -117,6 +119,10 @@ php artisan queue:work
 
 **API** is available at: `http://127.0.0.1:8000`  
 **Admin panel** is available at: `http://127.0.0.1:8000/admin`
+
+**Web installer** is available at `/install` before installation and is locked after `storage/app/installed.lock` or `system.installed_at` exists.
+
+**Health checks** are available at `/up`, `/api/health`, `/api/health/database`, `/api/health/storage`, and `/api/health/mail`.
 
 ### Lightweight Local Configuration
 

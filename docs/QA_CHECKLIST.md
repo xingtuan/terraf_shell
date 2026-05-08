@@ -1,6 +1,6 @@
 # QA Checklist
 
-Last updated: 2026-05-07
+Last updated: 2026-05-08
 
 ## Required Checks
 
@@ -21,6 +21,16 @@ Last updated: 2026-05-07
 | Admin translation keys avoid missing-key output for core pages | Pass | Core key loop in EN/KO/ZH |
 | New admin resources are reachable by admin | Pass | Carts, addresses, media files, handover readiness |
 | New admin-only resources block moderator access | Pass | Access resource test |
+| Admin EN/KO/ZH translation keys have identical structure | Pass | `AdminTranslationKeysTest` |
+| Settings audit log masks secrets | Pass | `SettingsServiceTest` |
+| Public settings endpoint excludes secrets | Pass | `PublicReadinessEndpointsTest` |
+| Health endpoints return safe status payloads | Pass | `PublicReadinessEndpointsTest` |
+| Guest media upload route remains registered and is runtime gated | Pass | `MediaUploadTest` |
+| Guest checkout route remains registered and is runtime gated | Pass | `StoreOrderFlowTest` |
+| Storage test results persist | Pending manual | Verify from Storage Settings after test actions |
+| Settings export/import validates safely | Pending manual | Verify in admin with non-secret JSON |
+| Demo cleanup protects unmarked data | Pending manual | Verify counts and confirmation before action |
+| Media scan export works | Pending manual | Verify downloaded JSON report |
 
 ## Command Results
 
@@ -33,4 +43,26 @@ PASS: formatting completed
 
 php artisan optimize:clear
 PASS: config, cache, compiled, events, routes, views, blade-icons, and filament caches cleared
+
+2026-05-08 final pass:
+php artisan optimize:clear
+PASS
+
+php artisan migrate:fresh --seed
+TIMED OUT at 180s after DefaultAppSettingsSeeder output; follow-up verification showed all migrations ran and seed data exists (`users=11 products=8 settings=71`).
+
+php artisan test
+PASS: 153 tests, 1130 assertions
+
+vendor/bin/pint
+PASS: formatting completed
+
+node scripts/check-i18n-keys.mjs
+PASS: all frontend locale keys present
+
+corepack pnpm exec tsc --noEmit
+PASS
+
+corepack pnpm build
+PASS with existing i18n-diff warnings for six intentionally identical values (`sibling`, `inactive`, and `https://company.com`).
 ```

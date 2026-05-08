@@ -42,6 +42,15 @@ class DefaultAppSettingsSeeder extends Seeder
             'storage.azure.url' => ['value' => config('filesystems.disks.azure.storage_url'), 'type' => 'string'],
             'storage.azure.use_sas_urls' => ['value' => config('community.uploads.azure.use_sas_urls', true), 'type' => 'boolean'],
             'storage.azure.sas_ttl_minutes' => ['value' => config('community.uploads.azure.signed_url_ttl_minutes', 10080), 'type' => 'integer'],
+            'storage.local.last_tested_at' => ['value' => null, 'type' => 'string'],
+            'storage.local.last_test_status' => ['value' => null, 'type' => 'string'],
+            'storage.local.last_test_message' => ['value' => null, 'type' => 'string'],
+            'storage.azure.last_tested_at' => ['value' => null, 'type' => 'string'],
+            'storage.azure.last_test_status' => ['value' => null, 'type' => 'string'],
+            'storage.azure.last_test_message' => ['value' => null, 'type' => 'string'],
+            'storage.last_tested_at' => ['value' => null, 'type' => 'string'],
+            'storage.last_test_status' => ['value' => null, 'type' => 'string'],
+            'storage.last_test_message' => ['value' => null, 'type' => 'string'],
             'mail.enabled' => ['value' => $mail?->is_enabled ?? false, 'type' => 'boolean'],
             'mail.mailer' => ['value' => $mail?->mailer ?? config('mail.default', 'log'), 'type' => 'string'],
             'mail.host' => ['value' => $mail?->host ?? config('mail.mailers.smtp.host'), 'type' => 'string'],
@@ -84,6 +93,9 @@ class DefaultAppSettingsSeeder extends Seeder
             'feature.email_sending_enabled' => ['value' => $mail?->is_enabled ?? false, 'type' => 'boolean'],
             'feature.maintenance_notice_enabled' => ['value' => false, 'type' => 'boolean'],
             'feature.b2b_lead_notifications' => ['value' => config('community.b2b_leads.notify_admins', false), 'type' => 'boolean'],
+            'maintenance.notice_enabled' => ['value' => false, 'type' => 'boolean'],
+            'maintenance.notice_message' => ['value' => '', 'type' => 'string'],
+            'maintenance.notice_level' => ['value' => 'info', 'type' => 'string'],
         ];
 
         foreach ($defaults as $key => $payload) {

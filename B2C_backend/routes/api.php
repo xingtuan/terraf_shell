@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\CommentLikeController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\FollowController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\HomepageController;
 use App\Http\Controllers\Api\HomeSectionController;
 use App\Http\Controllers\Api\InquiryController;
@@ -40,6 +41,7 @@ use App\Http\Controllers\Api\PostLikeController;
 use App\Http\Controllers\Api\ProductCategoryController as PublicProductCategoryController;
 use App\Http\Controllers\Api\ProductController as PublicProductController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\PublicSettingsController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SampleRequestController;
 use App\Http\Controllers\Api\SearchController;
@@ -107,7 +109,7 @@ Route::prefix('cart')->group(function (): void {
     Route::post('/merge', [CartController::class, 'merge'])
         ->middleware('auth:sanctum');
 });
-Route::middleware('throttle:leads')->group(function (): void {
+Route::middleware(['throttle:leads', 'runtime_setting:feature.b2b_inquiry_enabled,true'])->group(function (): void {
     Route::post('/inquiries', [InquiryController::class, 'store']);
     Route::post('/business-contacts', [BusinessContactController::class, 'store']);
     Route::post('/partnership-inquiries', [PartnershipInquiryController::class, 'store']);
@@ -125,10 +127,14 @@ Route::get('/users/{user}/following', [UserController::class, 'following']);
 Route::get('/users/{user}', [UserController::class, 'show']);
 Route::get('/search', [SearchController::class, 'index']);
 Route::get('/search/posts', [SearchController::class, 'posts']);
+Route::get('/public-settings', PublicSettingsController::class)->name('api.public-settings');
+Route::get('/health', [HealthController::class, 'index']);
+Route::get('/health/database', [HealthController::class, 'database']);
+Route::get('/health/storage', [HealthController::class, 'storage']);
+Route::get('/health/mail', [HealthController::class, 'mail']);
 
-if ((bool) config('community.uploads.allow_guest_upload', false)) {
-    Route::post('/media/upload/guest', [UploadController::class, 'upload']);
-}
+Route::post('/media/upload/guest', [UploadController::class, 'upload'])
+    ->middleware('runtime_setting:community.allow_guest_upload,false');
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('/media/upload', [UploadController::class, 'upload']);
@@ -144,7 +150,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('addresses/{id}/default', [AddressController::class, 'setDefault']);
 });
 
-Route::middleware(['auth:sanctum', 'not_banned'])->group(function (): void {
+Route::middleware(['auth:sanctum', 'not_banned', 'runtime_setting:feature.community_enabled,true'])->group(function (): void {
     Route::post('/posts', [PostController::class, 'store']);
     Route::patch('/posts/{post}', [PostController::class, 'update'])->whereNumber('post');
     Route::put('/posts/{post}', [PostController::class, 'update'])->whereNumber('post');

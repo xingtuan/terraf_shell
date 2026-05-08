@@ -152,9 +152,13 @@ All backend endpoints return a consistent envelope:
 | Cart | `lib/api/cart.ts` | `/api/cart` and `/api/cart/items` | Live |
 | Checkout / orders | `lib/api/orders.ts` | `POST /api/orders`, `/api/orders/*` | Live |
 | Shipping quotes | `lib/api/shipping.ts` | `/api/store/address-search`, `/api/store/shipping-options` | Live |
+| Public runtime settings | `lib/api/public-settings.ts` | `GET /api/public-settings` | Live |
+| Health checks | *(n/a)* | `GET /up`, `GET /api/health*` | Live |
 | Community idea cards | `lib/api/community.ts` | *(not implemented)* | Mock only |
 
 The remaining mock-only community idea card module is an intentional design boundary. Product catalog, cart, guest checkout, registered checkout, NZ-only shipping quotes, and NZ Post-backed address lookup now use live backend routes.
+
+Admin delivery status: Filament includes English, Korean, and Chinese admin language files plus resources/pages for products, variants, inventory, carts, addresses, orders, leads, CMS, Email Center, media files, storage settings, runtime feature flags, settings backup/import, demo cleanup, media storage scan, and System / Handover Readiness. Runtime settings and storage driver switching are managed through the admin panel; secrets are encrypted and never exported in plain JSON.
 
 ---
 

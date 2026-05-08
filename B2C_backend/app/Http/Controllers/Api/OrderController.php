@@ -9,6 +9,7 @@ use App\Models\Address;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\OrderService;
+use App\Services\Settings\SettingsService;
 use App\Services\Shipping\ShippingQuoteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ class OrderController extends Controller
         private readonly CartService $cartService,
         private readonly OrderService $orderService,
         private readonly ShippingQuoteService $shippingQuoteService,
+        private readonly SettingsService $settings,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -55,6 +57,14 @@ class OrderController extends Controller
         $validated = $request->validated();
         $user = $request->user('sanctum');
         $address = null;
+
+        if (! $this->settings->boolean('feature.b2c_store_enabled', true)) {
+            abort(403, __('admin.runtime.feature_disabled'));
+        }
+
+        if ($user === null && ! $this->settings->boolean('feature.guest_checkout_enabled', true)) {
+            abort(403, __('admin.runtime.guest_checkout_disabled'));
+        }
 
         if (filled($validated['address_id'] ?? null)) {
             $address = Address::query()

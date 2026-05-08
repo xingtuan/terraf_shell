@@ -3,6 +3,8 @@
 namespace Tests\Feature\Settings;
 
 use App\Models\AppSetting;
+use App\Models\AppSettingAuditLog;
+use App\Models\User;
 use App\Services\Settings\SettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -67,5 +69,45 @@ class SettingsServiceTest extends TestCase
         $settings->set('app.site_name', 'After', ['type' => 'string']);
 
         $this->assertSame('After', $settings->string('app.site_name'));
+    }
+
+    public function test_setting_changes_are_audited_without_plaintext_secrets(): void
+    {
+        $settings = app(SettingsService::class);
+        $actor = User::factory()->create();
+
+        $settings->set('storage.azure.account_key', 'first-secret', [
+            'type' => 'string',
+            'is_secret' => true,
+            'updated_by' => $actor,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'SettingsServiceTest',
+        ]);
+
+        $settings->set('storage.azure.account_key', 'second-secret', [
+            'type' => 'string',
+            'is_secret' => true,
+            'updated_by' => $actor,
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'SettingsServiceTest',
+        ]);
+
+        $latest = AppSettingAuditLog::query()->latest('id')->firstOrFail();
+
+        $this->assertSame($actor->id, $latest->user_id);
+        $this->assertSame('storage', $latest->group);
+        $this->assertSame('azure.account_key', $latest->key);
+        $this->assertTrue($latest->is_secret);
+        $this->assertSame('[masked]', $latest->old_value);
+        $this->assertSame('[masked]', $latest->new_value);
+        $this->assertSame('127.0.0.1', $latest->ip_address);
+        $this->assertSame('SettingsServiceTest', $latest->user_agent);
+
+        $this->assertDatabaseMissing('app_setting_audit_logs', [
+            'old_value' => 'first-secret',
+        ]);
+        $this->assertDatabaseMissing('app_setting_audit_logs', [
+            'new_value' => 'second-secret',
+        ]);
     }
 }

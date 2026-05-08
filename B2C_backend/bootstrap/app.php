@@ -1,5 +1,6 @@
 <?php
 
+use App\Middleware\EnsureRuntimeSettingEnabled;
 use App\Middleware\EnsureUserHasRole;
 use App\Middleware\EnsureUserNotBanned;
 use App\Middleware\SetLocaleFromHeader;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'not_banned' => EnsureUserNotBanned::class,
+            'runtime_setting' => EnsureRuntimeSettingEnabled::class,
             'role' => EnsureUserHasRole::class,
         ]);
     })

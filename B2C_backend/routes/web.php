@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\MediaStorageScanController;
+use App\Http\Controllers\Admin\SettingsBackupController;
 use App\Http\Controllers\Install\InstallController;
 use App\Http\Controllers\MediaController;
 use Illuminate\Http\JsonResponse;
@@ -37,3 +39,12 @@ Route::get('/admin/locale/{locale}', function (string $locale) {
 
     return redirect(Str::contains($previous, '/admin') ? $previous : '/admin');
 })->name('admin.locale.switch');
+
+Route::middleware('auth')->group(function (): void {
+    Route::get('/admin/settings/export', [SettingsBackupController::class, 'export'])
+        ->name('admin.settings.export');
+    Route::get('/admin/settings/handover-summary', [SettingsBackupController::class, 'handoverSummary'])
+        ->name('admin.settings.handover-summary');
+    Route::get('/admin/media-scan/export', [MediaStorageScanController::class, 'export'])
+        ->name('admin.media-scan.export');
+});

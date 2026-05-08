@@ -72,12 +72,12 @@ return [
     ],
 
     'pages' => [
-        'application_settings' => 'Application Settings',
-        'storage_settings' => 'Storage Settings',
-        'nz_post_settings' => 'NZ Post Settings',
-        'tax_settings' => 'Tax Settings',
-        'community_settings' => 'Community Settings',
-        'feature_flags' => 'Feature Flags',
+        'application_settings' => '애플리케이션 설정',
+        'storage_settings' => '스토리지 설정',
+        'nz_post_settings' => 'NZ Post 설정',
+        'tax_settings' => '세금 설정',
+        'community_settings' => '커뮤니티 설정',
+        'feature_flags' => '기능 플래그',
         'email_settings' => 'Email Center 설정',
         'email_settings_nav' => '설정',
         'mail_settings_nav' => '메일 설정',
@@ -88,6 +88,9 @@ return [
         'shipping_settings' => '배송 설정',
         'shipping_settings_nav' => '배송 설정',
         'system_handover_readiness' => '시스템 / 인수인계 준비 상태',
+        'settings_backup_import' => '설정 백업 및 가져오기',
+        'demo_cleanup' => '데모 데이터 정리',
+        'media_storage_scan' => '미디어 저장소 점검',
     ],
 
     'widgets' => [
@@ -429,6 +432,353 @@ return [
         'quote_success' => '배송 견적이 :count개 옵션을 반환했습니다.',
         'quote_failed' => '배송 견적 테스트에 실패했습니다.',
         'not_tested' => '이 세션에서 아직 테스트하지 않았습니다.',
+        'fields' => [
+            'nz_only_shipping' => '뉴질랜드 전용 배송',
+        ],
+        'default_package_weight_value' => '500 g',
+        'test_address_line1' => '테스트 주소',
+    ],
+
+    'runtime' => [
+        'feature_disabled' => '현재 비활성화된 기능입니다.',
+        'guest_checkout_disabled' => '현재 비회원 결제가 비활성화되어 있습니다.',
+    ],
+
+    'application' => [
+        'sections' => [
+            'application' => '애플리케이션',
+        ],
+        'fields' => [
+            'site_name' => '사이트 이름',
+            'admin_brand_name' => '관리자 브랜드명',
+            'app_url' => '앱 URL',
+            'frontend_url' => '프론트엔드 URL',
+            'default_locale' => '기본 언어',
+            'timezone' => '시간대',
+            'contact_email' => '문의 이메일',
+            'support_email' => '지원 이메일',
+            'supported_locales' => '지원 언어',
+        ],
+    ],
+
+    'storage' => [
+        'not_tested' => '테스트 전',
+        'driver_switch_notice' => '활성 드라이버 변경은 새 업로드에만 적용됩니다. 기존 미디어는 각 파일에 기록된 디스크를 계속 사용합니다.',
+        'sections' => [
+            'status' => '상태',
+            'driver' => '드라이버',
+            'local' => '로컬',
+            'azure' => 'Azure',
+        ],
+        'drivers' => [
+            'local' => '로컬',
+            'azure' => 'Azure Blob Storage',
+        ],
+        'fields' => [
+            'active_driver' => '활성 드라이버',
+            'local_writable' => '로컬 쓰기 가능',
+            'storage_link' => '스토리지 링크',
+            'azure_configured' => 'Azure 설정 여부',
+            'last_tested' => '최근 테스트',
+            'local_last_test' => '로컬 최근 테스트',
+            'azure_last_test' => 'Azure 최근 테스트',
+            'overall_last_test' => '전체 최근 테스트',
+            'storage_driver' => '스토리지 드라이버',
+            'local_disk' => '로컬 디스크',
+            'public_url_preview' => '공개 URL 미리보기',
+            'storage_link_status' => '스토리지 링크 상태',
+            'azure_account_name' => '계정 이름',
+            'azure_account_key' => '계정 키',
+            'azure_container' => '컨테이너',
+            'azure_url' => '스토리지 URL',
+            'azure_use_sas_urls' => 'SAS URL 사용',
+            'azure_sas_ttl_minutes' => 'SAS TTL(분)',
+        ],
+        'help' => [
+            'keep_secret' => '현재 키를 유지하려면 마스킹된 값 그대로 두거나 비워 두세요.',
+        ],
+        'actions' => [
+            'test_local' => '로컬 스토리지 테스트',
+            'test_azure' => 'Azure 연결 테스트',
+            'test_upload' => '업로드 테스트',
+            'create_storage_link' => '스토리지 링크 생성',
+            'clear_settings_cache' => '설정 캐시 지우기',
+            'rollback_driver' => '드라이버 되돌리기',
+            'migrate_media' => '디스크 간 미디어 이전',
+        ],
+        'messages' => [
+            'storage_link_created' => '스토리지 링크가 생성되었거나 이미 존재합니다.',
+            'cache_cleared' => '런타임 설정 캐시를 지웠습니다.',
+            'no_previous_driver' => '기록된 이전 드라이버가 없습니다.',
+            'driver_rolled_back' => ':driver 드라이버로 되돌렸습니다.',
+        ],
+    ],
+
+    'tax' => [
+        'fields' => [
+            'gst_enabled' => 'GST 사용',
+            'prices_include_gst' => '가격에 GST 포함',
+            'gst_rate' => 'GST 세율',
+            'tax_label' => '세금 라벨',
+        ],
+    ],
+
+    'feature_flags' => [
+        'sections' => [
+            'public_behavior' => '공개 기능 동작',
+        ],
+        'fields' => [
+            'b2c_store_enabled' => 'B2C 스토어 사용',
+            'b2b_inquiry_enabled' => 'B2B 문의 사용',
+            'community_enabled' => '커뮤니티 사용',
+            'funding_links_enabled' => '펀딩 링크 사용',
+            'guest_checkout_enabled' => '비회원 결제 사용',
+            'email_sending_enabled' => '이메일 발송 사용',
+            'maintenance_notice_enabled' => '공지 배너 사용',
+            'maintenance_notice_message' => '공지 메시지',
+            'maintenance_notice_level' => '공지 레벨',
+        ],
+    ],
+
+    'community_settings' => [
+        'sections' => [
+            'uploads_moderation' => '커뮤니티 업로드 및 모더레이션',
+        ],
+        'fields' => [
+            'allow_guest_upload' => '비회원 업로드 허용',
+            'max_files' => '최대 파일 수',
+            'max_file_size_kb' => '최대 파일 크기(KB)',
+            'max_external_links' => '최대 외부 링크 수',
+            'submission_policy' => '제출 승인 정책',
+            'sensitive_words_enabled' => '민감어 검사 사용',
+            'allowed_extensions' => '허용 확장자',
+            'sensitive_words' => '민감어 목록',
+            'default_funding_support_button_text' => '기본 펀딩 지원 버튼 문구',
+        ],
+    ],
+
+    'community_moderation' => [
+        'subheading' => '제출 콘텐츠 검토 여부와 모더레이션을 자동 통과할 사용자를 관리합니다.',
+        'sections' => [
+            'submission_policy' => '제출 정책',
+        ],
+        'fields' => [
+            'approval_mode' => '승인 방식',
+            'trusted_users' => '신뢰 사용자',
+        ],
+        'help' => [
+            'submission_policy' => '커뮤니티 게시물과 댓글을 어떤 방식으로 승인할지 선택합니다.',
+            'trusted_users' => '신뢰 사용자 자동 승인 정책을 선택한 경우에만 이 사용자가 자동 승인됩니다.',
+        ],
+        'messages' => [
+            'saved' => '커뮤니티 모더레이션 설정을 저장했습니다.',
+        ],
+        'policies' => [
+            'all_require_approval' => [
+                'label' => '모든 콘텐츠 승인 필요',
+                'help' => '새 게시물과 댓글은 모두 모더레이션 대기열로 들어갑니다.',
+            ],
+            'trusted_users_auto_approve' => [
+                'label' => '신뢰 사용자는 자동 승인',
+                'help' => '지정된 사용자만 모더레이션을 자동으로 통과할 수 있습니다.',
+            ],
+            'all_auto_approve' => [
+                'label' => '모든 제출 자동 승인',
+                'help' => '모든 커뮤니티 게시물과 댓글이 즉시 공개됩니다.',
+            ],
+        ],
+    ],
+
+    'nzpost' => [
+        'sections' => [
+            'api' => 'NZ Post API',
+        ],
+        'fields' => [
+            'configured_status' => '설정 상태',
+            'enabled' => '사용',
+            'base_url' => 'API 기본 URL',
+            'client_id' => 'Client ID / API key ID',
+            'client_secret' => 'Client secret',
+            'api_key' => 'API key',
+            'sender_postcode' => '발송지 우편번호',
+            'test_query' => '테스트 조회어',
+        ],
+        'help' => [
+            'keep_secret' => '현재 값을 유지하려면 마스킹된 값 그대로 두거나 비워 두세요.',
+        ],
+    ],
+
+    'email' => [
+        'sections' => [
+            'smtp' => 'SMTP',
+        ],
+        'fields' => [
+            'admin_recipients' => '관리자 이메일 수신자',
+        ],
+        'help' => [
+            'disabled_logs' => '비활성화하면 Email Center는 건너뜀 로그를 남기며 사용자 작업은 정상 완료됩니다.',
+            'keep_password' => '현재 비밀번호를 유지하려면 마스킹된 값 그대로 두거나 비워 두세요.',
+            'keep_key' => '현재 키를 유지하려면 마스킹된 값 그대로 두거나 비워 두세요.',
+            'admin_recipients' => '관리자 수신자 이벤트에 사용됩니다. 비워 두면 활성 관리자 계정을 사용합니다.',
+        ],
+        'encryption' => [
+            'none' => '없음',
+        ],
+        'test_result' => '로그 #:id: :status',
+    ],
+
+    'settings_tools' => [
+        'sections' => [
+            'import' => '비밀 값을 제외한 설정 가져오기',
+            'reset' => '설정 그룹 초기화',
+        ],
+        'fields' => [
+            'import_json' => '설정 JSON',
+            'reset_group' => '설정 그룹',
+        ],
+        'help' => [
+            'import_json' => '비밀 값이 제외된 설정 내보내기 JSON을 붙여넣으세요. 알 수 없는 키와 비밀 필드는 거부됩니다.',
+        ],
+        'actions' => [
+            'export' => '비밀 값 제외 JSON 내보내기',
+            'handover_summary' => '인수인계 요약 다운로드',
+            'import' => '설정 JSON 가져오기',
+            'reset_group' => '선택 그룹 초기화',
+        ],
+        'messages' => [
+            'invalid_json' => '설정 JSON이 올바르지 않습니다.',
+            'unknown_keys' => '알 수 없거나 안전하지 않은 설정 키: :keys',
+            'imported' => '설정을 가져오고 캐시를 지웠습니다.',
+            'reset_group_required' => '먼저 설정 그룹을 선택하세요.',
+            'group_reset' => ':group 설정을 기본값이 있는 항목에 한해 초기화했습니다.',
+        ],
+    ],
+
+    'demo_cleanup' => [
+        'sections' => [
+            'detected' => '감지된 데모 데이터',
+        ],
+        'fields' => [
+            'demo_posts' => '데모 커뮤니티 게시물',
+            'demo_comments' => '데모 댓글',
+            'demo_orders' => '데모 주문',
+            'demo_leads' => '데모 리드',
+            'demo_media' => '데모 미디어',
+            'demo_users' => '데모 사용자',
+        ],
+        'actions' => [
+            'cleanup_community' => '표시된 커뮤니티 데모 데이터 정리',
+        ],
+        'messages' => [
+            'cleaned' => '표시된 커뮤니티 데모 데이터를 정리했습니다.',
+        ],
+        'help' => [
+            'safe_scope' => '명시적으로 데모 표시된 레코드만 대상입니다. 관리자 사용자, 런타임 설정, CMS 콘텐츠는 이 도구로 삭제하지 않습니다.',
+        ],
+    ],
+
+    'media_scan' => [
+        'sections' => [
+            'summary' => '미디어 저장소 요약',
+            'integrity' => '무결성 점검',
+        ],
+        'fields' => [
+            'total_files' => '전체 미디어 파일',
+            'local_files' => '로컬 파일',
+            'azure_files' => 'Azure 파일',
+            'total_size' => '기록된 전체 용량',
+            'missing_files' => '처음 200건 중 찾을 수 없는 파일',
+        ],
+        'actions' => [
+            'export_report' => '점검 보고서 내보내기',
+            'dry_run_local_to_azure' => '드라이런: 로컬에서 Azure로',
+            'dry_run_azure_to_local' => '드라이런: Azure에서 로컬로',
+        ],
+        'messages' => [
+            'dry_run_ready' => ':from에서 :to로 이전할 때 :count개 파일을 확인합니다. 실제 파일은 이동하지 않았습니다.',
+        ],
+        'help' => [
+            'scan_limit' => '이 간단 점검은 처음 200개의 미디어 기록에서 누락 파일을 확인합니다. 이전 작업을 계획하기 전에 보고서를 내보내세요.',
+        ],
+    ],
+
+    'installer' => [
+        'title' => 'Terraf OXP 설치',
+        'intro' => '이 단계는 한 번만 완료합니다. 설치가 성공하면 설치 마법사가 잠기고 관리자 패널로 이동합니다.',
+        'progress_label' => '설치 진행 단계',
+        'steps' => [
+            'requirements' => '요구 사항',
+            'application' => '애플리케이션',
+            'database' => '데이터베이스',
+            'storage' => '스토리지',
+            'mail' => '메일',
+            'admin' => '관리자',
+            'summary' => '설치 요약',
+            'complete' => '설치 완료',
+        ],
+        'sections' => [
+            'requirements' => '1단계 - 요구 사항 확인',
+            'application' => '2단계 - 애플리케이션 설정',
+            'database' => '3단계 - 데이터베이스 설정',
+            'storage' => '4단계 - 스토리지 설정',
+            'mail' => '5단계 - 메일 설정',
+            'admin' => '6단계 - 관리자 계정',
+            'summary' => '7단계 - 설치 요약',
+        ],
+        'fields' => [
+            'app_name' => '앱 이름',
+            'app_url' => '앱 URL',
+            'frontend_url' => '프론트엔드 URL',
+            'timezone' => '시간대',
+            'locale' => '기본 언어',
+            'connection' => '연결 방식',
+            'host' => '호스트',
+            'port' => '포트',
+            'database' => '데이터베이스',
+            'username' => '사용자 이름',
+            'password' => '비밀번호',
+            'driver' => '드라이버',
+            'azure_account_name' => 'Azure 계정 이름',
+            'azure_account_key' => 'Azure 계정 키',
+            'azure_container' => 'Azure 컨테이너',
+            'azure_url' => 'Azure 스토리지 URL',
+            'mailer' => '메일러',
+            'smtp_host' => 'SMTP 호스트',
+            'smtp_port' => 'SMTP 포트',
+            'smtp_username' => 'SMTP 사용자 이름',
+            'smtp_password' => 'SMTP 비밀번호',
+            'encryption' => '암호화',
+            'from_email' => '발신 이메일',
+            'from_name' => '발신 이름',
+            'name' => '이름',
+            'email' => '이메일',
+            'confirm_password' => '비밀번호 확인',
+        ],
+        'requirements' => [
+            'php' => 'PHP 버전 >= 8.3',
+            'pdo' => 'PDO 확장',
+            'storage' => 'storage 쓰기 가능',
+            'bootstrap_cache' => 'bootstrap/cache 쓰기 가능',
+            'env' => '.env 존재 또는 기본 경로 쓰기 가능',
+            'public_storage' => 'public/storage 링크',
+            'loaded' => '로드됨',
+            'missing' => '누락',
+            'exists' => '존재',
+            'can_create' => '설치 중 생성 가능',
+        ],
+        'messages' => [
+            'install_running' => '설치가 이미 진행 중입니다. 잠금이 오래된 경우 설치 프로세스가 실행 중이 아닌지 확인한 뒤 storage/app/installing.lock을 삭제하세요.',
+            'lock_title' => '현재 설치가 잠겨 있습니다.',
+            'lock_body' => '다른 설치 요청이 실행 중일 수 있습니다. 실행 중인 프로세스가 없다면 storage/app/installing.lock을 삭제하고 이 페이지를 새로고침하세요.',
+            'errors_title' => '아직 설치를 계속할 수 없습니다.',
+            'secrets_hidden' => '비밀 값은 이 화면에 표시하지 않습니다. 기술 상세는 storage/logs/laravel.log를 확인하세요.',
+            'requirement_ok' => '정상',
+            'requirement_check' => '확인 필요',
+            'db_failed' => '데이터베이스 연결에 실패했습니다.',
+            'install_failed' => '설치에 실패했습니다. 가능한 경우 이전 .env 파일을 복원했습니다. storage/logs/laravel.log를 확인하고 문제를 수정한 뒤, storage/app/installing.lock이 남아 있으면 삭제하고 다시 제출하세요.',
+            'summary' => '설치 도구는 현재 .env 파일을 백업하고 필수 부트스트랩 값을 기록한 뒤, 마이그레이션과 시드를 실행하고 런타임 설정을 저장하며 관리자 계정을 생성합니다. 모든 단계가 성공한 뒤에만 storage/app/installed.lock을 생성합니다.',
+            'submit' => '설치 후 관리자 열기',
+        ],
     ],
 
     'system' => [
@@ -447,22 +797,34 @@ return [
         'secrets_hidden' => '비밀 값은 의도적으로 표시하지 않습니다.',
         'failed_jobs' => ':count개 실패',
         'batch' => '배치 :batch',
+        'cors_sanctum_detail' => 'CORS: :cors | Sanctum: :sanctum',
         'checks' => [
             'app_name' => '앱 이름',
             'app_url' => '앱 URL',
             'frontend_url' => '프론트엔드 URL',
+            'cors_sanctum' => 'CORS / Sanctum 일관성',
             'environment' => '환경',
             'database' => '데이터베이스 연결',
             'storage_disk' => '스토리지 디스크 상태',
+            'active_storage_driver' => '활성 스토리지 드라이버',
+            'local_storage' => '로컬 스토리지 상태',
+            'azure_storage' => 'Azure 스토리지 상태',
+            'storage_last_test' => '최근 스토리지 테스트',
             'mail_enabled' => '메일 발송 사용',
             'mail_provider' => '메일 공급자',
+            'mail_last_test' => '최근 메일 테스트',
             'queue_connection' => '큐 연결',
             'cache_driver' => '캐시 드라이버',
             'session_driver' => '세션 드라이버',
             'upload_disk' => '업로드 디스크',
             'storage_link' => '스토리지 링크 존재',
+            'installed_lock' => 'installed.lock 존재',
+            'installing_lock' => 'installing.lock 존재',
             'key_admin' => '핵심 관리자 계정 존재',
             'demo_data' => '데모 시드 데이터 존재',
+            'demo_data_count' => '데모 시드 데이터 수',
+            'public_settings_endpoint' => '공개 설정 엔드포인트',
+            'health_check' => '상태 확인 API',
             'failed_jobs' => '실패한 작업 존재',
             'php_version' => 'PHP 버전',
             'laravel_version' => 'Laravel 버전',

@@ -7,6 +7,7 @@ use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Services\Settings\SettingsService;
 use Filament\Actions\Action;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -20,9 +21,9 @@ class FeatureFlags extends Page
 {
     use ManagesRuntimeSettings;
 
-    protected static ?string $title = 'Feature Flags';
+    protected static ?string $title = null;
 
-    protected static ?string $navigationLabel = 'Feature Flags';
+    protected static ?string $navigationLabel = null;
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::SystemSettings;
 
@@ -42,18 +43,30 @@ class FeatureFlags extends Page
         return PanelAccess::isAdmin();
     }
 
+    public static function getNavigationLabel(): string
+    {
+        return __('admin.pages.feature_flags');
+    }
+
+    public function getTitle(): string
+    {
+        return __('admin.pages.feature_flags');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema->statePath('data')->components([
-            Section::make('Public behavior')->schema([
+            Section::make(__('admin.feature_flags.sections.public_behavior'))->schema([
                 Grid::make(2)->schema([
-                    Toggle::make('b2c_store_enabled')->label('B2C store enabled'),
-                    Toggle::make('b2b_inquiry_enabled')->label('B2B inquiry enabled'),
-                    Toggle::make('community_enabled')->label('Community enabled'),
-                    Toggle::make('funding_links_enabled')->label('Funding links enabled'),
-                    Toggle::make('guest_checkout_enabled')->label('Guest checkout enabled'),
-                    Toggle::make('email_sending_enabled')->label('Email sending enabled'),
-                    Toggle::make('maintenance_notice_enabled')->label('Maintenance notice enabled'),
+                    Toggle::make('b2c_store_enabled')->label(__('admin.feature_flags.fields.b2c_store_enabled')),
+                    Toggle::make('b2b_inquiry_enabled')->label(__('admin.feature_flags.fields.b2b_inquiry_enabled')),
+                    Toggle::make('community_enabled')->label(__('admin.feature_flags.fields.community_enabled')),
+                    Toggle::make('funding_links_enabled')->label(__('admin.feature_flags.fields.funding_links_enabled')),
+                    Toggle::make('guest_checkout_enabled')->label(__('admin.feature_flags.fields.guest_checkout_enabled')),
+                    Toggle::make('email_sending_enabled')->label(__('admin.feature_flags.fields.email_sending_enabled')),
+                    Toggle::make('maintenance_notice_enabled')->label(__('admin.feature_flags.fields.maintenance_notice_enabled')),
+                    TextInput::make('maintenance_notice_message')->label(__('admin.feature_flags.fields.maintenance_notice_message'))->maxLength(255),
+                    TextInput::make('maintenance_notice_level')->label(__('admin.feature_flags.fields.maintenance_notice_level'))->maxLength(20),
                 ]),
             ]),
         ]);
@@ -78,7 +91,9 @@ class FeatureFlags extends Page
             'funding_links_enabled' => ['key' => 'feature.funding_links_enabled', 'type' => 'boolean', 'default' => true],
             'guest_checkout_enabled' => ['key' => 'feature.guest_checkout_enabled', 'type' => 'boolean', 'default' => true],
             'email_sending_enabled' => ['key' => 'feature.email_sending_enabled', 'type' => 'boolean', 'default' => false],
-            'maintenance_notice_enabled' => ['key' => 'feature.maintenance_notice_enabled', 'type' => 'boolean', 'default' => false],
+            'maintenance_notice_enabled' => ['key' => 'maintenance.notice_enabled', 'type' => 'boolean', 'default' => false],
+            'maintenance_notice_message' => ['key' => 'maintenance.notice_message', 'type' => 'string', 'default' => ''],
+            'maintenance_notice_level' => ['key' => 'maintenance.notice_level', 'type' => 'string', 'default' => 'info'],
         ];
     }
 }

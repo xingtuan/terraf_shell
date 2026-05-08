@@ -33,8 +33,6 @@ class CommunityModerationSettings extends Page
 
     protected static ?string $slug = 'community-moderation-settings';
 
-    protected ?string $subheading = 'Control whether submissions require review, and which users can bypass moderation.';
-
     public function mount(): void
     {
         $this->fillForm();
@@ -55,16 +53,21 @@ class CommunityModerationSettings extends Page
         return __('admin.pages.community_moderation_settings');
     }
 
+    public function getSubheading(): ?string
+    {
+        return __('admin.community_moderation.subheading');
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->statePath('data')
             ->components([
-                Section::make('Submission policy')
-                    ->description('Choose how community posts and comments should be approved.')
+                Section::make(__('admin.community_moderation.sections.submission_policy'))
+                    ->description(__('admin.community_moderation.help.submission_policy'))
                     ->schema([
                         Select::make('submission_policy')
-                            ->label('Approval mode')
+                            ->label(__('admin.community_moderation.fields.approval_mode'))
                             ->options(CommunitySubmissionPolicy::options())
                             ->live()
                             ->required()
@@ -72,12 +75,12 @@ class CommunityModerationSettings extends Page
                                 ? CommunitySubmissionPolicy::from($state)->helperText()
                                 : null),
                         Select::make('trusted_user_ids')
-                            ->label('Trusted users')
+                            ->label(__('admin.community_moderation.fields.trusted_users'))
                             ->options(app(CommunityModerationPolicyService::class)->trustedUserOptions())
                             ->multiple()
                             ->searchable()
                             ->preload()
-                            ->helperText('These users are auto-approved only when the trusted-user policy is selected.')
+                            ->helperText(__('admin.community_moderation.help.trusted_users'))
                             ->visible(fn (Get $get): bool => $get('submission_policy') === CommunitySubmissionPolicy::TrustedUsersAutoApprove->value),
                     ]),
             ]);
@@ -95,7 +98,7 @@ class CommunityModerationSettings extends Page
         $this->fillForm();
 
         Notification::make()
-            ->title('Community moderation settings saved.')
+            ->title(__('admin.community_moderation.messages.saved'))
             ->success()
             ->send();
     }

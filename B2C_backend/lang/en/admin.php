@@ -88,6 +88,9 @@ return [
         'shipping_settings' => 'Shipping Settings',
         'shipping_settings_nav' => 'Shipping Settings',
         'system_handover_readiness' => 'System / Handover Readiness',
+        'settings_backup_import' => 'Settings Backup & Import',
+        'demo_cleanup' => 'Demo Cleanup',
+        'media_storage_scan' => 'Media Storage Scan',
     ],
 
     'widgets' => [
@@ -429,6 +432,353 @@ return [
         'quote_success' => 'Shipping quote returned :count option(s).',
         'quote_failed' => 'Shipping quote test failed.',
         'not_tested' => 'Not tested in this session.',
+        'fields' => [
+            'nz_only_shipping' => 'NZ-only shipping',
+        ],
+        'default_package_weight_value' => '500 g',
+        'test_address_line1' => 'Test address',
+    ],
+
+    'runtime' => [
+        'feature_disabled' => 'This feature is currently disabled.',
+        'guest_checkout_disabled' => 'Guest checkout is currently disabled.',
+    ],
+
+    'application' => [
+        'sections' => [
+            'application' => 'Application',
+        ],
+        'fields' => [
+            'site_name' => 'Site name',
+            'admin_brand_name' => 'Admin brand name',
+            'app_url' => 'App URL',
+            'frontend_url' => 'Frontend URL',
+            'default_locale' => 'Default locale',
+            'timezone' => 'Timezone',
+            'contact_email' => 'Contact email',
+            'support_email' => 'Support email',
+            'supported_locales' => 'Supported locales',
+        ],
+    ],
+
+    'storage' => [
+        'not_tested' => 'Not tested',
+        'driver_switch_notice' => 'Switching the active driver affects new uploads only. Existing media remains on the disk recorded for that file.',
+        'sections' => [
+            'status' => 'Status',
+            'driver' => 'Driver',
+            'local' => 'Local',
+            'azure' => 'Azure',
+        ],
+        'drivers' => [
+            'local' => 'Local',
+            'azure' => 'Azure Blob Storage',
+        ],
+        'fields' => [
+            'active_driver' => 'Active driver',
+            'local_writable' => 'Local writable',
+            'storage_link' => 'Storage link',
+            'azure_configured' => 'Azure configured',
+            'last_tested' => 'Last tested',
+            'local_last_test' => 'Local last test',
+            'azure_last_test' => 'Azure last test',
+            'overall_last_test' => 'Overall last test',
+            'storage_driver' => 'Storage driver',
+            'local_disk' => 'Local disk',
+            'public_url_preview' => 'Public URL preview',
+            'storage_link_status' => 'Storage link status',
+            'azure_account_name' => 'Account name',
+            'azure_account_key' => 'Account key',
+            'azure_container' => 'Container',
+            'azure_url' => 'Storage URL',
+            'azure_use_sas_urls' => 'Use SAS URLs',
+            'azure_sas_ttl_minutes' => 'SAS TTL minutes',
+        ],
+        'help' => [
+            'keep_secret' => 'Leave masked or empty to keep the current key.',
+        ],
+        'actions' => [
+            'test_local' => 'Test local storage',
+            'test_azure' => 'Test Azure connection',
+            'test_upload' => 'Test upload',
+            'create_storage_link' => 'Create storage link',
+            'clear_settings_cache' => 'Clear settings cache',
+            'rollback_driver' => 'Roll back driver',
+            'migrate_media' => 'Migrate media between disks',
+        ],
+        'messages' => [
+            'storage_link_created' => 'Storage link created or already exists.',
+            'cache_cleared' => 'Runtime settings cache cleared.',
+            'no_previous_driver' => 'No previous driver is recorded.',
+            'driver_rolled_back' => 'Rolled back to :driver.',
+        ],
+    ],
+
+    'tax' => [
+        'fields' => [
+            'gst_enabled' => 'GST enabled',
+            'prices_include_gst' => 'Prices include GST',
+            'gst_rate' => 'GST rate',
+            'tax_label' => 'Tax label',
+        ],
+    ],
+
+    'feature_flags' => [
+        'sections' => [
+            'public_behavior' => 'Public behavior',
+        ],
+        'fields' => [
+            'b2c_store_enabled' => 'B2C store enabled',
+            'b2b_inquiry_enabled' => 'B2B inquiry enabled',
+            'community_enabled' => 'Community enabled',
+            'funding_links_enabled' => 'Funding links enabled',
+            'guest_checkout_enabled' => 'Guest checkout enabled',
+            'email_sending_enabled' => 'Email sending enabled',
+            'maintenance_notice_enabled' => 'Maintenance notice enabled',
+            'maintenance_notice_message' => 'Maintenance notice message',
+            'maintenance_notice_level' => 'Maintenance notice level',
+        ],
+    ],
+
+    'community_settings' => [
+        'sections' => [
+            'uploads_moderation' => 'Community uploads and moderation',
+        ],
+        'fields' => [
+            'allow_guest_upload' => 'Allow guest upload',
+            'max_files' => 'Max files',
+            'max_file_size_kb' => 'Max file size KB',
+            'max_external_links' => 'Max external links',
+            'submission_policy' => 'Submission policy',
+            'sensitive_words_enabled' => 'Sensitive words enabled',
+            'allowed_extensions' => 'Allowed extensions',
+            'sensitive_words' => 'Sensitive word list',
+            'default_funding_support_button_text' => 'Default funding support button text',
+        ],
+    ],
+
+    'community_moderation' => [
+        'subheading' => 'Control whether submissions require review, and which users can bypass moderation.',
+        'sections' => [
+            'submission_policy' => 'Submission policy',
+        ],
+        'fields' => [
+            'approval_mode' => 'Approval mode',
+            'trusted_users' => 'Trusted users',
+        ],
+        'help' => [
+            'submission_policy' => 'Choose how community posts and comments should be approved.',
+            'trusted_users' => 'These users are auto-approved only when the trusted-user policy is selected.',
+        ],
+        'messages' => [
+            'saved' => 'Community moderation settings saved.',
+        ],
+        'policies' => [
+            'all_require_approval' => [
+                'label' => 'All content requires approval',
+                'help' => 'Every new post and comment is queued for moderation.',
+            ],
+            'trusted_users_auto_approve' => [
+                'label' => 'Trusted users are approved automatically',
+                'help' => 'Only designated users can bypass moderation automatically.',
+            ],
+            'all_auto_approve' => [
+                'label' => 'Approve all submissions automatically',
+                'help' => 'All community posts and comments go live immediately.',
+            ],
+        ],
+    ],
+
+    'nzpost' => [
+        'sections' => [
+            'api' => 'NZ Post API',
+        ],
+        'fields' => [
+            'configured_status' => 'Configured status',
+            'enabled' => 'Enabled',
+            'base_url' => 'API base URL',
+            'client_id' => 'Client ID / API key ID',
+            'client_secret' => 'Client secret',
+            'api_key' => 'API key',
+            'sender_postcode' => 'Sender postcode',
+            'test_query' => 'Test lookup query',
+        ],
+        'help' => [
+            'keep_secret' => 'Leave masked or empty to keep the current value.',
+        ],
+    ],
+
+    'email' => [
+        'sections' => [
+            'smtp' => 'SMTP',
+        ],
+        'fields' => [
+            'admin_recipients' => 'Admin email recipients',
+        ],
+        'help' => [
+            'disabled_logs' => 'When disabled, Email Center creates skipped logs and user-facing actions still succeed.',
+            'keep_password' => 'Leave masked or empty to keep the current password.',
+            'keep_key' => 'Leave masked or empty to keep the current key.',
+            'admin_recipients' => 'Used for admin recipient email events. Active admin users are used when this is empty.',
+        ],
+        'encryption' => [
+            'none' => 'None',
+        ],
+        'test_result' => 'Log #:id: :status',
+    ],
+
+    'settings_tools' => [
+        'sections' => [
+            'import' => 'Import non-secret settings',
+            'reset' => 'Reset settings group',
+        ],
+        'fields' => [
+            'import_json' => 'Settings JSON',
+            'reset_group' => 'Settings group',
+        ],
+        'help' => [
+            'import_json' => 'Paste JSON from a non-secret settings export. Unknown keys and secret fields are rejected.',
+        ],
+        'actions' => [
+            'export' => 'Export non-secret JSON',
+            'handover_summary' => 'Download handover summary',
+            'import' => 'Import settings JSON',
+            'reset_group' => 'Reset selected group',
+        ],
+        'messages' => [
+            'invalid_json' => 'The settings JSON is invalid.',
+            'unknown_keys' => 'Unknown or unsafe setting keys: :keys',
+            'imported' => 'Settings imported and cache cleared.',
+            'reset_group_required' => 'Select a settings group first.',
+            'group_reset' => ':group settings were reset to defaults where defaults exist.',
+        ],
+    ],
+
+    'demo_cleanup' => [
+        'sections' => [
+            'detected' => 'Detected demo data',
+        ],
+        'fields' => [
+            'demo_posts' => 'Demo community posts',
+            'demo_comments' => 'Demo comments',
+            'demo_orders' => 'Demo orders',
+            'demo_leads' => 'Demo leads',
+            'demo_media' => 'Demo media',
+            'demo_users' => 'Demo users',
+        ],
+        'actions' => [
+            'cleanup_community' => 'Clean marked community demo data',
+        ],
+        'messages' => [
+            'cleaned' => 'Marked community demo data was cleaned.',
+        ],
+        'help' => [
+            'safe_scope' => 'Only records explicitly marked as demo are eligible. Admin users, runtime settings, and CMS content are never removed by this tool.',
+        ],
+    ],
+
+    'media_scan' => [
+        'sections' => [
+            'summary' => 'Media storage summary',
+            'integrity' => 'Integrity scan',
+        ],
+        'fields' => [
+            'total_files' => 'Total media files',
+            'local_files' => 'Local files',
+            'azure_files' => 'Azure files',
+            'total_size' => 'Total recorded size',
+            'missing_files' => 'Missing files in first 200 checked',
+        ],
+        'actions' => [
+            'export_report' => 'Export scan report',
+            'dry_run_local_to_azure' => 'Dry run: local to Azure',
+            'dry_run_azure_to_local' => 'Dry run: Azure to local',
+        ],
+        'messages' => [
+            'dry_run_ready' => ':count files would be checked for :from to :to migration. No files were moved.',
+        ],
+        'help' => [
+            'scan_limit' => 'This lightweight scan checks the first 200 media records for missing files. Export the report before planning migration work.',
+        ],
+    ],
+
+    'installer' => [
+        'title' => 'Install Terraf OXP',
+        'intro' => 'Complete these steps once. After installation succeeds, this installer is locked and the admin panel opens.',
+        'progress_label' => 'Installer progress',
+        'steps' => [
+            'requirements' => 'Requirements',
+            'application' => 'Application',
+            'database' => 'Database',
+            'storage' => 'Storage',
+            'mail' => 'Mail',
+            'admin' => 'Admin',
+            'summary' => 'Install Summary',
+            'complete' => 'Install Complete',
+        ],
+        'sections' => [
+            'requirements' => 'Step 1 - Requirements Check',
+            'application' => 'Step 2 - Application Settings',
+            'database' => 'Step 3 - Database Settings',
+            'storage' => 'Step 4 - Storage Settings',
+            'mail' => 'Step 5 - Mail Settings',
+            'admin' => 'Step 6 - Admin Account',
+            'summary' => 'Step 7 - Install Summary',
+        ],
+        'fields' => [
+            'app_name' => 'App name',
+            'app_url' => 'App URL',
+            'frontend_url' => 'Frontend URL',
+            'timezone' => 'Timezone',
+            'locale' => 'Locale',
+            'connection' => 'Connection',
+            'host' => 'Host',
+            'port' => 'Port',
+            'database' => 'Database',
+            'username' => 'Username',
+            'password' => 'Password',
+            'driver' => 'Driver',
+            'azure_account_name' => 'Azure account name',
+            'azure_account_key' => 'Azure account key',
+            'azure_container' => 'Azure container',
+            'azure_url' => 'Azure storage URL',
+            'mailer' => 'Mailer',
+            'smtp_host' => 'SMTP host',
+            'smtp_port' => 'SMTP port',
+            'smtp_username' => 'SMTP username',
+            'smtp_password' => 'SMTP password',
+            'encryption' => 'Encryption',
+            'from_email' => 'From email',
+            'from_name' => 'From name',
+            'name' => 'Name',
+            'email' => 'Email',
+            'confirm_password' => 'Confirm password',
+        ],
+        'requirements' => [
+            'php' => 'PHP version >= 8.3',
+            'pdo' => 'PDO extension',
+            'storage' => 'storage writable',
+            'bootstrap_cache' => 'bootstrap/cache writable',
+            'env' => '.env exists or base path writable',
+            'public_storage' => 'public/storage link',
+            'loaded' => 'Loaded',
+            'missing' => 'Missing',
+            'exists' => 'Exists',
+            'can_create' => 'Can be created during install',
+        ],
+        'messages' => [
+            'install_running' => 'Installation is already running. If this is stale, delete storage/app/installing.lock after confirming no install process is active.',
+            'lock_title' => 'Installation is currently locked.',
+            'lock_body' => 'Another install request may be running. If no process is active, remove storage/app/installing.lock and reload this page.',
+            'errors_title' => 'Installation cannot continue yet.',
+            'secrets_hidden' => 'Secrets are never shown here. Check storage/logs/laravel.log for technical details.',
+            'requirement_ok' => 'OK',
+            'requirement_check' => 'Check',
+            'db_failed' => 'Database connection failed.',
+            'install_failed' => 'Installation failed. The previous .env file was restored if a backup was available. Check storage/logs/laravel.log, correct the issue, remove storage/app/installing.lock if it remains, and submit again.',
+            'summary' => 'The installer backs up the current .env file, writes required bootstrap values, migrates and seeds the database, saves runtime settings, creates the admin account, and only then writes storage/app/installed.lock.',
+            'submit' => 'Install and open admin',
+        ],
     ],
 
     'system' => [
@@ -447,22 +797,34 @@ return [
         'secrets_hidden' => 'Secrets are intentionally not displayed.',
         'failed_jobs' => ':count failed',
         'batch' => 'Batch :batch',
+        'cors_sanctum_detail' => 'CORS: :cors | Sanctum: :sanctum',
         'checks' => [
             'app_name' => 'App name',
             'app_url' => 'App URL',
             'frontend_url' => 'Frontend URL',
+            'cors_sanctum' => 'CORS / Sanctum consistency',
             'environment' => 'Environment',
             'database' => 'Database connection',
             'storage_disk' => 'Storage disk status',
+            'active_storage_driver' => 'Active storage driver',
+            'local_storage' => 'Local storage status',
+            'azure_storage' => 'Azure storage status',
+            'storage_last_test' => 'Latest storage test',
             'mail_enabled' => 'Mail enabled',
             'mail_provider' => 'Mail provider',
+            'mail_last_test' => 'Latest mail test',
             'queue_connection' => 'Queue connection',
             'cache_driver' => 'Cache driver',
             'session_driver' => 'Session driver',
             'upload_disk' => 'Upload disk',
             'storage_link' => 'Storage link exists',
+            'installed_lock' => 'installed.lock exists',
+            'installing_lock' => 'installing.lock exists',
             'key_admin' => 'Key admin account exists',
             'demo_data' => 'Demo seed data exists',
+            'demo_data_count' => 'Demo seed data count',
+            'public_settings_endpoint' => 'Public settings endpoint',
+            'health_check' => 'Health check API',
             'failed_jobs' => 'Failed jobs exist',
             'php_version' => 'PHP version',
             'laravel_version' => 'Laravel version',

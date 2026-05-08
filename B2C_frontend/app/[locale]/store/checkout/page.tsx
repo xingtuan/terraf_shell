@@ -12,6 +12,7 @@ import { listAddresses } from "@/lib/api/addresses"
 import { ApiError, getErrorMessage } from "@/lib/api/client"
 import { createOrder } from "@/lib/api/orders"
 import { formatCurrencyAmount } from "@/lib/api/products"
+import { getPublicSettings, type PublicSettings } from "@/lib/api/public-settings"
 import {
   getAddressDetails,
   getShippingOptions,
@@ -100,12 +101,33 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [runtimeSettings, setRuntimeSettings] = useState<PublicSettings | null>(null)
 
   useEffect(() => {
     void loadCart()
     // loadCart intentionally reads the latest auth token from context.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.token])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void getPublicSettings()
+      .then((settings) => {
+        if (!cancelled) {
+          setRuntimeSettings(settings)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setRuntimeSettings(null)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     if (!session.token) {
@@ -237,6 +259,9 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   const pricesIncludeTax = shippingQuote?.tax.included ?? true
   const tax = calculateTax(subtotal + shipping, taxRate, pricesIncludeTax)
   const total = pricesIncludeTax ? subtotal + shipping : subtotal + shipping + tax
+  const storeDisabled = runtimeSettings?.store_enabled === false
+  const guestCheckoutDisabled =
+    !session.token && runtimeSettings?.guest_checkout_enabled === false
   const currency =
     selectedShippingOption?.currency ??
     shippingQuote?.totals.currency ??
@@ -318,6 +343,16 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   }
 
   async function handleSubmit() {
+    if (storeDisabled) {
+      setSubmitError(t.storeDisabledDescription)
+      return
+    }
+
+    if (guestCheckoutDisabled) {
+      setSubmitError(t.guestCheckoutDisabled)
+      return
+    }
+
     if (!selectedShippingCode) {
       setSubmitError(t.shippingMethodRequired)
       return
@@ -397,6 +432,20 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           <p className="mt-4 text-muted-foreground">{t.emptyDescription}</p>
           <Button asChild className="mt-6">
             <Link href={getLocalizedHref(locale, "store")}>{t.browseCollection}</Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (storeDisabled) {
+    return (
+      <div className="mx-auto max-w-4xl px-6 py-20 lg:px-8">
+        <div className="rounded-[2rem] border border-border/60 bg-card p-10 text-center">
+          <h1 className="font-serif text-4xl text-foreground">{t.storeDisabledTitle}</h1>
+          <p className="mt-4 text-muted-foreground">{t.storeDisabledDescription}</p>
+          <Button asChild className="mt-6">
+            <Link href={getLocalizedHref(locale, "")}>{t.backToHome}</Link>
           </Button>
         </div>
       </div>
@@ -795,14 +844,19 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
           </div>
 
           <div className="mt-6 rounded-3xl bg-background p-5 text-sm leading-relaxed text-muted-foreground">
-            <p>{t.noAccountRequired}</p>
+            <p>{guestCheckoutDisabled ? t.guestCheckoutDisabled : t.noAccountRequired}</p>
             <p className="mt-2">{t.confirmationNote}</p>
           </div>
 
           <Button
             type="button"
             className="mt-8 w-full"
-            disabled={isSubmitting || shippingLoading || !selectedShippingCode}
+            disabled={
+              isSubmitting ||
+              shippingLoading ||
+              !selectedShippingCode ||
+              guestCheckoutDisabled
+            }
             onClick={() => {
               void handleSubmit()
             }}

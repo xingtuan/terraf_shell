@@ -89,7 +89,7 @@ class EmailSettings extends Page
                     ->schema([
                         Toggle::make('is_enabled')
                             ->label(__('admin.fields.enable_email_sending'))
-                            ->helperText('When disabled, Email Center creates skipped logs and user-facing actions still succeed.'),
+                            ->helperText(__('admin.email.help.disabled_logs')),
                         Select::make('mailer')
                             ->options(array_combine(MailSettingsService::MAILERS, MailSettingsService::MAILERS))
                             ->required()
@@ -99,7 +99,7 @@ class EmailSettings extends Page
                             ->default(true),
                     ])
                     ->columns(3),
-                Section::make('SMTP')
+                Section::make(__('admin.email.sections.smtp'))
                     ->visible(fn (Get $get): bool => $get('mailer') === 'smtp')
                     ->schema([
                         Grid::make(2)
@@ -108,7 +108,7 @@ class EmailSettings extends Page
                                 TextInput::make('port')->numeric()->minValue(1)->maxValue(65535),
                                 Select::make('encryption')
                                     ->options([
-                                        null => 'None',
+                                        null => __('admin.email.encryption.none'),
                                         'tls' => 'TLS',
                                         'ssl' => 'SSL',
                                     ]),
@@ -117,7 +117,7 @@ class EmailSettings extends Page
                                     ->password()
                                     ->revealable()
                                     ->maxLength(255)
-                                    ->helperText('Leave masked or empty to keep the current password.'),
+                                    ->helperText(__('admin.email.help.keep_password')),
                                 TextInput::make('timeout')->numeric()->minValue(1)->maxValue(120),
                             ]),
                     ]),
@@ -130,7 +130,7 @@ class EmailSettings extends Page
                                     ->label(__('admin.fields.api_key_secret'))
                                     ->password()
                                     ->revealable()
-                                    ->helperText('Leave masked or empty to keep the current key.'),
+                                    ->helperText(__('admin.email.help.keep_key')),
                                 TextInput::make('domain')
                                     ->visible(fn (Get $get): bool => $get('mailer') === 'mailgun'),
                                 TextInput::make('region')
@@ -150,9 +150,9 @@ class EmailSettings extends Page
                 Section::make(__('admin.sections.email_admin_recipients'))
                     ->schema([
                         TagsInput::make('admin_recipients')
-                            ->label('Admin email recipients')
+                            ->label(__('admin.email.fields.admin_recipients'))
                             ->placeholder('ops@example.com')
-                            ->helperText('Used for admin recipient email events. Active admin users are used when this is empty.'),
+                            ->helperText(__('admin.email.help.admin_recipients')),
                     ]),
                 Section::make(__('admin.sections.email_test_tools'))
                     ->schema([
@@ -201,7 +201,7 @@ class EmailSettings extends Page
         }
 
         $log = $emailDispatchService->sendTest($email, PanelAccess::user());
-        $this->lastTestResult = "Log #{$log->id}: {$log->status}".($log->error_message ? ' - '.$log->error_message : '');
+        $this->lastTestResult = __('admin.email.test_result', ['id' => $log->id, 'status' => $log->status]).($log->error_message ? ' - '.$log->error_message : '');
 
         $notification = Notification::make()
             ->title($log->status === EmailLog::STATUS_FAILED ? __('admin.notifications.test_email_failed') : __('admin.notifications.test_email_logged'))

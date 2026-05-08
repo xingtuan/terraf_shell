@@ -25,12 +25,19 @@ class InstallController extends Controller
 
         return view('install.index', [
             'requirements' => $installation->requirements(),
+            'isInstalling' => $installation->isInstalling(),
         ]);
     }
 
     public function store(Request $request, InstallationService $installation, SettingsService $settings): RedirectResponse
     {
         abort_if($installation->isInstalled(), 404);
+
+        if ($installation->isInstalling()) {
+            return back()
+                ->withInput($request->except(['db_password', 'azure_account_key', 'mail_password', 'admin_password', 'admin_password_confirmation']))
+                ->withErrors(['install' => __('admin.installer.messages.install_running')]);
+        }
 
         $validated = $request->validate([
             'app_name' => ['required', 'string', 'max:120'],
@@ -65,11 +72,15 @@ class InstallController extends Controller
         if (! $installation->databaseIsReachable($validated)) {
             return back()
                 ->withInput($request->except(['db_password', 'azure_account_key', 'mail_password', 'admin_password', 'admin_password_confirmation']))
-                ->withErrors(['db_database' => 'Database connection failed.']);
+                ->withErrors(['db_database' => __('admin.installer.messages.db_failed')]);
         }
+
+        $envBackupPath = null;
+        $installation->createInstallingLock();
 
         try {
             $appKey = $this->ensureAppKey();
+            $envBackupPath = $this->backupEnv();
             $this->writeMinimalEnv($validated, $appKey);
 
             Artisan::call('migrate', ['--force' => true]);
@@ -95,17 +106,20 @@ class InstallController extends Controller
                 Artisan::call('storage:link');
             }
 
+            Artisan::call('optimize:clear');
             $settings->set('system.installed_at', now()->toISOString(), ['type' => 'string']);
             $installation->createLock();
-            Artisan::call('optimize:clear');
 
             return redirect('/admin');
         } catch (Throwable $throwable) {
             report($throwable);
+            $this->restoreEnvBackup($envBackupPath);
 
             return back()
                 ->withInput($request->except(['db_password', 'azure_account_key', 'mail_password', 'admin_password', 'admin_password_confirmation']))
-                ->withErrors(['install' => app()->environment('production') ? 'Installation failed.' : $throwable->getMessage()]);
+                ->withErrors(['install' => __('admin.installer.messages.install_failed')]);
+        } finally {
+            $installation->clearInstallingLock();
         }
     }
 
@@ -157,6 +171,36 @@ class InstallController extends Controller
         }
 
         File::put($path, $contents);
+    }
+
+    private function backupEnv(): ?string
+    {
+        $path = base_path('.env');
+
+        if (! File::exists($path)) {
+            return null;
+        }
+
+        $backupPath = storage_path('app/install-env-backups/.env.'.now()->format('YmdHis').'.bak');
+        File::ensureDirectoryExists(dirname($backupPath));
+        File::copy($path, $backupPath);
+
+        return $backupPath;
+    }
+
+    private function restoreEnvBackup(?string $backupPath): void
+    {
+        $path = base_path('.env');
+
+        if ($backupPath !== null && File::exists($backupPath)) {
+            File::copy($backupPath, $path);
+
+            return;
+        }
+
+        if ($backupPath === null && File::exists($path)) {
+            File::delete($path);
+        }
     }
 
     private function envValue(string $value): string
