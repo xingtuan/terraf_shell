@@ -1,0 +1,970 @@
+﻿  'ui' =>
+  ],
+    'system_announcement' => 'System Announcement',
+    'concept_featured' => 'Concept Featured',
+    'submission_rejected' => 'Submission Rejected',
+    'submission_approved' => 'Submission Approved',
+    'follow' => 'Follow',
+    'favorite' => 'Favorite',
+    'like' => 'Like',
+    'reply' => 'Reply',
+    'comment' => 'Comment',
+  [
+  'notification_type' =>
+  ],
+    'account_banned' => 'Account Banned',
+    'account_restricted' => 'Account Restricted',
+    'content_hidden' => 'Content Hidden',
+    'content_rejected' => 'Content Rejected',
+    'sensitive_word' => 'Sensitive Word',
+    'manual_warning' => 'Manual Warning',
+  [
+  'violation_type' =>
+  ],
+    'resolved' => 'Resolved',
+    'open' => 'Open',
+  [
+  'violation_status' =>
+  ],
+    'ban' => 'Ban',
+    'restriction' => 'Restriction',
+    'warning' => 'Warning',
+    'notice' => 'Notice',
+  [
+  'violation_severity' =>
+  ],
+    'dismissed' => 'Dismissed',
+    'resolved' => 'Resolved',
+    'reviewed' => 'Reviewed',
+    'pending' => 'Open',
+  [
+  'report_status' =>
+  ],
+    'ended' => 'Ended',
+    'paused' => 'Paused',
+    'live' => 'Live',
+    'scheduled' => 'Scheduled',
+    'draft' => 'Draft',
+  [
+  'funding_campaign_status' =>
+  ],
+    'updated' => 'Updated.',
+    'test_email_logged' => 'Test email logged.',
+    'test_email_failed' => 'Test email failed.',
+    'test_email_invalid' => 'Enter a valid test email address.',
+    'saved' => 'Saved.',
+    'payment_status_updated' => 'Payment status updated.',
+    'order_status_updated' => 'Order status updated.',
+    'lead_updated' => 'Lead updated.',
+    'lead_archived' => 'Lead archived.',
+    'internal_note_added' => 'Internal note added.',
+    'deleted' => 'Deleted.',
+    'demo_content_cleaned' => 'Demo community content cleaned.',
+  [
+  'notifications' => 
+  ],
+    ],
+      'last_migration' => 'Last migration',
+      'writable_bootstrap_cache' => 'Writable: bootstrap/cache',
+      'writable_storage' => 'Writable: storage',
+      'laravel_version' => 'Laravel version',
+      'php_version' => 'PHP version',
+      'failed_jobs' => 'Failed jobs exist',
+      'health_check' => 'Health check API',
+      'public_settings_endpoint' => 'Public settings endpoint',
+      'demo_data_count' => 'Demo seed data count',
+      'demo_data' => 'Demo seed data exists',
+      'key_admin' => 'Key admin account exists',
+      'installing_lock' => 'installing.lock exists',
+      'installed_lock' => 'installed.lock exists',
+      'storage_link' => 'Storage link exists',
+      'upload_disk' => 'Upload disk',
+      'session_driver' => 'Session driver',
+      'cache_driver' => 'Cache driver',
+      'queue_connection' => 'Queue connection',
+      'mail_last_test' => 'Latest mail test',
+      'mail_provider' => 'Mail provider',
+      'mail_enabled' => 'Mail enabled',
+      'storage_last_test' => 'Latest storage test',
+      'azure_storage' => 'Azure storage status',
+      'local_storage' => 'Local storage status',
+      'active_storage_driver' => 'Active storage driver',
+      'storage_disk' => 'Storage disk status',
+      'database' => 'Database connection',
+      'environment' => 'Environment',
+      'cors_sanctum' => 'CORS / Sanctum consistency',
+      'frontend_url' => 'Frontend URL',
+      'app_url' => 'App URL',
+      'app_name' => 'App name',
+    [
+    'checks' => 
+    'cors_sanctum_detail' => 'CORS: :cors | Sanctum: :sanctum',
+    'batch' => 'Batch :batch',
+    'failed_jobs' => ':count failed',
+    'secrets_hidden' => 'Secrets are intentionally not displayed.',
+    'not_configured' => 'Not configured',
+    'configured' => 'Configured',
+    'failed' => 'Failed',
+    'connected' => 'Connected',
+    'no' => 'No',
+    'yes' => 'Yes',
+    'disabled' => 'Disabled',
+    'enabled' => 'Enabled',
+    'not_available' => 'Not available',
+    'error' => 'Error',
+    'warning' => 'Warning',
+    'ok' => 'OK',
+  [
+  'system' => 
+  ],
+    ],
+      'submit' => 'Install and open admin',
+      'summary' => 'The installer backs up the current .env file, writes required bootstrap values, migrates and seeds the database, saves runtime settings, creates the admin account, and only then writes storage/app/installed.lock.',
+      'install_failed' => 'Installation failed. The previous .env file was restored if a backup was available. Check storage/logs/laravel.log, correct the issue, remove storage/app/installing.lock if it remains, and submit again.',
+      'db_failed' => 'Database connection failed.',
+      'requirement_check' => 'Check',
+      'requirement_ok' => 'OK',
+      'secrets_hidden' => 'Secrets are never shown here. Check storage/logs/laravel.log for technical details.',
+      'errors_title' => 'Installation cannot continue yet.',
+      'lock_body' => 'Another install request may be running. If no process is active, remove storage/app/installing.lock and reload this page.',
+      'lock_title' => 'Installation is currently locked.',
+      'install_running' => 'Installation is already running. If this is stale, delete storage/app/installing.lock after confirming no install process is active.',
+    [
+    'messages' => 
+    ],
+      'can_create' => 'Can be created during install',
+      'exists' => 'Exists',
+      'missing' => 'Missing',
+      'loaded' => 'Loaded',
+      'public_storage' => 'public/storage link',
+      'env' => '.env exists or base path writable',
+      'bootstrap_cache' => 'bootstrap/cache writable',
+      'storage' => 'storage writable',
+      'pdo' => 'PDO extension',
+      'php' => 'PHP version >= 8.3',
+    [
+    'requirements' => 
+    ],
+      'confirm_password' => 'Confirm password',
+      'email' => 'Email',
+      'name' => 'Name',
+      'from_name' => 'From name',
+      'from_email' => 'From email',
+      'encryption' => 'Encryption',
+      'smtp_password' => 'SMTP password',
+      'smtp_username' => 'SMTP username',
+      'smtp_port' => 'SMTP port',
+      'smtp_host' => 'SMTP host',
+      'mailer' => 'Mailer',
+      'azure_url' => 'Azure storage URL',
+      'azure_container' => 'Azure container',
+      'azure_account_key' => 'Azure account key',
+      'azure_account_name' => 'Azure account name',
+      'driver' => 'Driver',
+      'password' => 'Password',
+      'username' => 'Username',
+      'database' => 'Database',
+      'port' => 'Port',
+      'host' => 'Host',
+      'connection' => 'Connection',
+      'locale' => 'Locale',
+      'timezone' => 'Timezone',
+      'frontend_url' => 'Frontend URL',
+      'app_url' => 'App URL',
+      'app_name' => 'App name',
+    [
+    'fields' => 
+    ],
+      'summary' => 'Step 7 - Install Summary',
+      'admin' => 'Step 6 - Admin Account',
+      'mail' => 'Step 5 - Mail Settings',
+      'storage' => 'Step 4 - Storage Settings',
+      'database' => 'Step 3 - Database Settings',
+      'application' => 'Step 2 - Application Settings',
+      'requirements' => 'Step 1 - Requirements Check',
+    [
+    'sections' => 
+    ],
+      'complete' => 'Install Complete',
+      'summary' => 'Install Summary',
+      'admin' => 'Admin',
+      'mail' => 'Mail',
+      'storage' => 'Storage',
+      'database' => 'Database',
+      'application' => 'Application',
+      'requirements' => 'Requirements',
+    [
+    'steps' => 
+    'progress_label' => 'Installer progress',
+    'intro' => 'Complete these steps once. After installation succeeds, this installer is locked and the admin panel opens.',
+    'title' => 'Install Terraf OXP',
+  [
+  'installer' => 
+  ],
+    ],
+      'scan_limit' => 'This lightweight scan checks the first 200 media records for missing files. Export the report before planning migration work.',
+    [
+    'help' => 
+    ],
+      'dry_run_ready' => ':count files would be checked for :from to :to migration. No files were moved.',
+    [
+    'messages' => 
+    ],
+      'dry_run_azure_to_local' => 'Dry run: Azure to local',
+      'dry_run_local_to_azure' => 'Dry run: local to Azure',
+      'export_report' => 'Export scan report',
+    [
+    'actions' => 
+    ],
+      'missing_files' => 'Missing files in first 200 checked',
+      'total_size' => 'Total recorded size',
+      'azure_files' => 'Azure files',
+      'local_files' => 'Local files',
+      'total_files' => 'Total media files',
+    [
+    'fields' => 
+    ],
+      'integrity' => 'Integrity scan',
+      'summary' => 'Media storage summary',
+    [
+    'sections' => 
+  [
+  'media_scan' => 
+  ],
+    ],
+      'safe_scope' => 'Only records explicitly marked as demo are eligible. Admin users, runtime settings, and CMS content are never removed by this tool.',
+    [
+    'help' => 
+    ],
+      'cleaned' => 'Marked community demo data was cleaned.',
+    [
+    'messages' => 
+    ],
+      'cleanup_community' => 'Clean marked community demo data',
+    [
+    'actions' => 
+    ],
+      'demo_users' => 'Demo users',
+      'demo_media' => 'Demo media',
+      'demo_leads' => 'Demo leads',
+      'demo_orders' => 'Demo orders',
+      'demo_comments' => 'Demo comments',
+      'demo_posts' => 'Demo community posts',
+    [
+    'fields' => 
+    ],
+      'detected' => 'Detected demo data',
+    [
+    'sections' => 
+  [
+  'demo_cleanup' => 
+  ],
+    ],
+      'group_reset' => ':group settings were reset to defaults where defaults exist.',
+      'reset_group_required' => 'Select a settings group first.',
+      'imported' => 'Settings imported and cache cleared.',
+      'unknown_keys' => 'Unknown or unsafe setting keys: :keys',
+      'invalid_json' => 'The settings JSON is invalid.',
+    [
+    'messages' => 
+    ],
+      'reset_group' => 'Reset selected group',
+      'import' => 'Import settings JSON',
+      'handover_summary' => 'Download handover summary',
+      'export' => 'Export non-secret JSON',
+    [
+    'actions' => 
+    ],
+      'import_json' => 'Paste JSON from a non-secret settings export. Unknown keys and secret fields are rejected.',
+    [
+    'help' => 
+    ],
+      'reset_group' => 'Settings group',
+      'import_json' => 'Settings JSON',
+    [
+    'fields' => 
+    ],
+      'reset' => 'Reset settings group',
+      'import' => 'Import non-secret settings',
+    [
+    'sections' => 
+  [
+  'settings_tools' => 
+  ],
+    ],
+      'custom' => 'Custom recipients',
+      'both' => 'User and admin',
+      'admin' => 'Admin',
+      'user' => 'User',
+    [
+    'recipient_type' => 
+    'template_placeholder_help' => ':example style placeholders are escaped in HTML. Use triple braces only for trusted HTML fragments.',
+    'test_result' => 'Log #:id: :status',
+    ],
+      'none' => 'None',
+    [
+    'encryption' => 
+    ],
+      'admin_recipients' => 'Used for admin recipient email events. Active admin users are used when this is empty.',
+      'keep_key' => 'Leave masked or empty to keep the current key.',
+      'keep_password' => 'Leave masked or empty to keep the current password.',
+      'disabled_logs' => 'When disabled, Email Center creates skipped logs and user-facing actions still succeed.',
+    [
+    'help' => 
+    ],
+      'admin_recipients' => 'Admin email recipients',
+    [
+    'fields' => 
+    ],
+      'smtp' => 'SMTP',
+    [
+    'sections' => 
+  [
+  'email' => 
+  ],
+    ],
+      'keep_secret' => 'Leave masked or empty to keep the current value.',
+    [
+    'help' => 
+    ],
+      'test_query' => 'Test lookup query',
+      'sender_postcode' => 'Sender postcode',
+      'api_key' => 'API key',
+      'client_secret' => 'Client secret',
+      'client_id' => 'Client ID / API key ID',
+      'base_url' => 'API base URL',
+      'enabled' => 'Enabled',
+      'configured_status' => 'Configured status',
+    [
+    'fields' => 
+    ],
+      'api' => 'NZ Post API',
+    [
+    'sections' => 
+  [
+  'nzpost' => 
+  ],
+    ],
+      ],
+        'help' => 'All community posts and comments go live immediately.',
+        'label' => 'Approve all submissions automatically',
+      [
+      'all_auto_approve' => 
+      ],
+        'help' => 'Only designated users can bypass moderation automatically.',
+        'label' => 'Trusted users are approved automatically',
+      [
+      'trusted_users_auto_approve' => 
+      ],
+        'help' => 'Every new post and comment is queued for moderation.',
+        'label' => 'All content requires approval',
+      [
+      'all_require_approval' => 
+    [
+    'policies' => 
+    ],
+      'saved' => 'Community moderation settings saved.',
+    [
+    'messages' => 
+    ],
+      'trusted_users' => 'These users are auto-approved only when the trusted-user policy is selected.',
+      'submission_policy' => 'Choose how community posts and comments should be approved.',
+    [
+    'help' => 
+    ],
+      'trusted_users' => 'Trusted users',
+      'approval_mode' => 'Approval mode',
+    [
+    'fields' => 
+    ],
+      'submission_policy' => 'Submission policy',
+    [
+    'sections' => 
+    'subheading' => 'Control whether submissions require review, and which users can bypass moderation.',
+  [
+  'community_moderation' => 
+  ],
+    ],
+      'default_funding_support_button_text' => 'Default funding support button text',
+      'sensitive_words' => 'Sensitive word list',
+      'allowed_extensions' => 'Allowed extensions',
+      'sensitive_words_enabled' => 'Sensitive words enabled',
+      'submission_policy' => 'Submission policy',
+      'max_external_links' => 'Max external links',
+      'max_file_size_kb' => 'Max file size KB',
+      'max_files' => 'Max files',
+      'allow_guest_upload' => 'Allow guest upload',
+    [
+    'fields' => 
+    ],
+      'uploads_moderation' => 'Community uploads and moderation',
+    [
+    'sections' => 
+  [
+  'community_settings' => 
+  ],
+    ],
+      'maintenance_notice_level' => 'Maintenance notice level',
+      'maintenance_notice_message' => 'Maintenance notice message',
+      'maintenance_notice_enabled' => 'Maintenance notice enabled',
+      'email_sending_enabled' => 'Email sending enabled',
+      'guest_checkout_enabled' => 'Guest checkout enabled',
+      'funding_links_enabled' => 'Funding links enabled',
+      'community_enabled' => 'Community enabled',
+      'b2b_inquiry_enabled' => 'B2B inquiry enabled',
+      'b2c_store_enabled' => 'B2C store enabled',
+    [
+    'fields' => 
+    ],
+      'public_behavior' => 'Public behavior',
+    [
+    'sections' => 
+  [
+  'feature_flags' => 
+  ],
+    ],
+      'tax_label' => 'Tax label',
+      'gst_rate' => 'GST rate',
+      'prices_include_gst' => 'Prices include GST',
+      'gst_enabled' => 'GST enabled',
+    [
+    'fields' => 
+  [
+  'tax' => 
+  ],
+    ],
+      'driver_rolled_back' => 'Rolled back to :driver.',
+      'no_previous_driver' => 'No previous driver is recorded.',
+      'cache_cleared' => 'Runtime settings cache cleared.',
+      'storage_link_created' => 'Storage link created or already exists.',
+    [
+    'messages' => 
+    ],
+      'migrate_media' => 'Migrate media between disks',
+      'rollback_driver' => 'Roll back driver',
+      'clear_settings_cache' => 'Clear settings cache',
+      'create_storage_link' => 'Create storage link',
+      'test_upload' => 'Test upload',
+      'test_azure' => 'Test Azure connection',
+      'test_local' => 'Test local storage',
+    [
+    'actions' => 
+    ],
+      'keep_secret' => 'Leave masked or empty to keep the current key.',
+    [
+    'help' => 
+    ],
+      'azure_sas_ttl_minutes' => 'SAS TTL minutes',
+      'azure_use_sas_urls' => 'Use SAS URLs',
+      'azure_url' => 'Storage URL',
+      'azure_container' => 'Container',
+      'azure_account_key' => 'Account key',
+      'azure_account_name' => 'Account name',
+      'storage_link_status' => 'Storage link status',
+      'public_url_preview' => 'Public URL preview',
+      'local_disk' => 'Local disk',
+      'storage_driver' => 'Storage driver',
+      'overall_last_test' => 'Overall last test',
+      'azure_last_test' => 'Azure last test',
+      'local_last_test' => 'Local last test',
+      'last_tested' => 'Last tested',
+      'azure_configured' => 'Azure configured',
+      'storage_link' => 'Storage link',
+      'local_writable' => 'Local writable',
+      'active_driver' => 'Active driver',
+    [
+    'fields' => 
+    ],
+      'azure' => 'Azure Blob Storage',
+      'local' => 'Local',
+    [
+    'drivers' => 
+    ],
+      'azure' => 'Azure',
+      'local' => 'Local',
+      'driver' => 'Driver',
+      'status' => 'Status',
+    [
+    'sections' => 
+    'driver_switch_notice' => 'Switching the active driver affects new uploads only. Existing media remains on the disk recorded for that file.',
+    'not_tested' => 'Not tested',
+  [
+  'storage' => 
+  ],
+    ],
+      'supported_locales' => 'Supported locales',
+      'support_email' => 'Support email',
+      'contact_email' => 'Contact email',
+      'timezone' => 'Timezone',
+      'default_locale' => 'Default locale',
+      'frontend_url' => 'Frontend URL',
+      'app_url' => 'App URL',
+      'admin_brand_name' => 'Admin brand name',
+      'site_name' => 'Site name',
+    [
+    'fields' => 
+    ],
+      'application' => 'Application',
+    [
+    'sections' => 
+  [
+  'application' => 
+  ],
+    'guest_checkout_disabled' => 'Guest checkout is currently disabled.',
+    'feature_disabled' => 'This feature is currently disabled.',
+  [
+  'runtime' => 
+  ],
+    'test_address_line1' => 'Test address',
+    'default_package_weight_value' => '500 g',
+    ],
+      'nz_only_shipping' => 'NZ-only shipping',
+    [
+    'fields' => 
+    'not_tested' => 'Not tested in this session.',
+    'quote_failed' => 'Shipping quote test failed.',
+    'quote_success' => 'Shipping quote returned :count option(s].',
+    'address_lookup_empty' => 'Address lookup returned no results.',
+    'address_lookup_success' => 'Address lookup returned :count result(s] from :source.',
+    'api_not_configured' => 'NZ Post API not configured; fallback rates are used.',
+    'api_configured' => 'NZ Post API configured',
+    'read_only_notice' => 'These values are read from config/env. API keys and secrets are not displayed or editable here.',
+    'nz_only_notice' => 'Store checkout is currently configured for New Zealand delivery only.',
+  [
+  'shipping' => 
+  ],
+    'banned' => 'Banned',
+    'restricted' => 'Restricted',
+    'active' => 'Active',
+  [
+  'account_status' => 
+  ],
+    'admin' => 'Admin',
+    'moderator' => 'Moderator',
+    'sme_partner' => 'SME partner',
+    'creator' => 'Creator',
+    'visitor' => 'Visitor',
+  [
+  'roles' => 
+  ],
+    ],
+      'other' => 'Other',
+      'video' => 'Video',
+      'document' => 'Document',
+      'image' => 'Image',
+    [
+    'type' => 
+  [
+  'media' => 
+  ],
+    ],
+      'correction' => 'Correction',
+      'damage' => 'Damage',
+      'stock_received' => 'Stock received',
+      'manual_adjustment' => 'Manual adjustment',
+    [
+    'stock_adjustment_reason' => 
+    ],
+      'inquiry_only' => 'Inquiry only',
+      'preorder' => 'Pre-order',
+      'continue' => 'Allow overselling',
+      'deny' => 'Do not oversell',
+    [
+    'inventory_policy' => 
+    ],
+      'sold_out' => 'Sold out',
+      'made_to_order' => 'Made to order',
+      'preorder' => 'Pre-order',
+      'low_stock' => 'Low stock',
+      'in_stock' => 'In stock',
+    [
+    'stock_status' => 
+    ],
+      'archived' => 'Archived',
+      'published' => 'Published',
+      'draft' => 'Draft',
+    [
+    'status' => 
+  [
+  'products' => 
+  ],
+    'published' => 'Published',
+    'draft' => 'Draft',
+  [
+  'publish_status' => 
+  ],
+    'hidden' => 'Hidden',
+    'rejected' => 'Rejected',
+    'approved' => 'Approved',
+    'pending' => 'Pending',
+  [
+  'content_status' => 
+  ],
+    ],
+      'other' => 'Other',
+      'partnership' => 'Partnership',
+      'bulk_order' => 'Bulk order',
+      'product_development' => 'Product development',
+      'pellet_supply' => 'Pellet supply',
+      'sample_request' => 'Sample request',
+    [
+    'interest' => 
+    ],
+      'urgent' => 'Urgent',
+      'high' => 'High',
+      'normal' => 'Normal',
+      'low' => 'Low',
+    [
+    'priority' => 
+    ],
+      'product_development_collaboration' => 'Product Development Collaboration Request',
+      'university_collaboration' => 'University Collaboration Request',
+      'sample_request' => 'Sample Request',
+      'partnership_inquiry' => 'Partnership Inquiry',
+      'business_contact' => 'Business Contact',
+    [
+    'type' => 
+    ],
+      'archived' => 'Archived',
+      'closed' => 'Closed',
+      'resolved' => 'Resolved',
+      'qualified' => 'Qualified',
+      'follow_up' => 'Follow-up',
+      'in_discussion' => 'In discussion',
+      'sample_sent' => 'Sample sent',
+      'contacted' => 'Contacted',
+      'in_review' => 'Reviewing',
+      'new' => 'New',
+    [
+    'status' => 
+  [
+  'leads' => 
+  ],
+    ],
+      'refunded' => 'Refunded manually',
+      'paid' => 'Paid manually',
+      'unpaid' => 'Awaiting payment',
+    [
+    'payment_status' => 
+    ],
+      'cancelled' => 'Cancelled',
+      'delivered' => 'Delivered',
+      'shipped' => 'Shipped',
+      'processing' => 'Processing',
+      'confirmed' => 'Confirmed',
+      'pending' => 'Pending review',
+    [
+    'status' => 
+  [
+  'orders' => 
+  ],
+    'stock_adjustment_negative' => 'Use a negative number to reduce stock.',
+  [
+  'help' => 
+  ],
+    'untracked' => 'Untracked',
+    'unlinked' => 'Unlinked',
+    'unknown' => 'Unknown',
+    'uncategorized' => 'Uncategorized',
+    'unassigned' => 'Unassigned',
+    'not_specified' => 'Not specified.',
+    'not_captured' => 'Not captured',
+    'no_sent_email_logged' => 'No sent email logged.',
+    'no_customer_note' => 'No customer note.',
+    'manual_follow_up' => 'Manual follow-up',
+    'guest_session_cart' => 'Guest / session cart',
+    'generated_automatically' => 'Generated automatically',
+    'draft' => 'Draft',
+  [
+  'placeholders' => 
+  ],
+    'open_orders' => 'Open requests',
+    'low_stock' => 'Low stock',
+    'guest_or_registered' => 'Customer type',
+    'guest_carts' => 'Guest carts',
+    'abandoned_carts' => 'Abandoned carts',
+  [
+  'filters' => 
+  ],
+    'published' => 'Published',
+    'new_arrival' => 'New arrival',
+    'bestseller' => 'Bestseller',
+    'weight_grams' => 'Weight (grams]',
+    'variant' => 'Variant',
+    'api_key_secret' => 'API key / secret',
+    'size' => 'Size',
+    'reply_to_name' => 'Reply-to name',
+    'reply_to_address' => 'Reply-to address',
+    'registered' => 'Registered',
+    'url' => 'URL',
+    'uploaded_by' => 'Uploaded by',
+    'uploaded' => 'Uploaded',
+    'updated_at' => 'Updated date',
+    'unit_price' => 'Unit price',
+    'type' => 'Type',
+    'total' => 'Total',
+    'tax_label' => 'Tax label',
+    'subtotal' => 'Subtotal',
+    'stock_status' => 'Stock status',
+    'stock' => 'Stock',
+    'status' => 'Status',
+    'standard_shipping_amount' => 'Standard fallback shipping amount',
+    'source_page' => 'Source page',
+    'sku' => 'SKU',
+    'shipping_method' => 'Shipping method',
+    'shipping_quote_postcode' => 'Shipping quote postcode',
+    'shipping' => 'Shipping',
+    'session_key' => 'Session key',
+    'send_through_queue' => 'Send through queue',
+    'send_test_email_to' => 'Send test email to',
+    'sample_request_enabled' => 'Sample request enabled',
+    'rural_surcharge' => 'Rural surcharge fallback',
+    'region' => 'Region',
+    'recipient' => 'Recipient',
+    'reason' => 'Reason',
+    'quantity' => 'Quantity',
+    'product' => 'Product',
+    'provider' => 'Selected provider',
+    'priority' => 'Priority',
+    'prices_include_gst' => 'Prices include GST',
+    'price' => 'Price',
+    'path' => 'Path',
+    'mime_type' => 'MIME type',
+    'file' => 'File',
+    'preview' => 'Preview',
+    'postal_code' => 'Postal code',
+    'phone' => 'Phone',
+    'payment_status' => 'Payment status',
+    'payment_reference' => 'Manual payment reference',
+    'payment_method' => 'Payment handling',
+    'origin_postcode' => 'Origin postcode',
+    'origin_country' => 'Origin country',
+    'origin_city' => 'Origin city',
+    'order_number' => 'Order number',
+    'note' => 'Note',
+    'nz_post_enabled' => 'NZ Post enabled',
+    'nz_post_api_status' => 'NZ Post API configured',
+    'name' => 'Name',
+    'message' => 'Message / requirement',
+    'linked_type' => 'Linked type',
+    'linked_object' => 'Linked object',
+    'linked_id' => 'Linked ID',
+    'lead_type' => 'Lead type',
+    'last_tested_status' => 'Last tested status',
+    'last_sent_email' => 'Last sent email',
+    'last_activity' => 'Last activity',
+    'image_preview' => 'Image preview',
+    'item_count' => 'Item count',
+    'is_default' => 'Default',
+    'inquiry_only' => 'Inquiry only',
+    'image' => 'Image',
+    'guest' => 'Guest',
+    'guest_email' => 'Guest email',
+    'gst_rate' => 'GST rate',
+    'from_name' => 'From name',
+    'from_address' => 'From address',
+    'failed_emails' => 'Failed emails',
+    'free_shipping_threshold' => 'Free shipping threshold',
+    'follow_up_at' => 'Follow-up date',
+    'featured' => 'Featured',
+    'express_shipping_amount' => 'Express fallback shipping amount',
+    'expires_at' => 'Expires at',
+    'estimated_total' => 'Estimated total',
+    'enable_email_sending' => 'Enable email sending',
+    'email_sending' => 'Email sending',
+    'email' => 'Email',
+    'default_package_weight' => 'Default package weight',
+    'customer_note' => 'Customer note',
+    'customer' => 'Customer',
+    'created_at' => 'Created date',
+    'country' => 'Country',
+    'company' => 'Company / organization',
+    'change_quantity' => 'Change quantity',
+    'city' => 'City',
+    'base_url' => 'Base URL',
+    'assigned_to' => 'Assigned admin',
+    'address_lookup_query' => 'Address lookup query',
+    'admin_note' => 'Internal admin note',
+    'address' => 'Address',
+  [
+  'fields' => 
+  ],
+    'file' => 'File',
+    'variant' => 'Variant',
+    'totals' => 'Totals',
+    'timeline' => 'Timeline',
+    'shipping_test_tools' => 'Shipping Test Tools',
+    'shipping_status' => 'Shipping Status',
+    'shipping_configuration' => 'Shipping Configuration',
+    'shipping_address' => 'Shipping Address',
+    'preview' => 'Preview',
+    'ownership' => 'Ownership',
+    'order_review' => 'Order Request Review',
+    'order_items' => 'Order Items',
+    'order_info' => 'Order Request Info',
+    'manual_payment' => 'Manual Payment',
+    'items' => 'Items',
+    'inventory' => 'Inventory',
+    'email_test_tools' => 'Test Tools',
+    'email_admin_recipients' => 'Admin Recipients',
+    'email_sender_identity' => 'Sender Identity',
+    'email_provider_credentials' => 'Provider Credentials',
+    'email_global_delivery' => 'Global Delivery',
+    'delivery_status' => 'Delivery Status',
+    'customer' => 'Customer',
+    'cart' => 'Cart',
+    'b2b_conversion' => 'B2B conversion',
+    'admin_note' => 'Admin Note',
+  [
+  'sections' => 
+  ],
+    'close' => 'Close',
+    'approve' => 'Approve',
+    'update_payment_status' => 'Update payment status',
+    'update_order_status' => 'Update order status',
+    'test_shipping_quote' => 'Test shipping quote',
+    'test_address_lookup' => 'Test address lookup',
+    'set_default' => 'Set as default',
+    'send_test_email' => 'Send test email',
+    'save_settings' => 'Save settings',
+    'save' => 'Save',
+    'review' => 'Review',
+    'reject' => 'Reject',
+    'mark_sold_out' => 'Mark sold out',
+    'mark_shipped' => 'Mark as shipped',
+    'mark_resolved' => 'Mark as resolved',
+    'mark_processing' => 'Mark as processing',
+    'mark_featured' => 'Mark featured',
+    'mark_delivered' => 'Mark as delivered',
+    'mark_confirmed' => 'Mark as confirmed',
+    'manage' => 'Manage',
+    'hide' => 'Hide',
+    'export' => 'Export CSV',
+    'edit' => 'Edit',
+    'duplicate' => 'Duplicate',
+    'download' => 'Download',
+    'delete' => 'Delete',
+    'deactivate' => 'Deactivate',
+    'clean_demo_content' => 'Clean demo community content',
+    'change_status' => 'Change status',
+    'cancel_order' => 'Cancel order',
+    'cancel' => 'Cancel',
+    'adjust_stock' => 'Adjust stock',
+    'assign' => 'Assign',
+    'archive' => 'Archive',
+    'add_note' => 'Add note',
+    'add_internal_note' => 'Add internal note',
+    'activate' => 'Activate',
+  [
+  'actions' => 
+  ],
+    'store_overview' => 'Store Overview',
+    'order_backlog' => 'Order Request Backlog',
+    'recent_orders' => 'Recent Orders',
+    'recent_leads' => 'Recent Leads',
+    'recent_activity' => 'Recent Activity',
+    'pending_posts' => 'Pending Posts',
+    'pending_comments' => 'Pending Comments',
+    'moderation_overview' => 'Moderation Overview',
+    'lead_operations' => 'Lead Operations',
+    'lead_backlog' => 'Lead Backlog',
+    'content_overview' => 'Content Overview',
+    'community_health' => 'Community Health',
+    'analytics_snapshot' => 'Analytics Snapshot',
+  [
+  'widgets' => 
+  ],
+    'media_storage_scan' => 'Media Storage Scan',
+    'demo_cleanup' => 'Demo Cleanup',
+    'settings_backup_import' => 'Settings Backup & Import',
+    'system_handover_readiness' => 'System / Handover Readiness',
+    'shipping_settings_nav' => 'Shipping Settings',
+    'shipping_settings' => 'Shipping Settings',
+    'community_moderation_settings' => 'Community Moderation Settings',
+    'moderation_settings' => 'Moderation Settings',
+    'moderation_queue_subheading' => 'Approve or reject pending community posts and comments from one screen.',
+    'moderation_queue' => 'Moderation Queue',
+    'mail_settings_nav' => 'Mail Settings',
+    'email_settings_nav' => 'Settings',
+    'email_settings' => 'Email Settings',
+    'feature_flags' => 'Feature Flags',
+    'community_settings' => 'Community Settings',
+    'tax_settings' => 'Tax Settings',
+    'nz_post_settings' => 'NZ Post Settings',
+    'storage_settings' => 'Storage Settings',
+    'application_settings' => 'Application Settings',
+  [
+  'pages' => 
+  ],
+    'users' => 'Users',
+    'user_violations' => 'User Violations',
+    'story_sections' => 'Story Sections',
+    'reports' => 'Reports',
+    'product' => 'Product',
+    'products' => 'Products',
+    'product_variants' => 'Product Variants',
+    'product_media' => 'Product Media',
+    'product_category' => 'Product category',
+    'product_categories' => 'Product Categories',
+    'product_attributes' => 'Product Attributes',
+    'orders' => 'Orders',
+    'moderation_logs' => 'Moderation Logs',
+    'media_file' => 'Media file',
+    'media_files' => 'Media Files',
+    'materials' => 'Materials',
+    'material_specs' => 'Material Specs',
+    'inventory' => 'Inventory',
+    'homepage_sections' => 'Homepage Sections',
+    'general_enquiry' => 'General enquiry',
+    'general_enquiries' => 'General Enquiries',
+    'funding_campaigns' => 'Funding Campaigns',
+    'email_templates' => 'Templates',
+    'email_logs' => 'Logs',
+    'email_events' => 'Events',
+    'concepts' => 'Concepts',
+    'concept_tag' => 'Concept tag',
+    'concept_tags' => 'Concept Tags',
+    'concept_media' => 'Concept Media',
+    'concept_category' => 'Concept category',
+    'concept_categories' => 'Concept Categories',
+    'comments' => 'Comments',
+    'cart' => 'Cart',
+    'carts' => 'Carts',
+    'b2b_lead' => 'B2B lead',
+    'b2b_leads' => 'B2B leads',
+    'attribute_values' => 'Attribute Values',
+    'articles' => 'Articles',
+    'applications' => 'Applications',
+    'announcements' => 'Announcements',
+    'all_leads' => 'All Leads',
+    'admin_action_logs' => 'Admin Action Logs',
+    'address' => 'Address',
+    'addresses' => 'Addresses',
+  [
+  'resources' => 
+  ],
+    'system_handover' => 'System / Handover',
+    'system_settings' => 'System / Settings',
+    'media_library' => 'Media Library',
+    'users_governance' => 'Users & Governance',
+    'email_center' => 'Email Center',
+    'content_cms' => 'Content / CMS',
+    'community' => 'Community',
+    'b2b_leads' => 'B2B / Leads',
+    'store_operations' => 'Store Operations',
+    'dashboard' => 'Dashboard',
+  [
+  'navigation' => 
+  ],
+    'chinese' => 'Chinese',
+    'korean' => 'Korean',
+    'english' => 'English',
+  [
+  'locale' => 
+  ],
+    'name' => 'Terraf OXP Admin',
+  [
+  'brand' => 
+return [
+
+<?php
