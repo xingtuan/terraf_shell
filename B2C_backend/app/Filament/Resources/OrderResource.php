@@ -21,7 +21,6 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\RepeatableEntry;
-use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -87,7 +86,7 @@ class OrderResource extends Resource
     {
         return $schema
             ->components([
-                InfolistSection::make(__('admin.sections.order_info'))
+                Section::make(__('admin.sections.order_info'))
                     ->schema([
                         TextEntry::make('order_number')
                             ->copyable(),
@@ -103,7 +102,7 @@ class OrderResource extends Resource
                             ->dateTime(),
                     ])
                     ->columns(2),
-                InfolistSection::make(__('admin.sections.customer'))
+                Section::make(__('admin.sections.customer'))
                     ->schema([
                         TextEntry::make('user.name')
                             ->label(__('admin.fields.name'))
@@ -115,7 +114,7 @@ class OrderResource extends Resource
                             ->placeholder('-'),
                     ])
                     ->columns(2),
-                InfolistSection::make(__('admin.sections.shipping_address'))
+                Section::make(__('admin.sections.shipping_address'))
                     ->schema([
                         TextEntry::make('shipping_name'),
                         TextEntry::make('shipping_phone')
@@ -131,7 +130,7 @@ class OrderResource extends Resource
                         TextEntry::make('shipping_country'),
                     ])
                     ->columns(2),
-                InfolistSection::make(__('admin.sections.manual_payment'))
+                Section::make(__('admin.sections.manual_payment'))
                     ->schema([
                         TextEntry::make('payment_method')
                             ->placeholder('-'),
@@ -140,7 +139,7 @@ class OrderResource extends Resource
                             ->copyable(),
                     ])
                     ->columns(2),
-                InfolistSection::make(__('admin.sections.order_items'))
+                Section::make(__('admin.sections.order_items'))
                     ->schema([
                         RepeatableEntry::make('items')
                             ->hiddenLabel()
@@ -164,7 +163,7 @@ class OrderResource extends Resource
                             ])
                             ->columns(6),
                     ]),
-                InfolistSection::make(__('admin.sections.totals'))
+                Section::make(__('admin.sections.totals'))
                     ->schema([
                         TextEntry::make('subtotal_usd')
                             ->label(__('admin.fields.subtotal').' (NZD)')
@@ -177,7 +176,7 @@ class OrderResource extends Resource
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                     ])
                     ->columns(3),
-                InfolistSection::make(__('admin.sections.admin_note'))
+                Section::make(__('admin.sections.admin_note'))
                     ->schema([
                         TextEntry::make('customer_note')
                             ->label(__('admin.fields.customer_note'))
@@ -186,7 +185,7 @@ class OrderResource extends Resource
                             ->label(__('admin.fields.admin_note'))
                             ->placeholder('-'),
                     ]),
-                InfolistSection::make(__('admin.sections.timeline'))
+                Section::make(__('admin.sections.timeline'))
                     ->schema([
                         TextEntry::make('confirmed_at')
                             ->label(__('admin.orders.status.confirmed'))
