@@ -12,9 +12,14 @@ use Illuminate\Database\Eloquent\Builder;
 
 class RecentActivity extends TableWidget
 {
-    protected static ?string $heading = 'Recent Moderation Activity';
+    protected static ?string $heading = null;
 
     protected static ?int $sort = 9;
+
+    public function getHeading(): ?string
+    {
+        return __('admin.ui.recent_moderation_activity');
+    }
 
     protected int|string|array $columnSpan = 'full';
 

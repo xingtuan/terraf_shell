@@ -23,11 +23,16 @@ class StoreOverview extends StatsOverviewWidget
 
     protected ?string $heading = null;
 
-    protected ?string $description = 'Catalogue health and fulfilment workload for the storefront.';
+    protected ?string $description = null;
 
     protected function getHeading(): ?string
     {
         return __('admin.widgets.store_overview');
+    }
+
+    protected function getDescription(): ?string
+    {
+        return __('admin.ui.catalogue_health_description');
     }
 
     protected function getStats(): array
@@ -56,28 +61,28 @@ class StoreOverview extends StatsOverviewWidget
             ->count();
 
         return [
-            Stat::make('Order request backlog', number_format($orderBacklog))
+            Stat::make(__('admin.ui.order_request_backlog'), number_format($orderBacklog))
                 ->description(__('admin.ui.pending_review_confirmed_processing_or_shipped_requests'))
                 ->color($orderBacklog > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-shopping-bag')
                 ->url(OrderResource::getUrl()),
-            Stat::make('Published products', number_format($liveProducts))
+            Stat::make(__('admin.ui.published_products'), number_format($liveProducts))
                 ->description(__('admin.ui.active_catalogue_records_visible_to_the_storefront'))
                 ->color('success')
                 ->icon('heroicon-o-cube')
                 ->url(ProductResource::getUrl()),
-            Stat::make('Stock alerts', number_format($stockAlerts))
+            Stat::make(__('admin.ui.stock_alerts'), number_format($stockAlerts))
                 ->description(__('admin.ui.products_marked_low_stock_or_sold_out'))
                 ->color($stockAlerts > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-exclamation-triangle')
                 ->url(ProductResource::getUrl()),
-            Stat::make('Active categories', number_format($categories))
+            Stat::make(__('admin.ui.active_categories'), number_format($categories))
                 ->description(__('admin.ui.storefront_taxonomy_groups_in_use'))
                 ->color('info')
                 ->icon('heroicon-o-squares-2x2')
                 ->url(ProductCategoryResource::getUrl()),
             Stat::make(
-                'Manual payment backlog',
+                __('admin.ui.manual_payment_backlog'),
                 number_format(
                     Order::query()
                         ->where('payment_status', OrderPaymentStatus::Unpaid->value)
@@ -90,7 +95,7 @@ class StoreOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-credit-card')
                 ->url(OrderResource::getUrl()),
             Stat::make(
-                'Inquiry-only products',
+                __('admin.ui.inquiry_only_products'),
                 number_format(
                     Product::query()
                         ->where('inquiry_only', true)

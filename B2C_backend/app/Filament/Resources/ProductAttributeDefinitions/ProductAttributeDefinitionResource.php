@@ -41,8 +41,6 @@ class ProductAttributeDefinitionResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
-    protected static ?string $navigationLabel = 'Product Attributes';
-
     protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema

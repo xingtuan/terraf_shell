@@ -21,11 +21,16 @@ class CommunityStatsOverview extends StatsOverviewWidget
 
     protected ?string $heading = null;
 
-    protected ?string $description = 'Platform growth and content volume at a glance.';
+    protected ?string $description = null;
 
     protected function getHeading(): ?string
     {
         return __('admin.widgets.community_health');
+    }
+
+    protected function getDescription(): ?string
+    {
+        return __('admin.ui.community_stats_description');
     }
 
     protected function getStats(): array
@@ -41,37 +46,37 @@ class CommunityStatsOverview extends StatsOverviewWidget
         $recentUploads = IdeaMedia::query()->where('created_at', '>=', now()->subDays(7))->count();
 
         return [
-            Stat::make('Total users', number_format($totalUsers))
-                ->description(number_format($creators).' creators')
+            Stat::make(__('admin.ui.total_users'), number_format($totalUsers))
+                ->description(__('admin.ui.n_creators', ['count' => number_format($creators)]))
                 ->color('primary')
                 ->icon('heroicon-o-users')
                 ->url(UserResource::getUrl()),
-            Stat::make('Published concepts', number_format($published))
-                ->description(number_format($totalConcepts).' total concepts')
+            Stat::make(__('admin.ui.published_concepts'), number_format($published))
+                ->description(__('admin.ui.n_total_concepts', ['count' => number_format($totalConcepts)]))
                 ->color('success')
                 ->icon('heroicon-o-light-bulb')
                 ->url(PostResource::getUrl()),
-            Stat::make('Featured concepts', number_format($featured))
+            Stat::make(__('admin.ui.featured_concepts'), number_format($featured))
                 ->description(__('admin.ui.editor_promoted_on_the_platform'))
                 ->color('info')
                 ->icon('heroicon-o-star')
                 ->url(PostResource::getUrl()),
-            Stat::make('Support-enabled', number_format($supportEnabled))
+            Stat::make(__('admin.ui.support_enabled'), number_format($supportEnabled))
                 ->description(__('admin.ui.concepts_with_an_active_funding_cta'))
                 ->color('warning')
                 ->icon('heroicon-o-heart')
                 ->url(PostResource::getUrl()),
-            Stat::make('Recent uploads', number_format($recentUploads))
+            Stat::make(__('admin.ui.recent_uploads'), number_format($recentUploads))
                 ->description(__('admin.ui.community_media_uploaded_in_the_last_7_days'))
                 ->color('info')
                 ->icon('heroicon-o-photo')
                 ->url(PostResource::getUrl()),
-            Stat::make('Demo content', number_format($demoContent))
+            Stat::make(__('admin.ui.demo_content'), number_format($demoContent))
                 ->description(__('admin.ui.seeded_records_to_clean_before_launch'))
                 ->color($demoContent > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-trash')
                 ->url(PostResource::getUrl()),
-            Stat::make('Banned users', number_format($bannedUsers))
+            Stat::make(__('admin.ui.banned_users'), number_format($bannedUsers))
                 ->description(__('admin.ui.accounts_currently_blocked'))
                 ->color($bannedUsers > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-no-symbol')

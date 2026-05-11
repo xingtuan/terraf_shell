@@ -48,7 +48,7 @@ class EnquiriesTable
                     ->label(__('admin.ui.subject'))
                     ->state(fn (Inquiry $record): string => $record->subject)
                     ->description(fn (Inquiry $record): string => collect([
-                        $record->inquiry_type ?: 'General enquiry',
+                        $record->inquiry_type ?: __('admin.ui.general_enquiry'),
                         $record->source_page,
                     ])->filter()->implode(' | '))
                     ->searchable()

@@ -20,11 +20,16 @@ class LeadOperationsOverview extends StatsOverviewWidget
 
     protected ?string $heading = null;
 
-    protected ?string $description = 'Inbound enquiry, partnership, and sample-request workload.';
+    protected ?string $description = null;
 
     public function getHeading(): ?string
     {
         return __('admin.widgets.lead_operations');
+    }
+
+    protected function getDescription(): ?string
+    {
+        return __('admin.ui.lead_operations_description');
     }
 
     protected function getStats(): array
@@ -45,7 +50,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
 
         return [
             Stat::make(
-                'New leads this week',
+                __('admin.ui.new_leads_this_week'),
                 number_format(
                     B2BLead::query()->where('created_at', '>=', now()->startOfWeek())->count(),
                 ),
@@ -55,7 +60,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-sparkles')
                 ->url(B2BLeadResource::getUrl()),
             Stat::make(
-                'Overdue follow-ups',
+                __('admin.ui.overdue_follow_ups'),
                 number_format(
                     B2BLead::query()
                         ->whereNotNull('follow_up_at')
@@ -73,7 +78,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-calendar-days')
                 ->url(B2BLeadResource::getUrl()),
             Stat::make(
-                'New enquiries',
+                __('admin.ui.new_enquiries'),
                 number_format(
                     Inquiry::query()->where('status', B2BLeadStatus::New->value)->count(),
                 ),
@@ -83,7 +88,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-inbox-stack')
                 ->url(EnquiryResource::getUrl()),
             Stat::make(
-                'Unassigned enquiries',
+                __('admin.ui.unassigned_enquiries'),
                 number_format(
                     (clone $openEnquiriesQuery)->whereNull('assigned_to')->count(),
                 ),
@@ -93,7 +98,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-user-plus')
                 ->url(EnquiryResource::getUrl()),
             Stat::make(
-                'Active B2B opportunities',
+                __('admin.ui.active_b2b_opportunities'),
                 number_format((clone $openOpportunityQuery)->count()),
             )
                 ->description(__('admin.ui.sample_and_collaboration_leads_still_in_progress'))
@@ -101,7 +106,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-briefcase')
                 ->url(B2BLeadResource::getUrl()),
             Stat::make(
-                'Qualified leads',
+                __('admin.ui.qualified_leads'),
                 number_format(
                     B2BLead::query()->where('status', B2BLeadStatus::Qualified->value)->count(),
                 ),
@@ -111,7 +116,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-check-badge')
                 ->url(B2BLeadResource::getUrl()),
             Stat::make(
-                'Sample requests',
+                __('admin.ui.sample_requests'),
                 number_format(
                     B2BLead::query()->where('lead_type', B2BLeadType::SampleRequest->value)->count(),
                 ),
@@ -121,7 +126,7 @@ class LeadOperationsOverview extends StatsOverviewWidget
                 ->icon('heroicon-o-beaker')
                 ->url(B2BLeadResource::getUrl()),
             Stat::make(
-                'Collaboration leads',
+                __('admin.ui.collaboration_leads'),
                 number_format(
                     B2BLead::query()
                         ->whereIn('lead_type', B2BLeadType::collaborationValues())

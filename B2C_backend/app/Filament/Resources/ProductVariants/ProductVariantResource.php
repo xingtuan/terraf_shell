@@ -47,8 +47,6 @@ class ProductVariantResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
-    protected static ?string $navigationLabel = 'Product Variants';
-
     protected static ?int $navigationSort = 21;
 
     public static function form(Schema $schema): Schema

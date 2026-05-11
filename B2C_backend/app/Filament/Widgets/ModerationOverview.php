@@ -24,11 +24,16 @@ class ModerationOverview extends StatsOverviewWidget
 
     protected ?string $heading = null;
 
-    protected ?string $description = 'Community backlog and governance signals for staff review.';
+    protected ?string $description = null;
 
     protected function getHeading(): ?string
     {
         return __('admin.widgets.moderation_overview');
+    }
+
+    protected function getDescription(): ?string
+    {
+        return __('admin.ui.moderation_description');
     }
 
     protected function getStats(): array
@@ -45,22 +50,22 @@ class ModerationOverview extends StatsOverviewWidget
             ->count();
 
         return [
-            Stat::make('Pending concepts', number_format($pendingPosts))
+            Stat::make(__('admin.ui.pending_concepts'), number_format($pendingPosts))
                 ->description(__('admin.ui.posts_waiting_for_moderation'))
                 ->color($pendingPosts > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-light-bulb')
                 ->url(ModerationQueue::getUrl()),
-            Stat::make('Pending comments', number_format($pendingComments))
+            Stat::make(__('admin.ui.pending_comments'), number_format($pendingComments))
                 ->description(__('admin.ui.replies_waiting_for_moderation'))
                 ->color($pendingComments > 0 ? 'warning' : 'success')
                 ->icon('heroicon-o-chat-bubble-left-ellipsis')
                 ->url(ModerationQueue::getUrl()),
-            Stat::make('Open reports', number_format($openReports))
+            Stat::make(__('admin.ui.open_reports'), number_format($openReports))
                 ->description(__('admin.ui.user_reports_that_still_need_action'))
                 ->color($openReports > 0 ? 'danger' : 'success')
                 ->icon('heroicon-o-flag')
                 ->url(ReportResource::getUrl()),
-            Stat::make('Restricted users', number_format($restrictedUsers))
+            Stat::make(__('admin.ui.restricted_users'), number_format($restrictedUsers))
                 ->description(__('admin.ui.banned_or_restricted_community_accounts'))
                 ->color('gray')
                 ->icon('heroicon-o-no-symbol')

@@ -31,12 +31,6 @@ class EnquiryResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::B2BLeads;
 
-    protected static ?string $navigationLabel = 'General Enquiries';
-
-    protected static ?string $modelLabel = 'General enquiry';
-
-    protected static ?string $pluralModelLabel = 'General enquiries';
-
     protected static ?string $slug = 'enquiries';
 
     protected static ?int $navigationSort = 9;
