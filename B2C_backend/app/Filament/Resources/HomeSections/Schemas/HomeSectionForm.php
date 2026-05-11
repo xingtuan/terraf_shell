@@ -9,6 +9,7 @@ use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -24,11 +25,20 @@ class HomeSectionForm
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('key')
-                                    ->required(),
+                                    ->label(__('admin.ui.section_key'))
+                                    ->required()
+                                    ->maxLength(120)
+                                    ->unique(ignoreRecord: true)
+                                    ->helperText(__('admin.ui.section_key_helper')),
                                 Select::make('status')
                                     ->options(PublishStatus::options())
                                     ->required()
                                     ->default(PublishStatus::Draft->value),
+                                Toggle::make('is_seeded')
+                                    ->label(__('admin.ui.seeded_demo_content'))
+                                    ->helperText(__('admin.ui.seeded_demo_content_help'))
+                                    ->disabled()
+                                    ->dehydrated(false),
                                 TextInput::make('cta_url')
                                     ->label(__('admin.ui.cta_url'))
                                     ->url(),
@@ -46,11 +56,12 @@ class HomeSectionForm
                                     ->label(__('admin.ui.external_media_url'))
                                     ->url(),
                                 KeyValue::make('payload')
+                                    ->label(__('admin.ui.payload'))
                                     ->keyLabel(__('admin.ui.setting'))
                                     ->valueLabel(__('admin.ui.value'))
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
-                                    ->disabled(),
+                                    ->label(__('admin.ui.published_at')),
                             ]),
                     ]),
                 Section::make(__('admin.ui.english'))

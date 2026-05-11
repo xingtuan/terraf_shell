@@ -27,15 +27,15 @@ class MaterialStorySectionResource extends Resource
 
     protected static ?string $model = MaterialStorySection::class;
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
-    protected static ?string $navigationLabel = 'Story Sections';
+    protected static ?string $navigationLabel = 'Material Story Sections';
 
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema
     {

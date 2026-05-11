@@ -32,6 +32,7 @@ class MaterialStorySection extends Model
         'content_translations',
         'highlight',
         'highlight_translations',
+        'is_seeded',
         'status',
         'sort_order',
         'media_path',
@@ -46,6 +47,7 @@ class MaterialStorySection extends Model
             'subtitle_translations' => 'array',
             'content_translations' => 'array',
             'highlight_translations' => 'array',
+            'is_seeded' => 'boolean',
             'published_at' => 'datetime',
         ];
     }

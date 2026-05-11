@@ -7,7 +7,6 @@ use App\Filament\Support\AdminOptions;
 use App\Models\Product;
 use App\Models\ProductAttributeDefinition;
 use App\Models\ProductCategory;
-use App\Models\ProductVariant;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;

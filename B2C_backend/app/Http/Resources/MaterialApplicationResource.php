@@ -32,6 +32,7 @@ class MaterialApplicationResource extends JsonResource
             'cta_label_translations' => $this->localizedStringSet('cta_label'),
             'cta_url' => $this->cta_url,
             'status' => $this->status,
+            'is_seeded' => (bool) $this->is_seeded,
             'sort_order' => $this->sort_order,
             'media_url' => $this->media_url,
             'material' => new MaterialResource($this->whenLoaded('material')),

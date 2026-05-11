@@ -37,6 +37,7 @@ class Material extends Model
         'science_overview_translations',
         'certifications',
         'technical_downloads',
+        'is_seeded',
         'status',
         'is_featured',
         'sort_order',
@@ -55,6 +56,7 @@ class Material extends Model
             'science_overview_translations' => 'array',
             'certifications' => 'array',
             'technical_downloads' => 'array',
+            'is_seeded' => 'boolean',
             'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];

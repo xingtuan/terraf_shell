@@ -30,6 +30,7 @@ class MaterialSpecResource extends JsonResource
             'detail_translations' => $this->localizedStringSet('detail'),
             'icon' => $this->icon,
             'status' => $this->status,
+            'is_seeded' => (bool) $this->is_seeded,
             'sort_order' => $this->sort_order,
             'media_url' => $this->media_url,
             'material' => new MaterialResource($this->whenLoaded('material')),

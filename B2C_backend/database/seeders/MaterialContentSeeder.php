@@ -9,6 +9,7 @@ use App\Models\Material;
 use App\Models\MaterialApplication;
 use App\Models\MaterialSpec;
 use App\Models\MaterialStorySection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
 class MaterialContentSeeder extends Seeder
@@ -20,7 +21,9 @@ class MaterialContentSeeder extends Seeder
     {
         $publishedAt = now();
 
-        $material = Material::query()->updateOrCreate(
+        /** @var Material $material */
+        $material = $this->firstOrCreateSeeded(
+            Material::class,
             ['slug' => 'premium-oyster-shell'],
             [
                 'title' => 'Premium Oyster Shell Composite',
@@ -230,6 +233,7 @@ class MaterialContentSeeder extends Seeder
                     ],
                 ],
                 'technical_downloads' => [],
+                'is_seeded' => true,
                 'status' => PublishStatus::Published->value,
                 'is_featured' => true,
                 'sort_order' => 1,
@@ -373,7 +377,8 @@ class MaterialContentSeeder extends Seeder
         ];
 
         foreach ($specs as $spec) {
-            MaterialSpec::query()->updateOrCreate(
+            $this->firstOrCreateSeeded(
+                MaterialSpec::class,
                 [
                     'material_id' => $material->id,
                     'key' => $spec['key'],
@@ -385,17 +390,13 @@ class MaterialContentSeeder extends Seeder
                     'value_translations' => $spec['value_translations'],
                     'detail' => $spec['detail'],
                     'detail_translations' => $spec['detail_translations'],
+                    'is_seeded' => true,
                     'status' => PublishStatus::Published->value,
                     'sort_order' => $spec['sort_order'],
                     'published_at' => $publishedAt,
                 ]
             );
         }
-
-        MaterialSpec::query()
-            ->where('material_id', $material->id)
-            ->whereNotIn('key', array_column($specs, 'key'))
-            ->delete();
 
         $storySections = [
             [
@@ -509,7 +510,8 @@ class MaterialContentSeeder extends Seeder
         ];
 
         foreach ($storySections as $section) {
-            MaterialStorySection::query()->updateOrCreate(
+            $this->firstOrCreateSeeded(
+                MaterialStorySection::class,
                 [
                     'material_id' => $material->id,
                     'title' => $section['title'],
@@ -522,17 +524,13 @@ class MaterialContentSeeder extends Seeder
                     'content_translations' => $section['content_translations'],
                     'highlight' => $section['highlight'],
                     'highlight_translations' => $section['highlight_translations'],
+                    'is_seeded' => true,
                     'status' => PublishStatus::Published->value,
                     'sort_order' => $section['sort_order'],
                     'published_at' => $publishedAt,
                 ]
             );
         }
-
-        MaterialStorySection::query()
-            ->where('material_id', $material->id)
-            ->whereNotIn('title', array_column($storySections, 'title'))
-            ->delete();
 
         $applications = [
             [
@@ -674,7 +672,8 @@ class MaterialContentSeeder extends Seeder
         ];
 
         foreach ($applications as $application) {
-            MaterialApplication::query()->updateOrCreate(
+            $this->firstOrCreateSeeded(
+                MaterialApplication::class,
                 [
                     'material_id' => $material->id,
                     'title' => $application['title'],
@@ -690,17 +689,13 @@ class MaterialContentSeeder extends Seeder
                     'cta_label' => $application['cta_label'],
                     'cta_label_translations' => $application['cta_label_translations'],
                     'cta_url' => $application['cta_url'],
+                    'is_seeded' => true,
                     'status' => PublishStatus::Published->value,
                     'sort_order' => $application['sort_order'],
                     'published_at' => $publishedAt,
                 ]
             );
         }
-
-        MaterialApplication::query()
-            ->where('material_id', $material->id)
-            ->whereNotIn('title', array_column($applications, 'title'))
-            ->delete();
 
         $articles = [
             [
@@ -762,7 +757,8 @@ class MaterialContentSeeder extends Seeder
         ];
 
         foreach ($articles as $article) {
-            Article::query()->updateOrCreate(
+            $this->firstOrCreateSeeded(
+                Article::class,
                 ['slug' => $article['slug']],
                 [
                     'title' => $article['title'],
@@ -773,6 +769,7 @@ class MaterialContentSeeder extends Seeder
                     'content_translations' => $article['content_translations'],
                     'category' => $article['category'],
                     'category_translations' => $article['category_translations'],
+                    'is_seeded' => true,
                     'status' => PublishStatus::Published->value,
                     'sort_order' => $article['sort_order'],
                     'published_at' => $publishedAt,
@@ -863,7 +860,8 @@ class MaterialContentSeeder extends Seeder
         ];
 
         foreach ($homeSections as $section) {
-            HomeSection::query()->updateOrCreate(
+            $this->firstOrCreateSeeded(
+                HomeSection::class,
                 ['key' => $section['key']],
                 [
                     'title' => $section['title'],
@@ -884,11 +882,42 @@ class MaterialContentSeeder extends Seeder
                     ],
                     'cta_url' => $section['cta_url'],
                     'payload' => $section['payload'],
+                    'is_seeded' => true,
                     'status' => PublishStatus::Published->value,
                     'sort_order' => $section['sort_order'],
                     'published_at' => $publishedAt,
                 ]
             );
         }
+    }
+
+    /**
+     * @param  class-string<Model>  $modelClass
+     * @param  array<string, mixed>  $identity
+     * @param  array<string, mixed>  $attributes
+     */
+    private function firstOrCreateSeeded(string $modelClass, array $identity, array $attributes): Model
+    {
+        $query = $modelClass::query()->where($identity);
+
+        if (array_key_exists('sort_order', $attributes)) {
+            $query->orWhere(function ($query) use ($attributes, $identity): void {
+                if (array_key_exists('material_id', $identity)) {
+                    $query->where('material_id', $identity['material_id']);
+                }
+
+                $query
+                    ->where('is_seeded', true)
+                    ->where('sort_order', $attributes['sort_order']);
+            });
+        }
+
+        $existing = $query->first();
+
+        if ($existing instanceof Model) {
+            return $existing;
+        }
+
+        return $modelClass::query()->create($identity + $attributes);
     }
 }

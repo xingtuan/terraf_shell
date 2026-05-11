@@ -31,6 +31,7 @@ class Article extends Model
         'content_translations',
         'category',
         'category_translations',
+        'is_seeded',
         'status',
         'sort_order',
         'media_path',
@@ -45,6 +46,7 @@ class Article extends Model
             'excerpt_translations' => 'array',
             'content_translations' => 'array',
             'category_translations' => 'array',
+            'is_seeded' => 'boolean',
             'published_at' => 'datetime',
         ];
     }

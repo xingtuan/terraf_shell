@@ -33,6 +33,7 @@ class HomeSection extends Model
         'cta_label_translations',
         'cta_url',
         'payload',
+        'is_seeded',
         'status',
         'sort_order',
         'media_path',
@@ -48,6 +49,7 @@ class HomeSection extends Model
             'content_translations' => 'array',
             'cta_label_translations' => 'array',
             'payload' => 'array',
+            'is_seeded' => 'boolean',
             'published_at' => 'datetime',
         ];
     }

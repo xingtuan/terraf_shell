@@ -31,6 +31,7 @@ class HomeSectionResource extends JsonResource
             'cta_url' => $this->cta_url,
             'payload' => $this->payload,
             'status' => $this->status,
+            'is_seeded' => (bool) $this->is_seeded,
             'sort_order' => $this->sort_order,
             'media_url' => $this->media_url,
             'published_at' => $this->published_at?->toISOString(),

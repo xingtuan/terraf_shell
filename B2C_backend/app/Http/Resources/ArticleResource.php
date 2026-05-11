@@ -29,6 +29,7 @@ class ArticleResource extends JsonResource
             'content_translations' => $this->localizedStringSet('content'),
             'category_translations' => $this->localizedStringSet('category'),
             'status' => $this->status,
+            'is_seeded' => (bool) $this->is_seeded,
             'sort_order' => $this->sort_order,
             'media_url' => $this->media_url,
             'published_at' => $this->published_at?->toISOString(),

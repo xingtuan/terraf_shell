@@ -36,6 +36,7 @@ class MaterialApplication extends Model
         'cta_label',
         'cta_label_translations',
         'cta_url',
+        'is_seeded',
         'status',
         'sort_order',
         'media_path',
@@ -51,6 +52,7 @@ class MaterialApplication extends Model
             'description_translations' => 'array',
             'audience_translations' => 'array',
             'cta_label_translations' => 'array',
+            'is_seeded' => 'boolean',
             'published_at' => 'datetime',
         ];
     }

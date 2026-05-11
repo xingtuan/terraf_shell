@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Materials\Tables;
 use App\Enums\PublishStatus;
 use App\Models\Material;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -24,16 +25,17 @@ class MaterialsTable
     {
         return $table
             ->defaultSort('sort_order')
+            ->reorderable('sort_order')
             ->columns([
                 ImageColumn::make('media_url')
                     ->label(__('admin.ui.media'))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Material'),
                 TextColumn::make('title')
-                    ->searchable()
+                    ->searchable(['title', 'title_translations->en', 'title_translations->ko', 'title_translations->zh'])
                     ->description(fn (Material $record): string => $record->slug),
                 TextColumn::make('headline')
-                    ->searchable()
+                    ->searchable(['headline', 'headline_translations->en', 'headline_translations->ko', 'headline_translations->zh'])
                     ->limit(60)
                     ->toggleable(),
                 TextColumn::make('status')
@@ -43,6 +45,10 @@ class MaterialsTable
                 IconColumn::make('is_featured')
                     ->label(__('admin.ui.featured'))
                     ->boolean(),
+                IconColumn::make('is_seeded')
+                    ->label(__('admin.ui.seeded'))
+                    ->boolean()
+                    ->toggleable(),
                 TextColumn::make('specs_count')
                     ->label(__('admin.ui.specs'))
                     ->badge()
@@ -87,6 +93,7 @@ class MaterialsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -5,9 +5,11 @@ namespace App\Filament\Resources\Articles\Schemas;
 use App\Enums\PublishStatus;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
@@ -32,6 +34,11 @@ class ArticleForm
                                     ->options(PublishStatus::options())
                                     ->required()
                                     ->default(PublishStatus::Draft->value),
+                                Toggle::make('is_seeded')
+                                    ->label(__('admin.ui.seeded_demo_content'))
+                                    ->helperText(__('admin.ui.seeded_demo_content_help'))
+                                    ->disabled()
+                                    ->dehydrated(false),
                                 TextInput::make('sort_order')
                                     ->required()
                                     ->numeric()
@@ -47,7 +54,7 @@ class ArticleForm
                                     ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
-                                    ->disabled(),
+                                    ->label(__('admin.ui.published_at')),
                             ]),
                     ]),
                 Section::make(__('admin.ui.english'))
@@ -64,7 +71,7 @@ class ArticleForm
                         Textarea::make('excerpt_translations.en')
                             ->label(__('admin.ui.excerpt'))
                             ->columnSpanFull(),
-                        Textarea::make('content_translations.en')
+                        RichEditor::make('content_translations.en')
                             ->label(__('admin.ui.content'))
                             ->required()
                             ->columnSpanFull(),
@@ -78,7 +85,7 @@ class ArticleForm
                         Textarea::make('excerpt_translations.ko')
                             ->label(__('admin.ui.excerpt'))
                             ->columnSpanFull(),
-                        Textarea::make('content_translations.ko')
+                        RichEditor::make('content_translations.ko')
                             ->label(__('admin.ui.content'))
                             ->columnSpanFull(),
                     ]),
@@ -91,7 +98,7 @@ class ArticleForm
                         Textarea::make('excerpt_translations.zh')
                             ->label(__('admin.ui.excerpt'))
                             ->columnSpanFull(),
-                        Textarea::make('content_translations.zh')
+                        RichEditor::make('content_translations.zh')
                             ->label(__('admin.ui.content'))
                             ->columnSpanFull(),
                     ]),

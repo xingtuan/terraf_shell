@@ -37,6 +37,11 @@ class MaterialForm
                                     ->default(PublishStatus::Draft->value),
                                 Toggle::make('is_featured')
                                     ->required(),
+                                Toggle::make('is_seeded')
+                                    ->label(__('admin.ui.seeded_demo_content'))
+                                    ->helperText(__('admin.ui.seeded_demo_content_help'))
+                                    ->disabled()
+                                    ->dehydrated(false),
                                 TextInput::make('sort_order')
                                     ->required()
                                     ->numeric()
@@ -46,7 +51,7 @@ class MaterialForm
                                     ->label(__('admin.ui.external_media_url'))
                                     ->url(),
                                 DateTimePicker::make('published_at')
-                                    ->disabled(),
+                                    ->label(__('admin.ui.published_at')),
                             ]),
                     ]),
                 Section::make(__('admin.ui.english'))
@@ -235,6 +240,11 @@ class MaterialForm
                                             ->options(PublishStatus::options())
                                             ->required()
                                             ->default(PublishStatus::Draft->value),
+                                        Toggle::make('is_seeded')
+                                            ->label(__('admin.ui.seeded_demo_content'))
+                                            ->helperText(__('admin.ui.seeded_demo_content_help'))
+                                            ->disabled()
+                                            ->dehydrated(false),
                                         self::mediaUpload('cms/material-specs'),
                                         TextInput::make('media_url')
                                             ->label(__('admin.ui.external_media_url'))
@@ -288,6 +298,11 @@ class MaterialForm
                                             ->options(PublishStatus::options())
                                             ->required()
                                             ->default(PublishStatus::Draft->value),
+                                        Toggle::make('is_seeded')
+                                            ->label(__('admin.ui.seeded_demo_content'))
+                                            ->helperText(__('admin.ui.seeded_demo_content_help'))
+                                            ->disabled()
+                                            ->dehydrated(false),
                                         self::mediaUpload('cms/material-story-sections'),
                                         TextInput::make('media_url')
                                             ->label(__('admin.ui.external_media_url'))
@@ -347,6 +362,11 @@ class MaterialForm
                                             ->options(PublishStatus::options())
                                             ->required()
                                             ->default(PublishStatus::Draft->value),
+                                        Toggle::make('is_seeded')
+                                            ->label(__('admin.ui.seeded_demo_content'))
+                                            ->helperText(__('admin.ui.seeded_demo_content_help'))
+                                            ->disabled()
+                                            ->dehydrated(false),
                                         self::mediaUpload('cms/material-applications'),
                                         TextInput::make('media_url')
                                             ->label(__('admin.ui.external_media_url'))

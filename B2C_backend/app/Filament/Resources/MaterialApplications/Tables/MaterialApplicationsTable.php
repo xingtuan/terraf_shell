@@ -4,10 +4,12 @@ namespace App\Filament\Resources\MaterialApplications\Tables;
 
 use App\Enums\PublishStatus;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -20,6 +22,8 @@ class MaterialApplicationsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('sort_order')
+            ->reorderable('sort_order')
             ->columns([
                 ImageColumn::make('media_url')
                     ->label(__('admin.ui.media'))
@@ -46,6 +50,10 @@ class MaterialApplicationsTable
                 TextColumn::make('sort_order')
                     ->numeric()
                     ->sortable(),
+                IconColumn::make('is_seeded')
+                    ->label(__('admin.ui.seeded'))
+                    ->boolean()
+                    ->toggleable(),
                 TextColumn::make('media_path')
                     ->searchable(),
                 TextColumn::make('media_url')
@@ -86,6 +94,7 @@ class MaterialApplicationsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

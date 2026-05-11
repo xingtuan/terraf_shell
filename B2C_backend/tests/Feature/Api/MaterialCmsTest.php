@@ -316,4 +316,145 @@ class MaterialCmsTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.title', 'KO section');
     }
+
+    public function test_public_apis_return_admin_edited_database_cms_content_with_translations(): void
+    {
+        $material = Material::factory()->published()->create([
+            'slug' => 'admin-edited-material',
+            'title' => 'Admin edited material',
+            'title_translations' => [
+                'en' => 'Admin edited material',
+                'ko' => 'KO admin material',
+                'zh' => 'ZH admin material',
+            ],
+            'headline' => 'Admin edited headline',
+            'headline_translations' => [
+                'en' => 'Admin edited headline',
+                'ko' => 'KO admin headline',
+                'zh' => 'ZH admin headline',
+            ],
+            'summary' => 'Admin edited summary',
+            'summary_translations' => [
+                'en' => 'Admin edited summary',
+                'ko' => 'KO admin summary',
+                'zh' => 'ZH admin summary',
+            ],
+            'is_featured' => true,
+            'sort_order' => 1,
+        ]);
+
+        MaterialSpec::factory()->published()->create([
+            'material_id' => $material->id,
+            'key' => 'admin_strength',
+            'label' => 'Admin strength',
+            'label_translations' => [
+                'en' => 'Admin strength',
+                'ko' => 'KO admin strength',
+                'zh' => 'ZH admin strength',
+            ],
+            'value' => 'Admin value',
+            'value_translations' => [
+                'en' => 'Admin value',
+                'ko' => 'KO admin value',
+                'zh' => 'ZH admin value',
+            ],
+            'unit' => null,
+            'sort_order' => 1,
+        ]);
+
+        MaterialStorySection::factory()->published()->create([
+            'material_id' => $material->id,
+            'title' => 'Admin story',
+            'title_translations' => [
+                'en' => 'Admin story',
+                'ko' => 'KO admin story',
+                'zh' => 'ZH admin story',
+            ],
+            'content' => 'Admin story content',
+            'content_translations' => [
+                'en' => 'Admin story content',
+                'ko' => 'KO admin story content',
+                'zh' => 'ZH admin story content',
+            ],
+            'sort_order' => 1,
+        ]);
+
+        MaterialApplication::factory()->published()->create([
+            'material_id' => $material->id,
+            'title' => 'Admin application',
+            'title_translations' => [
+                'en' => 'Admin application',
+                'ko' => 'KO admin application',
+                'zh' => 'ZH admin application',
+            ],
+            'description' => 'Admin application content',
+            'description_translations' => [
+                'en' => 'Admin application content',
+                'ko' => 'KO admin application content',
+                'zh' => 'ZH admin application content',
+            ],
+            'sort_order' => 1,
+        ]);
+
+        HomeSection::factory()->published()->create([
+            'key' => 'hero',
+            'title' => 'Admin homepage hero',
+            'title_translations' => [
+                'en' => 'Admin homepage hero',
+                'ko' => 'KO admin homepage hero',
+                'zh' => 'ZH admin homepage hero',
+            ],
+            'cta_label' => 'Admin CTA',
+            'cta_label_translations' => [
+                'en' => 'Admin CTA',
+                'ko' => 'KO admin CTA',
+                'zh' => 'ZH admin CTA',
+            ],
+            'sort_order' => 1,
+        ]);
+
+        Article::factory()->published()->create([
+            'slug' => 'admin-edited-article',
+            'title' => 'Admin edited article',
+            'title_translations' => [
+                'en' => 'Admin edited article',
+                'ko' => 'KO admin article',
+                'zh' => 'ZH admin article',
+            ],
+            'category' => 'updates',
+            'category_translations' => [
+                'en' => 'updates',
+                'ko' => 'KO updates',
+                'zh' => 'ZH updates',
+            ],
+            'content' => 'Admin article content',
+            'content_translations' => [
+                'en' => 'Admin article content',
+                'ko' => 'KO admin article content',
+                'zh' => 'ZH admin article content',
+            ],
+            'sort_order' => 1,
+        ]);
+
+        $this->getJson('/api/homepage?locale=ko')
+            ->assertOk()
+            ->assertJsonPath('data.home_sections.0.title', 'KO admin homepage hero')
+            ->assertJsonPath('data.home_sections.0.cta_label', 'KO admin CTA')
+            ->assertJsonPath('data.materials.0.title', 'KO admin material')
+            ->assertJsonPath('data.articles.0.title', 'KO admin article');
+
+        $this->getJson('/api/materials?locale=zh')
+            ->assertOk()
+            ->assertJsonPath('data.name', 'ZH admin material')
+            ->assertJsonPath('data.tagline', 'ZH admin headline')
+            ->assertJsonPath('data.origin', 'ZH admin summary')
+            ->assertJsonPath('data.properties.0.label', 'ZH admin strength')
+            ->assertJsonPath('data.process_steps.0.title', 'ZH admin story')
+            ->assertJsonPath('data.applications.0.title', 'ZH admin application');
+
+        $this->getJson('/api/articles?locale=ko')
+            ->assertOk()
+            ->assertJsonPath('data.0.title', 'KO admin article')
+            ->assertJsonPath('data.0.category', 'KO updates');
+    }
 }

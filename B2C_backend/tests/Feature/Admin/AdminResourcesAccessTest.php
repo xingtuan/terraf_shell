@@ -19,11 +19,31 @@ class AdminResourcesAccessTest extends TestCase
             ->assertOk();
 
         $this->actingAs($admin)
+            ->get('/admin/home-sections')
+            ->assertOk();
+
+        $this->actingAs($admin)
             ->get('/admin/materials')
             ->assertOk();
 
         $this->actingAs($admin)
             ->get('/admin/materials/create')
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get('/admin/material-specs')
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get('/admin/material-story-sections')
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get('/admin/material-applications')
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get('/admin/articles')
             ->assertOk();
 
         $this->actingAs($admin)
@@ -105,7 +125,27 @@ class AdminResourcesAccessTest extends TestCase
             ->assertOk();
 
         $this->actingAs($moderator)
+            ->get('/admin/home-sections')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
             ->get('/admin/materials')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
+            ->get('/admin/material-specs')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
+            ->get('/admin/material-story-sections')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
+            ->get('/admin/material-applications')
+            ->assertForbidden();
+
+        $this->actingAs($moderator)
+            ->get('/admin/articles')
             ->assertForbidden();
 
         $this->actingAs($moderator)

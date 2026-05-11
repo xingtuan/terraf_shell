@@ -26,7 +26,7 @@ class HomeSectionResource extends Resource
 
     protected static ?string $model = HomeSection::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHome;
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 

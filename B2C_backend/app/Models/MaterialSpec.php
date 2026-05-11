@@ -32,6 +32,7 @@ class MaterialSpec extends Model
         'detail',
         'detail_translations',
         'icon',
+        'is_seeded',
         'status',
         'sort_order',
         'media_path',
@@ -45,6 +46,7 @@ class MaterialSpec extends Model
             'label_translations' => 'array',
             'value_translations' => 'array',
             'detail_translations' => 'array',
+            'is_seeded' => 'boolean',
             'published_at' => 'datetime',
         ];
     }

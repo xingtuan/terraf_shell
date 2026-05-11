@@ -29,6 +29,7 @@ class MaterialStorySectionResource extends JsonResource
             'content_translations' => $this->localizedStringSet('content'),
             'highlight_translations' => $this->localizedStringSet('highlight'),
             'status' => $this->status,
+            'is_seeded' => (bool) $this->is_seeded,
             'sort_order' => $this->sort_order,
             'media_url' => $this->media_url,
             'material' => new MaterialResource($this->whenLoaded('material')),

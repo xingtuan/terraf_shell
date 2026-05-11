@@ -3,11 +3,14 @@
 namespace App\Filament\Resources\Articles\Tables;
 
 use App\Enums\PublishStatus;
+use App\Filament\Support\PanelAccess;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -20,17 +23,20 @@ class ArticlesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('sort_order')
+            ->reorderable('sort_order')
             ->columns([
                 ImageColumn::make('media_url')
                     ->label(__('admin.ui.media'))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=News'),
                 TextColumn::make('title')
-                    ->searchable(),
+                    ->searchable(['title', 'title_translations->en', 'title_translations->ko', 'title_translations->zh'])
+                    ->limit(50),
                 TextColumn::make('slug')
                     ->searchable(),
                 TextColumn::make('category')
-                    ->searchable(),
+                    ->searchable(['category', 'category_translations->en', 'category_translations->ko', 'category_translations->zh']),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => PublishStatus::tryFrom($state)?->label() ?? $state)
@@ -38,21 +44,16 @@ class ArticlesTable
                 TextColumn::make('sort_order')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('media_path')
-                    ->searchable(),
-                TextColumn::make('media_url')
-                    ->searchable(),
+                IconColumn::make('is_seeded')
+                    ->label(__('admin.ui.seeded'))
+                    ->boolean()
+                    ->toggleable(),
                 TextColumn::make('published_at')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -73,10 +74,12 @@ class ArticlesTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn (): bool => PanelAccess::isAdmin()),
                 ]),
             ]);
     }

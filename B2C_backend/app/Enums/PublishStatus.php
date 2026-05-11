@@ -6,6 +6,7 @@ enum PublishStatus: string
 {
     case Draft = 'draft';
     case Published = 'published';
+    case Archived = 'archived';
 
     public static function values(): array
     {
@@ -29,6 +30,7 @@ enum PublishStatus: string
         return match ($this) {
             self::Draft => 'gray',
             self::Published => 'success',
+            self::Archived => 'warning',
         };
     }
 }
