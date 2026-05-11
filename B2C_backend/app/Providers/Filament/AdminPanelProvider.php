@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Support\AdminNavigationGroup;
 use App\Middleware\SetAdminLocale;
 use Filament\Actions\Action;
+use Filament\Navigation\NavigationGroup;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -35,7 +36,17 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->navigationGroups(AdminNavigationGroup::class)
+            ->navigationGroups(
+                array_reduce(
+                    AdminNavigationGroup::cases(),
+                    function (array $carry, AdminNavigationGroup $case): array {
+                        $carry[$case->name] = NavigationGroup::make(fn (): string => $case->getLabel());
+
+                        return $carry;
+                    },
+                    [],
+                )
+            )
             ->userMenuItems([
                 Action::make('language_en')
                     ->label(fn (): string => __('admin.locale.english'))
