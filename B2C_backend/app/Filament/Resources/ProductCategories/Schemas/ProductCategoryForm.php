@@ -22,6 +22,7 @@ class ProductCategoryForm
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('slug')
+                                    ->label(__('admin.ui.slug'))
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
@@ -29,6 +30,7 @@ class ProductCategoryForm
                                     ->label(__('admin.ui.active'))
                                     ->default(true),
                                 TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
                                     ->numeric()
                                     ->required()
                                     ->default(0),

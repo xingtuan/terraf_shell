@@ -68,12 +68,15 @@ class OrderResource extends Resource
                             ->content(fn (Order $record): string => $record->customer_note ?: __('admin.placeholders.no_customer_note'))
                             ->columnSpanFull(),
                         Select::make('status')
+                            ->label(__('admin.fields.status'))
                             ->options(OrderStatus::options())
                             ->required(),
                         Select::make('payment_status')
+                            ->label(__('admin.fields.payment_status'))
                             ->options(OrderPaymentStatus::options())
                             ->required(),
                         Textarea::make('admin_note')
+                            ->label(__('admin.fields.admin_note'))
                             ->rows(6)
                             ->maxLength(255)
                             ->columnSpanFull(),
@@ -260,6 +263,7 @@ class OrderResource extends Resource
                     ->limit(40)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
+                    ->label(__('admin.fields.created_at'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -273,13 +277,16 @@ class OrderResource extends Resource
                         OrderStatus::Shipped->value,
                     ])),
                 SelectFilter::make('status')
+                    ->label(__('admin.fields.status'))
                     ->options(OrderStatus::options()),
                 SelectFilter::make('payment_status')
+                    ->label(__('admin.fields.payment_status'))
                     ->options(OrderPaymentStatus::options()),
                 Filter::make('guest_or_registered')
                     ->label(__('admin.filters.guest_or_registered'))
                     ->schema([
                         Select::make('type')
+                            ->label(__('admin.fields.type'))
                             ->options([
                                 'guest' => __('admin.fields.guest'),
                                 'registered' => __('admin.fields.registered'),

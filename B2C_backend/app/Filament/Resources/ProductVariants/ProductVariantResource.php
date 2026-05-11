@@ -65,10 +65,12 @@ class ProductVariantResource extends Resource
                                 ->preload()
                                 ->required(),
                             TextInput::make('sku')
+                                ->label(__('admin.fields.sku'))
                                 ->required()
                                 ->maxLength(255)
                                 ->unique(ignoreRecord: true),
                             TextInput::make('title')
+                                ->label(__('admin.ui.title'))
                                 ->maxLength(255),
                             KeyValue::make('option_values')
                                 ->columnSpanFull(),
@@ -84,29 +86,36 @@ class ProductVariantResource extends Resource
                             Hidden::make('currency')
                                 ->default('NZD'),
                             TextInput::make('stock_quantity')
+                                ->label(__('admin.ui.stock_quantity'))
                                 ->numeric()
                                 ->minValue(0),
                             Select::make('stock_status')
+                                ->label(__('admin.fields.stock_status'))
                                 ->options(ProductVariant::STOCK_STATUS_OPTIONS)
                                 ->default('in_stock')
                                 ->required(),
                             Select::make('inventory_policy')
+                                ->label(__('admin.ui.inventory_policy'))
                                 ->options(ProductVariant::INVENTORY_POLICY_OPTIONS)
                                 ->default('deny')
                                 ->required(),
                             TextInput::make('low_stock_threshold')
+                                ->label(__('admin.ui.low_stock_threshold'))
                                 ->numeric()
                                 ->default(5)
                                 ->minValue(0),
                             TextInput::make('weight_grams')
+                                ->label(__('admin.fields.weight_grams'))
                                 ->numeric()
                                 ->minValue(0),
                             KeyValue::make('dimensions')
                                 ->columnSpanFull(),
                             TextInput::make('image_url')
+                                ->label(__('admin.ui.image_url'))
                                 ->url()
                                 ->maxLength(2048),
                             FileUpload::make('media_path')
+                                ->label(__('admin.ui.image'))
                                 ->image()
                                 ->disk((string) config('community.uploads.disk'))
                                 ->directory('cms/products/variants')
@@ -117,6 +126,7 @@ class ProductVariantResource extends Resource
                                 ->label(__('admin.account_status.active'))
                                 ->default(true),
                             TextInput::make('sort_order')
+                                ->label(__('admin.ui.sort_order'))
                                 ->numeric()
                                 ->default(0),
                         ]),
@@ -134,9 +144,11 @@ class ProductVariantResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('sku')
+                    ->label(__('admin.fields.sku'))
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('title')
+                    ->label(__('admin.ui.title'))
                     ->formatStateUsing(fn (?string $state, ProductVariant $record): string => $record->displayTitle())
                     ->description(fn (ProductVariant $record): string => collect($record->option_values ?? [])->map(fn ($value, $key): string => $key.': '.$value)->implode(' | ')),
                 TextColumn::make('price_amount')
@@ -148,6 +160,7 @@ class ProductVariantResource extends Resource
                     ->sortable()
                     ->placeholder(__('admin.placeholders.untracked')),
                 TextColumn::make('stock_status')
+                    ->label(__('admin.fields.stock_status'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => filled($state) ? __("admin.products.stock_status.{$state}") : '-')
                     ->color(fn (?string $state): string => match ($state) {
@@ -158,19 +171,24 @@ class ProductVariantResource extends Resource
                         default => 'gray',
                     }),
                 TextColumn::make('inventory_policy')
+                    ->label(__('admin.ui.inventory_policy'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => filled($state) ? __("admin.products.inventory_policy.{$state}") : '-'),
                 IconColumn::make('is_active')
+                    ->label(__('admin.ui.active'))
                     ->boolean(),
                 IconColumn::make('is_default')
+                    ->label(__('admin.fields.is_default'))
                     ->boolean(),
             ])
             ->filters([
                 TernaryFilter::make('is_active')
                     ->label(__('admin.account_status.active')),
                 SelectFilter::make('stock_status')
+                    ->label(__('admin.fields.stock_status'))
                     ->options(fn (): array => self::stockStatusOptions()),
                 SelectFilter::make('inventory_policy')
+                    ->label(__('admin.ui.inventory_policy'))
                     ->options(fn (): array => self::inventoryPolicyOptions()),
                 Filter::make('low_stock')
                     ->label(__('admin.filters.low_stock'))

@@ -45,15 +45,19 @@ class InventoryResource extends Resource
             Section::make(__('admin.sections.inventory'))
                 ->schema([
                     TextInput::make('stock_quantity')
+                        ->label(__('admin.ui.stock_quantity'))
                         ->numeric()
                         ->minValue(0),
                     Select::make('stock_status')
+                        ->label(__('admin.fields.stock_status'))
                         ->options(ProductVariant::STOCK_STATUS_OPTIONS)
                         ->required(),
                     Select::make('inventory_policy')
+                        ->label(__('admin.ui.inventory_policy'))
                         ->options(ProductVariant::INVENTORY_POLICY_OPTIONS)
                         ->required(),
                     TextInput::make('low_stock_threshold')
+                        ->label(__('admin.ui.low_stock_threshold'))
                         ->numeric()
                         ->minValue(0),
                 ])
@@ -80,6 +84,7 @@ class InventoryResource extends Resource
                     ->sortable()
                     ->placeholder(__('admin.placeholders.untracked')),
                 TextColumn::make('stock_status')
+                    ->label(__('admin.fields.stock_status'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => filled($state) ? __("admin.products.stock_status.{$state}") : '-')
                     ->color(fn (?string $state): string => match ($state) {
@@ -98,6 +103,7 @@ class InventoryResource extends Resource
                     ->limitList(3)
                     ->toggleable(),
                 IconColumn::make('is_active')
+                    ->label(__('admin.ui.active'))
                     ->boolean(),
             ])
             ->filters([

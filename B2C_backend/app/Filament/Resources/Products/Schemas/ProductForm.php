@@ -49,6 +49,7 @@ class ProductForm
                                                     ->maxLength(255)
                                                     ->helperText(__('admin.ui.used_only_when_localized_names_are_empty')),
                                                 TextInput::make('slug')
+                                                    ->label(__('admin.ui.slug'))
                                                     ->required()
                                                     ->maxLength(255)
                                                     ->unique(ignoreRecord: true),
@@ -66,6 +67,7 @@ class ProductForm
                                                     ->preload()
                                                     ->required(),
                                                 Select::make('status')
+                                                    ->label(__('admin.fields.status'))
                                                     ->options(ProductStatus::options())
                                                     ->required()
                                                     ->default(ProductStatus::Draft->value),
@@ -90,6 +92,7 @@ class ProductForm
                                                     ->options(fn (): array => AdminOptions::productTechniques())
                                                     ->required(),
                                                 TextInput::make('sort_order')
+                                                    ->label(__('admin.ui.sort_order'))
                                                     ->numeric()
                                                     ->required()
                                                     ->default(0),
@@ -134,10 +137,12 @@ class ProductForm
                                                 Grid::make(3)
                                                     ->schema([
                                                         TextInput::make('sku')
+                                                            ->label(__('admin.fields.sku'))
                                                             ->required()
                                                             ->maxLength(255)
                                                             ->unique(ignoreRecord: true),
                                                         TextInput::make('title')
+                                                            ->label(__('admin.ui.title'))
                                                             ->maxLength(255),
                                                         KeyValue::make('option_values')
                                                             ->label(__('admin.ui.option_values'))
@@ -156,29 +161,36 @@ class ProductForm
                                                         Hidden::make('currency')
                                                             ->default('NZD'),
                                                         TextInput::make('stock_quantity')
+                                                            ->label(__('admin.ui.stock_quantity'))
                                                             ->numeric()
                                                             ->minValue(0),
                                                         Select::make('stock_status')
+                                                            ->label(__('admin.fields.stock_status'))
                                                             ->options(fn (): array => AdminOptions::variantStockStatuses())
                                                             ->default('in_stock')
                                                             ->required(),
                                                         Select::make('inventory_policy')
+                                                            ->label(__('admin.ui.inventory_policy'))
                                                             ->options(fn (): array => AdminOptions::inventoryPolicies())
                                                             ->default('deny')
                                                             ->required(),
                                                         TextInput::make('low_stock_threshold')
+                                                            ->label(__('admin.ui.low_stock_threshold'))
                                                             ->numeric()
                                                             ->default(5)
                                                             ->minValue(0),
                                                         TextInput::make('weight_grams')
+                                                            ->label(__('admin.fields.weight_grams'))
                                                             ->numeric()
                                                             ->minValue(0),
                                                         KeyValue::make('dimensions')
                                                             ->columnSpanFull(),
                                                         TextInput::make('image_url')
+                                                            ->label(__('admin.ui.image_url'))
                                                             ->url()
                                                             ->maxLength(2048),
                                                         FileUpload::make('media_path')
+                                                            ->label(__('admin.ui.image'))
                                                             ->image()
                                                             ->disk((string) config('community.uploads.disk'))
                                                             ->directory('cms/products/variants')
@@ -189,6 +201,7 @@ class ProductForm
                                                             ->label(__('admin.account_status.active'))
                                                             ->default(true),
                                                         TextInput::make('sort_order')
+                                                            ->label(__('admin.ui.sort_order'))
                                                             ->numeric()
                                                             ->default(0),
                                                     ]),
@@ -213,14 +226,17 @@ class ProductForm
                                                     ->numeric()
                                                     ->prefix('$'),
                                                 Select::make('stock_status')
+                                                    ->label(__('admin.fields.stock_status'))
                                                     ->options(fn (): array => AdminOptions::productStockStatuses())
                                                     ->required()
                                                     ->default('in_stock'),
                                                 TextInput::make('stock_quantity')
+                                                    ->label(__('admin.ui.stock_quantity'))
                                                     ->numeric()
                                                     ->minValue(0)
                                                     ->helperText(__('admin.ui.leave_blank_for_preorder_or_made_to_order_fallback_items')),
                                                 TextInput::make('weight_grams')
+                                                    ->label(__('admin.fields.weight_grams'))
                                                     ->numeric()
                                                     ->minValue(0),
                                             ]),
@@ -250,9 +266,11 @@ class ProductForm
                                             ->defaultItems(0)
                                             ->schema([
                                                 TextInput::make('question')
+                                                    ->label(__('admin.ui.question'))
                                                     ->required()
                                                     ->maxLength(180),
                                                 Textarea::make('answer')
+                                                    ->label(__('admin.ui.answer'))
                                                     ->required()
                                                     ->rows(3)
                                                     ->columnSpanFull(),
@@ -304,12 +322,14 @@ class ProductForm
                                 Section::make(__('admin.ui.legacy_specifications'))
                                     ->schema([
                                         Select::make('use_cases')
+                                            ->label(__('admin.ui.use_cases'))
                                             ->multiple()
                                             ->options(fn (): array => AdminOptions::productUseCases())
                                             ->searchable()
                                             ->preload()
                                             ->columnSpanFull(),
                                         TextInput::make('dimensions')
+                                            ->label(__('admin.ui.dimensions'))
                                             ->maxLength(255),
                                         Repeater::make('specifications')
                                             ->label(__('admin.ui.technical_specifications'))
@@ -319,16 +339,21 @@ class ProductForm
                                             ->defaultItems(0)
                                             ->schema([
                                                 TextInput::make('key')
+                                                    ->label(__('admin.ui.key'))
                                                     ->maxLength(80),
                                                 TextInput::make('label')
+                                                    ->label(__('admin.ui.label'))
                                                     ->required()
                                                     ->maxLength(120),
                                                 TextInput::make('value')
+                                                    ->label(__('admin.ui.value'))
                                                     ->required()
                                                     ->maxLength(255),
                                                 TextInput::make('unit')
+                                                    ->label(__('admin.ui.unit'))
                                                     ->maxLength(40),
                                                 TextInput::make('group')
+                                                    ->label(__('admin.ui.group'))
                                                     ->maxLength(80),
                                             ])
                                             ->columns(2)
@@ -352,6 +377,7 @@ class ProductForm
                                                     ->required()
                                                     ->maxLength(180),
                                                 Select::make('status')
+                                                    ->label(__('admin.fields.status'))
                                                     ->options(fn (): array => AdminOptions::certificationStatuses())
                                                     ->required()
                                                     ->default('pending'),
@@ -359,6 +385,7 @@ class ProductForm
                                                     ->label(__('admin.ui.value_result'))
                                                     ->maxLength(120),
                                                 TextInput::make('unit')
+                                                    ->label(__('admin.ui.unit'))
                                                     ->maxLength(40),
                                                 TextInput::make('issuer')
                                                     ->label(__('admin.ui.issuing_body_lab'))
@@ -371,6 +398,7 @@ class ProductForm
                                                     ->url()
                                                     ->maxLength(2048),
                                                 Textarea::make('description')
+                                                    ->label(__('admin.ui.description'))
                                                     ->rows(3)
                                                     ->columnSpanFull(),
                                             ])
@@ -384,12 +412,15 @@ class ProductForm
                                             ->defaultItems(0)
                                             ->schema([
                                                 TextInput::make('title')
+                                                    ->label(__('admin.ui.title'))
                                                     ->required()
                                                     ->maxLength(180),
                                                 Select::make('type')
+                                                    ->label(__('admin.fields.type'))
                                                     ->options(fn (): array => AdminOptions::technicalDownloadTypes())
                                                     ->required(),
                                                 Select::make('status')
+                                                    ->label(__('admin.fields.status'))
                                                     ->options(fn (): array => AdminOptions::technicalDownloadStatuses())
                                                     ->default('on_request')
                                                     ->required(),
@@ -398,6 +429,7 @@ class ProductForm
                                                     ->url()
                                                     ->maxLength(2048),
                                                 Textarea::make('description')
+                                                    ->label(__('admin.ui.description'))
                                                     ->rows(3)
                                                     ->columnSpanFull(),
                                             ])
@@ -480,6 +512,7 @@ class ProductForm
                                             ->label(__('admin.ui.conversion_flags'))
                                             ->content('Sample request and inquiry-only flags are managed in Overview.'),
                                         TextInput::make('lead_time')
+                                            ->label(__('admin.ui.lead_time'))
                                             ->maxLength(255),
                                         TagsInput::make('care_instructions')
                                             ->separator(',')
@@ -492,8 +525,10 @@ class ProductForm
                                 Section::make(__('admin.ui.search_metadata'))
                                     ->schema([
                                         TextInput::make('seo_title')
+                                            ->label(__('admin.ui.seo_title'))
                                             ->maxLength(255),
                                         Textarea::make('seo_description')
+                                            ->label(__('admin.ui.seo_description'))
                                             ->rows(3)
                                             ->columnSpanFull(),
                                     ]),

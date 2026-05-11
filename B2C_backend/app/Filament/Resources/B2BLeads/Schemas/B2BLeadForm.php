@@ -135,6 +135,7 @@ class B2BLeadForm
                                 DateTimePicker::make('follow_up_at')
                                     ->label(__('admin.fields.follow_up_at')),
                                 Textarea::make('internal_notes')
+                                    ->label(__('admin.ui.internal_notes'))
                                     ->rows(6)
                                     ->columnSpanFull(),
                             ]),

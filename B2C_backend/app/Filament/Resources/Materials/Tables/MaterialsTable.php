@@ -32,13 +32,16 @@ class MaterialsTable
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Material'),
                 TextColumn::make('title')
+                    ->label(__('admin.ui.title'))
                     ->searchable(['title', 'title_translations->en', 'title_translations->ko', 'title_translations->zh'])
                     ->description(fn (Material $record): string => $record->slug),
                 TextColumn::make('headline')
+                    ->label(__('admin.ui.headline'))
                     ->searchable(['headline', 'headline_translations->en', 'headline_translations->ko', 'headline_translations->zh'])
                     ->limit(60)
                     ->toggleable(),
                 TextColumn::make('status')
+                    ->label(__('admin.fields.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => PublishStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => PublishStatus::tryFrom($state)?->color() ?? 'gray'),
@@ -62,12 +65,15 @@ class MaterialsTable
                     ->badge()
                     ->color('success'),
                 TextColumn::make('sort_order')
+                    ->label(__('admin.ui.sort_order'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('published_at')
+                    ->label(__('admin.ui.published_at'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('updated_at')
+                    ->label(__('admin.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),

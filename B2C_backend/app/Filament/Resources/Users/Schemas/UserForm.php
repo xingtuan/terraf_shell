@@ -29,21 +29,25 @@ class UserForm
                                     ->required()
                                     ->maxLength(255),
                                 TextInput::make('username')
+                                    ->label(__('admin.ui.username'))
                                     ->required()
                                     ->alphaDash()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
                                 TextInput::make('email')
+                                    ->label(__('admin.fields.email'))
                                     ->email()
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
                                 Select::make('role')
+                                    ->label(__('admin.ui.role'))
                                     ->options(UserRole::options())
                                     ->default(UserRole::Creator->value)
                                     ->required()
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 Select::make('account_status')
+                                    ->label(__('admin.ui.account_status'))
                                     ->options(AccountStatus::options())
                                     ->default(AccountStatus::Active->value)
                                     ->required()
@@ -53,6 +57,7 @@ class UserForm
                                     ->helperText(__('admin.ui.when_the_moderation_policy_allows_trusted_users_this_account_will_be_a_31293b5599'))
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 TextInput::make('password')
+                                    ->label(__('admin.ui.password'))
                                     ->password()
                                     ->revealable()
                                     ->required(fn (string $operation): bool => $operation === 'create')
@@ -76,11 +81,14 @@ class UserForm
                                     ->imagePreviewHeight('140')
                                     ->avatar(),
                                 Textarea::make('bio')
+                                    ->label(__('admin.ui.bio'))
                                     ->rows(5)
                                     ->columnSpanFull(),
                                 TextInput::make('school_or_company')
+                                    ->label(__('admin.ui.school_or_company'))
                                     ->maxLength(150),
                                 TextInput::make('region')
+                                    ->label(__('admin.ui.region'))
                                     ->maxLength(255),
                                 TextInput::make('portfolio_url')
                                     ->url()

@@ -26,13 +26,16 @@ class UserNotificationsTable
                     ->placeholder(__('admin.ui.system'))
                     ->searchable(),
                 TextColumn::make('type')
+                    ->label(__('admin.fields.type'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => NotificationType::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => NotificationType::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('title')
+                    ->label(__('admin.ui.title'))
                     ->searchable()
                     ->limit(40),
                 TextColumn::make('body')
+                    ->label(__('admin.ui.body'))
                     ->limit(70)
                     ->toggleable(),
                 IconColumn::make('is_read')
@@ -49,6 +52,7 @@ class UserNotificationsTable
             ])
             ->filters([
                 SelectFilter::make('type')
+                    ->label(__('admin.fields.type'))
                     ->options(NotificationType::options()),
                 TernaryFilter::make('is_read')
                     ->label(__('admin.ui.read')),

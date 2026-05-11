@@ -56,6 +56,7 @@ class CartResource extends Resource
                     ->label(__('admin.fields.estimated_total'))
                     ->state(fn (Cart $record): string => '$'.$record->total().' NZD'),
                 TextColumn::make('expires_at')
+                    ->label(__('admin.fields.expires_at'))
                     ->dateTime()
                     ->placeholder('-')
                     ->toggleable(),

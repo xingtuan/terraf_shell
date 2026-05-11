@@ -32,6 +32,7 @@ class MaterialForm
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options(PublishStatus::options())
                                     ->required()
                                     ->default(PublishStatus::Draft->value),
@@ -43,6 +44,7 @@ class MaterialForm
                                     ->disabled()
                                     ->dehydrated(false),
                                 TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
                                     ->required()
                                     ->numeric()
                                     ->default(0),
@@ -128,6 +130,7 @@ class MaterialForm
                                     ->label(__('admin.ui.display_label'))
                                     ->maxLength(180),
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options([
                                         'certified' => 'Certified',
                                         'tested' => 'Tested',
@@ -148,6 +151,7 @@ class MaterialForm
                                     ->label(__('admin.ui.value_result'))
                                     ->maxLength(120),
                                 TextInput::make('unit')
+                                    ->label(__('admin.ui.unit'))
                                     ->maxLength(40),
                                 TextInput::make('issuer')
                                     ->label(__('admin.ui.issuing_body_lab'))
@@ -160,6 +164,7 @@ class MaterialForm
                                     ->url()
                                     ->maxLength(2048),
                                 Textarea::make('description')
+                                    ->label(__('admin.ui.description'))
                                     ->rows(3)
                                     ->columnSpanFull(),
                                 TextInput::make('label_translations.en')
@@ -185,9 +190,11 @@ class MaterialForm
                             ->defaultItems(0)
                             ->schema([
                                 TextInput::make('title')
+                                    ->label(__('admin.ui.title'))
                                     ->required()
                                     ->maxLength(180),
                                 Select::make('type')
+                                    ->label(__('admin.fields.type'))
                                     ->options([
                                         'material_data_sheet' => 'Material data sheet',
                                         'product_specification_sheet' => 'Product specification sheet',
@@ -197,6 +204,7 @@ class MaterialForm
                                     ])
                                     ->required(),
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options([
                                         'available' => 'Available',
                                         'on_request' => 'Available on request',
@@ -209,6 +217,7 @@ class MaterialForm
                                     ->url()
                                     ->maxLength(2048),
                                 Textarea::make('description')
+                                    ->label(__('admin.ui.description'))
                                     ->rows(3)
                                     ->columnSpanFull(),
                             ])
@@ -233,10 +242,13 @@ class MaterialForm
                                             ->label(__('admin.ui.internal_key'))
                                             ->maxLength(120),
                                         TextInput::make('unit')
+                                            ->label(__('admin.ui.unit'))
                                             ->maxLength(40),
                                         TextInput::make('icon')
+                                            ->label(__('admin.ui.icon'))
                                             ->maxLength(120),
                                         Select::make('status')
+                                            ->label(__('admin.fields.status'))
                                             ->options(PublishStatus::options())
                                             ->required()
                                             ->default(PublishStatus::Draft->value),
@@ -295,6 +307,7 @@ class MaterialForm
                                             ->label(__('admin.ui.default_highlight'))
                                             ->maxLength(255),
                                         Select::make('status')
+                                            ->label(__('admin.fields.status'))
                                             ->options(PublishStatus::options())
                                             ->required()
                                             ->default(PublishStatus::Draft->value),
@@ -359,6 +372,7 @@ class MaterialForm
                                             ->label(__('admin.ui.cta_url'))
                                             ->url(),
                                         Select::make('status')
+                                            ->label(__('admin.fields.status'))
                                             ->options(PublishStatus::options())
                                             ->required()
                                             ->default(PublishStatus::Draft->value),

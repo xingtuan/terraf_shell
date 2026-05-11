@@ -64,10 +64,10 @@ class EmailTemplateResource extends Resource
                                 ])
                                 ->disabled()
                                 ->dehydrated(false),
-                            Toggle::make('is_active'),
-                            TextInput::make('name')->required()->maxLength(255),
-                            TextInput::make('subject')->required()->maxLength(255)->columnSpan(2),
-                            TextInput::make('preheader')->maxLength(255)->columnSpanFull(),
+                            Toggle::make('is_active')->label(__('admin.ui.active')),
+                            TextInput::make('name')->label(__('admin.fields.name'))->required()->maxLength(255),
+                            TextInput::make('subject')->label(__('admin.ui.subject'))->required()->maxLength(255)->columnSpan(2),
+                            TextInput::make('preheader')->label(__('admin.ui.preheader'))->maxLength(255)->columnSpanFull(),
                         ]),
                 ]),
             Section::make(__('admin.ui.body'))
@@ -110,14 +110,18 @@ class EmailTemplateResource extends Resource
                     ->badge()
                     ->sortable(),
                 TextColumn::make('subject')
+                    ->label(__('admin.ui.subject'))
                     ->searchable()
                     ->limit(60),
                 TextColumn::make('version')
+                    ->label(__('admin.ui.version'))
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_active')
+                    ->label(__('admin.ui.active'))
                     ->boolean(),
                 TextColumn::make('updated_at')
+                    ->label(__('admin.fields.updated_at'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -154,6 +158,7 @@ class EmailTemplateResource extends Resource
                     ->label(__('admin.ui.send_test'))
                     ->form([
                         TextInput::make('email')
+                            ->label(__('admin.fields.email'))
                             ->email()
                             ->required()
                             ->default(fn (): ?string => PanelAccess::user()?->email),

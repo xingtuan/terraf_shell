@@ -34,20 +34,27 @@ class MaterialApplicationsTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('title')
+                    ->label(__('admin.ui.title'))
                     ->searchable(),
                 TextColumn::make('subtitle')
+                    ->label(__('admin.ui.subtitle'))
                     ->searchable(),
                 TextColumn::make('audience')
+                    ->label(__('admin.ui.audience'))
                     ->searchable(),
                 TextColumn::make('cta_label')
+                    ->label(__('admin.ui.cta_label'))
                     ->searchable(),
                 TextColumn::make('cta_url')
+                    ->label(__('admin.ui.cta_url'))
                     ->searchable(),
                 TextColumn::make('status')
+                    ->label(__('admin.fields.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => PublishStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => PublishStatus::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('sort_order')
+                    ->label(__('admin.ui.sort_order'))
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_seeded')
@@ -55,17 +62,22 @@ class MaterialApplicationsTable
                     ->boolean()
                     ->toggleable(),
                 TextColumn::make('media_path')
+                    ->label(__('admin.fields.path'))
                     ->searchable(),
                 TextColumn::make('media_url')
+                    ->label(__('admin.ui.external_media_url'))
                     ->searchable(),
                 TextColumn::make('published_at')
+                    ->label(__('admin.ui.published_at'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label(__('admin.fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('admin.fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

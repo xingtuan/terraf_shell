@@ -28,9 +28,11 @@ class ListUserNotifications extends ListRecords
                 ->visible(fn (): bool => PanelAccess::isAdmin())
                 ->schema([
                     TextInput::make('title')
+                        ->label(__('admin.ui.title'))
                         ->required()
                         ->maxLength(150),
                     Textarea::make('body')
+                        ->label(__('admin.ui.body'))
                         ->required()
                         ->rows(5),
                     TextInput::make('action_url')

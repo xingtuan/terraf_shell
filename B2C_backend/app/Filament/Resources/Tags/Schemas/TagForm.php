@@ -20,6 +20,7 @@ class TagForm
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('name')
+                                    ->label(__('admin.fields.name'))
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true)
@@ -28,6 +29,7 @@ class TagForm
                                         $set('slug', Str::slug((string) $state));
                                     }),
                                 TextInput::make('slug')
+                                    ->label(__('admin.ui.slug'))
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),

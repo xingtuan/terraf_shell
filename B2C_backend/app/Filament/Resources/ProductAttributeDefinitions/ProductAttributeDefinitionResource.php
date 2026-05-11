@@ -57,6 +57,7 @@ class ProductAttributeDefinitionResource extends Resource
                                 ->maxLength(120)
                                 ->unique(ignoreRecord: true),
                             TextInput::make('label')
+                                ->label(__('admin.ui.label'))
                                 ->required()
                                 ->maxLength(160),
                             KeyValue::make('label_translations')
@@ -64,20 +65,27 @@ class ProductAttributeDefinitionResource extends Resource
                                 ->valueLabel(__('admin.ui.label'))
                                 ->columnSpanFull(),
                             Select::make('type')
+                                ->label(__('admin.fields.type'))
                                 ->options(ProductAttributeDefinition::TYPE_OPTIONS)
                                 ->default('select')
                                 ->required(),
                             TextInput::make('unit')
+                                ->label(__('admin.ui.unit'))
                                 ->maxLength(40),
-                            Toggle::make('is_variant_option'),
-                            Toggle::make('is_filterable'),
-                            Toggle::make('is_searchable'),
+                            Toggle::make('is_variant_option')
+                                ->label(__('admin.ui.variant')),
+                            Toggle::make('is_filterable')
+                                ->label(__('admin.ui.filterable')),
+                            Toggle::make('is_searchable')
+                                ->label(__('admin.ui.searchable')),
                             Toggle::make('is_specification')
                                 ->default(true),
                             Toggle::make('is_required'),
                             Toggle::make('is_active')
+                                ->label(__('admin.ui.active'))
                                 ->default(true),
                             TextInput::make('sort_order')
+                                ->label(__('admin.ui.sort_order'))
                                 ->numeric()
                                 ->default(0),
                         ]),
@@ -93,9 +101,11 @@ class ProductAttributeDefinitionResource extends Resource
                         ->collapsible()
                         ->schema([
                             TextInput::make('value')
+                                ->label(__('admin.ui.value'))
                                 ->required()
                                 ->maxLength(120),
                             TextInput::make('label')
+                                ->label(__('admin.ui.label'))
                                 ->required()
                                 ->maxLength(160),
                             KeyValue::make('label_translations')
@@ -104,8 +114,10 @@ class ProductAttributeDefinitionResource extends Resource
                                 ->columnSpanFull(),
                             ColorPicker::make('color_hex'),
                             Toggle::make('is_active')
+                                ->label(__('admin.ui.active'))
                                 ->default(true),
                             TextInput::make('sort_order')
+                                ->label(__('admin.ui.sort_order'))
                                 ->numeric()
                                 ->default(0),
                         ])
@@ -124,9 +136,11 @@ class ProductAttributeDefinitionResource extends Resource
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('label')
+                    ->label(__('admin.ui.label'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('type')
+                    ->label(__('admin.fields.type'))
                     ->badge(),
                 IconColumn::make('is_variant_option')
                     ->label(__('admin.ui.variant'))

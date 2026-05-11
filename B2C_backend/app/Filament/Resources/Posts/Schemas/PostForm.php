@@ -29,6 +29,7 @@ class PostForm
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('title')
+                                    ->label(__('admin.ui.title'))
                                     ->required()
                                     ->maxLength(200)
                                     ->live(onBlur: true)
@@ -52,10 +53,12 @@ class PostForm
                                     ->searchable()
                                     ->preload(),
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options(ContentStatus::options())
                                     ->default(ContentStatus::Pending->value)
                                     ->required(),
                                 Select::make('tags')
+                                    ->label(__('admin.ui.tags'))
                                     ->relationship('tags', 'name')
                                     ->multiple()
                                     ->searchable()
@@ -70,6 +73,7 @@ class PostForm
                                     ->label(__('admin.ui.demo_seed_content'))
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 Textarea::make('excerpt')
+                                    ->label(__('admin.ui.excerpt'))
                                     ->rows(4)
                                     ->helperText(__('admin.ui.leave_blank_to_generate_an_excerpt_from_the_content'))
                                     ->columnSpanFull(),
@@ -82,6 +86,7 @@ class PostForm
                                     ->placeholder('https://www.gofundme.com/... or https://www.kickstarter.com/...')
                                     ->columnSpanFull(),
                                 Textarea::make('content')
+                                    ->label(__('admin.ui.content'))
                                     ->required()
                                     ->rows(16)
                                     ->columnSpanFull(),

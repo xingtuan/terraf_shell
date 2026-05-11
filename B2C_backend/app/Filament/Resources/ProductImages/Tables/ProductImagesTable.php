@@ -26,9 +26,11 @@ class ProductImagesTable
                     ->label(__('admin.ui.alt_text'))
                     ->searchable(),
                 TextColumn::make('sort_order')
+                    ->label(__('admin.ui.sort_order'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('updated_at')
+                    ->label(__('admin.fields.updated_at'))
                     ->dateTime()
                     ->sortable(),
             ])

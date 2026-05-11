@@ -22,6 +22,7 @@ class CategoryForm
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('name')
+                                    ->label(__('admin.fields.name'))
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true)
@@ -30,6 +31,7 @@ class CategoryForm
                                         $set('slug', Str::slug((string) $state));
                                     }),
                                 TextInput::make('slug')
+                                    ->label(__('admin.ui.slug'))
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
@@ -37,10 +39,12 @@ class CategoryForm
                                     ->label(__('admin.ui.active'))
                                     ->default(true),
                                 TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
                                     ->numeric()
                                     ->default(0)
                                     ->required(),
                                 Textarea::make('description')
+                                    ->label(__('admin.ui.description'))
                                     ->rows(5)
                                     ->columnSpanFull(),
                             ]),

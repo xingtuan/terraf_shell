@@ -17,6 +17,7 @@ class ProductCategoriesTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('admin.fields.name'))
                     ->searchable()
                     ->description(fn ($record): string => $record->slug),
                 TextColumn::make('products_count')
@@ -26,9 +27,11 @@ class ProductCategoriesTable
                     ->label(__('admin.ui.active'))
                     ->boolean(),
                 TextColumn::make('sort_order')
+                    ->label(__('admin.ui.sort_order'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('updated_at')
+                    ->label(__('admin.fields.updated_at'))
                     ->dateTime()
                     ->sortable(),
             ])

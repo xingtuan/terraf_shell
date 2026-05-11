@@ -31,6 +31,7 @@ class HomeSectionForm
                                     ->unique(ignoreRecord: true)
                                     ->helperText(__('admin.ui.section_key_helper')),
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options(PublishStatus::options())
                                     ->required()
                                     ->default(PublishStatus::Draft->value),
@@ -43,6 +44,7 @@ class HomeSectionForm
                                     ->label(__('admin.ui.cta_url'))
                                     ->url(),
                                 TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
                                     ->required()
                                     ->numeric()
                                     ->default(0),

@@ -27,10 +27,12 @@ class ArticleForm
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('slug')
+                                    ->label(__('admin.ui.slug'))
                                     ->required()
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true),
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options(PublishStatus::options())
                                     ->required()
                                     ->default(PublishStatus::Draft->value),
@@ -40,6 +42,7 @@ class ArticleForm
                                     ->disabled()
                                     ->dehydrated(false),
                                 TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
                                     ->required()
                                     ->numeric()
                                     ->default(0),

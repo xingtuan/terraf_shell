@@ -33,12 +33,14 @@ class FundingCampaignForm
                                     ->required()
                                     ->disabled(fn (string $operation): bool => $operation === 'edit'),
                                 Select::make('campaign_status')
+                                    ->label(__('admin.ui.campaign_status'))
                                     ->options(FundingCampaignStatus::options())
                                     ->required(),
                                 Toggle::make('support_enabled')
                                     ->label(__('admin.ui.support_enabled'))
                                     ->required(),
                                 TextInput::make('support_button_text')
+                                    ->label(__('admin.ui.support_button_text'))
                                     ->required()
                                     ->maxLength(120),
                                 TextInput::make('external_crowdfunding_url')
@@ -55,17 +57,23 @@ class FundingCampaignForm
                         Grid::make(3)
                             ->schema([
                                 TextInput::make('target_amount')
+                                    ->label(__('admin.ui.target_amount'))
                                     ->numeric()
                                     ->prefix('$'),
                                 TextInput::make('pledged_amount')
+                                    ->label(__('admin.ui.pledged_amount'))
                                     ->numeric()
                                     ->prefix('$'),
                                 TextInput::make('backer_count')
+                                    ->label(__('admin.ui.backer_count'))
                                     ->numeric(),
-                                DateTimePicker::make('campaign_start_at'),
-                                DateTimePicker::make('campaign_end_at'),
+                                DateTimePicker::make('campaign_start_at')
+                                    ->label(__('admin.ui.campaign_start_at')),
+                                DateTimePicker::make('campaign_end_at')
+                                    ->label(__('admin.ui.campaign_end_at')),
                             ]),
                         Textarea::make('reward_description')
+                            ->label(__('admin.ui.reward_description'))
                             ->rows(5)
                             ->columnSpanFull(),
                     ]),

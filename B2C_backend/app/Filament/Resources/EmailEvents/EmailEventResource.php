@@ -62,6 +62,7 @@ class EmailEventResource extends Resource
                             TextInput::make('key')->disabled()->dehydrated(false),
                             Toggle::make('is_enabled')->label(__('admin.ui.enabled')),
                             Select::make('recipient_type')
+                                ->label(__('admin.ui.recipient_type'))
                                 ->options([
                                     'user' => __('admin.email.recipient_type.user'),
                                     'admin' => __('admin.email.recipient_type.admin'),
@@ -70,6 +71,7 @@ class EmailEventResource extends Resource
                                 ])
                                 ->required(),
                             Select::make('template_key')
+                                ->label(__('admin.ui.template_key'))
                                 ->options(fn (): array => EmailTemplate::query()
                                     ->where('locale', 'en')
                                     ->orderBy('key')
@@ -83,6 +85,7 @@ class EmailEventResource extends Resource
                                 ->label(__('admin.ui.custom_recipients'))
                                 ->columnSpanFull(),
                             TextInput::make('description')
+                                ->label(__('admin.ui.description'))
                                 ->columnSpanFull()
                                 ->maxLength(500),
                         ]),
@@ -96,6 +99,7 @@ class EmailEventResource extends Resource
             ->defaultSort('sort_order')
             ->columns([
                 TextColumn::make('category')
+                    ->label(__('admin.ui.category'))
                     ->sortable()
                     ->searchable()
                     ->badge(),
@@ -125,6 +129,7 @@ class EmailEventResource extends Resource
                         default => 'gray',
                     }),
                 TextColumn::make('updated_at')
+                    ->label(__('admin.fields.updated_at'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -149,6 +154,7 @@ class EmailEventResource extends Resource
                     ->label(__('admin.ui.send_sample'))
                     ->form([
                         TextInput::make('email')
+                            ->label(__('admin.fields.email'))
                             ->email()
                             ->required()
                             ->default(fn (): ?string => PanelAccess::user()?->email),

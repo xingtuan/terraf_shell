@@ -31,9 +31,11 @@ class ArticlesTable
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=News'),
                 TextColumn::make('title')
+                    ->label(__('admin.ui.title'))
                     ->searchable(['title', 'title_translations->en', 'title_translations->ko', 'title_translations->zh'])
                     ->limit(50),
                 TextColumn::make('slug')
+                    ->label(__('admin.ui.slug'))
                     ->searchable(),
                 TextColumn::make('category')
                     ->searchable(['category', 'category_translations->en', 'category_translations->ko', 'category_translations->zh']),
@@ -49,9 +51,11 @@ class ArticlesTable
                     ->boolean()
                     ->toggleable(),
                 TextColumn::make('published_at')
+                    ->label(__('admin.ui.published_at'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('updated_at')
+                    ->label(__('admin.fields.updated_at'))
                     ->dateTime()
                     ->sortable(),
             ])

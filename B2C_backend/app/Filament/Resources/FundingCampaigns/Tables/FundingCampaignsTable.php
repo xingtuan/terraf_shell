@@ -32,6 +32,7 @@ class FundingCampaignsTable
                     ->formatStateUsing(fn (string $state): string => FundingCampaignStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => FundingCampaignStatus::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('pledged_amount')
+                    ->label(__('admin.ui.pledged_amount'))
                     ->money('USD')
                     ->sortable(),
                 TextColumn::make('target_amount')

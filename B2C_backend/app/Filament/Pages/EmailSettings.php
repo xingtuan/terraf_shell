@@ -91,6 +91,7 @@ class EmailSettings extends Page
                             ->label(__('admin.fields.enable_email_sending'))
                             ->helperText(__('admin.email.help.disabled_logs')),
                         Select::make('mailer')
+                            ->label(__('admin.email.fields.mailer'))
                             ->options(array_combine(MailSettingsService::MAILERS, MailSettingsService::MAILERS))
                             ->required()
                             ->live(),
@@ -104,21 +105,31 @@ class EmailSettings extends Page
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextInput::make('host')->maxLength(255),
-                                TextInput::make('port')->numeric()->minValue(1)->maxValue(65535),
+                                TextInput::make('host')
+                                    ->label(__('admin.email.fields.host'))
+                                    ->maxLength(255),
+                                TextInput::make('port')
+                                    ->label(__('admin.email.fields.port'))
+                                    ->numeric()->minValue(1)->maxValue(65535),
                                 Select::make('encryption')
+                                    ->label(__('admin.email.fields.encryption'))
                                     ->options([
                                         null => __('admin.email.encryption.none'),
                                         'tls' => 'TLS',
                                         'ssl' => 'SSL',
                                     ]),
-                                TextInput::make('username')->maxLength(255),
+                                TextInput::make('username')
+                                    ->label(__('admin.email.fields.username'))
+                                    ->maxLength(255),
                                 TextInput::make('password')
+                                    ->label(__('admin.email.fields.password'))
                                     ->password()
                                     ->revealable()
                                     ->maxLength(255)
                                     ->helperText(__('admin.email.help.keep_password')),
-                                TextInput::make('timeout')->numeric()->minValue(1)->maxValue(120),
+                                TextInput::make('timeout')
+                                    ->label(__('admin.email.fields.timeout'))
+                                    ->numeric()->minValue(1)->maxValue(120),
                             ]),
                     ]),
                 Section::make(__('admin.sections.email_provider_credentials'))
@@ -132,8 +143,10 @@ class EmailSettings extends Page
                                     ->revealable()
                                     ->helperText(__('admin.email.help.keep_key')),
                                 TextInput::make('domain')
+                                    ->label(__('admin.email.fields.domain'))
                                     ->visible(fn (Get $get): bool => $get('mailer') === 'mailgun'),
                                 TextInput::make('region')
+                                    ->label(__('admin.email.fields.region'))
                                     ->visible(fn (Get $get): bool => $get('mailer') === 'ses'),
                             ]),
                     ]),

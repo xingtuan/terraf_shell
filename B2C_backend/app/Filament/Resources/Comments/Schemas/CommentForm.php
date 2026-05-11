@@ -36,9 +36,11 @@ class CommentForm
                 Section::make(__('admin.ui.moderation'))
                     ->schema([
                         Select::make('status')
+                            ->label(__('admin.fields.status'))
                             ->options(ContentStatus::options())
                             ->required(),
                         Textarea::make('content')
+                            ->label(__('admin.ui.content'))
                             ->required()
                             ->rows(10)
                             ->columnSpanFull(),

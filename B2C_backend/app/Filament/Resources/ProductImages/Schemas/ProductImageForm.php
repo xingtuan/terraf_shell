@@ -28,6 +28,7 @@ class ProductImageForm
                                     ->getOptionLabelFromRecordUsing(fn (Product $record): string => $record->name)
                                     ->required(),
                                 TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
                                     ->numeric()
                                     ->required()
                                     ->default(0),

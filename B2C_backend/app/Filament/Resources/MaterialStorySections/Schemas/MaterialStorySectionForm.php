@@ -24,11 +24,13 @@ class MaterialStorySectionForm
                         Grid::make(2)
                             ->schema([
                                 Select::make('material_id')
+                                    ->label(__('admin.resources.materials'))
                                     ->relationship('material', 'title')
                                     ->required(),
                                 TextInput::make('highlight')
                                     ->label(__('admin.ui.default_highlight')),
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options(PublishStatus::options())
                                     ->required()
                                     ->default(PublishStatus::Draft->value),
@@ -38,6 +40,7 @@ class MaterialStorySectionForm
                                     ->disabled()
                                     ->dehydrated(false),
                                 TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
                                     ->required()
                                     ->numeric()
                                     ->default(0),

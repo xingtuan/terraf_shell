@@ -35,6 +35,7 @@ class ProductsTable
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x96?text=Product'),
                 TextColumn::make('name')
+                    ->label(__('admin.fields.name'))
                     ->searchable()
                     ->sortable()
                     ->description(fn (Product $record): string => collect([
@@ -52,6 +53,7 @@ class ProductsTable
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('status')
+                    ->label(__('admin.fields.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => ProductStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => ProductStatus::tryFrom($state)?->color() ?? 'gray'),
@@ -104,6 +106,7 @@ class ProductsTable
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('status')
+                    ->label(__('admin.fields.status'))
                     ->options(ProductStatus::options()),
                 SelectFilter::make('stock_status')
                     ->label(__('admin.fields.stock_status'))

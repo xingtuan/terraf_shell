@@ -16,6 +16,7 @@ class AdminActionLogForm
                 TextInput::make('actor_user_id')
                     ->numeric(),
                 Select::make('target_user_id')
+                    ->label(__('admin.ui.user'))
                     ->relationship('targetUser', 'name'),
                 TextInput::make('subject_type'),
                 TextInput::make('subject_id')
@@ -23,6 +24,7 @@ class AdminActionLogForm
                 TextInput::make('action')
                     ->required(),
                 Textarea::make('description')
+                    ->label(__('admin.ui.description'))
                     ->columnSpanFull(),
                 TextInput::make('metadata'),
             ]);

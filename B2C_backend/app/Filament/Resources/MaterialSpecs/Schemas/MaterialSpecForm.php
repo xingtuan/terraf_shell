@@ -24,12 +24,16 @@ class MaterialSpecForm
                         Grid::make(2)
                             ->schema([
                                 Select::make('material_id')
+                                    ->label(__('admin.resources.materials'))
                                     ->relationship('material', 'title')
                                     ->required(),
                                 TextInput::make('key'),
-                                TextInput::make('unit'),
-                                TextInput::make('icon'),
+                                TextInput::make('unit')
+                                    ->label(__('admin.ui.unit')),
+                                TextInput::make('icon')
+                                    ->label(__('admin.ui.icon')),
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options(PublishStatus::options())
                                     ->required()
                                     ->default(PublishStatus::Draft->value),
@@ -39,6 +43,7 @@ class MaterialSpecForm
                                     ->disabled()
                                     ->dehydrated(false),
                                 TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
                                     ->required()
                                     ->numeric()
                                     ->default(0),

@@ -45,9 +45,11 @@ class ReportsTable
                     ->state(fn (Report $record): string => ReportResource::targetSummary($record))
                     ->limit(50),
                 TextColumn::make('reason')
+                    ->label(__('admin.fields.reason'))
                     ->searchable()
                     ->limit(40),
                 TextColumn::make('status')
+                    ->label(__('admin.fields.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => ReportStatus::tryFrom($state)?->label() ?? ucfirst($state))
                     ->color(fn (string $state): string => ReportStatus::tryFrom($state)?->color() ?? 'gray')
@@ -68,8 +70,10 @@ class ReportsTable
             ])
             ->filters([
                 SelectFilter::make('status')
+                    ->label(__('admin.fields.status'))
                     ->options(ReportStatus::options()),
                 SelectFilter::make('target_type')
+                    ->label(__('admin.ui.target_type'))
                     ->options(ReportResource::targetTypeOptions()),
                 SelectFilter::make('reviewed_by')
                     ->relationship('reviewer', 'name')

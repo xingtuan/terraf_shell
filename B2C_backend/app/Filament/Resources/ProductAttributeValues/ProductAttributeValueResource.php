@@ -63,9 +63,11 @@ class ProductAttributeValueResource extends Resource
                                 ->preload()
                                 ->required(),
                             TextInput::make('value')
+                                ->label(__('admin.ui.value'))
                                 ->required()
                                 ->maxLength(120),
                             TextInput::make('label')
+                                ->label(__('admin.ui.label'))
                                 ->required()
                                 ->maxLength(160),
                             ColorPicker::make('color_hex'),
@@ -74,8 +76,10 @@ class ProductAttributeValueResource extends Resource
                                 ->valueLabel(__('admin.ui.label'))
                                 ->columnSpanFull(),
                             Toggle::make('is_active')
+                                ->label(__('admin.ui.active'))
                                 ->default(true),
                             TextInput::make('sort_order')
+                                ->label(__('admin.ui.sort_order'))
                                 ->numeric()
                                 ->default(0),
                         ]),
@@ -93,13 +97,16 @@ class ProductAttributeValueResource extends Resource
                     ->label(__('admin.ui.attribute'))
                     ->searchable(),
                 TextColumn::make('value')
+                    ->label(__('admin.ui.value'))
                     ->copyable()
                     ->searchable(),
                 TextColumn::make('label')
+                    ->label(__('admin.ui.label'))
                     ->searchable(),
                 ColorColumn::make('color_hex')
                     ->label(__('admin.ui.color')),
                 IconColumn::make('is_active')
+                    ->label(__('admin.ui.active'))
                     ->boolean(),
             ])
             ->filters([

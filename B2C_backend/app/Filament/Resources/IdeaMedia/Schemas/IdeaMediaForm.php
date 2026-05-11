@@ -19,8 +19,10 @@ class IdeaMediaForm
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('title')
+                                    ->label(__('admin.ui.title'))
                                     ->maxLength(255),
                                 Select::make('kind')
+                                    ->label(__('admin.ui.kind'))
                                     ->options([
                                         'sketch' => 'Sketch',
                                         'concept_image' => 'Concept Image',
@@ -47,6 +49,7 @@ class IdeaMediaForm
                                     ->url()
                                     ->maxLength(2048),
                                 TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
                                     ->numeric()
                                     ->required()
                                     ->default(0),

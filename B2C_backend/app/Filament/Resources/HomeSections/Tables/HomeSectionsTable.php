@@ -33,6 +33,7 @@ class HomeSectionsTable
                     ->label(__('admin.ui.section_key'))
                     ->searchable(),
                 TextColumn::make('title')
+                    ->label(__('admin.ui.title'))
                     ->searchable(['title', 'title_translations->en', 'title_translations->ko', 'title_translations->zh'])
                     ->limit(60),
                 TextColumn::make('status')
@@ -47,10 +48,12 @@ class HomeSectionsTable
                     ->boolean()
                     ->toggleable(),
                 TextColumn::make('published_at')
+                    ->label(__('admin.ui.published_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('admin.fields.updated_at'))
                     ->dateTime()
                     ->sortable(),
             ])

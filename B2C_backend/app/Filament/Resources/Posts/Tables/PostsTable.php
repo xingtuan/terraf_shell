@@ -43,6 +43,7 @@ class PostsTable
                 TextColumn::make('id')
                     ->sortable(),
                 TextColumn::make('title')
+                    ->label(__('admin.ui.title'))
                     ->searchable()
                     ->sortable()
                     ->limit(60),

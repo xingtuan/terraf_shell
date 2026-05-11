@@ -74,9 +74,11 @@ class MediaFileResource extends Resource
                     ->limit(45)
                     ->toggleable(),
                 TextColumn::make('type')
+                    ->label(__('admin.fields.type'))
                     ->badge()
                     ->searchable(),
                 TextColumn::make('category')
+                    ->label(__('admin.ui.category'))
                     ->badge()
                     ->placeholder('-')
                     ->toggleable(),

@@ -48,9 +48,11 @@ class EmailLogResource extends Resource
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('created_at')
+                    ->label(__('admin.fields.created_at'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('status')
+                    ->label(__('admin.fields.status'))
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         EmailLog::STATUS_SENT => 'success',
@@ -83,6 +85,7 @@ class EmailLogResource extends Resource
                     ->limit(50)
                     ->toggleable(),
                 TextColumn::make('sent_at')
+                    ->label(__('admin.ui.sent_at'))
                     ->dateTime()
                     ->sortable()
                     ->placeholder('-'),
@@ -119,7 +122,7 @@ class EmailLogResource extends Resource
                         ->when($data['until'] ?? null, fn (Builder $builder, string $date): Builder => $builder->whereDate('created_at', '<=', $date))),
                 Filter::make('recipient')
                     ->schema([
-                        TextInput::make('email')->email(),
+                        TextInput::make('email')->label(__('admin.fields.email'))->email(),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query
                         ->when($data['email'] ?? null, fn (Builder $builder, string $email): Builder => $builder->where('to', 'like', '%'.$email.'%'))),
