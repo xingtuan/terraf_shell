@@ -31,12 +31,6 @@ class CategoryResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
-    protected static ?string $navigationLabel = 'Concept Categories';
-
-    protected static ?string $modelLabel = 'Concept category';
-
-    protected static ?string $pluralModelLabel = 'Concept categories';
-
     protected static ?int $navigationSort = 60;
 
     protected static ?string $recordTitleAttribute = 'name';

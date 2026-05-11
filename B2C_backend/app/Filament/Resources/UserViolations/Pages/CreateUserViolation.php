@@ -26,6 +26,6 @@ class CreateUserViolation extends CreateRecord
 
     protected function getCreatedNotificationTitle(): ?string
     {
-        return 'Violation recorded';
+        return __('admin.ui.violation_recorded');
     }
 }

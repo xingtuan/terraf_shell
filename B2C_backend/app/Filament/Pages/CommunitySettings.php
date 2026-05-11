@@ -94,7 +94,7 @@ class CommunitySettings extends Page
             'submission_policy' => ['key' => 'community.submission_policy', 'type' => 'string', 'default' => config('community.moderation.submission_policy', 'all_require_approval')],
             'sensitive_words_enabled' => ['key' => 'community.sensitive_words_enabled', 'type' => 'boolean', 'default' => config('community.moderation.sensitive_words.enabled', false)],
             'sensitive_words' => ['key' => 'community.sensitive_words', 'type' => 'json', 'default' => config('community.moderation.sensitive_words.terms', [])],
-            'default_funding_support_button_text' => ['key' => 'community.default_funding_support_button_text', 'type' => 'string', 'default' => config('community.funding.default_support_button_text', 'Support this concept')],
+            'default_funding_support_button_text' => ['key' => 'community.default_funding_support_button_text', 'type' => 'string', 'default' => config('community.funding.default_support_button_text', __('admin.ui.support_this_concept'))],
         ];
     }
 }

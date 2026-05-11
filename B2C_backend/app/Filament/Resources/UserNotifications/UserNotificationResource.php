@@ -29,8 +29,6 @@ class UserNotificationResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::UsersGovernance;
 
-    protected static ?string $navigationLabel = 'Announcements';
-
     protected static ?int $navigationSort = 80;
 
     public static function form(Schema $schema): Schema

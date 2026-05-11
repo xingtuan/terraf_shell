@@ -52,12 +52,12 @@ class PostInfolist
                                 TextEntry::make('is_pinned')
                                     ->label(__('admin.ui.pinned'))
                                     ->badge()
-                                    ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
+                                    ->formatStateUsing(fn (bool $state): string => $state ? __('admin.system.yes') : __('admin.system.no'))
                                     ->color(fn (bool $state): string => $state ? 'warning' : 'gray'),
                                 TextEntry::make('is_featured')
                                     ->label(__('admin.ui.featured'))
                                     ->badge()
-                                    ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
+                                    ->formatStateUsing(fn (bool $state): string => $state ? __('admin.system.yes') : __('admin.system.no'))
                                     ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                                 TextEntry::make('featuredBy.name')
                                     ->label(__('admin.ui.featured_by'))
@@ -68,7 +68,7 @@ class PostInfolist
                                     ->placeholder(__('admin.ui.not_featured')),
                                 TextEntry::make('tags_list')
                                     ->label(__('admin.ui.tags'))
-                                    ->state(fn (Post $record): string => $record->tags->pluck('name')->implode(', ') ?: 'No tags assigned.')
+                                    ->state(fn (Post $record): string => $record->tags->pluck('name')->implode(', ') ?: __('admin.ui.no_tags_assigned'))
                                     ->columnSpanFull(),
                             ]),
                     ]),
@@ -108,9 +108,9 @@ class PostInfolist
                     ->schema([
                         TextEntry::make('fundingCampaign.support_enabled')
                             ->label(__('admin.ui.support_enabled'))
-                            ->state(fn (Post $record): string => ($record->fundingCampaign?->support_enabled ?? false) ? 'Yes' : 'No')
+                            ->state(fn (Post $record): string => ($record->fundingCampaign?->support_enabled ?? false) ? __('admin.system.yes') : __('admin.system.no'))
                             ->badge()
-                            ->color(fn (string $state): string => $state === 'Yes' ? 'success' : 'gray'),
+                            ->color(fn (string $state): string => $state === __('admin.system.yes') ? 'success' : 'gray'),
                         TextEntry::make('fundingCampaign.campaign_status')
                             ->label(__('admin.ui.campaign_status'))
                             ->badge()

@@ -31,8 +31,6 @@ class IdeaMediaResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::MediaLibrary;
 
-    protected static ?string $navigationLabel = 'Concept Media';
-
     protected static ?int $navigationSort = 50;
 
     public static function form(Schema $schema): Schema

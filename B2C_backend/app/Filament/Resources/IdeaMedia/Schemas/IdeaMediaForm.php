@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\IdeaMedia\Schemas;
 
+use App\Filament\Support\AdminOptions;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
@@ -23,14 +24,7 @@ class IdeaMediaForm
                                     ->maxLength(255),
                                 Select::make('kind')
                                     ->label(__('admin.ui.kind'))
-                                    ->options([
-                                        'sketch' => 'Sketch',
-                                        'concept_image' => 'Concept Image',
-                                        'render_image' => 'Render Image',
-                                        'presentation_pdf' => 'PDF Presentation',
-                                        'spec_sheet' => 'Spec Sheet',
-                                        'model_3d' => '3D Model',
-                                    ]),
+                                    ->options(fn (): array => AdminOptions::ideaMediaKinds()),
                                 TextInput::make('alt_text')
                                     ->maxLength(255)
                                     ->columnSpanFull(),

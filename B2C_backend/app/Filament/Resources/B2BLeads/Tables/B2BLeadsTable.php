@@ -40,7 +40,7 @@ class B2BLeadsTable
                 TextColumn::make('interest_type')
                     ->label(__('admin.ui.interest'))
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => $state ? (B2BInterestType::tryFrom($state)?->label() ?? $state) : 'Not specified')
+                    ->formatStateUsing(fn (?string $state): string => $state ? (B2BInterestType::tryFrom($state)?->label() ?? $state) : __('admin.ui.not_specified'))
                     ->toggleable(),
                 TextColumn::make('status')
                     ->badge()

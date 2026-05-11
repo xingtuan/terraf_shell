@@ -37,9 +37,9 @@ class UserViolationForm
                                     ->disabled(fn (string $operation): bool => $operation === 'edit'),
                                 Select::make('subject_type')
                                     ->options([
-                                        'post' => 'Post',
-                                        'comment' => 'Comment',
-                                        'user' => 'User',
+                                        'post' => __('admin.ui.post'),
+                                        'comment' => __('admin.ui.comment'),
+                                        'user' => __('admin.ui.user'),
                                     ])
                                     ->label(__('admin.ui.subject_type'))
                                     ->disabled(fn (string $operation): bool => $operation === 'edit'),

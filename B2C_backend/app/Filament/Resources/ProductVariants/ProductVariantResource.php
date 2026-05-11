@@ -71,9 +71,12 @@ class ProductVariantResource extends Resource
                                 ->label(__('admin.ui.title'))
                                 ->maxLength(255),
                             KeyValue::make('option_values')
+                                ->label(__('admin.ui.option_values'))
+                                ->keyLabel(__('admin.ui.attribute_key'))
+                                ->valueLabel(__('admin.ui.value'))
                                 ->columnSpanFull(),
                             TextInput::make('price_amount')
-                                ->label(__('admin.fields.price').' (NZD)')
+                                ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.price'), 'currency' => __('admin.currency.nzd')]))
                                 ->numeric()
                                 ->prefix('$')
                                 ->required(),
@@ -220,7 +223,7 @@ class ProductVariantResource extends Resource
                         }
 
                         $copy->sku = $candidate;
-                        $copy->title = trim(($record->title ?: $record->displayTitle()).' Copy');
+                        $copy->title = trim(($record->title ?: $record->displayTitle()).' '.__('admin.ui.copy_suffix'));
                         $copy->is_default = false;
                         $copy->save();
                     }),

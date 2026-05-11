@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Materials\Schemas;
 
 use App\Enums\PublishStatus;
+use App\Filament\Support\AdminOptions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -131,14 +132,7 @@ class MaterialForm
                                     ->maxLength(180),
                                 Select::make('status')
                                     ->label(__('admin.fields.status'))
-                                    ->options([
-                                        'certified' => 'Certified',
-                                        'tested' => 'Tested',
-                                        'in_testing' => 'In testing',
-                                        'pending' => 'Pending',
-                                        'demo' => 'Demo / provisional',
-                                        'not_applicable' => 'Not applicable',
-                                    ])
+                                    ->options(fn (): array => AdminOptions::certificationStatuses(includeDemo: true))
                                     ->required()
                                     ->default('pending'),
                                 Toggle::make('verified')
@@ -195,21 +189,11 @@ class MaterialForm
                                     ->maxLength(180),
                                 Select::make('type')
                                     ->label(__('admin.fields.type'))
-                                    ->options([
-                                        'material_data_sheet' => 'Material data sheet',
-                                        'product_specification_sheet' => 'Product specification sheet',
-                                        'certification_document' => 'Certification document',
-                                        'safety_food_contact_document' => 'Safety / food-contact document',
-                                        'catalogue' => 'Catalogue',
-                                    ])
+                                    ->options(fn (): array => AdminOptions::technicalDownloadTypes())
                                     ->required(),
                                 Select::make('status')
                                     ->label(__('admin.fields.status'))
-                                    ->options([
-                                        'available' => 'Available',
-                                        'on_request' => 'Available on request',
-                                        'pending' => 'Pending upload',
-                                    ])
+                                    ->options(fn (): array => AdminOptions::technicalDownloadStatuses())
                                     ->default('on_request')
                                     ->required(),
                                 TextInput::make('url')

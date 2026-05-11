@@ -87,7 +87,7 @@ class EnquiryInfolist
                             ->label(__('admin.ui.captured_metadata'))
                             ->state(function (Inquiry $record): string {
                                 if (($record->metadata ?? []) === []) {
-                                    return 'No additional metadata captured.';
+                                    return __('admin.ui.no_additional_metadata_captured');
                                 }
 
                                 return collect($record->metadata)

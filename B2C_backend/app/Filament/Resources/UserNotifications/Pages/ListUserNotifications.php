@@ -64,7 +64,7 @@ class ListUserNotifications extends ListRecords
                     app(GovernanceService::class)->recordAdminAction(
                         PanelAccess::user(),
                         'notification.system_announcement_sent',
-                        'System announcement sent from the admin panel.',
+                        __('admin.ui.system_announcement_sent_from_admin'),
                         [
                             'title' => $data['title'],
                             'audience_roles' => $data['roles'] ?? [],

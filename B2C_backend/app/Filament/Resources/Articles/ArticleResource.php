@@ -30,8 +30,6 @@ class ArticleResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
-    protected static ?string $navigationLabel = 'Articles';
-
     protected static ?int $navigationSort = 60;
 
     public static function form(Schema $schema): Schema

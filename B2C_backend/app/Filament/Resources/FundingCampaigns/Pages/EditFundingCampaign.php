@@ -54,6 +54,6 @@ class EditFundingCampaign extends EditRecord
 
     protected function getSavedNotificationTitle(): ?string
     {
-        return 'Funding campaign updated';
+        return __('admin.ui.funding_campaign_updated');
     }
 }

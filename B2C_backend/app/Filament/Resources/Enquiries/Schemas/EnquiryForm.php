@@ -25,7 +25,7 @@ class EnquiryForm
                         Grid::make(2)
                             ->schema([
                                 Placeholder::make('reference')
-                                    ->content(fn (?Inquiry $record): string => $record?->reference ?? 'Generated automatically'),
+                                    ->content(fn (?Inquiry $record): string => $record?->reference ?? __('admin.placeholders.generated_automatically')),
                                 Placeholder::make('status_badge')
                                     ->label(__('admin.ui.current_status'))
                                     ->content(fn (?Inquiry $record): string => $record ? (B2BLeadStatus::tryFrom($record->status)?->label() ?? $record->status) : '-'),
@@ -38,19 +38,19 @@ class EnquiryForm
                                     ->label(__('admin.ui.company_organization'))
                                     ->content(fn (?Inquiry $record): string => $record?->company_name ?? '-'),
                                 Placeholder::make('organization_type')
-                                    ->content(fn (?Inquiry $record): string => $record?->organization_type ?: 'Not specified.'),
+                                    ->content(fn (?Inquiry $record): string => $record?->organization_type ?: __('admin.ui.not_specified')),
                                 Placeholder::make('country')
-                                    ->content(fn (?Inquiry $record): string => $record?->country ?: 'Not specified.'),
+                                    ->content(fn (?Inquiry $record): string => $record?->country ?: __('admin.ui.not_specified')),
                                 Placeholder::make('region')
-                                    ->content(fn (?Inquiry $record): string => $record?->region ?: 'Not specified.'),
+                                    ->content(fn (?Inquiry $record): string => $record?->region ?: __('admin.ui.not_specified')),
                                 Placeholder::make('phone')
-                                    ->content(fn (?Inquiry $record): string => $record?->phone ?: 'No phone provided.'),
+                                    ->content(fn (?Inquiry $record): string => $record?->phone ?: __('admin.ui.no_phone_provided')),
                                 Placeholder::make('source_page')
                                     ->label(__('admin.ui.source'))
-                                    ->content(fn (?Inquiry $record): string => $record?->source_page ?: 'No source tracked.'),
+                                    ->content(fn (?Inquiry $record): string => $record?->source_page ?: __('admin.ui.no_source_tracked')),
                                 Placeholder::make('inquiry_type')
                                     ->label(__('admin.ui.enquiry_type'))
-                                    ->content(fn (?Inquiry $record): string => $record?->inquiry_type ?: 'General enquiry'),
+                                    ->content(fn (?Inquiry $record): string => $record?->inquiry_type ?: __('admin.ui.general_enquiry')),
                                 Placeholder::make('subject')
                                     ->content(fn (?Inquiry $record): string => $record?->subject ?? '-'),
                                 Placeholder::make('message')

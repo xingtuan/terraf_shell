@@ -69,7 +69,7 @@ class ProductsTable
                         default => 'gray',
                     }),
                 TextColumn::make('price_usd')
-                    ->label(__('admin.fields.price').' (NZD)')
+                    ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.price'), 'currency' => __('admin.currency.nzd')]))
                     ->formatStateUsing(fn ($state, Product $record): string => '$'.number_format((float) ($record->effectivePrice() ?? $state), 2)),
                 TextColumn::make('stock_quantity')
                     ->label(__('admin.fields.quantity'))

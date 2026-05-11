@@ -31,12 +31,6 @@ class TagResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
-    protected static ?string $navigationLabel = 'Concept Tags';
-
-    protected static ?string $modelLabel = 'Concept tag';
-
-    protected static ?string $pluralModelLabel = 'Concept tags';
-
     protected static ?int $navigationSort = 70;
 
     protected static ?string $recordTitleAttribute = 'name';

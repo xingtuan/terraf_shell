@@ -35,8 +35,6 @@ class InventoryResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
-    protected static ?string $navigationLabel = 'Inventory';
-
     protected static ?int $navigationSort = 22;
 
     public static function form(Schema $schema): Schema

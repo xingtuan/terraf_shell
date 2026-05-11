@@ -97,6 +97,7 @@ class ProductForm
                                                     ->required()
                                                     ->default(0),
                                                 DateTimePicker::make('published_at')
+                                                    ->label(__('admin.ui.published_at'))
                                                     ->disabled(),
                                                 Toggle::make('is_active')
                                                     ->label(__('admin.ui.visible_in_store'))
@@ -150,7 +151,7 @@ class ProductForm
                                                             ->valueLabel(__('admin.ui.value'))
                                                             ->columnSpanFull(),
                                                         TextInput::make('price_amount')
-                                                            ->label(__('admin.fields.price').' (NZD)')
+                                                            ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.price'), 'currency' => __('admin.currency.nzd')]))
                                                             ->numeric()
                                                             ->prefix('$')
                                                             ->required(),
@@ -184,6 +185,7 @@ class ProductForm
                                                             ->numeric()
                                                             ->minValue(0),
                                                         KeyValue::make('dimensions')
+                                                            ->label(__('admin.ui.dimensions'))
                                                             ->columnSpanFull(),
                                                         TextInput::make('image_url')
                                                             ->label(__('admin.ui.image_url'))
@@ -244,18 +246,21 @@ class ProductForm
                             ]),
                         Tab::make(__('admin.ui.storefront_content'))
                             ->schema([
-                                self::localeSection('en', 'English', true),
-                                self::localeSection('ko', 'Korean'),
-                                self::localeSection('zh', 'Chinese'),
+                                self::localeSection('en', __('admin.locale.english'), true),
+                                self::localeSection('ko', __('admin.locale.korean')),
+                                self::localeSection('zh', __('admin.locale.chinese')),
                                 Section::make(__('admin.ui.selling_content'))
                                     ->schema([
                                         TagsInput::make('selling_points')
+                                            ->label(__('admin.ui.selling_points'))
                                             ->separator(',')
                                             ->columnSpanFull(),
                                         TagsInput::make('shipping_notes')
+                                            ->label(__('admin.ui.shipping_notes'))
                                             ->separator(',')
                                             ->columnSpanFull(),
                                         TagsInput::make('return_notes')
+                                            ->label(__('admin.ui.return_notes'))
                                             ->separator(',')
                                             ->columnSpanFull(),
                                         Repeater::make('product_faqs')
@@ -309,6 +314,7 @@ class ProductForm
                                                     ->label(__('admin.ui.text_rich_text_value'))
                                                     ->columnSpanFull(),
                                                 TextInput::make('value_number')
+                                                    ->label(__('admin.ui.numeric_value'))
                                                     ->numeric(),
                                                 Toggle::make('value_boolean')
                                                     ->label(__('admin.ui.boolean_value')),
@@ -436,6 +442,7 @@ class ProductForm
                                             ->columns(2)
                                             ->columnSpanFull(),
                                         TagsInput::make('material_benefits')
+                                            ->label(__('admin.ui.material_benefits'))
                                             ->separator(',')
                                             ->columnSpanFull(),
                                     ]),
@@ -510,11 +517,12 @@ class ProductForm
                                     ->schema([
                                         Placeholder::make('b2b_flags')
                                             ->label(__('admin.ui.conversion_flags'))
-                                            ->content('Sample request and inquiry-only flags are managed in Overview.'),
+                                            ->content(__('admin.ui.b2b_flags_managed_in_overview')),
                                         TextInput::make('lead_time')
                                             ->label(__('admin.ui.lead_time'))
                                             ->maxLength(255),
                                         TagsInput::make('care_instructions')
+                                            ->label(__('admin.ui.care_instructions'))
                                             ->separator(',')
                                             ->columnSpanFull(),
                                     ])
@@ -541,20 +549,20 @@ class ProductForm
     private static function publishChecklist(?Product $record): string
     {
         if ($record === null || ! $record->exists) {
-            return 'Save the product, then review image, category, price, default variant, and English title before publishing.';
+            return __('admin.ui.publish_checklist_new_product');
         }
 
         $warnings = collect([
-            $record->primaryImageUrl() ? null : 'No image',
-            $record->defaultVariant() ? null : 'No active default variant',
-            ($record->effectivePrice() ?? 0) > 0 ? null : 'No price',
-            filled(data_get($record->name_translations, 'en') ?: $record->name) ? null : 'Missing English title/name',
-            $record->category_id ? null : 'No category',
+            $record->primaryImageUrl() ? null : __('admin.ui.publish_checklist_no_image'),
+            $record->defaultVariant() ? null : __('admin.ui.publish_checklist_no_active_default_variant'),
+            ($record->effectivePrice() ?? 0) > 0 ? null : __('admin.ui.publish_checklist_no_price'),
+            filled(data_get($record->name_translations, 'en') ?: $record->name) ? null : __('admin.ui.publish_checklist_missing_english_title'),
+            $record->category_id ? null : __('admin.ui.publish_checklist_no_category'),
         ])->filter()->values();
 
         return $warnings->isEmpty()
-            ? 'Ready to publish.'
-            : 'Warnings: '.$warnings->implode(', ');
+            ? __('admin.ui.publish_checklist_ready')
+            : __('admin.ui.publish_checklist_warnings', ['warnings' => $warnings->implode(', ')]);
     }
 
     private static function localeSection(string $locale, string $label, bool $isRequired = false): Section

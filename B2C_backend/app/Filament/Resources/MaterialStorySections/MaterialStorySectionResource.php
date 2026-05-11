@@ -33,8 +33,6 @@ class MaterialStorySectionResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
-    protected static ?string $navigationLabel = 'Material Story Sections';
-
     protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema

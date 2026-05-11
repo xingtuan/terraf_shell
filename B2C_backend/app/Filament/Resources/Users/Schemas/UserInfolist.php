@@ -34,9 +34,9 @@ class UserInfolist
                                         TextEntry::make('email'),
                                         TextEntry::make('email_verification')
                                             ->label(__('admin.ui.email_verification'))
-                                            ->state(fn (User $record): string => $record->email_verified_at ? 'Verified' : 'Pending')
+                                            ->state(fn (User $record): string => $record->email_verified_at ? __('admin.ui.verified') : __('admin.ui.pending'))
                                             ->badge()
-                                            ->color(fn (string $state): string => $state === 'Verified' ? 'success' : 'warning'),
+                                            ->color(fn (string $state): string => $state === __('admin.ui.verified') ? 'success' : 'warning'),
                                         TextEntry::make('role')
                                             ->badge()
                                             ->formatStateUsing(fn (string $state): string => UserRole::tryFrom($state)?->label() ?? ucfirst($state))
@@ -53,7 +53,7 @@ class UserInfolist
                                         TextEntry::make('community_auto_approve')
                                             ->label(__('admin.ui.direct_community_approval'))
                                             ->badge()
-                                            ->formatStateUsing(fn (bool $state): string => $state ? 'Enabled' : 'Disabled')
+                                            ->formatStateUsing(fn (bool $state): string => $state ? __('admin.ui.enabled') : __('admin.ui.disabled'))
                                             ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                                         TextEntry::make('created_at')
                                             ->label(__('admin.ui.created'))
@@ -81,7 +81,7 @@ class UserInfolist
                         TextEntry::make('profile.open_to_collab')
                             ->label(__('admin.ui.open_to_collaboration'))
                             ->badge()
-                            ->formatStateUsing(fn (bool $state): string => $state ? 'Yes' : 'No')
+                            ->formatStateUsing(fn (bool $state): string => $state ? __('admin.system.yes') : __('admin.system.no'))
                             ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                     ]),
                 Section::make(__('admin.ui.statistics'))

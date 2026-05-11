@@ -109,7 +109,7 @@ class MediaFileResource extends Resource
                         'images' => __('admin.media.type.image'),
                         'documents' => __('admin.media.type.document'),
                         'videos' => __('admin.media.type.video'),
-                        'audios' => 'Audio',
+                        'audios' => __('admin.media.type.audio'),
                         'others' => __('admin.media.type.other'),
                     ]),
                 SelectFilter::make('disk')
@@ -158,7 +158,7 @@ class MediaFileResource extends Resource
                         $exists = Storage::disk($record->disk ?: (string) config('community.uploads.disk'))->exists($record->path);
 
                         Notification::make()
-                            ->title($exists ? 'File exists on disk.' : 'File is missing from disk.')
+                            ->title($exists ? __('admin.ui.file_exists_on_disk') : __('admin.ui.file_missing_from_disk'))
                             ->{$exists ? 'success' : 'danger'}()
                             ->send();
                     }),

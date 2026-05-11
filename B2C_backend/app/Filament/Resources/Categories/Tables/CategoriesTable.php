@@ -29,7 +29,7 @@ class CategoriesTable
                 TextColumn::make('is_active')
                     ->label(__('admin.ui.status'))
                     ->badge()
-                    ->formatStateUsing(fn (bool $state): string => $state ? 'Active' : 'Inactive')
+                    ->formatStateUsing(fn (bool $state): string => $state ? __('admin.ui.active') : __('admin.ui.inactive'))
                     ->color(fn (bool $state): string => $state ? 'success' : 'gray'),
                 TextColumn::make('sort_order')
                     ->sortable(),

@@ -38,8 +38,6 @@ class ReportResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::UsersGovernance;
 
-    protected static ?string $navigationLabel = 'Reports';
-
     protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
@@ -118,9 +116,9 @@ class ReportResource extends Resource
     public static function targetTypeOptions(): array
     {
         return [
-            'post' => 'Post',
-            'comment' => 'Comment',
-            'user' => 'User',
+            'post' => __('admin.ui.post'),
+            'comment' => __('admin.ui.comment'),
+            'user' => __('admin.ui.user'),
         ];
     }
 
@@ -135,7 +133,7 @@ class ReportResource extends Resource
             $report->target instanceof Post => $report->target->title,
             $report->target instanceof Comment => Str::limit($report->target->content, 140),
             $report->target instanceof User => $report->target->name.' (@'.$report->target->username.')',
-            default => 'Target content is no longer available.',
+            default => __('admin.ui.target_content_unavailable'),
         };
     }
 

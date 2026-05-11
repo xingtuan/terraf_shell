@@ -26,16 +26,16 @@ class B2BLeadForm
                         Grid::make(2)
                             ->schema([
                                 Placeholder::make('reference')
-                                    ->content(fn (?B2BLead $record): string => $record?->reference ?? 'Generated automatically'),
+                                    ->content(fn (?B2BLead $record): string => $record?->reference ?? __('admin.placeholders.generated_automatically')),
                                 Placeholder::make('lead_type')
                                     ->label(__('admin.ui.lead_type'))
                                     ->content(fn (?B2BLead $record): string => $record ? (B2BLeadType::tryFrom($record->lead_type)?->label() ?? $record->lead_type) : '-'),
                                 Placeholder::make('interest_type')
                                     ->label(__('admin.ui.interest_type'))
-                                    ->content(fn (?B2BLead $record): string => $record?->interest_type ?: 'Not specified.'),
+                                    ->content(fn (?B2BLead $record): string => $record?->interest_type ?: __('admin.ui.not_specified')),
                                 Placeholder::make('application_type')
                                     ->label(__('admin.ui.application'))
-                                    ->content(fn (?B2BLead $record): string => $record?->application_type ?: 'Not specified.'),
+                                    ->content(fn (?B2BLead $record): string => $record?->application_type ?: __('admin.ui.not_specified')),
                                 Placeholder::make('name')
                                     ->content(fn (?B2BLead $record): string => $record?->name ?? '-'),
                                 Placeholder::make('company_name')
@@ -45,24 +45,24 @@ class B2BLeadForm
                                     ->label(__('admin.ui.email'))
                                     ->content(fn (?B2BLead $record): string => $record?->email ?? '-'),
                                 Placeholder::make('phone')
-                                    ->content(fn (?B2BLead $record): string => $record?->phone ?: 'No phone provided.'),
+                                    ->content(fn (?B2BLead $record): string => $record?->phone ?: __('admin.ui.no_phone_provided')),
                                 Placeholder::make('organization_type')
-                                    ->content(fn (?B2BLead $record): string => $record?->organization_type ?: 'Not specified.'),
+                                    ->content(fn (?B2BLead $record): string => $record?->organization_type ?: __('admin.ui.not_specified')),
                                 Placeholder::make('region')
-                                    ->content(fn (?B2BLead $record): string => $record?->region ?: 'Not specified.'),
+                                    ->content(fn (?B2BLead $record): string => $record?->region ?: __('admin.ui.not_specified')),
                                 Placeholder::make('source_page')
-                                    ->content(fn (?B2BLead $record): string => $record?->source_page ?: 'No source page tracked.'),
+                                    ->content(fn (?B2BLead $record): string => $record?->source_page ?: __('admin.ui.no_source_page_tracked')),
                                 Placeholder::make('company_website')
                                     ->label(__('admin.ui.website'))
-                                    ->content(fn (?B2BLead $record): string => $record?->company_website ?: 'No website provided.'),
+                                    ->content(fn (?B2BLead $record): string => $record?->company_website ?: __('admin.ui.no_website_provided')),
                                 Placeholder::make('estimated_quantity')
                                     ->label(__('admin.ui.estimated_quantity'))
-                                    ->content(fn (?B2BLead $record): string => $record?->estimated_quantity ?: 'Not specified.'),
+                                    ->content(fn (?B2BLead $record): string => $record?->estimated_quantity ?: __('admin.ui.not_specified')),
                                 Placeholder::make('timeline')
-                                    ->content(fn (?B2BLead $record): string => $record?->timeline ?: 'Not specified.'),
+                                    ->content(fn (?B2BLead $record): string => $record?->timeline ?: __('admin.ui.not_specified')),
                                 Placeholder::make('expected_use_case')
                                     ->label(__('admin.ui.expected_use_case'))
-                                    ->content(fn (?B2BLead $record): string => $record?->expected_use_case ?: 'Not specified.')
+                                    ->content(fn (?B2BLead $record): string => $record?->expected_use_case ?: __('admin.ui.not_specified'))
                                     ->columnSpanFull(),
                                 Placeholder::make('message')
                                     ->content(fn (?B2BLead $record): string => $record?->message ?? '-')
@@ -75,14 +75,14 @@ class B2BLeadForm
                             ->label(__('admin.ui.partnership_details'))
                             ->content(function (?B2BLead $record): string {
                                 if ($record?->partnershipInquiry === null) {
-                                    return 'No partnership detail record attached.';
+                                    return __('admin.ui.no_partnership_detail_attached');
                                 }
 
                                 return collect([
-                                    'Collaboration type: '.$record->partnershipInquiry->collaboration_type,
-                                    'Goal: '.$record->partnershipInquiry->collaboration_goal,
-                                    'Stage: '.($record->partnershipInquiry->project_stage ?: 'Not specified'),
-                                    'Timeline: '.($record->partnershipInquiry->timeline ?: 'Not specified'),
+                                    __('admin.labels.field_value', ['field' => __('admin.ui.collaboration_type'), 'value' => $record->partnershipInquiry->collaboration_type ?: __('admin.ui.not_specified')]),
+                                    __('admin.labels.field_value', ['field' => __('admin.ui.collaboration_goal'), 'value' => $record->partnershipInquiry->collaboration_goal ?: __('admin.ui.not_specified')]),
+                                    __('admin.labels.field_value', ['field' => __('admin.ui.stage'), 'value' => $record->partnershipInquiry->project_stage ?: __('admin.ui.not_specified')]),
+                                    __('admin.labels.field_value', ['field' => __('admin.sections.timeline'), 'value' => $record->partnershipInquiry->timeline ?: __('admin.ui.not_specified')]),
                                 ])->implode("\n");
                             })
                             ->columnSpanFull(),
@@ -90,17 +90,19 @@ class B2BLeadForm
                             ->label(__('admin.ui.sample_request_details'))
                             ->content(function (?B2BLead $record): string {
                                 if ($record?->sampleRequest === null) {
-                                    return 'No sample request detail record attached.';
+                                    return __('admin.ui.no_sample_request_detail_attached');
                                 }
 
+                                $shipTo = collect([
+                                    $record->sampleRequest->shipping_country,
+                                    $record->sampleRequest->shipping_region,
+                                ])->filter()->implode(', ');
+
                                 return collect([
-                                    'Material interest: '.$record->sampleRequest->material_interest,
-                                    'Quantity: '.($record->sampleRequest->quantity_estimate ?: 'Not specified'),
-                                    'Ship to: '.collect([
-                                        $record->sampleRequest->shipping_country,
-                                        $record->sampleRequest->shipping_region,
-                                    ])->filter()->implode(', '),
-                                    'Intended use: '.$record->sampleRequest->intended_use,
+                                    __('admin.labels.field_value', ['field' => __('admin.ui.material_interest'), 'value' => $record->sampleRequest->material_interest ?: __('admin.ui.not_specified')]),
+                                    __('admin.labels.field_value', ['field' => __('admin.fields.quantity'), 'value' => $record->sampleRequest->quantity_estimate ?: __('admin.ui.not_specified')]),
+                                    __('admin.labels.field_value', ['field' => __('admin.ui.ship_to'), 'value' => $shipTo !== '' ? $shipTo : __('admin.ui.not_specified')]),
+                                    __('admin.labels.field_value', ['field' => __('admin.ui.intended_use'), 'value' => $record->sampleRequest->intended_use ?: __('admin.ui.not_specified')]),
                                 ])->implode("\n");
                             })
                             ->columnSpanFull(),

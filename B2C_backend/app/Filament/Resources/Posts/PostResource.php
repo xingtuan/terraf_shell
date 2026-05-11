@@ -32,8 +32,6 @@ class PostResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
-    protected static ?string $navigationLabel = 'Concepts';
-
     protected static ?int $navigationSort = 20;
 
     protected static ?string $recordTitleAttribute = 'title';

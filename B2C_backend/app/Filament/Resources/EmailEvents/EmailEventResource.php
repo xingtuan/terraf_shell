@@ -46,8 +46,6 @@ class EmailEventResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::EmailCenter;
 
-    protected static ?string $navigationLabel = 'Events';
-
     protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema

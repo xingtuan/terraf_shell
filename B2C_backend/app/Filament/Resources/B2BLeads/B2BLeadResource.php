@@ -31,12 +31,6 @@ class B2BLeadResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::B2BLeads;
 
-    protected static ?string $navigationLabel = 'Partnership & Sample Leads';
-
-    protected static ?string $modelLabel = 'B2B lead';
-
-    protected static ?string $pluralModelLabel = 'B2B leads';
-
     protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema

@@ -227,7 +227,7 @@ class PostsTable
                         app(GovernanceService::class)->recordAdminAction(
                             PanelAccess::user(),
                             'post.pin_enabled',
-                            'Concept pinned in admin.',
+                            __('admin.ui.concept_pinned_in_admin'),
                             ['is_pinned' => true],
                             $record,
                             $record->user,
@@ -249,7 +249,7 @@ class PostsTable
                         app(GovernanceService::class)->recordAdminAction(
                             PanelAccess::user(),
                             'post.pin_disabled',
-                            'Concept unpinned in admin.',
+                            __('admin.ui.concept_unpinned_in_admin'),
                             ['is_pinned' => false],
                             $record,
                             $record->user,

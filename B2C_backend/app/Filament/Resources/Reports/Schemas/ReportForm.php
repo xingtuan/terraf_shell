@@ -23,7 +23,7 @@ class ReportForm
                             ->schema([
                                 Placeholder::make('reporter')
                                     ->label(__('admin.ui.reporter'))
-                                    ->content(fn (?Report $record): string => $record?->reporter?->name ? $record->reporter->name.' (@'.$record->reporter->username.')' : 'Unknown reporter'),
+                                    ->content(fn (?Report $record): string => $record?->reporter?->name ? $record->reporter->name.' (@'.$record->reporter->username.')' : __('admin.ui.unknown_reporter')),
                                 Placeholder::make('status')
                                     ->label(__('admin.ui.status'))
                                     ->content(fn (?Report $record): string => $record ? (ReportStatus::tryFrom($record->status)?->label() ?? ucfirst($record->status)) : '-'),
@@ -41,7 +41,7 @@ class ReportForm
                                     ->content(fn (?Report $record): string => $record?->reason ?? '-'),
                                 Placeholder::make('description')
                                     ->label(__('admin.ui.reporter_description'))
-                                    ->content(fn (?Report $record): string => $record?->description ?: 'No additional detail provided.')
+                                    ->content(fn (?Report $record): string => $record?->description ?: __('admin.ui.no_additional_detail_provided'))
                                     ->columnSpanFull(),
                             ]),
                     ]),
@@ -55,10 +55,10 @@ class ReportForm
                                     ->columnSpanFull(),
                                 Placeholder::make('reviewed_by')
                                     ->label(__('admin.ui.reviewed_by'))
-                                    ->content(fn (?Report $record): string => $record?->reviewer?->name ?? 'Not reviewed yet.'),
+                                    ->content(fn (?Report $record): string => $record?->reviewer?->name ?? __('admin.ui.not_reviewed_yet')),
                                 Placeholder::make('reviewed_at')
                                     ->label(__('admin.ui.reviewed_at'))
-                                    ->content(fn (?Report $record): string => $record?->reviewed_at?->toDateTimeString() ?? 'Not reviewed yet.'),
+                                    ->content(fn (?Report $record): string => $record?->reviewed_at?->toDateTimeString() ?? __('admin.ui.not_reviewed_yet')),
                             ]),
                     ]),
             ]);

@@ -31,8 +31,6 @@ class FundingCampaignResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
-    protected static ?string $navigationLabel = 'Funding Campaigns';
-
     protected static ?int $navigationSort = 90;
 
     public static function form(Schema $schema): Schema

@@ -47,7 +47,7 @@ class CartResource extends Resource
                     ->label(__('admin.fields.customer'))
                     ->placeholder(__('admin.placeholders.guest_session_cart'))
                     ->searchable()
-                    ->description(fn (Cart $record): string => $record->user?->email ?: ($record->session_key ? 'Session: '.$record->session_key : '-')),
+                    ->description(fn (Cart $record): string => $record->user?->email ?: ($record->session_key ? __('admin.labels.field_value', ['field' => __('admin.fields.session_key'), 'value' => $record->session_key]) : '-')),
                 TextColumn::make('item_count')
                     ->label(__('admin.fields.item_count'))
                     ->state(fn (Cart $record): int => $record->itemCount())

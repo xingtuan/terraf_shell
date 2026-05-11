@@ -38,8 +38,6 @@ class ModerationLogResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::UsersGovernance;
 
-    protected static ?string $navigationLabel = 'Moderation Logs';
-
     protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
@@ -103,7 +101,13 @@ class ModerationLogResource extends Resource
 
     public static function subjectTypeLabel(?string $value): string
     {
-        return filled($value) ? Str::headline(class_basename($value)) : 'Unknown';
+        return match ($value) {
+            Post::class => __('admin.ui.post'),
+            Comment::class => __('admin.ui.comment'),
+            User::class => __('admin.ui.user'),
+            Report::class => __('admin.ui.report'),
+            default => filled($value) ? Str::headline(class_basename($value)) : __('admin.placeholders.unknown'),
+        };
     }
 
     public static function subjectSummary(ModerationLog $log): string
@@ -112,7 +116,7 @@ class ModerationLogResource extends Resource
             $log->subject instanceof Post => $log->subject->title,
             $log->subject instanceof Comment => Str::limit($log->subject->content, 140),
             $log->subject instanceof User => $log->subject->name.' (@'.$log->subject->username.')',
-            default => 'Subject record is no longer available.',
+            default => __('admin.ui.subject_record_unavailable'),
         };
     }
 

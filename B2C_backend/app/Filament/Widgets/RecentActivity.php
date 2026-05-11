@@ -36,7 +36,7 @@ class RecentActivity extends TableWidget
                     ->tooltip(fn (ModerationLog $record): string => $record->created_at->format('d M Y, H:i:s')),
                 TextColumn::make('actor.name')
                     ->label(__('admin.ui.by'))
-                    ->default('System')
+                    ->default(__('admin.ui.system'))
                     ->searchable()
                     ->icon('heroicon-m-user-circle'),
                 TextColumn::make('action')
@@ -45,13 +45,13 @@ class RecentActivity extends TableWidget
                     ->searchable(),
                 TextColumn::make('subject_type')
                     ->label(__('admin.ui.on'))
-                    ->formatStateUsing(fn (string $state): string => ucfirst(class_basename($state)))
+                    ->formatStateUsing(fn (string $state): string => ModerationLogResource::subjectTypeLabel($state))
                     ->badge()
                     ->color('gray'),
                 TextColumn::make('reason')
                     ->label(__('admin.ui.note'))
                     ->limit(80)
-                    ->default('—')
+                    ->default(__('admin.ui.no_note_provided'))
                     ->wrap(),
             ])
             ->recordActions([

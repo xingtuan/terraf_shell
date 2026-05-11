@@ -26,6 +26,6 @@ class CreateFundingCampaign extends CreateRecord
 
     protected function getCreatedNotificationTitle(): ?string
     {
-        return 'Funding campaign attached';
+        return __('admin.ui.funding_campaign_attached');
     }
 }

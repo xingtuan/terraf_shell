@@ -46,7 +46,7 @@ class CommentsTable
                     ->searchable(['name', 'username']),
                 TextColumn::make('parent_id')
                     ->label(__('admin.ui.thread'))
-                    ->formatStateUsing(fn (?int $state): string => $state ? '#'.$state : 'Top-level'),
+                    ->formatStateUsing(fn (?int $state): string => $state ? '#'.$state : __('admin.ui.top_level')),
                 TextColumn::make('content')
                     ->searchable()
                     ->limit(70),

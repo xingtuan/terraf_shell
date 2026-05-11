@@ -47,7 +47,7 @@ class RecentOrders extends TableWidget
                     ->searchable(),
                 TextColumn::make('user.name')
                     ->label(__('admin.fields.customer'))
-                    ->description(fn (Order $record): string => $record->user?->email ?? 'Customer email unavailable')
+                    ->description(fn (Order $record): string => $record->user?->email ?? __('admin.ui.customer_email_unavailable'))
                     ->searchable(),
                 TextColumn::make('status')
                     ->badge()

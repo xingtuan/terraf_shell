@@ -32,6 +32,6 @@ class EditUserViolation extends EditRecord
 
     protected function getSavedNotificationTitle(): ?string
     {
-        return 'Violation updated';
+        return __('admin.ui.violation_updated');
     }
 }

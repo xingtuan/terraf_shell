@@ -27,7 +27,7 @@ class ModerationLogsTable
                     ->sortable(),
                 TextColumn::make('actor.name')
                     ->label(__('admin.ui.actor'))
-                    ->default('System')
+                    ->default(__('admin.ui.system'))
                     ->searchable(),
                 TextColumn::make('action')
                     ->badge()
@@ -54,7 +54,7 @@ class ModerationLogsTable
                     ->toggleable(),
                 TextColumn::make('reason')
                     ->limit(60)
-                    ->default('No reason provided.'),
+                    ->default(__('admin.ui.no_reason_provided')),
                 TextColumn::make('created_at')
                     ->label(__('admin.ui.created'))
                     ->dateTime()
@@ -63,10 +63,10 @@ class ModerationLogsTable
             ->filters([
                 SelectFilter::make('subject_type')
                     ->options([
-                        Post::class => 'Post',
-                        Comment::class => 'Comment',
-                        User::class => 'User',
-                        Report::class => 'Report',
+                        Post::class => __('admin.ui.post'),
+                        Comment::class => __('admin.ui.comment'),
+                        User::class => __('admin.ui.user'),
+                        Report::class => __('admin.ui.report'),
                     ]),
                 SelectFilter::make('actor_user_id')
                     ->relationship('actor', 'name')

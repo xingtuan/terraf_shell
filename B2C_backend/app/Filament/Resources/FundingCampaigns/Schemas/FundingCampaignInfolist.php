@@ -29,9 +29,9 @@ class FundingCampaignInfolist
                                     ->color(fn (string $state): string => FundingCampaignStatus::tryFrom($state)?->color() ?? 'gray'),
                                 TextEntry::make('support_enabled')
                                     ->label(__('admin.ui.support_enabled'))
-                                    ->state(fn ($record): string => $record->support_enabled ? 'Yes' : 'No')
+                                    ->state(fn ($record): string => $record->support_enabled ? __('admin.system.yes') : __('admin.system.no'))
                                     ->badge()
-                                    ->color(fn (string $state): string => $state === 'Yes' ? 'success' : 'gray'),
+                                    ->color(fn (string $state): string => $state === __('admin.system.yes') ? 'success' : 'gray'),
                                 TextEntry::make('support_button_text')
                                     ->label(__('admin.ui.button_text')),
                                 TextEntry::make('external_crowdfunding_url')

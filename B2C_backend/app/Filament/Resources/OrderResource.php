@@ -44,8 +44,6 @@ class OrderResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::StoreOperations;
 
-    protected static ?string $navigationLabel = 'Orders';
-
     protected static ?int $navigationSort = 10;
 
     public static function form(Schema $schema): Schema
@@ -158,10 +156,10 @@ class OrderResource extends Resource
                                     ->placeholder('-'),
                                 TextEntry::make('quantity'),
                                 TextEntry::make('unit_price_usd')
-                                    ->label(__('admin.fields.unit_price').' (NZD)')
+                                    ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.unit_price'), 'currency' => __('admin.currency.nzd')]))
                                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                                 TextEntry::make('subtotal_usd')
-                                    ->label(__('admin.fields.subtotal').' (NZD)')
+                                    ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.subtotal'), 'currency' => __('admin.currency.nzd')]))
                                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                             ])
                             ->columns(6),
@@ -169,13 +167,13 @@ class OrderResource extends Resource
                 Section::make(__('admin.sections.totals'))
                     ->schema([
                         TextEntry::make('subtotal_usd')
-                            ->label(__('admin.fields.subtotal').' (NZD)')
+                            ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.subtotal'), 'currency' => __('admin.currency.nzd')]))
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                         TextEntry::make('shipping_usd')
-                            ->label(__('admin.fields.shipping').' (NZD)')
+                            ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.shipping'), 'currency' => __('admin.currency.nzd')]))
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                         TextEntry::make('total_usd')
-                            ->label(__('admin.fields.total').' (NZD)')
+                            ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.total'), 'currency' => __('admin.currency.nzd')]))
                             ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                     ])
                     ->columns(3),
@@ -247,7 +245,7 @@ class OrderResource extends Resource
                     ->formatStateUsing(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->label() : (OrderPaymentStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                     ->color(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->color() : (OrderPaymentStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                 TextColumn::make('total_usd')
-                    ->label(__('admin.fields.total').' (NZD)')
+                    ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.total'), 'currency' => __('admin.currency.nzd')]))
                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
                 TextColumn::make('items_count')
                     ->label(__('admin.sections.items'))
@@ -326,9 +324,9 @@ class OrderResource extends Resource
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
-                            ->label(__('admin.fields.created_at').' from'),
+                            ->label(__('admin.filters.created_from')),
                         DatePicker::make('created_until')
-                            ->label(__('admin.fields.created_at').' until'),
+                            ->label(__('admin.filters.created_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

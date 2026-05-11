@@ -31,8 +31,6 @@ class MaterialResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
-    protected static ?string $navigationLabel = 'Materials';
-
     protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema

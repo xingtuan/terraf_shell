@@ -33,8 +33,6 @@ class MaterialSpecResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Content;
 
-    protected static ?string $navigationLabel = 'Material Specs';
-
     protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema

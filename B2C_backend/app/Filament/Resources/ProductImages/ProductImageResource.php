@@ -31,8 +31,6 @@ class ProductImageResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::MediaLibrary;
 
-    protected static ?string $navigationLabel = 'Product Media';
-
     protected static ?int $navigationSort = 57;
 
     public static function form(Schema $schema): Schema

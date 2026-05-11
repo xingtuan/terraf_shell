@@ -97,7 +97,7 @@ class DemoCleanup extends Page
                 AdminActionLog::query()->create([
                     'actor_user_id' => PanelAccess::user()?->id,
                     'action' => 'demo_cleanup.community',
-                    'description' => 'Cleaned marked demo community content.',
+                    'description' => __('admin.ui.cleaned_marked_demo_community_content'),
                     'metadata' => $counts,
                 ]);
             }

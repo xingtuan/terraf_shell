@@ -30,8 +30,6 @@ class CommentResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::Community;
 
-    protected static ?string $navigationLabel = 'Comments';
-
     protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema

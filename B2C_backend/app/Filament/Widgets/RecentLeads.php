@@ -48,7 +48,7 @@ class RecentLeads extends TableWidget
                     ->formatStateUsing(fn (string $state): string => B2BLeadType::tryFrom($state)?->label() ?? $state),
                 TextColumn::make('name')
                     ->searchable()
-                    ->description(fn (B2BLead $record): string => $record->company_name ?: 'No company provided'),
+                    ->description(fn (B2BLead $record): string => $record->company_name ?: __('admin.ui.no_company_provided')),
                 TextColumn::make('source_page')
                     ->label(__('admin.ui.source'))
                     ->placeholder(__('admin.ui.not_tracked_2'))

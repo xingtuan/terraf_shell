@@ -5,6 +5,7 @@ namespace App\Filament\Resources\EmailLogs;
 use App\Filament\Resources\EmailLogs\Pages\ListEmailLogs;
 use App\Filament\Resources\EmailLogs\Pages\ViewEmailLog;
 use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\AdminOptions;
 use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\EmailEvent;
@@ -37,8 +38,6 @@ class EmailLogResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
     protected static string|\UnitEnum|null $navigationGroup = AdminNavigationGroup::EmailCenter;
-
-    protected static ?string $navigationLabel = 'Logs';
 
     protected static ?int $navigationSort = 40;
 
@@ -92,12 +91,7 @@ class EmailLogResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options([
-                        EmailLog::STATUS_QUEUED => 'Queued',
-                        EmailLog::STATUS_SENT => 'Sent',
-                        EmailLog::STATUS_FAILED => 'Failed',
-                        EmailLog::STATUS_SKIPPED => 'Skipped',
-                    ]),
+                    ->options(fn (): array => AdminOptions::emailLogStatuses()),
                 SelectFilter::make('event_key')
                     ->options(fn (): array => EmailEvent::query()->orderBy('key')->pluck('key', 'key')->all())
                     ->searchable(),

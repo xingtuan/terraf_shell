@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\IdeaMedia\Tables;
 
+use App\Filament\Support\AdminOptions;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -52,16 +53,9 @@ class IdeaMediaTable
             ])
             ->filters([
                 SelectFilter::make('media_type')
-                    ->options([
-                        'image' => 'Image',
-                        'document' => 'Document',
-                        'external_3d' => 'External 3D',
-                    ]),
+                    ->options(fn (): array => AdminOptions::ideaMediaTypes()),
                 SelectFilter::make('source_type')
-                    ->options([
-                        'upload' => 'Upload',
-                        'external_url' => 'External URL',
-                    ]),
+                    ->options(fn (): array => AdminOptions::ideaMediaSourceTypes()),
             ])
             ->recordActions([
                 ViewAction::make(),
