@@ -48,7 +48,12 @@ export function FinalCtaSection({ locale, content }: FinalCtaSectionProps) {
                 {content.primaryCta}
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-primary-foreground/30 px-8 text-base text-primary-foreground hover:bg-primary-foreground/10">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-primary-foreground/50 bg-transparent px-8 text-base text-primary-foreground shadow-none hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
               <Link href={getLocalizedHref(locale, "store")}>
                 {content.secondaryCta}
               </Link>

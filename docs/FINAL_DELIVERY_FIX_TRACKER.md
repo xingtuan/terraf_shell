@@ -1,6 +1,6 @@
 # Final Delivery Fix Tracker
 
-Last updated: 2026-05-08
+Last updated: 2026-05-11
 
 Final validation:
 
@@ -11,6 +11,17 @@ Final validation:
 - `node scripts/check-i18n-keys.mjs`: Pass.
 - `corepack pnpm exec tsc --noEmit`: Pass.
 - `corepack pnpm build`: Pass with six existing i18n-diff warnings for intentionally identical values.
+
+2026-05-11 delivery-critical follow-up:
+
+- Homepage final CTA secondary store link now uses an explicit transparent outline style with visible contrast before hover.
+- Footer privacy and terms links now route to localized legal pages.
+- Added `/[locale]/privacy` and `/[locale]/terms` pages with EN / KO / ZH message content and metadata.
+- Cart sidebar now shows guest checkout and sign-in-to-checkout as separate guest actions.
+- Full cart page keeps guest checkout available and uses the same guest checkout helper copy.
+- Guest checkout backend flow was verified in code: `StoreOrderRequest` still requires `guest_email` for guests, `createOrder` accepts `token?: string | null`, and `requestApi` omits `Authorization` when token is null.
+- New docs: `docs/LEGAL_PAGES.md` and `docs/DEMO_DATA_MANAGEMENT.md`.
+- 2026-05-11 validation: `corepack pnpm exec node scripts/check-i18n-keys.mjs`, `corepack pnpm test`, `corepack pnpm exec tsc --noEmit`, and `corepack pnpm build` passed. Build still reports the six pre-existing i18n-diff warnings for intentionally identical values.
 
 ## P0
 

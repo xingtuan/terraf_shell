@@ -148,10 +148,16 @@ export function Footer({ locale, header, footer }: FooterProps) {
         <div className="flex flex-col gap-4 border-t border-background/10 pt-8 text-sm text-background/50 md:flex-row md:items-center md:justify-between">
           <p>{footer.copyright}</p>
           <div className="flex gap-6">
-            <Link href="#" className="transition-colors hover:text-background/70">
+            <Link
+              href={getLocalizedHref(locale, "privacy")}
+              className="transition-colors hover:text-background/70"
+            >
               {footer.privacy}
             </Link>
-            <Link href="#" className="transition-colors hover:text-background/70">
+            <Link
+              href={getLocalizedHref(locale, "terms")}
+              className="transition-colors hover:text-background/70"
+            >
               {footer.terms}
             </Link>
           </div>

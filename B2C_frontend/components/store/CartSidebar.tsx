@@ -251,24 +251,47 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                 <Button asChild variant="outline" className="w-full">
                   <Link href={getLocalizedHref(locale, "store/cart")}>{t.viewCart}</Link>
                 </Button>
-                <Button
-                  type="button"
-                  className="w-full"
-                  disabled={!cart || cart.items.length === 0 || loading}
-                  onClick={() => {
-                    const checkoutHref = getLocalizedHref(locale, "store/checkout")
-
-                    if (!session.user) {
-                      setIsAuthOpen(true)
-                      return
-                    }
-
-                    closeCart()
-                    router.push(checkoutHref)
-                  }}
-                >
-                  {session.user ? t.proceedToCheckout : t.signInToCheckout}
-                </Button>
+                {session.user ? (
+                  <Button
+                    type="button"
+                    className="w-full"
+                    disabled={!cart || cart.items.length === 0 || loading}
+                    onClick={() => {
+                      closeCart()
+                      router.push(getLocalizedHref(locale, "store/checkout"))
+                    }}
+                  >
+                    {t.proceedToCheckout}
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      className="w-full"
+                      disabled={!cart || cart.items.length === 0 || loading}
+                      onClick={() => {
+                        closeCart()
+                        router.push(getLocalizedHref(locale, "store/checkout"))
+                      }}
+                    >
+                      {t.guestCheckout}
+                    </Button>
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {t.guestCheckoutHint}
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      disabled={!cart || cart.items.length === 0 || loading}
+                      onClick={() => {
+                        setIsAuthOpen(true)
+                      }}
+                    >
+                      {t.signInToCheckout}
+                    </Button>
+                  </>
+                )}
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button

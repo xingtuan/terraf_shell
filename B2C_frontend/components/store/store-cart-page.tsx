@@ -299,17 +299,22 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                   router.push(getLocalizedHref(locale, "store/checkout"))
                 }}
               >
-                {session.user ? t.proceedToCheckout : t.checkoutAsGuest}
+                {session.user ? t.proceedToCheckout : t.guestCheckout}
               </Button>
               {!session.user ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setIsAuthOpen(true)}
-                >
-                  {t.signInForSavedAddresses}
-                </Button>
+                <>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {t.guestCheckoutHint}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setIsAuthOpen(true)}
+                  >
+                    {t.signInToCheckout}
+                  </Button>
+                </>
               ) : null}
               <Button asChild variant="outline" className="w-full">
                 <Link href={getLocalizedHref(locale, "store")}>
