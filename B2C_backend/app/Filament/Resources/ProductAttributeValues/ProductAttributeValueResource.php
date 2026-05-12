@@ -68,8 +68,10 @@ class ProductAttributeValueResource extends Resource
                                 ->label(__('admin.ui.label'))
                                 ->required()
                                 ->maxLength(160),
-                            ColorPicker::make('color_hex'),
+                            ColorPicker::make('color_hex')
+                                ->label(__('admin.ui.color')),
                             KeyValue::make('label_translations')
+                                ->label(__('admin.ui.label_translations'))
                                 ->keyLabel(__('admin.ui.locale'))
                                 ->valueLabel(__('admin.ui.label'))
                                 ->columnSpanFull(),
@@ -114,7 +116,8 @@ class ProductAttributeValueResource extends Resource
                         ->ordered()
                         ->pluck('label', 'id')
                         ->all()),
-                TernaryFilter::make('is_active'),
+                TernaryFilter::make('is_active')
+                    ->label(__('admin.ui.active_2')),
             ])
             ->recordActions([
                 EditAction::make(),
