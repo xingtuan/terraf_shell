@@ -125,7 +125,7 @@ return [
         'moderation_overview' => '审核概览',
         'pending_comments' => '待审核评论',
         'pending_posts' => '待审核帖子',
-        'recent_activity' => '最近活动',
+        'recent_activity' => '最近操作',
         'recent_leads' => '最近线索',
         'recent_orders' => '最近订单',
         'order_backlog' => '订单请求待办',

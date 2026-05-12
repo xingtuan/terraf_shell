@@ -48,11 +48,11 @@ class InventoryResource extends Resource
                         ->minValue(0),
                     Select::make('stock_status')
                         ->label(__('admin.fields.stock_status'))
-                        ->options(ProductVariant::STOCK_STATUS_OPTIONS)
+                        ->options(fn (): array => self::stockStatusOptions())
                         ->required(),
                     Select::make('inventory_policy')
                         ->label(__('admin.ui.inventory_policy'))
-                        ->options(ProductVariant::INVENTORY_POLICY_OPTIONS)
+                        ->options(fn (): array => self::inventoryPolicyOptions())
                         ->required(),
                     TextInput::make('low_stock_threshold')
                         ->label(__('admin.ui.low_stock_threshold'))

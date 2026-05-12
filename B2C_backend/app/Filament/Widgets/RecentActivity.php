@@ -18,7 +18,7 @@ class RecentActivity extends TableWidget
 
     public function getHeading(): ?string
     {
-        return __('admin.ui.recent_moderation_activity');
+        return __('admin.widgets.recent_activity');
     }
 
     protected int|string|array $columnSpan = 'full';
