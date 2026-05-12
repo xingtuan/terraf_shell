@@ -117,9 +117,9 @@ class AddressResource extends Resource
                             ->label(__('admin.fields.phone'))
                             ->placeholder('-'),
                         TextEntry::make('address_line1')
-                            ->label(__('admin.fields.address')),
+                            ->label(__('admin.fields.shipping_address_line1')),
                         TextEntry::make('address_line2')
-                            ->label(__('admin.fields.address_line2'))
+                            ->label(__('admin.fields.shipping_address_line2'))
                             ->placeholder('-'),
                         TextEntry::make('city')
                             ->label(__('admin.fields.city')),
