@@ -51,6 +51,7 @@ class ProductAttributeDefinitionResource extends Resource
                     Grid::make(2)
                         ->schema([
                             TextInput::make('key')
+                                ->label(__('admin.ui.key'))
                                 ->required()
                                 ->maxLength(120)
                                 ->unique(ignoreRecord: true),
@@ -59,12 +60,13 @@ class ProductAttributeDefinitionResource extends Resource
                                 ->required()
                                 ->maxLength(160),
                             KeyValue::make('label_translations')
+                                ->label(__('admin.ui.label_translations'))
                                 ->keyLabel(__('admin.ui.locale'))
                                 ->valueLabel(__('admin.ui.label'))
                                 ->columnSpanFull(),
                             Select::make('type')
                                 ->label(__('admin.fields.type'))
-                                ->options(ProductAttributeDefinition::TYPE_OPTIONS)
+                                ->options(fn (): array => self::attributeTypeOptions())
                                 ->default('select')
                                 ->required(),
                             TextInput::make('unit')
@@ -77,8 +79,10 @@ class ProductAttributeDefinitionResource extends Resource
                             Toggle::make('is_searchable')
                                 ->label(__('admin.ui.searchable')),
                             Toggle::make('is_specification')
+                                ->label(__('admin.ui.specification'))
                                 ->default(true),
-                            Toggle::make('is_required'),
+                            Toggle::make('is_required')
+                                ->label(__('admin.ui.is_required')),
                             Toggle::make('is_active')
                                 ->label(__('admin.ui.active'))
                                 ->default(true),
@@ -107,10 +111,12 @@ class ProductAttributeDefinitionResource extends Resource
                                 ->required()
                                 ->maxLength(160),
                             KeyValue::make('label_translations')
+                                ->label(__('admin.ui.label_translations'))
                                 ->keyLabel(__('admin.ui.locale'))
                                 ->valueLabel(__('admin.ui.label'))
                                 ->columnSpanFull(),
-                            ColorPicker::make('color_hex'),
+                            ColorPicker::make('color_hex')
+                                ->label(__('admin.ui.color')),
                             Toggle::make('is_active')
                                 ->label(__('admin.ui.active'))
                                 ->default(true),
@@ -131,6 +137,7 @@ class ProductAttributeDefinitionResource extends Resource
             ->defaultSort('sort_order')
             ->columns([
                 TextColumn::make('key')
+                    ->label(__('admin.ui.key'))
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('label')
@@ -139,7 +146,8 @@ class ProductAttributeDefinitionResource extends Resource
                     ->sortable(),
                 TextColumn::make('type')
                     ->label(__('admin.fields.type'))
-                    ->badge(),
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => __('admin.products.attribute_type.'.$state) ?? ucfirst((string) $state)),
                 IconColumn::make('is_variant_option')
                     ->label(__('admin.ui.variant'))
                     ->boolean(),
@@ -155,11 +163,16 @@ class ProductAttributeDefinitionResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('type')
-                    ->options(ProductAttributeDefinition::TYPE_OPTIONS),
-                TernaryFilter::make('is_variant_option'),
-                TernaryFilter::make('is_filterable'),
-                TernaryFilter::make('is_specification'),
-                TernaryFilter::make('is_active'),
+                    ->label(__('admin.fields.type'))
+                    ->options(fn (): array => self::attributeTypeOptions()),
+                TernaryFilter::make('is_variant_option')
+                    ->label(__('admin.ui.variant')),
+                TernaryFilter::make('is_filterable')
+                    ->label(__('admin.ui.filterable')),
+                TernaryFilter::make('is_specification')
+                    ->label(__('admin.ui.specification')),
+                TernaryFilter::make('is_active')
+                    ->label(__('admin.ui.active_2')),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -199,6 +212,13 @@ class ProductAttributeDefinitionResource extends Resource
     public static function canDeleteAny(): bool
     {
         return PanelAccess::isAdmin();
+    }
+
+    private static function attributeTypeOptions(): array
+    {
+        return collect(array_keys(ProductAttributeDefinition::TYPE_OPTIONS))
+            ->mapWithKeys(fn (string $key): array => [$key => __('admin.products.attribute_type.'.$key)])
+            ->all();
     }
 
     public static function getPages(): array
