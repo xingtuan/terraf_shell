@@ -30,6 +30,7 @@ class ModerationLogInfolist
                                     ->label(__('admin.ui.target_user'))
                                     ->placeholder(__('admin.ui.no_user_target')),
                                 TextEntry::make('action')
+                                    ->label(__('admin.ui.action'))
                                     ->badge()
                                     ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state)),
                                 TextEntry::make('subject_type')

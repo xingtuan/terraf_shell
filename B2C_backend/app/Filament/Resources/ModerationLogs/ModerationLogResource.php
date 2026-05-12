@@ -26,6 +26,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 
 class ModerationLogResource extends Resource
@@ -105,9 +106,7 @@ class ModerationLogResource extends Resource
             return null;
         }
 
-        $translated = __($value);
-
-        return $translated !== $value ? $translated : $value;
+        return Lang::has($value) ? __($value) : $value;
     }
 
     public static function actionLabel(?string $value): string
@@ -118,7 +117,7 @@ class ModerationLogResource extends Resource
 
         $key = 'admin.moderation_log.actions.'.str_replace('.', '_', $value);
 
-        return __($key) !== $key ? __($key) : Str::headline(str_replace('.', ' ', $value));
+        return Lang::has($key) ? __($key) : Str::headline(str_replace('.', ' ', $value));
     }
 
     public static function subjectTypeLabel(?string $value): string

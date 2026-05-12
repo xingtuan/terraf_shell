@@ -78,6 +78,7 @@ class CommentInfolist
                             ->label(__('admin.ui.review_history'))
                             ->schema([
                                 TextEntry::make('action')
+                                    ->label(__('admin.ui.action'))
                                     ->badge()
                                     ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state)),
                                 TextEntry::make('actor.name')

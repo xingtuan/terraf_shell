@@ -156,6 +156,7 @@ class UserInfolist
                             ->state(fn (User $record) => $record->receivedModerationLogs()->with(['actor'])->latest()->limit(5)->get())
                             ->schema([
                                 TextEntry::make('action')
+                                    ->label(__('admin.ui.action'))
                                     ->badge()
                                     ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state)),
                                 TextEntry::make('actor.name')

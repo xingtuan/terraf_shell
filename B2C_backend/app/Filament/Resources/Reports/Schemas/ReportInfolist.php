@@ -88,6 +88,7 @@ class ReportInfolist
                             ->label(__('admin.ui.moderation_history_2'))
                             ->schema([
                                 TextEntry::make('action')
+                                    ->label(__('admin.ui.action'))
                                     ->badge()
                                     ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state)),
                                 TextEntry::make('actor.name')
