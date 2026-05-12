@@ -90,16 +90,20 @@ class OrderResource extends Resource
                 Section::make(__('admin.sections.order_info'))
                     ->schema([
                         TextEntry::make('order_number')
+                            ->label(__('admin.fields.order_number'))
                             ->copyable(),
                         TextEntry::make('status')
+                            ->label(__('admin.fields.status'))
                             ->badge()
                             ->formatStateUsing(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->label() : (OrderStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                             ->color(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->color() : (OrderStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                         TextEntry::make('payment_status')
+                            ->label(__('admin.fields.payment_status'))
                             ->badge()
                             ->formatStateUsing(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->label() : (OrderPaymentStatus::tryFrom((string) $state)?->label() ?? (string) $state))
                             ->color(fn (OrderPaymentStatus|string|null $state): string => $state instanceof OrderPaymentStatus ? $state->color() : (OrderPaymentStatus::tryFrom((string) $state)?->color() ?? 'gray')),
                         TextEntry::make('created_at')
+                            ->label(__('admin.fields.created_at'))
                             ->dateTime(),
                     ])
                     ->columns(2),
@@ -117,25 +121,35 @@ class OrderResource extends Resource
                     ->columns(2),
                 Section::make(__('admin.sections.shipping_address'))
                     ->schema([
-                        TextEntry::make('shipping_name'),
+                        TextEntry::make('shipping_name')
+                            ->label(__('admin.fields.shipping_name')),
                         TextEntry::make('shipping_phone')
+                            ->label(__('admin.fields.shipping_phone'))
                             ->placeholder('-'),
-                        TextEntry::make('shipping_address_line1'),
+                        TextEntry::make('shipping_address_line1')
+                            ->label(__('admin.fields.shipping_address_line1')),
                         TextEntry::make('shipping_address_line2')
+                            ->label(__('admin.fields.shipping_address_line2'))
                             ->placeholder('-'),
-                        TextEntry::make('shipping_city'),
+                        TextEntry::make('shipping_city')
+                            ->label(__('admin.fields.shipping_city')),
                         TextEntry::make('shipping_state_province')
+                            ->label(__('admin.fields.shipping_state_province'))
                             ->placeholder('-'),
                         TextEntry::make('shipping_postal_code')
+                            ->label(__('admin.fields.shipping_postal_code'))
                             ->placeholder('-'),
-                        TextEntry::make('shipping_country'),
+                        TextEntry::make('shipping_country')
+                            ->label(__('admin.fields.shipping_country')),
                     ])
                     ->columns(2),
                 Section::make(__('admin.sections.manual_payment'))
                     ->schema([
                         TextEntry::make('payment_method')
+                            ->label(__('admin.fields.payment_method'))
                             ->placeholder('-'),
                         TextEntry::make('payment_reference')
+                            ->label(__('admin.fields.payment_reference'))
                             ->placeholder('-')
                             ->copyable(),
                     ])
@@ -154,7 +168,8 @@ class OrderResource extends Resource
                                     ->label(__('admin.fields.sku'))
                                     ->copyable()
                                     ->placeholder('-'),
-                                TextEntry::make('quantity'),
+                                TextEntry::make('quantity')
+                                    ->label(__('admin.fields.quantity')),
                                 TextEntry::make('unit_price_usd')
                                     ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.unit_price'), 'currency' => __('admin.currency.nzd')]))
                                     ->formatStateUsing(fn ($state): string => '$'.number_format((float) $state, 2)),
