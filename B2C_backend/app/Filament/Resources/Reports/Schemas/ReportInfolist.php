@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Reports\Schemas;
 
 use App\Enums\ReportStatus;
+use App\Filament\Resources\ModerationLogs\ModerationLogResource;
 use App\Filament\Resources\Reports\ReportResource;
 use App\Models\Report;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -87,7 +88,8 @@ class ReportInfolist
                             ->label(__('admin.ui.moderation_history_2'))
                             ->schema([
                                 TextEntry::make('action')
-                                    ->badge(),
+                                    ->badge()
+                                    ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state)),
                                 TextEntry::make('actor.name')
                                     ->label(__('admin.ui.actor'))
                                     ->placeholder(__('admin.ui.system')),

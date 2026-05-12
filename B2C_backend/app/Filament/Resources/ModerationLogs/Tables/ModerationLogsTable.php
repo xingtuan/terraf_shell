@@ -31,6 +31,7 @@ class ModerationLogsTable
                     ->searchable(),
                 TextColumn::make('action')
                     ->badge()
+                    ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state))
                     ->searchable(),
                 TextColumn::make('subject_type')
                     ->label(__('admin.ui.subject_type'))

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Posts\Schemas;
 
 use App\Enums\ContentStatus;
+use App\Filament\Resources\ModerationLogs\ModerationLogResource;
 use App\Models\Post;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -186,7 +187,8 @@ class PostInfolist
                             ->label(__('admin.ui.review_history'))
                             ->schema([
                                 TextEntry::make('action')
-                                    ->badge(),
+                                    ->badge()
+                                    ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state)),
                                 TextEntry::make('actor.name')
                                     ->label(__('admin.ui.actor'))
                                     ->placeholder(__('admin.ui.system')),

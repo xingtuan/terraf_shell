@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Comments\Schemas;
 
 use App\Enums\ContentStatus;
+use App\Filament\Resources\ModerationLogs\ModerationLogResource;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
@@ -77,7 +78,8 @@ class CommentInfolist
                             ->label(__('admin.ui.review_history'))
                             ->schema([
                                 TextEntry::make('action')
-                                    ->badge(),
+                                    ->badge()
+                                    ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state)),
                                 TextEntry::make('actor.name')
                                     ->label(__('admin.ui.actor'))
                                     ->placeholder(__('admin.ui.system')),

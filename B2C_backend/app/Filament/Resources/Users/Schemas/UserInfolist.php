@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\AccountStatus;
+use App\Filament\Resources\ModerationLogs\ModerationLogResource;
 use App\Enums\UserRole;
 use App\Models\User;
 use Filament\Infolists\Components\ImageEntry;
@@ -155,7 +156,8 @@ class UserInfolist
                             ->state(fn (User $record) => $record->receivedModerationLogs()->with(['actor'])->latest()->limit(5)->get())
                             ->schema([
                                 TextEntry::make('action')
-                                    ->badge(),
+                                    ->badge()
+                                    ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state)),
                                 TextEntry::make('actor.name')
                                     ->label(__('admin.ui.actor'))
                                     ->placeholder(__('admin.ui.system')),
