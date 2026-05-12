@@ -194,6 +194,7 @@ class PostInfolist
                                     ->label(__('admin.ui.actor'))
                                     ->placeholder(__('admin.ui.system')),
                                 TextEntry::make('reason')
+                                    ->formatStateUsing(fn (?string $state): ?string => ModerationLogResource::reasonLabel($state))
                                     ->placeholder(__('admin.ui.no_reason_provided'))
                                     ->columnSpanFull(),
                                 TextEntry::make('created_at')

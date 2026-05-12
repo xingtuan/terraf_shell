@@ -55,6 +55,7 @@ class ModerationLogsTable
                     ->placeholder(__('admin.ui.no_linked_report_2'))
                     ->toggleable(),
                 TextColumn::make('reason')
+                    ->formatStateUsing(fn (?string $state): ?string => ModerationLogResource::reasonLabel($state))
                     ->limit(60)
                     ->default(__('admin.ui.no_reason_provided')),
                 TextColumn::make('created_at')

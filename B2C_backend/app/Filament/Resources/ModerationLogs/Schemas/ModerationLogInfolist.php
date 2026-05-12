@@ -48,6 +48,7 @@ class ModerationLogInfolist
                                     ->state(fn (ModerationLog $record): string => ModerationLogResource::subjectSummary($record))
                                     ->columnSpanFull(),
                                 TextEntry::make('reason')
+                                    ->formatStateUsing(fn (?string $state): ?string => ModerationLogResource::reasonLabel($state))
                                     ->placeholder(__('admin.ui.no_moderation_reason_recorded'))
                                     ->columnSpanFull(),
                             ]),
