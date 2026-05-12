@@ -75,6 +75,7 @@ class InventoryResource extends Resource
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('sku')
+                    ->label(__('admin.fields.sku'))
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('stock_quantity')
@@ -93,6 +94,7 @@ class InventoryResource extends Resource
                         default => 'gray',
                     }),
                 TextColumn::make('inventory_policy')
+                    ->label(__('admin.ui.inventory_policy'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => filled($state) ? __("admin.products.inventory_policy.{$state}") : '-'),
                 TextColumn::make('inventoryAdjustments.reason')
@@ -106,8 +108,10 @@ class InventoryResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('stock_status')
+                    ->label(__('admin.fields.stock_status'))
                     ->options(fn (): array => self::stockStatusOptions()),
                 SelectFilter::make('inventory_policy')
+                    ->label(__('admin.ui.inventory_policy'))
                     ->options(fn (): array => self::inventoryPolicyOptions()),
                 Filter::make('low_stock')
                     ->label(__('admin.filters.low_stock'))

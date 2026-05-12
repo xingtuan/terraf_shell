@@ -38,7 +38,7 @@ trait HasAdminResourceTranslations
             'FundingCampaignResource' => ['navigation' => 'admin.resources.funding_campaigns', 'model' => 'admin.resources.funding_campaign', 'plural' => 'admin.resources.funding_campaigns'],
             'HomeSectionResource' => ['navigation' => 'admin.resources.homepage_sections', 'model' => 'admin.resources.homepage_section', 'plural' => 'admin.resources.homepage_sections'],
             'IdeaMediaResource' => ['navigation' => 'admin.resources.concept_media'],
-            'InventoryResource' => ['navigation' => 'admin.resources.inventory'],
+            'InventoryResource' => ['navigation' => 'admin.resources.inventory', 'model' => 'admin.resources.inventory', 'plural' => 'admin.resources.inventory'],
             'MaterialApplicationResource' => ['navigation' => 'admin.resources.material_applications', 'model' => 'admin.resources.material_application', 'plural' => 'admin.resources.material_applications'],
             'MaterialResource' => ['navigation' => 'admin.resources.materials', 'model' => 'admin.resources.material', 'plural' => 'admin.resources.materials'],
             'MaterialSpecResource' => ['navigation' => 'admin.resources.material_specs', 'model' => 'admin.resources.material_spec', 'plural' => 'admin.resources.material_specs'],

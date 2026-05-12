@@ -110,6 +110,9 @@ class ProductVariantResource extends Resource
                                 ->numeric()
                                 ->minValue(0),
                             KeyValue::make('dimensions')
+                                ->label(__('admin.ui.dimensions'))
+                                ->keyLabel(__('admin.ui.key'))
+                                ->valueLabel(__('admin.ui.value'))
                                 ->columnSpanFull(),
                             TextInput::make('image_url')
                                 ->label(__('admin.ui.image_url'))
