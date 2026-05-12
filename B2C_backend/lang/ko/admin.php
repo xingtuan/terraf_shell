@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 return [
     'brand' => [
@@ -1058,7 +1058,7 @@ return [
         'best_seller' => '베스트셀러',
         'bio' => '자기소개',
         'body' => '본문',
-        'boolean_value' => '불리언 값',
+        'boolean_value' => '활성화',
         'broadcast_announcement' => '공지 방송',
         'button_text' => '버튼 텍스트',
         'by' => '작성자',

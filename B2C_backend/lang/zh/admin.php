@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 return [
     'brand' => [
@@ -1058,7 +1058,7 @@ return [
         'best_seller' => '热销产品',
         'bio' => '个人简介',
         'body' => '正文',
-        'boolean_value' => '布尔值',
+        'boolean_value' => '启用',
         'broadcast_announcement' => '广播公告',
         'button_text' => '按钮文字',
         'by' => '由',

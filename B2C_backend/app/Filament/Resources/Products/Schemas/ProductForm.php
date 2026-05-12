@@ -186,6 +186,8 @@ class ProductForm
                                                             ->minValue(0),
                                                         KeyValue::make('dimensions')
                                                             ->label(__('admin.ui.dimensions'))
+                                                            ->keyLabel(__('admin.ui.key'))
+                                                            ->valueLabel(__('admin.ui.value'))
                                                             ->columnSpanFull(),
                                                         TextInput::make('image_url')
                                                             ->label(__('admin.ui.image_url'))
@@ -320,6 +322,8 @@ class ProductForm
                                                     ->label(__('admin.ui.boolean_value')),
                                                 KeyValue::make('value_json')
                                                     ->label(__('admin.ui.json_value'))
+                                                    ->keyLabel(__('admin.ui.key'))
+                                                    ->valueLabel(__('admin.ui.value'))
                                                     ->columnSpanFull(),
                                             ])
                                             ->columns(2)
