@@ -1431,7 +1431,7 @@
     "eyebrow": "Addresses",
     "editTitle": "Edit Address",
     "addTitle": "Add Address",
-    "labelPlaceholder": "Label",
+    "labelPlaceholder": "Address Note",
     "recipientNamePlaceholder": "Recipient Name",
     "phonePlaceholder": "Phone",
     "addressLine1Placeholder": "Address Line 1",

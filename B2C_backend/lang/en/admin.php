@@ -200,6 +200,7 @@ return [
     ],
     'fields' => [
         'address' => 'Address',
+        'address_note' => 'Address note',
         'admin_note' => 'Internal admin note',
         'address_lookup_query' => 'Address lookup query',
         'assigned_to' => 'Assigned admin',

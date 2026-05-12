@@ -200,6 +200,7 @@ return [
     ],
     'fields' => [
         'address' => '地址',
+        'address_note' => '地址备注',
         'admin_note' => '内部管理员备注',
         'address_lookup_query' => '地址查询关键字',
         'assigned_to' => '负责管理员',

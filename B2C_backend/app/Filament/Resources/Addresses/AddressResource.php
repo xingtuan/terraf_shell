@@ -48,6 +48,7 @@ class AddressResource extends Resource
                     ->searchable()
                     ->description(fn (Address $record): string => $record->user?->email ?? '-'),
                 TextColumn::make('label')
+                    ->label(__('admin.fields.address_note'))
                     ->searchable()
                     ->placeholder('-'),
                 TextColumn::make('recipient_name')
@@ -101,6 +102,7 @@ class AddressResource extends Resource
                             ->label(__('admin.fields.email'))
                             ->copyable(),
                         TextEntry::make('label')
+                            ->label(__('admin.fields.address_note'))
                             ->placeholder('-'),
                         IconEntry::make('is_default')
                             ->label(__('admin.fields.is_default'))
@@ -117,6 +119,7 @@ class AddressResource extends Resource
                         TextEntry::make('address_line1')
                             ->label(__('admin.fields.address')),
                         TextEntry::make('address_line2')
+                            ->label(__('admin.fields.address_line2'))
                             ->placeholder('-'),
                         TextEntry::make('city')
                             ->label(__('admin.fields.city')),

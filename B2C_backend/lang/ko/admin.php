@@ -200,6 +200,7 @@ return [
     ],
     'fields' => [
         'address' => '주소',
+        'address_note' => '주소 메모',
         'admin_note' => '내부 관리자 메모',
         'address_lookup_query' => '주소 조회어',
         'assigned_to' => '담당 관리자',
