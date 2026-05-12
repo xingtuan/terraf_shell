@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Enquiries\Schemas;
 use App\Enums\B2BLeadStatus;
 use App\Models\Inquiry;
 use Filament\Infolists\Components\TextEntry;
+use Illuminate\Support\Facades\Lang;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -19,9 +20,12 @@ class EnquiryInfolist
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextEntry::make('id'),
-                                TextEntry::make('reference'),
+                                TextEntry::make('id')
+                                    ->label(__('admin.ui.id')),
+                                TextEntry::make('reference')
+                                    ->label(__('admin.ui.reference')),
                                 TextEntry::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
                                     ->color(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->color() ?? 'gray'),
@@ -31,26 +35,34 @@ class EnquiryInfolist
                                     ->formatStateUsing(fn (?string $state): string => $state ? __("admin.leads.priority.{$state}") : __('admin.leads.priority.normal')),
                                 TextEntry::make('inquiry_type')
                                     ->label(__('admin.ui.enquiry_type'))
+                                    ->formatStateUsing(fn (?string $state): string => $state ? (Lang::has("admin.leads.type.{$state}") ? __("admin.leads.type.{$state}") : $state) : __('admin.ui.general_enquiry'))
                                     ->placeholder(__('admin.ui.general_enquiry')),
                                 TextEntry::make('subject')
+                                    ->label(__('admin.ui.subject'))
                                     ->state(fn (Inquiry $record): string => $record->subject),
                                 TextEntry::make('source_page')
                                     ->label(__('admin.ui.source'))
                                     ->placeholder(__('admin.ui.not_tracked')),
-                                TextEntry::make('name'),
+                                TextEntry::make('name')
+                                    ->label(__('admin.fields.name')),
                                 TextEntry::make('email')
                                     ->label(__('admin.ui.email')),
                                 TextEntry::make('company_name')
                                     ->label(__('admin.ui.company_organization')),
                                 TextEntry::make('organization_type')
+                                    ->label(__('admin.ui.organization_type'))
                                     ->placeholder(__('admin.ui.not_specified')),
                                 TextEntry::make('phone')
+                                    ->label(__('admin.fields.phone'))
                                     ->placeholder(__('admin.ui.not_provided')),
                                 TextEntry::make('country')
+                                    ->label(__('admin.fields.country'))
                                     ->placeholder(__('admin.ui.not_provided')),
                                 TextEntry::make('region')
+                                    ->label(__('admin.fields.region'))
                                     ->placeholder(__('admin.ui.not_provided')),
                                 TextEntry::make('message')
+                                    ->label(__('admin.fields.message'))
                                     ->columnSpanFull(),
                             ]),
                     ]),

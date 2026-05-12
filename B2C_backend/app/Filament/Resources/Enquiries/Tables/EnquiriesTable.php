@@ -20,6 +20,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Lang;
 
 class EnquiriesTable
 {
@@ -49,7 +50,7 @@ class EnquiriesTable
                     ->label(__('admin.ui.subject'))
                     ->state(fn (Inquiry $record): string => $record->subject)
                     ->description(fn (Inquiry $record): string => collect([
-                        $record->inquiry_type ?: __('admin.ui.general_enquiry'),
+                        $record->inquiry_type ? (Lang::has("admin.leads.type.{$record->inquiry_type}") ? __("admin.leads.type.{$record->inquiry_type}") : $record->inquiry_type) : __('admin.ui.general_enquiry'),
                         $record->source_page,
                     ])->filter()->implode(' | '))
                     ->searchable()
