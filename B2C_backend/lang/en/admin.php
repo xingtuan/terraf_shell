@@ -1266,6 +1266,7 @@ return [
         'internal_key' => 'Internal key',
         'internal_notes' => 'Internal notes',
         'issuing_body_lab' => 'Issuing body / lab',
+        'job_title' => 'Job title',
         'json_value' => 'JSON value',
         'key' => 'Key',
         'kind' => 'Kind',

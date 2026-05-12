@@ -31,6 +31,7 @@ class B2BLeadsTable
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('reference')
+                    ->label(__('admin.ui.reference'))
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('lead_type')
@@ -43,6 +44,7 @@ class B2BLeadsTable
                     ->formatStateUsing(fn (?string $state): string => $state ? (B2BInterestType::tryFrom($state)?->label() ?? $state) : __('admin.ui.not_specified'))
                     ->toggleable(),
                 TextColumn::make('status')
+                    ->label(__('admin.fields.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->color() ?? 'gray'),
@@ -66,6 +68,7 @@ class B2BLeadsTable
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('name')
+                    ->label(__('admin.fields.name'))
                     ->searchable(),
                 TextColumn::make('company_name')
                     ->label(__('admin.ui.company_institution'))
@@ -116,6 +119,7 @@ class B2BLeadsTable
                     ->label(__('admin.ui.interest_type'))
                     ->options(B2BInterestType::options()),
                 SelectFilter::make('status')
+                    ->label(__('admin.fields.status'))
                     ->options(B2BLeadStatus::options()),
                 SelectFilter::make('priority')
                     ->label(__('admin.fields.priority'))
@@ -211,6 +215,7 @@ class B2BLeadsTable
                     ->icon('heroicon-o-adjustments-horizontal')
                     ->schema([
                         Select::make('status')
+                            ->label(__('admin.fields.status'))
                             ->options(B2BLeadStatus::options())
                             ->required(),
                         Select::make('priority')

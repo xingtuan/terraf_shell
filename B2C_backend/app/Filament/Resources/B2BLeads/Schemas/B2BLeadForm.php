@@ -26,6 +26,7 @@ class B2BLeadForm
                         Grid::make(2)
                             ->schema([
                                 Placeholder::make('reference')
+                                    ->label(__('admin.ui.reference'))
                                     ->content(fn (?B2BLead $record): string => $record?->reference ?? __('admin.placeholders.generated_automatically')),
                                 Placeholder::make('lead_type')
                                     ->label(__('admin.ui.lead_type'))
@@ -37,6 +38,7 @@ class B2BLeadForm
                                     ->label(__('admin.ui.application'))
                                     ->content(fn (?B2BLead $record): string => $record?->application_type ?: __('admin.ui.not_specified')),
                                 Placeholder::make('name')
+                                    ->label(__('admin.fields.name'))
                                     ->content(fn (?B2BLead $record): string => $record?->name ?? '-'),
                                 Placeholder::make('company_name')
                                     ->label(__('admin.ui.company_institution'))
@@ -45,12 +47,16 @@ class B2BLeadForm
                                     ->label(__('admin.ui.email'))
                                     ->content(fn (?B2BLead $record): string => $record?->email ?? '-'),
                                 Placeholder::make('phone')
+                                    ->label(__('admin.fields.phone'))
                                     ->content(fn (?B2BLead $record): string => $record?->phone ?: __('admin.ui.no_phone_provided')),
                                 Placeholder::make('organization_type')
+                                    ->label(__('admin.ui.organization_type'))
                                     ->content(fn (?B2BLead $record): string => $record?->organization_type ?: __('admin.ui.not_specified')),
                                 Placeholder::make('region')
+                                    ->label(__('admin.fields.region'))
                                     ->content(fn (?B2BLead $record): string => $record?->region ?: __('admin.ui.not_specified')),
                                 Placeholder::make('source_page')
+                                    ->label(__('admin.ui.source'))
                                     ->content(fn (?B2BLead $record): string => $record?->source_page ?: __('admin.ui.no_source_page_tracked')),
                                 Placeholder::make('company_website')
                                     ->label(__('admin.ui.website'))
@@ -59,12 +65,14 @@ class B2BLeadForm
                                     ->label(__('admin.ui.estimated_quantity'))
                                     ->content(fn (?B2BLead $record): string => $record?->estimated_quantity ?: __('admin.ui.not_specified')),
                                 Placeholder::make('timeline')
+                                    ->label(__('admin.ui.lead_time'))
                                     ->content(fn (?B2BLead $record): string => $record?->timeline ?: __('admin.ui.not_specified')),
                                 Placeholder::make('expected_use_case')
                                     ->label(__('admin.ui.expected_use_case'))
                                     ->content(fn (?B2BLead $record): string => $record?->expected_use_case ?: __('admin.ui.not_specified'))
                                     ->columnSpanFull(),
                                 Placeholder::make('message')
+                                    ->label(__('admin.fields.message'))
                                     ->content(fn (?B2BLead $record): string => $record?->message ?? '-')
                                     ->columnSpanFull(),
                             ]),
@@ -112,6 +120,7 @@ class B2BLeadForm
                         Grid::make(2)
                             ->schema([
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options(B2BLeadStatus::options())
                                     ->required(),
                                 Select::make('priority')
