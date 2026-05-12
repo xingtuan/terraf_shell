@@ -25,11 +25,13 @@ class EnquiryForm
                         Grid::make(2)
                             ->schema([
                                 Placeholder::make('reference')
+                                    ->label(__('admin.ui.reference'))
                                     ->content(fn (?Inquiry $record): string => $record?->reference ?? __('admin.placeholders.generated_automatically')),
                                 Placeholder::make('status_badge')
                                     ->label(__('admin.ui.current_status'))
                                     ->content(fn (?Inquiry $record): string => $record ? (B2BLeadStatus::tryFrom($record->status)?->label() ?? $record->status) : '-'),
                                 Placeholder::make('name')
+                                    ->label(__('admin.fields.name'))
                                     ->content(fn (?Inquiry $record): string => $record?->name ?? '-'),
                                 Placeholder::make('email')
                                     ->label(__('admin.ui.email'))
@@ -38,12 +40,16 @@ class EnquiryForm
                                     ->label(__('admin.ui.company_organization'))
                                     ->content(fn (?Inquiry $record): string => $record?->company_name ?? '-'),
                                 Placeholder::make('organization_type')
+                                    ->label(__('admin.ui.organization_type'))
                                     ->content(fn (?Inquiry $record): string => $record?->organization_type ?: __('admin.ui.not_specified')),
                                 Placeholder::make('country')
+                                    ->label(__('admin.fields.country'))
                                     ->content(fn (?Inquiry $record): string => $record?->country ?: __('admin.ui.not_specified')),
                                 Placeholder::make('region')
+                                    ->label(__('admin.fields.region'))
                                     ->content(fn (?Inquiry $record): string => $record?->region ?: __('admin.ui.not_specified')),
                                 Placeholder::make('phone')
+                                    ->label(__('admin.fields.phone'))
                                     ->content(fn (?Inquiry $record): string => $record?->phone ?: __('admin.ui.no_phone_provided')),
                                 Placeholder::make('source_page')
                                     ->label(__('admin.ui.source'))
@@ -52,8 +58,10 @@ class EnquiryForm
                                     ->label(__('admin.ui.enquiry_type'))
                                     ->content(fn (?Inquiry $record): string => $record?->inquiry_type ?: __('admin.ui.general_enquiry')),
                                 Placeholder::make('subject')
+                                    ->label(__('admin.ui.subject'))
                                     ->content(fn (?Inquiry $record): string => $record?->subject ?? '-'),
                                 Placeholder::make('message')
+                                    ->label(__('admin.fields.message'))
                                     ->content(fn (?Inquiry $record): string => $record?->message ?? '-')
                                     ->columnSpanFull(),
                             ]),
@@ -63,6 +71,7 @@ class EnquiryForm
                         Grid::make(2)
                             ->schema([
                                 Select::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->options(B2BLeadStatus::enquiryOptions())
                                     ->required(),
                                 Select::make('priority')
