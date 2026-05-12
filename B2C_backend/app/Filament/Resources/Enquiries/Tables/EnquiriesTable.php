@@ -29,6 +29,7 @@ class EnquiriesTable
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('reference')
+                    ->label(__('admin.ui.reference'))
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('email')
@@ -55,6 +56,7 @@ class EnquiriesTable
                     ->wrap()
                     ->limit(70),
                 TextColumn::make('status')
+                    ->label(__('admin.fields.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => B2BLeadStatus::tryFrom($state)?->color() ?? 'gray')
@@ -90,6 +92,7 @@ class EnquiriesTable
             ])
             ->filters([
                 SelectFilter::make('status')
+                    ->label(__('admin.fields.status'))
                     ->options(B2BLeadStatus::enquiryOptions()),
                 SelectFilter::make('priority')
                     ->label(__('admin.fields.priority'))
