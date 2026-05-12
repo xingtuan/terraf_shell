@@ -8,6 +8,7 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 
 class RecentActivity extends TableWidget
@@ -16,7 +17,7 @@ class RecentActivity extends TableWidget
 
     protected static ?int $sort = 9;
 
-    public function getHeading(): ?string
+    protected function getTableHeading(): string|Htmlable|null
     {
         return __('admin.widgets.recent_activity');
     }
@@ -42,6 +43,7 @@ class RecentActivity extends TableWidget
                 TextColumn::make('action')
                     ->label(__('admin.ui.action'))
                     ->badge()
+                    ->formatStateUsing(fn (?string $state): string => ModerationLogResource::actionLabel($state))
                     ->searchable(),
                 TextColumn::make('subject_type')
                     ->label(__('admin.ui.on'))
@@ -50,8 +52,8 @@ class RecentActivity extends TableWidget
                     ->color('gray'),
                 TextColumn::make('reason')
                     ->label(__('admin.ui.note'))
+                    ->formatStateUsing(fn (?string $state): string => ModerationLogResource::reasonLabel($state) ?? __('admin.ui.no_note_provided'))
                     ->limit(80)
-                    ->default(__('admin.ui.no_note_provided'))
                     ->wrap(),
             ])
             ->recordActions([

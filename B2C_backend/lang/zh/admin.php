@@ -335,6 +335,26 @@ return [
     'help' => [
         'stock_adjustment_negative' => '使用负数可减少库存。',
     ],
+    'moderation_log' => [
+        'reasons' => [
+            'sensitive_word_flagged' => '检测到敏感语言，已加入审核队列。',
+        ],
+        'actions' => [
+            'post_status_updated' => '帖子状态已更新',
+            'post_feature_updated' => '帖子精选已更新',
+            'post_sensitive_word_flagged' => '帖子已标记',
+            'comment_status_updated' => '评论状态已更新',
+            'comment_sensitive_word_flagged' => '评论已标记',
+            'report_status_updated' => '举报状态已更新',
+            'report_submitted' => '举报已提交',
+            'user_violation_recorded' => '已记录违规',
+            'user_violation_status_updated' => '违规状态已更新',
+            'user_role_updated' => '角色已更新',
+            'user_account_status_updated' => '账户状态已更新',
+            'user_sensitive_word_flagged' => '用户已标记',
+            'demo_cleanup_community' => '演示数据清理',
+        ],
+    ],
     'orders' => [
         'status' => [
             'pending' => '待审核',

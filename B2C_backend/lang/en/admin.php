@@ -335,6 +335,26 @@ return [
     'help' => [
         'stock_adjustment_negative' => 'Use a negative number to reduce stock.',
     ],
+    'moderation_log' => [
+        'reasons' => [
+            'sensitive_word_flagged' => 'Sensitive language detected and queued for moderation review.',
+        ],
+        'actions' => [
+            'post_status_updated' => 'Post Status Updated',
+            'post_feature_updated' => 'Post Feature Updated',
+            'post_sensitive_word_flagged' => 'Post Flagged',
+            'comment_status_updated' => 'Comment Status Updated',
+            'comment_sensitive_word_flagged' => 'Comment Flagged',
+            'report_status_updated' => 'Report Status Updated',
+            'report_submitted' => 'Report Submitted',
+            'user_violation_recorded' => 'Violation Recorded',
+            'user_violation_status_updated' => 'Violation Status Updated',
+            'user_role_updated' => 'Role Updated',
+            'user_account_status_updated' => 'Account Status Updated',
+            'user_sensitive_word_flagged' => 'User Flagged',
+            'demo_cleanup_community' => 'Demo Cleanup',
+        ],
+    ],
     'orders' => [
         'status' => [
             'pending' => 'Pending review',

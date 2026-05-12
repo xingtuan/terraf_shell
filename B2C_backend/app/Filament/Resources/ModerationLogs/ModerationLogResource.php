@@ -99,6 +99,28 @@ class ModerationLogResource extends Resource
         return false;
     }
 
+    public static function reasonLabel(?string $value): ?string
+    {
+        if (! filled($value)) {
+            return null;
+        }
+
+        $translated = __($value);
+
+        return $translated !== $value ? $translated : $value;
+    }
+
+    public static function actionLabel(?string $value): string
+    {
+        if (! filled($value)) {
+            return '-';
+        }
+
+        $key = 'admin.moderation_log.actions.'.str_replace('.', '_', $value);
+
+        return __($key) !== $key ? __($key) : Str::headline(str_replace('.', ' ', $value));
+    }
+
     public static function subjectTypeLabel(?string $value): string
     {
         return match ($value) {

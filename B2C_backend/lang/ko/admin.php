@@ -335,6 +335,26 @@ return [
     'help' => [
         'stock_adjustment_negative' => '재고를 줄이려면 음수를 입력하세요.',
     ],
+    'moderation_log' => [
+        'reasons' => [
+            'sensitive_word_flagged' => '민감한 언어가 감지되어 모더레이션 검토 대기열에 추가되었습니다.',
+        ],
+        'actions' => [
+            'post_status_updated' => '게시물 상태 변경',
+            'post_feature_updated' => '게시물 추천 변경',
+            'post_sensitive_word_flagged' => '게시물 플래그됨',
+            'comment_status_updated' => '댓글 상태 변경',
+            'comment_sensitive_word_flagged' => '댓글 플래그됨',
+            'report_status_updated' => '신고 상태 변경',
+            'report_submitted' => '신고 접수',
+            'user_violation_recorded' => '위반 기록됨',
+            'user_violation_status_updated' => '위반 상태 변경',
+            'user_role_updated' => '역할 변경',
+            'user_account_status_updated' => '계정 상태 변경',
+            'user_sensitive_word_flagged' => '사용자 플래그됨',
+            'demo_cleanup_community' => '데모 정리',
+        ],
+    ],
     'orders' => [
         'status' => [
             'pending' => '검토 대기',

@@ -260,7 +260,7 @@ class GovernanceService
             return null;
         }
 
-        $reason = 'Sensitive language detected and queued for moderation review.';
+        $reason = 'admin.moderation_log.reasons.sensitive_word_flagged';
         $violation = $this->createViolation(
             $user,
             null,
