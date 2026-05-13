@@ -14,19 +14,24 @@ class AdminActionLogForm
         return $schema
             ->components([
                 TextInput::make('actor_user_id')
+                    ->label(__('admin.ui.actor_user_id'))
                     ->numeric(),
                 Select::make('target_user_id')
                     ->label(__('admin.ui.user'))
                     ->relationship('targetUser', 'name'),
-                TextInput::make('subject_type'),
+                TextInput::make('subject_type')
+                    ->label(__('admin.ui.subject_type')),
                 TextInput::make('subject_id')
+                    ->label(__('admin.ui.subject_id'))
                     ->numeric(),
                 TextInput::make('action')
+                    ->label(__('admin.ui.action'))
                     ->required(),
                 Textarea::make('description')
                     ->label(__('admin.ui.description'))
                     ->columnSpanFull(),
-                TextInput::make('metadata'),
+                TextInput::make('metadata')
+                    ->label(__('admin.ui.metadata')),
             ]);
     }
 }

@@ -25,9 +25,11 @@ class AdminActionLogsTable
                     ->placeholder(__('admin.ui.no_target_user_2'))
                     ->searchable(),
                 TextColumn::make('action')
+                    ->label(__('admin.ui.action'))
                     ->badge()
                     ->searchable(),
                 TextColumn::make('description')
+                    ->label(__('admin.ui.description'))
                     ->limit(70),
                 TextColumn::make('created_at')
                     ->label(__('admin.ui.created'))

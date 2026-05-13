@@ -24,6 +24,7 @@ class AdminActionLogInfolist
                                     ->label(__('admin.ui.target_user'))
                                     ->placeholder(__('admin.ui.no_target_user')),
                                 TextEntry::make('action')
+                                    ->label(__('admin.ui.action'))
                                     ->badge(),
                                 TextEntry::make('created_at')
                                     ->label(__('admin.ui.created'))
@@ -35,9 +36,11 @@ class AdminActionLogInfolist
                                     ->label(__('admin.ui.subject_id'))
                                     ->placeholder(__('admin.ui.no_subject')),
                                 TextEntry::make('description')
+                                    ->label(__('admin.ui.description'))
                                     ->placeholder(__('admin.ui.no_description_provided'))
                                     ->columnSpanFull(),
                                 TextEntry::make('metadata')
+                                    ->label(__('admin.ui.metadata'))
                                     ->state(fn ($record): string => json_encode($record->metadata ?? [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES))
                                     ->columnSpanFull(),
                             ]),

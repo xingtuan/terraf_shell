@@ -86,7 +86,7 @@ class UserModerationActions
     public static function restoreActive(): Action
     {
         return Action::make('restoreActive')
-            ->label('Restore active / Unban')
+            ->label(__('admin.ui.restore_active'))
             ->icon('heroicon-o-arrow-path')
             ->color('success')
             ->visible(function (User $record): bool {

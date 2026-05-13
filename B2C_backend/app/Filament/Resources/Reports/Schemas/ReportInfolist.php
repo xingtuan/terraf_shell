@@ -22,8 +22,10 @@ class ReportInfolist
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextEntry::make('id'),
+                                TextEntry::make('id')
+                                    ->label(__('admin.ui.id')),
                                 TextEntry::make('status')
+                                    ->label(__('admin.ui.status'))
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => ReportStatus::tryFrom($state)?->label() ?? ucfirst($state))
                                     ->color(fn (string $state): string => ReportStatus::tryFrom($state)?->color() ?? 'gray'),
@@ -54,7 +56,8 @@ class ReportInfolist
                     ]),
                 Section::make(__('admin.ui.reason'))
                     ->schema([
-                        TextEntry::make('reason'),
+                        TextEntry::make('reason')
+                            ->label(__('admin.ui.reason')),
                         TextEntry::make('description')
                             ->label(__('admin.ui.reporter_description'))
                             ->placeholder(__('admin.ui.no_additional_detail_provided'))
@@ -91,7 +94,7 @@ class ReportInfolist
                             ->dateTime()
                             ->placeholder(__('admin.ui.none')),
                         TextEntry::make('completed_at')
-                            ->label('Completed at')
+                            ->label(__('admin.ui.completed_at'))
                             ->dateTime()
                             ->placeholder(__('admin.ui.none')),
                     ]),
@@ -101,12 +104,16 @@ class ReportInfolist
                             ->label(__('admin.ui.violation_records'))
                             ->schema([
                                 TextEntry::make('type')
+                                    ->label(__('admin.ui.type'))
                                     ->badge(),
                                 TextEntry::make('severity')
+                                    ->label(__('admin.ui.severity'))
                                     ->badge(),
                                 TextEntry::make('status')
+                                    ->label(__('admin.ui.status'))
                                     ->badge(),
                                 TextEntry::make('reason')
+                                    ->label(__('admin.ui.reason'))
                                     ->placeholder(__('admin.ui.no_reason_recorded'))
                                     ->columnSpanFull(),
                             ]),
@@ -121,9 +128,11 @@ class ReportInfolist
                                     ->label(__('admin.ui.actor'))
                                     ->placeholder(__('admin.ui.system')),
                                 TextEntry::make('reason')
+                                    ->label(__('admin.ui.reason'))
                                     ->placeholder(__('admin.ui.no_note_provided'))
                                     ->columnSpanFull(),
                                 TextEntry::make('created_at')
+                                    ->label(__('admin.ui.created'))
                                     ->dateTime(),
                             ]),
                     ]),

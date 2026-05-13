@@ -42,6 +42,7 @@ class ReportForm
                                     ->content(fn (?Report $record): string => $record ? ReportResource::targetOwnerSummary($record) : '-')
                                     ->columnSpanFull(),
                                 Placeholder::make('reason')
+                                    ->label(__('admin.ui.reason'))
                                     ->content(fn (?Report $record): string => $record?->reason ?? '-'),
                                 Placeholder::make('description')
                                     ->label(__('admin.ui.reporter_description'))
@@ -77,7 +78,7 @@ class ReportForm
                                     ->label(__('admin.ui.dismissed_at'))
                                     ->content(fn (?Report $record): string => $record?->dismissed_at?->toDateTimeString() ?? __('admin.ui.none')),
                                 Placeholder::make('completed_at')
-                                    ->label('Completed at')
+                                    ->label(__('admin.ui.completed_at'))
                                     ->content(fn (?Report $record): string => $record?->completed_at?->toDateTimeString() ?? __('admin.ui.none')),
                             ]),
                     ]),
