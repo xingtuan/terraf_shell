@@ -5,6 +5,7 @@ import { MoreHorizontal } from "lucide-react"
 import { useState } from "react"
 
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
+import { ReportDialog } from "@/components/community/report-dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
@@ -229,6 +230,15 @@ export function CommentThread({
                 >
                   {messages.reply}
                 </Button>
+
+                {!isOwner ? (
+                  <ReportDialog
+                    locale={locale}
+                    token={token}
+                    targetType="comment"
+                    targetId={comment.id}
+                  />
+                ) : null}
               </div>
 
               {replyToId === comment.id ? (

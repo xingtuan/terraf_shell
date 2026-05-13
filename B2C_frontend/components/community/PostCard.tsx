@@ -25,7 +25,7 @@ import {
   getCommunitySupportUrl,
   getCommunityUserName,
 } from "@/lib/community-ui"
-import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
+import { getIntlLocale, getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { CommunityPost } from "@/lib/types"
 import { toast } from "@/hooks/use-toast"
 
@@ -51,6 +51,43 @@ function getPostModerationLabel(
 
 function formatCountLabel(one: string, many: string, count: number) {
   return (count === 1 ? one : many).replace("{count}", String(count))
+}
+
+function getFundingProgress(post: CommunityPost) {
+  const campaign = post.funding_campaign
+
+  if (!campaign) {
+    return null
+  }
+
+  if (
+    campaign.progress_percentage !== null &&
+    campaign.progress_percentage !== undefined &&
+    Number.isFinite(campaign.progress_percentage)
+  ) {
+    return Math.min(100, Math.max(0, campaign.progress_percentage))
+  }
+
+  if (
+    campaign.target_amount !== null &&
+    campaign.target_amount !== undefined &&
+    campaign.target_amount > 0 &&
+    campaign.pledged_amount !== null &&
+    campaign.pledged_amount !== undefined
+  ) {
+    return Math.min(
+      100,
+      Math.max(0, (campaign.pledged_amount / campaign.target_amount) * 100),
+    )
+  }
+
+  return null
+}
+
+function formatProgressLabel(locale: Locale, progress: number) {
+  return `${new Intl.NumberFormat(getIntlLocale(locale), {
+    maximumFractionDigits: progress % 1 === 0 ? 0 : 1,
+  }).format(progress)}%`
 }
 
 type PostCardProps = {
@@ -86,6 +123,8 @@ export function PostCard({
     messages.post.pendingBadge,
     messages.post.rejectedBadge,
   )
+  const officialFundingActive = Boolean(post.funding_campaign?.support_enabled)
+  const fundingProgress = officialFundingActive ? getFundingProgress(post) : null
 
   async function handleLikeToggle() {
     if (!token) {
@@ -177,6 +216,14 @@ export function PostCard({
               {moderationLabel ? (
                 <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs capitalize text-amber-700">
                   {moderationLabel}
+                </span>
+              ) : null}
+              {officialFundingActive ? (
+                <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs text-primary">
+                  {messages.post.fundingActive}
+                  {fundingProgress !== null
+                    ? ` (${formatProgressLabel(locale, fundingProgress)})`
+                    : ""}
                 </span>
               ) : null}
             </div>

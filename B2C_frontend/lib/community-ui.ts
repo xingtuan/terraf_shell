@@ -142,10 +142,16 @@ export function getCommunityPostCoverImage(post: CommunityPost) {
 }
 
 export function getCommunitySupportUrl(post: CommunityPost) {
-  return (
-    post.funding_url ??
-    post.funding_campaign?.external_crowdfunding_url ??
-    post.external_crowdfunding_url ??
-    null
-  )
+  if (
+    post.funding_campaign?.support_enabled &&
+    post.funding_campaign.external_crowdfunding_url
+  ) {
+    return post.funding_campaign.external_crowdfunding_url
+  }
+
+  if (post.support_enabled && post.external_crowdfunding_url) {
+    return post.external_crowdfunding_url
+  }
+
+  return post.funding_url ?? null
 }

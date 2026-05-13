@@ -9,7 +9,9 @@ import { useRouter } from "next/navigation"
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
 import { CommentThread } from "@/components/community/comment-thread"
 import { CreatePostPanel } from "@/components/community/CreatePostPanel"
+import { ReportDialog } from "@/components/community/report-dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -39,8 +41,9 @@ import {
   getCommunitySupportUrl,
   getCommunityUserName,
 } from "@/lib/community-ui"
-import { getLocalizedHref, getMessages, type Locale, type SiteMessages } from "@/lib/i18n"
-import type { CommunityComment, CommunityMedia, CommunityPost } from "@/lib/types"
+import { getIntlLocale, getLocalizedHref, getMessages, type Locale, type SiteMessages } from "@/lib/i18n"
+import { Progress } from "@/components/ui/progress"
+import type { CommunityComment, CommunityMedia, CommunityPost, FundingCampaign } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { toast } from "@/hooks/use-toast"
 
@@ -87,6 +90,217 @@ function getAttachmentType(media: CommunityMedia) {
 
 function formatCountLabel(one: string, many: string, count: number) {
   return (count === 1 ? one : many).replace("{count}", String(count))
+}
+
+function hasSupportUrl(url?: string | null): url is string {
+  return typeof url === "string" && url.trim().length > 0
+}
+
+function normalizeUrlForComparison(url?: string | null) {
+  return (url ?? "").trim().replace(/\/+$/, "")
+}
+
+function formatFundingAmount(locale: Locale, amount?: number | null) {
+  if (amount === null || amount === undefined || !Number.isFinite(amount)) {
+    return null
+  }
+
+  return new Intl.NumberFormat(getIntlLocale(locale), {
+    maximumFractionDigits: amount % 1 === 0 ? 0 : 2,
+  }).format(amount)
+}
+
+function getCampaignProgress(campaign: FundingCampaign) {
+  if (
+    campaign.progress_percentage !== null &&
+    campaign.progress_percentage !== undefined &&
+    Number.isFinite(campaign.progress_percentage)
+  ) {
+    return Math.min(100, Math.max(0, campaign.progress_percentage))
+  }
+
+  if (
+    campaign.target_amount !== null &&
+    campaign.target_amount !== undefined &&
+    campaign.target_amount > 0 &&
+    campaign.pledged_amount !== null &&
+    campaign.pledged_amount !== undefined
+  ) {
+    return Math.min(
+      100,
+      Math.max(0, (campaign.pledged_amount / campaign.target_amount) * 100),
+    )
+  }
+
+  return null
+}
+
+function formatCampaignProgress(locale: Locale, progress: number) {
+  return `${new Intl.NumberFormat(getIntlLocale(locale), {
+    maximumFractionDigits: progress % 1 === 0 ? 0 : 1,
+  }).format(progress)}%`
+}
+
+function getCampaignStatusLabel(
+  messages: SiteMessages["community"]["post"],
+  status?: string | null,
+) {
+  if (!status) {
+    return messages.campaignStatusLabels.unknown
+  }
+
+  const labels = messages.campaignStatusLabels as Record<string, string>
+
+  return labels[status] ?? status.replace(/_/g, " ")
+}
+
+function CreatorSupportLink({
+  url,
+  messages,
+}: {
+  url: string
+  messages: SiteMessages["community"]["post"]
+}) {
+  return (
+    <div className="flex flex-col gap-4 rounded-2xl border border-border/60 bg-background p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-foreground">
+          {messages.creatorSupportLink}
+        </p>
+        <p className="mt-1 truncate text-xs text-muted-foreground">{url}</p>
+      </div>
+      <Button asChild variant="outline" size="sm">
+        <a href={url} target="_blank" rel="noreferrer">
+          {messages.open}
+        </a>
+      </Button>
+    </div>
+  )
+}
+
+function FundingCampaignCard({
+  campaign,
+  creatorSupportUrl,
+  locale,
+  messages,
+}: {
+  campaign: FundingCampaign
+  creatorSupportUrl?: string | null
+  locale: Locale
+  messages: SiteMessages["community"]["post"]
+}) {
+  const campaignUrl = hasSupportUrl(campaign.external_crowdfunding_url)
+    ? campaign.external_crowdfunding_url
+    : null
+  const progress = getCampaignProgress(campaign)
+  const progressLabel =
+    progress !== null ? formatCampaignProgress(locale, progress) : null
+  const targetAmount =
+    formatFundingAmount(locale, campaign.target_amount) ?? messages.notAvailable
+  const pledgedAmount =
+    formatFundingAmount(locale, campaign.pledged_amount) ?? messages.notAvailable
+  const backerCount =
+    campaign.backer_count !== null && campaign.backer_count !== undefined
+      ? new Intl.NumberFormat(getIntlLocale(locale)).format(campaign.backer_count)
+      : messages.notAvailable
+  const startDate = formatCommunityDate(locale, campaign.campaign_start_at)
+  const endDate = formatCommunityDate(locale, campaign.campaign_end_at)
+  const campaignPeriod =
+    startDate || endDate
+      ? `${startDate ?? messages.dateToBeAnnounced} - ${
+          endDate ?? messages.dateToBeAnnounced
+        }`
+      : null
+  const ctaLabel =
+    campaign.support_button_text?.trim() || messages.supportCampaign
+  const canSupportCampaign = campaign.support_enabled && campaignUrl
+
+  return (
+    <div className="space-y-4 rounded-[1.5rem] border border-primary/30 bg-primary/5 p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-foreground">
+            {messages.officialFundingCampaign}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Badge variant="secondary">
+              {getCampaignStatusLabel(
+                messages,
+                campaign.campaign_status ?? campaign.status,
+              )}
+            </Badge>
+            {progressLabel ? (
+              <span className="text-xs text-muted-foreground">
+                {progressLabel}
+              </span>
+            ) : null}
+          </div>
+        </div>
+
+        {canSupportCampaign ? (
+          <Button asChild size="sm">
+            <a href={campaignUrl} target="_blank" rel="noreferrer">
+              {ctaLabel}
+            </a>
+          </Button>
+        ) : (
+          <div className="text-sm sm:text-right">
+            <p className="font-medium text-foreground">{ctaLabel}</p>
+            <p className="mt-1 text-muted-foreground">
+              {messages.campaignSupportUnavailable}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <Progress value={progress ?? 0} />
+      </div>
+
+      <div className="grid gap-4 text-sm sm:grid-cols-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            {messages.targetAmount}
+          </p>
+          <p className="mt-1 font-medium text-foreground">{targetAmount}</p>
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            {messages.pledgedAmount}
+          </p>
+          <p className="mt-1 font-medium text-foreground">{pledgedAmount}</p>
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            {messages.backers}
+          </p>
+          <p className="mt-1 font-medium text-foreground">{backerCount}</p>
+        </div>
+      </div>
+
+      {campaign.reward_description ? (
+        <div className="text-sm">
+          <p className="font-medium text-foreground">{messages.reward}</p>
+          <p className="mt-1 text-muted-foreground">
+            {campaign.reward_description}
+          </p>
+        </div>
+      ) : null}
+
+      {campaignPeriod ? (
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">
+            {messages.campaignPeriod}:
+          </span>{" "}
+          {campaignPeriod}
+        </p>
+      ) : null}
+
+      {creatorSupportUrl ? (
+        <CreatorSupportLink url={creatorSupportUrl} messages={messages} />
+      ) : null}
+    </div>
+  )
 }
 
 export function CommunityPostDetail({
@@ -215,6 +429,15 @@ export function CommunityPostDetail({
   }
 
   const supportUrl = post ? getCommunitySupportUrl(post) : null
+  const officialCampaign = post?.funding_campaign ?? null
+  const officialCampaignUrl = officialCampaign?.external_crowdfunding_url ?? null
+  const creatorSupportUrl =
+    post &&
+    hasSupportUrl(post.funding_url) &&
+    normalizeUrlForComparison(post.funding_url) !==
+      normalizeUrlForComparison(officialCampaignUrl)
+      ? post.funding_url
+      : null
   const isOwner = session.user?.id === post?.user?.id
   const downloadableAttachments =
     post?.media?.filter((item) => !item.is_image && !item.is_external) ?? []
@@ -512,24 +735,18 @@ export function CommunityPostDetail({
                   </div>
                 ) : null}
 
-                {/* Funding / support banner */}
-                {post.funding_url ? (
-                  <div className="flex flex-col gap-4 rounded-[1.5rem] border border-primary/30 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {messages.post.supportIdeaTitle}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground truncate max-w-sm">{post.funding_url}</p>
-                    </div>
-                    <a
-                      href={post.funding_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex shrink-0 items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-                    >
-                      {messages.post.supportIdea}
-                    </a>
-                  </div>
+                {officialCampaign ? (
+                  <FundingCampaignCard
+                    campaign={officialCampaign}
+                    creatorSupportUrl={creatorSupportUrl}
+                    locale={locale}
+                    messages={messages.post}
+                  />
+                ) : creatorSupportUrl ? (
+                  <CreatorSupportLink
+                    url={creatorSupportUrl}
+                    messages={messages.post}
+                  />
                 ) : null}
 
                 {post.tags.length > 0 ? (
@@ -627,6 +844,14 @@ export function CommunityPostDetail({
                   <span className="text-sm text-muted-foreground">
                     {messages.post.comments}: {post.comments_count}
                   </span>
+                  {!isOwner ? (
+                    <ReportDialog
+                      locale={locale}
+                      token={session.token}
+                      targetType="post"
+                      targetId={post.id}
+                    />
+                  ) : null}
                   {supportUrl ? (
                     <Button asChild size="sm">
                       <a href={supportUrl} target="_blank" rel="noreferrer">

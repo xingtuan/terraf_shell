@@ -908,6 +908,8 @@ export interface CommunityMedia {
 
 export interface FundingCampaign {
   id: number
+  post_id?: number | null
+  campaign_status?: string | null
   status?: string | null
   support_enabled: boolean
   support_button_text?: string | null
@@ -918,6 +920,9 @@ export interface FundingCampaign {
   reward_description?: string | null
   campaign_start_at?: string | null
   campaign_end_at?: string | null
+  progress_percentage?: number | null
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 export interface CommunityPost {

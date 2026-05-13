@@ -51,6 +51,32 @@ function isJsonObject(value: unknown): value is JsonObject {
   return value !== null && typeof value === "object" && !Array.isArray(value)
 }
 
+function normalizeBoolean(value: unknown): boolean {
+  if (typeof value === "boolean") {
+    return value
+  }
+
+  if (typeof value === "number") {
+    return value !== 0
+  }
+
+  if (typeof value === "string") {
+    return ["1", "true", "yes", "on"].includes(value.trim().toLowerCase())
+  }
+
+  return Boolean(value)
+}
+
+function normalizeOptionalNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") {
+    return null
+  }
+
+  const number = Number(value)
+
+  return Number.isFinite(number) ? number : null
+}
+
 function normalizeLocalizedStringSet(value: unknown): LocalizedStringSet | undefined {
   if (!isJsonObject(value)) {
     return undefined
@@ -882,9 +908,17 @@ export function normalizeFundingCampaign(
     return null
   }
 
+  const campaignStatus = campaign.campaign_status ?? campaign.status ?? null
+
   return {
     ...campaign,
-    support_enabled: Boolean(campaign.support_enabled),
+    campaign_status: campaignStatus,
+    status: campaign.status ?? campaignStatus,
+    support_enabled: normalizeBoolean(campaign.support_enabled),
+    target_amount: normalizeOptionalNumber(campaign.target_amount),
+    pledged_amount: normalizeOptionalNumber(campaign.pledged_amount),
+    backer_count: normalizeOptionalNumber(campaign.backer_count),
+    progress_percentage: normalizeOptionalNumber(campaign.progress_percentage),
   }
 }
 
@@ -898,6 +932,10 @@ export function normalizeCommunityPost(post: CommunityPost): CommunityPost {
     cover_image_url: resolveApiUrl(post.cover_image_url),
     cover_image_path: post.cover_image_path ?? null,
     reading_time: Number(post.reading_time ?? 0),
+    support_enabled: normalizeBoolean(post.support_enabled),
+    target_amount: normalizeOptionalNumber(post.target_amount),
+    pledged_amount: normalizeOptionalNumber(post.pledged_amount),
+    backer_count: normalizeOptionalNumber(post.backer_count),
     user: normalizeCommunityUser(post.user),
     category: normalizeCommunityCategory(post.category),
     tags: ensureArray(post.tags).map(normalizeCommunityTag),

@@ -1,9 +1,12 @@
 import { requestApi } from "@/lib/api/client"
+import {
+  createReport,
+  type CreateReportPayload,
+} from "@/lib/api/reports"
 import type {
   CommentLikePayload,
   PostFavoritePayload,
   PostLikePayload,
-  ReportRecord,
 } from "@/lib/types"
 
 export async function togglePostLike(
@@ -51,19 +54,8 @@ export async function togglePostFavorite(
   return response.data
 }
 
-export type SubmitReportPayload = {
-  target_type: "post" | "comment"
-  target_id: number
-  reason: string
-  description?: string
-}
+export type SubmitReportPayload = CreateReportPayload
 
 export async function submitReport(payload: SubmitReportPayload, token: string) {
-  const response = await requestApi<ReportRecord>("/reports", {
-    method: "POST",
-    token,
-    body: payload,
-  })
-
-  return response.data
+  return createReport(payload, token)
 }
