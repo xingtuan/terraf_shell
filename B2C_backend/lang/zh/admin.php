@@ -1044,6 +1044,8 @@ return [
         'unknown_user' => '未知用户',
         'violation_recorded' => '违规已记录',
         'violation_updated' => '违规已更新',
+        'resolve_violation_only' => '仅解决违规',
+        'resolve_and_restore_account' => '解决违规并恢复账户',
         'active_2' => '活跃？',
         'active_catalogue_records_visible_to_the_storefront' => '店面可见的活跃目录记录',
         'actor' => '执行者',

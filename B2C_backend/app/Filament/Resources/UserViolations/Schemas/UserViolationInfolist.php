@@ -26,14 +26,17 @@ class UserViolationInfolist
                                     ->label(__('admin.ui.recorded_by'))
                                     ->placeholder(__('admin.ui.system')),
                                 TextEntry::make('type')
+                                    ->label(__('admin.fields.type'))
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => UserViolationType::tryFrom($state)?->label() ?? $state)
                                     ->color(fn (string $state): string => UserViolationType::tryFrom($state)?->color() ?? 'gray'),
                                 TextEntry::make('severity')
+                                    ->label(__('admin.ui.severity'))
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => UserViolationSeverity::tryFrom($state)?->label() ?? $state)
                                     ->color(fn (string $state): string => UserViolationSeverity::tryFrom($state)?->color() ?? 'gray'),
                                 TextEntry::make('status')
+                                    ->label(__('admin.fields.status'))
                                     ->badge()
                                     ->formatStateUsing(fn (string $state): string => UserViolationStatus::tryFrom($state)?->label() ?? $state)
                                     ->color(fn (string $state): string => UserViolationStatus::tryFrom($state)?->color() ?? 'gray'),
@@ -47,9 +50,11 @@ class UserViolationInfolist
                                     ->label(__('admin.ui.subject_id'))
                                     ->placeholder(__('admin.ui.no_linked_subject')),
                                 TextEntry::make('reason')
+                                    ->label(__('admin.fields.reason'))
                                     ->placeholder(__('admin.ui.no_reason_recorded'))
                                     ->columnSpanFull(),
                                 TextEntry::make('resolution_note')
+                                    ->label(__('admin.ui.resolution_note'))
                                     ->placeholder(__('admin.ui.no_resolution_note'))
                                     ->columnSpanFull(),
                                 TextEntry::make('occurred_at')

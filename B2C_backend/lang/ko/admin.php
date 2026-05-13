@@ -1044,6 +1044,8 @@ return [
         'unknown_user' => '알 수 없는 사용자',
         'violation_recorded' => '위반 기록됨',
         'violation_updated' => '위반 업데이트됨',
+        'resolve_violation_only' => '위반만 해결',
+        'resolve_and_restore_account' => '해결 및 계정 복구',
         'active_2' => '활성?',
         'active_catalogue_records_visible_to_the_storefront' => '스토어프론트에 표시되는 활성 카탈로그 항목',
         'actor' => '실행자',

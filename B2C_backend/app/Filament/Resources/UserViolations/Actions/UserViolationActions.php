@@ -18,7 +18,7 @@ class UserViolationActions
     public static function resolveOnly(): Action
     {
         return Action::make('resolveViolationOnly')
-            ->label('Resolve violation only')
+            ->label(__('admin.ui.resolve_violation_only'))
             ->icon('heroicon-o-check-circle')
             ->color('success')
             ->visible(fn (UserViolation $record): bool => PanelAccess::isStaff()
@@ -45,7 +45,7 @@ class UserViolationActions
     public static function resolveAndRestoreAccount(): Action
     {
         return Action::make('resolveAndRestoreAccount')
-            ->label('Resolve and restore account')
+            ->label(__('admin.ui.resolve_and_restore_account'))
             ->icon('heroicon-o-arrow-path')
             ->color('success')
             ->visible(function (UserViolation $record): bool {

@@ -1044,6 +1044,8 @@ return [
         'unknown_user' => 'Unknown user',
         'violation_recorded' => 'Violation recorded',
         'violation_updated' => 'Violation updated',
+        'resolve_violation_only' => 'Resolve violation only',
+        'resolve_and_restore_account' => 'Resolve and restore account',
         'active_2' => 'Active?',
         'active_catalogue_records_visible_to_the_storefront' => 'Active catalogue records visible to the storefront',
         'actor' => 'Actor',

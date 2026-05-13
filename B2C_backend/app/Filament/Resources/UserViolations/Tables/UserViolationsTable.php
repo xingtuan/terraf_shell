@@ -22,14 +22,17 @@ class UserViolationsTable
                     ->label(__('admin.ui.user'))
                     ->searchable(),
                 TextColumn::make('type')
+                    ->label(__('admin.fields.type'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => UserViolationType::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => UserViolationType::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('severity')
+                    ->label(__('admin.ui.severity'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => UserViolationSeverity::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => UserViolationSeverity::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('status')
+                    ->label(__('admin.fields.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => UserViolationStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => UserViolationStatus::tryFrom($state)?->color() ?? 'gray'),
@@ -54,10 +57,13 @@ class UserViolationsTable
             ])
             ->filters([
                 SelectFilter::make('type')
+                    ->label(__('admin.fields.type'))
                     ->options(UserViolationType::options()),
                 SelectFilter::make('severity')
+                    ->label(__('admin.ui.severity'))
                     ->options(UserViolationSeverity::options()),
                 SelectFilter::make('status')
+                    ->label(__('admin.fields.status'))
                     ->options(UserViolationStatus::options()),
             ])
             ->recordActions([
