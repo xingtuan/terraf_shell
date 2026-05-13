@@ -60,6 +60,17 @@ class ReportsTable
                     ->formatStateUsing(fn (string $state): string => ReportStatus::tryFrom($state)?->label() ?? ucfirst($state))
                     ->color(fn (string $state): string => ReportStatus::tryFrom($state)?->color() ?? 'gray')
                     ->sortable(),
+                TextColumn::make('completion_state')
+                    ->label('Completed')
+                    ->badge()
+                    ->state(fn (Report $record): ?string => $record->isFinalized()
+                        ? (ReportStatus::tryFrom($record->status)?->label() ?? ucfirst($record->status))
+                        : null)
+                    ->placeholder('Open')
+                    ->color(fn (?string $state, Report $record): string => $record->isFinalized()
+                        ? (ReportStatus::tryFrom($record->status)?->color() ?? 'gray')
+                        : 'warning')
+                    ->toggleable(),
                 TextColumn::make('reviewer.name')
                     ->label(__('admin.ui.reviewed_by'))
                     ->placeholder(__('admin.ui.unassigned'))
@@ -147,7 +158,7 @@ class ReportsTable
         return Action::make('dismissReport')
             ->label(__('admin.ui.dismiss_report'))
             ->color('gray')
-            ->visible(fn (Report $record): bool => self::canAct($record) && $record->status !== ReportStatus::Dismissed->value)
+            ->visible(fn (Report $record): bool => self::canHandle($record))
             ->schema(self::noteSchema())
             ->requiresConfirmation()
             ->action(function (Report $record, array $data): void {
@@ -167,7 +178,7 @@ class ReportsTable
         return Action::make('resolveReport')
             ->label(__('admin.ui.resolve_report'))
             ->color('success')
-            ->visible(fn (Report $record): bool => self::canAct($record) && $record->status !== ReportStatus::Resolved->value)
+            ->visible(fn (Report $record): bool => self::canHandle($record))
             ->schema([
                 Select::make('resolution_action')
                     ->label(__('admin.ui.resolution_action'))
@@ -275,7 +286,7 @@ class ReportsTable
         return Action::make($name)
             ->label($label)
             ->color($color)
-            ->visible(fn (Report $record): bool => self::canAct($record) && self::isContentTarget($record))
+            ->visible(fn (Report $record): bool => self::canHandle($record) && self::isContentTarget($record))
             ->schema(self::noteSchema())
             ->requiresConfirmation()
             ->action(function (Report $record, array $data) use ($handler, $successTitle): void {
@@ -289,7 +300,7 @@ class ReportsTable
         return Action::make($name)
             ->label($label)
             ->color($color)
-            ->visible(fn (Report $record): bool => self::canAct($record) && self::targetUser($record) !== null)
+            ->visible(fn (Report $record): bool => self::canHandle($record) && self::targetUser($record) !== null)
             ->schema(self::noteSchema())
             ->requiresConfirmation()
             ->action(function (Report $record, array $data) use ($handler, $successTitle): void {
@@ -326,8 +337,13 @@ class ReportsTable
     private static function canReview(Report $record): bool
     {
         return self::canAct($record)
-            && $record->status !== ReportStatus::Reviewed->value
-            && $record->target !== null;
+            && $record->status === ReportStatus::Pending->value;
+    }
+
+    private static function canHandle(Report $record): bool
+    {
+        return self::canAct($record)
+            && $record->isOpenForModeration();
     }
 
     private static function isContentTarget(Report $record): bool

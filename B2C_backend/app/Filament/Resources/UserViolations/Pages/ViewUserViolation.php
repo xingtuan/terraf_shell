@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UserViolations\Pages;
 
+use App\Filament\Resources\UserViolations\Actions\UserViolationActions;
 use App\Filament\Resources\UserViolations\UserViolationResource;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
@@ -14,6 +15,8 @@ class ViewUserViolation extends ViewRecord
     {
         return [
             EditAction::make(),
+            UserViolationActions::resolveOnly(),
+            UserViolationActions::resolveAndRestoreAccount(),
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\UserViolations\Tables;
 use App\Enums\UserViolationSeverity;
 use App\Enums\UserViolationStatus;
 use App\Enums\UserViolationType;
+use App\Filament\Resources\UserViolations\Actions\UserViolationActions;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -61,6 +62,8 @@ class UserViolationsTable
             ])
             ->recordActions([
                 ViewAction::make(),
+                UserViolationActions::resolveOnly(),
+                UserViolationActions::resolveAndRestoreAccount(),
                 EditAction::make(),
             ]);
     }

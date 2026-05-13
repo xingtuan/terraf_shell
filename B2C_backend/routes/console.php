@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AccountStatus;
 use App\Models\EmailEvent;
 use App\Models\EmailTemplate;
 use App\Services\Email\EmailDispatchService;
@@ -8,6 +9,7 @@ use Database\Seeders\EmailCenterSeeder;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\Console\Command\Command;
 
 Artisan::command('inspire', function () {
@@ -121,3 +123,88 @@ Artisan::command('admin:check-translations', function (): int {
 
     return Command::SUCCESS;
 })->purpose('Verify admin translation keys across en, ko, and zh');
+
+Artisan::command('users:repair-account-status {--dry-run}', function (): int {
+    $dryRun = (bool) $this->option('dry-run');
+    $fixed = 0;
+    $keptBanned = 0;
+    $restored = 0;
+    $ambiguous = 0;
+
+    $users = DB::table('users')
+        ->where('account_status', AccountStatus::Active->value)
+        ->where('is_banned', true)
+        ->orderBy('id')
+        ->get();
+
+    foreach ($users as $user) {
+        $latestAction = DB::table('admin_action_logs')
+            ->where('target_user_id', $user->id)
+            ->where('action', 'user.account_status_updated')
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->first();
+
+        $metadata = json_decode((string) ($latestAction->metadata ?? '{}'), true);
+        $latestStatus = is_array($metadata) ? ($metadata['to'] ?? null) : null;
+
+        if ($latestStatus === AccountStatus::Active->value) {
+            $restored++;
+            $fixed++;
+
+            if (! $dryRun) {
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->update([
+                        'is_banned' => false,
+                        'banned_at' => null,
+                        'ban_reason' => null,
+                        'restricted_at' => null,
+                        'restriction_reason' => null,
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            continue;
+        }
+
+        if ($user->banned_at !== null) {
+            $keptBanned++;
+            $fixed++;
+
+            if (! $dryRun) {
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->update([
+                        'account_status' => AccountStatus::Banned->value,
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            continue;
+        }
+
+        $ambiguous++;
+        $fixed++;
+        $this->warn("Ambiguous active/is_banned row without banned_at: user #{$user->id}. Clearing is_banned.");
+
+        if (! $dryRun) {
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update([
+                    'is_banned' => false,
+                    'ban_reason' => null,
+                    'restricted_at' => null,
+                    'restriction_reason' => null,
+                    'updated_at' => now(),
+                ]);
+        }
+    }
+
+    $prefix = $dryRun ? '[dry-run] ' : '';
+    $verb = $dryRun ? 'would be fixed' : 'fixed';
+    $this->info("{$prefix}{$users->count()} inconsistent users found; {$fixed} {$verb}.");
+    $this->line("{$prefix}{$keptBanned} kept banned, {$restored} restored active, {$ambiguous} ambiguous rows logged.");
+
+    return Command::SUCCESS;
+})->purpose('Repair inconsistent account_status and is_banned user rows');

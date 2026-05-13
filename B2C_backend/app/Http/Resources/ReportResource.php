@@ -37,6 +37,7 @@ class ReportResource extends JsonResource
             'reviewed_at' => $this->reviewed_at?->toISOString(),
             'resolved_at' => $this->resolved_at?->toISOString(),
             'dismissed_at' => $this->dismissed_at?->toISOString(),
+            'completed_at' => $this->completed_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

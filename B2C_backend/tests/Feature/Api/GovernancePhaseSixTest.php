@@ -4,10 +4,14 @@ namespace Tests\Feature\Api;
 
 use App\Enums\AccountStatus;
 use App\Enums\ContentStatus;
+use App\Enums\UserViolationSeverity;
 use App\Enums\UserViolationStatus;
+use App\Enums\UserViolationType;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
+use App\Models\UserViolation;
+use App\Services\AdminModerationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -273,5 +277,94 @@ class GovernancePhaseSixTest extends TestCase
             'target_id' => $post->id,
             'reason' => 'Restricted users should not be able to report.',
         ])->assertForbidden();
+    }
+
+    public function test_resolving_account_banned_violation_only_does_not_unban_user(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $creator = User::factory()->banned()->create();
+        $violation = UserViolation::factory()->create([
+            'user_id' => $creator->id,
+            'actor_user_id' => $admin->id,
+            'subject_type' => 'user',
+            'subject_id' => $creator->id,
+            'type' => UserViolationType::AccountBanned->value,
+            'severity' => UserViolationSeverity::Ban->value,
+            'status' => UserViolationStatus::Open->value,
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $this->patchJson("/api/admin/users/{$creator->id}/violations/{$violation->id}", [
+            'status' => UserViolationStatus::Resolved->value,
+            'resolution_note' => 'Violation record reviewed only.',
+        ])->assertOk();
+
+        $creator->refresh();
+
+        $this->assertTrue($creator->isBanned());
+        $this->assertSame(AccountStatus::Banned->value, $creator->account_status);
+        $this->assertDatabaseHas('user_violations', [
+            'id' => $violation->id,
+            'status' => UserViolationStatus::Resolved->value,
+        ]);
+    }
+
+    public function test_resolve_and_restore_account_resolves_all_account_violations_and_unbans_user(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $creator = User::factory()->banned()->create();
+
+        $banViolation = UserViolation::factory()->create([
+            'user_id' => $creator->id,
+            'actor_user_id' => $admin->id,
+            'subject_type' => 'user',
+            'subject_id' => $creator->id,
+            'type' => UserViolationType::AccountBanned->value,
+            'severity' => UserViolationSeverity::Ban->value,
+            'status' => UserViolationStatus::Open->value,
+        ]);
+
+        $restrictionViolation = UserViolation::factory()->create([
+            'user_id' => $creator->id,
+            'actor_user_id' => $admin->id,
+            'subject_type' => 'user',
+            'subject_id' => $creator->id,
+            'type' => UserViolationType::AccountRestricted->value,
+            'severity' => UserViolationSeverity::Restriction->value,
+            'status' => UserViolationStatus::Open->value,
+        ]);
+
+        app(AdminModerationService::class)->resolveAccountViolationAndRestore(
+            $banViolation,
+            $admin,
+            'Appeal accepted; account restored.'
+        );
+
+        $creator->refresh();
+
+        $this->assertSame(AccountStatus::Active->value, $creator->account_status);
+        $this->assertFalse($creator->is_banned);
+        $this->assertFalse($creator->isBanned());
+        $this->assertFalse($creator->isRestricted());
+        $this->assertNull($creator->banned_at);
+        $this->assertNull($creator->ban_reason);
+
+        $this->assertDatabaseHas('user_violations', [
+            'id' => $banViolation->id,
+            'status' => UserViolationStatus::Resolved->value,
+            'resolution_note' => 'Appeal accepted; account restored.',
+        ]);
+
+        $this->assertDatabaseHas('user_violations', [
+            'id' => $restrictionViolation->id,
+            'status' => UserViolationStatus::Resolved->value,
+            'resolution_note' => 'Appeal accepted; account restored.',
+        ]);
+
+        $this->assertDatabaseHas('admin_action_logs', [
+            'target_user_id' => $creator->id,
+            'action' => 'user.account_status_updated',
+        ]);
     }
 }

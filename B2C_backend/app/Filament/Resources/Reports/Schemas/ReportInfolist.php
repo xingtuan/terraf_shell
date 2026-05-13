@@ -90,6 +90,10 @@ class ReportInfolist
                             ->label(__('admin.ui.dismissed_at'))
                             ->dateTime()
                             ->placeholder(__('admin.ui.none')),
+                        TextEntry::make('completed_at')
+                            ->label('Completed at')
+                            ->dateTime()
+                            ->placeholder(__('admin.ui.none')),
                     ]),
                 Section::make(__('admin.ui.governance'))
                     ->schema([

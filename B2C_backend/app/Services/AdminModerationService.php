@@ -7,11 +7,13 @@ use App\Enums\ContentStatus;
 use App\Enums\ReportResolutionAction;
 use App\Enums\ReportStatus;
 use App\Enums\UserViolationSeverity;
+use App\Enums\UserViolationStatus;
 use App\Enums\UserViolationType;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Report;
 use App\Models\User;
+use App\Models\UserViolation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -250,7 +252,9 @@ class AdminModerationService
                 $reason,
                 null
             ),
-            default => $this->updateReportStatusOnly($report, $status, $admin, $reason),
+            default => throw ValidationException::withMessages([
+                'status' => ['Reports can only be reviewed, resolved, or dismissed through moderation actions.'],
+            ]),
         };
     }
 
@@ -261,6 +265,8 @@ class AdminModerationService
         ?string $publicNote
     ): Report {
         return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->assertReportCanBeReviewed($report);
+
             return $this->applyReportDisposition(
                 $report,
                 $admin,
@@ -283,6 +289,8 @@ class AdminModerationService
         ?string $publicNote
     ): Report {
         return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->assertReportCanBeFinalized($report);
+
             return $this->applyReportDisposition(
                 $report,
                 $admin,
@@ -308,6 +316,8 @@ class AdminModerationService
         $action = $this->normalizeResolutionAction($resolutionAction);
 
         return DB::transaction(function () use ($report, $admin, $action, $internalNote, $publicNote): Report {
+            $this->assertReportCanBeFinalized($report);
+
             return $this->applyReportDisposition(
                 $report,
                 $admin,
@@ -330,6 +340,7 @@ class AdminModerationService
         ?string $publicNote = null
     ): Report {
         return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->assertReportCanBeFinalized($report);
             $this->updateReportedContentStatus($report, ContentStatus::Hidden->value, $admin, $internalNote);
 
             return $this->applyReportDisposition(
@@ -354,6 +365,7 @@ class AdminModerationService
         ?string $publicNote = null
     ): Report {
         return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->assertReportCanBeFinalized($report);
             $this->updateReportedContentStatus($report, ContentStatus::Rejected->value, $admin, $internalNote);
 
             return $this->applyReportDisposition(
@@ -378,6 +390,7 @@ class AdminModerationService
         ?string $publicNote = null
     ): Report {
         return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->assertReportCanBeFinalized($report);
             $target = $this->reportTarget($report);
             $targetUser = $this->reportTargetUser($report);
 
@@ -418,6 +431,7 @@ class AdminModerationService
         ?string $publicNote = null
     ): Report {
         return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->assertReportCanBeFinalized($report);
             $this->updateAccountStatus(
                 $this->reportTargetUser($report),
                 AccountStatus::Restricted->value,
@@ -448,6 +462,7 @@ class AdminModerationService
         ?string $publicNote = null
     ): Report {
         return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->assertReportCanBeFinalized($report);
             $this->updateAccountStatus(
                 $this->reportTargetUser($report),
                 AccountStatus::Banned->value,
@@ -468,26 +483,6 @@ class AdminModerationService
                     $this->notificationService->notifyReportResolved($updated, $admin);
                 }
             );
-        });
-    }
-
-    private function updateReportStatusOnly(Report $report, string $status, User $admin, ?string $reason = null): Report
-    {
-        return DB::transaction(function () use ($report, $status, $admin, $reason): Report {
-            $report->loadMissing('target');
-            $targetUser = $this->governanceService->subjectOwner($report);
-            $report->forceFill([
-                'status' => $status,
-                'moderator_note' => $reason,
-                'reviewed_by' => $admin->id,
-                'reviewed_at' => now(),
-            ])->save();
-
-            $metadata = ['to' => $status];
-            $this->log($report, $admin, 'report.status_updated', $reason, $metadata, $targetUser, $report);
-            $this->recordAdminAction($admin, 'report.status_updated', $reason, $metadata, $report, $targetUser);
-
-            return $report->fresh()->load(['reporter.profile', 'reviewer.profile', 'target']);
         });
     }
 
@@ -537,6 +532,12 @@ class AdminModerationService
         ?string $reason = null,
         ?Report $report = null
     ): User {
+        if (AccountStatus::tryFrom($status) === null) {
+            throw ValidationException::withMessages([
+                'account_status' => ['The selected account status is invalid.'],
+            ]);
+        }
+
         if ($admin->is($target)) {
             throw ValidationException::withMessages([
                 'user' => ['You cannot change your own account status.'],
@@ -574,7 +575,7 @@ class AdminModerationService
                             ],
                         ],
                         $admin,
-                        'Account returned to active.'
+                        $reason ?: 'Account returned to active.'
                     );
                 }
 
@@ -625,6 +626,53 @@ class AdminModerationService
         });
     }
 
+    public function resolveAccountViolationAndRestore(
+        UserViolation $violation,
+        User $admin,
+        string $resolutionNote
+    ): UserViolation {
+        if ($violation->status !== UserViolationStatus::Open->value || ! in_array($violation->type, [
+            UserViolationType::AccountBanned->value,
+            UserViolationType::AccountRestricted->value,
+        ], true)) {
+            throw ValidationException::withMessages([
+                'violation' => ['Only open account ban or restriction violations can restore an account.'],
+            ]);
+        }
+
+        return DB::transaction(function () use ($violation, $admin, $resolutionNote): UserViolation {
+            $violation->loadMissing('user');
+
+            $this->governanceService->updateViolationStatus(
+                $violation,
+                $admin,
+                UserViolationStatus::Resolved->value,
+                $resolutionNote
+            );
+
+            $this->governanceService->resolveViolations(
+                $violation->user,
+                [
+                    'types' => [
+                        UserViolationType::AccountBanned->value,
+                        UserViolationType::AccountRestricted->value,
+                    ],
+                ],
+                $admin,
+                $resolutionNote
+            );
+
+            $this->updateAccountStatus(
+                $violation->user,
+                AccountStatus::Active->value,
+                $admin,
+                $resolutionNote
+            );
+
+            return $violation->fresh()->load(['user.profile', 'actor.profile', 'resolver.profile', 'subject', 'report']);
+        });
+    }
+
     private function applyReportDisposition(
         Report $report,
         User $admin,
@@ -638,15 +686,17 @@ class AdminModerationService
         $report->loadMissing('target');
         $targetUser = $this->governanceService->subjectOwner($report);
         $timestamp = now();
+        $isFinalStatus = in_array($status, [ReportStatus::Resolved, ReportStatus::Dismissed], true);
 
         $attributes = [
             'status' => $status->value,
             'moderator_note' => $internalNote,
             'public_note' => $publicNote,
             'reviewed_by' => $admin->id,
-            'reviewed_at' => $timestamp,
+            'reviewed_at' => $status === ReportStatus::Reviewed ? $timestamp : ($report->reviewed_at ?? $timestamp),
             'resolved_at' => $status === ReportStatus::Resolved ? $timestamp : null,
             'dismissed_at' => $status === ReportStatus::Dismissed ? $timestamp : null,
+            'completed_at' => $isFinalStatus ? $timestamp : null,
             'resolution_action' => $resolutionAction->value,
         ];
 
@@ -667,6 +717,30 @@ class AdminModerationService
         ])->save();
 
         return $updatedReport->fresh()->load(['reporter.profile', 'reviewer.profile', 'target']);
+    }
+
+    private function assertReportCanBeReviewed(Report $report): void
+    {
+        if ($report->status !== ReportStatus::Pending->value) {
+            throw ValidationException::withMessages([
+                'status' => ['Only pending reports can be marked as reviewed.'],
+            ]);
+        }
+    }
+
+    private function assertReportCanBeFinalized(Report $report): void
+    {
+        if ($report->isFinalized()) {
+            throw ValidationException::withMessages([
+                'status' => ['This report has already been completed.'],
+            ]);
+        }
+
+        if (! $report->isOpenForModeration()) {
+            throw ValidationException::withMessages([
+                'status' => ['Only pending or reviewed reports can be completed.'],
+            ]);
+        }
     }
 
     private function normalizeResolutionAction(?string $resolutionAction): ReportResolutionAction

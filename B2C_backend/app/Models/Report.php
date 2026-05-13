@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ReportStatus;
 use Database\Factories\ReportFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +28,7 @@ class Report extends Model
         'reviewed_at',
         'resolved_at',
         'dismissed_at',
+        'completed_at',
         'reporter_notified_at',
         'resolution_action',
     ];
@@ -37,8 +39,25 @@ class Report extends Model
             'reviewed_at' => 'datetime',
             'resolved_at' => 'datetime',
             'dismissed_at' => 'datetime',
+            'completed_at' => 'datetime',
             'reporter_notified_at' => 'datetime',
         ];
+    }
+
+    public function isFinalized(): bool
+    {
+        return in_array($this->status, [
+            ReportStatus::Resolved->value,
+            ReportStatus::Dismissed->value,
+        ], true);
+    }
+
+    public function isOpenForModeration(): bool
+    {
+        return in_array($this->status, [
+            ReportStatus::Pending->value,
+            ReportStatus::Reviewed->value,
+        ], true);
     }
 
     public function reporter(): BelongsTo

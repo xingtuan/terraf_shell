@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\UserViolations\Pages;
 
+use App\Filament\Resources\UserViolations\Actions\UserViolationActions;
 use App\Filament\Resources\UserViolations\UserViolationResource;
 use App\Filament\Support\PanelAccess;
 use App\Services\GovernanceService;
@@ -17,6 +18,8 @@ class EditUserViolation extends EditRecord
     {
         return [
             ViewAction::make(),
+            UserViolationActions::resolveOnly(),
+            UserViolationActions::resolveAndRestoreAccount(),
         ];
     }
 

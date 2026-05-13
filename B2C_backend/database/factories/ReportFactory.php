@@ -33,6 +33,7 @@ class ReportFactory extends Factory
             'reviewed_at' => null,
             'resolved_at' => null,
             'dismissed_at' => null,
+            'completed_at' => null,
             'reporter_notified_at' => null,
             'resolution_action' => null,
         ];

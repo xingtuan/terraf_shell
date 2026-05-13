@@ -5,7 +5,9 @@ namespace App\Filament\Resources\Users\Schemas;
 use App\Enums\AccountStatus;
 use App\Enums\UserRole;
 use App\Filament\Support\PanelAccess;
+use App\Models\User;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -46,11 +48,10 @@ class UserForm
                                     ->default(UserRole::Creator->value)
                                     ->required()
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
-                                Select::make('account_status')
+                                Placeholder::make('account_status')
                                     ->label(__('admin.ui.account_status'))
-                                    ->options(AccountStatus::options())
-                                    ->default(AccountStatus::Active->value)
-                                    ->required()
+                                    ->content(fn (?User $record): string => AccountStatus::tryFrom($record?->accountStatusValue() ?? AccountStatus::Active->value)?->label() ?? AccountStatus::Active->label())
+                                    ->helperText('Use the dedicated Restrict, Ban, and Restore active actions to change account status.')
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 Toggle::make('community_auto_approve')
                                     ->label(__('admin.ui.direct_community_approval'))

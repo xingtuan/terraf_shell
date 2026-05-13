@@ -29,6 +29,7 @@ class UserResource extends JsonResource
             'account_status' => $this->when($canSeePrivate, $this->accountStatusValue()),
             'is_banned' => $this->when($canSeePrivate, $this->isBanned()),
             'is_restricted' => $this->when($canSeePrivate, $this->isRestricted()),
+            'participation_restriction_reason' => $this->when($canSeePrivate, $this->participationRestrictionReason()),
             'email_verified' => $this->when($canSeePrivate, $this->hasVerifiedEmail()),
             'email_verified_at' => $this->when($canSeePrivate, $this->email_verified_at?->toISOString()),
             'avatar_url' => $this->profile?->avatar_url,

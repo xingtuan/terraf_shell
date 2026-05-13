@@ -4,16 +4,15 @@ namespace App\Filament\Resources\Users\Tables;
 
 use App\Enums\AccountStatus;
 use App\Enums\UserRole;
+use App\Filament\Resources\Users\Actions\UserModerationActions;
 use App\Filament\Support\PanelAccess;
 use App\Models\User;
-use App\Services\AdminModerationService;
 use App\Services\AuthService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
@@ -56,8 +55,9 @@ class UsersTable
                 TextColumn::make('account_status')
                     ->label(__('admin.ui.status'))
                     ->badge()
-                    ->formatStateUsing(fn (?string $state, User $record): string => AccountStatus::tryFrom($state ?? $record->accountStatusValue())?->label() ?? ucfirst((string) $state))
-                    ->color(fn (?string $state, User $record): string => AccountStatus::tryFrom($state ?? $record->accountStatusValue())?->color() ?? 'gray'),
+                    ->state(fn (User $record): string => $record->accountStatusValue())
+                    ->formatStateUsing(fn (string $state): string => AccountStatus::tryFrom($state)?->label() ?? ucfirst($state))
+                    ->color(fn (string $state): string => AccountStatus::tryFrom($state)?->color() ?? 'gray'),
                 IconColumn::make('community_auto_approve')
                     ->label(__('admin.ui.direct_approval'))
                     ->boolean()
@@ -171,43 +171,7 @@ class UsersTable
                 ViewAction::make(),
                 EditAction::make()
                     ->visible(fn (): bool => PanelAccess::isAdmin()),
-                Action::make('restrict')
-                    ->label(__('admin.ui.restrict'))
-                    ->icon('heroicon-o-exclamation-triangle')
-                    ->color('warning')
-                    ->visible(function (User $record): bool {
-                        $actor = PanelAccess::user();
-
-                        if (! ($actor instanceof User) || ! $record->isActive() || $record->is($actor)) {
-                            return false;
-                        }
-
-                        if (PanelAccess::isAdmin()) {
-                            return true;
-                        }
-
-                        return PanelAccess::isModerator() && ! $record->isStaff();
-                    })
-                    ->schema([
-                        Textarea::make('reason')
-                            ->label(__('admin.ui.restriction_reason'))
-                            ->required()
-                            ->rows(3),
-                    ])
-                    ->action(function (User $record, array $data): void {
-                        app(AdminModerationService::class)->updateAccountStatus(
-                            $record,
-                            AccountStatus::Restricted->value,
-                            PanelAccess::user(),
-                            $data['reason'],
-                        );
-
-                        Notification::make()
-                            ->title(__('admin.ui.user_restricted_successfully'))
-                            ->success()
-                            ->send();
-                    })
-                    ->requiresConfirmation(),
+                UserModerationActions::restrict(),
                 Action::make('resendVerification')
                     ->label(__('admin.ui.resend_verification'))
                     ->icon('heroicon-o-envelope')
@@ -221,49 +185,8 @@ class UsersTable
                             ->success()
                             ->send();
                     }),
-                Action::make('ban')
-                    ->label(__('admin.ui.ban'))
-                    ->icon('heroicon-o-no-symbol')
-                    ->color('danger')
-                    ->visible(fn (User $record): bool => PanelAccess::isAdmin() && ! $record->isBanned())
-                    ->schema([
-                        Textarea::make('reason')
-                            ->label(__('admin.ui.ban_reason'))
-                            ->required()
-                            ->rows(3),
-                    ])
-                    ->action(function (User $record, array $data): void {
-                        app(AdminModerationService::class)->updateAccountStatus(
-                            $record,
-                            AccountStatus::Banned->value,
-                            PanelAccess::user(),
-                            $data['reason'],
-                        );
-
-                        Notification::make()
-                            ->title(__('admin.ui.user_banned_successfully'))
-                            ->success()
-                            ->send();
-                    })
-                    ->requiresConfirmation(),
-                Action::make('activate')
-                    ->label(__('admin.ui.activate'))
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('success')
-                    ->visible(fn (User $record): bool => PanelAccess::isAdmin() && ! $record->isActive())
-                    ->action(function (User $record): void {
-                        app(AdminModerationService::class)->updateAccountStatus(
-                            $record,
-                            AccountStatus::Active->value,
-                            PanelAccess::user(),
-                        );
-
-                        Notification::make()
-                            ->title(__('admin.ui.user_reactivated_successfully'))
-                            ->success()
-                            ->send();
-                    })
-                    ->requiresConfirmation(),
+                UserModerationActions::ban(),
+                UserModerationActions::restoreActive(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

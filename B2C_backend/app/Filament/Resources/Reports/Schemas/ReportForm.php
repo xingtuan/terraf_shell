@@ -76,6 +76,9 @@ class ReportForm
                                 Placeholder::make('dismissed_at')
                                     ->label(__('admin.ui.dismissed_at'))
                                     ->content(fn (?Report $record): string => $record?->dismissed_at?->toDateTimeString() ?? __('admin.ui.none')),
+                                Placeholder::make('completed_at')
+                                    ->label('Completed at')
+                                    ->content(fn (?Report $record): string => $record?->completed_at?->toDateTimeString() ?? __('admin.ui.none')),
                             ]),
                     ]),
             ]);

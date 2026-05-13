@@ -210,6 +210,96 @@ class ReportModerationWorkflowTest extends TestCase
         ]);
     }
 
+    public function test_reviewed_report_can_be_resolved_or_dismissed_and_is_completed(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $reporter = User::factory()->create();
+        $owner = User::factory()->create();
+        $firstPost = Post::factory()->create(['user_id' => $owner->id]);
+        $secondPost = Post::factory()->create(['user_id' => $owner->id]);
+        $resolveReportId = $this->submitReport($reporter, $firstPost);
+        $dismissReportId = $this->submitReport($reporter, $secondPost);
+
+        Sanctum::actingAs($admin);
+
+        $this->patchJson("/api/admin/reports/{$resolveReportId}/review", [
+            'internal_note' => 'Reviewed before resolution.',
+        ])->assertOk();
+
+        $this->patchJson("/api/admin/reports/{$resolveReportId}/resolve", [
+            'resolution_action' => ReportResolutionAction::Other->value,
+            'internal_note' => 'Resolved after review.',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', ReportStatus::Resolved->value)
+            ->assertJsonPath('data.resolution_action', ReportResolutionAction::Other->value);
+
+        $this->assertDatabaseHas('reports', [
+            'id' => $resolveReportId,
+            'status' => ReportStatus::Resolved->value,
+        ]);
+
+        $this->assertNotNull($this->reportTimestamp($resolveReportId, 'completed_at'));
+        $this->assertNotNull($this->reportTimestamp($resolveReportId, 'resolved_at'));
+
+        $this->patchJson("/api/admin/reports/{$dismissReportId}/review", [
+            'internal_note' => 'Reviewed before dismissal.',
+        ])->assertOk();
+
+        $this->patchJson("/api/admin/reports/{$dismissReportId}/dismiss", [
+            'internal_note' => 'Dismissed after review.',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', ReportStatus::Dismissed->value);
+
+        $this->assertNotNull($this->reportTimestamp($dismissReportId, 'completed_at'));
+        $this->assertNotNull($this->reportTimestamp($dismissReportId, 'dismissed_at'));
+    }
+
+    public function test_finalized_report_cannot_return_to_reviewed_or_pending(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $reporter = User::factory()->create();
+        $owner = User::factory()->create();
+        $post = Post::factory()->create(['user_id' => $owner->id]);
+        $reportId = $this->submitReport($reporter, $post);
+
+        Sanctum::actingAs($admin);
+
+        $this->patchJson("/api/admin/reports/{$reportId}/resolve", [
+            'resolution_action' => ReportResolutionAction::Other->value,
+            'internal_note' => 'Final resolution.',
+        ])->assertOk();
+
+        $this->patchJson("/api/admin/reports/{$reportId}/review", [
+            'internal_note' => 'Trying to review again.',
+        ])->assertUnprocessable();
+
+        $this->patchJson("/api/admin/reports/{$reportId}/status", [
+            'status' => ReportStatus::Pending->value,
+            'reason' => 'Trying to reopen through generic status.',
+        ])->assertUnprocessable();
+
+        $this->patchJson("/api/admin/reports/{$reportId}/status", [
+            'status' => ReportStatus::Reviewed->value,
+            'reason' => 'Trying to move back to reviewed.',
+        ])->assertUnprocessable();
+
+        $this->assertDatabaseHas('reports', [
+            'id' => $reportId,
+            'status' => ReportStatus::Resolved->value,
+        ]);
+    }
+
+    public function test_report_table_workflow_actions_are_limited_to_open_reports(): void
+    {
+        $source = file_get_contents(app_path('Filament/Resources/Reports/Tables/ReportsTable.php'));
+
+        $this->assertStringContainsString('isOpenForModeration', $source);
+        $this->assertStringNotContainsString("status !== ReportStatus::Resolved", $source);
+        $this->assertStringNotContainsString("status !== ReportStatus::Dismissed", $source);
+    }
+
     public function test_duplicate_report_is_blocked(): void
     {
         $reporter = User::factory()->create();
@@ -260,5 +350,12 @@ class ReportModerationWorkflowTest extends TestCase
             ->where('type', $type->value)
             ->latest('id')
             ->firstOrFail();
+    }
+
+    private function reportTimestamp(int $reportId, string $column): ?string
+    {
+        return \App\Models\Report::query()
+            ->whereKey($reportId)
+            ->value($column);
     }
 }
