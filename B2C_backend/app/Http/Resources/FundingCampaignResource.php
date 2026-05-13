@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\ResolvesLocalizedFields;
 use App\Models\FundingCampaign;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -9,9 +10,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /** @mixin FundingCampaign */
 class FundingCampaignResource extends JsonResource
 {
+    use ResolvesLocalizedFields;
+
     /**
-     * Transform the resource into an array.
-     *
      * @return array<string, mixed>
      */
     public function toArray(Request $request): array
@@ -20,13 +21,15 @@ class FundingCampaignResource extends JsonResource
             'id' => $this->id,
             'post_id' => $this->post_id,
             'support_enabled' => (bool) $this->support_enabled,
-            'support_button_text' => $this->support_button_text,
+            'support_button_text' => $this->localizedString($request, 'support_button_text'),
+            'support_button_text_translations' => $this->localizedStringSet('support_button_text'),
             'external_crowdfunding_url' => $this->external_crowdfunding_url,
             'campaign_status' => $this->campaign_status,
             'target_amount' => $this->target_amount !== null ? (float) $this->target_amount : null,
             'pledged_amount' => $this->pledged_amount !== null ? (float) $this->pledged_amount : null,
             'backer_count' => $this->backer_count !== null ? (int) $this->backer_count : null,
-            'reward_description' => $this->reward_description,
+            'reward_description' => $this->localizedString($request, 'reward_description'),
+            'reward_description_translations' => $this->localizedStringSet('reward_description'),
             'campaign_start_at' => $this->campaign_start_at?->toISOString(),
             'campaign_end_at' => $this->campaign_end_at?->toISOString(),
             'progress_percentage' => $this->progressPercentage(),

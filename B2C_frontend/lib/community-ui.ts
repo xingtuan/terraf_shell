@@ -1,5 +1,21 @@
 import { getIntlLocale, type Locale } from "@/lib/i18n"
-import type { CommunityComment, CommunityPost, CommunityUser } from "@/lib/types"
+import type { CommunityCategory, CommunityComment, CommunityPost, CommunityTag, CommunityUser } from "@/lib/types"
+
+export function getCategoryName(
+  category: CommunityCategory | null | undefined,
+  locale: Locale,
+  fallback = "",
+): string {
+  if (!category) return fallback
+  return category.name_translations?.[locale] ?? category.name_translations?.en ?? category.name ?? fallback
+}
+
+export function getTagName(
+  tag: CommunityTag,
+  locale: Locale,
+): string {
+  return tag.name_translations?.[locale] ?? tag.name_translations?.en ?? tag.name
+}
 
 export function formatCommunityDate(
   locale: Locale,

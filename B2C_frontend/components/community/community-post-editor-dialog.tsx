@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { getErrorMessage } from "@/lib/api/client"
 import { listCategories, listTags, updatePost } from "@/lib/api/posts"
+import { getTagName } from "@/lib/community-ui"
 import type { Locale } from "@/lib/i18n"
 import type { CommunityCategory, CommunityPost, CommunityTag } from "@/lib/types"
 
@@ -59,7 +60,7 @@ export function CommunityPostEditorDialog({
       try {
         const [nextCategories, nextTags] = await Promise.all([
           listCategories(locale),
-          listTags(),
+          listTags(locale),
         ])
 
         if (isCancelled) {
@@ -154,7 +155,7 @@ export function CommunityPostEditorDialog({
                         )
                       }}
                     >
-                      #{tag.name}
+                      #{getTagName(tag, locale)}
                     </button>
                   )
                 })}

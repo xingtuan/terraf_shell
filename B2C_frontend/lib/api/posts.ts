@@ -229,8 +229,10 @@ export async function listCategories(locale?: Locale) {
     .filter((category): category is CommunityCategory => category !== null)
 }
 
-export async function listTags() {
-  const response = await requestApi<CommunityTag[]>("/tags")
+export async function listTags(locale?: Locale) {
+  const response = await requestApi<CommunityTag[]>("/tags", {
+    query: locale ? { locale } : {},
+  })
 
   return ensureArray(response.data).map(normalizeCommunityTag)
 }

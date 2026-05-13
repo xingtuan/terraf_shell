@@ -18,7 +18,6 @@ class TagInfolist
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextEntry::make('name'),
                                 TextEntry::make('slug'),
                                 TextEntry::make('posts_count')
                                     ->label(__('admin.ui.posts'))
@@ -27,6 +26,24 @@ class TagInfolist
                                     ->label(__('admin.ui.updated'))
                                     ->dateTime(),
                             ]),
+                    ]),
+                Section::make(__('admin.ui.english'))
+                    ->schema([
+                        TextEntry::make('name_translations.en')
+                            ->label(__('admin.fields.name'))
+                            ->placeholder('-'),
+                    ]),
+                Section::make(__('admin.ui.korean'))
+                    ->schema([
+                        TextEntry::make('name_translations.ko')
+                            ->label(__('admin.fields.name'))
+                            ->placeholder('-'),
+                    ]),
+                Section::make(__('admin.ui.chinese'))
+                    ->schema([
+                        TextEntry::make('name_translations.zh')
+                            ->label(__('admin.fields.name'))
+                            ->placeholder('-'),
                     ]),
             ]);
     }

@@ -871,6 +871,7 @@ export function normalizeCommunityTag(tag: CommunityTag): CommunityTag {
     ...tag,
     name: tag.name ?? "",
     slug: tag.slug ?? "",
+    name_translations: tag.name_translations ?? {},
   }
 }
 
@@ -915,6 +916,8 @@ export function normalizeFundingCampaign(
     campaign_status: campaignStatus,
     status: campaign.status ?? campaignStatus,
     support_enabled: normalizeBoolean(campaign.support_enabled),
+    support_button_text_translations: normalizeLocalizedStringSet(campaign.support_button_text_translations),
+    reward_description_translations: normalizeLocalizedStringSet(campaign.reward_description_translations),
     target_amount: normalizeOptionalNumber(campaign.target_amount),
     pledged_amount: normalizeOptionalNumber(campaign.pledged_amount),
     backer_count: normalizeOptionalNumber(campaign.backer_count),

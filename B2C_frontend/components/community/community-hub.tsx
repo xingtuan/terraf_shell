@@ -17,6 +17,7 @@ import { checkThrottle, ThrottleError } from "@/lib/api/request-throttle"
 import { getErrorMessage } from "@/lib/api/client"
 import { listCategories, listPosts, listTags } from "@/lib/api/posts"
 import { COMMUNITY_POSTS_REFRESH_EVENT } from "@/lib/community-events"
+import { getCategoryName, getTagName } from "@/lib/community-ui"
 import { getMessages, type Locale, type SiteMessages } from "@/lib/i18n"
 import type {
   ApiPaginationMeta,
@@ -125,7 +126,7 @@ export function CommunityHub({
   useEffect(() => {
     let isCancelled = false
 
-    void Promise.all([listCategories(locale), listTags()])
+    void Promise.all([listCategories(locale), listTags(locale)])
       .then(([nextCategories, nextTags]) => {
         if (isCancelled) {
           return
@@ -265,7 +266,7 @@ export function CommunityHub({
                   <SelectItem value="all">{messages.feed.allCategories}</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.slug}>
-                      {category.name}
+                      {getCategoryName(category, locale)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -286,7 +287,7 @@ export function CommunityHub({
                   <SelectItem value="all">{messages.feed.allTags}</SelectItem>
                   {tags.map((tag) => (
                     <SelectItem key={tag.id} value={tag.slug}>
-                      {tag.name}
+                      {getTagName(tag, locale)}
                     </SelectItem>
                   ))}
                 </SelectContent>

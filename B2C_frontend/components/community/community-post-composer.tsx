@@ -16,6 +16,7 @@ import {
 import { ApiError, getErrorMessage } from "@/lib/api/client"
 import { createPost, listCategories, listTags } from "@/lib/api/posts"
 import { createRichTextDocumentFromText } from "@/lib/community-rich-text"
+import { getTagName } from "@/lib/community-ui"
 import type { Locale } from "@/lib/i18n"
 import type { CommunityCategory, CommunityPost, CommunityTag } from "@/lib/types"
 
@@ -71,7 +72,7 @@ export function CommunityPostComposer({
       try {
         const [nextCategories, nextTags] = await Promise.all([
           listCategories(locale),
-          listTags(),
+          listTags(locale),
         ])
 
         if (isCancelled) return
@@ -183,7 +184,7 @@ export function CommunityPostComposer({
                       )
                     }
                   >
-                    #{tag.name}
+                    #{getTagName(tag, locale)}
                   </button>
                 )
               })}

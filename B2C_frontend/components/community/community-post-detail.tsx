@@ -37,9 +37,11 @@ import { deletePost, getPost } from "@/lib/api/posts"
 import {
   formatCommunityDate,
   formatCommunityFileSize,
+  getCategoryName,
   getCommunityPostCoverImage,
   getCommunitySupportUrl,
   getCommunityUserName,
+  getTagName,
 } from "@/lib/community-ui"
 import { getIntlLocale, getLocalizedHref, getMessages, type Locale, type SiteMessages } from "@/lib/i18n"
 import { Progress } from "@/components/ui/progress"
@@ -211,8 +213,11 @@ function FundingCampaignCard({
           endDate ?? messages.dateToBeAnnounced
         }`
       : null
-  const ctaLabel =
-    campaign.support_button_text?.trim() || messages.supportCampaign
+  const ctaLabel = (
+    campaign.support_button_text_translations?.[locale] ??
+    campaign.support_button_text_translations?.en ??
+    campaign.support_button_text
+  )?.trim() || messages.supportCampaign
   const canSupportCampaign = campaign.support_enabled && campaignUrl
 
   return (
@@ -278,11 +283,15 @@ function FundingCampaignCard({
         </div>
       </div>
 
-      {campaign.reward_description ? (
+      {(campaign.reward_description_translations?.[locale] ??
+        campaign.reward_description_translations?.en ??
+        campaign.reward_description) ? (
         <div className="text-sm">
           <p className="font-medium text-foreground">{messages.reward}</p>
           <p className="mt-1 text-muted-foreground">
-            {campaign.reward_description}
+            {campaign.reward_description_translations?.[locale] ??
+              campaign.reward_description_translations?.en ??
+              campaign.reward_description}
           </p>
         </div>
       ) : null}
@@ -516,7 +525,7 @@ export function CommunityPostDetail({
                     <div className="flex flex-wrap gap-2">
                       {post.category ? (
                         <span className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary">
-                          {post.category.name}
+                          {getCategoryName(post.category, locale)}
                         </span>
                       ) : null}
                       <span className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
@@ -582,7 +591,7 @@ export function CommunityPostDetail({
                   </p>
                   <p>
                     <span className="text-foreground">{messages.post.category}:</span>{" "}
-                    {post.category?.name ?? messages.post.uncategorized}
+                    {getCategoryName(post.category, locale) || messages.post.uncategorized}
                   </p>
                   <p>
                     <span className="text-foreground">{messages.post.published}:</span>{" "}
@@ -756,7 +765,7 @@ export function CommunityPostDetail({
                         key={tag.id}
                         className="rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground"
                       >
-                        #{tag.name}
+                        #{getTagName(tag, locale)}
                       </span>
                     ))}
                   </div>

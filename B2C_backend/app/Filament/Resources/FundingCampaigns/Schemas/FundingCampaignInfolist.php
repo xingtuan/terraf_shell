@@ -32,8 +32,6 @@ class FundingCampaignInfolist
                                     ->state(fn ($record): string => $record->support_enabled ? __('admin.system.yes') : __('admin.system.no'))
                                     ->badge()
                                     ->color(fn (string $state): string => $state === __('admin.system.yes') ? 'success' : 'gray'),
-                                TextEntry::make('support_button_text')
-                                    ->label(__('admin.ui.button_text')),
                                 TextEntry::make('external_crowdfunding_url')
                                     ->label(__('admin.ui.crowdfunding_url'))
                                     ->placeholder(__('admin.ui.no_external_url_set'))
@@ -64,7 +62,34 @@ class FundingCampaignInfolist
                                     ->dateTime()
                                     ->placeholder(__('admin.ui.no_end_date')),
                             ]),
-                        TextEntry::make('reward_description')
+                    ]),
+                Section::make(__('admin.ui.english'))
+                    ->schema([
+                        TextEntry::make('support_button_text_translations.en')
+                            ->label(__('admin.ui.support_button_text'))
+                            ->placeholder('-'),
+                        TextEntry::make('reward_description_translations.en')
+                            ->label(__('admin.ui.reward_description'))
+                            ->placeholder(__('admin.ui.no_reward_description'))
+                            ->columnSpanFull(),
+                    ]),
+                Section::make(__('admin.ui.korean'))
+                    ->schema([
+                        TextEntry::make('support_button_text_translations.ko')
+                            ->label(__('admin.ui.support_button_text'))
+                            ->placeholder('-'),
+                        TextEntry::make('reward_description_translations.ko')
+                            ->label(__('admin.ui.reward_description'))
+                            ->placeholder(__('admin.ui.no_reward_description'))
+                            ->columnSpanFull(),
+                    ]),
+                Section::make(__('admin.ui.chinese'))
+                    ->schema([
+                        TextEntry::make('support_button_text_translations.zh')
+                            ->label(__('admin.ui.support_button_text'))
+                            ->placeholder('-'),
+                        TextEntry::make('reward_description_translations.zh')
+                            ->label(__('admin.ui.reward_description'))
                             ->placeholder(__('admin.ui.no_reward_description'))
                             ->columnSpanFull(),
                     ]),

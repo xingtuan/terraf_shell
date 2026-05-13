@@ -866,6 +866,7 @@ export interface CommunityTag {
   id: number
   name: string
   slug: string
+  name_translations?: LocalizedStringSet
   posts_count?: number
 }
 
@@ -913,11 +914,13 @@ export interface FundingCampaign {
   status?: string | null
   support_enabled: boolean
   support_button_text?: string | null
+  support_button_text_translations?: LocalizedStringSet
   external_crowdfunding_url?: string | null
   target_amount?: number | null
   pledged_amount?: number | null
   backer_count?: number | null
   reward_description?: string | null
+  reward_description_translations?: LocalizedStringSet
   campaign_start_at?: string | null
   campaign_end_at?: string | null
   progress_percentage?: number | null

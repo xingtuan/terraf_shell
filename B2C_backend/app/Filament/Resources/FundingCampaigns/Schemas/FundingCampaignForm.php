@@ -39,10 +39,6 @@ class FundingCampaignForm
                                 Toggle::make('support_enabled')
                                     ->label(__('admin.ui.support_enabled'))
                                     ->required(),
-                                TextInput::make('support_button_text')
-                                    ->label(__('admin.ui.support_button_text'))
-                                    ->required()
-                                    ->maxLength(120),
                                 TextInput::make('external_crowdfunding_url')
                                     ->label(__('admin.ui.external_crowdfunding_url'))
                                     ->url()
@@ -51,6 +47,34 @@ class FundingCampaignForm
                                     ->helperText(__('admin.ui.use_a_valid_external_http_https_funding_page_unsafe_protocols_are_rejected'))
                                     ->columnSpanFull(),
                             ]),
+                    ]),
+                Section::make(__('admin.ui.english'))
+                    ->schema([
+                        TextInput::make('support_button_text_translations.en')
+                            ->label(__('admin.ui.support_button_text'))
+                            ->required()
+                            ->maxLength(120),
+                        Textarea::make('reward_description_translations.en')
+                            ->label(__('admin.ui.reward_description'))
+                            ->rows(4),
+                    ]),
+                Section::make(__('admin.ui.korean'))
+                    ->schema([
+                        TextInput::make('support_button_text_translations.ko')
+                            ->label(__('admin.ui.support_button_text'))
+                            ->maxLength(120),
+                        Textarea::make('reward_description_translations.ko')
+                            ->label(__('admin.ui.reward_description'))
+                            ->rows(4),
+                    ]),
+                Section::make(__('admin.ui.chinese'))
+                    ->schema([
+                        TextInput::make('support_button_text_translations.zh')
+                            ->label(__('admin.ui.support_button_text'))
+                            ->maxLength(120),
+                        Textarea::make('reward_description_translations.zh')
+                            ->label(__('admin.ui.reward_description'))
+                            ->rows(4),
                     ]),
                 Section::make(__('admin.ui.progress'))
                     ->schema([
@@ -72,10 +96,6 @@ class FundingCampaignForm
                                 DateTimePicker::make('campaign_end_at')
                                     ->label(__('admin.ui.campaign_end_at')),
                             ]),
-                        Textarea::make('reward_description')
-                            ->label(__('admin.ui.reward_description'))
-                            ->rows(5)
-                            ->columnSpanFull(),
                     ]),
             ]);
     }
