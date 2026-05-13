@@ -1821,6 +1821,11 @@
       "follow": "{actor} 开始关注你",
       "favorite": "{actor} 收藏了你的帖子：{post_title}",
       "favoriteNoTitle": "{actor} 收藏了你的帖子",
+      "reportReceived": "我们已收到你的举报。",
+      "reportReviewed": "你的举报正在审核中。",
+      "reportResolved": "我们已审核你的举报并采取了适当措施。",
+      "reportDismissed": "我们已审核你的举报，未发现违规。",
+      "reportPrivacyNotice": "出于隐私原因，详细的审核措施不会显示。",
       "announcement": "新通知",
       "fallback": "{actor} 与你的动态发生了互动"
     },

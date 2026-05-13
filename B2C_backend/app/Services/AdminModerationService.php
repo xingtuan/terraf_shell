@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Enums\AccountStatus;
 use App\Enums\ContentStatus;
+use App\Enums\ReportResolutionAction;
+use App\Enums\ReportStatus;
 use App\Enums\UserViolationSeverity;
 use App\Enums\UserViolationType;
 use App\Models\Comment;
@@ -22,9 +24,14 @@ class AdminModerationService
         private readonly GovernanceService $governanceService,
     ) {}
 
-    public function updatePostStatus(Post $post, string $status, User $admin, ?string $reason = null): Post
-    {
-        return DB::transaction(function () use ($post, $status, $admin, $reason): Post {
+    public function updatePostStatus(
+        Post $post,
+        string $status,
+        User $admin,
+        ?string $reason = null,
+        ?Report $report = null
+    ): Post {
+        return DB::transaction(function () use ($post, $status, $admin, $reason, $report): Post {
             $previousStatus = $post->status;
             $post->loadMissing('user');
             $post->status = $status;
@@ -40,7 +47,7 @@ class AdminModerationService
             $post->save();
 
             $metadata = ['from' => $previousStatus, 'to' => $status];
-            $this->log($post, $admin, 'post.status_updated', $reason, $metadata, $post->user);
+            $this->log($post, $admin, 'post.status_updated', $reason, $metadata, $post->user, $report);
             $this->recordAdminAction($admin, 'post.status_updated', $reason, $metadata, $post, $post->user);
 
             $post = $this->postRankingService->refreshScores($post);
@@ -79,7 +86,8 @@ class AdminModerationService
                         UserViolationSeverity::Warning->value,
                         $reason,
                         $metadata,
-                        $post
+                        $post,
+                        $report
                     );
                     $this->notificationService->notifyPostRejected($post, $admin, $reason);
                 }
@@ -101,7 +109,8 @@ class AdminModerationService
                         UserViolationSeverity::Warning->value,
                         $reason,
                         $metadata,
-                        $post
+                        $post,
+                        $report
                     );
                 }
             }
@@ -133,9 +142,14 @@ class AdminModerationService
         });
     }
 
-    public function updateCommentStatus(Comment $comment, string $status, User $admin, ?string $reason = null): Comment
-    {
-        return DB::transaction(function () use ($comment, $status, $admin, $reason): Comment {
+    public function updateCommentStatus(
+        Comment $comment,
+        string $status,
+        User $admin,
+        ?string $reason = null,
+        ?Report $report = null
+    ): Comment {
+        return DB::transaction(function () use ($comment, $status, $admin, $reason, $report): Comment {
             $previousStatus = $comment->status;
             $comment->loadMissing(['post', 'user', 'parent.user']);
 
@@ -152,7 +166,7 @@ class AdminModerationService
             $this->postRankingService->refreshScores($comment->post->fresh());
 
             $metadata = ['from' => $previousStatus, 'to' => $status];
-            $this->log($comment, $admin, 'comment.status_updated', $reason, $metadata, $comment->user);
+            $this->log($comment, $admin, 'comment.status_updated', $reason, $metadata, $comment->user, $report);
             $this->recordAdminAction($admin, 'comment.status_updated', $reason, $metadata, $comment, $comment->user);
 
             if ($previousStatus !== ContentStatus::Approved->value && $status === ContentStatus::Approved->value) {
@@ -193,7 +207,8 @@ class AdminModerationService
                     UserViolationSeverity::Warning->value,
                     $reason,
                     $metadata,
-                    $comment
+                    $comment,
+                    $report
                 );
             }
 
@@ -214,7 +229,8 @@ class AdminModerationService
                     UserViolationSeverity::Warning->value,
                     $reason,
                     $metadata,
-                    $comment
+                    $comment,
+                    $report
                 );
             }
 
@@ -223,6 +239,239 @@ class AdminModerationService
     }
 
     public function updateReportStatus(Report $report, string $status, User $admin, ?string $reason = null): Report
+    {
+        return match ($status) {
+            ReportStatus::Reviewed->value => $this->markReportReviewed($report, $admin, $reason, null),
+            ReportStatus::Dismissed->value => $this->dismissReport($report, $admin, $reason, null),
+            ReportStatus::Resolved->value => $this->resolveReport(
+                $report,
+                $admin,
+                ReportResolutionAction::Other->value,
+                $reason,
+                null
+            ),
+            default => $this->updateReportStatusOnly($report, $status, $admin, $reason),
+        };
+    }
+
+    public function markReportReviewed(
+        Report $report,
+        User $admin,
+        ?string $internalNote,
+        ?string $publicNote
+    ): Report {
+        return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            return $this->applyReportDisposition(
+                $report,
+                $admin,
+                ReportStatus::Reviewed,
+                ReportResolutionAction::None,
+                $internalNote,
+                $publicNote,
+                'report.reviewed',
+                function (Report $updated) use ($admin): void {
+                    $this->notificationService->notifyReportReviewed($updated, $admin);
+                }
+            );
+        });
+    }
+
+    public function dismissReport(
+        Report $report,
+        User $admin,
+        ?string $internalNote,
+        ?string $publicNote
+    ): Report {
+        return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            return $this->applyReportDisposition(
+                $report,
+                $admin,
+                ReportStatus::Dismissed,
+                ReportResolutionAction::None,
+                $internalNote,
+                $publicNote,
+                'report.dismissed',
+                function (Report $updated) use ($admin): void {
+                    $this->notificationService->notifyReportDismissed($updated, $admin);
+                }
+            );
+        });
+    }
+
+    public function resolveReport(
+        Report $report,
+        User $admin,
+        ?string $resolutionAction,
+        ?string $internalNote,
+        ?string $publicNote
+    ): Report {
+        $action = $this->normalizeResolutionAction($resolutionAction);
+
+        return DB::transaction(function () use ($report, $admin, $action, $internalNote, $publicNote): Report {
+            return $this->applyReportDisposition(
+                $report,
+                $admin,
+                ReportStatus::Resolved,
+                $action,
+                $internalNote,
+                $publicNote,
+                'report.resolved',
+                function (Report $updated) use ($admin): void {
+                    $this->notificationService->notifyReportResolved($updated, $admin);
+                }
+            );
+        });
+    }
+
+    public function resolveReportAndHideTarget(
+        Report $report,
+        User $admin,
+        ?string $internalNote = null,
+        ?string $publicNote = null
+    ): Report {
+        return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->updateReportedContentStatus($report, ContentStatus::Hidden->value, $admin, $internalNote);
+
+            return $this->applyReportDisposition(
+                $report,
+                $admin,
+                ReportStatus::Resolved,
+                ReportResolutionAction::ContentHidden,
+                $internalNote,
+                $publicNote,
+                'report.resolved_target_hidden',
+                function (Report $updated) use ($admin): void {
+                    $this->notificationService->notifyReportResolved($updated, $admin);
+                }
+            );
+        });
+    }
+
+    public function resolveReportAndRejectTarget(
+        Report $report,
+        User $admin,
+        ?string $internalNote = null,
+        ?string $publicNote = null
+    ): Report {
+        return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->updateReportedContentStatus($report, ContentStatus::Rejected->value, $admin, $internalNote);
+
+            return $this->applyReportDisposition(
+                $report,
+                $admin,
+                ReportStatus::Resolved,
+                ReportResolutionAction::ContentRejected,
+                $internalNote,
+                $publicNote,
+                'report.resolved_target_rejected',
+                function (Report $updated) use ($admin): void {
+                    $this->notificationService->notifyReportResolved($updated, $admin);
+                }
+            );
+        });
+    }
+
+    public function resolveReportAndWarnUser(
+        Report $report,
+        User $admin,
+        ?string $internalNote = null,
+        ?string $publicNote = null
+    ): Report {
+        return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $target = $this->reportTarget($report);
+            $targetUser = $this->reportTargetUser($report);
+
+            $this->governanceService->createViolation(
+                $targetUser,
+                $admin,
+                UserViolationType::ManualWarning->value,
+                UserViolationSeverity::Warning->value,
+                $internalNote,
+                ['report_id' => $report->id],
+                $target,
+                $report
+            );
+
+            $metadata = ['report_id' => $report->id, 'type' => UserViolationType::ManualWarning->value];
+            $this->log($target, $admin, 'user.warned_from_report', $internalNote, $metadata, $targetUser, $report);
+            $this->recordAdminAction($admin, 'user.warned_from_report', $internalNote, $metadata, $target, $targetUser);
+
+            return $this->applyReportDisposition(
+                $report,
+                $admin,
+                ReportStatus::Resolved,
+                ReportResolutionAction::UserWarned,
+                $internalNote,
+                $publicNote,
+                'report.resolved_user_warned',
+                function (Report $updated) use ($admin): void {
+                    $this->notificationService->notifyReportResolved($updated, $admin);
+                }
+            );
+        });
+    }
+
+    public function resolveReportAndRestrictUser(
+        Report $report,
+        User $admin,
+        ?string $internalNote = null,
+        ?string $publicNote = null
+    ): Report {
+        return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->updateAccountStatus(
+                $this->reportTargetUser($report),
+                AccountStatus::Restricted->value,
+                $admin,
+                $internalNote,
+                $report
+            );
+
+            return $this->applyReportDisposition(
+                $report,
+                $admin,
+                ReportStatus::Resolved,
+                ReportResolutionAction::UserRestricted,
+                $internalNote,
+                $publicNote,
+                'report.resolved_user_restricted',
+                function (Report $updated) use ($admin): void {
+                    $this->notificationService->notifyReportResolved($updated, $admin);
+                }
+            );
+        });
+    }
+
+    public function resolveReportAndBanUser(
+        Report $report,
+        User $admin,
+        ?string $internalNote = null,
+        ?string $publicNote = null
+    ): Report {
+        return DB::transaction(function () use ($report, $admin, $internalNote, $publicNote): Report {
+            $this->updateAccountStatus(
+                $this->reportTargetUser($report),
+                AccountStatus::Banned->value,
+                $admin,
+                $internalNote,
+                $report
+            );
+
+            return $this->applyReportDisposition(
+                $report,
+                $admin,
+                ReportStatus::Resolved,
+                ReportResolutionAction::UserBanned,
+                $internalNote,
+                $publicNote,
+                'report.resolved_user_banned',
+                function (Report $updated) use ($admin): void {
+                    $this->notificationService->notifyReportResolved($updated, $admin);
+                }
+            );
+        });
+    }
+
+    private function updateReportStatusOnly(Report $report, string $status, User $admin, ?string $reason = null): Report
     {
         return DB::transaction(function () use ($report, $status, $admin, $reason): Report {
             $report->loadMissing('target');
@@ -242,13 +491,19 @@ class AdminModerationService
         });
     }
 
-    public function banUser(User $target, bool $isBanned, User $admin, ?string $reason = null): User
-    {
+    public function banUser(
+        User $target,
+        bool $isBanned,
+        User $admin,
+        ?string $reason = null,
+        ?Report $report = null
+    ): User {
         return $this->updateAccountStatus(
             $target,
             $isBanned ? AccountStatus::Banned->value : AccountStatus::Active->value,
             $admin,
-            $reason
+            $reason,
+            $report
         );
     }
 
@@ -279,7 +534,8 @@ class AdminModerationService
         User $target,
         string $status,
         User $admin,
-        ?string $reason = null
+        ?string $reason = null,
+        ?Report $report = null
     ): User {
         if ($admin->is($target)) {
             throw ValidationException::withMessages([
@@ -287,7 +543,7 @@ class AdminModerationService
             ]);
         }
 
-        return DB::transaction(function () use ($target, $status, $admin, $reason): User {
+        return DB::transaction(function () use ($target, $status, $admin, $reason, $report): User {
             $previousStatus = $target->accountStatusValue();
 
             $target->forceFill([
@@ -304,7 +560,7 @@ class AdminModerationService
             }
 
             $metadata = ['from' => $previousStatus, 'to' => $status];
-            $this->log($target, $admin, 'user.account_status_updated', $reason, $metadata, $target);
+            $this->log($target, $admin, 'user.account_status_updated', $reason, $metadata, $target, $report);
             $this->recordAdminAction($admin, 'user.account_status_updated', $reason, $metadata, $target, $target);
 
             if ($previousStatus !== $status) {
@@ -338,7 +594,8 @@ class AdminModerationService
                         UserViolationSeverity::Restriction->value,
                         $reason,
                         $metadata,
-                        $target
+                        $target,
+                        $report
                     );
                 }
 
@@ -358,13 +615,120 @@ class AdminModerationService
                         UserViolationSeverity::Ban->value,
                         $reason,
                         $metadata,
-                        $target
+                        $target,
+                        $report
                     );
                 }
             }
 
             return $target->fresh()->load('profile');
         });
+    }
+
+    private function applyReportDisposition(
+        Report $report,
+        User $admin,
+        ReportStatus $status,
+        ReportResolutionAction $resolutionAction,
+        ?string $internalNote,
+        ?string $publicNote,
+        string $logAction,
+        callable $notifyReporter
+    ): Report {
+        $report->loadMissing('target');
+        $targetUser = $this->governanceService->subjectOwner($report);
+        $timestamp = now();
+
+        $attributes = [
+            'status' => $status->value,
+            'moderator_note' => $internalNote,
+            'public_note' => $publicNote,
+            'reviewed_by' => $admin->id,
+            'reviewed_at' => $timestamp,
+            'resolved_at' => $status === ReportStatus::Resolved ? $timestamp : null,
+            'dismissed_at' => $status === ReportStatus::Dismissed ? $timestamp : null,
+            'resolution_action' => $resolutionAction->value,
+        ];
+
+        $report->forceFill($attributes)->save();
+
+        $metadata = [
+            'status' => $status->value,
+            'resolution_action' => $resolutionAction->value,
+        ];
+
+        $this->log($report, $admin, $logAction, $internalNote, $metadata, $targetUser, $report);
+        $this->recordAdminAction($admin, $logAction, $internalNote, $metadata, $report, $targetUser);
+
+        $updatedReport = $report->fresh()->load(['reporter.profile', 'reviewer.profile', 'target']);
+        $notifyReporter($updatedReport);
+        $updatedReport->forceFill([
+            'reporter_notified_at' => now(),
+        ])->save();
+
+        return $updatedReport->fresh()->load(['reporter.profile', 'reviewer.profile', 'target']);
+    }
+
+    private function normalizeResolutionAction(?string $resolutionAction): ReportResolutionAction
+    {
+        $value = trim((string) $resolutionAction);
+
+        if ($value === '') {
+            return ReportResolutionAction::Other;
+        }
+
+        $action = ReportResolutionAction::tryFrom($value);
+
+        if ($action === null) {
+            throw ValidationException::withMessages([
+                'resolution_action' => ['The selected report resolution action is invalid.'],
+            ]);
+        }
+
+        return $action;
+    }
+
+    private function updateReportedContentStatus(
+        Report $report,
+        string $status,
+        User $admin,
+        ?string $internalNote
+    ): void {
+        $target = $this->reportTarget($report);
+
+        match (true) {
+            $target instanceof Post => $this->updatePostStatus($target, $status, $admin, $internalNote, $report),
+            $target instanceof Comment => $this->updateCommentStatus($target, $status, $admin, $internalNote, $report),
+            default => throw ValidationException::withMessages([
+                'target' => ['This report target cannot be moderated as content.'],
+            ]),
+        };
+    }
+
+    private function reportTarget(Report $report): Model
+    {
+        $report->loadMissing('target');
+
+        if (! $report->target instanceof Model) {
+            throw ValidationException::withMessages([
+                'target' => ['The report target is no longer available.'],
+            ]);
+        }
+
+        return $report->target;
+    }
+
+    private function reportTargetUser(Report $report): User
+    {
+        $targetUser = $this->governanceService->subjectOwner($report);
+
+        if (! $targetUser instanceof User) {
+            throw ValidationException::withMessages([
+                'target_user' => ['The reported user could not be determined.'],
+            ]);
+        }
+
+        return $targetUser;
     }
 
     private function log(

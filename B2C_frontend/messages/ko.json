@@ -1821,6 +1821,11 @@
       "follow": "{actor}님이 회원님을 팔로우하기 시작했습니다",
       "favorite": "{actor}님이 회원님의 게시물을 저장했습니다: {post_title}",
       "favoriteNoTitle": "{actor}님이 회원님의 게시물을 저장했습니다",
+      "reportReceived": "신고가 접수되었습니다.",
+      "reportReviewed": "신고가 검토 중입니다.",
+      "reportResolved": "신고를 검토했고 적절한 조치를 취했습니다.",
+      "reportDismissed": "신고를 검토했지만 위반 사항을 찾지 못했습니다.",
+      "reportPrivacyNotice": "개인정보 보호를 위해 자세한 관리 조치는 표시되지 않습니다.",
       "announcement": "새 알림",
       "fallback": "{actor}님이 회원님의 활동에 반응했습니다"
     },

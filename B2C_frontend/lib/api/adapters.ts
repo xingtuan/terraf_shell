@@ -990,9 +990,16 @@ function normalizeNotificationTarget(
     }
   }
 
+  if ("content" in target) {
+    return {
+      ...target,
+      content: target.content ?? "",
+    }
+  }
+
   return {
     ...target,
-    content: target.content ?? "",
+    status: target.status ?? "",
   }
 }
 

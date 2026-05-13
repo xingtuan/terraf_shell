@@ -43,6 +43,10 @@ class ReportInfolist
                                     ->label(__('admin.ui.target_content'))
                                     ->state(fn (Report $record): string => ReportResource::targetSummary($record))
                                     ->columnSpanFull(),
+                                TextEntry::make('target_owner')
+                                    ->label(__('admin.ui.target_owner'))
+                                    ->state(fn (Report $record): string => ReportResource::targetOwnerSummary($record))
+                                    ->columnSpanFull(),
                                 TextEntry::make('violations_count')
                                     ->label(__('admin.ui.violations'))
                                     ->state(fn (Report $record): int => (int) ($record->violations_count ?? $record->violations()->count())),
@@ -59,8 +63,18 @@ class ReportInfolist
                 Section::make(__('admin.ui.review'))
                     ->schema([
                         TextEntry::make('moderator_note')
+                            ->label(__('admin.ui.internal_moderator_note'))
                             ->placeholder(__('admin.ui.no_moderator_note_recorded'))
                             ->columnSpanFull(),
+                        TextEntry::make('public_note')
+                            ->label(__('admin.ui.public_note'))
+                            ->placeholder(__('admin.ui.no_public_note_recorded'))
+                            ->columnSpanFull(),
+                        TextEntry::make('resolution_action')
+                            ->label(__('admin.ui.resolution_action'))
+                            ->formatStateUsing(fn (?string $state): string => $state ? (__('admin.report_resolution_action.'.$state) ?: $state) : __('admin.ui.none'))
+                            ->badge()
+                            ->placeholder(__('admin.ui.none')),
                         TextEntry::make('reviewer.name')
                             ->label(__('admin.ui.reviewed_by'))
                             ->placeholder(__('admin.ui.not_reviewed_yet')),
@@ -68,6 +82,14 @@ class ReportInfolist
                             ->label(__('admin.ui.reviewed_at'))
                             ->dateTime()
                             ->placeholder(__('admin.ui.not_reviewed_yet')),
+                        TextEntry::make('resolved_at')
+                            ->label(__('admin.ui.resolved_at'))
+                            ->dateTime()
+                            ->placeholder(__('admin.ui.not_resolved')),
+                        TextEntry::make('dismissed_at')
+                            ->label(__('admin.ui.dismissed_at'))
+                            ->dateTime()
+                            ->placeholder(__('admin.ui.none')),
                     ]),
                 Section::make(__('admin.ui.governance'))
                     ->schema([

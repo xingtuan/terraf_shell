@@ -17,11 +17,13 @@ import {
   getUserPosts,
   getUserProfile,
 } from "@/lib/api/users"
+import { listMyReports } from "@/lib/api/reports"
 import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
 import type {
   CommunityComment,
   CommunityPost,
   CommunityUser,
+  ReportRecord,
   UserProfile,
 } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
@@ -37,6 +39,48 @@ type AccountCommunityPageProps = {
   locale: Locale
 }
 
+type ReportStatusLabels = ReturnType<
+  typeof getAccountCopy
+>["community"]["reportStatusLabels"]
+
+function reportStatusClass(status: string) {
+  switch (status) {
+    case "resolved":
+      return "border-emerald-200 bg-emerald-50 text-emerald-700"
+    case "reviewed":
+      return "border-sky-200 bg-sky-50 text-sky-700"
+    case "dismissed":
+      return "border-stone-200 bg-stone-50 text-stone-700"
+    default:
+      return "border-amber-200 bg-amber-50 text-amber-700"
+  }
+}
+
+function reportStatusLabel(
+  labels: ReportStatusLabels,
+  status: string,
+) {
+  return labels[status as keyof typeof labels] ?? status
+}
+
+function reportTargetSummary(report: ReportRecord) {
+  const target = report.target
+
+  if (target && "title" in target && target.title) {
+    return target.title
+  }
+
+  if (target && "content" in target && target.content) {
+    return target.content
+  }
+
+  if (target && "username" in target && target.username) {
+    return `${target.name} (@${target.username})`
+  }
+
+  return `${report.target_type} #${report.target_id}`
+}
+
 export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
   const session = useAuthSession()
   const copy = getAccountCopy(locale)
@@ -47,6 +91,7 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
   const [favorites, setFavorites] = useState<CommunityPost[]>([])
   const [followers, setFollowers] = useState<CommunityUser[]>([])
   const [following, setFollowing] = useState<CommunityUser[]>([])
+  const [reports, setReports] = useState<ReportRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isCreateOpen, setIsCreateOpen] = useState(false)
@@ -77,6 +122,7 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
           favoritesResponse,
           followersResponse,
           followingResponse,
+          reportsResponse,
         ] = await Promise.all([
           getUserProfile(userIdentifier, authToken),
           getUserPosts(userIdentifier, { per_page: 4 }, authToken),
@@ -84,6 +130,7 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
           getUserFavorites(userIdentifier, { per_page: 4 }, authToken),
           getUserFollowers(userIdentifier, { per_page: 6 }, authToken),
           getUserFollowing(userIdentifier, { per_page: 6 }, authToken),
+          listMyReports(authToken, { per_page: 5 }),
         ])
 
         if (cancelled) return
@@ -93,6 +140,7 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
         setFavorites(favoritesResponse.items)
         setFollowers(followersResponse.items)
         setFollowing(followingResponse.items)
+        setReports(reportsResponse.items)
       } catch (loadError) {
         if (!cancelled) setError(getErrorMessage(loadError))
       } finally {
@@ -194,6 +242,127 @@ export function AccountCommunityPage({ locale }: AccountCommunityPageProps) {
                 value={profile?.following_count ?? following.length}
               />
             </div>
+
+            <AccountPanel id="my-reports" className="mt-8 bg-background/70 p-6">
+              <div>
+                <p className="text-sm uppercase tracking-[0.18em] text-primary">
+                  {copy.community.reportsTitle}
+                </p>
+                <h2 className="mt-3 font-serif text-3xl text-foreground">
+                  {copy.community.reportsTitle}
+                </h2>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                  {copy.community.reportsDescription}
+                </p>
+              </div>
+
+              <div className="mt-6 space-y-4">
+                {reports.length > 0 ? (
+                  reports.map((report) => {
+                    const timeline = [
+                      {
+                        label: copy.community.reportDateLabels.created,
+                        value: report.created_at,
+                      },
+                      {
+                        label: copy.community.reportDateLabels.updated,
+                        value: report.updated_at,
+                      },
+                      {
+                        label: copy.community.reportDateLabels.reviewed,
+                        value: report.reviewed_at,
+                      },
+                      {
+                        label: copy.community.reportDateLabels.resolved,
+                        value: report.resolved_at,
+                      },
+                      {
+                        label: copy.community.reportDateLabels.dismissed,
+                        value: report.dismissed_at,
+                      },
+                    ].filter((item) => item.value)
+
+                    return (
+                      <article
+                        key={report.id}
+                        className="rounded-[1.5rem] border border-border/60 bg-card p-5"
+                      >
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                          <div className="min-w-0 space-y-2">
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                              <span>
+                                {copy.community.reportIdLabel}: {report.id}
+                              </span>
+                              <span className="capitalize">
+                                {report.target_type}
+                              </span>
+                            </div>
+                            <h3 className="text-lg font-medium text-foreground">
+                              {reportTargetSummary(report)}
+                            </h3>
+                          </div>
+                          <span
+                            className={`rounded-full border px-3 py-1 text-xs font-medium ${reportStatusClass(report.status)}`}
+                          >
+                            {reportStatusLabel(
+                              copy.community.reportStatusLabels,
+                              report.status,
+                            )}
+                          </span>
+                        </div>
+
+                        <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
+                          <div>
+                            <dt className="text-muted-foreground">
+                              {copy.community.reportReasonLabel}
+                            </dt>
+                            <dd className="mt-1 text-foreground">{report.reason}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-muted-foreground">
+                              {copy.community.reportTargetLabel}
+                            </dt>
+                            <dd className="mt-1 text-foreground">
+                              {report.target_type} #{report.target_id}
+                            </dd>
+                          </div>
+                        </dl>
+
+                        {report.public_note ? (
+                          <div className="mt-5 rounded-2xl bg-background px-4 py-3">
+                            <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                              {copy.community.reportPublicNoteLabel}
+                            </p>
+                            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                              {report.public_note}
+                            </p>
+                          </div>
+                        ) : null}
+
+                        {report.resolution_action === "action_taken" ? (
+                          <p className="mt-4 text-sm text-muted-foreground">
+                            {copy.community.reportPrivacyNotice}
+                          </p>
+                        ) : null}
+
+                        <div className="mt-5 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                          {timeline.map((item) => (
+                            <span key={item.label}>
+                              {item.label}: {formatAccountDate(locale, item.value)}
+                            </span>
+                          ))}
+                        </div>
+                      </article>
+                    )
+                  })
+                ) : (
+                  <AccountEmptyState
+                    title={copy.community.reportsTitle}
+                    description={copy.community.reportsEmpty}
+                  />
+                )}
+              </div>
+            </AccountPanel>
 
             <div className="mt-8 grid gap-6 xl:grid-cols-2">
               <AccountPanel className="bg-background/70 p-6">

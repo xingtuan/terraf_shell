@@ -1821,6 +1821,11 @@
       "follow": "{actor} started following you",
       "favorite": "{actor} saved your post: {post_title}",
       "favoriteNoTitle": "{actor} saved your post",
+      "reportReceived": "We received your report.",
+      "reportReviewed": "Your report is now under review.",
+      "reportResolved": "We reviewed your report and took appropriate action.",
+      "reportDismissed": "We reviewed your report and did not find a violation.",
+      "reportPrivacyNotice": "For privacy reasons, detailed moderation actions are not shown.",
       "announcement": "New notification",
       "fallback": "{actor} interacted with your activity"
     },

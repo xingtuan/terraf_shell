@@ -13,6 +13,10 @@ enum NotificationType: string
     case SubmissionRejected = 'submission_rejected';
     case ConceptFeatured = 'concept_featured';
     case SystemAnnouncement = 'system_announcement';
+    case ReportReceived = 'report_received';
+    case ReportReviewed = 'report_reviewed';
+    case ReportResolved = 'report_resolved';
+    case ReportDismissed = 'report_dismissed';
 
     public static function values(): array
     {
@@ -38,6 +42,10 @@ enum NotificationType: string
             self::SubmissionRejected => __('admin.notification_type.submission_rejected'),
             self::ConceptFeatured => __('admin.notification_type.concept_featured'),
             self::SystemAnnouncement => __('admin.notification_type.system_announcement'),
+            self::ReportReceived => __('admin.notification_type.report_received'),
+            self::ReportReviewed => __('admin.notification_type.report_reviewed'),
+            self::ReportResolved => __('admin.notification_type.report_resolved'),
+            self::ReportDismissed => __('admin.notification_type.report_dismissed'),
         };
     }
 
@@ -53,6 +61,10 @@ enum NotificationType: string
             self::SubmissionRejected => 'danger',
             self::ConceptFeatured => 'warning',
             self::SystemAnnouncement => 'gray',
+            self::ReportReceived => 'info',
+            self::ReportReviewed => 'info',
+            self::ReportResolved => 'success',
+            self::ReportDismissed => 'gray',
         };
     }
 }

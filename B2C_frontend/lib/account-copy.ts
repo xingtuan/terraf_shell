@@ -147,6 +147,27 @@ export type AccountCopy = {
     noFollowers: string
     noFollowing: string
     networkDescription: string
+    reportsTitle: string
+    reportsDescription: string
+    reportsEmpty: string
+    reportIdLabel: string
+    reportTargetLabel: string
+    reportReasonLabel: string
+    reportPublicNoteLabel: string
+    reportPrivacyNotice: string
+    reportDateLabels: {
+      created: string
+      updated: string
+      reviewed: string
+      resolved: string
+      dismissed: string
+    }
+    reportStatusLabels: {
+      pending: string
+      reviewed: string
+      resolved: string
+      dismissed: string
+    }
   }
   store: {
     eyebrow: string
@@ -350,6 +371,29 @@ const en: AccountCopy = {
     noFollowers: "No followers yet.",
     noFollowing: "You are not following anyone yet.",
     networkDescription: "Your public community network lives here as a private management view.",
+    reportsTitle: "My Reports",
+    reportsDescription:
+      "Track the reports you submitted and any public moderation feedback shared with you.",
+    reportsEmpty: "No reports submitted yet.",
+    reportIdLabel: "Report ID",
+    reportTargetLabel: "Target",
+    reportReasonLabel: "Reason",
+    reportPublicNoteLabel: "Public note",
+    reportPrivacyNotice:
+      "For privacy reasons, detailed moderation actions are not shown.",
+    reportDateLabels: {
+      created: "Created",
+      updated: "Updated",
+      reviewed: "Reviewed",
+      resolved: "Resolved",
+      dismissed: "Dismissed",
+    },
+    reportStatusLabels: {
+      pending: "Submitted",
+      reviewed: "Under review",
+      resolved: "Action taken",
+      dismissed: "No violation found",
+    },
   },
   store: {
     eyebrow: "Store",
@@ -548,6 +592,29 @@ const ko: AccountCopy = {
     noFollowers: "아직 팔로워가 없습니다.",
     noFollowing: "아직 팔로우하는 사람이 없습니다.",
     networkDescription: "커뮤니티 네트워크를 프라이빗 관리 뷰에서 확인하세요.",
+    reportsTitle: "내 신고",
+    reportsDescription:
+      "제출한 신고와 공유된 공개 검토 피드백을 확인하세요.",
+    reportsEmpty: "아직 제출한 신고가 없습니다.",
+    reportIdLabel: "신고 ID",
+    reportTargetLabel: "대상",
+    reportReasonLabel: "사유",
+    reportPublicNoteLabel: "공개 메모",
+    reportPrivacyNotice:
+      "개인정보 보호를 위해 자세한 관리 조치는 표시되지 않습니다.",
+    reportDateLabels: {
+      created: "생성",
+      updated: "업데이트",
+      reviewed: "검토",
+      resolved: "해결",
+      dismissed: "기각",
+    },
+    reportStatusLabels: {
+      pending: "제출됨",
+      reviewed: "검토 중",
+      resolved: "조치 완료",
+      dismissed: "위반 없음",
+    },
   },
   store: {
     eyebrow: "스토어",
@@ -738,6 +805,29 @@ const zh: AccountCopy = {
     noFollowers: "还没有粉丝。",
     noFollowing: "还没有关注任何人。",
     networkDescription: "你的公开社区网络作为私人管理视图显示在此处。",
+    reportsTitle: "我的举报",
+    reportsDescription:
+      "查看你提交的举报以及已共享给你的公开审核反馈。",
+    reportsEmpty: "尚未提交举报。",
+    reportIdLabel: "举报 ID",
+    reportTargetLabel: "目标",
+    reportReasonLabel: "原因",
+    reportPublicNoteLabel: "公开备注",
+    reportPrivacyNotice:
+      "出于隐私原因，详细的审核措施不会显示。",
+    reportDateLabels: {
+      created: "创建",
+      updated: "更新",
+      reviewed: "审核",
+      resolved: "解决",
+      dismissed: "驳回",
+    },
+    reportStatusLabels: {
+      pending: "已提交",
+      reviewed: "审核中",
+      resolved: "已采取措施",
+      dismissed: "未发现违规",
+    },
   },
   store: {
     eyebrow: "商店",

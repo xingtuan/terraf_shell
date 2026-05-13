@@ -27,8 +27,14 @@ class ReportFactory extends Factory
             'reason' => 'Spam or misleading information',
             'description' => fake()->sentence(12),
             'status' => ReportStatus::Pending->value,
+            'moderator_note' => null,
+            'public_note' => null,
             'reviewed_by' => null,
             'reviewed_at' => null,
+            'resolved_at' => null,
+            'dismissed_at' => null,
+            'reporter_notified_at' => null,
+            'resolution_action' => null,
         ];
     }
 }

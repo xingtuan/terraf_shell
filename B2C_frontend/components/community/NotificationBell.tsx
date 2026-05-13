@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useEffectEvent, useState } from "react"
-import { Bell } from "lucide-react"
+import { Bell, Flag } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import {
@@ -12,6 +12,7 @@ import {
 import { getErrorMessage } from "@/lib/api/client"
 import { getCommunityUserName } from "@/lib/community-ui"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
+import { resolveCmsHref } from "@/lib/page-content"
 import type { UserNotification } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -33,6 +34,14 @@ function extractQuotedText(value?: string | null) {
 }
 
 function resolveNotificationHref(locale: Locale, notification: UserNotification) {
+  if (notification.action_url) {
+    return resolveCmsHref(
+      locale,
+      notification.action_url,
+      getLocalizedHref(locale, "community"),
+    )
+  }
+
   const postSlug =
     (notification.target && "slug" in notification.target
       ? notification.target.slug
@@ -98,9 +107,31 @@ function formatNotificationMessage(
             .replace("{actor}", actor)
             .replace("{post_title}", postTitle)
         : messages.favoriteNoTitle.replace("{actor}", actor)
+    case "report_received":
+      return messages.reportReceived
+    case "report_reviewed":
+      return typeof notification.data?.public_note === "string"
+        ? notification.data.public_note
+        : messages.reportReviewed
+    case "report_resolved":
+      return typeof notification.data?.public_note === "string"
+        ? notification.data.public_note
+        : messages.reportResolved
+    case "report_dismissed":
+      return typeof notification.data?.public_note === "string"
+        ? notification.data.public_note
+        : messages.reportDismissed
     default:
       return notification.body ?? messages.announcement
-    }
+  }
+}
+
+function notificationIcon(type: string) {
+  if (type.startsWith("report_")) {
+    return Flag
+  }
+
+  return null
 }
 
 export function NotificationBell({
@@ -265,6 +296,15 @@ export function NotificationBell({
                   navigate()
                 }}
               >
+                {(() => {
+                  const Icon = notificationIcon(notification.type)
+
+                  return Icon ? (
+                    <span className="mt-0.5 rounded-full bg-muted p-2 text-muted-foreground">
+                      <Icon className="size-4" />
+                    </span>
+                  ) : null
+                })()}
                 <span
                   className={`mt-1 size-2 rounded-full ${
                     notification.is_read ? "bg-transparent" : "bg-red-500"

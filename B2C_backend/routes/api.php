@@ -142,6 +142,8 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->whereNumber('notification');
+    Route::get('/reports', [ReportController::class, 'index']);
+    Route::get('/reports/{report}', [ReportController::class, 'show'])->whereNumber('report');
     Route::apiResource('orders', OrderController::class)
         ->only(['index', 'show', 'destroy'])
         ->parameters(['orders' => 'orderNumber']);
@@ -181,6 +183,14 @@ Route::prefix('admin')
     ->group(function (): void {
         Route::get('/reports', [AdminReportController::class, 'index']);
         Route::patch('/reports/{report}/status', [AdminReportController::class, 'updateStatus'])->whereNumber('report');
+        Route::patch('/reports/{report}/review', [AdminReportController::class, 'review'])->whereNumber('report');
+        Route::patch('/reports/{report}/dismiss', [AdminReportController::class, 'dismiss'])->whereNumber('report');
+        Route::patch('/reports/{report}/resolve', [AdminReportController::class, 'resolve'])->whereNumber('report');
+        Route::patch('/reports/{report}/hide-target', [AdminReportController::class, 'hideTarget'])->whereNumber('report');
+        Route::patch('/reports/{report}/reject-target', [AdminReportController::class, 'rejectTarget'])->whereNumber('report');
+        Route::patch('/reports/{report}/warn-user', [AdminReportController::class, 'warnUser'])->whereNumber('report');
+        Route::patch('/reports/{report}/restrict-user', [AdminReportController::class, 'restrictUser'])->whereNumber('report');
+        Route::patch('/reports/{report}/ban-user', [AdminReportController::class, 'banUser'])->whereNumber('report');
         Route::patch('/posts/{post}/status', [PostModerationController::class, 'updateStatus'])->whereNumber('post');
         Route::get('/posts/ranking-formula', [PostModerationController::class, 'rankingFormula']);
         Route::patch('/comments/{comment}/status', [CommentModerationController::class, 'updateStatus'])->whereNumber('comment');

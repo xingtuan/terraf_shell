@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { Flag } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { getErrorMessage } from "@/lib/api/client"
@@ -32,6 +33,14 @@ function resolveNotificationHref(locale: Locale, notification: UserNotification)
   }
 
   return getLocalizedHref(locale, "community")
+}
+
+function notificationIcon(type: string) {
+  if (type.startsWith("report_")) {
+    return Flag
+  }
+
+  return null
 }
 
 export function CommunityNotificationsPanel({
@@ -147,15 +156,26 @@ export function CommunityNotificationsPanel({
             className="rounded-2xl bg-background px-4 py-4"
           >
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="font-medium text-foreground">
-                  {notification.title || t.announcement}
-                </p>
-                {notification.body ? (
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {notification.body}
+              <div className="flex min-w-0 gap-3">
+                {(() => {
+                  const Icon = notificationIcon(notification.type)
+
+                  return Icon ? (
+                    <span className="mt-0.5 rounded-full bg-muted p-2 text-muted-foreground">
+                      <Icon className="size-4" />
+                    </span>
+                  ) : null
+                })()}
+                <div className="min-w-0">
+                  <p className="font-medium text-foreground">
+                    {notification.title || t.announcement}
                   </p>
-                ) : null}
+                  {notification.body ? (
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {notification.body}
+                    </p>
+                  ) : null}
+                </div>
               </div>
               {!notification.is_read ? (
                 <button

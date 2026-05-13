@@ -2,16 +2,22 @@
 
 namespace App\Filament\Resources\Reports\Tables;
 
+use App\Enums\ReportResolutionAction;
 use App\Enums\ReportStatus;
 use App\Filament\Resources\Reports\ReportResource;
 use App\Filament\Support\PanelAccess;
+use App\Models\Comment;
+use App\Models\Post;
 use App\Models\Report;
+use App\Models\User;
 use App\Services\AdminModerationService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
@@ -101,9 +107,14 @@ class ReportsTable
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (Report $record): ?string => ReportResource::targetAdminUrl($record))
                     ->visible(fn (Report $record): bool => filled(ReportResource::targetAdminUrl($record))),
-                self::statusAction('open', __('admin.ui.mark_as_open'), ReportStatus::Pending->value, 'warning'),
-                self::statusAction('review', __('admin.ui.mark_as_reviewed'), ReportStatus::Reviewed->value, 'info'),
-                self::statusAction('resolve', __('admin.actions.mark_resolved'), ReportStatus::Resolved->value, 'success'),
+                self::markReviewedAction(),
+                self::dismissAction(),
+                self::resolveAction(),
+                self::hideTargetAction(),
+                self::rejectTargetAction(),
+                self::warnUserAction(),
+                self::restrictUserAction(),
+                self::banUserAction(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -111,39 +122,234 @@ class ReportsTable
             ]);
     }
 
-    private static function statusAction(string $name, string $label, string $status, string $color): Action
+    private static function markReviewedAction(): Action
+    {
+        return Action::make('markReviewed')
+            ->label(__('admin.ui.mark_as_reviewed'))
+            ->color('info')
+            ->visible(fn (Report $record): bool => self::canReview($record))
+            ->schema(self::noteSchema(includeReviewNotice: true))
+            ->requiresConfirmation()
+            ->action(function (Report $record, array $data): void {
+                app(AdminModerationService::class)->markReportReviewed(
+                    $record,
+                    PanelAccess::user(),
+                    $data['moderator_note'] ?? null,
+                    $data['public_note'] ?? null,
+                );
+
+                self::success(__('admin.ui.report_marked_reviewed'));
+            });
+    }
+
+    private static function dismissAction(): Action
+    {
+        return Action::make('dismissReport')
+            ->label(__('admin.ui.dismiss_report'))
+            ->color('gray')
+            ->visible(fn (Report $record): bool => self::canAct($record) && $record->status !== ReportStatus::Dismissed->value)
+            ->schema(self::noteSchema())
+            ->requiresConfirmation()
+            ->action(function (Report $record, array $data): void {
+                app(AdminModerationService::class)->dismissReport(
+                    $record,
+                    PanelAccess::user(),
+                    $data['moderator_note'] ?? null,
+                    $data['public_note'] ?? null,
+                );
+
+                self::success(__('admin.ui.report_dismissed'));
+            });
+    }
+
+    private static function resolveAction(): Action
+    {
+        return Action::make('resolveReport')
+            ->label(__('admin.ui.resolve_report'))
+            ->color('success')
+            ->visible(fn (Report $record): bool => self::canAct($record) && $record->status !== ReportStatus::Resolved->value)
+            ->schema([
+                Select::make('resolution_action')
+                    ->label(__('admin.ui.resolution_action'))
+                    ->options(ReportResolutionAction::options())
+                    ->default(ReportResolutionAction::Other->value)
+                    ->required(),
+                ...self::noteSchema(),
+            ])
+            ->requiresConfirmation()
+            ->action(function (Report $record, array $data): void {
+                app(AdminModerationService::class)->resolveReport(
+                    $record,
+                    PanelAccess::user(),
+                    $data['resolution_action'] ?? ReportResolutionAction::Other->value,
+                    $data['moderator_note'] ?? null,
+                    $data['public_note'] ?? null,
+                );
+
+                self::success(__('admin.ui.report_resolved'));
+            });
+    }
+
+    private static function hideTargetAction(): Action
+    {
+        return self::targetAction(
+            'hideTargetResolve',
+            __('admin.ui.hide_target_and_resolve'),
+            'warning',
+            fn (AdminModerationService $service, Report $record, array $data): Report => $service->resolveReportAndHideTarget(
+                $record,
+                PanelAccess::user(),
+                $data['moderator_note'] ?? null,
+                $data['public_note'] ?? null,
+            ),
+            __('admin.ui.report_target_hidden_resolved')
+        );
+    }
+
+    private static function rejectTargetAction(): Action
+    {
+        return self::targetAction(
+            'rejectTargetResolve',
+            __('admin.ui.reject_target_and_resolve'),
+            'danger',
+            fn (AdminModerationService $service, Report $record, array $data): Report => $service->resolveReportAndRejectTarget(
+                $record,
+                PanelAccess::user(),
+                $data['moderator_note'] ?? null,
+                $data['public_note'] ?? null,
+            ),
+            __('admin.ui.report_target_rejected_resolved')
+        );
+    }
+
+    private static function warnUserAction(): Action
+    {
+        return self::userAction(
+            'warnUserResolve',
+            __('admin.ui.warn_user_and_resolve'),
+            'warning',
+            fn (AdminModerationService $service, Report $record, array $data): Report => $service->resolveReportAndWarnUser(
+                $record,
+                PanelAccess::user(),
+                $data['moderator_note'] ?? null,
+                $data['public_note'] ?? null,
+            ),
+            __('admin.ui.report_user_warned_resolved')
+        );
+    }
+
+    private static function restrictUserAction(): Action
+    {
+        return self::userAction(
+            'restrictUserResolve',
+            __('admin.ui.restrict_user_and_resolve'),
+            'danger',
+            fn (AdminModerationService $service, Report $record, array $data): Report => $service->resolveReportAndRestrictUser(
+                $record,
+                PanelAccess::user(),
+                $data['moderator_note'] ?? null,
+                $data['public_note'] ?? null,
+            ),
+            __('admin.ui.report_user_restricted_resolved')
+        );
+    }
+
+    private static function banUserAction(): Action
+    {
+        return self::userAction(
+            'banUserResolve',
+            __('admin.ui.ban_user_and_resolve'),
+            'danger',
+            fn (AdminModerationService $service, Report $record, array $data): Report => $service->resolveReportAndBanUser(
+                $record,
+                PanelAccess::user(),
+                $data['moderator_note'] ?? null,
+                $data['public_note'] ?? null,
+            ),
+            __('admin.ui.report_user_banned_resolved')
+        );
+    }
+
+    private static function targetAction(string $name, string $label, string $color, callable $handler, string $successTitle): Action
     {
         return Action::make($name)
             ->label($label)
             ->color($color)
-            ->visible(fn (Report $record): bool => PanelAccess::isStaff() && $record->status !== $status)
-            ->schema([
-                Textarea::make('moderator_note')
-                    ->label(__('admin.ui.moderator_note'))
-                    ->rows(4),
-                Textarea::make('reason')
-                    ->label(__('admin.ui.audit_note'))
-                    ->rows(3),
-            ])
+            ->visible(fn (Report $record): bool => self::canAct($record) && self::isContentTarget($record))
+            ->schema(self::noteSchema())
             ->requiresConfirmation()
-            ->action(function (Report $record, array $data) use ($status, $label): void {
-                app(AdminModerationService::class)->updateReportStatus(
-                    $record,
-                    $status,
-                    PanelAccess::user(),
-                    $data['reason'] ?? null,
-                );
-
-                if (filled($data['moderator_note'] ?? null)) {
-                    $record->forceFill([
-                        'moderator_note' => $data['moderator_note'],
-                    ])->save();
-                }
-
-                Notification::make()
-                    ->title(__('admin.ui.status_action_completed', ['label' => $label]))
-                    ->success()
-                    ->send();
+            ->action(function (Report $record, array $data) use ($handler, $successTitle): void {
+                $handler(app(AdminModerationService::class), $record, $data);
+                self::success($successTitle);
             });
+    }
+
+    private static function userAction(string $name, string $label, string $color, callable $handler, string $successTitle): Action
+    {
+        return Action::make($name)
+            ->label($label)
+            ->color($color)
+            ->visible(fn (Report $record): bool => self::canAct($record) && self::targetUser($record) !== null)
+            ->schema(self::noteSchema())
+            ->requiresConfirmation()
+            ->action(function (Report $record, array $data) use ($handler, $successTitle): void {
+                $handler(app(AdminModerationService::class), $record, $data);
+                self::success($successTitle);
+            });
+    }
+
+    /**
+     * @return array<int, Placeholder|Textarea>
+     */
+    private static function noteSchema(bool $includeReviewNotice = false): array
+    {
+        return [
+            ...($includeReviewNotice ? [
+                Placeholder::make('review_notice')
+                    ->label(__('admin.ui.review_notice'))
+                    ->content(__('admin.ui.mark_reviewed_does_not_resolve')),
+            ] : []),
+            Textarea::make('moderator_note')
+                ->label(__('admin.ui.internal_moderator_note'))
+                ->rows(4),
+            Textarea::make('public_note')
+                ->label(__('admin.ui.public_note'))
+                ->rows(4),
+        ];
+    }
+
+    private static function canAct(Report $record): bool
+    {
+        return PanelAccess::isStaff();
+    }
+
+    private static function canReview(Report $record): bool
+    {
+        return self::canAct($record)
+            && $record->status !== ReportStatus::Reviewed->value
+            && $record->target !== null;
+    }
+
+    private static function isContentTarget(Report $record): bool
+    {
+        return $record->target instanceof Post || $record->target instanceof Comment;
+    }
+
+    private static function targetUser(Report $record): ?User
+    {
+        return match (true) {
+            $record->target instanceof Post => $record->target->loadMissing('user')->user,
+            $record->target instanceof Comment => $record->target->loadMissing('user')->user,
+            $record->target instanceof User => $record->target,
+            default => null,
+        };
+    }
+
+    private static function success(string $title): void
+    {
+        Notification::make()
+            ->title($title)
+            ->success()
+            ->send();
     }
 }

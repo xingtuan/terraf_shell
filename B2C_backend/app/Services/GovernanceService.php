@@ -401,6 +401,7 @@ class GovernanceService
         return match (true) {
             $report->target instanceof Post => $report->target->loadMissing('user')->user,
             $report->target instanceof Comment => $report->target->loadMissing('user')->user,
+            $report->target instanceof User => $report->target,
             default => null,
         };
     }

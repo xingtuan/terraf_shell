@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ModerateReportRequest;
 use App\Http\Requests\Admin\UpdateReportStatusRequest;
 use App\Http\Resources\ReportResource;
 use App\Models\Report;
@@ -41,5 +42,126 @@ class ReportController extends Controller
             new ReportResource($report),
             'Report status updated successfully.'
         );
+    }
+
+    public function review(
+        ModerateReportRequest $request,
+        Report $report,
+        AdminModerationService $moderationService
+    ): JsonResponse {
+        $report = $moderationService->markReportReviewed(
+            $report,
+            $request->user(),
+            $request->internalNote(),
+            $request->publicNote()
+        );
+
+        return $this->successResponse(new ReportResource($report), 'Report marked as reviewed.');
+    }
+
+    public function dismiss(
+        ModerateReportRequest $request,
+        Report $report,
+        AdminModerationService $moderationService
+    ): JsonResponse {
+        $report = $moderationService->dismissReport(
+            $report,
+            $request->user(),
+            $request->internalNote(),
+            $request->publicNote()
+        );
+
+        return $this->successResponse(new ReportResource($report), 'Report dismissed.');
+    }
+
+    public function resolve(
+        ModerateReportRequest $request,
+        Report $report,
+        AdminModerationService $moderationService
+    ): JsonResponse {
+        $report = $moderationService->resolveReport(
+            $report,
+            $request->user(),
+            $request->validated('resolution_action'),
+            $request->internalNote(),
+            $request->publicNote()
+        );
+
+        return $this->successResponse(new ReportResource($report), 'Report resolved.');
+    }
+
+    public function hideTarget(
+        ModerateReportRequest $request,
+        Report $report,
+        AdminModerationService $moderationService
+    ): JsonResponse {
+        $report = $moderationService->resolveReportAndHideTarget(
+            $report,
+            $request->user(),
+            $request->internalNote(),
+            $request->publicNote()
+        );
+
+        return $this->successResponse(new ReportResource($report), 'Report resolved and target hidden.');
+    }
+
+    public function rejectTarget(
+        ModerateReportRequest $request,
+        Report $report,
+        AdminModerationService $moderationService
+    ): JsonResponse {
+        $report = $moderationService->resolveReportAndRejectTarget(
+            $report,
+            $request->user(),
+            $request->internalNote(),
+            $request->publicNote()
+        );
+
+        return $this->successResponse(new ReportResource($report), 'Report resolved and target rejected.');
+    }
+
+    public function warnUser(
+        ModerateReportRequest $request,
+        Report $report,
+        AdminModerationService $moderationService
+    ): JsonResponse {
+        $report = $moderationService->resolveReportAndWarnUser(
+            $report,
+            $request->user(),
+            $request->internalNote(),
+            $request->publicNote()
+        );
+
+        return $this->successResponse(new ReportResource($report), 'Report resolved and user warned.');
+    }
+
+    public function restrictUser(
+        ModerateReportRequest $request,
+        Report $report,
+        AdminModerationService $moderationService
+    ): JsonResponse {
+        $report = $moderationService->resolveReportAndRestrictUser(
+            $report,
+            $request->user(),
+            $request->internalNote(),
+            $request->publicNote()
+        );
+
+        return $this->successResponse(new ReportResource($report), 'Report resolved and user restricted.');
+    }
+
+    public function banUser(
+        ModerateReportRequest $request,
+        Report $report,
+        AdminModerationService $moderationService
+    ): JsonResponse {
+        $report = $moderationService->resolveReportAndBanUser(
+            $report,
+            $request->user(),
+            $request->internalNote(),
+            $request->publicNote()
+        );
+
+        return $this->successResponse(new ReportResource($report), 'Report resolved and user banned.');
     }
 }

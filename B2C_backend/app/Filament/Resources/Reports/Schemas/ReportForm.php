@@ -37,6 +37,10 @@ class ReportForm
                                     ->label(__('admin.ui.target_content'))
                                     ->content(fn (?Report $record): string => $record ? ReportResource::targetSummary($record) : '-')
                                     ->columnSpanFull(),
+                                Placeholder::make('target_owner')
+                                    ->label(__('admin.ui.target_owner'))
+                                    ->content(fn (?Report $record): string => $record ? ReportResource::targetOwnerSummary($record) : '-')
+                                    ->columnSpanFull(),
                                 Placeholder::make('reason')
                                     ->content(fn (?Report $record): string => $record?->reason ?? '-'),
                                 Placeholder::make('description')
@@ -50,15 +54,28 @@ class ReportForm
                         Grid::make(2)
                             ->schema([
                                 Textarea::make('moderator_note')
-                                    ->label(__('admin.ui.moderator_note'))
+                                    ->label(__('admin.ui.internal_moderator_note'))
                                     ->rows(5)
                                     ->columnSpanFull(),
+                                Textarea::make('public_note')
+                                    ->label(__('admin.ui.public_note'))
+                                    ->rows(5)
+                                    ->columnSpanFull(),
+                                Placeholder::make('resolution_action')
+                                    ->label(__('admin.ui.resolution_action'))
+                                    ->content(fn (?Report $record): string => $record?->resolution_action ? __('admin.report_resolution_action.'.$record->resolution_action) : __('admin.ui.none')),
                                 Placeholder::make('reviewed_by')
                                     ->label(__('admin.ui.reviewed_by'))
                                     ->content(fn (?Report $record): string => $record?->reviewer?->name ?? __('admin.ui.not_reviewed_yet')),
                                 Placeholder::make('reviewed_at')
                                     ->label(__('admin.ui.reviewed_at'))
                                     ->content(fn (?Report $record): string => $record?->reviewed_at?->toDateTimeString() ?? __('admin.ui.not_reviewed_yet')),
+                                Placeholder::make('resolved_at')
+                                    ->label(__('admin.ui.resolved_at'))
+                                    ->content(fn (?Report $record): string => $record?->resolved_at?->toDateTimeString() ?? __('admin.ui.not_resolved')),
+                                Placeholder::make('dismissed_at')
+                                    ->label(__('admin.ui.dismissed_at'))
+                                    ->content(fn (?Report $record): string => $record?->dismissed_at?->toDateTimeString() ?? __('admin.ui.none')),
                             ]),
                     ]),
             ]);

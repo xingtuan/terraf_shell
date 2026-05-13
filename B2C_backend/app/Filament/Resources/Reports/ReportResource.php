@@ -137,6 +137,22 @@ class ReportResource extends Resource
         };
     }
 
+    public static function targetOwnerSummary(Report $report): string
+    {
+        $owner = match (true) {
+            $report->target instanceof Post => $report->target->loadMissing('user')->user,
+            $report->target instanceof Comment => $report->target->loadMissing('user')->user,
+            $report->target instanceof User => $report->target,
+            default => null,
+        };
+
+        if (! $owner instanceof User) {
+            return __('admin.ui.no_target_user');
+        }
+
+        return $owner->name.' (@'.$owner->username.')';
+    }
+
     public static function targetAdminUrl(Report $report): ?string
     {
         return match (true) {

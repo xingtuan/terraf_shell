@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Models\Report;
 use App\Models\User;
 use App\Models\UserNotification;
 use Illuminate\Http\Request;
@@ -59,6 +60,12 @@ class UserNotificationResource extends JsonResource
                 'id' => $this->target->id,
                 'name' => $this->target->name,
                 'username' => $this->target->username,
+            ],
+            $this->target instanceof Report => [
+                'id' => $this->target->id,
+                'status' => $this->target->status,
+                'target_type' => $this->target->target_type,
+                'target_id' => $this->target->target_id,
             ],
             default => null,
         };

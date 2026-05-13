@@ -1018,10 +1018,18 @@ export interface NotificationUserTarget {
   username: string
 }
 
+export interface NotificationReportTarget {
+  id: number
+  status: string
+  target_type?: string | null
+  target_id?: number | null
+}
+
 export type NotificationTargetSummary =
   | NotificationPostTarget
   | NotificationCommentTarget
   | NotificationUserTarget
+  | NotificationReportTarget
 
 export interface UserNotification {
   id: number
@@ -1070,14 +1078,22 @@ export interface FollowStatePayload {
 
 export interface ReportRecord {
   id: number
-  reporter_id: number
+  reporter_id?: number
   target_type: string
   target_id: number
-  target?: NotificationPostTarget | NotificationCommentTarget | null
+  target?: NotificationPostTarget | NotificationCommentTarget | NotificationUserTarget | null
   reason: string
   description?: string | null
   status: string
+  public_note?: string | null
+  resolution_action?: string | null
+  resolution_action_label?: string | null
   moderator_note?: string | null
+  reviewed_by?: number | null
+  reviewer?: CommunityUser | null
+  reviewed_at?: string | null
+  resolved_at?: string | null
+  dismissed_at?: string | null
   created_at?: string | null
   updated_at?: string | null
 }

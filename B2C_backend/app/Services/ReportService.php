@@ -14,6 +14,7 @@ class ReportService
 {
     public function __construct(
         private readonly GovernanceService $governanceService,
+        private readonly NotificationService $notificationService,
     ) {}
 
     public function create(User $reporter, array $data): Report
@@ -77,8 +78,23 @@ class ReportService
                 $report
             );
 
+            $this->notificationService->notifyReportReceived($report);
+            $report->forceFill([
+                'reporter_notified_at' => now(),
+            ])->save();
+
             return $report->load(['reporter.profile', 'target']);
         });
+    }
+
+    public function listForReporter(User $reporter, array $filters = []): LengthAwarePaginator
+    {
+        return Report::query()
+            ->where('reporter_id', $reporter->id)
+            ->with('target')
+            ->orderByDesc('created_at')
+            ->paginate($this->perPage($filters['per_page'] ?? null))
+            ->withQueryString();
     }
 
     public function listForAdmin(array $filters = []): LengthAwarePaginator

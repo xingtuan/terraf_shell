@@ -22,14 +22,22 @@ class Report extends Model
         'description',
         'status',
         'moderator_note',
+        'public_note',
         'reviewed_by',
         'reviewed_at',
+        'resolved_at',
+        'dismissed_at',
+        'reporter_notified_at',
+        'resolution_action',
     ];
 
     protected function casts(): array
     {
         return [
             'reviewed_at' => 'datetime',
+            'resolved_at' => 'datetime',
+            'dismissed_at' => 'datetime',
+            'reporter_notified_at' => 'datetime',
         ];
     }
 

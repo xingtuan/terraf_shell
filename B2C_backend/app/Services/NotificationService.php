@@ -6,6 +6,7 @@ use App\Enums\AccountStatus;
 use App\Enums\NotificationType;
 use App\Models\Comment;
 use App\Models\Post;
+use App\Models\Report;
 use App\Models\User;
 use App\Models\UserNotification;
 use App\Services\Email\EmailDispatchService;
@@ -349,6 +350,93 @@ class NotificationService
         $this->dispatchCommunityEmail('community.post_featured', $post->user, $actor, $post, $this->emailPayloadFactory->forPost($post, $actor));
     }
 
+    public function notifyReportReceived(Report $report): void
+    {
+        $report->loadMissing('reporter');
+
+        $this->dispatch(
+            $report->reporter,
+            null,
+            NotificationType::ReportReceived,
+            $report,
+            [
+                'title' => 'Report submitted',
+                'body' => 'We received your report.',
+                'action_url' => $this->reportActionUrl($report),
+                'message' => 'We received your report.',
+                'report_id' => $report->id,
+                'status' => $report->status,
+            ]
+        );
+    }
+
+    public function notifyReportReviewed(Report $report, User $admin): void
+    {
+        $report->loadMissing('reporter');
+        $body = $this->publicReportMessage($report, 'Your report is now under review.');
+
+        $this->dispatch(
+            $report->reporter,
+            $admin,
+            NotificationType::ReportReviewed,
+            $report,
+            [
+                'title' => 'Report under review',
+                'body' => $body,
+                'action_url' => $this->reportActionUrl($report),
+                'message' => $body,
+                'report_id' => $report->id,
+                'status' => $report->status,
+                'public_note' => $this->publicNote($report),
+            ]
+        );
+    }
+
+    public function notifyReportResolved(Report $report, User $admin): void
+    {
+        $report->loadMissing('reporter');
+        $body = $this->publicReportMessage($report, 'We reviewed your report and took appropriate action.');
+
+        $this->dispatch(
+            $report->reporter,
+            $admin,
+            NotificationType::ReportResolved,
+            $report,
+            [
+                'title' => 'Report resolved',
+                'body' => $body,
+                'action_url' => $this->reportActionUrl($report),
+                'message' => $body,
+                'report_id' => $report->id,
+                'status' => $report->status,
+                'public_note' => $this->publicNote($report),
+                'resolution_action' => 'action_taken',
+            ]
+        );
+    }
+
+    public function notifyReportDismissed(Report $report, User $admin): void
+    {
+        $report->loadMissing('reporter');
+        $body = $this->publicReportMessage($report, 'We reviewed your report and did not find a violation.');
+
+        $this->dispatch(
+            $report->reporter,
+            $admin,
+            NotificationType::ReportDismissed,
+            $report,
+            [
+                'title' => 'Report reviewed',
+                'body' => $body,
+                'action_url' => $this->reportActionUrl($report),
+                'message' => $body,
+                'report_id' => $report->id,
+                'status' => $report->status,
+                'public_note' => $this->publicNote($report),
+            ]
+        );
+    }
+
     public function broadcastSystemAnnouncement(
         User $actor,
         string $title,
@@ -486,6 +574,10 @@ class NotificationService
             NotificationType::SubmissionRejected => 'Concept rejected',
             NotificationType::ConceptFeatured => 'Concept featured',
             NotificationType::SystemAnnouncement => 'System announcement',
+            NotificationType::ReportReceived => 'Report submitted',
+            NotificationType::ReportReviewed => 'Report under review',
+            NotificationType::ReportResolved => 'Report resolved',
+            NotificationType::ReportDismissed => 'Report reviewed',
         };
     }
 
@@ -501,6 +593,10 @@ class NotificationService
             NotificationType::SubmissionRejected => 'Your concept was rejected.',
             NotificationType::ConceptFeatured => 'Your concept is now featured.',
             NotificationType::SystemAnnouncement => 'There is a new system announcement.',
+            NotificationType::ReportReceived => 'We received your report.',
+            NotificationType::ReportReviewed => 'Your report is now under review.',
+            NotificationType::ReportResolved => 'We reviewed your report and took appropriate action.',
+            NotificationType::ReportDismissed => 'We reviewed your report and did not find a violation.',
         };
     }
 
@@ -519,5 +615,22 @@ class NotificationService
     private function displayPostTitle(Post $post): string
     {
         return Str::limit($post->title, 120);
+    }
+
+    private function reportActionUrl(Report $report): string
+    {
+        return '/account/community#my-reports';
+    }
+
+    private function publicReportMessage(Report $report, string $fallback): string
+    {
+        return $this->publicNote($report) ?? $fallback;
+    }
+
+    private function publicNote(Report $report): ?string
+    {
+        $note = trim((string) $report->public_note);
+
+        return $note !== '' ? Str::limit($note, 500) : null;
     }
 }

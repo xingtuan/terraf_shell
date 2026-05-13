@@ -9,7 +9,7 @@ class ReportPolicy
 {
     public function before(User $user, string $ability): ?bool
     {
-        return $user->isAdmin() ? true : null;
+        return $user->canModerate() ? true : null;
     }
 
     public function create(User $user): bool
