@@ -4,6 +4,11 @@ import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
+import {
+  AccountStatusNotice,
+  isAccountBanned,
+  isAccountRestricted,
+} from "@/components/account/account-status-notice"
 import { getNotifications } from "@/lib/api/notifications"
 import { getOrders } from "@/lib/api/orders"
 import { listAddresses } from "@/lib/api/addresses"
@@ -114,6 +119,10 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
     }
   }, [session.token, session.user?.username])
 
+  const accountUser = profile ?? session.user
+  const accountIsBanned = isAccountBanned(accountUser)
+  const accountIsRestricted = isAccountRestricted(accountUser)
+  const accountHasLimitedCommunity = accountIsBanned || accountIsRestricted
   const defaultAddress = useMemo(() => getDefaultAddress(addresses), [addresses])
   const checklistItems = useMemo(
     () =>
@@ -164,6 +173,12 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
             </>
           }
         />
+
+        {accountHasLimitedCommunity ? (
+          <div className="mt-6">
+            <AccountStatusNotice user={accountUser} locale={locale} />
+          </div>
+        ) : null}
 
         {error ? (
           <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -306,10 +321,29 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                     {copy.overview.accountHealthDescription}
                   </p>
+                  <div className="mt-5">
+                    <AccountStatusNotice
+                      user={accountUser}
+                      locale={locale}
+                      compact
+                    />
+                  </div>
 
                   {checklistItems.length === 0 ? (
-                    <p className="mt-6 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-700">
-                      {copy.overview.readyMessage}
+                    <p
+                      className={
+                        accountIsBanned
+                          ? "mt-6 rounded-[1.5rem] border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-800"
+                          : accountIsRestricted
+                            ? "mt-6 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800"
+                            : "mt-6 rounded-[1.5rem] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-700"
+                      }
+                    >
+                      {accountIsBanned
+                        ? copy.accountStatus.bannedTitle
+                        : accountIsRestricted
+                          ? copy.accountStatus.communityUnavailable
+                          : copy.overview.readyMessage}
                     </p>
                   ) : (
                     <div className="mt-6 space-y-3">
@@ -336,11 +370,18 @@ export function AccountOverviewPage({ locale }: AccountOverviewPageProps) {
                           {copy.overview.manageAddresses}
                         </Link>
                       </Button>
-                      <Button asChild variant="outline">
-                        <Link href={getLocalizedHref(locale, "account/community")}>
-                          {copy.overview.manageCommunity}
-                        </Link>
-                      </Button>
+                      <div className="flex flex-col items-start gap-1">
+                        <Button asChild variant="outline">
+                          <Link href={getLocalizedHref(locale, "account/community")}>
+                            {copy.overview.manageCommunity}
+                          </Link>
+                        </Button>
+                        {accountHasLimitedCommunity ? (
+                          <p className="text-xs text-amber-700">
+                            {copy.accountStatus.communityLimitedShort}
+                          </p>
+                        ) : null}
+                      </div>
                       <Button asChild variant="outline">
                         <Link href={getLocalizedHref(locale, "community")}>
                           {copy.overview.browseCommunity}

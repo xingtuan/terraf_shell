@@ -844,9 +844,14 @@ export function normalizeCommunityUser(
 
   return {
     ...user,
+    account_status: user.account_status ?? null,
     avatar_url: resolveApiUrl(user.avatar_url),
     profile: normalizeCommunityProfile(user.profile),
+    is_banned: Boolean(user.is_banned),
+    is_restricted: Boolean(user.is_restricted),
     is_following: Boolean(user.is_following),
+    participation_restriction_reason:
+      user.participation_restriction_reason ?? null,
   }
 }
 

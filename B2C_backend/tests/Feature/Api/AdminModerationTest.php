@@ -226,6 +226,27 @@ class AdminModerationTest extends TestCase
             ->assertJsonPath('data.participation_restriction_reason', 'Cooling-off period.');
     }
 
+    public function test_current_user_responses_include_participation_restriction_reason(): void
+    {
+        $creator = User::factory()->restricted()->create([
+            'restriction_reason' => 'Cooling-off period.',
+        ]);
+
+        Sanctum::actingAs($creator);
+
+        $this->getJson('/api/auth/me')
+            ->assertOk()
+            ->assertJsonPath('data.account_status', AccountStatus::Restricted->value)
+            ->assertJsonPath('data.is_restricted', true)
+            ->assertJsonPath('data.participation_restriction_reason', 'Cooling-off period.');
+
+        $this->getJson("/api/users/{$creator->username}")
+            ->assertOk()
+            ->assertJsonPath('data.account_status', AccountStatus::Restricted->value)
+            ->assertJsonPath('data.is_restricted', true)
+            ->assertJsonPath('data.participation_restriction_reason', 'Cooling-off period.');
+    }
+
     public function test_user_form_does_not_expose_editable_account_status_select(): void
     {
         $source = file_get_contents(app_path('Filament/Resources/Users/Schemas/UserForm.php'));

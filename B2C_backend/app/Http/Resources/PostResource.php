@@ -39,7 +39,7 @@ class PostResource extends JsonResource
             'title' => $this->title,
             'slug' => $this->slug,
             'content' => $this->content,
-            'content_json' => $this->when($this->includeDetailFields, $this->content_json),
+            'content_json' => $this->content_json,
             'excerpt' => $this->excerpt,
             'funding_url' => $fundingEnabled ? $this->funding_url : null,
             'cover_image_url' => $this->coverImageUrl(),

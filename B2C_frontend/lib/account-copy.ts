@@ -18,6 +18,19 @@ export type AccountCopy = {
     store: string
     settings: string
   }
+  accountStatus: {
+    activeTitle: string
+    activeBody: string
+    restrictedTitle: string
+    restrictedBody: string
+    restrictedReason: string
+    bannedTitle: string
+    bannedBody: string
+    contactSupport: string
+    communityLimitedShort: string
+    communityUnavailable: string
+    goodStanding: string
+  }
   publicProfile: {
     manageAccount: string
     detailsTitle: string
@@ -229,6 +242,21 @@ const en: AccountCopy = {
     community: "Community",
     store: "Store",
     settings: "Settings",
+  },
+  accountStatus: {
+    activeTitle: "Account active",
+    activeBody: "Your account is in good standing.",
+    restrictedTitle: "Community access limited",
+    restrictedBody:
+      "You can still browse, shop, manage orders and update your profile, but community posting, comments, likes, favorites and follows are temporarily disabled.",
+    restrictedReason: "Reason: {reason}",
+    bannedTitle: "Account suspended",
+    bannedBody:
+      "Your account access has been suspended. Please contact support if you believe this is a mistake.",
+    contactSupport: "Contact support",
+    communityLimitedShort: "Community posting is limited",
+    communityUnavailable: "Some community actions are currently unavailable.",
+    goodStanding: "Your account is in good standing.",
   },
   publicProfile: {
     manageAccount: "Account center",
@@ -463,6 +491,21 @@ const ko: AccountCopy = {
     store: "스토어",
     settings: "설정",
   },
+  accountStatus: {
+    activeTitle: "계정 활성",
+    activeBody: "계정 상태가 정상입니다.",
+    restrictedTitle: "커뮤니티 이용이 제한되었습니다",
+    restrictedBody:
+      "사이트 탐색, 쇼핑, 주문 관리, 프로필 수정은 계속 가능하지만 게시, 댓글, 좋아요, 저장, 팔로우 기능은 일시적으로 제한됩니다.",
+    restrictedReason: "사유: {reason}",
+    bannedTitle: "계정이 정지되었습니다",
+    bannedBody:
+      "계정 접근이 정지되었습니다. 실수라고 생각되면 지원팀에 문의해 주세요.",
+    contactSupport: "지원팀에 문의",
+    communityLimitedShort: "커뮤니티 게시가 제한됩니다",
+    communityUnavailable: "일부 커뮤니티 작업을 현재 사용할 수 없습니다.",
+    goodStanding: "계정 상태가 정상입니다.",
+  },
   publicProfile: {
     manageAccount: "계정 센터",
     detailsTitle: "프로필 정보",
@@ -675,6 +718,20 @@ const zh: AccountCopy = {
     community: "社区",
     store: "商店",
     settings: "设置",
+  },
+  accountStatus: {
+    activeTitle: "账户正常",
+    activeBody: "你的账户状态正常。",
+    restrictedTitle: "社区功能已受限",
+    restrictedBody:
+      "你仍然可以浏览网站、购物、管理订单和修改资料，但暂时不能发布创意、评论、点赞、收藏或关注。",
+    restrictedReason: "原因：{reason}",
+    bannedTitle: "账户已暂停",
+    bannedBody: "你的账户访问已被暂停。如果你认为这是误判，请联系支持团队。",
+    contactSupport: "联系支持团队",
+    communityLimitedShort: "社区发布功能受限",
+    communityUnavailable: "部分社区操作当前不可用。",
+    goodStanding: "你的账户状态正常。",
   },
   publicProfile: {
     manageAccount: "账户中心",

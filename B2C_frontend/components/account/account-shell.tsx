@@ -1,7 +1,7 @@
 "use client"
 
 import type { ComponentType, ReactNode } from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
@@ -14,6 +14,11 @@ import {
 } from "lucide-react"
 
 import { AuthGate } from "@/components/auth/AuthGate"
+import {
+  AccountStatusNotice,
+  isAccountBanned,
+  isAccountRestricted,
+} from "@/components/account/account-status-notice"
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
 import { Button } from "@/components/ui/button"
 import { getAccountCopy } from "@/lib/account-copy"
@@ -47,13 +52,22 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
   const copy = getAccountCopy(locale)
   const [isSigningOut, setIsSigningOut] = useState(false)
 
+  useEffect(() => {
+    if (!session.token) {
+      return
+    }
+
+    void session.refreshUser().catch(() => null)
+  }, [session.refreshUser, session.token])
+
   if (!session.user) {
     return null
   }
 
+  const accountHomeHref = getLocalizedHref(locale, "account")
   const items: NavItem[] = [
     {
-      href: getLocalizedHref(locale, "account"),
+      href: accountHomeHref,
       icon: LayoutDashboard,
       label: copy.nav.overview,
     },
@@ -88,6 +102,9 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
     locale,
     `community/u/${session.user.username}`,
   )
+  const showShellStatusNotice =
+    pathname !== accountHomeHref &&
+    (isAccountBanned(session.user) || isAccountRestricted(session.user))
 
   return (
     <div className="bg-[radial-gradient(circle_at_top_left,_rgba(201,244,226,0.7),_transparent_32%),radial-gradient(circle_at_top_right,_rgba(248,228,198,0.55),_transparent_28%)]">
@@ -176,7 +193,12 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
             </nav>
           </aside>
 
-          <div className="space-y-6">{children}</div>
+          <div className="space-y-6">
+            {showShellStatusNotice ? (
+              <AccountStatusNotice user={session.user} locale={locale} />
+            ) : null}
+            {children}
+          </div>
         </div>
       </div>
     </div>

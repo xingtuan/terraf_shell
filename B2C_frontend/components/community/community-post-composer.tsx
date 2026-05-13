@@ -17,7 +17,12 @@ import { ApiError, getErrorMessage } from "@/lib/api/client"
 import { createPost, listCategories, listTags } from "@/lib/api/posts"
 import { createRichTextDocumentFromText } from "@/lib/community-rich-text"
 import { getTagName } from "@/lib/community-ui"
-import type { Locale } from "@/lib/i18n"
+import {
+  defaultLocale,
+  getMessages,
+  isValidLocale,
+  type Locale,
+} from "@/lib/i18n"
 import type { CommunityCategory, CommunityPost, CommunityTag } from "@/lib/types"
 
 const RichPostEditor = dynamic(
@@ -28,10 +33,12 @@ const RichPostEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="min-h-48 animate-pulse rounded-2xl border border-border/70 bg-muted/30" />
+      <div className="min-h-48 animate-pulse rounded-xl border border-border/70 bg-muted/30" />
     ),
   },
 )
+
+const MAX_CONTENT_CHARACTERS = 10000
 
 type CommunityPostComposerProps = {
   token?: string | null
@@ -43,13 +50,30 @@ type ComposerErrors = Partial<
   Record<"title" | "content" | "funding_url", string>
 >
 
+function resolveLocale(value: unknown): Locale {
+  const candidate = Array.isArray(value) ? value[0] : value
+
+  return typeof candidate === "string" && isValidLocale(candidate)
+    ? candidate
+    : defaultLocale
+}
+
+function formatMessage(template: string, values: Record<string, string | number>) {
+  return Object.entries(values).reduce(
+    (message, [key, value]) => message.replace(`{${key}}`, String(value)),
+    template,
+  )
+}
+
 export function CommunityPostComposer({
   token,
   onCreated,
   onMessage,
 }: CommunityPostComposerProps) {
   const params = useParams()
-  const locale = (params.locale as Locale) ?? "en"
+  const locale = resolveLocale(params.locale)
+  const messages = getMessages(locale).community
+  const form = messages.form
   const [categories, setCategories] = useState<CommunityCategory[]>([])
   const [tags, setTags] = useState<CommunityTag[]>([])
   const [title, setTitle] = useState("")
@@ -75,7 +99,9 @@ export function CommunityPostComposer({
           listTags(locale),
         ])
 
-        if (isCancelled) return
+        if (isCancelled) {
+          return
+        }
 
         setCategories(nextCategories)
         setTags(nextTags.slice(0, 10))
@@ -88,8 +114,11 @@ export function CommunityPostComposer({
     }
 
     void loadTaxonomy()
-    return () => { isCancelled = true }
-  }, [])
+
+    return () => {
+      isCancelled = true
+    }
+  }, [locale])
 
   function resetForm() {
     setTitle("")
@@ -103,43 +132,49 @@ export function CommunityPostComposer({
     setErrors({})
   }
 
-  if (!token) return null
+  if (!token) {
+    return null
+  }
 
   return (
     <div className="rounded-3xl border border-border/60 bg-card p-7">
       <p className="text-sm uppercase tracking-[0.18em] text-primary">
-        Share your idea
+        {form.createTitle}
       </p>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        Post a design concept, material experiment, or product proposal.
+        {form.createDescription}
       </p>
 
       <div className="mt-6 space-y-5">
-        {/* Title */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground">Title</label>
+          <label className="text-sm font-medium text-foreground">
+            {form.titleLabel}
+          </label>
           <Input
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(event) => setTitle(event.target.value)}
             maxLength={100}
-            placeholder="What are you sharing or proposing?"
+            placeholder={form.titlePlaceholder}
           />
-          {errors.title ? <p className="text-xs text-destructive">{errors.title}</p> : null}
+          {errors.title ? (
+            <p className="text-xs text-destructive">{errors.title}</p>
+          ) : null}
         </div>
 
-        {/* Category + Funding URL */}
         <div className="grid gap-4 sm:grid-cols-2">
           {categories.length > 0 ? (
             <div className="space-y-1.5">
-              <label className="text-sm font-medium text-foreground">Category</label>
+              <label className="text-sm font-medium text-foreground">
+                {form.categoryLabel}
+              </label>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={form.categoryPlaceholder} />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={String(cat.id)}>
-                      {cat.name}
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={String(category.id)}>
+                      {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -149,26 +184,29 @@ export function CommunityPostComposer({
 
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">
-              Funding link{" "}
-              <span className="font-normal text-muted-foreground">(optional)</span>
+              {form.fundingLabel}
             </label>
             <Input
               value={fundingUrl}
-              onChange={(e) => setFundingUrl(e.target.value)}
-              placeholder="https://gofundme.com/your-project"
+              onChange={(event) => setFundingUrl(event.target.value)}
+              placeholder={form.fundingPlaceholder}
               type="url"
             />
-            {errors.funding_url ? <p className="text-xs text-destructive">{errors.funding_url}</p> : null}
+            {errors.funding_url ? (
+              <p className="text-xs text-destructive">{errors.funding_url}</p>
+            ) : null}
           </div>
         </div>
 
-        {/* Tags */}
         {tags.length > 0 ? (
           <div className="space-y-2">
-            <span className="text-sm font-medium text-foreground">Tags</span>
+            <span className="text-sm font-medium text-foreground">
+              {form.tagsLabel}
+            </span>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => {
                 const isSelected = selectedTagIds.includes(tag.id)
+
                 return (
                   <button
                     key={tag.id}
@@ -180,7 +218,9 @@ export function CommunityPostComposer({
                     }`}
                     onClick={() =>
                       setSelectedTagIds((ids) =>
-                        isSelected ? ids.filter((id) => id !== tag.id) : [...ids, tag.id],
+                        isSelected
+                          ? ids.filter((id) => id !== tag.id)
+                          : [...ids, tag.id],
                       )
                     }
                   >
@@ -192,12 +232,15 @@ export function CommunityPostComposer({
           </div>
         ) : null}
 
-        {/* Rich text editor */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground">Content</label>
+          <label className="text-sm font-medium text-foreground">
+            {form.contentLabel}
+          </label>
           <RichPostEditor
             content={contentJson}
-            placeholder="Describe your concept, material experiment, or progress update…"
+            placeholder={form.contentPlaceholder}
+            maxCharacters={MAX_CONTENT_CHARACTERS}
+            disabled={isPending}
             coverImageUrl={coverImageUrl}
             coverImagePath={coverImagePath}
             onChange={(nextJson, plainText) => {
@@ -209,10 +252,11 @@ export function CommunityPostComposer({
               setCoverImagePath(path)
             }}
           />
-          {errors.content ? <p className="text-xs text-destructive">{errors.content}</p> : null}
+          {errors.content ? (
+            <p className="text-xs text-destructive">{errors.content}</p>
+          ) : null}
         </div>
 
-        {/* Submit */}
         <div className="flex justify-end">
           <Button
             type="button"
@@ -226,25 +270,34 @@ export function CommunityPostComposer({
               const trimmedFundingUrl = fundingUrl.trim()
 
               if (!trimmedTitle) {
-                nextErrors.title = "Title is required."
+                nextErrors.title = form.titleRequired
               } else if (trimmedTitle.length > 100) {
-                nextErrors.title = "Title must be 100 characters or fewer."
+                nextErrors.title = form.titleMax
               }
 
               if (!trimmedContent) {
-                nextErrors.content = "Content is required."
+                nextErrors.content = form.contentRequired
               } else if (trimmedContent.length < 20) {
-                nextErrors.content = "Content must be at least 20 characters."
+                nextErrors.content = form.contentMin
+              } else if (trimmedContent.length > MAX_CONTENT_CHARACTERS) {
+                nextErrors.content = formatMessage(form.contentMax, {
+                  max: MAX_CONTENT_CHARACTERS,
+                })
               }
 
               if (trimmedFundingUrl) {
-                try { new URL(trimmedFundingUrl) } catch {
-                  nextErrors.funding_url = "Please enter a valid URL."
+                try {
+                  new URL(trimmedFundingUrl)
+                } catch {
+                  nextErrors.funding_url = form.fundingInvalid
                 }
               }
 
               setErrors(nextErrors)
-              if (Object.keys(nextErrors).length > 0) return
+
+              if (Object.keys(nextErrors).length > 0) {
+                return
+              }
 
               startTransition(() => {
                 void createPost(
@@ -263,7 +316,11 @@ export function CommunityPostComposer({
                   .then((post) => {
                     resetForm()
                     onCreated(post)
-                    onMessage("Post submitted — it will appear once approved.")
+                    onMessage(
+                      post.status === "approved"
+                        ? form.approvedSuccess
+                        : form.pendingSuccess,
+                    )
                   })
                   .catch((error) => {
                     if (error instanceof ApiError) {
@@ -275,12 +332,13 @@ export function CommunityPostComposer({
                         funding_url: error.errors?.funding_url?.[0],
                       })
                     }
+
                     onMessage(getErrorMessage(error))
                   })
               })
             }}
           >
-            {isPending ? "Publishing…" : "Publish post"}
+            {isPending ? form.publishPending : form.publish}
           </Button>
         </div>
       </div>

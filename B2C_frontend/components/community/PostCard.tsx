@@ -7,6 +7,7 @@ import { useState } from "react"
 
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
 import { CreatePostPanel } from "@/components/community/CreatePostPanel"
+import { PostRenderer } from "@/components/community/PostRenderer"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import {
@@ -288,9 +289,18 @@ export function PostCard({
             >
               {post.title}
             </Link>
-            <p className="leading-relaxed text-muted-foreground">
-              {getCommunityPostPreview(post)}
-            </p>
+            {post.content_json ? (
+              <PostRenderer
+                contentJson={post.content_json}
+                content={post.content}
+                compact
+                className="text-muted-foreground prose-headings:my-1 prose-headings:font-sans prose-headings:text-base prose-p:my-0 prose-ul:my-1 prose-ol:my-1"
+              />
+            ) : (
+              <p className="leading-relaxed text-muted-foreground">
+                {getCommunityPostPreview(post)}
+              </p>
+            )}
             {/* Meta: reading time + attachments */}
             {(readingTime > 0 ||
               post.images.length > 0 ||

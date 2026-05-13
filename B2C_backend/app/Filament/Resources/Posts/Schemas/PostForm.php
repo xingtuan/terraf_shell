@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Rules\ExternalSafeUrl;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -85,10 +86,9 @@ class PostForm
                                     ->helperText(__('admin.ui.external_http_https_urls_only_javascript_and_data_urls_are_rejected'))
                                     ->placeholder('https://www.gofundme.com/... or https://www.kickstarter.com/...')
                                     ->columnSpanFull(),
-                                Textarea::make('content')
+                                RichEditor::make('content')
                                     ->label(__('admin.ui.content'))
                                     ->required()
-                                    ->rows(16)
                                     ->columnSpanFull(),
                             ]),
                     ]),

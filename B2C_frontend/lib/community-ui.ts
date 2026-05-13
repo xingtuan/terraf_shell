@@ -92,7 +92,12 @@ export function getCommunityUserInitials(user?: CommunityUser | null) {
 }
 
 export function getCommunityPostPreview(post: CommunityPost, maxLength = 220) {
-  const preview = (post.excerpt ?? post.content ?? "").trim()
+  const preview = (post.excerpt ?? post.content ?? "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h[1-6]|blockquote|li)>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
 
   if (preview.length <= maxLength) {
     return preview

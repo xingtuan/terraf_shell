@@ -14,7 +14,10 @@ import {
   formatCommunityFileSize,
   getCommunityPostCoverImage,
 } from "@/lib/community-ui"
-import { createRichTextDocumentFromText } from "@/lib/community-rich-text"
+import {
+  createRichTextDocumentFromText,
+  isRichTextDocument,
+} from "@/lib/community-rich-text"
 import type { Locale, SiteMessages } from "@/lib/i18n"
 import type { CommunityCategory, CommunityMedia, CommunityPost } from "@/lib/types"
 import { Button } from "@/components/ui/button"
@@ -44,9 +47,7 @@ const RichPostEditor = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="rounded-2xl border border-border/70 bg-muted/20 p-6 text-sm text-muted-foreground">
-        Loading editor...
-      </div>
+      <div className="min-h-48 animate-pulse rounded-xl border border-border/70 bg-muted/30" />
     ),
   },
 )
@@ -114,6 +115,7 @@ function getSubmissionToastTitle(
 }
 
 const MAX_ATTACHMENTS = 12
+const MAX_CONTENT_CHARACTERS = 10000
 const SAFE_ATTACHMENT_ACCEPT = [
   "image/*",
   ".pdf",
@@ -169,6 +171,13 @@ function getAttachmentLabel(file: File | CommunityMedia) {
 
 function getAttachmentIdentity(file: File) {
   return [file.name, file.size, file.lastModified].join("::")
+}
+
+function formatMessage(template: string, values: Record<string, string | number>) {
+  return Object.entries(values).reduce(
+    (message, [key, value]) => message.replace(`{${key}}`, String(value)),
+    template,
+  )
 }
 
 function getAttachmentExtension(file: File | CommunityMedia) {
@@ -301,8 +310,12 @@ export function CreatePostPanel({
     setTags(currentPost?.tags.map((tag) => tag.name).join(", ") ?? "")
     setContent(currentPost?.content ?? "")
     setContentJson(
-      currentPost?.content_json ??
-        (createRichTextDocumentFromText(currentPost?.content ?? "") as Record<string, unknown>),
+      (currentPost?.content_json && isRichTextDocument(currentPost.content_json)
+        ? currentPost.content_json
+        : createRichTextDocumentFromText(currentPost?.content ?? "")) as Record<
+        string,
+        unknown
+      >,
     )
     setExcerpt(currentPost?.excerpt ?? "")
     setFundingUrl(currentPost?.funding_url ?? "")
@@ -338,10 +351,14 @@ export function CreatePostPanel({
       nextErrors.content = messages.form.contentRequired
     } else if (trimmedContent.length < 20) {
       nextErrors.content = messages.form.contentMin
+    } else if (trimmedContent.length > MAX_CONTENT_CHARACTERS) {
+      nextErrors.content = formatMessage(messages.form.contentMax, {
+        max: MAX_CONTENT_CHARACTERS,
+      })
     }
 
     if (trimmedExcerpt.length > 500) {
-      nextErrors.excerpt = "Excerpt must be 500 characters or fewer."
+      nextErrors.excerpt = messages.form.excerptMax
     }
 
     if (trimmedFundingUrl) {
@@ -525,6 +542,8 @@ export function CreatePostPanel({
             <RichPostEditor
               content={contentJson}
               placeholder={messages.form.contentPlaceholder}
+              maxCharacters={MAX_CONTENT_CHARACTERS}
+              disabled={isPending || isLoadingPostDetail}
               coverImageUrl={coverImageUrl}
               coverImagePath={coverImagePath}
               onChange={(nextJson, plainText) => {

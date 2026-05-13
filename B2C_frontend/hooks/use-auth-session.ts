@@ -3,6 +3,7 @@
 import {
   createElement,
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -77,7 +78,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
       })
   }, [])
 
-  async function refreshUser() {
+  const refreshUser = useCallback(async () => {
     if (!token) {
       setUser(null)
       return null
@@ -102,7 +103,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
       setIsLoadingUser(false)
       setIsReady(true)
     }
-  }
+  }, [token])
 
   async function finalizeAuthenticatedSession(
     nextToken: string,
@@ -169,7 +170,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
       logout: logoutCurrentUser,
       refreshUser,
     }),
-    [token, user, isReady, isLoadingUser],
+    [token, user, isReady, isLoadingUser, refreshUser],
   )
 
   return createElement(AuthSessionContext.Provider, { value }, children)

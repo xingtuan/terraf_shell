@@ -832,6 +832,7 @@ export interface CommunityUser {
   account_status?: string | null
   is_banned?: boolean
   is_restricted?: boolean
+  participation_restriction_reason?: string | null
   email_verified?: boolean
   email_verified_at?: string | null
   avatar_url?: string | null

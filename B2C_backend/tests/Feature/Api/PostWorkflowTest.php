@@ -122,7 +122,80 @@ class PostWorkflowTest extends TestCase
         ]);
 
         $indexResponse = $this->getJson('/api/posts');
-        $this->assertArrayNotHasKey('content_json', $indexResponse->json('data.0'));
+        $indexResponse->assertJsonPath('data.0.content_json.type', 'doc');
+    }
+
+    public function test_post_update_can_store_tiptap_content_without_stripping_marks(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $post = Post::factory()->create([
+            'user_id' => $admin->id,
+            'status' => 'approved',
+            'content' => 'Original rich text content for the update test.',
+            'content_json' => [
+                'type' => 'doc',
+                'content' => [
+                    [
+                        'type' => 'paragraph',
+                        'content' => [
+                            ['type' => 'text', 'text' => 'Original rich text content for the update test.'],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $contentJson = json_encode([
+            'type' => 'doc',
+            'content' => [
+                [
+                    'type' => 'paragraph',
+                    'content' => [
+                        [
+                            'type' => 'text',
+                            'text' => 'Updated bold phrase',
+                            'marks' => [['type' => 'bold']],
+                        ],
+                        ['type' => 'text', 'text' => ' with a '],
+                        [
+                            'type' => 'text',
+                            'text' => 'reference link',
+                            'marks' => [
+                                [
+                                    'type' => 'link',
+                                    'attrs' => [
+                                        'href' => 'https://example.com/reference',
+                                        'target' => '_blank',
+                                        'rel' => 'noopener noreferrer nofollow',
+                                    ],
+                                ],
+                            ],
+                        ],
+                        ['type' => 'text', 'text' => ' for the community.'],
+                    ],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $response = $this->putJson("/api/posts/{$post->id}", [
+            'title' => 'Updated rich editor concept',
+            'content' => 'Updated bold phrase with a reference link for the community.',
+            'content_json' => $contentJson,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.content', 'Updated bold phrase with a reference link for the community.')
+            ->assertJsonPath('data.content_json.content.0.content.0.marks.0.type', 'bold')
+            ->assertJsonPath('data.content_json.content.0.content.2.marks.0.type', 'link')
+            ->assertJsonPath('data.content_json.content.0.content.2.marks.0.attrs.href', 'https://example.com/reference');
+
+        $post->refresh();
+
+        $this->assertSame('bold', $post->content_json['content'][0]['content'][0]['marks'][0]['type']);
+        $this->assertSame('link', $post->content_json['content'][0]['content'][2]['marks'][0]['type']);
     }
 
     public function test_post_update_deletes_replaced_cover_image_after_commit(): void
