@@ -55,7 +55,7 @@ trait HasAdminResourceTranslations
             'ProductVariantResource' => ['navigation' => 'admin.resources.product_variants', 'model' => 'admin.resources.product_variant', 'plural' => 'admin.resources.product_variants'],
             'ReportResource' => ['navigation' => 'admin.resources.reports', 'model' => 'admin.resources.report', 'plural' => 'admin.resources.reports'],
             'TagResource' => ['navigation' => 'admin.resources.concept_tags', 'model' => 'admin.resources.concept_tag', 'plural' => 'admin.resources.concept_tags'],
-            'UserNotificationResource' => ['navigation' => 'admin.resources.announcements'],
+            'UserNotificationResource' => ['navigation' => 'admin.resources.announcements', 'model' => 'admin.resources.announcement', 'plural' => 'admin.resources.announcements'],
             'UserResource' => ['navigation' => 'admin.resources.users', 'model' => 'admin.resources.user', 'plural' => 'admin.resources.users'],
             'UserViolationResource' => ['navigation' => 'admin.resources.user_violations', 'model' => 'admin.resources.user_violation', 'plural' => 'admin.resources.user_violations'],
         ];

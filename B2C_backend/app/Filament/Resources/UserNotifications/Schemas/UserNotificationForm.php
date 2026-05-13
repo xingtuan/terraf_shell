@@ -15,9 +15,11 @@ class UserNotificationForm
         return $schema
             ->components([
                 TextInput::make('recipient_user_id')
+                    ->label(__('admin.ui.recipient_user_id'))
                     ->required()
                     ->numeric(),
                 TextInput::make('actor_user_id')
+                    ->label(__('admin.ui.actor_user_id'))
                     ->numeric(),
                 TextInput::make('type')
                     ->label(__('admin.fields.type'))
@@ -30,10 +32,13 @@ class UserNotificationForm
                 TextInput::make('action_url')
                     ->label(__('admin.ui.action_url'))
                     ->url(),
-                TextInput::make('target_type'),
+                TextInput::make('target_type')
+                    ->label(__('admin.ui.target_type')),
                 TextInput::make('target_id')
+                    ->label(__('admin.ui.target_id'))
                     ->numeric(),
-                TextInput::make('data'),
+                TextInput::make('data')
+                    ->label(__('admin.ui.data')),
                 Toggle::make('is_read')
                     ->label(__('admin.ui.is_read'))
                     ->required(),
