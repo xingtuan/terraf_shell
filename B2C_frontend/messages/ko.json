@@ -917,9 +917,9 @@
       "categoryQuickFilterLabel": "카테고리로 보기",
       "filtersTitle": "카탈로그 필터",
       "searchLabel": "검색",
-      "searchPlaceholder": "??, SKU ?? ???? ??",
+      "searchPlaceholder": "제품명, SKU 또는 속성으로 검색",
       "allOption": "전체",
-      "filterHint": "??, ????, ?? ?? ?? ?? ???? ???? ?? ?? ??? URL? ?????.",
+      "filterHint": "제품명, 카테고리, 재고 상태 또는 동적 속성으로 검색하고 전체 필터 상태를 URL에 유지합니다.",
       "categoryHint": "{category} 카테고리의 제품을 표시합니다.",
       "activeFiltersLabel": "활성 필터",
       "removeFilterLabel": "{label} 제거",
@@ -941,7 +941,7 @@
       "errorTitle": "스토어 데이터를 불러올 수 없습니다.",
       "errorDescription": "API에서 제품 카탈로그를 가져오지 못했습니다. 다른 사이트 기능은 계속 사용할 수 있으며 비즈니스 문의도 제출할 수 있습니다.",
       "retryAction": "카탈로그 새로고침",
-      "attributeLabel": "??"
+      "attributeLabel": "속성"
     },
     "faq": {
       "eyebrow": "스토어 FAQ",

@@ -917,9 +917,9 @@
       "categoryQuickFilterLabel": "按品类浏览",
       "filtersTitle": "筛选目录",
       "searchLabel": "搜索",
-      "searchPlaceholder": "????SKU ?????",
+      "searchPlaceholder": "按产品名称、SKU 或属性搜索",
       "allOption": "全部",
-      "filterHint": "????????????????????? URL ??????????",
+      "filterHint": "按产品名称、品类、库存状态或动态属性搜索，并将完整筛选状态保留在 URL 中。",
       "categoryHint": "正在显示 {category} 分类的产品。",
       "activeFiltersLabel": "已启用筛选",
       "removeFilterLabel": "移除 {label}",
@@ -941,7 +941,7 @@
       "errorTitle": "商店数据暂时不可用。",
       "errorDescription": "无法从 API 加载产品目录。站点其余部分仍可使用，商务询盘也仍可提交。",
       "retryAction": "刷新目录",
-      "attributeLabel": "??"
+      "attributeLabel": "属性"
     },
     "faq": {
       "eyebrow": "商店常见问题",
@@ -961,7 +961,7 @@
         },
         {
           "question": "运费和税费现在都已完整计算吗？",
-          "answer": "运费已在购物车和结账流程中按当前包邮门槛进行处理。税费在更完整的计算服务上线前仍为占位信息。"
+          "answer": "购物车和订单请求流程中的运费与税费均为预估金额。我们的团队会通过邮件确认最终详情。"
         }
       ]
     }
