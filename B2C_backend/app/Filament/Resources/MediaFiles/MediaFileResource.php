@@ -83,6 +83,7 @@ class MediaFileResource extends Resource
                     ->placeholder('-')
                     ->toggleable(),
                 TextColumn::make('mime_type')
+                    ->label(__('admin.fields.mime_type'))
                     ->toggleable(),
                 TextColumn::make('linked_object')
                     ->label(__('admin.fields.linked_object'))
@@ -105,6 +106,7 @@ class MediaFileResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('type')
+                    ->label(__('admin.fields.type'))
                     ->options([
                         'images' => __('admin.media.type.image'),
                         'documents' => __('admin.media.type.document'),
@@ -113,6 +115,7 @@ class MediaFileResource extends Resource
                         'others' => __('admin.media.type.other'),
                     ]),
                 SelectFilter::make('disk')
+                    ->label(__('admin.ui.disk'))
                     ->options(fn (): array => MediaFile::query()
                         ->whereNotNull('disk')
                         ->select('disk')
@@ -121,6 +124,7 @@ class MediaFileResource extends Resource
                         ->pluck('disk', 'disk')
                         ->all()),
                 SelectFilter::make('category')
+                    ->label(__('admin.ui.category'))
                     ->options(fn (): array => MediaFile::query()
                         ->whereNotNull('category')
                         ->select('category')
@@ -212,8 +216,10 @@ class MediaFileResource extends Resource
                     ]),
                 Section::make(__('admin.sections.file'))
                     ->schema([
-                        TextEntry::make('original_name'),
+                        TextEntry::make('original_name')
+                            ->label(__('admin.fields.file')),
                         TextEntry::make('type')
+                            ->label(__('admin.fields.type'))
                             ->badge(),
                         TextEntry::make('disk')
                             ->label(__('admin.ui.disk'))
@@ -224,14 +230,18 @@ class MediaFileResource extends Resource
                             ->badge()
                             ->placeholder('-'),
                         TextEntry::make('mime_type')
+                            ->label(__('admin.fields.mime_type'))
                             ->placeholder('-'),
                         TextEntry::make('size')
+                            ->label(__('admin.fields.size'))
                             ->formatStateUsing(fn (?int $state): string => $state === null ? '-' : number_format($state / 1024, 1).' KB'),
                         TextEntry::make('path')
+                            ->label(__('admin.fields.path'))
                             ->copyable()
                             ->placeholder('-')
                             ->columnSpanFull(),
                         TextEntry::make('url')
+                            ->label(__('admin.ui.public_url'))
                             ->url(fn (?string $state): ?string => $state)
                             ->openUrlInNewTab()
                             ->copyable()

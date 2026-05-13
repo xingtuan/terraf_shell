@@ -29,8 +29,10 @@ class IdeaMediaInfolist
                                         TextEntry::make('post.user.name')
                                             ->label(__('admin.ui.creator')),
                                         TextEntry::make('media_type')
+                                            ->label(__('admin.ui.media_type'))
                                             ->badge(),
                                         TextEntry::make('kind')
+                                            ->label(__('admin.ui.kind'))
                                             ->badge()
                                             ->placeholder(__('admin.ui.unclassified')),
                                         TextEntry::make('original_name')
@@ -55,6 +57,7 @@ class IdeaMediaInfolist
                                             ->openUrlInNewTab()
                                             ->columnSpanFull(),
                                         TextEntry::make('alt_text')
+                                            ->label(__('admin.ui.alt_text'))
                                             ->placeholder(__('admin.ui.no_alt_text'))
                                             ->columnSpanFull(),
                                     ]),

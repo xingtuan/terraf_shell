@@ -26,6 +26,7 @@ class IdeaMediaForm
                                     ->label(__('admin.ui.kind'))
                                     ->options(fn (): array => AdminOptions::ideaMediaKinds()),
                                 TextInput::make('alt_text')
+                                    ->label(__('admin.ui.alt_text'))
                                     ->maxLength(255)
                                     ->columnSpanFull(),
                                 TextInput::make('original_name')

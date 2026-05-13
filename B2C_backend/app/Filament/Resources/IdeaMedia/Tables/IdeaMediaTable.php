@@ -33,6 +33,7 @@ class IdeaMediaTable
                     ->label(__('admin.ui.type'))
                     ->badge(),
                 TextColumn::make('kind')
+                    ->label(__('admin.ui.kind'))
                     ->badge()
                     ->placeholder(__('admin.ui.unclassified')),
                 TextColumn::make('original_name')
@@ -53,8 +54,10 @@ class IdeaMediaTable
             ])
             ->filters([
                 SelectFilter::make('media_type')
+                    ->label(__('admin.ui.media_type'))
                     ->options(fn (): array => AdminOptions::ideaMediaTypes()),
                 SelectFilter::make('source_type')
+                    ->label(__('admin.ui.source_type'))
                     ->options(fn (): array => AdminOptions::ideaMediaSourceTypes()),
             ])
             ->recordActions([
