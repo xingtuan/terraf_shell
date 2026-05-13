@@ -21,57 +21,6 @@ class Product extends Model
     /** @use HasFactory<ProductFactory> */
     use HasFactory, HasLocalizedAttributes, HasOptionalMediaUrl;
 
-    public const CATEGORY_OPTIONS = [
-        'tableware' => 'Tableware',
-        'planters' => 'Planters',
-        'wellness_interior' => 'Wellness & Interior',
-        'architectural' => 'Architectural',
-    ];
-
-    public const MODEL_OPTIONS = [
-        'lite_15' => '1.5 Lite',
-        'heritage_16' => '1.6 Heritage',
-    ];
-
-    public const FINISH_OPTIONS = [
-        'glossy' => 'Glossy',
-        'matte' => 'Matte',
-    ];
-
-    public const COLOR_OPTIONS = [
-        'ocean_bone' => 'Ocean Bone',
-        'forged_ash' => 'Forged Ash',
-    ];
-
-    public const TECHNIQUE_OPTIONS = [
-        'original_pure' => 'Original Pure',
-        'precision_inlay' => 'Precision Inlay',
-        'driftwood_blend' => 'Driftwood Blend',
-    ];
-
-    public const STOCK_STATUS_OPTIONS = [
-        'in_stock' => 'In Stock',
-        'low_stock' => 'Low Stock',
-        'preorder' => 'Pre-order',
-        'made_to_order' => 'Made to Order',
-        'sold_out' => 'Sold Out',
-    ];
-
-    public const USE_CASE_OPTIONS = [
-        'home_dining' => 'Home Dining',
-        'hospitality_service' => 'Hospitality Service',
-        'retail_gifting' => 'Retail & Gifting',
-        'interior_styling' => 'Interior Styling',
-        'design_projects' => 'Design Projects',
-    ];
-
-    public const PURCHASABLE_STOCK_STATUSES = [
-        'in_stock',
-        'low_stock',
-        'preorder',
-        'made_to_order',
-    ];
-
     protected array $localizedAttributes = [
         'name',
         'subtitle',
@@ -80,7 +29,6 @@ class Product extends Model
         'features' => 'array',
         'availability_text',
         'lead_time',
-        'dimensions',
         'care_instructions' => 'array',
         'material_benefits' => 'array',
         'seo_title',
@@ -93,11 +41,6 @@ class Product extends Model
         'name_translations',
         'subtitle',
         'subtitle_translations',
-        'category',
-        'model',
-        'finish',
-        'color',
-        'technique',
         'short_description',
         'short_description_translations',
         'full_description',
@@ -107,7 +50,6 @@ class Product extends Model
         'availability_text',
         'availability_text_translations',
         'slug',
-        'sku',
         'status',
         'featured',
         'is_bestseller',
@@ -117,22 +59,13 @@ class Product extends Model
         'media_url',
         'image_url',
         'price_from',
-        // Legacy single-SKU compatibility fields. New SKU, price, and stock logic lives on ProductVariant.
-        'price_usd',
-        'compare_at_price_usd',
         'currency',
-        'in_stock',
-        'stock_quantity',
-        'stock_status',
         'is_active',
         'inquiry_only',
         'sample_request_enabled',
         'lead_time',
         'lead_time_translations',
-        'dimensions',
-        'dimensions_translations',
         'weight_grams',
-        'specifications',
         'certifications',
         'certifications_translations',
         'technical_downloads',
@@ -144,7 +77,6 @@ class Product extends Model
         'shipping_notes',
         'return_notes',
         'product_faqs',
-        'use_cases',
         'seo_title',
         'seo_title_translations',
         'seo_description',
@@ -163,8 +95,6 @@ class Product extends Model
             'features_translations' => 'array',
             'availability_text_translations' => 'array',
             'lead_time_translations' => 'array',
-            'dimensions_translations' => 'array',
-            'specifications' => 'array',
             'certifications' => 'array',
             'certifications_translations' => 'array',
             'technical_downloads' => 'array',
@@ -176,17 +106,12 @@ class Product extends Model
             'shipping_notes' => 'array',
             'return_notes' => 'array',
             'product_faqs' => 'array',
-            'use_cases' => 'array',
             'seo_title_translations' => 'array',
             'seo_description_translations' => 'array',
             'featured' => 'boolean',
             'is_bestseller' => 'boolean',
             'is_new' => 'boolean',
             'price_from' => 'decimal:2',
-            'price_usd' => 'decimal:2',
-            'compare_at_price_usd' => 'decimal:2',
-            'in_stock' => 'boolean',
-            'stock_quantity' => 'integer',
             'is_active' => 'boolean',
             'inquiry_only' => 'boolean',
             'sample_request_enabled' => 'boolean',
@@ -198,60 +123,12 @@ class Product extends Model
     protected static function booted(): void
     {
         static::saving(function (self $product): void {
-            $category = null;
-            $categoryFromRelation = null;
-            $resolvedCategory = self::normalizeCategoryValue($product->category);
-
-            if (filled($product->category_id)) {
-                $category = ProductCategory::query()->find($product->category_id);
-                $categoryFromRelation = self::normalizeCategoryValue($category?->slug);
-
-                if ($product->isDirty('category_id') && ($categoryFromRelation !== null)) {
-                    $resolvedCategory = $categoryFromRelation;
-                } else {
-                    $resolvedCategory ??= $categoryFromRelation;
-                }
-            }
-
-            if (($category === null) && filled($product->category)) {
-                $categorySlug = $resolvedCategory ?? Str::slug((string) $product->category);
-                $categoryLabel = self::labelForOption(self::CATEGORY_OPTIONS, $resolvedCategory ?? $categorySlug)
-                    ?? Str::headline((string) $product->category);
-
-                $category = ProductCategory::query()->firstOrCreate(
-                    ['slug' => $categorySlug],
-                    [
-                        'name' => $categoryLabel,
-                        'description' => $categoryLabel.' category for the OXP catalog.',
-                        'is_active' => true,
-                    ],
-                );
-            }
-
-            if ($category !== null) {
-                $product->category_id = $category->id;
-                $categoryFromRelation ??= self::normalizeCategoryValue($category->slug);
-            }
-
-            $product->category = $resolvedCategory
-                ?? $categoryFromRelation
-                ?? 'tableware';
-
-            if (blank($product->sku) && filled($product->slug)) {
-                $product->sku = self::normalizeSku((string) $product->slug);
-            }
-
             if (blank($product->subtitle) && filled($product->short_description)) {
                 $product->subtitle = $product->short_description;
             }
 
             if (blank($product->lead_time) && filled($product->availability_text)) {
                 $product->lead_time = $product->availability_text;
-            }
-
-            if ($product->price_usd !== null) {
-                $product->price_from = $product->price_usd;
-                $product->currency = 'NZD';
             }
 
             $rawMediaUrl = $product->getAttributes()['media_url'] ?? null;
@@ -263,28 +140,6 @@ class Product extends Model
 
             if (filled($rawMediaUrl) && blank($rawImageUrl)) {
                 $product->image_url = $rawMediaUrl;
-            }
-
-            $product->stock_quantity = $product->stock_quantity !== null
-                ? max(0, (int) $product->stock_quantity)
-                : null;
-            $product->stock_status = self::normalizeStockStatus(
-                $product->stock_status,
-                $product->stock_quantity,
-                (bool) $product->in_stock,
-            );
-
-            if ($product->stock_status === 'sold_out') {
-                $product->in_stock = false;
-                $product->stock_quantity = 0;
-            } elseif (in_array($product->stock_status, ['in_stock', 'low_stock'], true)) {
-                $product->in_stock = true;
-                $product->stock_quantity ??= $product->stock_status === 'low_stock' ? 4 : 24;
-                if ($product->stock_quantity <= 5) {
-                    $product->stock_status = 'low_stock';
-                }
-            } else {
-                $product->in_stock = true;
             }
 
             if (blank($product->seo_title) && filled($product->name)) {
@@ -342,17 +197,10 @@ class Product extends Model
     {
         $variant = $this->defaultVariant();
 
-        if ($variant !== null) {
-            return $this->is_active
-                && $this->isPublished()
-                && ! $this->inquiry_only
-                && $variant->isPurchasable();
-        }
-
         return $this->is_active
             && $this->isPublished()
             && ! $this->inquiry_only
-            && in_array((string) $this->stock_status, self::PURCHASABLE_STOCK_STATUSES, true);
+            && $variant?->isPurchasable() === true;
     }
 
     public function primaryImageUrl(): ?string
@@ -373,20 +221,7 @@ class Product extends Model
         $variant = $this->defaultVariant();
 
         return $variant?->availabilityLabel()
-            ?? self::labelForOption(self::STOCK_STATUS_OPTIONS, $this->stock_status)
-            ?? 'Unavailable';
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    public function useCaseLabels(): array
-    {
-        return collect($this->use_cases ?? [])
-            ->filter(fn (mixed $value): bool => is_string($value) && trim($value) !== '')
-            ->map(fn (string $value): string => self::labelForOption(self::USE_CASE_OPTIONS, $value) ?? Str::headline($value))
-            ->values()
-            ->all();
+            ?? ($this->inquiry_only ? 'Inquiry only' : 'Unavailable');
     }
 
     public function scopeOrdered(Builder $query): Builder
@@ -473,42 +308,6 @@ class Product extends Model
             ->first();
     }
 
-    public function ensureDefaultVariant(): ProductVariant
-    {
-        $variant = $this->defaultVariant();
-
-        if ($variant !== null) {
-            return $variant;
-        }
-
-        $sku = $this->sku ?: self::normalizeSku($this->slug) ?: 'OXP_'.$this->id;
-        $candidate = $sku;
-        $suffix = 2;
-
-        while (ProductVariant::query()->where('sku', $candidate)->exists()) {
-            $candidate = $sku.'_'.$suffix;
-            $suffix++;
-        }
-
-        return $this->variants()->create([
-            'sku' => $candidate,
-            'title' => 'Default',
-            'price_amount' => $this->price_usd ?? $this->price_from ?? 0,
-            'compare_at_price_amount' => $this->compare_at_price_usd,
-            'currency' => 'NZD',
-            'stock_quantity' => $this->stock_quantity,
-            'stock_status' => $this->stock_status ?? 'in_stock',
-            'inventory_policy' => 'deny',
-            'low_stock_threshold' => 5,
-            'weight_grams' => $this->weight_grams,
-            'image_url' => $this->primaryImageUrl(),
-            'media_path' => $this->media_path,
-            'is_default' => true,
-            'is_active' => true,
-            'sort_order' => 0,
-        ]);
-    }
-
     public function hasVariants(): bool
     {
         if ($this->relationLoaded('variants')) {
@@ -520,29 +319,21 @@ class Product extends Model
 
     public function effectiveSku(): ?string
     {
-        return $this->defaultVariant()?->sku ?? $this->sku;
+        return $this->defaultVariant()?->sku;
     }
 
     public function effectivePrice(): ?float
     {
         $variant = $this->defaultVariant();
 
-        if ($variant !== null) {
-            return $variant->effectivePrice();
-        }
-
-        return $this->price_usd !== null ? (float) $this->price_usd : null;
+        return $variant?->effectivePrice();
     }
 
     public function effectiveCompareAtPrice(): ?float
     {
         $variant = $this->defaultVariant();
 
-        if ($variant !== null) {
-            return $variant->effectiveCompareAtPrice();
-        }
-
-        return $this->compare_at_price_usd !== null ? (float) $this->compare_at_price_usd : null;
+        return $variant?->effectiveCompareAtPrice();
     }
 
     public function effectiveCurrency(): string
@@ -552,14 +343,12 @@ class Product extends Model
 
     public function effectiveStockQuantity(): ?int
     {
-        $variant = $this->defaultVariant();
-
-        return $variant !== null ? $variant->stock_quantity : $this->stock_quantity;
+        return $this->defaultVariant()?->stock_quantity;
     }
 
     public function effectiveStockStatus(): ?string
     {
-        return $this->defaultVariant()?->stock_status ?? $this->stock_status;
+        return $this->defaultVariant()?->stock_status;
     }
 
     public function effectiveImageUrl(): ?string
@@ -587,55 +376,4 @@ class Product extends Model
         return $options[$value] ?? Str::headline($value);
     }
 
-    public static function normalizeCategoryValue(?string $value): ?string
-    {
-        if (! is_string($value) || trim($value) === '') {
-            return null;
-        }
-
-        $normalized = Str::slug(trim($value), '_');
-
-        if (isset(self::CATEGORY_OPTIONS[$normalized])) {
-            return $normalized;
-        }
-
-        return match ($normalized) {
-            'wellness_interior',
-            'wellness_interiors',
-            'home_objects',
-            'gift_sets' => 'wellness_interior',
-            default => null,
-        };
-    }
-
-    private static function normalizeStockStatus(?string $stockStatus, ?int $stockQuantity, bool $inStock): string
-    {
-        $normalized = strtolower(trim((string) $stockStatus));
-
-        if (isset(self::STOCK_STATUS_OPTIONS[$normalized])) {
-            if (
-                in_array($normalized, ['in_stock', 'low_stock'], true)
-                && $stockQuantity !== null
-                && $stockQuantity <= 0
-            ) {
-                return 'sold_out';
-            }
-
-            return $normalized;
-        }
-
-        if ($stockQuantity !== null) {
-            if ($stockQuantity <= 0) {
-                return 'sold_out';
-            }
-
-            if ($stockQuantity <= 5) {
-                return 'low_stock';
-            }
-
-            return 'in_stock';
-        }
-
-        return $inStock ? 'in_stock' : 'sold_out';
-    }
 }

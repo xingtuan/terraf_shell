@@ -6,9 +6,12 @@ use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\ProductAttributeAssignment;
 use App\Models\ProductAttributeDefinition;
+use App\Models\ProductAttributeValue;
 use App\Models\ProductCategory;
 use App\Models\ProductImage;
+use App\Models\ProductVariant;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class ProductCatalogSeeder extends Seeder
 {
@@ -160,7 +163,7 @@ class ProductCatalogSeeder extends Seeder
                 'technique' => 'original_pure',
                 'dimensions' => 'Dia 27 cm x H 2.4 cm',
                 'weight_grams' => 590,
-                'specifications' => [
+                'attribute_specs' => [
                     ['key' => 'rim_profile', 'label' => 'Rim Profile', 'value' => 'Soft coupe edge', 'group' => 'Product'],
                     ['key' => 'service_pack', 'label' => 'Service Pack', 'value' => '12 pcs', 'group' => 'Program'],
                 ],
@@ -175,15 +178,15 @@ class ProductCatalogSeeder extends Seeder
                     'Premium traceability story for dining programs and gifting.',
                 ],
                 'certifications' => [],
-                'use_cases' => ['home_dining', 'hospitality_service', 'retail_gifting'],
+                'use_case_values' => ['home_dining', 'hospitality_service', 'retail_gifting'],
                 'price_from' => 76,
                 'currency' => 'NZD',
                 'featured' => true,
                 'is_bestseller' => true,
                 'is_new' => false,
                 'sort_order' => 1,
-                'compare_at_price_usd' => 92,
-                'price_usd' => 76,
+                'compare_at_price_amount' => 92,
+                'price_amount' => 76,
                 'stock_quantity' => 42,
                 'stock_status' => 'in_stock',
                 'in_stock' => true,
@@ -261,7 +264,7 @@ class ProductCatalogSeeder extends Seeder
                 'technique' => 'precision_inlay',
                 'dimensions' => 'Dia 21 cm x H 7.5 cm',
                 'weight_grams' => 720,
-                'specifications' => [
+                'attribute_specs' => [
                     ['key' => 'capacity', 'label' => 'Capacity', 'value' => '1.3', 'unit' => 'L', 'group' => 'Dimensions'],
                     ['key' => 'service_pack', 'label' => 'Service Pack', 'value' => '8 pcs', 'group' => 'Program'],
                 ],
@@ -276,15 +279,15 @@ class ProductCatalogSeeder extends Seeder
                     'Refined shell story for boutique hospitality programs.',
                 ],
                 'certifications' => [],
-                'use_cases' => ['hospitality_service', 'home_dining'],
+                'use_case_values' => ['hospitality_service', 'home_dining'],
                 'price_from' => 96,
                 'currency' => 'NZD',
                 'featured' => true,
                 'is_bestseller' => false,
                 'is_new' => false,
                 'sort_order' => 2,
-                'compare_at_price_usd' => 118,
-                'price_usd' => 96,
+                'compare_at_price_amount' => 118,
+                'price_amount' => 96,
                 'stock_quantity' => 5,
                 'stock_status' => 'low_stock',
                 'in_stock' => true,
@@ -362,7 +365,7 @@ class ProductCatalogSeeder extends Seeder
                 'technique' => 'driftwood_blend',
                 'dimensions' => 'Cup Dia 7 cm x H 6 cm / Saucer Dia 12 cm',
                 'weight_grams' => 310,
-                'specifications' => [
+                'attribute_specs' => [
                     ['key' => 'set_contents', 'label' => 'Set Contents', 'value' => 'Cup + Saucer', 'group' => 'Product'],
                     ['key' => 'capacity', 'label' => 'Cup Capacity', 'value' => '150', 'unit' => 'ml', 'group' => 'Dimensions'],
                 ],
@@ -375,15 +378,15 @@ class ProductCatalogSeeder extends Seeder
                     'Low-absorption surface for coffee service and boutique retail display.',
                 ],
                 'certifications' => [],
-                'use_cases' => ['home_dining', 'retail_gifting', 'hospitality_service'],
+                'use_case_values' => ['home_dining', 'retail_gifting', 'hospitality_service'],
                 'price_from' => 58,
                 'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => false,
                 'is_new' => true,
                 'sort_order' => 3,
-                'compare_at_price_usd' => 68,
-                'price_usd' => 58,
+                'compare_at_price_amount' => 68,
+                'price_amount' => 58,
                 'stock_quantity' => null,
                 'stock_status' => 'preorder',
                 'in_stock' => true,
@@ -461,7 +464,7 @@ class ProductCatalogSeeder extends Seeder
                 'technique' => 'original_pure',
                 'dimensions' => 'Dia 18 cm x H 16 cm',
                 'weight_grams' => 860,
-                'specifications' => [
+                'attribute_specs' => [
                     ['key' => 'opening', 'label' => 'Opening', 'value' => '14', 'unit' => 'cm', 'group' => 'Dimensions'],
                     ['key' => 'liner', 'label' => 'Recommended Liner', 'value' => 'Soft nursery pot insert', 'group' => 'Care'],
                 ],
@@ -475,15 +478,15 @@ class ProductCatalogSeeder extends Seeder
                     'Lower-absorption surface than many porous indoor decorative materials.',
                 ],
                 'certifications' => [],
-                'use_cases' => ['interior_styling', 'retail_gifting', 'design_projects'],
+                'use_case_values' => ['interior_styling', 'retail_gifting', 'design_projects'],
                 'price_from' => 88,
                 'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => false,
                 'is_new' => true,
                 'sort_order' => 4,
-                'compare_at_price_usd' => 104,
-                'price_usd' => 88,
+                'compare_at_price_amount' => 104,
+                'price_amount' => 88,
                 'stock_quantity' => 18,
                 'stock_status' => 'in_stock',
                 'in_stock' => true,
@@ -561,7 +564,7 @@ class ProductCatalogSeeder extends Seeder
                 'technique' => 'original_pure',
                 'dimensions' => 'W 23 cm x D 12 cm x H 1.8 cm',
                 'weight_grams' => 340,
-                'specifications' => [
+                'attribute_specs' => [
                     ['key' => 'edge', 'label' => 'Edge Detail', 'value' => 'Soft chamfer', 'group' => 'Product'],
                     ['key' => 'placement', 'label' => 'Suggested Placement', 'value' => 'Bath, vanity, bedside', 'group' => 'Application'],
                 ],
@@ -574,15 +577,15 @@ class ProductCatalogSeeder extends Seeder
                     'Low-absorption surface works well for soaps, candles, and amenity objects.',
                 ],
                 'certifications' => [],
-                'use_cases' => ['interior_styling', 'retail_gifting', 'home_dining'],
+                'use_case_values' => ['interior_styling', 'retail_gifting', 'home_dining'],
                 'price_from' => 64,
                 'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => true,
                 'is_new' => false,
                 'sort_order' => 5,
-                'compare_at_price_usd' => 79,
-                'price_usd' => 64,
+                'compare_at_price_amount' => 79,
+                'price_amount' => 64,
                 'stock_quantity' => 16,
                 'stock_status' => 'in_stock',
                 'in_stock' => true,
@@ -660,7 +663,7 @@ class ProductCatalogSeeder extends Seeder
                 'technique' => 'precision_inlay',
                 'dimensions' => 'W 10 cm x D 10 cm x H 0.8 cm',
                 'weight_grams' => 180,
-                'specifications' => [
+                'attribute_specs' => [
                     ['key' => 'sample_format', 'label' => 'Sample Format', 'value' => 'Architectural swatch tile', 'group' => 'Program'],
                     ['key' => 'moq', 'label' => 'Project MOQ', 'value' => 'Discuss with OXP team', 'group' => 'Commercial'],
                 ],
@@ -673,15 +676,15 @@ class ProductCatalogSeeder extends Seeder
                     'Useful for hospitality teams reviewing premium sustainable finish directions.',
                 ],
                 'certifications' => [],
-                'use_cases' => ['design_projects', 'hospitality_service', 'interior_styling'],
+                'use_case_values' => ['design_projects', 'hospitality_service', 'interior_styling'],
                 'price_from' => 24,
                 'currency' => 'NZD',
                 'featured' => true,
                 'is_bestseller' => false,
                 'is_new' => false,
                 'sort_order' => 6,
-                'compare_at_price_usd' => null,
-                'price_usd' => 24,
+                'compare_at_price_amount' => null,
+                'price_amount' => 24,
                 'stock_quantity' => null,
                 'stock_status' => 'made_to_order',
                 'in_stock' => true,
@@ -759,7 +762,7 @@ class ProductCatalogSeeder extends Seeder
                 'technique' => 'original_pure',
                 'dimensions' => 'A5 kit box',
                 'weight_grams' => 240,
-                'specifications' => [
+                'attribute_specs' => [
                     ['key' => 'contents', 'label' => 'Kit Contents', 'value' => 'Finish chips, object sample, care notes', 'group' => 'Product'],
                     ['key' => 'audience', 'label' => 'Audience', 'value' => 'Design studios and hospitality buyers', 'group' => 'Application'],
                 ],
@@ -772,15 +775,15 @@ class ProductCatalogSeeder extends Seeder
                     'Connects premium B2C discovery with future B2B program planning.',
                 ],
                 'certifications' => [],
-                'use_cases' => ['design_projects', 'hospitality_service', 'retail_gifting'],
+                'use_case_values' => ['design_projects', 'hospitality_service', 'retail_gifting'],
                 'price_from' => 36,
                 'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => false,
                 'is_new' => true,
                 'sort_order' => 7,
-                'compare_at_price_usd' => null,
-                'price_usd' => 36,
+                'compare_at_price_amount' => null,
+                'price_amount' => 36,
                 'stock_quantity' => null,
                 'stock_status' => 'preorder',
                 'in_stock' => true,
@@ -858,7 +861,7 @@ class ProductCatalogSeeder extends Seeder
                 'technique' => 'driftwood_blend',
                 'dimensions' => 'Dia 8.5 cm x H 9 cm',
                 'weight_grams' => 420,
-                'specifications' => [
+                'attribute_specs' => [
                     ['key' => 'wax_fill', 'label' => 'Wax Fill Guideline', 'value' => 'Discuss with OXP team', 'group' => 'Program'],
                     ['key' => 'batch_state', 'label' => 'Batch Status', 'value' => 'Sold out', 'group' => 'Availability'],
                 ],
@@ -871,15 +874,15 @@ class ProductCatalogSeeder extends Seeder
                     'Extends the shell-origin narrative into intimate interior rituals.',
                 ],
                 'certifications' => [],
-                'use_cases' => ['interior_styling', 'retail_gifting', 'hospitality_service'],
+                'use_case_values' => ['interior_styling', 'retail_gifting', 'hospitality_service'],
                 'price_from' => 72,
                 'currency' => 'NZD',
                 'featured' => false,
                 'is_bestseller' => false,
                 'is_new' => false,
                 'sort_order' => 8,
-                'compare_at_price_usd' => 84,
-                'price_usd' => 72,
+                'compare_at_price_amount' => 84,
+                'price_amount' => 72,
                 'stock_quantity' => 0,
                 'stock_status' => 'sold_out',
                 'in_stock' => false,
@@ -906,7 +909,7 @@ class ProductCatalogSeeder extends Seeder
         $records = [];
         $attributeDefinitions = ProductAttributeDefinition::query()
             ->with('values')
-            ->whereIn('key', ['material_family', 'model', 'finish', 'color', 'technique', 'use_case'])
+            ->whereIn('key', ['material_family', 'model', 'finish', 'color', 'technique', 'use_case', 'dimensions'])
             ->get()
             ->keyBy('key');
 
@@ -930,20 +933,11 @@ class ProductCatalogSeeder extends Seeder
                     'availability_text' => $productData['availability_text'],
                     'availability_text_translations' => $productData['availability_text_translations'],
                     'lead_time' => $productData['lead_time'],
-                    'sku' => $productData['sku'],
-                    'category' => $productData['category'],
-                    'model' => $productData['model'],
-                    'finish' => $productData['finish'],
-                    'color' => $productData['color'],
-                    'technique' => $productData['technique'],
-                    'dimensions' => $productData['dimensions'],
                     'weight_grams' => $productData['weight_grams'],
-                    'specifications' => $productData['specifications'],
                     'care_instructions' => $productData['care_instructions'],
                     'material_benefits' => $productData['material_benefits'],
                     'certifications' => [],
                     'technical_downloads' => [],
-                    'use_cases' => $productData['use_cases'],
                     'seo_title' => $productData['seo_title'],
                     'seo_description' => $productData['seo_description'],
                     'status' => ProductStatus::Published->value,
@@ -953,12 +947,7 @@ class ProductCatalogSeeder extends Seeder
                     'sort_order' => $productData['sort_order'],
                     'image_url' => $productData['image_url'],
                     'price_from' => $productData['price_from'],
-                    'price_usd' => $productData['price_usd'],
-                    'compare_at_price_usd' => $productData['compare_at_price_usd'],
                     'currency' => $productData['currency'],
-                    'stock_quantity' => $productData['stock_quantity'],
-                    'stock_status' => $productData['stock_status'],
-                    'in_stock' => $productData['in_stock'],
                     'inquiry_only' => $productData['inquiry_only'],
                     'sample_request_enabled' => $productData['sample_request_enabled'],
                     'is_active' => true,
@@ -966,21 +955,26 @@ class ProductCatalogSeeder extends Seeder
                 ],
             );
 
-            $variant = $product->ensureDefaultVariant();
-            $variant->forceFill([
-                'sku' => $productData['sku'],
-                'title' => 'Default',
-                'price_amount' => $productData['price_usd'],
-                'compare_at_price_amount' => $productData['compare_at_price_usd'],
-                'currency' => 'NZD',
-                'stock_quantity' => $productData['stock_quantity'],
-                'stock_status' => $productData['stock_status'],
-                'inventory_policy' => 'deny',
-                'weight_grams' => $productData['weight_grams'],
-                'image_url' => $productData['image_url'],
-                'is_default' => true,
-                'is_active' => true,
-            ])->save();
+            ProductVariant::query()->updateOrCreate(
+                [
+                    'product_id' => $product->id,
+                    'sku' => $productData['sku'],
+                ],
+                [
+                    'title' => 'Default',
+                    'price_amount' => $productData['price_amount'],
+                    'compare_at_price_amount' => $productData['compare_at_price_amount'],
+                    'currency' => 'NZD',
+                    'stock_quantity' => $productData['stock_quantity'],
+                    'stock_status' => $productData['stock_status'],
+                    'inventory_policy' => 'deny',
+                    'weight_grams' => $productData['weight_grams'],
+                    'image_url' => $productData['image_url'],
+                    'is_default' => true,
+                    'is_active' => true,
+                    'sort_order' => 0,
+                ],
+            );
 
             $this->syncDynamicAttributes($product, $productData, $attributeDefinitions);
 
@@ -1021,13 +1015,15 @@ class ProductCatalogSeeder extends Seeder
 
     private function syncDynamicAttributes(Product $product, array $productData, mixed $attributeDefinitions): void
     {
+        $product->attributeAssignments()->delete();
+
         $assignments = [
             'material_family' => ['oxp'],
             'model' => [$productData['model']],
             'finish' => [$productData['finish']],
             'color' => [$productData['color']],
             'technique' => [$productData['technique']],
-            'use_case' => $productData['use_cases'] ?? [],
+            'use_case' => $productData['use_case_values'] ?? [],
         ];
 
         foreach ($assignments as $definitionKey => $values) {
@@ -1041,7 +1037,13 @@ class ProductCatalogSeeder extends Seeder
                 $attributeValue = $definition->values->firstWhere('value', $value);
 
                 if ($attributeValue === null) {
-                    continue;
+                    $attributeValue = ProductAttributeValue::query()->create([
+                        'attribute_definition_id' => $definition->id,
+                        'value' => $value,
+                        'label' => Str::headline(str_replace('_', ' ', (string) $value)),
+                        'label_translations' => ['en' => Str::headline(str_replace('_', ' ', (string) $value))],
+                        'is_active' => true,
+                    ]);
                 }
 
                 ProductAttributeAssignment::query()->updateOrCreate(
@@ -1058,6 +1060,61 @@ class ProductCatalogSeeder extends Seeder
                     ],
                 );
             }
+        }
+
+        if (filled($productData['dimensions'] ?? null) && $attributeDefinitions->has('dimensions')) {
+            ProductAttributeAssignment::query()->create([
+                'product_id' => $product->id,
+                'attribute_definition_id' => $attributeDefinitions->get('dimensions')->id,
+                'product_attribute_value_id' => null,
+                'value_text' => $productData['dimensions'],
+                'value_number' => null,
+                'value_boolean' => null,
+                'value_json' => null,
+            ]);
+        }
+
+        foreach ($productData['attribute_specs'] ?? [] as $specification) {
+            if (! is_array($specification)) {
+                continue;
+            }
+
+            $label = trim((string) ($specification['label'] ?? ''));
+            $value = trim((string) ($specification['value'] ?? ''));
+
+            if ($label === '' || $value === '') {
+                continue;
+            }
+
+            $key = Str::slug((string) ($specification['key'] ?? $label), '_');
+            $definition = ProductAttributeDefinition::query()->updateOrCreate(
+                ['key' => $key],
+                [
+                    'label' => $label,
+                    'label_translations' => ['en' => $label],
+                    'type' => 'text',
+                    'unit' => $specification['unit'] ?? null,
+                    'group' => $specification['group'] ?? 'Specifications',
+                    'is_variant_option' => false,
+                    'is_filterable' => false,
+                    'is_searchable' => false,
+                    'is_specification' => true,
+                    'is_required' => false,
+                    'allows_multiple' => false,
+                    'sort_order' => 100,
+                    'is_active' => true,
+                ],
+            );
+
+            ProductAttributeAssignment::query()->create([
+                'product_id' => $product->id,
+                'attribute_definition_id' => $definition->id,
+                'product_attribute_value_id' => null,
+                'value_text' => $value,
+                'value_number' => null,
+                'value_boolean' => null,
+                'value_json' => null,
+            ]);
         }
     }
 }

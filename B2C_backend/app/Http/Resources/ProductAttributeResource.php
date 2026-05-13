@@ -25,11 +25,14 @@ class ProductAttributeResource extends JsonResource
             'display_label' => $this->translated($value?->label_translations, $this->displayValue(), $locale),
             'type' => $definition?->type,
             'unit' => $definition?->unit,
+            'group' => $definition?->group,
+            'help_text' => $definition?->help_text,
             'color_hex' => $value?->color_hex,
             'is_filterable' => (bool) $definition?->is_filterable,
             'is_variant_option' => (bool) $definition?->is_variant_option,
             'is_searchable' => (bool) $definition?->is_searchable,
             'is_specification' => (bool) $definition?->is_specification,
+            'allows_multiple' => (bool) $definition?->allows_multiple,
         ];
     }
 

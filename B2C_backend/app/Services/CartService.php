@@ -219,7 +219,15 @@ class CartService
             return $variant;
         }
 
-        return $product->defaultVariant() ?? $product->ensureDefaultVariant();
+        $variant = $product->defaultVariant();
+
+        if ($variant === null) {
+            throw ValidationException::withMessages([
+                'product_id' => ['This product does not have an active purchasable variant.'],
+            ]);
+        }
+
+        return $variant;
     }
 
     private function guardVariantPurchasable(Product $product, ProductVariant $variant): void

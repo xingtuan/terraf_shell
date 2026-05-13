@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\ValidationException;
 
 class ProductAttributeAssignment extends Model
 {
@@ -27,6 +28,35 @@ class ProductAttributeAssignment extends Model
             'value_boolean' => 'boolean',
             'value_json' => 'array',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $assignment): void {
+            if ($assignment->product_id === null || $assignment->attribute_definition_id === null) {
+                return;
+            }
+
+            $definition = $assignment->relationLoaded('definition')
+                ? $assignment->definition
+                : ProductAttributeDefinition::query()->find($assignment->attribute_definition_id);
+
+            if ($definition?->allows_multiple) {
+                return;
+            }
+
+            $duplicateExists = self::query()
+                ->where('product_id', $assignment->product_id)
+                ->where('attribute_definition_id', $assignment->attribute_definition_id)
+                ->when($assignment->exists, fn ($query) => $query->whereKeyNot($assignment->getKey()))
+                ->exists();
+
+            if ($duplicateExists) {
+                throw ValidationException::withMessages([
+                    'attribute_definition_id' => ['This attribute can only be assigned once to a product.'],
+                ]);
+            }
+        });
     }
 
     public function product(): BelongsTo
@@ -63,7 +93,12 @@ class ProductAttributeAssignment extends Model
         }
 
         if (is_array($this->value_json) && $this->value_json !== []) {
-            return json_encode($this->value_json, JSON_THROW_ON_ERROR);
+            return collect($this->value_json)
+                ->map(fn (mixed $value, string|int $key): ?string => is_scalar($value)
+                    ? (is_string($key) ? str($key)->headline().': '.$value : (string) $value)
+                    : null)
+                ->filter()
+                ->implode(', ');
         }
 
         return null;

@@ -6,6 +6,7 @@ use App\Enums\ProductStatus;
 use App\Filament\Support\AdminOptions;
 use App\Models\Product;
 use App\Models\ProductAttributeDefinition;
+use App\Models\ProductAttributeValue;
 use App\Models\ProductCategory;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -23,6 +24,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
@@ -53,10 +55,6 @@ class ProductForm
                                                     ->required()
                                                     ->maxLength(255)
                                                     ->unique(ignoreRecord: true),
-                                                TextInput::make('sku')
-                                                    ->label(__('admin.ui.legacy_default_sku'))
-                                                    ->maxLength(255)
-                                                    ->helperText(__('admin.ui.compatibility_field_variant_sku_is_the_storefront_source_of_truth')),
                                                 Select::make('category_id')
                                                     ->label(__('admin.ui.product_category'))
                                                     ->options(fn (): array => ProductCategory::query()
@@ -71,26 +69,6 @@ class ProductForm
                                                     ->options(ProductStatus::options())
                                                     ->required()
                                                     ->default(ProductStatus::Draft->value),
-                                                Select::make('category')
-                                                    ->label(__('admin.ui.legacy_category'))
-                                                    ->options(fn (): array => AdminOptions::productCategories())
-                                                    ->required(),
-                                                Select::make('model')
-                                                    ->label(__('admin.ui.legacy_model'))
-                                                    ->options(fn (): array => AdminOptions::productModels())
-                                                    ->required(),
-                                                Select::make('finish')
-                                                    ->label(__('admin.ui.legacy_finish'))
-                                                    ->options(fn (): array => AdminOptions::productFinishes())
-                                                    ->required(),
-                                                Select::make('color')
-                                                    ->label(__('admin.ui.legacy_color'))
-                                                    ->options(fn (): array => AdminOptions::productColors())
-                                                    ->required(),
-                                                Select::make('technique')
-                                                    ->label(__('admin.ui.legacy_technique'))
-                                                    ->options(fn (): array => AdminOptions::productTechniques())
-                                                    ->required(),
                                                 TextInput::make('sort_order')
                                                     ->label(__('admin.ui.sort_order'))
                                                     ->numeric()
@@ -213,39 +191,6 @@ class ProductForm
                                             ->columnSpanFull(),
                                     ]),
                             ]),
-                        Tab::make(__('admin.ui.stock_fallback'))
-                            ->schema([
-                                Section::make(__('admin.ui.legacy_inventory_fallback'))
-                                    ->description(__('admin.ui.used_only_when_a_product_has_no_active_variant'))
-                                    ->schema([
-                                        Grid::make(2)
-                                            ->schema([
-                                                TextInput::make('price_usd')
-                                                    ->label(__('admin.ui.legacy_price_fallback_nzd'))
-                                                    ->numeric()
-                                                    ->prefix('$')
-                                                    ->required(),
-                                                TextInput::make('compare_at_price_usd')
-                                                    ->label(__('admin.ui.legacy_compare_at_fallback_nzd'))
-                                                    ->numeric()
-                                                    ->prefix('$'),
-                                                Select::make('stock_status')
-                                                    ->label(__('admin.fields.stock_status'))
-                                                    ->options(fn (): array => AdminOptions::productStockStatuses())
-                                                    ->required()
-                                                    ->default('in_stock'),
-                                                TextInput::make('stock_quantity')
-                                                    ->label(__('admin.ui.stock_quantity'))
-                                                    ->numeric()
-                                                    ->minValue(0)
-                                                    ->helperText(__('admin.ui.leave_blank_for_preorder_or_made_to_order_fallback_items')),
-                                                TextInput::make('weight_grams')
-                                                    ->label(__('admin.fields.weight_grams'))
-                                                    ->numeric()
-                                                    ->minValue(0),
-                                            ]),
-                                    ]),
-                            ]),
                         Tab::make(__('admin.ui.storefront_content'))
                             ->schema([
                                 self::localeSection('en', __('admin.locale.english'), true),
@@ -289,6 +234,7 @@ class ProductForm
                         Tab::make(__('admin.ui.specifications_attributes'))
                             ->schema([
                                 Section::make(__('admin.ui.dynamic_attributes'))
+                                    ->description(__('admin.ui.dynamic_attributes_replace_legacy_product_fields'))
                                     ->schema([
                                         Repeater::make('attributeAssignments')
                                             ->relationship()
@@ -304,67 +250,82 @@ class ProductForm
                                                         ->ordered()
                                                         ->pluck('label', 'id')
                                                         ->all())
+                                                    ->createOptionForm([
+                                                        TextInput::make('key')
+                                                            ->label(__('admin.ui.key'))
+                                                            ->required()
+                                                            ->maxLength(120)
+                                                            ->unique(ProductAttributeDefinition::class, 'key'),
+                                                        TextInput::make('label')
+                                                            ->label(__('admin.ui.label'))
+                                                            ->required()
+                                                            ->maxLength(160),
+                                                        Select::make('type')
+                                                            ->label(__('admin.fields.type'))
+                                                            ->options(fn (): array => AdminOptions::productAttributeTypes())
+                                                            ->default('text')
+                                                            ->required(),
+                                                        TextInput::make('unit')
+                                                            ->label(__('admin.ui.unit'))
+                                                            ->maxLength(40),
+                                                        TextInput::make('group')
+                                                            ->label(__('admin.ui.group'))
+                                                            ->maxLength(80),
+                                                        Textarea::make('help_text')
+                                                            ->label(__('admin.ui.help_text'))
+                                                            ->rows(2)
+                                                            ->columnSpanFull(),
+                                                        Toggle::make('is_filterable')
+                                                            ->label(__('admin.ui.filterable')),
+                                                        Toggle::make('is_searchable')
+                                                            ->label(__('admin.ui.searchable')),
+                                                        Toggle::make('is_specification')
+                                                            ->label(__('admin.ui.specification'))
+                                                            ->default(true),
+                                                        Toggle::make('is_variant_option')
+                                                            ->label(__('admin.ui.variant')),
+                                                        Toggle::make('allows_multiple')
+                                                            ->label(__('admin.ui.allows_multiple')),
+                                                        Toggle::make('is_active')
+                                                            ->label(__('admin.ui.active'))
+                                                            ->default(true),
+                                                    ])
                                                     ->searchable()
                                                     ->preload()
+                                                    ->live()
                                                     ->required(),
+                                                Placeholder::make('attribute_metadata')
+                                                    ->label(__('admin.ui.attribute_metadata'))
+                                                    ->content(fn (Get $get): string => self::attributeMetadata((int) $get('attribute_definition_id')))
+                                                    ->columnSpanFull(),
                                                 Select::make('product_attribute_value_id')
                                                     ->label(__('admin.ui.predefined_value'))
-                                                    ->relationship('attributeValue', 'label')
+                                                    ->options(fn (Get $get): array => ProductAttributeValue::query()
+                                                        ->where('attribute_definition_id', $get('attribute_definition_id'))
+                                                        ->active()
+                                                        ->ordered()
+                                                        ->pluck('label', 'id')
+                                                        ->all())
                                                     ->searchable()
-                                                    ->preload(),
+                                                    ->preload()
+                                                    ->visible(fn (Get $get): bool => in_array(self::attributeType((int) $get('attribute_definition_id')), ['select', 'multiselect'], true)),
                                                 TextInput::make('value_text')
                                                     ->label(__('admin.ui.text_rich_text_value'))
+                                                    ->visible(fn (Get $get): bool => in_array(self::attributeType((int) $get('attribute_definition_id')), ['text', 'rich_text'], true))
                                                     ->columnSpanFull(),
                                                 TextInput::make('value_number')
                                                     ->label(__('admin.ui.numeric_value'))
-                                                    ->numeric(),
+                                                    ->numeric()
+                                                    ->visible(fn (Get $get): bool => self::attributeType((int) $get('attribute_definition_id')) === 'number'),
                                                 Toggle::make('value_boolean')
-                                                    ->label(__('admin.ui.boolean_value')),
+                                                    ->label(__('admin.ui.boolean_value'))
+                                                    ->visible(fn (Get $get): bool => self::attributeType((int) $get('attribute_definition_id')) === 'boolean'),
                                                 KeyValue::make('value_json')
                                                     ->label(__('admin.ui.json_value'))
                                                     ->keyLabel(__('admin.ui.key'))
                                                     ->valueLabel(__('admin.ui.value'))
+                                                    ->visible(fn (Get $get): bool => self::attributeType((int) $get('attribute_definition_id')) === 'json')
                                                     ->columnSpanFull(),
-                                            ])
-                                            ->columns(2)
-                                            ->columnSpanFull(),
-                                    ]),
-                                Section::make(__('admin.ui.legacy_specifications'))
-                                    ->schema([
-                                        Select::make('use_cases')
-                                            ->label(__('admin.ui.use_cases'))
-                                            ->multiple()
-                                            ->options(fn (): array => AdminOptions::productUseCases())
-                                            ->searchable()
-                                            ->preload()
-                                            ->columnSpanFull(),
-                                        TextInput::make('dimensions')
-                                            ->label(__('admin.ui.dimensions'))
-                                            ->maxLength(255),
-                                        Repeater::make('specifications')
-                                            ->label(__('admin.ui.technical_specifications'))
-                                            ->addActionLabel(__('admin.ui.add_specification'))
-                                            ->collapsible()
-                                            ->reorderableWithButtons()
-                                            ->defaultItems(0)
-                                            ->schema([
-                                                TextInput::make('key')
-                                                    ->label(__('admin.ui.key'))
-                                                    ->maxLength(80),
-                                                TextInput::make('label')
-                                                    ->label(__('admin.ui.label'))
-                                                    ->required()
-                                                    ->maxLength(120),
-                                                TextInput::make('value')
-                                                    ->label(__('admin.ui.value'))
-                                                    ->required()
-                                                    ->maxLength(255),
-                                                TextInput::make('unit')
-                                                    ->label(__('admin.ui.unit'))
-                                                    ->maxLength(40),
-                                                TextInput::make('group')
-                                                    ->label(__('admin.ui.group'))
-                                                    ->maxLength(80),
                                             ])
                                             ->columns(2)
                                             ->columnSpanFull(),
@@ -550,18 +511,66 @@ class ProductForm
             ]);
     }
 
+    private static function attributeType(int $definitionId): ?string
+    {
+        if ($definitionId <= 0) {
+            return null;
+        }
+
+        return ProductAttributeDefinition::query()
+            ->whereKey($definitionId)
+            ->value('type');
+    }
+
+    private static function attributeMetadata(int $definitionId): string
+    {
+        if ($definitionId <= 0) {
+            return __('admin.ui.select_an_attribute_to_see_metadata');
+        }
+
+        $definition = ProductAttributeDefinition::query()
+            ->whereKey($definitionId)
+            ->first(['type', 'unit', 'group', 'is_filterable', 'is_specification', 'is_variant_option', 'allows_multiple']);
+
+        if ($definition === null) {
+            return __('admin.ui.select_an_attribute_to_see_metadata');
+        }
+
+        return collect([
+            __('admin.fields.type').': '.$definition->type,
+            $definition->unit ? __('admin.ui.unit').': '.$definition->unit : null,
+            $definition->group ? __('admin.ui.group').': '.$definition->group : null,
+            __('admin.ui.filterable').': '.($definition->is_filterable ? __('admin.ui.yes') : __('admin.ui.no')),
+            __('admin.ui.specification').': '.($definition->is_specification ? __('admin.ui.yes') : __('admin.ui.no')),
+            __('admin.ui.variant').': '.($definition->is_variant_option ? __('admin.ui.yes') : __('admin.ui.no')),
+            __('admin.ui.allows_multiple').': '.($definition->allows_multiple ? __('admin.ui.yes') : __('admin.ui.no')),
+        ])->filter()->implode(' | ');
+    }
+
     private static function publishChecklist(?Product $record): string
     {
         if ($record === null || ! $record->exists) {
             return __('admin.ui.publish_checklist_new_product');
         }
 
+        $defaultVariant = $record->defaultVariant();
+        $hasPurchasableVariant = $defaultVariant !== null
+            && $defaultVariant->is_active
+            && filled($defaultVariant->sku)
+            && (float) $defaultVariant->price_amount > 0;
+        $hasSpecificationAttribute = $record->attributeAssignments()
+            ->whereHas('definition', fn ($query) => $query
+                ->where('is_active', true)
+                ->where('is_specification', true))
+            ->exists();
+
         $warnings = collect([
             $record->primaryImageUrl() ? null : __('admin.ui.publish_checklist_no_image'),
-            $record->defaultVariant() ? null : __('admin.ui.publish_checklist_no_active_default_variant'),
-            ($record->effectivePrice() ?? 0) > 0 ? null : __('admin.ui.publish_checklist_no_price'),
+            $record->inquiry_only || $hasPurchasableVariant ? null : __('admin.ui.publish_checklist_no_active_default_variant'),
+            $record->inquiry_only || ($record->effectivePrice() ?? 0) > 0 ? null : __('admin.ui.publish_checklist_no_price'),
             filled(data_get($record->name_translations, 'en') ?: $record->name) ? null : __('admin.ui.publish_checklist_missing_english_title'),
             $record->category_id ? null : __('admin.ui.publish_checklist_no_category'),
+            $hasSpecificationAttribute ? null : __('admin.ui.publish_checklist_no_dynamic_specification'),
         ])->filter()->values();
 
         return $warnings->isEmpty()
@@ -603,9 +612,6 @@ class ProductForm
                     ->maxLength(255),
                 TextInput::make("lead_time_translations.{$locale}")
                     ->label(__('admin.ui.lead_time'))
-                    ->maxLength(255),
-                TextInput::make("dimensions_translations.{$locale}")
-                    ->label(__('admin.ui.dimensions'))
                     ->maxLength(255),
                 TagsInput::make("features_translations.{$locale}")
                     ->label(__('admin.ui.features'))

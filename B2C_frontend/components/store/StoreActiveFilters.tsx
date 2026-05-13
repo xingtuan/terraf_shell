@@ -27,19 +27,15 @@ function filterLabel(
       return content.searchLabel
     case "category":
       return content.categoryQuickFilterLabel
-    case "model":
-      return content.modelLabel
-    case "finish":
-      return content.finishLabel
-    case "color":
-      return content.colorLabel
     case "stock_status":
       return content.stockLabel
-    case "use_case":
-      return content.useCaseLabel
     case "price":
       return content.priceLabel
     default:
+      if (key.startsWith("attributes.")) {
+        return content.attributeLabel
+      }
+
       return key
   }
 }

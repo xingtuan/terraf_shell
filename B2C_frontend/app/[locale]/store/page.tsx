@@ -31,11 +31,9 @@ export default async function StorePage({
       search: filters.search,
       sort: filters.sort,
       category: filters.category || undefined,
-      model: filters.model || undefined,
-      finish: filters.finish || undefined,
-      color: filters.color || undefined,
       stock_status: filters.stock_status || undefined,
-      use_case: filters.use_case || undefined,
+      attributes:
+        Object.keys(filters.attributes).length > 0 ? filters.attributes : undefined,
       price_min: filters.price_min || undefined,
       price_max: filters.price_max || undefined,
       page: filters.page,

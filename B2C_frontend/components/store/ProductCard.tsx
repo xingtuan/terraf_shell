@@ -24,6 +24,26 @@ type ProductCardProps = {
   product: Product
 }
 
+function productCategoryName(product: Product) {
+  return product.category_detail?.name ?? product.category_slug ?? null
+}
+
+function productCardAttributes(product: Product) {
+  return (product.attributes ?? [])
+    .filter((attribute) => {
+      const value = attribute.display_label ?? attribute.value
+
+      return (
+        (attribute.is_filterable || attribute.is_specification) &&
+        attribute.key !== "material_family" &&
+        value !== null &&
+        value !== undefined &&
+        String(value).trim().length > 0
+      )
+    })
+    .slice(0, 3)
+}
+
 export function ProductCard({ locale, product }: ProductCardProps) {
   const { addItem } = useCart()
   const t = getMessages(locale).productCard
@@ -33,6 +53,8 @@ export function ProductCard({ locale, product }: ProductCardProps) {
     product.is_bestseller ? t.bestSellerBadge : null,
     product.is_new ? t.newBadge : null,
   ].filter((badge): badge is string => Boolean(badge))
+  const cardAttributes = productCardAttributes(product)
+  const categoryName = productCategoryName(product) ?? product.subtitle ?? ""
 
   return (
     <article className="group overflow-hidden rounded-[2rem] border border-border/60 bg-card transition-transform duration-300 hover:-translate-y-1">
@@ -47,7 +69,7 @@ export function ProductCard({ locale, product }: ProductCardProps) {
           <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full bg-background/90 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-foreground">
-                {product.category_label || product.category}
+                {categoryName}
               </span>
               {badges.map((badge) => (
                 <span
@@ -66,19 +88,14 @@ export function ProductCard({ locale, product }: ProductCardProps) {
       <div className="space-y-5 p-6">
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            {product.model_label ? (
+            {cardAttributes.map((attribute) => (
               <span className="rounded-full border border-border/60 px-3 py-1">
-                {product.model_label}
+                {attribute.display_label ?? String(attribute.value ?? "")}
               </span>
-            ) : null}
-            {product.finish_label ? (
+            ))}
+            {cardAttributes.length === 0 && categoryName ? (
               <span className="rounded-full border border-border/60 px-3 py-1">
-                {product.finish_label}
-              </span>
-            ) : null}
-            {product.color_label ? (
-              <span className="rounded-full border border-border/60 px-3 py-1">
-                {product.color_label}
+                {categoryName}
               </span>
             ) : null}
           </div>
@@ -95,14 +112,14 @@ export function ProductCard({ locale, product }: ProductCardProps) {
           </div>
         </div>
 
-        {product.use_case_labels?.length ? (
+        {cardAttributes.length > 0 ? (
           <div className="flex flex-wrap gap-2">
-            {product.use_case_labels.slice(0, 3).map((useCase) => (
+            {cardAttributes.map((attribute) => (
               <span
-                key={useCase}
+                key={`${attribute.key}-${attribute.display_label}`}
                 className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
               >
-                {useCase}
+                {attribute.label}: {attribute.display_label ?? String(attribute.value ?? "")}
               </span>
             ))}
           </div>
@@ -115,10 +132,10 @@ export function ProductCard({ locale, product }: ProductCardProps) {
                 <p className="text-xl font-medium text-foreground">
                   {formatProductPrice(product, locale)}
                 </p>
-                {product.compare_at_price_usd ? (
+                {product.compare_at_price_amount ? (
                   <p className="text-sm text-muted-foreground line-through">
                     {formatCurrencyAmount(
-                      product.compare_at_price_usd,
+                      product.compare_at_price_amount,
                       locale,
                       product.currency ?? "NZD",
                     )}

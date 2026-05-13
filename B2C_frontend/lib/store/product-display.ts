@@ -29,10 +29,14 @@ export function getProductQuantityLimit(
 }
 
 export function supportsProjectEnquiry(
-  product: Pick<Product, "inquiry_only" | "use_cases">,
+  product: Pick<Product, "inquiry_only" | "attributes">,
 ) {
+  const applicationValues = (product.attributes ?? [])
+    .filter((attribute) => ["use_case", "application"].includes(attribute.key ?? ""))
+    .map((attribute) => String(attribute.value ?? attribute.display_label ?? ""))
+
   return Boolean(
     product.inquiry_only ||
-      product.use_cases?.some((useCase) => PROJECT_ENQUIRY_USE_CASES.has(useCase)),
+      applicationValues.some((useCase) => PROJECT_ENQUIRY_USE_CASES.has(useCase)),
   )
 }

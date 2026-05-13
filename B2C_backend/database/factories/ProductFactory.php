@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -16,15 +17,8 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         $name = Str::title(fake()->unique()->words(3, true));
-        $category = fake()->randomElement(array_keys(Product::CATEGORY_OPTIONS));
-        $model = fake()->randomElement(array_keys(Product::MODEL_OPTIONS));
-        $finish = fake()->randomElement(array_keys(Product::FINISH_OPTIONS));
-        $color = fake()->randomElement(array_keys(Product::COLOR_OPTIONS));
-        $technique = fake()->randomElement(array_keys(Product::TECHNIQUE_OPTIONS));
         $imageUrl = fake()->imageUrl(1200, 800, 'business', true);
-        $priceUsd = fake()->randomFloat(2, 28, 180);
-        $stockQuantity = fake()->numberBetween(6, 60);
-        $sku = Product::normalizeSku(Str::slug($name).'-'.fake()->unique()->numberBetween(100, 9999));
+        $priceAmount = fake()->randomFloat(2, 28, 180);
 
         return [
             'category_id' => ProductCategory::factory(),
@@ -39,22 +33,7 @@ class ProductFactory extends Factory
                 'Lightweight handling',
             ], 3),
             'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(100, 9999),
-            'sku' => $sku,
-            'category' => $category,
-            'model' => $model,
-            'finish' => $finish,
-            'color' => $color,
-            'technique' => $technique,
-            'dimensions' => fake()->randomElement(['Dia 27 cm x H 2.4 cm', 'W 18 cm x D 18 cm x H 8 cm']),
             'weight_grams' => fake()->numberBetween(240, 1200),
-            'specifications' => [
-                [
-                    'key' => 'pack_size',
-                    'label' => 'Pack Size',
-                    'value' => fake()->randomElement(['6 pcs', '12 pcs']),
-                    'group' => 'Program',
-                ],
-            ],
             'certifications' => [
                 '0% water absorption',
                 'Food-contact reviewed',
@@ -85,19 +64,13 @@ class ProductFactory extends Factory
                     'answer' => 'This product uses Terrafin OXP material, a material line made with recovered oyster shell.',
                 ],
             ],
-            'use_cases' => fake()->randomElements(array_keys(Product::USE_CASE_OPTIONS), fake()->numberBetween(1, 3)),
             'status' => ProductStatus::Draft->value,
             'sort_order' => 0,
             'media_path' => null,
             'media_url' => $imageUrl,
             'image_url' => $imageUrl,
-            'price_from' => $priceUsd,
-            'price_usd' => $priceUsd,
-            'compare_at_price_usd' => round($priceUsd * 1.15, 2),
+            'price_from' => $priceAmount,
             'currency' => 'NZD',
-            'stock_quantity' => $stockQuantity,
-            'stock_status' => 'in_stock',
-            'in_stock' => true,
             'is_active' => true,
             'featured' => false,
             'is_bestseller' => false,
@@ -138,9 +111,6 @@ class ProductFactory extends Factory
         return $this->state(fn (): array => [
             'status' => ProductStatus::Archived->value,
             'is_active' => false,
-            'in_stock' => false,
-            'stock_quantity' => 0,
-            'stock_status' => 'sold_out',
             'published_at' => null,
         ]);
     }
@@ -148,7 +118,41 @@ class ProductFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (Product $product): void {
-            $product->ensureDefaultVariant();
+            if ($product->variants()->exists()) {
+                return;
+            }
+
+            $price = $product->price_from ?? 0;
+            $stockQuantity = 24;
+            $stockStatus = 'in_stock';
+            $baseSku = Product::normalizeSku($product->slug)
+                ?: 'OXP_'.$product->id;
+            $sku = (string) $baseSku;
+            $suffix = 2;
+
+            while (ProductVariant::query()->where('sku', $sku)->exists()) {
+                $sku = $baseSku.'_'.$suffix;
+                $suffix++;
+            }
+
+            ProductVariant::query()->create([
+                'product_id' => $product->id,
+                'sku' => $sku,
+                'title' => 'Default',
+                'price_amount' => $price,
+                'compare_at_price_amount' => null,
+                'currency' => 'NZD',
+                'stock_quantity' => $stockQuantity,
+                'stock_status' => $stockStatus,
+                'inventory_policy' => 'deny',
+                'low_stock_threshold' => 5,
+                'weight_grams' => $product->weight_grams,
+                'image_url' => $product->primaryImageUrl(),
+                'media_path' => $product->media_path,
+                'is_default' => true,
+                'is_active' => true,
+                'sort_order' => 0,
+            ]);
         });
     }
 }

@@ -42,6 +42,34 @@ function variantOptionSummary(variant?: ProductVariant | null) {
     : variant?.display_title || variant?.title || variant?.sku || ""
 }
 
+function productCategoryName(product: Product) {
+  return product.category_detail?.name ?? product.category_slug ?? null
+}
+
+function displayAttributeValue(attribute: NonNullable<Product["attributes"]>[number]) {
+  const value = attribute.display_label ?? attribute.value
+
+  if (value === null || value === undefined) {
+    return null
+  }
+
+  return String(value)
+}
+
+function visibleProductAttributes(product: Product) {
+  return (product.attributes ?? [])
+    .filter((attribute) => {
+      const value = displayAttributeValue(attribute)
+
+      return (
+        (attribute.is_filterable || attribute.is_specification) &&
+        attribute.key !== "material_family" &&
+        value !== null &&
+        value.trim().length > 0
+      )
+    })
+}
+
 function productWithSelectedVariant(
   product: Product,
   variant?: ProductVariant | null,
@@ -55,11 +83,7 @@ function productWithSelectedVariant(
     sku: variant.sku || product.sku,
     currency: variant.currency ?? product.currency ?? "NZD",
     price_amount: variant.price_amount,
-    price_usd: variant.price_amount,
-    price: variant.price_amount,
     compare_at_price_amount: variant.compare_at_price_amount ?? null,
-    compare_at_price_usd: variant.compare_at_price_amount ?? null,
-    compare_at_price: variant.compare_at_price_amount ?? null,
     stock_quantity: variant.stock_quantity ?? null,
     stock_status: variant.stock_status ?? null,
     stock_status_label:
@@ -185,20 +209,30 @@ export function ProductDetailContent({
           t.premiumSurfaceBadge,
           t.nzDeliveryBadge,
         ]
-  const useCaseLabels = product.use_case_labels?.length
-    ? product.use_case_labels
-    : [product.category_label || t.defaultUseCase]
+  const categoryName = productCategoryName(product)
+  const usefulAttributes = visibleProductAttributes(product)
+  const applicationAttributes = usefulAttributes
+    .filter((attribute) =>
+      ["use_case", "application"].includes(attribute.key ?? ""),
+    )
+    .map(displayAttributeValue)
+    .filter((value): value is string => Boolean(value))
+  const applicationLabels = applicationAttributes.length
+    ? applicationAttributes
+    : [categoryName || t.defaultUseCase]
   const atAGlance = [
-    product.dimensions
-      ? { label: t.glanceDimensions, value: product.dimensions }
-      : null,
     product.weight_grams
       ? { label: t.glanceWeight, value: `${product.weight_grams} g` }
       : null,
-    product.finish_label ? { label: t.glanceFinish, value: product.finish_label } : null,
-    product.color_label ? { label: t.glanceColor, value: product.color_label } : null,
-    useCaseLabels.length
-      ? { label: t.glanceUseCase, value: useCaseLabels.join(", ") }
+    ...usefulAttributes
+      .filter((attribute) => !["use_case", "application"].includes(attribute.key ?? ""))
+      .slice(0, 5)
+      .map((attribute) => ({
+        label: attribute.label ?? "",
+        value: displayAttributeValue(attribute) ?? "",
+      })),
+    applicationLabels.length
+      ? { label: t.glanceUseCase, value: applicationLabels.join(", ") }
       : null,
     product.care_instructions?.[0]
       ? { label: t.glanceCare, value: product.care_instructions[0] }
@@ -257,24 +291,19 @@ export function ProductDetailContent({
 
           <div className="flex flex-col rounded-[2rem] border border-border/60 bg-card p-8 lg:p-10">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary">
-                {product.category_label || product.category}
-              </span>
-              {product.model_label ? (
-                <span className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  {product.model_label}
+              {categoryName ? (
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary">
+                  {categoryName}
                 </span>
               ) : null}
-              {product.finish_label ? (
-                <span className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  {product.finish_label}
+              {usefulAttributes.slice(0, 3).map((attribute) => (
+                <span
+                  key={`${attribute.key}-${displayAttributeValue(attribute)}`}
+                  className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground"
+                >
+                  {displayAttributeValue(attribute)}
                 </span>
-              ) : null}
-              {product.color_label ? (
-                <span className="rounded-full border border-border/70 px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  {product.color_label}
-                </span>
-              ) : null}
+              ))}
               {product.is_new ? (
                 <span className="rounded-full bg-primary px-3 py-1 text-xs uppercase tracking-[0.18em] text-primary-foreground">
                   {t.newBadge}
@@ -321,10 +350,10 @@ export function ProductDetailContent({
                     <p className="text-3xl font-medium text-foreground">
                       {formatProductPrice(selectedProduct, locale)}
                     </p>
-                    {selectedProduct.compare_at_price_usd ? (
+                    {selectedProduct.compare_at_price_amount ? (
                       <p className="pb-1 text-base text-muted-foreground line-through">
                         {formatCurrencyAmount(
-                          selectedProduct.compare_at_price_usd,
+                          selectedProduct.compare_at_price_amount,
                           locale,
                           selectedProduct.currency ?? "NZD",
                         )}
@@ -552,7 +581,7 @@ export function ProductDetailContent({
               </h2>
             </div>
             <div className="flex flex-wrap gap-3">
-              {useCaseLabels.map((useCase) => (
+              {applicationLabels.map((useCase) => (
                 <span
                   key={useCase}
                   className="rounded-full border border-border/70 bg-background px-4 py-2 text-sm text-foreground"

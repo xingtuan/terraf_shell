@@ -72,6 +72,13 @@ class ProductAttributeDefinitionResource extends Resource
                             TextInput::make('unit')
                                 ->label(__('admin.ui.unit'))
                                 ->maxLength(40),
+                            TextInput::make('group')
+                                ->label(__('admin.ui.group'))
+                                ->maxLength(80),
+                            TextInput::make('help_text')
+                                ->label(__('admin.ui.help_text'))
+                                ->maxLength(500)
+                                ->columnSpanFull(),
                             Toggle::make('is_variant_option')
                                 ->label(__('admin.ui.variant')),
                             Toggle::make('is_filterable')
@@ -83,6 +90,8 @@ class ProductAttributeDefinitionResource extends Resource
                                 ->default(true),
                             Toggle::make('is_required')
                                 ->label(__('admin.ui.is_required')),
+                            Toggle::make('allows_multiple')
+                                ->label(__('admin.ui.allows_multiple')),
                             Toggle::make('is_active')
                                 ->label(__('admin.ui.active'))
                                 ->default(true),
@@ -148,6 +157,10 @@ class ProductAttributeDefinitionResource extends Resource
                     ->label(__('admin.fields.type'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => __('admin.products.attribute_type.'.$state) ?? ucfirst((string) $state)),
+                TextColumn::make('group')
+                    ->label(__('admin.ui.group'))
+                    ->sortable()
+                    ->toggleable(),
                 IconColumn::make('is_variant_option')
                     ->label(__('admin.ui.variant'))
                     ->boolean(),
@@ -157,6 +170,10 @@ class ProductAttributeDefinitionResource extends Resource
                 IconColumn::make('is_specification')
                     ->label(__('admin.ui.specification'))
                     ->boolean(),
+                IconColumn::make('allows_multiple')
+                    ->label(__('admin.ui.allows_multiple'))
+                    ->boolean()
+                    ->toggleable(),
                 IconColumn::make('is_active')
                     ->label(__('admin.ui.active_2'))
                     ->boolean(),

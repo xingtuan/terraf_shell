@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Products\Tables;
 use App\Enums\ProductStatus;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductVariant;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -47,17 +48,16 @@ class ProductsTable
                     ->badge()
                     ->placeholder(__('admin.placeholders.uncategorized'))
                     ->searchable(),
-                TextColumn::make('sku')
+                TextColumn::make('default_variant_sku')
                     ->label(__('admin.ui.sku'))
                     ->state(fn (Product $record): ?string => $record->effectiveSku())
-                    ->searchable()
                     ->copyable(),
                 TextColumn::make('status')
                     ->label(__('admin.fields.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => ProductStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => ProductStatus::tryFrom($state)?->color() ?? 'gray'),
-                TextColumn::make('stock_status')
+                TextColumn::make('default_variant_stock_status')
                     ->label(__('admin.fields.stock'))
                     ->badge()
                     ->formatStateUsing(fn (?string $state, Product $record): string => filled($record->effectiveStockStatus()) ? __("admin.products.stock_status.{$record->effectiveStockStatus()}") : __('admin.placeholders.unknown'))
@@ -68,14 +68,14 @@ class ProductsTable
                         'sold_out' => 'danger',
                         default => 'gray',
                     }),
-                TextColumn::make('price_usd')
+                TextColumn::make('default_variant_price')
                     ->label(__('admin.labels.currency_field', ['field' => __('admin.fields.price'), 'currency' => __('admin.currency.nzd')]))
-                    ->formatStateUsing(fn ($state, Product $record): string => '$'.number_format((float) ($record->effectivePrice() ?? $state), 2)),
-                TextColumn::make('stock_quantity')
+                    ->state(fn (Product $record): ?float => $record->effectivePrice())
+                    ->formatStateUsing(fn ($state): string => $state !== null ? '$'.number_format((float) $state, 2) : '-'),
+                TextColumn::make('default_variant_stock_quantity')
                     ->label(__('admin.fields.quantity'))
                     ->state(fn (Product $record): ?int => $record->effectiveStockQuantity())
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric(),
                 IconColumn::make('featured')
                     ->label(__('admin.fields.featured'))
                     ->boolean(),
@@ -108,9 +108,14 @@ class ProductsTable
                 SelectFilter::make('status')
                     ->label(__('admin.fields.status'))
                     ->options(ProductStatus::options()),
-                SelectFilter::make('stock_status')
+                SelectFilter::make('variant_stock_status')
                     ->label(__('admin.fields.stock_status'))
-                    ->options(fn (): array => self::stockStatusOptions()),
+                    ->options(fn (): array => self::stockStatusOptions())
+                    ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                        ? $query->whereHas('variants', fn (Builder $variantQuery) => $variantQuery
+                            ->where('is_active', true)
+                            ->where('stock_status', $data['value']))
+                        : $query),
                 TernaryFilter::make('featured')
                     ->label(__('admin.fields.featured')),
                 TernaryFilter::make('is_bestseller')
@@ -141,11 +146,12 @@ class ProductsTable
                     BulkAction::make('mark_sold_out')
                         ->label(__('admin.actions.mark_sold_out'))
                         ->requiresConfirmation()
-                        ->action(fn ($records) => $records->each->update([
-                            'stock_status' => 'sold_out',
-                            'stock_quantity' => 0,
-                            'in_stock' => false,
-                        ])),
+                        ->action(fn ($records) => $records->each(
+                            fn (Product $record) => $record->variants()->update([
+                                'stock_status' => 'sold_out',
+                                'stock_quantity' => 0,
+                            ]),
+                        )),
                     DeleteBulkAction::make(),
                 ]),
             ]);
@@ -156,7 +162,7 @@ class ProductsTable
      */
     private static function stockStatusOptions(): array
     {
-        return collect(array_keys(Product::STOCK_STATUS_OPTIONS))
+        return collect(array_keys(ProductVariant::STOCK_STATUS_OPTIONS))
             ->mapWithKeys(fn (string $status): array => [$status => __("admin.products.stock_status.{$status}")])
             ->all();
     }

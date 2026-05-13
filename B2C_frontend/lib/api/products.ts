@@ -6,21 +6,24 @@ import { requestApi } from "@/lib/api/client"
 import { ensureArray } from "@/lib/api/normalizers"
 import { getIntlLocale, type Locale } from "@/lib/i18n"
 import type {
+  JsonValue,
   Product,
   ProductCatalogResult,
   ProductSortOption,
   ProductStockStatus,
 } from "@/lib/types"
 
+export type ProductAttributeFilters = Record<
+  string,
+  string | number | boolean | Array<string | number> | { min?: string | number; max?: string | number }
+>
+
 export type GetProductsParams = {
   search?: string
   sort?: ProductSortOption
   category?: string
-  model?: string
-  finish?: string
-  color?: string
   stock_status?: ProductStockStatus
-  use_case?: string
+  attributes?: ProductAttributeFilters
   price_min?: string | number
   price_max?: string | number
   page?: number
@@ -43,11 +46,8 @@ export async function getProducts(
       search: params.search,
       sort: params.sort,
       category: params.category,
-      model: params.model,
-      finish: params.finish,
-      color: params.color,
       stock_status: params.stock_status,
-      use_case: params.use_case,
+      attributes: params.attributes as Record<string, JsonValue> | undefined,
       price_min: params.price_min,
       price_max: params.price_max,
       page: params.page,
@@ -91,11 +91,11 @@ export function formatCurrencyAmount(
 }
 
 export function formatProductPrice(
-  product: Pick<Product, "price_usd" | "price_amount" | "currency">,
+  product: Pick<Product, "price_amount" | "currency">,
   locale: Locale,
 ) {
   return formatCurrencyAmount(
-    product.price_amount ?? product.price_usd,
+    product.price_amount,
     locale,
     product.currency ?? "NZD",
   )

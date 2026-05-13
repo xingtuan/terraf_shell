@@ -20,11 +20,7 @@ class StoreOrderFlowTest extends TestCase
 
     public function test_guest_cart_can_be_merged_into_user_cart_and_checked_out(): void
     {
-        $product = Product::factory()->published()->create([
-            'price_usd' => 48.00,
-            'is_active' => true,
-            'in_stock' => true,
-        ]);
+        $product = $this->purchasableProduct(48.00);
 
         $guestCartResponse = $this->getJson('/api/cart')
             ->assertOk()
@@ -119,11 +115,7 @@ class StoreOrderFlowTest extends TestCase
 
     public function test_guest_cart_can_create_guest_order_request(): void
     {
-        $product = Product::factory()->published()->create([
-            'price_usd' => 48.00,
-            'is_active' => true,
-            'in_stock' => true,
-        ]);
+        $product = $this->purchasableProduct(48.00);
 
         $this->getJson('/api/cart')->assertOk();
 
@@ -182,11 +174,7 @@ class StoreOrderFlowTest extends TestCase
 
     public function test_guest_order_lookup_requires_valid_token(): void
     {
-        $product = Product::factory()->published()->create([
-            'price_usd' => 35.00,
-            'is_active' => true,
-            'in_stock' => true,
-        ]);
+        $product = $this->purchasableProduct(35.00);
 
         $this->getJson('/api/cart')->assertOk();
 
@@ -237,11 +225,7 @@ class StoreOrderFlowTest extends TestCase
             'type' => 'boolean',
         ]);
 
-        $product = Product::factory()->published()->create([
-            'price_usd' => 48.00,
-            'is_active' => true,
-            'in_stock' => true,
-        ]);
+        $product = $this->purchasableProduct(48.00);
 
         $this->getJson('/api/cart')->assertOk();
 
@@ -275,11 +259,7 @@ class StoreOrderFlowTest extends TestCase
 
     public function test_order_creation_rejects_non_new_zealand_shipping(): void
     {
-        $product = Product::factory()->published()->create([
-            'price_usd' => 48.00,
-            'is_active' => true,
-            'in_stock' => true,
-        ]);
+        $product = $this->purchasableProduct(48.00);
 
         $this->getJson('/api/cart')->assertOk();
 
@@ -316,11 +296,7 @@ class StoreOrderFlowTest extends TestCase
 
     public function test_selected_shipping_method_must_be_available_after_server_recalculation(): void
     {
-        $product = Product::factory()->published()->create([
-            'price_usd' => 48.00,
-            'is_active' => true,
-            'in_stock' => true,
-        ]);
+        $product = $this->purchasableProduct(48.00);
 
         $this->getJson('/api/cart')->assertOk();
 
@@ -362,11 +338,7 @@ class StoreOrderFlowTest extends TestCase
         config()->set('store.nzpost.client_id', null);
         config()->set('store.nzpost.client_secret', null);
 
-        $product = Product::factory()->published()->create([
-            'price_usd' => 48.00,
-            'is_active' => true,
-            'in_stock' => true,
-        ]);
+        $product = $this->purchasableProduct(48.00);
 
         $this->getJson('/api/store/address-search?query=Auckland')
             ->assertOk()
@@ -489,5 +461,21 @@ class StoreOrderFlowTest extends TestCase
             'id' => $order->id,
             'status' => 'cancelled',
         ]);
+    }
+
+    private function purchasableProduct(float $price): Product
+    {
+        $product = Product::factory()->published()->create([
+            'is_active' => true,
+        ]);
+
+        $product->defaultVariant()?->forceFill([
+            'price_amount' => $price,
+            'stock_quantity' => 24,
+            'stock_status' => 'in_stock',
+            'inventory_policy' => 'deny',
+        ])->save();
+
+        return $product->fresh(['variants']);
     }
 }

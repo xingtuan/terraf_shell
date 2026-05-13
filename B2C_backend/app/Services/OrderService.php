@@ -48,11 +48,6 @@ class OrderService
 
             $variant = $item->variant ?? $product?->defaultVariant();
 
-            if ($product !== null && $variant === null) {
-                $variant = $product->ensureDefaultVariant();
-                $item->forceFill(['product_variant_id' => $variant->id])->save();
-            }
-
             if (
                 $product === null
                 || $variant === null
@@ -80,7 +75,7 @@ class OrderService
                     'product_id' => $product->id,
                     'product_variant_id' => $variant->id,
                     'product_name' => $product->name,
-                    'product_sku' => $product->sku ?? $product->slug,
+                    'product_sku' => $variant->sku,
                     'product_title' => $product->name,
                     'variant_title' => $variant->displayTitle(),
                     'variant_sku' => $variant->sku,

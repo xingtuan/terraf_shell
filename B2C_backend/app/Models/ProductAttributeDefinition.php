@@ -18,6 +18,7 @@ class ProductAttributeDefinition extends Model
         'number' => 'Number',
         'boolean' => 'Boolean',
         'rich_text' => 'Rich text',
+        'json' => 'JSON',
     ];
 
     protected $fillable = [
@@ -26,11 +27,14 @@ class ProductAttributeDefinition extends Model
         'label_translations',
         'type',
         'unit',
+        'group',
+        'help_text',
         'is_variant_option',
         'is_filterable',
         'is_searchable',
         'is_specification',
         'is_required',
+        'allows_multiple',
         'sort_order',
         'is_active',
     ];
@@ -44,6 +48,7 @@ class ProductAttributeDefinition extends Model
             'is_searchable' => 'boolean',
             'is_specification' => 'boolean',
             'is_required' => 'boolean',
+            'allows_multiple' => 'boolean',
             'sort_order' => 'integer',
             'is_active' => 'boolean',
         ];

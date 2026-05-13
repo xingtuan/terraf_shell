@@ -4,7 +4,7 @@ import type { Product } from "@/lib/types"
 function buildLeadHref(
   locale: Locale,
   leadType: string,
-  product: Pick<Product, "slug" | "name" | "category">,
+  product: Pick<Product, "slug" | "name" | "category_slug" | "category_detail">,
 ) {
   const url = new URL(getLocalizedHref(locale, "b2b"), "https://oxp.local")
 
@@ -12,8 +12,10 @@ function buildLeadHref(
   url.searchParams.set("product", product.slug)
   url.searchParams.set("productName", product.name)
 
-  if (product.category) {
-    url.searchParams.set("category", product.category)
+  const category = product.category_slug ?? product.category_detail?.slug
+
+  if (category) {
+    url.searchParams.set("category", category)
   }
 
   return `${url.pathname}${url.search}#inquiry`

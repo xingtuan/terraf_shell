@@ -43,11 +43,30 @@ export interface ProductAttribute {
   display_label?: string | null
   type?: string | null
   unit?: string | null
+  group?: string | null
+  help_text?: string | null
   color_hex?: string | null
   is_filterable?: boolean
   is_variant_option?: boolean
   is_searchable?: boolean
   is_specification?: boolean
+  allows_multiple?: boolean
+}
+
+export interface ProductAttributeDefinition {
+  key: string
+  label: string
+  type: string
+  unit?: string | null
+  group?: string | null
+  help_text?: string | null
+  is_active?: boolean
+  is_filterable?: boolean
+  is_searchable?: boolean
+  is_specification?: boolean
+  is_variant_option?: boolean
+  allows_multiple?: boolean
+  sort_order?: number
 }
 
 export interface ProductVariant {
@@ -154,24 +173,12 @@ export interface Product {
   short_description?: string | null
   long_description?: string | null
   full_description?: string | null
-  category: string
-  category_label?: string | null
+  category_id?: number | null
+  category_slug?: string | null
   category_detail?: ProductCategory | null
-  model: string
-  model_label?: string | null
-  finish: string
-  finish_label?: string | null
-  color: string
-  color_label?: string | null
-  technique: string
-  technique_label?: string | null
   currency?: string
-  price_amount?: string
-  price_usd: string
-  price?: string
+  price_amount?: string | null
   compare_at_price_amount?: string | null
-  compare_at_price_usd?: string | null
-  compare_at_price?: string | null
   on_sale?: boolean
   featured?: boolean
   is_bestseller?: boolean
@@ -189,9 +196,6 @@ export interface Product {
   image_url?: string | null
   gallery_images?: ProductImage[]
   features?: string[]
-  use_cases?: string[]
-  use_case_labels?: string[]
-  dimensions?: string | null
   weight_grams?: number | null
   specifications?: ProductSpecification[]
   attributes?: ProductAttribute[]
@@ -422,6 +426,18 @@ export interface ProductFacetOption {
   count: number
 }
 
+export interface DynamicFacetOption extends ProductFacetOption {}
+
+export interface DynamicFacet {
+  key: string
+  label: string
+  type: string
+  unit?: string | null
+  group?: string | null
+  options: DynamicFacetOption[]
+  display_order?: number
+}
+
 export interface ProductAppliedFilterChip {
   key: string
   value: string
@@ -435,11 +451,8 @@ export interface ProductSortChoice {
 
 export interface ProductCatalogFacets {
   categories: ProductCategory[]
-  models: ProductFacetOption[]
-  finishes: ProductFacetOption[]
-  colors: ProductFacetOption[]
+  dynamic_attributes: DynamicFacet[]
   stock_statuses: ProductFacetOption[]
-  use_cases: ProductFacetOption[]
   price_range: {
     min: string
     max: string

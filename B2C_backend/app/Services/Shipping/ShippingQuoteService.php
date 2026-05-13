@@ -159,7 +159,7 @@ class ShippingQuoteService
             ],
             'items' => $cart->items->map(fn (CartItem $item): array => [
                 'quantity' => $item->quantity,
-                'weight_grams' => $item->variant?->weight_grams ?? $item->product?->weight_grams ?? 500,
+                'weight_grams' => $item->variant?->weight_grams ?? 500,
             ])->values()->all(),
         ]);
 

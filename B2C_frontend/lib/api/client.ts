@@ -1,6 +1,13 @@
 import type { ApiPaginationMeta } from "@/lib/types"
 
-type QueryValue = string | number | boolean | null | undefined
+type QueryValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | QueryValue[]
+  | { [key: string]: QueryValue }
 
 export type ApiSuccessResponse<T> = {
   success: true
@@ -76,16 +83,40 @@ function appendQueryString(
   const searchParams = new URLSearchParams()
 
   for (const [key, value] of Object.entries(query ?? {})) {
-    if (value === undefined || value === null || value === "") {
-      continue
-    }
-
-    searchParams.set(key, String(value))
+    appendSearchParam(searchParams, key, value)
   }
 
   const queryString = searchParams.toString()
 
   return queryString ? `${url}?${queryString}` : url
+}
+
+function appendSearchParam(
+  searchParams: URLSearchParams,
+  key: string,
+  value: QueryValue,
+) {
+  if (value === undefined || value === null || value === "") {
+    return
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      appendSearchParam(searchParams, `${key}[${index}]`, item)
+    })
+
+    return
+  }
+
+  if (typeof value === "object") {
+    for (const [nestedKey, nestedValue] of Object.entries(value)) {
+      appendSearchParam(searchParams, `${key}[${nestedKey}]`, nestedValue)
+    }
+
+    return
+  }
+
+  searchParams.set(key, String(value))
 }
 
 function normalizeRelativeBaseUrl(value: string) {
@@ -129,11 +160,7 @@ function buildUrl(
   const url = new URL(normalizedPath, `${apiBaseUrl}/`)
 
   for (const [key, value] of Object.entries(query ?? {})) {
-    if (value === undefined || value === null || value === "") {
-      continue
-    }
-
-    url.searchParams.set(key, String(value))
+    appendSearchParam(url.searchParams, key, value)
   }
 
   return url.toString()

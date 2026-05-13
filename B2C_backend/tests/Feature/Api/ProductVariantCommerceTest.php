@@ -70,12 +70,13 @@ class ProductVariantCommerceTest extends TestCase
 
     public function test_cart_uses_default_variant_when_variant_is_missing_and_merges_same_variant(): void
     {
-        $product = Product::factory()->published()->create([
-            'price_usd' => 30.00,
+        $product = Product::factory()->published()->create();
+        $product->defaultVariant()?->forceFill([
+            'price_amount' => 30.00,
             'stock_quantity' => 8,
             'stock_status' => 'in_stock',
-        ]);
-        $variant = $product->defaultVariant();
+        ])->save();
+        $variant = $product->defaultVariant()?->fresh();
 
         $this->getJson('/api/cart')->assertOk();
         $sessionKey = Cart::query()->whereNull('user_id')->value('session_key');

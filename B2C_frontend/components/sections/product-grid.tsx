@@ -169,53 +169,6 @@ export function ProductGridSection({
                       ))}
                     </select>
                   </StoreFilterField>
-
-                  <StoreFilterField label={content.modelLabel}>
-                    <select
-                      name="model"
-                      defaultValue={filters.model}
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    >
-                      <option value="">{content.allOption}</option>
-                      {(meta?.facets.models ?? []).map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label} ({option.count})
-                        </option>
-                      ))}
-                    </select>
-                  </StoreFilterField>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <StoreFilterField label={content.finishLabel}>
-                    <select
-                      name="finish"
-                      defaultValue={filters.finish}
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    >
-                      <option value="">{content.allOption}</option>
-                      {(meta?.facets.finishes ?? []).map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label} ({option.count})
-                        </option>
-                      ))}
-                    </select>
-                  </StoreFilterField>
-
-                  <StoreFilterField label={content.colorLabel}>
-                    <select
-                      name="color"
-                      defaultValue={filters.color}
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    >
-                      <option value="">{content.allOption}</option>
-                      {(meta?.facets.colors ?? []).map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label} ({option.count})
-                        </option>
-                      ))}
-                    </select>
-                  </StoreFilterField>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -233,22 +186,60 @@ export function ProductGridSection({
                       ))}
                     </select>
                   </StoreFilterField>
-
-                  <StoreFilterField label={content.useCaseLabel}>
-                    <select
-                      name="use_case"
-                      defaultValue={filters.use_case}
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                    >
-                      <option value="">{content.allOption}</option>
-                      {(meta?.facets.use_cases ?? []).map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label} ({option.count})
-                        </option>
-                      ))}
-                    </select>
-                  </StoreFilterField>
                 </div>
+
+                {(meta?.facets.dynamic_attributes ?? []).length > 0 ? (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {(meta?.facets.dynamic_attributes ?? []).map((facet) => {
+                      const selectedValue = filters.attributes[facet.key]
+
+                      if (facet.type === "number" && facet.options.length === 0) {
+                        const range =
+                          selectedValue && typeof selectedValue === "object"
+                            ? selectedValue
+                            : {}
+
+                        return (
+                          <StoreFilterField key={facet.key} label={facet.label}>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                              <Input
+                                name={`attributes[${facet.key}][min]`}
+                                inputMode="decimal"
+                                defaultValue={range.min ?? ""}
+                                placeholder={content.minPrice}
+                              />
+                              <Input
+                                name={`attributes[${facet.key}][max]`}
+                                inputMode="decimal"
+                                defaultValue={range.max ?? ""}
+                                placeholder={content.maxPrice}
+                              />
+                            </div>
+                          </StoreFilterField>
+                        )
+                      }
+
+                      return (
+                        <StoreFilterField key={facet.key} label={facet.label}>
+                          <select
+                            name={`attributes[${facet.key}]`}
+                            defaultValue={
+                              typeof selectedValue === "string" ? selectedValue : ""
+                            }
+                            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                          >
+                            <option value="">{content.allOption}</option>
+                            {facet.options.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label} ({option.count})
+                              </option>
+                            ))}
+                          </select>
+                        </StoreFilterField>
+                      )
+                    })}
+                  </div>
+                ) : null}
 
                 <StoreFilterField label={content.priceLabel}>
                   <div className="grid gap-4 sm:grid-cols-2">

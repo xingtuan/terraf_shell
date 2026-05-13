@@ -103,8 +103,6 @@ class ProductVariant extends Model
                 ->whereKeyNot($variant->id)
                 ->where('is_default', true)
                 ->update(['is_default' => false]);
-
-            $variant->syncLegacyProductFields();
         });
     }
 
@@ -261,25 +259,4 @@ class ProductVariant extends Model
         ]);
     }
 
-    private function syncLegacyProductFields(): void
-    {
-        $product = $this->product;
-
-        if ($product === null) {
-            return;
-        }
-
-        $product->forceFill([
-            'sku' => $this->sku,
-            'price_usd' => $this->price_amount,
-            'price_from' => $this->price_amount,
-            'compare_at_price_usd' => $this->compare_at_price_amount,
-            'currency' => $this->currency,
-            'stock_quantity' => $this->stock_quantity,
-            'stock_status' => $this->stock_status,
-            'in_stock' => $this->stock_status !== 'sold_out',
-            'weight_grams' => $this->weight_grams ?? $product->weight_grams,
-            'image_url' => $this->image_url ?? $product->image_url,
-        ])->saveQuietly();
-    }
 }

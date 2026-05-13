@@ -28,6 +28,7 @@ import type {
   CartSummary,
   CartSummaryItem,
   CertificationCardInput,
+  DynamicFacet,
   Product,
   ProductAttribute,
   ProductAppliedFilterChip,
@@ -227,11 +228,14 @@ function normalizeProductAttribute(attribute: ProductAttribute): ProductAttribut
     display_label: attribute.display_label ?? null,
     type: attribute.type ?? null,
     unit: attribute.unit ?? null,
+    group: attribute.group ?? null,
+    help_text: attribute.help_text ?? null,
     color_hex: attribute.color_hex ?? null,
     is_filterable: Boolean(attribute.is_filterable),
     is_variant_option: Boolean(attribute.is_variant_option),
     is_searchable: Boolean(attribute.is_searchable),
     is_specification: Boolean(attribute.is_specification),
+    allows_multiple: Boolean(attribute.allows_multiple),
   }
 }
 
@@ -423,62 +427,26 @@ export function normalizeProduct(
       product.long_description ?? product.full_description ?? null,
     full_description:
       product.full_description ?? product.long_description ?? null,
-    category: product.category ?? "",
-    category_label: product.category_label ?? null,
+    category_id:
+      product.category_id === null || product.category_id === undefined
+        ? null
+        : Number(product.category_id),
+    category_slug: product.category_slug ?? product.category_detail?.slug ?? null,
     category_detail: product.category_detail
       ? normalizeProductCategory(product.category_detail)
       : null,
-    model: product.model ?? "",
-    model_label: product.model_label ?? null,
-    finish: product.finish ?? "",
-    finish_label: product.finish_label ?? null,
-    color: product.color ?? "",
-    color_label: product.color_label ?? null,
-    technique: product.technique ?? "",
-    technique_label: product.technique_label ?? null,
     currency: defaultVariant?.currency ?? product.currency ?? "NZD",
     price_amount:
       defaultVariant?.price_amount ??
       (product.price_amount === null || product.price_amount === undefined
-        ? product.price_usd === null || product.price_usd === undefined
-          ? "0.00"
-          : String(product.price_usd)
+        ? null
         : String(product.price_amount)),
-    price_usd:
-      defaultVariant?.price_amount ??
-      (product.price_usd === null || product.price_usd === undefined
-        ? "0.00"
-        : String(product.price_usd)),
-    price:
-      defaultVariant?.price_amount ??
-      (product.price === null || product.price === undefined
-        ? product.price_usd === null || product.price_usd === undefined
-          ? "0.00"
-          : String(product.price_usd)
-        : String(product.price)),
     compare_at_price_amount:
       defaultVariant?.compare_at_price_amount ??
       (product.compare_at_price_amount === null ||
       product.compare_at_price_amount === undefined
-        ? product.compare_at_price_usd === null ||
-          product.compare_at_price_usd === undefined
-          ? null
-          : String(product.compare_at_price_usd)
-        : String(product.compare_at_price_amount)),
-    compare_at_price_usd:
-      defaultVariant?.compare_at_price_amount ??
-      (product.compare_at_price_usd === null ||
-      product.compare_at_price_usd === undefined
         ? null
-        : String(product.compare_at_price_usd)),
-    compare_at_price:
-      defaultVariant?.compare_at_price_amount ??
-      (product.compare_at_price === null || product.compare_at_price === undefined
-        ? product.compare_at_price_usd === null ||
-          product.compare_at_price_usd === undefined
-          ? null
-          : String(product.compare_at_price_usd)
-        : String(product.compare_at_price)),
+        : String(product.compare_at_price_amount)),
     on_sale: Boolean(product.on_sale),
     featured: Boolean(product.featured),
     is_bestseller: Boolean(product.is_bestseller),
@@ -506,11 +474,6 @@ export function normalizeProduct(
     image_url: primaryImageUrl,
     gallery_images: normalizedGallery,
     features: ensureArray(product.features).map((feature) => String(feature)),
-    use_cases: ensureArray(product.use_cases).map((useCase) => String(useCase)),
-    use_case_labels: ensureArray(product.use_case_labels).map((label) =>
-      String(label),
-    ),
-    dimensions: product.dimensions ?? null,
     weight_grams:
       product.weight_grams === null || product.weight_grams === undefined
         ? null
@@ -573,6 +536,18 @@ function normalizeProductFacetOption(option: ProductFacetOption): ProductFacetOp
   }
 }
 
+function normalizeDynamicFacet(facet: DynamicFacet): DynamicFacet {
+  return {
+    key: facet.key ?? "",
+    label: facet.label ?? "",
+    type: facet.type ?? "text",
+    unit: facet.unit ?? null,
+    group: facet.group ?? null,
+    options: ensureArray(facet.options).map(normalizeProductFacetOption),
+    display_order: Number(facet.display_order ?? 0),
+  }
+}
+
 function normalizeProductAppliedFilterChip(
   chip: ProductAppliedFilterChip,
 ): ProductAppliedFilterChip {
@@ -597,15 +572,10 @@ export function normalizeProductCatalogMeta(
     })),
     facets: {
       categories: ensureArray(meta?.facets?.categories).map(normalizeProductCategory),
-      models: ensureArray(meta?.facets?.models).map(normalizeProductFacetOption),
-      finishes: ensureArray(meta?.facets?.finishes).map(
-        normalizeProductFacetOption,
+      dynamic_attributes: ensureArray(meta?.facets?.dynamic_attributes).map(
+        normalizeDynamicFacet,
       ),
-      colors: ensureArray(meta?.facets?.colors).map(normalizeProductFacetOption),
       stock_statuses: ensureArray(meta?.facets?.stock_statuses).map(
-        normalizeProductFacetOption,
-      ),
-      use_cases: ensureArray(meta?.facets?.use_cases).map(
         normalizeProductFacetOption,
       ),
       price_range: {

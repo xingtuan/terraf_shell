@@ -6,7 +6,6 @@ use App\Http\Resources\Concerns\ResolvesLocalizedFields;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 /** @mixin Product */
@@ -28,13 +27,13 @@ class ProductResource extends JsonResource
             ?? $this->localizedString($request, 'availability_text');
         $primaryImageUrl = $this->primaryImageUrl();
         $galleryImages = $this->galleryImages($request, $title, $subtitle, $primaryImageUrl);
-        $useCases = $this->normalizedUseCases();
         $defaultVariant = $this->defaultVariant();
-        $price = $this->effectivePrice() ?? 0.0;
+        $price = $this->effectivePrice();
         $compareAtPrice = $this->effectiveCompareAtPrice();
         $currency = $this->effectiveCurrency();
         $stockStatus = $this->effectiveStockStatus();
         $stockQuantity = $this->effectiveStockQuantity();
+        $attributes = $this->normalizedAttributes($request);
         $category = $this->resource->relationLoaded('category')
             ? $this->resource->getRelation('category')
             : null;
@@ -59,35 +58,19 @@ class ProductResource extends JsonResource
             'short_description' => $shortDescription,
             'long_description' => $longDescription,
             'full_description' => $longDescription,
-            'category' => $this->category,
-            'category_label' => Product::labelForOption(Product::CATEGORY_OPTIONS, $this->category),
+            'category_id' => $this->category_id,
+            'category_slug' => $category?->slug,
             'category_detail' => $category ? (new ProductCategoryResource($category))->resolve($request) : null,
-            'model' => $this->model,
-            'model_label' => Product::labelForOption(Product::MODEL_OPTIONS, $this->model),
-            'finish' => $this->finish,
-            'finish_label' => Product::labelForOption(Product::FINISH_OPTIONS, $this->finish),
-            'color' => $this->color,
-            'color_label' => Product::labelForOption(Product::COLOR_OPTIONS, $this->color),
-            'technique' => $this->technique,
-            'technique_label' => Product::labelForOption(Product::TECHNIQUE_OPTIONS, $this->technique),
             'currency' => $currency,
-            'price_amount' => number_format($price, 2, '.', ''),
-            'price_usd' => number_format($price, 2, '.', ''),
-            'price' => number_format($price, 2, '.', ''),
+            'price_amount' => $price !== null ? number_format($price, 2, '.', '') : null,
             'compare_at_price_amount' => $compareAtPrice !== null
                 ? number_format($compareAtPrice, 2, '.', '')
                 : null,
-            'compare_at_price_usd' => $compareAtPrice !== null
-                ? number_format($compareAtPrice, 2, '.', '')
-                : null,
-            'compare_at_price' => $compareAtPrice !== null
-                ? number_format($compareAtPrice, 2, '.', '')
-                : null,
-            'on_sale' => $compareAtPrice !== null && $compareAtPrice > $price,
+            'on_sale' => $price !== null && $compareAtPrice !== null && $compareAtPrice > $price,
             'featured' => (bool) $this->featured,
             'is_bestseller' => (bool) $this->is_bestseller,
             'is_new' => (bool) $this->is_new,
-            'in_stock' => $defaultVariant?->isInStock() ?? (bool) $this->in_stock,
+            'in_stock' => $defaultVariant?->isInStock() ?? false,
             'can_add_to_cart' => $this->canBePurchased(),
             'inquiry_only' => (bool) $this->inquiry_only,
             'sample_request_enabled' => (bool) $this->sample_request_enabled,
@@ -100,15 +83,9 @@ class ProductResource extends JsonResource
             'image_url' => $primaryImageUrl,
             'gallery_images' => $galleryImages,
             'features' => $this->localizedArray($request, 'features'),
-            'use_cases' => $useCases,
-            'use_case_labels' => collect($useCases)
-                ->map(fn (string $value): string => Product::labelForOption(Product::USE_CASE_OPTIONS, $value) ?? $value)
-                ->values()
-                ->all(),
-            'dimensions' => $this->localizedString($request, 'dimensions'),
-            'weight_grams' => $this->weight_grams !== null ? (int) $this->weight_grams : null,
-            'specifications' => $this->specifications($request),
-            'attributes' => $this->normalizedAttributes($request),
+            'weight_grams' => $defaultVariant?->weight_grams !== null ? (int) $defaultVariant->weight_grams : null,
+            'specifications' => $this->specifications($attributes),
+            'attributes' => $attributes,
             'default_variant' => $defaultVariant
                 ? (new ProductVariantResource($defaultVariant))->resolve($request)
                 : null,
@@ -134,18 +111,6 @@ class ProductResource extends JsonResource
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function normalizedUseCases(): array
-    {
-        return collect($this->use_cases ?? [])
-            ->filter(fn (mixed $value): bool => is_string($value) && trim($value) !== '')
-            ->map(fn (string $value): string => trim($value))
-            ->values()
-            ->all();
     }
 
     /**
@@ -184,147 +149,65 @@ class ProductResource extends JsonResource
     /**
      * @return array<int, array<string, string|null>>
      */
-    private function specifications(Request $request): array
+    private function specifications(array $attributes): array
     {
-        $specifications = [];
-        $useCaseLabels = implode(', ', $this->useCaseLabels());
+        return collect($attributes)
+            ->filter(fn (array $attribute): bool => (bool) ($attribute['is_specification'] ?? false))
+            ->groupBy(fn (array $attribute): string => (string) ($attribute['key'] ?? ''))
+            ->filter(fn ($items, string $key): bool => $key !== '')
+            ->map(function ($items, string $key): ?array {
+                $first = $items->first();
+                $values = $items
+                    ->map(fn (array $attribute): ?string => $this->attributeDisplayValue($attribute))
+                    ->filter(fn (?string $value): bool => is_string($value) && trim($value) !== '')
+                    ->unique()
+                    ->values();
 
-        $this->appendSpecification(
-            $specifications,
-            'model',
-            'Model',
-            Product::labelForOption(Product::MODEL_OPTIONS, $this->model),
-            null,
-            'Product',
-        );
-        $this->appendSpecification(
-            $specifications,
-            'finish',
-            'Finish',
-            Product::labelForOption(Product::FINISH_OPTIONS, $this->finish),
-            null,
-            'Product',
-        );
-        $this->appendSpecification(
-            $specifications,
-            'color',
-            'Color',
-            Product::labelForOption(Product::COLOR_OPTIONS, $this->color),
-            null,
-            'Product',
-        );
-        $this->appendSpecification(
-            $specifications,
-            'technique',
-            'Technique',
-            Product::labelForOption(Product::TECHNIQUE_OPTIONS, $this->technique),
-            null,
-            'Material',
-        );
-        $this->appendSpecification(
-            $specifications,
-            'dimensions',
-            'Dimensions',
-            $this->localizedString($request, 'dimensions'),
-            null,
-            'Dimensions',
-        );
-        $this->appendSpecification(
-            $specifications,
-            'weight',
-            'Weight',
-            $this->weight_grams !== null ? (string) $this->weight_grams : null,
-            $this->weight_grams !== null ? 'g' : null,
-            'Dimensions',
-        );
-        $this->appendSpecification(
-            $specifications,
-            'intended_use',
-            'Intended Use',
-            $useCaseLabels !== '' ? $useCaseLabels : null,
-            null,
-            'Application',
-        );
+                if ($values->isEmpty()) {
+                    return null;
+                }
 
-        $existingKeys = collect($specifications)->pluck('key')->all();
-
-        foreach ($this->normalizedAttributes($request) as $attribute) {
-            $key = (string) ($attribute['key'] ?? '');
-            $value = $attribute['display_label'] ?? $attribute['value'] ?? null;
-
-            if (
-                $key === ''
-                || in_array($key, $existingKeys, true)
-                || ! (bool) ($attribute['is_specification'] ?? false)
-                || ! is_scalar($value)
-            ) {
-                continue;
-            }
-
-            $this->appendSpecification(
-                $specifications,
-                $key,
-                (string) ($attribute['label'] ?? Str::headline($key)),
-                (string) $value,
-                isset($attribute['unit']) && is_string($attribute['unit']) ? $attribute['unit'] : null,
-                'Attributes',
-            );
-        }
-
-        foreach ($this->normalizedSpecificationEntries() as $entry) {
-            $value = trim((string) ($entry['value'] ?? ''));
-
-            if ($value === '') {
-                continue;
-            }
-
-            $this->appendSpecification(
-                $specifications,
-                isset($entry['key']) && is_string($entry['key']) ? $entry['key'] : Str::slug((string) ($entry['label'] ?? 'specification')),
-                isset($entry['label']) && is_string($entry['label']) ? $entry['label'] : 'Specification',
-                $value,
-                isset($entry['unit']) && is_string($entry['unit']) ? trim($entry['unit']) : null,
-                isset($entry['group']) && is_string($entry['group']) ? trim($entry['group']) : null,
-            );
-        }
-
-        return $specifications;
-    }
-
-    /**
-     * @param  array<int, array<string, string|null>>  $specifications
-     */
-    private function appendSpecification(
-        array &$specifications,
-        string $key,
-        string $label,
-        ?string $value,
-        ?string $unit = null,
-        ?string $group = null,
-    ): void {
-        if (! is_string($value) || trim($value) === '') {
-            return;
-        }
-
-        $specifications[] = [
-            'key' => $key,
-            'label' => $label,
-            'value' => trim($value),
-            'unit' => $unit,
-            'group' => $group,
-        ];
-    }
-
-    /**
-     * @return array<int, array<string, mixed>>
-     */
-    private function normalizedSpecificationEntries(): array
-    {
-        return collect($this->specifications ?? [])
-            ->map(fn (mixed $entry): array => is_array($entry) ? $entry : [])
-            ->filter(fn (array $entry): bool => Arr::has($entry, ['label', 'value']))
+                return [
+                    'key' => $key,
+                    'label' => (string) ($first['label'] ?? Str::headline($key)),
+                    'value' => $values->implode(', '),
+                    'unit' => isset($first['unit']) && is_string($first['unit']) ? $first['unit'] : null,
+                    'group' => isset($first['group']) && is_string($first['group']) ? $first['group'] : null,
+                ];
+            })
+            ->filter()
             ->values()
             ->all();
+    }
+
+    private function attributeDisplayValue(array $attribute): ?string
+    {
+        $displayLabel = $attribute['display_label'] ?? null;
+
+        if (is_scalar($displayLabel) && trim((string) $displayLabel) !== '') {
+            return (string) $displayLabel;
+        }
+
+        $value = $attribute['value'] ?? null;
+
+        if (is_bool($value)) {
+            return $value ? 'Yes' : 'No';
+        }
+
+        if (is_scalar($value) && trim((string) $value) !== '') {
+            return (string) $value;
+        }
+
+        if (is_array($value) && $value !== []) {
+            return collect($value)
+                ->map(fn (mixed $item, string|int $key): ?string => is_scalar($item)
+                    ? (is_string($key) ? Str::headline((string) $key).': '.$item : (string) $item)
+                    : null)
+                ->filter()
+                ->implode(', ');
+        }
+
+        return null;
     }
 
     /**

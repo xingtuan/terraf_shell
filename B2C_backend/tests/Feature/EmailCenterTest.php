@@ -195,16 +195,24 @@ class EmailCenterTest extends TestCase
 
         $user = User::factory()->create();
         $product = Product::factory()->published()->create([
-            'price_usd' => 48.00,
             'is_active' => true,
-            'in_stock' => true,
-            'stock_status' => 'in_stock',
         ]);
+        $variant = $product->defaultVariant();
+        $variant?->forceFill([
+            'price_amount' => 48.00,
+            'stock_quantity' => 12,
+            'stock_status' => 'in_stock',
+        ])->save();
+        $variant = $variant?->fresh();
+
         $cart = Cart::query()->create(['user_id' => $user->id]);
         $cart->items()->create([
             'product_id' => $product->id,
+            'product_variant_id' => $variant?->id,
             'quantity' => 1,
             'unit_price_usd' => 48.00,
+            'unit_price_amount' => 48.00,
+            'currency' => 'NZD',
         ]);
 
         Sanctum::actingAs($user);

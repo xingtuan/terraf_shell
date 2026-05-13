@@ -18,6 +18,7 @@ use App\Models\EmailTemplate;
 use App\Models\Order;
 use App\Models\Post;
 use App\Models\Product;
+use App\Models\ProductAttributeDefinition;
 use App\Models\ProductCategory;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,6 +34,20 @@ class AdminOperationsCenterTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $category = ProductCategory::query()->where('slug', 'tableware')->firstOrFail();
+        $specification = ProductAttributeDefinition::query()->create([
+            'key' => 'sample_format',
+            'label' => 'Sample Format',
+            'label_translations' => ['en' => 'Sample Format'],
+            'type' => 'text',
+            'group' => 'Specifications',
+            'is_filterable' => false,
+            'is_searchable' => true,
+            'is_specification' => true,
+            'is_variant_option' => false,
+            'allows_multiple' => false,
+            'sort_order' => 10,
+            'is_active' => true,
+        ]);
 
         $this->actingAs($admin);
 
@@ -41,18 +56,12 @@ class AdminOperationsCenterTest extends TestCase
                 'name' => 'Admin Created Bowl',
                 'name_translations' => [
                     'en' => 'Admin Created Bowl',
-                    'ko' => '관리자 등록 볼',
+                    'ko' => 'Admin Created Bowl',
                     'zh' => 'Admin Created Bowl',
                 ],
                 'slug' => 'admin-created-bowl',
-                'sku' => 'ADMIN_CREATED_BOWL',
                 'category_id' => $category->id,
                 'status' => ProductStatus::Published->value,
-                'category' => 'tableware',
-                'model' => 'lite_15',
-                'finish' => 'glossy',
-                'color' => 'ocean_bone',
-                'technique' => 'original_pure',
                 'sort_order' => 5,
                 'is_active' => true,
                 'featured' => true,
@@ -60,9 +69,6 @@ class AdminOperationsCenterTest extends TestCase
                 'is_new' => true,
                 'inquiry_only' => false,
                 'sample_request_enabled' => true,
-                'price_usd' => 42.00,
-                'stock_quantity' => 12,
-                'stock_status' => 'in_stock',
                 'images' => [],
                 'variants' => [
                     [
@@ -79,6 +85,12 @@ class AdminOperationsCenterTest extends TestCase
                         'sort_order' => 0,
                     ],
                 ],
+                'attributeAssignments' => [
+                    [
+                        'attribute_definition_id' => $specification->id,
+                        'value_text' => 'Tableware bowl',
+                    ],
+                ],
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -87,21 +99,30 @@ class AdminOperationsCenterTest extends TestCase
 
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
-            'sku' => 'ADMIN_CREATED_BOWL_STD',
+            'category_id' => $category->id,
             'featured' => true,
             'is_new' => true,
+        ]);
+        $this->assertDatabaseHas('product_variants', [
+            'product_id' => $product->id,
+            'sku' => 'ADMIN_CREATED_BOWL_STD',
             'stock_quantity' => 12,
+            'stock_status' => 'in_stock',
+            'is_default' => true,
+        ]);
+        $this->assertDatabaseHas('product_attribute_assignments', [
+            'product_id' => $product->id,
+            'attribute_definition_id' => $specification->id,
+            'value_text' => 'Tableware bowl',
         ]);
 
         Livewire::test(EditProduct::class, ['record' => $product->getKey()])
             ->fillForm([
                 'featured' => false,
                 'is_bestseller' => true,
-                'stock_quantity' => 4,
-                'stock_status' => 'low_stock',
                 'name_translations' => [
                     'en' => 'Admin Updated Bowl',
-                    'ko' => '관리자 수정 볼',
+                    'ko' => 'Admin Updated Bowl',
                     'zh' => 'Admin Updated Bowl',
                 ],
             ])
@@ -112,8 +133,11 @@ class AdminOperationsCenterTest extends TestCase
             'id' => $product->id,
             'featured' => false,
             'is_bestseller' => true,
-            'stock_quantity' => 4,
-            'stock_status' => 'low_stock',
+        ]);
+        $this->assertDatabaseHas('product_variants', [
+            'product_id' => $product->id,
+            'sku' => 'ADMIN_CREATED_BOWL_STD',
+            'stock_quantity' => 12,
         ]);
     }
 
@@ -121,12 +145,15 @@ class AdminOperationsCenterTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
         $customer = User::factory()->create();
-        $product = Product::factory()->published()->create([
-            'price_usd' => 48.00,
+        $product = Product::factory()->published()->create();
+        $variant = $product->defaultVariant();
+        $variant?->update([
+            'price_amount' => 48.00,
             'stock_quantity' => 10,
             'stock_status' => 'in_stock',
         ]);
-        $variant = $product->defaultVariant();
+        $variant = $variant?->fresh();
+
         $order = Order::query()->create([
             'user_id' => $customer->id,
             'order_number' => 'OXP-900001',
@@ -147,7 +174,7 @@ class AdminOperationsCenterTest extends TestCase
             'product_id' => $product->id,
             'product_variant_id' => $variant?->id,
             'product_name' => $product->name,
-            'product_sku' => $product->effectiveSku(),
+            'product_sku' => $variant?->sku,
             'variant_title' => $variant?->title,
             'variant_sku' => $variant?->sku,
             'quantity' => 1,
@@ -293,8 +320,8 @@ class AdminOperationsCenterTest extends TestCase
         EmailTemplate::query()->create([
             'key' => 'order.status_changed',
             'locale' => 'ko',
-            'name' => '주문 상태 변경',
-            'subject' => '주문 {{ order.order_number }} 상태 변경',
+            'name' => 'Order status changed',
+            'subject' => 'Order {{ order.order_number }} status changed',
             'html_body' => '<p>{{ order.status }}</p>',
             'text_body' => '{{ order.status }}',
             'available_variables' => ['order.order_number', 'order.status'],

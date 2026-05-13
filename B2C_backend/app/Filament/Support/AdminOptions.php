@@ -3,68 +3,11 @@
 namespace App\Filament\Support;
 
 use App\Models\EmailLog;
-use App\Models\Product;
 use App\Models\ProductAttributeDefinition;
 use App\Models\ProductVariant;
 
 class AdminOptions
 {
-    /**
-     * @return array<string, string>
-     */
-    public static function productCategories(): array
-    {
-        return self::translatedKeys('admin.products.category_options', Product::CATEGORY_OPTIONS);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function productModels(): array
-    {
-        return self::translatedKeys('admin.products.model_options', Product::MODEL_OPTIONS);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function productFinishes(): array
-    {
-        return self::translatedKeys('admin.products.finish_options', Product::FINISH_OPTIONS);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function productColors(): array
-    {
-        return self::translatedKeys('admin.products.color_options', Product::COLOR_OPTIONS);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function productTechniques(): array
-    {
-        return self::translatedKeys('admin.products.technique_options', Product::TECHNIQUE_OPTIONS);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function productStockStatuses(): array
-    {
-        return self::translatedKeys('admin.products.stock_status', Product::STOCK_STATUS_OPTIONS);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function productUseCases(): array
-    {
-        return self::translatedKeys('admin.products.use_case_options', Product::USE_CASE_OPTIONS);
-    }
-
     /**
      * @return array<string, string>
      */

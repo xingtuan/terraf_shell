@@ -85,7 +85,7 @@ export default async function ProductDetailPage({
       .filter(Boolean),
     offers: {
       "@type": "Offer",
-      price: product.price_amount ?? product.price_usd,
+      price: product.price_amount ?? undefined,
       priceCurrency: product.currency ?? "NZD",
       availability: product.can_add_to_cart
         ? "https://schema.org/InStock"

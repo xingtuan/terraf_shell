@@ -1,15 +1,17 @@
 import { getLocalizedHref, type Locale } from "@/lib/i18n"
 import type { ProductSortOption, ProductStockStatus } from "@/lib/types"
 
+export type StoreCatalogAttributeFilters = Record<
+  string,
+  string | { min?: string; max?: string }
+>
+
 export type StoreCatalogFilters = {
   search: string
   sort: ProductSortOption
   category: string
-  model: string
-  finish: string
-  color: string
   stock_status: ProductStockStatus | ""
-  use_case: string
+  attributes: StoreCatalogAttributeFilters
   price_min: string
   price_max: string
   page: number
@@ -18,25 +20,59 @@ export type StoreCatalogFilters = {
 export type StoreCatalogFilterChipKey =
   | "search"
   | "category"
-  | "model"
-  | "finish"
-  | "color"
   | "stock_status"
-  | "use_case"
   | "price"
+  | `attributes.${string}`
 
 export const DEFAULT_STORE_CATALOG_FILTERS: StoreCatalogFilters = {
   search: "",
   sort: "featured",
   category: "",
-  model: "",
-  finish: "",
-  color: "",
   stock_status: "",
-  use_case: "",
+  attributes: {},
   price_min: "",
   price_max: "",
   page: 1,
+}
+
+function parseAttributeFilters(
+  searchParams: Record<string, string | string[] | undefined>,
+): StoreCatalogAttributeFilters {
+  const attributes: StoreCatalogAttributeFilters = {}
+
+  for (const [key, rawValue] of Object.entries(searchParams)) {
+    const match = /^attributes\[([^\]]+)\](?:\[([^\]]+)\])?$/.exec(key)
+
+    if (!match) {
+      continue
+    }
+
+    const attributeKey = match[1]
+    const rangeKey = match[2]
+    const value = firstValue(rawValue).trim()
+
+    if (value === "") {
+      continue
+    }
+
+    if (rangeKey === "min" || rangeKey === "max") {
+      const current =
+        typeof attributes[attributeKey] === "object" && !Array.isArray(attributes[attributeKey])
+          ? attributes[attributeKey]
+          : {}
+
+      attributes[attributeKey] = {
+        ...current,
+        [rangeKey]: value,
+      }
+
+      continue
+    }
+
+    attributes[attributeKey] = value
+  }
+
+  return attributes
 }
 
 const PRODUCT_SORT_OPTIONS: ProductSortOption[] = [
@@ -78,15 +114,12 @@ export function parseStoreCatalogFilters(
       ? (sortValue as ProductSortOption)
       : DEFAULT_STORE_CATALOG_FILTERS.sort,
     category: firstValue(searchParams.category).trim(),
-    model: firstValue(searchParams.model).trim(),
-    finish: firstValue(searchParams.finish).trim(),
-    color: firstValue(searchParams.color).trim(),
     stock_status: PRODUCT_STOCK_STATUS_OPTIONS.includes(
       stockStatusValue as ProductStockStatus,
     )
       ? (stockStatusValue as ProductStockStatus)
       : DEFAULT_STORE_CATALOG_FILTERS.stock_status,
-    use_case: firstValue(searchParams.use_case).trim(),
+    attributes: parseAttributeFilters(searchParams),
     price_min: firstValue(searchParams.price_min).trim(),
     price_max: firstValue(searchParams.price_max).trim(),
     page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : DEFAULT_STORE_CATALOG_FILTERS.page,
@@ -97,11 +130,8 @@ export function hasActiveStoreCatalogFilters(filters: StoreCatalogFilters) {
   return (
     filters.search !== "" ||
     filters.category !== "" ||
-    filters.model !== "" ||
-    filters.finish !== "" ||
-    filters.color !== "" ||
     filters.stock_status !== "" ||
-    filters.use_case !== "" ||
+    Object.keys(filters.attributes).length > 0 ||
     filters.price_min !== "" ||
     filters.price_max !== ""
   )
@@ -133,6 +163,16 @@ export function removeStoreCatalogFilter(
     }
   }
 
+  if (key.startsWith("attributes.")) {
+    const attributeKey = key.slice("attributes.".length)
+    const { [attributeKey]: _removed, ...attributes } = nextFilters.attributes
+
+    return {
+      ...nextFilters,
+      attributes,
+    }
+  }
+
   return {
     ...nextFilters,
     [key]: "",
@@ -146,6 +186,22 @@ export function buildStoreCatalogHref(
   const url = new URL(getLocalizedHref(locale, "store"), "https://oxp.local")
 
   for (const [key, value] of Object.entries(filters)) {
+    if (key === "attributes" && value && typeof value === "object" && !Array.isArray(value)) {
+      for (const [attributeKey, attributeValue] of Object.entries(value)) {
+        if (typeof attributeValue === "string" && attributeValue.trim() !== "") {
+          url.searchParams.set(`attributes[${attributeKey}]`, attributeValue.trim())
+        } else if (attributeValue && typeof attributeValue === "object") {
+          for (const [rangeKey, rangeValue] of Object.entries(attributeValue)) {
+            if (typeof rangeValue === "string" && rangeValue.trim() !== "") {
+              url.searchParams.set(`attributes[${attributeKey}][${rangeKey}]`, rangeValue.trim())
+            }
+          }
+        }
+      }
+
+      continue
+    }
+
     if (key === "page" && (value === 1 || value === "1")) {
       continue
     }

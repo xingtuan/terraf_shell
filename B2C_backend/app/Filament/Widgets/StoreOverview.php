@@ -12,6 +12,7 @@ use App\Filament\Support\PanelAccess;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ProductVariant;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -51,10 +52,12 @@ class StoreOverview extends StatsOverviewWidget
             ->where('is_active', true)
             ->count();
 
-        $stockAlerts = Product::query()
+        $stockAlerts = ProductVariant::query()
             ->whereIn('stock_status', ['low_stock', 'sold_out'])
-            ->where('status', ProductStatus::Published->value)
-            ->count();
+            ->where('is_active', true)
+            ->whereHas('product', fn ($query) => $query->where('status', ProductStatus::Published->value))
+            ->distinct()
+            ->count('product_id');
 
         $categories = ProductCategory::query()
             ->where('is_active', true)
