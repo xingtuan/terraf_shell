@@ -53,8 +53,9 @@ class EmailTemplateResource extends Resource
                 ->schema([
                     Grid::make(3)
                         ->schema([
-                            TextInput::make('key')->disabled()->dehydrated(false),
+                            TextInput::make('key')->label(__('admin.ui.key'))->disabled()->dehydrated(false),
                             Select::make('locale')
+                                ->label(__('admin.ui.locale'))
                                 ->options([
                                     'en' => 'EN',
                                     'zh' => 'ZH',
@@ -83,6 +84,7 @@ class EmailTemplateResource extends Resource
             Section::make(__('admin.ui.variables'))
                 ->schema([
                     TagsInput::make('available_variables')
+                        ->label(__('admin.ui.available_variables'))
                         ->disabled()
                         ->dehydrated(false),
                     Placeholder::make('variable_help')
@@ -101,10 +103,12 @@ class EmailTemplateResource extends Resource
             ->defaultSort('key')
             ->columns([
                 TextColumn::make('key')
+                    ->label(__('admin.ui.key'))
                     ->searchable()
                     ->copyable()
                     ->description(fn (EmailTemplate $record): string => $record->name),
                 TextColumn::make('locale')
+                    ->label(__('admin.ui.locale'))
                     ->badge()
                     ->sortable(),
                 TextColumn::make('subject')
@@ -146,8 +150,10 @@ class EmailTemplateResource extends Resource
 
                         return [
                             TextEntry::make('subject')
+                                ->label(__('admin.ui.subject'))
                                 ->state($rendered['subject']),
                             TextEntry::make('body')
+                                ->label(__('admin.ui.body'))
                                 ->state($rendered['text'] ?: strip_tags($rendered['html']))
                                 ->columnSpanFull(),
                         ];

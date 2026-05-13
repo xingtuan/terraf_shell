@@ -61,6 +61,7 @@ class EmailLogResource extends Resource
                         default => 'gray',
                     }),
                 TextColumn::make('event_key')
+                    ->label(__('admin.ui.event_key'))
                     ->searchable()
                     ->copyable(),
                 TextColumn::make('to')
@@ -74,6 +75,7 @@ class EmailLogResource extends Resource
                         return $query->where('to', 'like', '%'.$search.'%');
                     }),
                 TextColumn::make('subject')
+                    ->label(__('admin.ui.subject'))
                     ->limit(70)
                     ->searchable(),
                 TextColumn::make('related_type')
@@ -93,9 +95,11 @@ class EmailLogResource extends Resource
                 SelectFilter::make('status')
                     ->options(fn (): array => AdminOptions::emailLogStatuses()),
                 SelectFilter::make('event_key')
+                    ->label(__('admin.ui.event_key'))
                     ->options(fn (): array => EmailEvent::query()->orderBy('key')->pluck('key', 'key')->all())
                     ->searchable(),
                 SelectFilter::make('category')
+                    ->label(__('admin.ui.category'))
                     ->options(fn (): array => EmailEvent::query()->select('category')->distinct()->orderBy('category')->pluck('category', 'category')->all())
                     ->query(function (Builder $query, array $data): Builder {
                         if (blank($data['value'] ?? null)) {
@@ -124,6 +128,7 @@ class EmailLogResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 Action::make('retry')
+                    ->label(__('admin.ui.retry'))
                     ->visible(fn (EmailLog $record): bool => $record->status === EmailLog::STATUS_FAILED)
                     ->requiresConfirmation()
                     ->action(fn (EmailLog $record): EmailLog => app(EmailDispatchService::class)->retry($record)),
@@ -143,28 +148,29 @@ class EmailLogResource extends Resource
         return $schema->components([
             InfolistSection::make(__('admin.ui.delivery'))
                 ->schema([
-                    TextEntry::make('status')->badge(),
-                    TextEntry::make('event_key'),
-                    TextEntry::make('template_key'),
-                    TextEntry::make('locale'),
-                    TextEntry::make('mailer'),
-                    TextEntry::make('subject')->columnSpanFull(),
-                    TextEntry::make('skip_reason')->placeholder('-'),
-                    TextEntry::make('error_message')->placeholder('-')->columnSpanFull(),
-                    TextEntry::make('queued_at')->dateTime()->placeholder('-'),
-                    TextEntry::make('sent_at')->dateTime()->placeholder('-'),
-                    TextEntry::make('failed_at')->dateTime()->placeholder('-'),
+                    TextEntry::make('status')->label(__('admin.fields.status'))->badge(),
+                    TextEntry::make('event_key')->label(__('admin.ui.event_key')),
+                    TextEntry::make('template_key')->label(__('admin.ui.template_key')),
+                    TextEntry::make('locale')->label(__('admin.ui.locale')),
+                    TextEntry::make('mailer')->label(__('admin.ui.mailer')),
+                    TextEntry::make('subject')->label(__('admin.ui.subject'))->columnSpanFull(),
+                    TextEntry::make('skip_reason')->label(__('admin.ui.skip_reason'))->placeholder('-'),
+                    TextEntry::make('error_message')->label(__('admin.ui.error'))->placeholder('-')->columnSpanFull(),
+                    TextEntry::make('queued_at')->label(__('admin.ui.queued_at'))->dateTime()->placeholder('-'),
+                    TextEntry::make('sent_at')->label(__('admin.ui.sent_at'))->dateTime()->placeholder('-'),
+                    TextEntry::make('failed_at')->label(__('admin.ui.failed_at'))->dateTime()->placeholder('-'),
                 ])
                 ->columns(3),
             InfolistSection::make(__('admin.ui.recipients'))
                 ->schema([
-                    KeyValueEntry::make('to'),
-                    KeyValueEntry::make('cc'),
-                    KeyValueEntry::make('bcc'),
+                    KeyValueEntry::make('to')->label(__('admin.ui.to')),
+                    KeyValueEntry::make('cc')->label(__('admin.ui.cc')),
+                    KeyValueEntry::make('bcc')->label(__('admin.ui.bcc')),
                 ]),
             InfolistSection::make(__('admin.ui.rendered_content'))
                 ->schema([
                     TextEntry::make('rendered_subject')
+                        ->label(__('admin.ui.rendered_subject'))
                         ->state(fn (EmailLog $record): ?string => data_get($record->payload, '_rendered.subject')),
                     TextEntry::make('rendered_text')
                         ->label(__('admin.ui.body'))
@@ -173,7 +179,7 @@ class EmailLogResource extends Resource
                 ]),
             InfolistSection::make(__('admin.ui.payload'))
                 ->schema([
-                    KeyValueEntry::make('payload')->columnSpanFull(),
+                    KeyValueEntry::make('payload')->label(__('admin.ui.payload'))->columnSpanFull(),
                 ]),
         ]);
     }

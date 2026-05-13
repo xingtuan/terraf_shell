@@ -38,12 +38,15 @@ class ArticlesTable
                     ->label(__('admin.ui.slug'))
                     ->searchable(),
                 TextColumn::make('category')
+                    ->label(__('admin.ui.category'))
                     ->searchable(['category', 'category_translations->en', 'category_translations->ko', 'category_translations->zh']),
                 TextColumn::make('status')
+                    ->label(__('admin.fields.status'))
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => PublishStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => PublishStatus::tryFrom($state)?->color() ?? 'gray'),
                 TextColumn::make('sort_order')
+                    ->label(__('admin.ui.sort_order'))
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_seeded')

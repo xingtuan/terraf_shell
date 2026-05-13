@@ -55,9 +55,9 @@ class EmailEventResource extends Resource
                 ->schema([
                     Grid::make(2)
                         ->schema([
-                            TextInput::make('category')->required()->maxLength(80),
-                            TextInput::make('name')->required()->maxLength(255),
-                            TextInput::make('key')->disabled()->dehydrated(false),
+                            TextInput::make('category')->label(__('admin.ui.category'))->required()->maxLength(80),
+                            TextInput::make('name')->label(__('admin.fields.name'))->required()->maxLength(255),
+                            TextInput::make('key')->label(__('admin.ui.key'))->disabled()->dehydrated(false),
                             Toggle::make('is_enabled')->label(__('admin.ui.enabled')),
                             Select::make('recipient_type')
                                 ->label(__('admin.ui.recipient_type'))
@@ -77,8 +77,8 @@ class EmailEventResource extends Resource
                                     ->all())
                                 ->searchable()
                                 ->required(),
-                            TextInput::make('throttle_minutes')->numeric()->minValue(1),
-                            Toggle::make('use_queue')->default(true),
+                            TextInput::make('throttle_minutes')->label(__('admin.ui.throttle_minutes'))->numeric()->minValue(1),
+                            Toggle::make('use_queue')->label(__('admin.fields.send_through_queue'))->default(true),
                             TagsInput::make('custom_recipients')
                                 ->label(__('admin.ui.custom_recipients'))
                                 ->columnSpanFull(),
@@ -102,6 +102,7 @@ class EmailEventResource extends Resource
                     ->searchable()
                     ->badge(),
                 TextColumn::make('name')
+                    ->label(__('admin.fields.name'))
                     ->searchable()
                     ->description(fn (EmailEvent $record): string => $record->key),
                 IconColumn::make('is_enabled')
@@ -110,6 +111,7 @@ class EmailEventResource extends Resource
                 ToggleColumn::make('is_enabled')
                     ->label(__('admin.ui.toggle')),
                 TextColumn::make('recipient_type')
+                    ->label(__('admin.ui.recipient_type'))
                     ->badge(),
                 TextColumn::make('template_key')
                     ->label(__('admin.ui.template'))

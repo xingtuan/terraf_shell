@@ -42,7 +42,7 @@ trait HasAdminResourceTranslations
             'MaterialApplicationResource' => ['navigation' => 'admin.resources.material_applications', 'model' => 'admin.resources.material_application', 'plural' => 'admin.resources.material_applications'],
             'MaterialResource' => ['navigation' => 'admin.resources.materials', 'model' => 'admin.resources.material', 'plural' => 'admin.resources.materials'],
             'MaterialSpecResource' => ['navigation' => 'admin.resources.material_specs', 'model' => 'admin.resources.material_spec', 'plural' => 'admin.resources.material_specs'],
-            'MaterialStorySectionResource' => ['navigation' => 'admin.resources.material_story_sections'],
+            'MaterialStorySectionResource' => ['navigation' => 'admin.resources.material_story_sections', 'model' => 'admin.resources.material_story_section', 'plural' => 'admin.resources.material_story_sections'],
             'MediaFileResource' => ['navigation' => 'admin.resources.media_files', 'model' => 'admin.resources.media_file', 'plural' => 'admin.resources.media_files'],
             'ModerationLogResource' => ['navigation' => 'admin.resources.moderation_logs', 'model' => 'admin.resources.moderation_log', 'plural' => 'admin.resources.moderation_logs'],
             'OrderResource' => ['navigation' => 'admin.resources.orders', 'model' => 'admin.resources.order', 'plural' => 'admin.resources.orders'],
