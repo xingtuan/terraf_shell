@@ -17,19 +17,10 @@ class CategoryForm
     {
         return $schema
             ->components([
-                Section::make(__('admin.ui.category'))
+                Section::make(__('admin.ui.category_settings'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextInput::make('name')
-                                    ->label(__('admin.fields.name'))
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->unique(ignoreRecord: true)
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(function (Set $set, ?string $state): void {
-                                        $set('slug', Str::slug((string) $state));
-                                    }),
                                 TextInput::make('slug')
                                     ->label(__('admin.ui.slug'))
                                     ->required()
@@ -43,11 +34,39 @@ class CategoryForm
                                     ->numeric()
                                     ->default(0)
                                     ->required(),
-                                Textarea::make('description')
-                                    ->label(__('admin.ui.description'))
-                                    ->rows(5)
-                                    ->columnSpanFull(),
                             ]),
+                    ]),
+                Section::make(__('admin.ui.english'))
+                    ->schema([
+                        TextInput::make('name_translations.en')
+                            ->label(__('admin.ui.name'))
+                            ->required()
+                            ->maxLength(255)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function (Set $set, ?string $state): void {
+                                $set('slug', Str::slug((string) $state));
+                            }),
+                        Textarea::make('description_translations.en')
+                            ->label(__('admin.ui.description'))
+                            ->rows(4),
+                    ]),
+                Section::make(__('admin.ui.korean'))
+                    ->schema([
+                        TextInput::make('name_translations.ko')
+                            ->label(__('admin.ui.name'))
+                            ->maxLength(255),
+                        Textarea::make('description_translations.ko')
+                            ->label(__('admin.ui.description'))
+                            ->rows(4),
+                    ]),
+                Section::make(__('admin.ui.chinese'))
+                    ->schema([
+                        TextInput::make('name_translations.zh')
+                            ->label(__('admin.ui.name'))
+                            ->maxLength(255),
+                        Textarea::make('description_translations.zh')
+                            ->label(__('admin.ui.description'))
+                            ->rows(4),
                     ]),
             ]);
     }

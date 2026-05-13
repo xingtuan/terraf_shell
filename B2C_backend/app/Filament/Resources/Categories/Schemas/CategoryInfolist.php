@@ -14,11 +14,10 @@ class CategoryInfolist
     {
         return $schema
             ->components([
-                Section::make(__('admin.ui.category'))
+                Section::make(__('admin.ui.category_settings'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                TextEntry::make('name'),
                                 TextEntry::make('slug'),
                                 TextEntry::make('is_active')
                                     ->label(__('admin.ui.status'))
@@ -32,10 +31,37 @@ class CategoryInfolist
                                 TextEntry::make('updated_at')
                                     ->label(__('admin.ui.updated'))
                                     ->dateTime(),
-                                TextEntry::make('description')
-                                    ->placeholder(__('admin.ui.no_description_provided'))
-                                    ->columnSpanFull(),
                             ]),
+                    ]),
+                Section::make(__('admin.ui.english'))
+                    ->schema([
+                        TextEntry::make('name_translations.en')
+                            ->label(__('admin.ui.name'))
+                            ->placeholder('-'),
+                        TextEntry::make('description_translations.en')
+                            ->label(__('admin.ui.description'))
+                            ->placeholder(__('admin.ui.no_description_provided'))
+                            ->columnSpanFull(),
+                    ]),
+                Section::make(__('admin.ui.korean'))
+                    ->schema([
+                        TextEntry::make('name_translations.ko')
+                            ->label(__('admin.ui.name'))
+                            ->placeholder('-'),
+                        TextEntry::make('description_translations.ko')
+                            ->label(__('admin.ui.description'))
+                            ->placeholder(__('admin.ui.no_description_provided'))
+                            ->columnSpanFull(),
+                    ]),
+                Section::make(__('admin.ui.chinese'))
+                    ->schema([
+                        TextEntry::make('name_translations.zh')
+                            ->label(__('admin.ui.name'))
+                            ->placeholder('-'),
+                        TextEntry::make('description_translations.zh')
+                            ->label(__('admin.ui.description'))
+                            ->placeholder(__('admin.ui.no_description_provided'))
+                            ->columnSpanFull(),
                     ]),
             ]);
     }
