@@ -143,6 +143,12 @@
         "description": "购物车中的所有商品将被移除。",
         "confirm": "清空购物车",
         "cancel": "保留商品"
+      },
+      "discardChanges": {
+        "title": "放弃未保存的更改？",
+        "description": "你的编辑尚未保存，离开后将会丢失。",
+        "confirm": "放弃",
+        "cancel": "继续编辑"
       }
     }
   },
@@ -1451,7 +1457,8 @@
     "defaultBadge": "默认",
     "setDefault": "设为默认",
     "edit": "编辑",
-    "delete": "删除"
+    "delete": "删除",
+    "resetEdit": "重置更改"
   },
   "ordersPage": {
     "eyebrow": "订单",

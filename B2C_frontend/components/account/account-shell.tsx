@@ -1,14 +1,14 @@
 "use client"
 
 import type { ComponentType, ReactNode } from "react"
+import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   MapPinHouse,
   MessageSquareText,
   Package,
-  Settings,
   ShoppingBag,
   UserRound,
 } from "lucide-react"
@@ -41,9 +41,11 @@ function isActivePath(pathname: string, href: string) {
 }
 
 function AccountShellContent({ children, locale }: AccountShellProps) {
+  const router = useRouter()
   const session = useAuthSession()
   const pathname = usePathname()
   const copy = getAccountCopy(locale)
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   if (!session.user) {
     return null
@@ -79,11 +81,6 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
       href: getLocalizedHref(locale, "account/store"),
       icon: ShoppingBag,
       label: copy.nav.store,
-    },
-    {
-      href: getLocalizedHref(locale, "account/settings"),
-      icon: Settings,
-      label: copy.nav.settings,
     },
   ]
 
@@ -128,9 +125,25 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
                   )}
                 </p>
               </div>
-              <Button asChild variant="outline" className="sm:self-start">
-                <Link href={publicProfileHref}>{copy.shell.publicProfile}</Link>
-              </Button>
+              <div className="flex flex-wrap gap-2 sm:flex-col sm:self-start">
+                <Button asChild variant="outline">
+                  <Link href={publicProfileHref}>{copy.shell.publicProfile}</Link>
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={isSigningOut}
+                  onClick={() => {
+                    setIsSigningOut(true)
+                    void session
+                      .logout()
+                      .then(() => router.push(getLocalizedHref(locale)))
+                      .finally(() => setIsSigningOut(false))
+                  }}
+                >
+                  {isSigningOut ? copy.settings.signingOut : copy.settings.signOut}
+                </Button>
+              </div>
             </div>
           </div>
         </section>

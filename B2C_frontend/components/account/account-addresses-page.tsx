@@ -56,14 +56,32 @@ const emptyAddressForm: AddressPayload = {
   is_default: false,
 }
 
+function isFormEqual(a: AddressPayload, b: AddressPayload) {
+  return JSON.stringify(a) === JSON.stringify(b)
+}
+
 function mergeAddress(currentAddresses: Address[], nextAddress: Address) {
   const remainingAddresses = currentAddresses
     .filter((address) => address.id !== nextAddress.id)
     .map((address) =>
       nextAddress.is_default ? { ...address, is_default: false } : address,
     )
-
   return [nextAddress, ...remainingAddresses]
+}
+
+function addressToForm(address: Address): AddressPayload {
+  return {
+    label: address.label ?? "",
+    recipient_name: address.recipient_name,
+    phone: address.phone ?? "",
+    address_line1: address.address_line1,
+    address_line2: address.address_line2 ?? "",
+    city: address.city,
+    state_province: address.state_province ?? "",
+    postal_code: address.postal_code ?? "",
+    country: address.country,
+    is_default: address.is_default,
+  }
 }
 
 export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
@@ -71,64 +89,107 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
   const copy = getAccountCopy(locale)
   const siteMessages = getMessages(locale)
   const messages = siteMessages.addressPage
+
   const [addresses, setAddresses] = useState<Address[]>([])
   const [editingAddressId, setEditingAddressId] = useState<number | null>(null)
+  const [isAddingNew, setIsAddingNew] = useState(false)
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null)
   const [form, setForm] = useState<AddressPayload>(emptyAddressForm)
+  const [originalForm, setOriginalForm] = useState<AddressPayload>(emptyAddressForm)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false)
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null)
+
+  const formVisible = isAddingNew || editingAddressId !== null
+  const isDirty = !isFormEqual(form, originalForm)
 
   useEffect(() => {
-    if (!session.token) {
-      return
-    }
-
+    if (!session.token) return
     setLoading(true)
     setError(null)
-
     void listAddresses(session.token)
-      .then((nextAddresses) => {
-        setAddresses(nextAddresses)
-      })
-      .catch((loadError) => {
-        setError(getErrorMessage(loadError))
-      })
-      .finally(() => {
-        setLoading(false)
-      })
+      .then((nextAddresses) => setAddresses(nextAddresses))
+      .catch((loadError) => setError(getErrorMessage(loadError)))
+      .finally(() => setLoading(false))
   }, [session.token])
 
   const orderedAddresses = useMemo(
     () =>
       [...addresses].sort(
-        (leftAddress, rightAddress) =>
-          Number(rightAddress.is_default) - Number(leftAddress.is_default),
+        (a, b) => Number(b.is_default) - Number(a.is_default),
       ),
     [addresses],
   )
   const defaultAddress = useMemo(() => getDefaultAddress(addresses), [addresses])
 
-  function resetForm() {
+  function runOrConfirm(action: () => void) {
+    if (formVisible && isDirty) {
+      setPendingAction(() => action)
+      setShowDiscardDialog(true)
+    } else {
+      action()
+    }
+  }
+
+  function closeForm() {
     setEditingAddressId(null)
+    setIsAddingNew(false)
     setForm(emptyAddressForm)
+    setOriginalForm(emptyAddressForm)
+  }
+
+  function startAddNew() {
+    runOrConfirm(() => {
+      setEditingAddressId(null)
+      setIsAddingNew(true)
+      setForm({ ...emptyAddressForm })
+      setOriginalForm({ ...emptyAddressForm })
+    })
+  }
+
+  function startEdit(address: Address) {
+    const addressForm = addressToForm(address)
+    runOrConfirm(() => {
+      setIsAddingNew(false)
+      setEditingAddressId(address.id)
+      setForm(addressForm)
+      setOriginalForm(addressForm)
+    })
+  }
+
+  function handleCancelEdit() {
+    if (isDirty) {
+      setPendingAction(() => closeForm)
+      setShowDiscardDialog(true)
+    } else {
+      closeForm()
+    }
+  }
+
+  function handleResetEdit() {
+    setForm({ ...originalForm })
+  }
+
+  function confirmDiscard() {
+    if (pendingAction) {
+      pendingAction()
+      setPendingAction(null)
+    }
+    setShowDiscardDialog(false)
   }
 
   async function handleSubmit() {
-    if (!session.token) {
-      return
-    }
-
+    if (!session.token) return
     setError(null)
     setMessage(null)
-
     try {
       const nextAddress = editingAddressId
         ? await updateAddress(editingAddressId, form, session.token)
         : await createAddress(form, session.token)
-
-      setAddresses((currentAddresses) => mergeAddress(currentAddresses, nextAddress))
-      resetForm()
+      setAddresses((current) => mergeAddress(current, nextAddress))
+      closeForm()
       setMessage(editingAddressId ? messages.updatedSuccess : messages.createdSuccess)
     } catch (submitError) {
       setError(getErrorMessage(submitError))
@@ -136,15 +197,10 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
   }
 
   async function handleDelete(addressId: number) {
-    if (!session.token) {
-      return
-    }
-
+    if (!session.token) return
     try {
       await deleteAddress(addressId, session.token)
-      setAddresses((currentAddresses) =>
-        currentAddresses.filter((address) => address.id !== addressId),
-      )
+      setAddresses((current) => current.filter((a) => a.id !== addressId))
       setMessage(siteMessages.common.success.addressDeleted)
     } catch (deleteError) {
       setError(getErrorMessage(deleteError))
@@ -154,13 +210,10 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
   }
 
   async function handleSetDefault(addressId: number) {
-    if (!session.token) {
-      return
-    }
-
+    if (!session.token) return
     try {
       const nextAddress = await setDefaultAddress(addressId, session.token)
-      setAddresses((currentAddresses) => mergeAddress(currentAddresses, nextAddress))
+      setAddresses((current) => mergeAddress(current, nextAddress))
       setMessage(siteMessages.common.success.addressDefaultSet)
     } catch (defaultError) {
       setError(getErrorMessage(defaultError))
@@ -174,14 +227,9 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
         title={copy.addresses.title}
         description={copy.addresses.description}
         actions={
-          <>
-            <Button type="button" variant="outline" onClick={resetForm}>
-              {copy.addresses.resetForm}
-            </Button>
-            <Button type="button" onClick={resetForm}>
-              {copy.addresses.startNew}
-            </Button>
-          </>
+          <Button type="button" onClick={startAddNew}>
+            {copy.addresses.startNew}
+          </Button>
         }
       />
 
@@ -214,7 +262,7 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
         />
         <AccountStatCard
           label={messages.savedAddresses}
-          value={editingAddressId ? messages.editTitle : messages.addTitle}
+          value={formVisible ? (editingAddressId ? messages.editTitle : messages.addTitle) : "—"}
           detail={copy.addresses.makeDefault}
         />
       </div>
@@ -225,8 +273,8 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
         </div>
       ) : null}
 
-      <div className="mt-8 grid gap-8 xl:grid-cols-[0.95fr_1.05fr]">
-        <AccountPanel className="bg-background/70 p-6">
+      {formVisible ? (
+        <AccountPanel className="mt-8 bg-background/70 p-6">
           <p className="text-sm uppercase tracking-[0.18em] text-primary">
             {copy.addresses.eyebrow}
           </p>
@@ -239,50 +287,35 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
               placeholder={messages.labelPlaceholder}
               value={form.label ?? ""}
               onChange={(event) =>
-                setForm((currentValue) => ({
-                  ...currentValue,
-                  label: event.target.value,
-                }))
+                setForm((f) => ({ ...f, label: event.target.value }))
               }
             />
             <Input
               placeholder={messages.recipientNamePlaceholder}
               value={form.recipient_name}
               onChange={(event) =>
-                setForm((currentValue) => ({
-                  ...currentValue,
-                  recipient_name: event.target.value,
-                }))
+                setForm((f) => ({ ...f, recipient_name: event.target.value }))
               }
             />
             <Input
               placeholder={messages.phonePlaceholder}
               value={form.phone ?? ""}
               onChange={(event) =>
-                setForm((currentValue) => ({
-                  ...currentValue,
-                  phone: event.target.value,
-                }))
+                setForm((f) => ({ ...f, phone: event.target.value }))
               }
             />
             <Input
               placeholder={messages.addressLine1Placeholder}
               value={form.address_line1}
               onChange={(event) =>
-                setForm((currentValue) => ({
-                  ...currentValue,
-                  address_line1: event.target.value,
-                }))
+                setForm((f) => ({ ...f, address_line1: event.target.value }))
               }
             />
             <Input
               placeholder={messages.addressLine2Placeholder}
               value={form.address_line2 ?? ""}
               onChange={(event) =>
-                setForm((currentValue) => ({
-                  ...currentValue,
-                  address_line2: event.target.value,
-                }))
+                setForm((f) => ({ ...f, address_line2: event.target.value }))
               }
             />
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -290,20 +323,14 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
                 placeholder={messages.cityPlaceholder}
                 value={form.city}
                 onChange={(event) =>
-                  setForm((currentValue) => ({
-                    ...currentValue,
-                    city: event.target.value,
-                  }))
+                  setForm((f) => ({ ...f, city: event.target.value }))
                 }
               />
               <Input
                 placeholder={messages.stateProvincePlaceholder}
                 value={form.state_province ?? ""}
                 onChange={(event) =>
-                  setForm((currentValue) => ({
-                    ...currentValue,
-                    state_province: event.target.value,
-                  }))
+                  setForm((f) => ({ ...f, state_province: event.target.value }))
                 }
               />
             </div>
@@ -312,18 +339,15 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
                 placeholder={messages.postalCodePlaceholder}
                 value={form.postal_code ?? ""}
                 onChange={(event) =>
-                  setForm((currentValue) => ({
-                    ...currentValue,
-                    postal_code: event.target.value,
-                  }))
+                  setForm((f) => ({ ...f, postal_code: event.target.value }))
                 }
               />
               <Input
                 placeholder={messages.countryPlaceholder}
                 value={form.country}
                 onChange={(event) =>
-                  setForm((currentValue) => ({
-                    ...currentValue,
+                  setForm((f) => ({
+                    ...f,
                     country: event.target.value.toUpperCase(),
                   }))
                 }
@@ -333,10 +357,7 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
               <Checkbox
                 checked={Boolean(form.is_default)}
                 onCheckedChange={(checked) =>
-                  setForm((currentValue) => ({
-                    ...currentValue,
-                    is_default: Boolean(checked),
-                  }))
+                  setForm((f) => ({ ...f, is_default: Boolean(checked) }))
                 }
               />
               <span>{copy.addresses.makeDefault}</span>
@@ -347,106 +368,109 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
                 {editingAddressId ? messages.updateAddress : messages.addAddress}
               </Button>
               {editingAddressId ? (
-                <Button type="button" variant="outline" onClick={resetForm}>
-                  {messages.cancel}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleResetEdit}
+                  disabled={!isDirty}
+                >
+                  {messages.resetEdit}
                 </Button>
               ) : null}
+              <Button type="button" variant="ghost" onClick={handleCancelEdit}>
+                {messages.cancel}
+              </Button>
             </div>
           </div>
         </AccountPanel>
+      ) : null}
 
-        <AccountPanel className="bg-background/70 p-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-primary">
-            {messages.savedAddresses}
-          </p>
-          <h2 className="mt-3 font-serif text-3xl text-foreground">
-            {messages.savedAddresses}
-          </h2>
+      <AccountPanel className="mt-8 bg-background/70 p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-sm uppercase tracking-[0.18em] text-primary">
+              {messages.savedAddresses}
+            </p>
+            <h2 className="mt-3 font-serif text-3xl text-foreground">
+              {messages.savedAddresses}
+            </h2>
+          </div>
+          {!formVisible ? (
+            <Button type="button" variant="outline" onClick={startAddNew}>
+              {copy.addresses.startNew}
+            </Button>
+          ) : null}
+        </div>
 
-          <div className="mt-6 space-y-4">
-            {!loading && orderedAddresses.length === 0 ? (
-              <AccountEmptyState
-                title={messages.savedAddresses}
-                description={messages.noAddresses}
-              />
-            ) : (
-              orderedAddresses.map((address) => (
-                <div
-                  key={address.id}
-                  className="rounded-[1.5rem] border border-border/60 bg-card p-5"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <p className="font-medium text-foreground">
-                          {address.label || address.recipient_name}
-                        </p>
-                        {address.is_default ? (
-                          <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-primary">
-                            {messages.defaultBadge}
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {address.recipient_name}
+        <div className="mt-6 space-y-4">
+          {!loading && orderedAddresses.length === 0 ? (
+            <AccountEmptyState
+              title={messages.savedAddresses}
+              description={messages.noAddresses}
+            />
+          ) : (
+            orderedAddresses.map((address) => (
+              <div
+                key={address.id}
+                className={`rounded-[1.5rem] border bg-card p-5 transition-colors ${
+                  editingAddressId === address.id
+                    ? "border-primary/40 bg-primary/5"
+                    : "border-border/60"
+                }`}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="font-medium text-foreground">
+                        {address.label || address.recipient_name}
                       </p>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                        {formatAddressSummary(address)}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-3">
-                      {!address.is_default ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            void handleSetDefault(address.id)
-                          }}
-                        >
-                          {messages.setDefault}
-                        </Button>
+                      {address.is_default ? (
+                        <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-primary">
+                          {messages.defaultBadge}
+                        </span>
                       ) : null}
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {address.recipient_name}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {formatAddressSummary(address)}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {!address.is_default ? (
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          setEditingAddressId(address.id)
-                          setForm({
-                            label: address.label ?? "",
-                            recipient_name: address.recipient_name,
-                            phone: address.phone ?? "",
-                            address_line1: address.address_line1,
-                            address_line2: address.address_line2 ?? "",
-                            city: address.city,
-                            state_province: address.state_province ?? "",
-                            postal_code: address.postal_code ?? "",
-                            country: address.country,
-                            is_default: address.is_default,
-                          })
-                        }}
+                        onClick={() => void handleSetDefault(address.id)}
                       >
-                        {messages.edit}
+                        {messages.setDefault}
                       </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setPendingDeleteId(address.id)
-                        }}
-                      >
-                        {messages.delete}
-                      </Button>
-                    </div>
+                    ) : null}
+                    <Button
+                      type="button"
+                      variant={editingAddressId === address.id ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => startEdit(address)}
+                    >
+                      {messages.edit}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setPendingDeleteId(address.id)}
+                    >
+                      {messages.delete}
+                    </Button>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        </AccountPanel>
-      </div>
+              </div>
+            ))
+          )}
+        </div>
+      </AccountPanel>
 
       <AlertDialog
         open={pendingDeleteId !== null}
@@ -469,12 +493,39 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                if (pendingDeleteId !== null) {
-                  void handleDelete(pendingDeleteId)
-                }
+                if (pendingDeleteId !== null) void handleDelete(pendingDeleteId)
               }}
             >
               {siteMessages.common.confirm.deleteAddress.confirm}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={showDiscardDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowDiscardDialog(false)
+            setPendingAction(null)
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {siteMessages.common.confirm.discardChanges.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {siteMessages.common.confirm.discardChanges.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {siteMessages.common.confirm.discardChanges.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDiscard}>
+              {siteMessages.common.confirm.discardChanges.confirm}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

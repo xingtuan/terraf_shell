@@ -143,6 +143,12 @@
         "description": "All items in your cart will be removed.",
         "confirm": "Clear cart",
         "cancel": "Keep items"
+      },
+      "discardChanges": {
+        "title": "Discard unsaved changes?",
+        "description": "Your edits haven't been saved yet and will be lost.",
+        "confirm": "Discard",
+        "cancel": "Keep editing"
       }
     }
   },
@@ -1451,7 +1457,8 @@
     "defaultBadge": "Default",
     "setDefault": "Set Default",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "resetEdit": "Reset changes"
   },
   "ordersPage": {
     "eyebrow": "Orders",

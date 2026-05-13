@@ -143,6 +143,12 @@
         "description": "장바구니의 모든 항목이 삭제됩니다.",
         "confirm": "장바구니 비우기",
         "cancel": "항목 유지"
+      },
+      "discardChanges": {
+        "title": "저장하지 않은 변경 사항을 버릴까요?",
+        "description": "수정한 내용이 아직 저장되지 않았습니다. 이 페이지를 벗어나면 내용이 사라집니다.",
+        "confirm": "버리기",
+        "cancel": "계속 수정"
       }
     }
   },
@@ -1451,7 +1457,8 @@
     "defaultBadge": "기본",
     "setDefault": "기본으로 설정",
     "edit": "수정",
-    "delete": "삭제"
+    "delete": "삭제",
+    "resetEdit": "변경 사항 초기화"
   },
   "ordersPage": {
     "eyebrow": "주문",

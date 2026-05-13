@@ -619,12 +619,28 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
                     ) ?? "—"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-3">
                   <span className="text-muted-foreground">
                     {copy.profile.emailLabel}
                   </span>
                   <span className="text-right text-foreground">
                     {form.email || "—"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-muted-foreground">
+                    {copy.profile.emailVerificationLabel}
+                  </span>
+                  <span
+                    className={`text-right text-sm font-medium ${
+                      session.user?.email_verified
+                        ? "text-emerald-600"
+                        : "text-amber-600"
+                    }`}
+                  >
+                    {session.user?.email_verified
+                      ? copy.profile.emailVerifiedLabel
+                      : copy.profile.emailNotVerifiedLabel}
                   </span>
                 </div>
               </div>

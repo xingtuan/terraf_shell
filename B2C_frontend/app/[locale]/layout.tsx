@@ -51,7 +51,7 @@ export default async function LocaleLayout({
           header={messages.header}
           languageSwitcher={messages.languageSwitcher}
         />
-        <main className="min-h-screen">{children}</main>
+        <main className="min-h-screen pt-20">{children}</main>
         <Footer locale={locale} header={messages.header} footer={messages.footer} />
       </AppProviders>
     </>
