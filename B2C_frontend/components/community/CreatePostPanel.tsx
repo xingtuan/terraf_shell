@@ -226,7 +226,7 @@ export function CreatePostPanel({
 
     let isCancelled = false
 
-    void listCategories()
+    void listCategories(locale)
       .then((nextCategories) => {
         if (!isCancelled) {
           setCategories(nextCategories)

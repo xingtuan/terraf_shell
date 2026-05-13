@@ -125,7 +125,7 @@ export function CommunityHub({
   useEffect(() => {
     let isCancelled = false
 
-    void Promise.all([listCategories(), listTags()])
+    void Promise.all([listCategories(locale), listTags()])
       .then(([nextCategories, nextTags]) => {
         if (isCancelled) {
           return

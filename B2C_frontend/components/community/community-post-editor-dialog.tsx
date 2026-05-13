@@ -1,5 +1,6 @@
 "use client"
 
+import { useParams } from "next/navigation"
 import { useEffect, useState, useTransition } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { getErrorMessage } from "@/lib/api/client"
 import { listCategories, listTags, updatePost } from "@/lib/api/posts"
+import type { Locale } from "@/lib/i18n"
 import type { CommunityCategory, CommunityPost, CommunityTag } from "@/lib/types"
 
 type CommunityPostEditorDialogProps = {
@@ -29,6 +31,8 @@ export function CommunityPostEditorDialog({
   token,
   onSaved,
 }: CommunityPostEditorDialogProps) {
+  const params = useParams()
+  const locale = (params.locale as Locale) ?? "en"
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState(post.title)
   const [content, setContent] = useState(post.content)
@@ -54,7 +58,7 @@ export function CommunityPostEditorDialog({
     async function loadTaxonomy() {
       try {
         const [nextCategories, nextTags] = await Promise.all([
-          listCategories(),
+          listCategories(locale),
           listTags(),
         ])
 

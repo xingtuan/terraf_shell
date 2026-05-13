@@ -11,6 +11,7 @@ import type {
   CommunityPost,
   CommunityTag,
 } from "@/lib/types"
+import type { Locale } from "@/lib/i18n"
 
 type ApiRequestOverrides = {
   baseUrl?: string
@@ -218,8 +219,10 @@ export async function deletePost(postId: number, token: string) {
   })
 }
 
-export async function listCategories() {
-  const response = await requestApi<CommunityCategory[]>("/categories")
+export async function listCategories(locale?: Locale) {
+  const response = await requestApi<CommunityCategory[]>("/categories", {
+    query: locale ? { locale } : {},
+  })
 
   return ensureArray(response.data)
     .map(normalizeCommunityCategory)

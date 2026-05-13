@@ -835,6 +835,8 @@ export function normalizeCommunityCategory(
     ...category,
     name: category.name ?? "",
     slug: category.slug ?? "",
+    name_translations: category.name_translations ?? {},
+    description_translations: category.description_translations ?? {},
   }
 }
 

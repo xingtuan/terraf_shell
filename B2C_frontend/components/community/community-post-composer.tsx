@@ -1,6 +1,7 @@
 "use client"
 
 import dynamic from "next/dynamic"
+import { useParams } from "next/navigation"
 import { useEffect, useState, useTransition } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import {
 import { ApiError, getErrorMessage } from "@/lib/api/client"
 import { createPost, listCategories, listTags } from "@/lib/api/posts"
 import { createRichTextDocumentFromText } from "@/lib/community-rich-text"
+import type { Locale } from "@/lib/i18n"
 import type { CommunityCategory, CommunityPost, CommunityTag } from "@/lib/types"
 
 const RichPostEditor = dynamic(
@@ -45,6 +47,8 @@ export function CommunityPostComposer({
   onCreated,
   onMessage,
 }: CommunityPostComposerProps) {
+  const params = useParams()
+  const locale = (params.locale as Locale) ?? "en"
   const [categories, setCategories] = useState<CommunityCategory[]>([])
   const [tags, setTags] = useState<CommunityTag[]>([])
   const [title, setTitle] = useState("")
@@ -66,7 +70,7 @@ export function CommunityPostComposer({
     async function loadTaxonomy() {
       try {
         const [nextCategories, nextTags] = await Promise.all([
-          listCategories(),
+          listCategories(locale),
           listTags(),
         ])
 

@@ -855,6 +855,8 @@ export interface CommunityCategory {
   name: string
   slug: string
   description?: string | null
+  name_translations?: LocalizedStringSet
+  description_translations?: LocalizedStringSet
   is_active?: boolean
   sort_order?: number
   posts_count?: number
