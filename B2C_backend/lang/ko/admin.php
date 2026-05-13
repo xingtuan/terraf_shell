@@ -1008,6 +1008,7 @@ return [
     'ui' => [
         'account' => '계정',
         'account_status' => '계정 상태',
+        'account_status_actions_hint' => '전용 제한, 차단 및 활성 복구 액션을 사용하여 계정 상태를 변경하세요.',
         'accounts_currently_blocked' => '현재 차단된 계정',
         'action' => '작업',
         'action_url' => '작업 URL',

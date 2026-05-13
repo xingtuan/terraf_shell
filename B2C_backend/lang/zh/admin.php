@@ -1008,6 +1008,7 @@ return [
     'ui' => [
         'account' => '账户',
         'account_status' => '账号状态',
+        'account_status_actions_hint' => '请使用专用的限制、封禁和恢复活跃操作来更改账户状态。',
         'accounts_currently_blocked' => '当前被封锁的账户',
         'action' => '操作',
         'action_url' => '操作 URL',

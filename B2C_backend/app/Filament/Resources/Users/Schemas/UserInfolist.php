@@ -31,14 +31,17 @@ class UserInfolist
                                     ->schema([
                                         TextEntry::make('name')
                                             ->label(__('admin.ui.full_name')),
-                                        TextEntry::make('username'),
-                                        TextEntry::make('email'),
+                                        TextEntry::make('username')
+                                            ->label(__('admin.ui.username')),
+                                        TextEntry::make('email')
+                                            ->label(__('admin.fields.email')),
                                         TextEntry::make('email_verification')
                                             ->label(__('admin.ui.email_verification'))
                                             ->state(fn (User $record): string => $record->email_verified_at ? __('admin.ui.verified') : __('admin.ui.pending'))
                                             ->badge()
                                             ->color(fn (string $state): string => $state === __('admin.ui.verified') ? 'success' : 'warning'),
                                         TextEntry::make('role')
+                                            ->label(__('admin.ui.role'))
                                             ->badge()
                                             ->formatStateUsing(fn (string $state): string => UserRole::tryFrom($state)?->label() ?? ucfirst($state))
                                             ->color(fn (string $state): string => UserRole::tryFrom($state)?->color() ?? 'gray'),
@@ -49,6 +52,7 @@ class UserInfolist
                                             ->formatStateUsing(fn (string $state): string => AccountStatus::tryFrom($state)?->label() ?? ucfirst($state))
                                             ->color(fn (string $state): string => AccountStatus::tryFrom($state)?->color() ?? 'gray'),
                                         TextEntry::make('status_reason')
+                                            ->label(__('admin.ui.restriction_reason'))
                                             ->state(fn (User $record): ?string => $record->participationRestrictionReason())
                                             ->placeholder(__('admin.ui.no_restriction_reason_recorded')),
                                         TextEntry::make('community_auto_approve')
@@ -68,11 +72,14 @@ class UserInfolist
                 Section::make(__('admin.ui.profile'))
                     ->schema([
                         TextEntry::make('profile.bio')
+                            ->label(__('admin.ui.bio'))
                             ->placeholder(__('admin.ui.no_biography_provided'))
                             ->columnSpanFull(),
                         TextEntry::make('profile.school_or_company')
+                            ->label(__('admin.ui.school_or_company'))
                             ->placeholder(__('admin.ui.no_organization_set')),
                         TextEntry::make('profile.region')
+                            ->label(__('admin.ui.region'))
                             ->placeholder(__('admin.ui.no_region_set')),
                         TextEntry::make('profile.portfolio_url')
                             ->label(__('admin.ui.portfolio'))
@@ -108,8 +115,10 @@ class UserInfolist
                                     ->label(__('admin.ui.violations'))
                                     ->state(fn (User $record): int => (int) ($record->violations_count ?? $record->violations()->count())),
                                 TextEntry::make('followers_count')
+                                    ->label(__('admin.ui.followers'))
                                     ->state(fn (User $record): int => (int) ($record->followers_count ?? $record->followers()->count())),
                                 TextEntry::make('following_count')
+                                    ->label(__('admin.ui.following'))
                                     ->state(fn (User $record): int => (int) ($record->following_count ?? $record->following()->count())),
                             ]),
                     ]),
@@ -120,12 +129,15 @@ class UserInfolist
                             ->state(fn (User $record) => $record->posts()->latest()->limit(5)->get())
                             ->schema([
                                 TextEntry::make('title')
+                                    ->label(__('admin.ui.title'))
                                     ->weight('bold'),
                                 TextEntry::make('status')
+                                    ->label(__('admin.ui.status'))
                                     ->badge(),
                                 TextEntry::make('engagement_score')
                                     ->label(__('admin.ui.engagement')),
                                 TextEntry::make('created_at')
+                                    ->label(__('admin.ui.created'))
                                     ->dateTime(),
                             ]),
                     ]),
@@ -136,15 +148,19 @@ class UserInfolist
                             ->state(fn (User $record) => $record->violations()->with(['actor'])->latest('occurred_at')->limit(5)->get())
                             ->schema([
                                 TextEntry::make('type')
+                                    ->label(__('admin.ui.type'))
                                     ->badge(),
                                 TextEntry::make('severity')
+                                    ->label(__('admin.ui.severity'))
                                     ->badge(),
                                 TextEntry::make('status')
+                                    ->label(__('admin.ui.status'))
                                     ->badge(),
                                 TextEntry::make('actor.name')
                                     ->label(__('admin.ui.recorded_by'))
                                     ->placeholder(__('admin.ui.system')),
                                 TextEntry::make('reason')
+                                    ->label(__('admin.ui.reason'))
                                     ->placeholder(__('admin.ui.no_reason_recorded'))
                                     ->columnSpanFull(),
                                 TextEntry::make('occurred_at')
@@ -163,6 +179,7 @@ class UserInfolist
                                     ->label(__('admin.ui.actor'))
                                     ->placeholder(__('admin.ui.system')),
                                 TextEntry::make('reason')
+                                    ->label(__('admin.ui.reason'))
                                     ->formatStateUsing(fn (?string $state): ?string => ModerationLogResource::reasonLabel($state))
                                     ->placeholder(__('admin.ui.no_note_provided'))
                                     ->columnSpanFull(),

@@ -1008,6 +1008,7 @@ return [
     'ui' => [
         'account' => 'Account',
         'account_status' => 'Account status',
+        'account_status_actions_hint' => 'Use the dedicated Restrict, Ban, and Restore active actions to change account status.',
         'accounts_currently_blocked' => 'Accounts currently blocked',
         'action' => 'Action',
         'action_url' => 'Action URL',

@@ -51,7 +51,7 @@ class UserForm
                                 Placeholder::make('account_status')
                                     ->label(__('admin.ui.account_status'))
                                     ->content(fn (?User $record): string => AccountStatus::tryFrom($record?->accountStatusValue() ?? AccountStatus::Active->value)?->label() ?? AccountStatus::Active->label())
-                                    ->helperText('Use the dedicated Restrict, Ban, and Restore active actions to change account status.')
+                                    ->helperText(__('admin.ui.account_status_actions_hint'))
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 Toggle::make('community_auto_approve')
                                     ->label(__('admin.ui.direct_community_approval'))
@@ -92,6 +92,7 @@ class UserForm
                                     ->label(__('admin.ui.region'))
                                     ->maxLength(255),
                                 TextInput::make('portfolio_url')
+                                    ->label(__('admin.ui.portfolio'))
                                     ->url()
                                     ->maxLength(255),
                                 Toggle::make('open_to_collab')
