@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
 
 class ProductCatalogSeeder extends Seeder
 {
+    private const SEED_SOURCE = 'product_catalog_demo';
+
     public function run(): void
     {
         $categories = collect([
@@ -88,6 +90,7 @@ class ProductCatalogSeeder extends Seeder
                 [
                     ...$category,
                     'is_active' => true,
+                    ...$this->demoMetadata(),
                 ],
             );
 
@@ -95,6 +98,11 @@ class ProductCatalogSeeder extends Seeder
         });
 
         ProductCategory::query()
+            ->where(function ($query): void {
+                $query
+                    ->where('is_demo_content', true)
+                    ->orWhere('seed_source', self::SEED_SOURCE);
+            })
             ->whereNotIn('slug', $categories->keys()->all())
             ->update(['is_active' => false]);
 
@@ -899,6 +907,11 @@ class ProductCatalogSeeder extends Seeder
         ];
 
         Product::query()
+            ->where(function ($query): void {
+                $query
+                    ->where('is_demo_content', true)
+                    ->orWhere('seed_source', self::SEED_SOURCE);
+            })
             ->whereNotIn('slug', collect($products)->pluck('slug')->all())
             ->update([
                 'is_active' => false,
@@ -952,6 +965,7 @@ class ProductCatalogSeeder extends Seeder
                     'sample_request_enabled' => $productData['sample_request_enabled'],
                     'is_active' => true,
                     'published_at' => now(),
+                    ...$this->demoMetadata(),
                 ],
             );
 
@@ -964,7 +978,7 @@ class ProductCatalogSeeder extends Seeder
                     'title' => 'Default',
                     'price_amount' => $productData['price_amount'],
                     'compare_at_price_amount' => $productData['compare_at_price_amount'],
-                    'currency' => 'NZD',
+                    'currency' => $productData['currency'],
                     'stock_quantity' => $productData['stock_quantity'],
                     'stock_status' => $productData['stock_status'],
                     'inventory_policy' => 'deny',
@@ -973,6 +987,7 @@ class ProductCatalogSeeder extends Seeder
                     'is_default' => true,
                     'is_active' => true,
                     'sort_order' => 0,
+                    ...$this->demoMetadata(),
                 ],
             );
 
@@ -990,12 +1005,18 @@ class ProductCatalogSeeder extends Seeder
                         'caption' => $index === 0 ? $product->short_description : $product->subtitle,
                         'caption_translations' => $product->short_description_translations,
                         'media_url' => $mediaUrl,
+                        ...$this->demoMetadata(),
                     ],
                 );
             }
 
             ProductImage::query()
                 ->where('product_id', $product->id)
+                ->where(function ($query): void {
+                    $query
+                        ->where('is_demo_content', true)
+                        ->orWhere('seed_source', self::SEED_SOURCE);
+                })
                 ->whereNotIn('sort_order', range(1, count($productData['gallery'])))
                 ->delete();
 
@@ -1034,17 +1055,19 @@ class ProductCatalogSeeder extends Seeder
             }
 
             foreach ($values as $value) {
-                $attributeValue = $definition->values->firstWhere('value', $value);
-
-                if ($attributeValue === null) {
-                    $attributeValue = ProductAttributeValue::query()->create([
+                $attributeValue = ProductAttributeValue::query()->firstOrCreate(
+                    [
+                        'attribute_definition_id' => $definition->id,
+                        'value' => $value,
+                    ],
+                    [
                         'attribute_definition_id' => $definition->id,
                         'value' => $value,
                         'label' => Str::headline(str_replace('_', ' ', (string) $value)),
                         'label_translations' => ['en' => Str::headline(str_replace('_', ' ', (string) $value))],
                         'is_active' => true,
-                    ]);
-                }
+                    ],
+                );
 
                 ProductAttributeAssignment::query()->updateOrCreate(
                     [
@@ -1057,21 +1080,27 @@ class ProductCatalogSeeder extends Seeder
                         'value_number' => null,
                         'value_boolean' => null,
                         'value_json' => null,
+                        ...$this->demoMetadata(),
                     ],
                 );
             }
         }
 
         if (filled($productData['dimensions'] ?? null) && $attributeDefinitions->has('dimensions')) {
-            ProductAttributeAssignment::query()->create([
-                'product_id' => $product->id,
-                'attribute_definition_id' => $attributeDefinitions->get('dimensions')->id,
-                'product_attribute_value_id' => null,
-                'value_text' => $productData['dimensions'],
-                'value_number' => null,
-                'value_boolean' => null,
-                'value_json' => null,
-            ]);
+            ProductAttributeAssignment::query()->updateOrCreate(
+                [
+                    'product_id' => $product->id,
+                    'attribute_definition_id' => $attributeDefinitions->get('dimensions')->id,
+                    'product_attribute_value_id' => null,
+                ],
+                [
+                    'value_text' => $productData['dimensions'],
+                    'value_number' => null,
+                    'value_boolean' => null,
+                    'value_json' => null,
+                    ...$this->demoMetadata(),
+                ],
+            );
         }
 
         foreach ($productData['attribute_specs'] ?? [] as $specification) {
@@ -1106,15 +1135,32 @@ class ProductCatalogSeeder extends Seeder
                 ],
             );
 
-            ProductAttributeAssignment::query()->create([
-                'product_id' => $product->id,
-                'attribute_definition_id' => $definition->id,
-                'product_attribute_value_id' => null,
-                'value_text' => $value,
-                'value_number' => null,
-                'value_boolean' => null,
-                'value_json' => null,
-            ]);
+            ProductAttributeAssignment::query()->updateOrCreate(
+                [
+                    'product_id' => $product->id,
+                    'attribute_definition_id' => $definition->id,
+                    'product_attribute_value_id' => null,
+                ],
+                [
+                    'value_text' => $value,
+                    'value_number' => null,
+                    'value_boolean' => null,
+                    'value_json' => null,
+                    ...$this->demoMetadata(),
+                ],
+            );
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function demoMetadata(): array
+    {
+        return [
+            'is_demo_content' => true,
+            'seed_source' => self::SEED_SOURCE,
+            'seeded_at' => now(),
+        ];
     }
 }

@@ -5,10 +5,10 @@ namespace App\Filament\Resources\Enquiries\Schemas;
 use App\Enums\B2BLeadStatus;
 use App\Models\Inquiry;
 use Filament\Infolists\Components\TextEntry;
-use Illuminate\Support\Facades\Lang;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Lang;
 
 class EnquiryInfolist
 {

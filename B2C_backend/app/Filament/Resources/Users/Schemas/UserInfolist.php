@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\AccountStatus;
-use App\Filament\Resources\ModerationLogs\ModerationLogResource;
 use App\Enums\UserRole;
+use App\Filament\Resources\ModerationLogs\ModerationLogResource;
 use App\Models\User;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;

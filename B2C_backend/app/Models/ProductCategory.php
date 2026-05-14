@@ -26,6 +26,9 @@ class ProductCategory extends Model
         'slug',
         'sort_order',
         'is_active',
+        'is_demo_content',
+        'seed_source',
+        'seeded_at',
     ];
 
     protected function casts(): array
@@ -34,6 +37,8 @@ class ProductCategory extends Model
             'name_translations' => 'array',
             'description_translations' => 'array',
             'is_active' => 'boolean',
+            'is_demo_content' => 'boolean',
+            'seeded_at' => 'datetime',
         ];
     }
 

@@ -28,6 +28,9 @@ class ProductImage extends Model
         'media_path',
         'media_url',
         'sort_order',
+        'is_demo_content',
+        'seed_source',
+        'seeded_at',
     ];
 
     protected function casts(): array
@@ -35,6 +38,8 @@ class ProductImage extends Model
         return [
             'alt_text_translations' => 'array',
             'caption_translations' => 'array',
+            'is_demo_content' => 'boolean',
+            'seeded_at' => 'datetime',
         ];
     }
 

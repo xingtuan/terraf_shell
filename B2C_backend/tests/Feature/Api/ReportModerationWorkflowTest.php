@@ -318,8 +318,8 @@ class ReportModerationWorkflowTest extends TestCase
         $source = file_get_contents(app_path('Filament/Resources/Reports/Tables/ReportsTable.php'));
 
         $this->assertStringContainsString('isOpenForModeration', $source);
-        $this->assertStringNotContainsString("status !== ReportStatus::Resolved", $source);
-        $this->assertStringNotContainsString("status !== ReportStatus::Dismissed", $source);
+        $this->assertStringNotContainsString('status !== ReportStatus::Resolved', $source);
+        $this->assertStringNotContainsString('status !== ReportStatus::Dismissed', $source);
     }
 
     public function test_duplicate_report_is_blocked(): void
@@ -376,7 +376,7 @@ class ReportModerationWorkflowTest extends TestCase
 
     private function reportTimestamp(int $reportId, string $column): ?string
     {
-        return \App\Models\Report::query()
+        return Report::query()
             ->whereKey($reportId)
             ->value($column);
     }

@@ -7,10 +7,12 @@ Use `/admin` to run OXP operations. Admin-only areas require the `admin` role; m
 Open Store Operations -> Products.
 
 - Use the list filters for category, stock status, published state, featured, bestseller, and new arrival.
+- Use the demo state filter to separate seeded/demo products from real catalog records. The bulk "Mark selected as demo" action is intended for records that should be removable through Demo Cleanup.
 - Edit a product through the tabs: Basic Info, Storefront Content, Pricing & Inventory, Images, SEO, and Publishing-related controls.
 - Variant SKU, NZD price, inventory policy, and stock quantity are managed in Pricing & Inventory.
-- Product-level stock fields remain as a fallback for compatibility.
+- Storefront price and stock state come from the active default variant.
 - Use Product Media or the product Images tab for gallery images.
+- Product deletion is blocked with a clear admin notification when cart items or order history still reference the product.
 
 ## Orders
 
@@ -55,7 +57,7 @@ Open Community -> Concepts, Comments, Reports, Funding Campaigns, and Moderation
 - Posts show status, author, category, funding URL, attachment count, comments, likes, reports, and demo content state where available.
 - Comments and reports can be approved, rejected, hidden, or otherwise handled through their row actions.
 - Funding links must be external `http` or `https` URLs. `javascript:` and `data:` style URLs are rejected.
-- Use the demo content cleanup action before production launch to remove seeded demo community posts.
+- Use the demo content cleanup actions before production launch to remove seeded demo community posts and safe demo shop catalog records. Demo shop products referenced by order history are reported and kept.
 
 ## CMS Content
 

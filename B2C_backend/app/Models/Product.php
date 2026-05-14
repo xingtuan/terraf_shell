@@ -82,6 +82,9 @@ class Product extends Model
         'seo_description',
         'seo_description_translations',
         'published_at',
+        'is_demo_content',
+        'seed_source',
+        'seeded_at',
     ];
 
     protected function casts(): array
@@ -117,6 +120,8 @@ class Product extends Model
             'sample_request_enabled' => 'boolean',
             'weight_grams' => 'integer',
             'published_at' => 'datetime',
+            'is_demo_content' => 'boolean',
+            'seeded_at' => 'datetime',
         ];
     }
 
@@ -150,10 +155,8 @@ class Product extends Model
                 $product->seo_description = $product->short_description;
             }
 
-            if ($product->is_active) {
-                $product->status = ProductStatus::Published->value;
-            } elseif (blank($product->status) || $product->status === ProductStatus::Published->value) {
-                $product->status = ProductStatus::Archived->value;
+            if (blank($product->status)) {
+                $product->status = ProductStatus::Draft->value;
             }
 
             if ($product->status === ProductStatus::Published->value && blank($product->published_at)) {
@@ -375,5 +378,4 @@ class Product extends Model
 
         return $options[$value] ?? Str::headline($value);
     }
-
 }

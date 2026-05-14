@@ -8,8 +8,10 @@ use App\Models\ProductCategory;
 use App\Models\ProductVariant;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -17,6 +19,10 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
+use Throwable;
 
 class ProductsTable
 {
@@ -57,6 +63,13 @@ class ProductsTable
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => ProductStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => ProductStatus::tryFrom($state)?->color() ?? 'gray'),
+                TextColumn::make('demo_content')
+                    ->label('Demo')
+                    ->state(fn (Product $record): ?string => self::isDemoProduct($record) ? 'Demo' : null)
+                    ->badge()
+                    ->color('warning')
+                    ->placeholder('Real')
+                    ->toggleable(),
                 TextColumn::make('default_variant_stock_status')
                     ->label(__('admin.fields.stock'))
                     ->badge()
@@ -108,6 +121,17 @@ class ProductsTable
                 SelectFilter::make('status')
                     ->label(__('admin.fields.status'))
                     ->options(ProductStatus::options()),
+                SelectFilter::make('demo_content')
+                    ->label('Demo state')
+                    ->options([
+                        'demo' => 'Demo products',
+                        'real' => 'Real products',
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? null) {
+                        'demo' => self::demoProductQuery($query),
+                        'real' => self::realProductQuery($query),
+                        default => $query,
+                    }),
                 SelectFilter::make('variant_stock_status')
                     ->label(__('admin.fields.stock_status'))
                     ->options(fn (): array => self::stockStatusOptions())
@@ -130,6 +154,8 @@ class ProductsTable
             ->recordActions([
                 EditAction::make()
                     ->label(__('admin.actions.manage')),
+                DeleteAction::make()
+                    ->using(fn (Product $record): bool => self::deleteProductWithDependencyNotice($record)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -152,7 +178,23 @@ class ProductsTable
                                 'stock_quantity' => 0,
                             ]),
                         )),
-                    DeleteBulkAction::make(),
+                    BulkAction::make('mark_demo_content')
+                        ->label('Mark selected as demo')
+                        ->requiresConfirmation()
+                        ->action(fn ($records) => $records->each(fn (Product $record) => self::markProductAsDemo($record))),
+                    DeleteBulkAction::make()
+                        ->using(function (DeleteBulkAction $action, EloquentCollection|Collection|LazyCollection $records): void {
+                            $records->each(function (Product $record) use ($action): void {
+                                if (self::deleteProductWithDependencyNotice($record, notify: false)) {
+                                    return;
+                                }
+
+                                $action->reportBulkProcessingFailure(
+                                    'product_dependency',
+                                    'Some products still have cart items or order history and were not deleted.',
+                                );
+                            });
+                        }),
                 ]),
             ]);
     }
@@ -165,5 +207,70 @@ class ProductsTable
         return collect(array_keys(ProductVariant::STOCK_STATUS_OPTIONS))
             ->mapWithKeys(fn (string $status): array => [$status => __("admin.products.stock_status.{$status}")])
             ->all();
+    }
+
+    public static function deleteProductWithDependencyNotice(Product $record, bool $notify = true): bool
+    {
+        $cartItems = $record->cartItems()->count();
+        $orderItems = $record->orderItems()->count();
+
+        if ($cartItems > 0 || $orderItems > 0) {
+            if ($notify) {
+                Notification::make()
+                    ->title('Product cannot be deleted')
+                    ->body("Remove {$cartItems} cart items and preserve or resolve {$orderItems} order items before deleting this product.")
+                    ->danger()
+                    ->send();
+            }
+
+            return false;
+        }
+
+        try {
+            return (bool) $record->delete();
+        } catch (Throwable) {
+            if ($notify) {
+                Notification::make()
+                    ->title('Product cannot be deleted')
+                    ->body('A database constraint is still referencing this product.')
+                    ->danger()
+                    ->send();
+            }
+
+            return false;
+        }
+    }
+
+    private static function markProductAsDemo(Product $record): void
+    {
+        $metadata = [
+            'is_demo_content' => true,
+            'seed_source' => 'admin_marked_demo',
+            'seeded_at' => now(),
+        ];
+
+        $record->update($metadata);
+        $record->images()->update($metadata);
+        $record->variants()->update($metadata);
+        $record->attributeAssignments()->update($metadata);
+    }
+
+    private static function isDemoProduct(Product $record): bool
+    {
+        return (bool) $record->is_demo_content || filled($record->seed_source);
+    }
+
+    private static function demoProductQuery(Builder $query): Builder
+    {
+        return $query->where(fn (Builder $builder) => $builder
+            ->where('is_demo_content', true)
+            ->orWhereNotNull('seed_source'));
+    }
+
+    private static function realProductQuery(Builder $query): Builder
+    {
+        return $query
+            ->where('is_demo_content', false)
+            ->whereNull('seed_source');
     }
 }

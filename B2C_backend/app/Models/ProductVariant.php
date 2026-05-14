@@ -50,6 +50,9 @@ class ProductVariant extends Model
         'is_default',
         'is_active',
         'sort_order',
+        'is_demo_content',
+        'seed_source',
+        'seeded_at',
     ];
 
     protected function casts(): array
@@ -65,6 +68,8 @@ class ProductVariant extends Model
             'is_default' => 'boolean',
             'is_active' => 'boolean',
             'sort_order' => 'integer',
+            'is_demo_content' => 'boolean',
+            'seeded_at' => 'datetime',
         ];
     }
 
@@ -258,5 +263,4 @@ class ProductVariant extends Model
             'created_by' => $createdBy,
         ]);
     }
-
 }

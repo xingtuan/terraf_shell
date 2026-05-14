@@ -8,6 +8,7 @@ use App\Models\ProductAttributeDefinition;
 use App\Models\ProductAttributeValue;
 use App\Models\ProductCategory;
 use App\Models\ProductImage;
+use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -231,6 +232,96 @@ class ProductCatalogTest extends TestCase
         $specifications = collect($response->json('data.specifications'));
         $this->assertSame('Sample Format', $specifications->firstWhere('key', 'sample_format')['label']);
         $this->assertSame('Panel tile', $specifications->firstWhere('key', 'sample_format')['value']);
+    }
+
+    public function test_category_id_singular_attribute_and_legacy_attribute_filters_work(): void
+    {
+        $product = $this->catalogProduct(
+            [
+                'name' => 'Matte Planter Demo',
+                'slug' => 'matte-planter-demo',
+                'category_slug' => 'planters',
+            ],
+            [
+                'sku' => 'MATTE_PLANTER_DEMO',
+                'price_amount' => 55.00,
+            ],
+            [
+                ['key' => 'model', 'label' => 'Model', 'type' => 'select', 'value' => 'heritage_16', 'display' => 'Heritage 16'],
+                ['key' => 'finish', 'label' => 'Finish', 'type' => 'select', 'value' => 'matte', 'display' => 'Matte'],
+                ['key' => 'color', 'label' => 'Color', 'type' => 'select', 'value' => 'forged_ash', 'display' => 'Forged Ash'],
+                ['key' => 'use_case', 'label' => 'Use Case', 'type' => 'multiselect', 'value' => 'design_projects', 'display' => 'Design Projects', 'allows_multiple' => true],
+            ],
+        );
+
+        $categoryQuery = http_build_query([
+            'category' => $product->category_id,
+            'attribute' => [
+                'finish' => 'matte',
+            ],
+        ]);
+
+        $this->getJson("/api/products?{$categoryQuery}")
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.slug', 'matte-planter-demo')
+            ->assertJsonPath('meta.applied_filters.attributes.finish', 'matte');
+
+        $legacyQuery = http_build_query([
+            'model' => 'heritage_16',
+            'finish' => 'matte',
+            'color' => 'forged_ash',
+            'use_case' => 'design_projects',
+        ]);
+
+        $this->getJson("/api/products?{$legacyQuery}")
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.slug', 'matte-planter-demo')
+            ->assertJsonPath('meta.applied_filters.attributes.model', 'heritage_16')
+            ->assertJsonPath('meta.applied_filters.attributes.use_case', 'design_projects');
+    }
+
+    public function test_price_filtering_and_sorting_use_active_default_variant_price(): void
+    {
+        $expensiveDefault = $this->catalogProduct(
+            [
+                'name' => 'Expensive Default Variant Product',
+                'slug' => 'expensive-default-variant-product',
+                'sort_order' => 2,
+            ],
+            [
+                'sku' => 'EXPENSIVE_DEFAULT_VARIANT_PRODUCT',
+                'price_amount' => 100.00,
+            ],
+        );
+
+        ProductVariant::factory()->create([
+            'product_id' => $expensiveDefault->id,
+            'sku' => 'CHEAP_NON_DEFAULT_VARIANT',
+            'price_amount' => 10.00,
+            'is_default' => false,
+            'is_active' => true,
+            'sort_order' => 10,
+        ]);
+
+        $affordableDefault = $this->catalogProduct(
+            [
+                'name' => 'Affordable Default Variant Product',
+                'slug' => 'affordable-default-variant-product',
+                'sort_order' => 1,
+            ],
+            [
+                'sku' => 'AFFORDABLE_DEFAULT_VARIANT_PRODUCT',
+                'price_amount' => 50.00,
+            ],
+        );
+
+        $this->getJson('/api/products?price_max=60&sort=price_low_to_high')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.id', $affordableDefault->id)
+            ->assertJsonPath('data.0.price_amount', '50.00');
     }
 
     public function test_related_product_fallback_uses_product_category_id(): void

@@ -167,7 +167,17 @@ class ProductController extends Controller
         if (filled($filters['category'] ?? null)) {
             $category = (string) $filters['category'];
 
-            $query->whereHas('category', fn (Builder $categoryQuery) => $categoryQuery->where('slug', $category));
+            $query->where(function (Builder $builder) use ($category): void {
+                if (ctype_digit($category)) {
+                    $builder
+                        ->where('category_id', (int) $category)
+                        ->orWhereHas('category', fn (Builder $categoryQuery) => $categoryQuery->where('slug', $category));
+
+                    return;
+                }
+
+                $builder->whereHas('category', fn (Builder $categoryQuery) => $categoryQuery->where('slug', $category));
+            });
         }
 
         if (filled($filters['stock_status'] ?? null)) {
@@ -177,15 +187,11 @@ class ProductController extends Controller
         }
 
         if (filled($filters['price_min'] ?? null)) {
-            $query->whereHas('variants', fn (Builder $variantQuery) => $variantQuery
-                ->where('is_active', true)
-                ->where('price_amount', '>=', (float) $filters['price_min']));
+            $this->applyDefaultVariantPriceFilter($query, '>=', (float) $filters['price_min']);
         }
 
         if (filled($filters['price_max'] ?? null)) {
-            $query->whereHas('variants', fn (Builder $variantQuery) => $variantQuery
-                ->where('is_active', true)
-                ->where('price_amount', '<=', (float) $filters['price_max']));
+            $this->applyDefaultVariantPriceFilter($query, '<=', (float) $filters['price_max']);
         }
 
         $this->applyDynamicAttributeFilters($query, $filters['attributes'] ?? []);
@@ -450,6 +456,26 @@ class ProductController extends Controller
         $query->where('value_boolean', $boolean);
     }
 
+    private function applyDefaultVariantPriceFilter(Builder $query, string $operator, float $price): void
+    {
+        $query->where(function (Builder $productQuery) use ($operator, $price): void {
+            $productQuery
+                ->whereHas('variants', fn (Builder $variantQuery) => $variantQuery
+                    ->where('is_active', true)
+                    ->where('is_default', true)
+                    ->where('price_amount', $operator, $price))
+                ->orWhere(function (Builder $fallbackQuery) use ($operator, $price): void {
+                    $fallbackQuery
+                        ->whereDoesntHave('variants', fn (Builder $variantQuery) => $variantQuery
+                            ->where('is_active', true)
+                            ->where('is_default', true))
+                        ->whereHas('variants', fn (Builder $variantQuery) => $variantQuery
+                            ->where('is_active', true)
+                            ->where('price_amount', $operator, $price));
+                });
+        });
+    }
+
     private function filterIsEmpty(mixed $value): bool
     {
         if (is_array($value)) {
@@ -464,16 +490,18 @@ class ProductController extends Controller
      */
     private function priceRangeFacet(): array
     {
-        $range = Product::query()
+        $prices = Product::query()
             ->publicVisible()
-            ->join('product_variants', 'product_variants.product_id', '=', 'products.id')
-            ->where('product_variants.is_active', true)
-            ->selectRaw('MIN(product_variants.price_amount) as min_price, MAX(product_variants.price_amount) as max_price')
-            ->first();
+            ->whereHas('variants', fn (Builder $query) => $query->where('is_active', true))
+            ->addSelect(['catalog_price' => $this->defaultVariantPriceSubquery()])
+            ->get()
+            ->pluck('catalog_price')
+            ->filter(fn (mixed $price): bool => $price !== null)
+            ->map(fn (mixed $price): float => (float) $price);
 
         return [
-            'min' => number_format((float) ($range?->min_price ?? 0), 2, '.', ''),
-            'max' => number_format((float) ($range?->max_price ?? 0), 2, '.', ''),
+            'min' => number_format($prices->min() ?? 0, 2, '.', ''),
+            'max' => number_format($prices->max() ?? 0, 2, '.', ''),
         ];
     }
 
@@ -563,7 +591,13 @@ class ProductController extends Controller
         return match ($key) {
             'search' => trim($value),
             'category' => ProductCategory::query()
-                ->where('slug', $value)
+                ->where(function (Builder $query) use ($value): void {
+                    $query->where('slug', $value);
+
+                    if (ctype_digit($value)) {
+                        $query->orWhere('id', (int) $value);
+                    }
+                })
                 ->value('name')
                 ?? Str::headline($value),
             'stock_status' => Product::labelForOption(ProductVariant::STOCK_STATUS_OPTIONS, $value) ?? Str::headline($value),

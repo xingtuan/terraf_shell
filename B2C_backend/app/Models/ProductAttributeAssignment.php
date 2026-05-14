@@ -19,6 +19,9 @@ class ProductAttributeAssignment extends Model
         'value_number',
         'value_boolean',
         'value_json',
+        'is_demo_content',
+        'seed_source',
+        'seeded_at',
     ];
 
     protected function casts(): array
@@ -27,6 +30,8 @@ class ProductAttributeAssignment extends Model
             'value_number' => 'decimal:4',
             'value_boolean' => 'boolean',
             'value_json' => 'array',
+            'is_demo_content' => 'boolean',
+            'seeded_at' => 'datetime',
         ];
     }
 
