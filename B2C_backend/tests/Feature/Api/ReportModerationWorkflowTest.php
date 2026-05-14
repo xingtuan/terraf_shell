@@ -7,6 +7,7 @@ use App\Enums\NotificationType;
 use App\Enums\ReportResolutionAction;
 use App\Enums\ReportStatus;
 use App\Models\Post;
+use App\Models\Report;
 use App\Models\User;
 use App\Models\UserNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -67,6 +68,27 @@ class ReportModerationWorkflowTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.id', $ownReportId)
             ->assertJsonMissing(['id' => $otherReportId]);
+    }
+
+    public function test_reporter_report_list_returns_pagination_meta(): void
+    {
+        $reporter = User::factory()->create();
+
+        Report::factory()->count(7)->create([
+            'reporter_id' => $reporter->id,
+        ]);
+
+        Report::factory()->count(2)->create();
+
+        Sanctum::actingAs($reporter);
+
+        $this->getJson('/api/reports?per_page=5')
+            ->assertOk()
+            ->assertJsonCount(5, 'data')
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 5)
+            ->assertJsonPath('meta.total', 7)
+            ->assertJsonPath('meta.last_page', 2);
     }
 
     public function test_reporter_cannot_view_other_users_report(): void

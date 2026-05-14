@@ -26,6 +26,7 @@ function normalizeReport(report: ReportRecord): ReportRecord {
     reviewed_at: report.reviewed_at ?? null,
     resolved_at: report.resolved_at ?? null,
     dismissed_at: report.dismissed_at ?? null,
+    completed_at: report.completed_at ?? null,
     created_at: report.created_at ?? null,
     updated_at: report.updated_at ?? null,
   }

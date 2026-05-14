@@ -89,10 +89,16 @@ class ReportService
 
     public function listForReporter(User $reporter, array $filters = []): LengthAwarePaginator
     {
-        return Report::query()
+        $query = Report::query()
             ->where('reporter_id', $reporter->id)
             ->with('target')
-            ->orderByDesc('created_at')
+            ->orderByDesc('created_at');
+
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        return $query
             ->paginate($this->perPage($filters['per_page'] ?? null))
             ->withQueryString();
     }

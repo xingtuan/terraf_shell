@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\Favorite;
 use App\Models\Follow;
 use App\Models\Post;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -38,6 +39,14 @@ class UserProfileEndpointsTest extends TestCase
             'user_id' => $target->id,
         ]);
 
+        Favorite::factory()->count(3)->create([
+            'user_id' => $target->id,
+        ]);
+
+        Report::factory()->count(2)->create([
+            'reporter_id' => $target->id,
+        ]);
+
         Follow::factory()->create([
             'follower_id' => $viewer->id,
             'following_id' => $target->id,
@@ -60,7 +69,33 @@ class UserProfileEndpointsTest extends TestCase
             ->assertJsonPath('data.following_count', 1)
             ->assertJsonPath('data.posts_count', 2)
             ->assertJsonPath('data.comments_count', 2)
-            ->assertJsonPath('data.is_following', true);
+            ->assertJsonPath('data.favorites_count', 3)
+            ->assertJsonPath('data.is_following', true)
+            ->assertJsonMissingPath('data.reports_count');
+
+        Sanctum::actingAs($target);
+
+        $this->getJson("/api/users/{$target->id}")
+            ->assertOk()
+            ->assertJsonPath('data.reports_count', 2);
+    }
+
+    public function test_user_posts_endpoint_reports_total_beyond_preview_limit(): void
+    {
+        $user = User::factory()->create();
+
+        Post::factory()->count(6)->create([
+            'user_id' => $user->id,
+            'status' => 'approved',
+        ]);
+
+        $this->getJson("/api/users/{$user->id}/posts?per_page=4")
+            ->assertOk()
+            ->assertJsonCount(4, 'data')
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 4)
+            ->assertJsonPath('meta.total', 6)
+            ->assertJsonPath('meta.last_page', 2);
     }
 
     public function test_public_user_posts_endpoint_only_returns_approved_posts(): void
@@ -146,6 +181,23 @@ class UserProfileEndpointsTest extends TestCase
         $response->assertJsonMissingPath('data.1');
     }
 
+    public function test_user_favorites_endpoint_reports_total_beyond_preview_limit(): void
+    {
+        $user = User::factory()->create();
+
+        Favorite::factory()->count(7)->create([
+            'user_id' => $user->id,
+        ]);
+
+        $this->getJson("/api/users/{$user->id}/favorites?per_page=4")
+            ->assertOk()
+            ->assertJsonCount(4, 'data')
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 4)
+            ->assertJsonPath('meta.total', 7)
+            ->assertJsonPath('meta.last_page', 2);
+    }
+
     public function test_user_comments_endpoint_respects_public_and_owner_visibility(): void
     {
         $user = User::factory()->create();
@@ -209,5 +261,43 @@ class UserProfileEndpointsTest extends TestCase
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
             ->assertJsonPath('data.0.id', $followed->id);
+    }
+
+    public function test_followers_and_following_endpoints_report_total_beyond_preview_limit(): void
+    {
+        $target = User::factory()->create();
+
+        $followers = User::factory()->count(8)->create();
+        $following = User::factory()->count(7)->create();
+
+        foreach ($followers as $follower) {
+            Follow::factory()->create([
+                'follower_id' => $follower->id,
+                'following_id' => $target->id,
+            ]);
+        }
+
+        foreach ($following as $followed) {
+            Follow::factory()->create([
+                'follower_id' => $target->id,
+                'following_id' => $followed->id,
+            ]);
+        }
+
+        $this->getJson("/api/users/{$target->id}/followers?per_page=6")
+            ->assertOk()
+            ->assertJsonCount(6, 'data')
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 6)
+            ->assertJsonPath('meta.total', 8)
+            ->assertJsonPath('meta.last_page', 2);
+
+        $this->getJson("/api/users/{$target->id}/following?per_page=6")
+            ->assertOk()
+            ->assertJsonCount(6, 'data')
+            ->assertJsonPath('meta.current_page', 1)
+            ->assertJsonPath('meta.per_page', 6)
+            ->assertJsonPath('meta.total', 7)
+            ->assertJsonPath('meta.last_page', 2);
     }
 }

@@ -854,6 +854,8 @@ export interface CommunityUser {
   following_count?: number
   posts_count?: number
   comments_count?: number
+  favorites_count?: number
+  reports_count?: number
   is_following: boolean
   created_at?: string | null
   updated_at?: string | null
@@ -1111,6 +1113,7 @@ export interface ReportRecord {
   reviewed_at?: string | null
   resolved_at?: string | null
   dismissed_at?: string | null
+  completed_at?: string | null
   created_at?: string | null
   updated_at?: string | null
 }

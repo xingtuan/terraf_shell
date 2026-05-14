@@ -152,11 +152,28 @@ export type AccountCopy = {
     loading: string
     createPost: string
     viewPublicProfile: string
+    viewAll: string
+    loadMore: string
+    loadingMore: string
+    showingCount: string
+    noMoreItems: string
+    postsTotal: string
+    savedPostsTotal: string
+    commentsTotal: string
+    followersTotal: string
+    followingTotal: string
+    reportsTotal: string
+    backToCommunityOverview: string
     postsTitle: string
+    postsDescription: string
     commentsTitle: string
+    commentsDescription: string
     favoritesTitle: string
+    favoritesDescription: string
     followersTitle: string
+    followersDescription: string
     followingTitle: string
+    followingDescription: string
     noFollowers: string
     noFollowing: string
     networkDescription: string
@@ -391,11 +408,31 @@ const en: AccountCopy = {
     loading: "Loading community activity...",
     createPost: "Create post",
     viewPublicProfile: "View public profile",
+    viewAll: "View all",
+    loadMore: "Load more",
+    loadingMore: "Loading...",
+    showingCount: "Showing {shown} of {total}",
+    noMoreItems: "No more items to show.",
+    postsTotal: "My posts",
+    savedPostsTotal: "Saved posts",
+    commentsTotal: "Comments",
+    followersTotal: "Followers",
+    followingTotal: "Following",
+    reportsTotal: "Reports",
+    backToCommunityOverview: "Back to community overview",
     postsTitle: "My posts",
+    postsDescription:
+      "A preview of your latest posts. Open the full list to manage older posts.",
     commentsTitle: "Recent comments",
+    commentsDescription:
+      "Recent comments from your community activity, with full history available.",
     favoritesTitle: "Saved posts",
+    favoritesDescription:
+      "Posts you saved for later. This overview shows a preview, not the full saved list.",
     followersTitle: "Followers",
+    followersDescription: "People following your public community profile.",
     followingTitle: "Following",
+    followingDescription: "People you follow from your community account.",
     noFollowers: "No followers yet.",
     noFollowing: "You are not following anyone yet.",
     networkDescription: "Your public community network lives here as a private management view.",
@@ -627,11 +664,31 @@ const ko: AccountCopy = {
     loading: "커뮤니티 활동을 불러오는 중...",
     createPost: "게시물 작성",
     viewPublicProfile: "공개 프로필 보기",
+    viewAll: "전체 보기",
+    loadMore: "더 불러오기",
+    loadingMore: "불러오는 중...",
+    showingCount: "{total}개 중 {shown}개 표시",
+    noMoreItems: "더 표시할 항목이 없습니다.",
+    postsTotal: "내 게시물",
+    savedPostsTotal: "저장한 게시물",
+    commentsTotal: "댓글",
+    followersTotal: "팔로워",
+    followingTotal: "팔로잉",
+    reportsTotal: "신고",
+    backToCommunityOverview: "커뮤니티 개요로 돌아가기",
     postsTitle: "내 게시물",
+    postsDescription:
+      "최근 게시물 미리보기입니다. 이전 게시물은 전체 목록에서 관리할 수 있습니다.",
     commentsTitle: "최근 댓글",
+    commentsDescription:
+      "최근 댓글 활동입니다. 전체 댓글 내역은 전체 목록에서 볼 수 있습니다.",
     favoritesTitle: "저장한 게시물",
+    favoritesDescription:
+      "나중에 보려고 저장한 게시물입니다. 이 화면은 전체 목록이 아닌 미리보기입니다.",
     followersTitle: "팔로워",
+    followersDescription: "공개 커뮤니티 프로필을 팔로우하는 사람들입니다.",
     followingTitle: "팔로잉",
+    followingDescription: "내 커뮤니티 계정에서 팔로우하는 사람들입니다.",
     noFollowers: "아직 팔로워가 없습니다.",
     noFollowing: "아직 팔로우하는 사람이 없습니다.",
     networkDescription: "커뮤니티 네트워크를 프라이빗 관리 뷰에서 확인하세요.",
@@ -854,11 +911,29 @@ const zh: AccountCopy = {
     loading: "正在加载社区活动...",
     createPost: "发布帖子",
     viewPublicProfile: "查看公开主页",
+    viewAll: "查看全部",
+    loadMore: "加载更多",
+    loadingMore: "正在加载...",
+    showingCount: "显示 {shown} / {total}",
+    noMoreItems: "没有更多内容可显示。",
+    postsTotal: "我的帖子",
+    savedPostsTotal: "已收藏帖子",
+    commentsTotal: "评论",
+    followersTotal: "粉丝",
+    followingTotal: "关注中",
+    reportsTotal: "举报",
+    backToCommunityOverview: "返回社区概览",
     postsTitle: "我的帖子",
+    postsDescription: "最近帖子预览。较早的帖子可在完整列表中管理。",
     commentsTitle: "最近评论",
+    commentsDescription: "最近的评论活动，完整记录可在完整列表中查看。",
     favoritesTitle: "已收藏帖子",
+    favoritesDescription:
+      "你保存以便稍后查看的帖子。此处显示的是预览，不是完整收藏列表。",
     followersTitle: "粉丝",
+    followersDescription: "关注你的公开社区主页的人。",
     followingTitle: "关注中",
+    followingDescription: "你通过社区账号关注的人。",
     noFollowers: "还没有粉丝。",
     noFollowing: "还没有关注任何人。",
     networkDescription: "你的公开社区网络作为私人管理视图显示在此处。",

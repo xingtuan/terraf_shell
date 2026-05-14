@@ -822,6 +822,19 @@ export function normalizeCommunityUser(
     is_following: Boolean(user.is_following),
     participation_restriction_reason:
       user.participation_restriction_reason ?? null,
+    followers_count:
+      user.followers_count === undefined ? undefined : Number(user.followers_count),
+    following_count:
+      user.following_count === undefined ? undefined : Number(user.following_count),
+    posts_count: user.posts_count === undefined ? undefined : Number(user.posts_count),
+    comments_count:
+      user.comments_count === undefined ? undefined : Number(user.comments_count),
+    favorites_count:
+      user.favorites_count === undefined
+        ? undefined
+        : Number(user.favorites_count),
+    reports_count:
+      user.reports_count === undefined ? undefined : Number(user.reports_count),
   }
 }
 

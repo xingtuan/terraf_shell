@@ -19,8 +19,10 @@ import {
 import { COMMUNITY_POSTS_REFRESH_EVENT } from "@/lib/community-events"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type {
+  ApiPaginationMeta,
   CommunityComment,
   CommunityPost,
+  PaginatedResult,
   UserProfile,
 } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
@@ -74,6 +76,37 @@ function getBannerStyle(profile?: UserProfile | null) {
   }
 }
 
+const PROFILE_PREVIEW_PER_PAGE = 12
+
+function emptyMeta(): ApiPaginationMeta {
+  return {
+    current_page: 1,
+    per_page: PROFILE_PREVIEW_PER_PAGE,
+    total: 0,
+    last_page: 1,
+  }
+}
+
+function emptyResult<T>(): PaginatedResult<T> {
+  return {
+    items: [],
+    meta: emptyMeta(),
+  }
+}
+
+function appendResult<T extends { id: number | string }>(
+  current: PaginatedResult<T>,
+  next: PaginatedResult<T>,
+): PaginatedResult<T> {
+  const existingIds = new Set(current.items.map((item) => item.id))
+  const nextItems = next.items.filter((item) => !existingIds.has(item.id))
+
+  return {
+    items: [...current.items, ...nextItems],
+    meta: next.meta,
+  }
+}
+
 export function CommunityProfilePage({
   locale,
   username,
@@ -86,12 +119,14 @@ export function CommunityProfilePage({
     initialProfile?.username ?? username,
   )
   const [profile, setProfile] = useState<UserProfile | null>(initialProfile)
-  const [posts, setPosts] = useState<CommunityPost[]>([])
-  const [comments, setComments] = useState<CommunityComment[]>([])
-  const [favorites, setFavorites] = useState<CommunityPost[]>([])
-  const [postsTotal, setPostsTotal] = useState(initialProfile?.posts_count ?? 0)
-  const [commentsTotal, setCommentsTotal] = useState(
-    initialProfile?.comments_count ?? 0,
+  const [posts, setPosts] = useState<PaginatedResult<CommunityPost>>(
+    emptyResult(),
+  )
+  const [comments, setComments] = useState<PaginatedResult<CommunityComment>>(
+    emptyResult(),
+  )
+  const [favorites, setFavorites] = useState<PaginatedResult<CommunityPost>>(
+    emptyResult(),
   )
   const [message, setMessage] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("posts")
@@ -99,14 +134,18 @@ export function CommunityProfilePage({
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
   const [isLoadingComments, setIsLoadingComments] = useState(true)
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(true)
+  const [loadingMoreTab, setLoadingMoreTab] = useState<
+    Partial<Record<"posts" | "comments" | "favorites", boolean>>
+  >({})
 
   const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     setActiveUsername(initialProfile?.username ?? username)
     setProfile(initialProfile)
-    setPostsTotal(initialProfile?.posts_count ?? 0)
-    setCommentsTotal(initialProfile?.comments_count ?? 0)
+    setPosts(emptyResult())
+    setComments(emptyResult())
+    setFavorites(emptyResult())
     setActiveTab("posts")
   }, [initialProfile, username])
 
@@ -124,6 +163,10 @@ export function CommunityProfilePage({
     setIsLoadingPosts(true)
     setIsLoadingComments(true)
     setIsLoadingFavorites(true)
+    setPosts(emptyResult())
+    setComments(emptyResult())
+    setFavorites(emptyResult())
+    setLoadingMoreTab({})
 
     void getUserProfile(currentUsername, token)
       .then((nextProfile) => {
@@ -139,17 +182,19 @@ export function CommunityProfilePage({
         if (!cancelled) setIsLoadingProfile(false)
       })
 
-    void getUserPosts(currentUsername, { per_page: 12 }, token)
+    void getUserPosts(
+      currentUsername,
+      { page: 1, per_page: PROFILE_PREVIEW_PER_PAGE },
+      token,
+    )
       .then((nextPosts) => {
         if (!cancelled) {
-          setPosts(nextPosts.items)
-          setPostsTotal(nextPosts.meta.total)
+          setPosts(nextPosts)
         }
       })
       .catch((loadError) => {
         if (!cancelled) {
-          setPosts([])
-          setPostsTotal(0)
+          setPosts(emptyResult())
           setMessage(getErrorMessage(loadError))
         }
       })
@@ -157,17 +202,19 @@ export function CommunityProfilePage({
         if (!cancelled) setIsLoadingPosts(false)
       })
 
-    void getUserComments(currentUsername, { per_page: 12 }, token)
+    void getUserComments(
+      currentUsername,
+      { page: 1, per_page: PROFILE_PREVIEW_PER_PAGE },
+      token,
+    )
       .then((nextComments) => {
         if (!cancelled) {
-          setComments(nextComments.items)
-          setCommentsTotal(nextComments.meta.total)
+          setComments(nextComments)
         }
       })
       .catch((loadError) => {
         if (!cancelled) {
-          setComments([])
-          setCommentsTotal(0)
+          setComments(emptyResult())
           setMessage(getErrorMessage(loadError))
         }
       })
@@ -175,13 +222,17 @@ export function CommunityProfilePage({
         if (!cancelled) setIsLoadingComments(false)
       })
 
-    void getUserFavorites(currentUsername, { per_page: 12 }, token)
+    void getUserFavorites(
+      currentUsername,
+      { page: 1, per_page: PROFILE_PREVIEW_PER_PAGE },
+      token,
+    )
       .then((nextFavorites) => {
-        if (!cancelled) setFavorites(nextFavorites.items)
+        if (!cancelled) setFavorites(nextFavorites)
       })
       .catch((loadError) => {
         if (!cancelled) {
-          setFavorites([])
+          setFavorites(emptyResult())
           setMessage(getErrorMessage(loadError))
         }
       })
@@ -207,26 +258,41 @@ export function CommunityProfilePage({
   }, [])
 
   function syncPost(updatedPost: CommunityPost) {
-    setPosts((currentPosts) =>
-      currentPosts.map((currentPost) =>
+    setPosts((currentPosts) => ({
+      ...currentPosts,
+      items: currentPosts.items.map((currentPost) =>
         currentPost.id === updatedPost.id ? updatedPost : currentPost,
       ),
-    )
-    setFavorites((currentPosts) =>
-      currentPosts.map((currentPost) =>
+    }))
+    setFavorites((currentPosts) => ({
+      ...currentPosts,
+      items: currentPosts.items.map((currentPost) =>
         currentPost.id === updatedPost.id ? updatedPost : currentPost,
       ),
-    )
+    }))
   }
 
   function removePost(postId: number) {
-    setPosts((currentPosts) =>
-      currentPosts.filter((currentPost) => currentPost.id !== postId),
-    )
-    setPostsTotal((currentTotal) => Math.max(0, currentTotal - 1))
-    setFavorites((currentPosts) =>
-      currentPosts.filter((currentPost) => currentPost.id !== postId),
-    )
+    setPosts((currentPosts) => ({
+      items: currentPosts.items.filter((currentPost) => currentPost.id !== postId),
+      meta: {
+        ...currentPosts.meta,
+        total: Math.max(0, currentPosts.meta.total - 1),
+      },
+    }))
+    setFavorites((currentPosts) => {
+      const hadPost = currentPosts.items.some((currentPost) => currentPost.id === postId)
+
+      return {
+        items: currentPosts.items.filter((currentPost) => currentPost.id !== postId),
+        meta: {
+          ...currentPosts.meta,
+          total: hadPost
+            ? Math.max(0, currentPosts.meta.total - 1)
+            : currentPosts.meta.total,
+        },
+      }
+    })
     setProfile((currentProfile) =>
       currentProfile
         ? {
@@ -240,10 +306,15 @@ export function CommunityProfilePage({
   const isOwnProfile =
     session.isReady && Boolean(profile && session.user?.id === profile.id)
   const memberSince = formatMonthYear(locale, profile?.joined_at ?? profile?.created_at)
-  const visiblePostsCount = isOwnProfile ? postsTotal : (profile?.posts_count ?? postsTotal)
-  const visibleCommentsCount = isOwnProfile
-    ? commentsTotal
-    : (profile?.comments_count ?? commentsTotal)
+  const visiblePostsCount = isLoadingPosts
+    ? (profile?.posts_count ?? 0)
+    : posts.meta.total
+  const visibleCommentsCount = isLoadingComments
+    ? (profile?.comments_count ?? 0)
+    : comments.meta.total
+  const visibleFavoritesCount = isLoadingFavorites
+    ? (profile?.favorites_count ?? 0)
+    : favorites.meta.total
 
   const publicDetails = useMemo(
     () =>
@@ -272,6 +343,127 @@ export function CommunityProfilePage({
       profile?.profile?.school_or_company,
     ],
   )
+
+  function showingCount(result: PaginatedResult<unknown>) {
+    return accountCopy.community.showingCount
+      .replace("{shown}", String(result.items.length))
+      .replace("{total}", String(result.meta.total))
+  }
+
+  async function loadMorePosts() {
+    if (loadingMoreTab.posts || posts.items.length >= posts.meta.total) {
+      return
+    }
+
+    setLoadingMoreTab((current) => ({ ...current, posts: true }))
+    setMessage(null)
+
+    try {
+      const nextPosts = await getUserPosts(
+        activeUsername,
+        {
+          page: posts.meta.current_page + 1,
+          per_page: PROFILE_PREVIEW_PER_PAGE,
+        },
+        session.token,
+      )
+      setPosts((currentPosts) => appendResult(currentPosts, nextPosts))
+    } catch (loadError) {
+      setMessage(getErrorMessage(loadError))
+    } finally {
+      setLoadingMoreTab((current) => ({ ...current, posts: false }))
+    }
+  }
+
+  async function loadMoreComments() {
+    if (
+      loadingMoreTab.comments ||
+      comments.items.length >= comments.meta.total
+    ) {
+      return
+    }
+
+    setLoadingMoreTab((current) => ({ ...current, comments: true }))
+    setMessage(null)
+
+    try {
+      const nextComments = await getUserComments(
+        activeUsername,
+        {
+          page: comments.meta.current_page + 1,
+          per_page: PROFILE_PREVIEW_PER_PAGE,
+        },
+        session.token,
+      )
+      setComments((currentComments) => appendResult(currentComments, nextComments))
+    } catch (loadError) {
+      setMessage(getErrorMessage(loadError))
+    } finally {
+      setLoadingMoreTab((current) => ({ ...current, comments: false }))
+    }
+  }
+
+  async function loadMoreFavorites() {
+    if (
+      loadingMoreTab.favorites ||
+      favorites.items.length >= favorites.meta.total
+    ) {
+      return
+    }
+
+    setLoadingMoreTab((current) => ({ ...current, favorites: true }))
+    setMessage(null)
+
+    try {
+      const nextFavorites = await getUserFavorites(
+        activeUsername,
+        {
+          page: favorites.meta.current_page + 1,
+          per_page: PROFILE_PREVIEW_PER_PAGE,
+        },
+        session.token,
+      )
+      setFavorites((currentFavorites) =>
+        appendResult(currentFavorites, nextFavorites),
+      )
+    } catch (loadError) {
+      setMessage(getErrorMessage(loadError))
+    } finally {
+      setLoadingMoreTab((current) => ({ ...current, favorites: false }))
+    }
+  }
+
+  function renderLoadMoreFooter(
+    result: PaginatedResult<unknown>,
+    isLoadingMore: boolean | undefined,
+    onLoadMore: () => void,
+  ) {
+    if (result.items.length === 0) {
+      return null
+    }
+
+    const hasMore = result.items.length < result.meta.total
+
+    return (
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-5">
+        <p className="text-sm text-muted-foreground">
+          {hasMore ? showingCount(result) : accountCopy.community.noMoreItems}
+        </p>
+        {hasMore ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isLoadingMore}
+            onClick={onLoadMore}
+          >
+            {isLoadingMore
+              ? accountCopy.community.loadingMore
+              : accountCopy.community.loadMore}
+          </Button>
+        ) : null}
+      </div>
+    )
+  }
 
   return (
     <section className="bg-background py-14 lg:py-16">
@@ -369,7 +561,7 @@ export function CommunityProfilePage({
                   ) : null}
                 </div>
 
-                <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
                   <div className="rounded-[1.5rem] bg-background p-5">
                     <p className="text-sm text-muted-foreground">
                       {messages.profile.postsCount}
@@ -384,6 +576,14 @@ export function CommunityProfilePage({
                     </p>
                     <p className="mt-2 text-2xl text-foreground">
                       {visibleCommentsCount}
+                    </p>
+                  </div>
+                  <div className="rounded-[1.5rem] bg-background p-5">
+                    <p className="text-sm text-muted-foreground">
+                      {messages.profile.favorites}
+                    </p>
+                    <p className="mt-2 text-2xl text-foreground">
+                      {visibleFavoritesCount}
                     </p>
                   </div>
                   <div className="rounded-[1.5rem] bg-background p-5">
@@ -506,25 +706,37 @@ export function CommunityProfilePage({
                   <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
                     {messages.profile.loadingPosts}
                   </div>
-                ) : posts.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    {posts.map((post) => (
-                      <PostCard
-                        key={post.id}
-                        locale={locale}
-                        post={post}
-                        messages={messages}
-                        token={session.token}
-                        currentUserId={session.user?.id}
-                        onUpdated={syncPost}
-                        onDeleted={removePost}
-                      />
-                    ))}
-                  </div>
                 ) : (
-                  <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                    {messages.profile.noPosts}
-                  </div>
+                  <>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      {showingCount(posts)}
+                    </p>
+                    {posts.items.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        {posts.items.map((post) => (
+                          <PostCard
+                            key={post.id}
+                            locale={locale}
+                            post={post}
+                            messages={messages}
+                            token={session.token}
+                            currentUserId={session.user?.id}
+                            onUpdated={syncPost}
+                            onDeleted={removePost}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+                        {messages.profile.noPosts}
+                      </div>
+                    )}
+                    {renderLoadMoreFooter(
+                      posts,
+                      loadingMoreTab.posts,
+                      () => void loadMorePosts(),
+                    )}
+                  </>
                 )}
               </TabsContent>
 
@@ -533,64 +745,78 @@ export function CommunityProfilePage({
                   <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
                     {messages.profile.loadingComments}
                   </div>
-                ) : comments.length > 0 ? (
-                  <div className="space-y-4">
-                    {comments.map((comment) => {
-                      const commentHref = comment.post?.slug
-                        ? getLocalizedHref(
-                            locale,
-                            `community/${comment.post.slug}#comment-${comment.id}`,
-                          )
-                        : null
-
-                      return (
-                        <article
-                          key={comment.id}
-                          className="rounded-[1.75rem] border border-border/60 bg-card p-6"
-                        >
-                          <div className="flex flex-wrap items-start justify-between gap-4">
-                            <div className="space-y-2">
-                              {commentHref ? (
-                                <Link
-                                  href={commentHref}
-                                  className="font-medium text-foreground transition-colors hover:text-primary"
-                                >
-                                  {comment.post?.title}
-                                </Link>
-                              ) : (
-                                <p className="font-medium text-foreground">
-                                  {messages.profile.commentWithoutPost}
-                                </p>
-                              )}
-                              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                                <span>{formatProfileDate(locale, comment.created_at)}</span>
-                                <span>
-                                  {messages.post.likesLabel.replace(
-                                    "{count}",
-                                    String(comment.likes_count),
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                            {commentHref ? (
-                              <Button asChild variant="ghost" size="sm">
-                                <Link href={commentHref}>
-                                  {messages.profile.openComment}
-                                </Link>
-                              </Button>
-                            ) : null}
-                          </div>
-                          <p className="mt-4 whitespace-pre-wrap leading-relaxed text-foreground">
-                            {comment.content}
-                          </p>
-                        </article>
-                      )
-                    })}
-                  </div>
                 ) : (
-                  <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                    {messages.profile.noComments}
-                  </div>
+                  <>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      {showingCount(comments)}
+                    </p>
+                    {comments.items.length > 0 ? (
+                      <div className="space-y-4">
+                        {comments.items.map((comment) => {
+                          const commentHref = comment.post?.slug
+                            ? getLocalizedHref(
+                                locale,
+                                `community/${comment.post.slug}#comment-${comment.id}`,
+                              )
+                            : null
+
+                          return (
+                            <article
+                              key={comment.id}
+                              className="rounded-[1.75rem] border border-border/60 bg-card p-6"
+                            >
+                              <div className="flex flex-wrap items-start justify-between gap-4">
+                                <div className="space-y-2">
+                                  {commentHref ? (
+                                    <Link
+                                      href={commentHref}
+                                      className="font-medium text-foreground transition-colors hover:text-primary"
+                                    >
+                                      {comment.post?.title}
+                                    </Link>
+                                  ) : (
+                                    <p className="font-medium text-foreground">
+                                      {messages.profile.commentWithoutPost}
+                                    </p>
+                                  )}
+                                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                                    <span>
+                                      {formatProfileDate(locale, comment.created_at)}
+                                    </span>
+                                    <span>
+                                      {messages.post.likesLabel.replace(
+                                        "{count}",
+                                        String(comment.likes_count),
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                                {commentHref ? (
+                                  <Button asChild variant="ghost" size="sm">
+                                    <Link href={commentHref}>
+                                      {messages.profile.openComment}
+                                    </Link>
+                                  </Button>
+                                ) : null}
+                              </div>
+                              <p className="mt-4 whitespace-pre-wrap leading-relaxed text-foreground">
+                                {comment.content}
+                              </p>
+                            </article>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+                        {messages.profile.noComments}
+                      </div>
+                    )}
+                    {renderLoadMoreFooter(
+                      comments,
+                      loadingMoreTab.comments,
+                      () => void loadMoreComments(),
+                    )}
+                  </>
                 )}
               </TabsContent>
 
@@ -599,25 +825,37 @@ export function CommunityProfilePage({
                   <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
                     {messages.profile.loadingFavorites}
                   </div>
-                ) : favorites.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    {favorites.map((post) => (
-                      <PostCard
-                        key={post.id}
-                        locale={locale}
-                        post={post}
-                        messages={messages}
-                        token={session.token}
-                        currentUserId={session.user?.id}
-                        onUpdated={syncPost}
-                        onDeleted={removePost}
-                      />
-                    ))}
-                  </div>
                 ) : (
-                  <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
-                    {messages.profile.noFavorites}
-                  </div>
+                  <>
+                    <p className="mb-4 text-sm text-muted-foreground">
+                      {showingCount(favorites)}
+                    </p>
+                    {favorites.items.length > 0 ? (
+                      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        {favorites.items.map((post) => (
+                          <PostCard
+                            key={post.id}
+                            locale={locale}
+                            post={post}
+                            messages={messages}
+                            token={session.token}
+                            currentUserId={session.user?.id}
+                            onUpdated={syncPost}
+                            onDeleted={removePost}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-[2rem] border border-border/60 bg-card p-8 text-muted-foreground">
+                        {messages.profile.noFavorites}
+                      </div>
+                    )}
+                    {renderLoadMoreFooter(
+                      favorites,
+                      loadingMoreTab.favorites,
+                      () => void loadMoreFavorites(),
+                    )}
+                  </>
                 )}
               </TabsContent>
             </Tabs>

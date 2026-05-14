@@ -19,7 +19,7 @@ class UserDirectoryService
     public function show(User $user, ?User $viewer = null): User
     {
         $user->load('profile');
-        $this->loadPublicCounts($user);
+        $this->loadPublicCounts($user, $viewer);
         $this->hydrateFollowingState(new Collection([$user]), $viewer);
 
         return $user;
@@ -78,6 +78,7 @@ class UserDirectoryService
                 'following as following_count',
                 'posts as posts_count' => fn ($query) => $query->approved(),
                 'comments as comments_count' => fn ($query) => $query->approved(),
+                'favorites as favorites_count',
             ])
             ->orderByDesc('follows.created_at')
             ->paginate($this->perPage($filters['per_page'] ?? null))
@@ -97,6 +98,7 @@ class UserDirectoryService
                 'following as following_count',
                 'posts as posts_count' => fn ($query) => $query->approved(),
                 'comments as comments_count' => fn ($query) => $query->approved(),
+                'favorites as favorites_count',
             ])
             ->orderByDesc('follows.created_at')
             ->paginate($this->perPage($filters['per_page'] ?? null))
@@ -130,14 +132,21 @@ class UserDirectoryService
         );
     }
 
-    private function loadPublicCounts(User $user): void
+    private function loadPublicCounts(User $user, ?User $viewer = null): void
     {
-        $user->loadCount([
+        $counts = [
             'followers as followers_count',
             'following as following_count',
             'posts as posts_count' => fn ($query) => $query->approved(),
             'comments as comments_count' => fn ($query) => $query->approved(),
-        ]);
+            'favorites as favorites_count',
+        ];
+
+        if ($this->canViewPrivateContent($user, $viewer)) {
+            $counts[] = 'reports as reports_count';
+        }
+
+        $user->loadCount($counts);
     }
 
     private function canViewPrivateContent(User $user, ?User $viewer = null): bool

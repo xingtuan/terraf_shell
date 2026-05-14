@@ -38,6 +38,8 @@ class UserResource extends JsonResource
             'following_count' => $this->when(isset($this->following_count), (int) $this->following_count),
             'posts_count' => $this->when(isset($this->posts_count), (int) $this->posts_count),
             'comments_count' => $this->when(isset($this->comments_count), (int) $this->comments_count),
+            'favorites_count' => $this->when(isset($this->favorites_count), (int) $this->favorites_count),
+            'reports_count' => $this->when($canSeePrivate && isset($this->reports_count), (int) $this->reports_count),
             'is_following' => (bool) ($this->is_following ?? false),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

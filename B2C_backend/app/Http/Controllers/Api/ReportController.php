@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Report\ListReportsRequest;
 use App\Http\Requests\Report\StoreReportRequest;
 use App\Http\Resources\ReportResource;
 use App\Models\Report;
@@ -12,9 +13,9 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function index(Request $request, ReportService $reportService): JsonResponse
+    public function index(ListReportsRequest $request, ReportService $reportService): JsonResponse
     {
-        $reports = $reportService->listForReporter($request->user(), $request->only(['per_page']));
+        $reports = $reportService->listForReporter($request->user(), $request->validated());
 
         return $this->paginatedResponse(
             $reports,
