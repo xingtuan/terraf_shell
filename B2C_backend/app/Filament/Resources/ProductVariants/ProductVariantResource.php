@@ -116,7 +116,10 @@ class ProductVariantResource extends Resource
                                 ->columnSpanFull(),
                             TextInput::make('image_url')
                                 ->label(__('admin.ui.image_url'))
-                                ->url()
+                                ->placeholder('https://example.com/image.jpg')
+                                ->helperText('Use only full external http/https URLs. For local/admin uploaded images, use the upload field.')
+                                ->type('text')
+                                ->rules(['nullable', 'url'])
                                 ->maxLength(2048),
                             FileUpload::make('media_path')
                                 ->label(__('admin.ui.image'))

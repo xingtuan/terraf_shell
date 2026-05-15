@@ -169,7 +169,11 @@ class ProductForm
                                                             ->columnSpanFull(),
                                                         TextInput::make('image_url')
                                                             ->label(__('admin.ui.image_url'))
-                                                            ->url()
+                                                            ->placeholder('https://example.com/image.jpg')
+                                                            ->helperText('Use only full external http/https URLs. For local/admin uploaded images, use the upload field.')
+                                                            ->type('text')
+                                                            ->rules(['nullable', 'url'])
+                                                            ->afterStateHydrated(fn (TextInput $component, Get $get, Set $set, ?string $state): null => self::moveHydratedRelativeImageUrlToMediaPath($component, $get, $set, $state))
                                                             ->maxLength(2048),
                                                         FileUpload::make('media_path')
                                                             ->label(__('admin.ui.image'))
@@ -427,7 +431,11 @@ class ProductForm
                                                     ->imagePreviewHeight('180'),
                                                 TextInput::make('image_url')
                                                     ->label(__('admin.ui.external_primary_image_url'))
-                                                    ->url()
+                                                    ->placeholder('https://example.com/image.jpg')
+                                                    ->helperText('Use only full external http/https URLs. For local/admin uploaded images, use the upload field.')
+                                                    ->type('text')
+                                                    ->rules(['nullable', 'url'])
+                                                    ->afterStateHydrated(fn (TextInput $component, Get $get, Set $set, ?string $state): null => self::moveHydratedRelativeImageUrlToMediaPath($component, $get, $set, $state))
                                                     ->maxLength(2048),
                                                 Select::make('relatedProducts')
                                                     ->label(__('admin.ui.related_products'))
@@ -520,6 +528,39 @@ class ProductForm
         return ProductAttributeDefinition::query()
             ->whereKey($definitionId)
             ->value('type');
+    }
+
+    private static function moveHydratedRelativeImageUrlToMediaPath(TextInput $component, Get $get, Set $set, ?string $state): null
+    {
+        $value = is_string($state) ? trim($state) : '';
+
+        if ($value === '') {
+            $component->state(null);
+
+            return null;
+        }
+
+        if (self::isExternalImageUrl($value)) {
+            $component->state($value);
+
+            return null;
+        }
+
+        if (blank($get('media_path'))) {
+            $set('media_path', ltrim($value, '/'));
+        }
+
+        $component->state(null);
+
+        return null;
+    }
+
+    private static function isExternalImageUrl(string $value): bool
+    {
+        $value = strtolower(trim($value));
+
+        return str_starts_with($value, 'http://')
+            || str_starts_with($value, 'https://');
     }
 
     private static function attributeMetadata(int $definitionId): string

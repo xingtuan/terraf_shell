@@ -128,6 +128,8 @@ class Product extends Model
     protected static function booted(): void
     {
         static::saving(function (self $product): void {
+            self::normalizeImageUrlBeforeSave($product);
+
             if (blank($product->subtitle) && filled($product->short_description)) {
                 $product->subtitle = $product->short_description;
             }
@@ -139,12 +141,17 @@ class Product extends Model
             $rawMediaUrl = $product->getAttributes()['media_url'] ?? null;
             $rawImageUrl = $product->getAttributes()['image_url'] ?? null;
 
+            if (filled($product->media_path)) {
+                $product->media_url = StorageUrl::publicResolve($product->media_path);
+                $rawMediaUrl = $product->getAttributes()['media_url'] ?? null;
+            }
+
             if (filled($rawImageUrl) && blank($product->media_path) && blank($rawMediaUrl)) {
                 $product->media_url = $rawImageUrl;
             }
 
-            if (filled($rawMediaUrl) && blank($rawImageUrl)) {
-                $product->image_url = $rawMediaUrl;
+            if (filled($rawMediaUrl) && blank($rawImageUrl) && blank($product->media_path) && self::isExternalImageUrl((string) $rawMediaUrl)) {
+                $product->image_url = trim((string) $rawMediaUrl);
             }
 
             if (blank($product->seo_title) && filled($product->name)) {
@@ -167,6 +174,39 @@ class Product extends Model
                 $product->published_at = null;
             }
         });
+    }
+
+    private static function normalizeImageUrlBeforeSave(self $product): void
+    {
+        $rawImageUrl = $product->getAttributes()['image_url']
+            ?? $product->getRawOriginal('image_url');
+        $imageUrl = is_string($rawImageUrl) ? trim($rawImageUrl) : '';
+
+        if ($imageUrl === '') {
+            $product->image_url = null;
+
+            return;
+        }
+
+        if (self::isExternalImageUrl($imageUrl)) {
+            $product->image_url = $imageUrl;
+
+            return;
+        }
+
+        if (blank($product->getAttributes()['media_path'] ?? null)) {
+            $product->media_path = ltrim($imageUrl, '/');
+        }
+
+        $product->image_url = null;
+    }
+
+    private static function isExternalImageUrl(string $value): bool
+    {
+        $value = strtolower(trim($value));
+
+        return str_starts_with($value, 'http://')
+            || str_starts_with($value, 'https://');
     }
 
     public function scopePublished(Builder $query): Builder

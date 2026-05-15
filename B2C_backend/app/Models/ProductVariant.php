@@ -76,6 +76,8 @@ class ProductVariant extends Model
     protected static function booted(): void
     {
         static::saving(function (self $variant): void {
+            self::normalizeImageUrlBeforeSave($variant);
+
             $variant->currency = strtoupper($variant->currency ?: 'NZD');
             $variant->inventory_policy = array_key_exists((string) $variant->inventory_policy, self::INVENTORY_POLICY_OPTIONS)
                 ? (string) $variant->inventory_policy
@@ -109,6 +111,39 @@ class ProductVariant extends Model
                 ->where('is_default', true)
                 ->update(['is_default' => false]);
         });
+    }
+
+    private static function normalizeImageUrlBeforeSave(self $variant): void
+    {
+        $rawImageUrl = $variant->getAttributes()['image_url']
+            ?? $variant->getRawOriginal('image_url');
+        $imageUrl = is_string($rawImageUrl) ? trim($rawImageUrl) : '';
+
+        if ($imageUrl === '') {
+            $variant->image_url = null;
+
+            return;
+        }
+
+        if (self::isExternalImageUrl($imageUrl)) {
+            $variant->image_url = $imageUrl;
+
+            return;
+        }
+
+        if (blank($variant->getAttributes()['media_path'] ?? null)) {
+            $variant->media_path = ltrim($imageUrl, '/');
+        }
+
+        $variant->image_url = null;
+    }
+
+    private static function isExternalImageUrl(string $value): bool
+    {
+        $value = strtolower(trim($value));
+
+        return str_starts_with($value, 'http://')
+            || str_starts_with($value, 'https://');
     }
 
     protected function imageUrl(): Attribute
