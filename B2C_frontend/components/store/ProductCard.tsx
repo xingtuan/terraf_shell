@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
 import { ProductAvailabilityBadge } from "@/components/store/ProductAvailabilityBadge"
 import { Button } from "@/components/ui/button"
+import { getLocalizedErrorMessage } from "@/lib/api/client"
 import {
   formatCurrencyAmount,
   formatProductPrice,
@@ -18,6 +20,7 @@ import {
 import { getProductAvailabilitySummary, supportsProjectEnquiry } from "@/lib/store/product-display"
 import type { Product } from "@/lib/types"
 import { useCart } from "@/hooks/useCart"
+import { toast } from "@/hooks/use-toast"
 
 type ProductCardProps = {
   locale: Locale
@@ -46,8 +49,10 @@ function productCardAttributes(product: Product) {
 
 export function ProductCard({ locale, product }: ProductCardProps) {
   const { addItem } = useCart()
-  const t = getMessages(locale).productCard
+  const messages = getMessages(locale)
+  const t = messages.productCard
   const productHref = getProductDetailHref(locale, product.slug)
+  const [addError, setAddError] = useState<string | null>(null)
   const badges = [
     product.featured ? t.featuredBadge : null,
     product.is_bestseller ? t.bestSellerBadge : null,
@@ -55,6 +60,22 @@ export function ProductCard({ locale, product }: ProductCardProps) {
   ].filter((badge): badge is string => Boolean(badge))
   const cardAttributes = productCardAttributes(product)
   const categoryName = productCategoryName(product) ?? product.subtitle ?? ""
+
+  async function handleAddToCart() {
+    setAddError(null)
+
+    try {
+      await addItem(product.id, 1)
+    } catch (nextError) {
+      const message = getLocalizedErrorMessage(nextError, messages.common.errors)
+
+      setAddError(message)
+      toast({
+        title: message,
+        variant: "destructive",
+      })
+    }
+  }
 
   return (
     <article className="group overflow-hidden rounded-[2rem] border border-border/60 bg-card transition-transform duration-300 hover:-translate-y-1">
@@ -163,7 +184,7 @@ export function ProductCard({ locale, product }: ProductCardProps) {
               type="button"
               className="flex-1"
               onClick={() => {
-                void addItem(product.id, 1)
+                void handleAddToCart()
               }}
             >
               {t.addToCart}
@@ -176,6 +197,15 @@ export function ProductCard({ locale, product }: ProductCardProps) {
             </Button>
           )}
         </div>
+
+        {addError ? (
+          <p
+            className="rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            role="alert"
+          >
+            {addError}
+          </p>
+        ) : null}
 
         {product.sample_request_enabled && !product.can_add_to_cart ? (
           <Button asChild variant="ghost" className="w-full justify-start px-0 text-primary">

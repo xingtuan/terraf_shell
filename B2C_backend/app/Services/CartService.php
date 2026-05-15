@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\CartStockLimitException;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
@@ -152,7 +153,7 @@ class CartService
         $guestCart = Cart::query()
             ->forSession($sessionKey)
             ->whereNull('user_id')
-            ->with('items')
+            ->with(['items.product.variants', 'items.variant'])
             ->first();
 
         if ($guestCart === null) {
@@ -171,20 +172,44 @@ class CartService
         );
 
         foreach ($guestCart->items as $guestItem) {
-            $userItem = $userCart->items()->firstOrNew([
-                'product_id' => $guestItem->product_id,
-                'product_variant_id' => $guestItem->product_variant_id,
-            ]);
+            $product = $guestItem->product;
 
-            if ($userItem->exists) {
-                $userItem->quantity += $guestItem->quantity;
-            } else {
-                $userItem->quantity = $guestItem->quantity;
-                $userItem->unit_price_usd = $guestItem->unit_price_usd;
-                $userItem->unit_price_amount = $guestItem->unit_price_amount ?? $guestItem->unit_price_usd;
-                $userItem->currency = $guestItem->currency ?: 'NZD';
+            if ($product === null) {
+                continue;
             }
 
+            try {
+                $variant = $this->resolveVariant(
+                    $product,
+                    $guestItem->product_variant_id ? (int) $guestItem->product_variant_id : null,
+                );
+                $this->guardVariantPurchasable($product, $variant);
+            } catch (ValidationException) {
+                continue;
+            }
+
+            $userItem = $userCart->items()->firstOrNew([
+                'product_id' => $product->id,
+                'product_variant_id' => $variant->id,
+            ]);
+            $desiredQuantity = (int) ($userItem->exists ? $userItem->quantity : 0)
+                + max(1, (int) $guestItem->quantity);
+            $mergedQuantity = $this->clampQuantityForMerge($variant, $desiredQuantity);
+
+            if ($mergedQuantity <= 0) {
+                if ($userItem->exists) {
+                    $userItem->delete();
+                }
+
+                continue;
+            }
+
+            $this->guardStockAvailability($variant, $mergedQuantity);
+
+            $userItem->quantity = $mergedQuantity;
+            $userItem->unit_price_usd = $variant->effectivePrice();
+            $userItem->unit_price_amount = $variant->effectivePrice();
+            $userItem->currency = $variant->currency ?: 'NZD';
             $userItem->save();
         }
 
@@ -242,10 +267,36 @@ class CartService
     private function guardStockAvailability(ProductVariant $variant, int $desiredQuantity): void
     {
         if (! $variant->canFulfillQuantity($desiredQuantity)) {
-            throw ValidationException::withMessages([
-                'quantity' => ['Requested quantity exceeds current stock availability.'],
-            ]);
+            throw new CartStockLimitException(
+                $variant,
+                $desiredQuantity,
+                $this->availableQuantityForStockLimit($variant),
+            );
         }
+    }
+
+    private function clampQuantityForMerge(ProductVariant $variant, int $desiredQuantity): int
+    {
+        $desiredQuantity = max(1, $desiredQuantity);
+
+        if (in_array($variant->inventory_policy, ['continue', 'preorder'], true)) {
+            return $desiredQuantity;
+        }
+
+        if ($variant->stock_quantity !== null) {
+            return min($desiredQuantity, max(0, (int) $variant->stock_quantity));
+        }
+
+        return $desiredQuantity;
+    }
+
+    private function availableQuantityForStockLimit(ProductVariant $variant): int
+    {
+        if ($variant->stock_quantity !== null) {
+            return max(0, (int) $variant->stock_quantity);
+        }
+
+        return 0;
     }
 
     private function findCartItem(Cart $cart, int $productId, ?int $variantId = null): ?CartItem

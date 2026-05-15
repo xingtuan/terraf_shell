@@ -4,9 +4,10 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react"
+import { ShoppingBag, Trash2 } from "lucide-react"
 
 import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
+import { CartQuantityControl } from "@/components/store/CartQuantityControl"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,13 +35,20 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { getLocalizedErrorMessage } from "@/lib/api/client"
 import { getMessages, getLocalizedHref, type Locale } from "@/lib/i18n"
-import { getProductQuantityLimit } from "@/lib/store/product-display"
+import { getCartItemQuantityLimit } from "@/lib/store/product-display"
+import type { CartSummaryItem } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCart } from "@/hooks/useCart"
+import { toast } from "@/hooks/use-toast"
 
 type CartSidebarProps = {
   locale: Locale
+}
+
+function cartLineKey(item: CartSummaryItem) {
+  return `${item.product_id}-${item.product_variant_id ?? "default"}`
 }
 
 export function CartSidebar({ locale }: CartSidebarProps) {
@@ -61,7 +69,81 @@ export function CartSidebar({ locale }: CartSidebarProps) {
   const messages = getMessages(locale)
   const authCopy = messages.community.auth
   const t = messages.cartSidebar
+  const quantityCopy = messages.cartQuantity
   const [isAuthOpen, setIsAuthOpen] = useState(false)
+  const [updatingLineKey, setUpdatingLineKey] = useState<string | null>(null)
+  const [lineErrors, setLineErrors] = useState<Record<string, string>>({})
+
+  function clearLineError(key: string) {
+    setLineErrors((currentErrors) => {
+      const { [key]: _removed, ...nextErrors } = currentErrors
+
+      return nextErrors
+    })
+  }
+
+  async function handleQuantityCommit(
+    item: CartSummaryItem,
+    nextQuantity: number,
+  ) {
+    const lineKey = cartLineKey(item)
+
+    setUpdatingLineKey(lineKey)
+    clearLineError(lineKey)
+
+    try {
+      await updateItem(item.product_id, nextQuantity, item.product_variant_id)
+      toast({ title: quantityCopy.quantityUpdated })
+    } catch (nextError) {
+      const message = getLocalizedErrorMessage(nextError, messages.common.errors)
+
+      setLineErrors((currentErrors) => ({
+        ...currentErrors,
+        [lineKey]: message,
+      }))
+      toast({
+        title: quantityCopy.unableToUpdateQuantity,
+        description: message,
+        variant: "destructive",
+      })
+      throw nextError
+    } finally {
+      setUpdatingLineKey(null)
+    }
+  }
+
+  async function handleRemoveItem(
+    item: CartSummaryItem,
+    options: { rethrow?: boolean } = {},
+  ) {
+    const lineKey = cartLineKey(item)
+
+    setUpdatingLineKey(lineKey)
+    clearLineError(lineKey)
+
+    try {
+      await removeItem(item.product_id, item.product_variant_id)
+      toast({ title: quantityCopy.itemRemoved })
+    } catch (nextError) {
+      const message = getLocalizedErrorMessage(nextError, messages.common.errors)
+
+      setLineErrors((currentErrors) => ({
+        ...currentErrors,
+        [lineKey]: message,
+      }))
+      toast({
+        title: quantityCopy.unableToUpdateQuantity,
+        description: message,
+        variant: "destructive",
+      })
+
+      if (options.rethrow) {
+        throw nextError
+      }
+    } finally {
+      setUpdatingLineKey(null)
+    }
+  }
 
   return (
     <>
@@ -110,9 +192,14 @@ export function CartSidebar({ locale }: CartSidebarProps) {
               </div>
             ) : (
               <div className="space-y-4">
-                {cart.items.map((item) => (
+                {cart.items.map((item) => {
+                  const lineKey = cartLineKey(item)
+                  const maxQuantity =
+                    item.max_quantity ?? getCartItemQuantityLimit(item, 10)
+
+                  return (
                   <article
-                    key={`${item.product_id}-${item.product_variant_id ?? "default"}`}
+                    key={lineKey}
                     className="rounded-3xl border border-border/60 bg-card p-4"
                   >
                     <div className="flex gap-4">
@@ -153,54 +240,38 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                         </div>
 
                         <div className="mt-4 flex items-center justify-between gap-3">
-                          <div className="flex items-center rounded-full border border-border/70">
-                            <button
-                              type="button"
-                              className="px-3 py-2 text-foreground transition-colors hover:bg-muted"
-                              onClick={() => {
-                                void updateItem(
-                                  item.product_id,
-                                  item.quantity - 1,
-                                  item.product_variant_id,
-                                )
-                              }}
-                              aria-label={t.decreaseQuantity}
-                            >
-                              <Minus className="size-4" />
-                            </button>
-                            <span className="min-w-10 text-center text-sm font-medium">
-                              {item.quantity}
-                            </span>
-                            <button
-                              type="button"
-                              className="px-3 py-2 text-foreground transition-colors hover:bg-muted"
-                              onClick={() => {
-                                const maxQuantity = item.product
-                                  ? getProductQuantityLimit(item.product, 10)
-                                  : 10
-
-                                if (item.quantity >= maxQuantity) {
-                                  return
-                                }
-
-                                void updateItem(
-                                  item.product_id,
-                                  item.quantity + 1,
-                                  item.product_variant_id,
-                                )
-                              }}
-                              aria-label={t.increaseQuantity}
-                            >
-                              <Plus className="size-4" />
-                            </button>
-                          </div>
+                          <CartQuantityControl
+                            quantity={item.quantity}
+                            min={0}
+                            max={maxQuantity}
+                            disabled={loading && updatingLineKey !== lineKey}
+                            loading={updatingLineKey === lineKey}
+                            error={lineErrors[lineKey] ?? item.quantity_error_message}
+                            onCommit={(nextQuantity) =>
+                              handleQuantityCommit(item, nextQuantity)
+                            }
+                            onRemove={() =>
+                              handleRemoveItem(item, { rethrow: true })
+                            }
+                            labels={{
+                              quantityInput: quantityCopy.quantityInputLabel,
+                              decreaseQuantity: quantityCopy.decreaseQuantity,
+                              increaseQuantity: quantityCopy.increaseQuantity,
+                              quantityUnavailable: quantityCopy.quantityUnavailable,
+                              onlyAvailable: quantityCopy.onlyAvailable,
+                              enterValidQuantity: quantityCopy.enterValidQuantity,
+                              maxQuantityReached: quantityCopy.maxQuantityReached,
+                              updatingQuantity: quantityCopy.updatingQuantity,
+                            }}
+                          />
 
                           <button
                             type="button"
                             className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                             onClick={() => {
-                              void removeItem(item.product_id, item.product_variant_id)
+                              void handleRemoveItem(item)
                             }}
+                            disabled={updatingLineKey === lineKey}
                           >
                             <Trash2 className="size-4" />
                             {t.remove}
@@ -209,7 +280,8 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                       </div>
                     </div>
                   </article>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>

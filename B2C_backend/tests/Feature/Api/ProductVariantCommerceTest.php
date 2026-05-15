@@ -9,8 +9,10 @@ use App\Models\ProductAttributeAssignment;
 use App\Models\ProductAttributeDefinition;
 use App\Models\ProductAttributeValue;
 use App\Models\ProductVariant;
+use App\Models\User;
 use App\Services\CartService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class ProductVariantCommerceTest extends TestCase
@@ -233,6 +235,163 @@ class ProductVariantCommerceTest extends TestCase
                 'quantity' => 2,
             ], ['Accept' => 'application/json'])
             ->assertOk();
+    }
+
+    public function test_adding_quantity_beyond_variant_stock_returns_quantity_error(): void
+    {
+        $product = Product::factory()->published()->create();
+        $variant = $product->defaultVariant();
+        $this->assertNotNull($variant);
+        $variant->forceFill([
+            'stock_quantity' => 1,
+            'stock_status' => 'in_stock',
+            'inventory_policy' => 'deny',
+            'low_stock_threshold' => 0,
+        ])->save();
+
+        $this->getJson('/api/cart')->assertOk();
+        $sessionKey = Cart::query()->whereNull('user_id')->value('session_key');
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/cart/items', [
+                'product_id' => $product->id,
+                'variant_id' => $variant->id,
+                'quantity' => 2,
+            ], ['Accept' => 'application/json'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['quantity'])
+            ->assertJsonPath('message', 'Only 1 units are available.')
+            ->assertJsonPath('errors.quantity.0', 'Only 1 units are available.')
+            ->assertJsonPath('meta.available_quantity', 1)
+            ->assertJsonPath('meta.requested_quantity', 2)
+            ->assertJsonPath('meta.product_variant_id', $variant->id)
+            ->assertJsonPath('meta.stock_status', 'in_stock')
+            ->assertJsonPath('meta.inventory_policy', 'deny');
+    }
+
+    public function test_updating_cart_item_beyond_variant_stock_returns_quantity_error(): void
+    {
+        $product = Product::factory()->published()->create();
+        $variant = $product->defaultVariant();
+        $this->assertNotNull($variant);
+        $variant->forceFill([
+            'stock_quantity' => 2,
+            'stock_status' => 'in_stock',
+            'inventory_policy' => 'deny',
+        ])->save();
+
+        $this->getJson('/api/cart')->assertOk();
+        $sessionKey = Cart::query()->whereNull('user_id')->value('session_key');
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/cart/items', [
+                'product_id' => $product->id,
+                'variant_id' => $variant->id,
+                'quantity' => 1,
+            ], ['Accept' => 'application/json'])
+            ->assertOk();
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->patch('/api/cart/items/'.$product->id, [
+                'variant_id' => $variant->id,
+                'quantity' => 3,
+            ], ['Accept' => 'application/json'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['quantity'])
+            ->assertJsonPath('errors.quantity.0', 'Only 2 units are available.');
+    }
+
+    public function test_valid_cart_update_succeeds_and_quantity_zero_removes_item(): void
+    {
+        $product = Product::factory()->published()->create();
+        $variant = $product->defaultVariant();
+        $this->assertNotNull($variant);
+        $variant->forceFill([
+            'stock_quantity' => 4,
+            'stock_status' => 'in_stock',
+            'inventory_policy' => 'deny',
+        ])->save();
+
+        $this->getJson('/api/cart')->assertOk();
+        $sessionKey = Cart::query()->whereNull('user_id')->value('session_key');
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->post('/api/cart/items', [
+                'product_id' => $product->id,
+                'variant_id' => $variant->id,
+                'quantity' => 1,
+            ], ['Accept' => 'application/json'])
+            ->assertOk();
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->patch('/api/cart/items/'.$product->id, [
+                'variant_id' => $variant->id,
+                'quantity' => 2,
+            ], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->assertJsonPath('data.item_count', 2)
+            ->assertJsonPath('data.items.0.quantity', 2)
+            ->assertJsonPath('data.items.0.max_quantity', 4)
+            ->assertJsonPath('data.items.0.available_quantity', 4)
+            ->assertJsonPath('data.items.0.can_increase_quantity', true)
+            ->assertJsonPath('data.items.0.quantity_error_message', null);
+
+        $this->withUnencryptedCookies([CartService::COOKIE_NAME => $sessionKey])
+            ->patch('/api/cart/items/'.$product->id, [
+                'variant_id' => $variant->id,
+                'quantity' => 0,
+            ], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->assertJsonPath('data.item_count', 0)
+            ->assertJsonCount(0, 'data.items');
+
+        $this->assertDatabaseMissing('cart_items', [
+            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
+        ]);
+    }
+
+    public function test_guest_cart_merge_clamps_deny_policy_quantity_to_available_stock(): void
+    {
+        $product = Product::factory()->published()->create();
+        $variant = $product->defaultVariant();
+        $this->assertNotNull($variant);
+        $variant->forceFill([
+            'price_amount' => 25.00,
+            'stock_quantity' => 2,
+            'stock_status' => 'in_stock',
+            'inventory_policy' => 'deny',
+        ])->save();
+
+        $guestCart = Cart::query()->create([
+            'session_key' => 'guest-merge-stock-limit',
+            'expires_at' => now()->addDays(7),
+        ]);
+        $guestCart->items()->create([
+            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
+            'quantity' => 5,
+            'unit_price_usd' => 25.00,
+            'unit_price_amount' => 25.00,
+            'currency' => 'NZD',
+        ]);
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/cart/merge', [
+            'session_key' => 'guest-merge-stock-limit',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.item_count', 2)
+            ->assertJsonPath('data.items.0.quantity', 2)
+            ->assertJsonPath('data.items.0.max_quantity', 2)
+            ->assertJsonPath('data.items.0.can_increase_quantity', false);
+
+        $this->assertDatabaseHas('cart_items', [
+            'product_id' => $product->id,
+            'product_variant_id' => $variant->id,
+            'quantity' => 2,
+        ]);
     }
 
     public function test_manual_variant_stock_adjustment_is_audited(): void

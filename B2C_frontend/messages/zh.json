@@ -1350,6 +1350,19 @@
     "checkoutAsGuest": "以游客身份结账",
     "signInForSavedAddresses": "登录以使用已保存地址"
   },
+  "cartQuantity": {
+    "quantityInputLabel": "数量",
+    "increaseQuantity": "增加数量",
+    "decreaseQuantity": "减少数量",
+    "quantityUnavailable": "数量不可用",
+    "onlyAvailable": "仅剩 {count} 件可购买。",
+    "quantityUpdated": "数量已更新",
+    "unableToUpdateQuantity": "无法更新数量",
+    "itemRemoved": "商品已移除",
+    "enterValidQuantity": "请输入有效数量。",
+    "maxQuantityReached": "已达到最大数量。",
+    "updatingQuantity": "正在更新数量..."
+  },
   "checkout": {
     "emptyTitle": "你的购物车为空",
     "emptyDescription": "继续提交订单请求前，请先添加 OXP 产品。",

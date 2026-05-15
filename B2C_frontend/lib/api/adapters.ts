@@ -605,6 +605,16 @@ export function normalizeCartSummaryItem(item: CartSummaryItem): CartSummaryItem
         ? variant?.id ?? null
         : Number(item.product_variant_id),
     quantity: Number(item.quantity ?? 0),
+    max_quantity:
+      item.max_quantity === null || item.max_quantity === undefined
+        ? null
+        : Number(item.max_quantity),
+    available_quantity:
+      item.available_quantity === null || item.available_quantity === undefined
+        ? null
+        : Number(item.available_quantity),
+    can_increase_quantity: Boolean(item.can_increase_quantity ?? true),
+    quantity_error_message: item.quantity_error_message ?? null,
     unit_price_amount:
       item.unit_price_amount === null || item.unit_price_amount === undefined
         ? item.unit_price_usd === null || item.unit_price_usd === undefined

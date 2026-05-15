@@ -36,6 +36,7 @@ type CartContextValue = {
   openCart: () => void
   closeCart: () => void
   toggleCart: () => void
+  clearError: () => void
   loadCart: () => Promise<CartSummary | null>
   addItem: (
     productId: number,
@@ -243,6 +244,7 @@ export function CartProvider({ children }: CartProviderProps) {
       openCart: () => setIsOpen(true),
       closeCart: () => setIsOpen(false),
       toggleCart: () => setIsOpen((currentValue) => !currentValue),
+      clearError: () => setError(null),
       loadCart,
       addItem: addItemToCart,
       updateItem: updateCartLine,

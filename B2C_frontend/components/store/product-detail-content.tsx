@@ -10,6 +10,7 @@ import { ProductGallery } from "@/components/store/ProductGallery"
 import { ProductCard } from "@/components/store/ProductCard"
 import { ProductSpecificationGrid } from "@/components/store/ProductSpecificationGrid"
 import { Button } from "@/components/ui/button"
+import { getLocalizedErrorMessage } from "@/lib/api/client"
 import {
   formatCurrencyAmount,
   formatProductPrice,
@@ -26,6 +27,7 @@ import {
 } from "@/lib/store/product-display"
 import type { Product, ProductImage, ProductVariant } from "@/lib/types"
 import { useCart } from "@/hooks/useCart"
+import { toast } from "@/hooks/use-toast"
 
 type ProductDetailContentProps = {
   locale: Locale
@@ -90,6 +92,7 @@ function productWithSelectedVariant(
       variant.availability_label ?? variant.stock_status_label ?? product.stock_status_label,
     in_stock: Boolean(variant.is_in_stock),
     can_add_to_cart: Boolean(variant.can_add_to_cart) && !product.inquiry_only,
+    default_variant: variant,
     weight_grams: variant.weight_grams ?? product.weight_grams,
     primary_image_url: variant.image_url ?? product.primary_image_url,
     image_url: variant.image_url ?? product.image_url,
@@ -131,6 +134,7 @@ export function ProductDetailContent({
   )
   const maxQuantity = getProductQuantityLimit(selectedProduct)
   const [quantity, setQuantity] = useState(1)
+  const [addError, setAddError] = useState<string | null>(null)
   const hasVariantSelector =
     activeVariants.length > 1 ||
     activeVariants.some(
@@ -162,7 +166,24 @@ export function ProductDetailContent({
     setQuantity((currentQuantity) =>
       Math.min(Math.max(currentQuantity, 1), maxQuantity),
     )
+    setAddError(null)
   }, [maxQuantity, product.id, selectedVariant?.id])
+
+  async function handleAddToCart() {
+    setAddError(null)
+
+    try {
+      await addItem(product.id, quantity, selectedVariant?.id ?? null)
+    } catch (nextError) {
+      const message = getLocalizedErrorMessage(nextError, messages.common.errors)
+
+      setAddError(message)
+      toast({
+        title: message,
+        variant: "destructive",
+      })
+    }
+  }
 
   const supportCards = useMemo(
     () =>
@@ -425,10 +446,12 @@ export function ProductDetailContent({
                   <div className="flex items-center rounded-full border border-border/70">
                     <button
                       type="button"
-                      className="px-4 py-2 text-foreground transition-colors hover:bg-muted"
+                      className="px-4 py-2 text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-45"
                       onClick={() =>
                         setQuantity((currentValue) => Math.max(1, currentValue - 1))
                       }
+                      disabled={quantity <= 1}
+                      aria-disabled={quantity <= 1}
                     >
                       -
                     </button>
@@ -437,11 +460,21 @@ export function ProductDetailContent({
                     </span>
                     <button
                       type="button"
-                      className="px-4 py-2 text-foreground transition-colors hover:bg-muted"
+                      className="px-4 py-2 text-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-45"
                       onClick={() =>
                         setQuantity((currentValue) =>
                           Math.min(maxQuantity, currentValue + 1),
                         )
+                      }
+                      disabled={quantity >= maxQuantity}
+                      aria-disabled={quantity >= maxQuantity}
+                      title={
+                        quantity >= maxQuantity
+                          ? messages.cartQuantity.onlyAvailable.replace(
+                              "{count}",
+                              String(maxQuantity),
+                            )
+                          : undefined
                       }
                     >
                       +
@@ -453,7 +486,7 @@ export function ProductDetailContent({
                   <Button
                     type="button"
                     onClick={() => {
-                      void addItem(product.id, quantity, selectedVariant?.id ?? null)
+                      void handleAddToCart()
                     }}
                   >
                     {t.addToCart}
@@ -474,6 +507,12 @@ export function ProductDetailContent({
                   </Button>
                 ) : null}
               </div>
+
+              {addError ? (
+                <div className="mt-4 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
+                  {addError}
+                </div>
+              ) : null}
 
               {!selectedProduct.can_add_to_cart ? (
                 <div className="mt-5 rounded-2xl border border-dashed border-border/70 bg-card p-4 text-sm leading-relaxed text-muted-foreground">

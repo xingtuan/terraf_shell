@@ -1350,6 +1350,19 @@
     "checkoutAsGuest": "Checkout as guest",
     "signInForSavedAddresses": "Sign in for saved addresses"
   },
+  "cartQuantity": {
+    "quantityInputLabel": "Quantity",
+    "increaseQuantity": "Increase quantity",
+    "decreaseQuantity": "Decrease quantity",
+    "quantityUnavailable": "Quantity unavailable",
+    "onlyAvailable": "Only {count} available.",
+    "quantityUpdated": "Quantity updated",
+    "unableToUpdateQuantity": "Unable to update quantity",
+    "itemRemoved": "Item removed",
+    "enterValidQuantity": "Enter a valid quantity.",
+    "maxQuantityReached": "Maximum quantity reached.",
+    "updatingQuantity": "Updating quantity..."
+  },
   "checkout": {
     "emptyTitle": "Your cart is empty",
     "emptyDescription": "Add an OXP product before continuing to an order request.",

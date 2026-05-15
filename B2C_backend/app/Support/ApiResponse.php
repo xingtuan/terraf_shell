@@ -22,9 +22,10 @@ trait ApiResponse
     protected function errorResponse(
         string $message,
         array $errors = [],
-        int $status = 422
+        int $status = 422,
+        array $meta = [],
     ): JsonResponse {
-        return self::error($message, $errors, $status);
+        return self::error($message, $errors, $status, $meta);
     }
 
     protected function paginatedResponse(
@@ -51,7 +52,8 @@ trait ApiResponse
     public static function error(
         string $message,
         array $errors = [],
-        int $status = 422
+        int $status = 422,
+        array $meta = [],
     ): JsonResponse {
         $payload = [
             'success' => false,
@@ -60,6 +62,10 @@ trait ApiResponse
 
         if ($errors !== []) {
             $payload['errors'] = $errors;
+        }
+
+        if ($meta !== []) {
+            $payload['meta'] = $meta;
         }
 
         return response()->json($payload, $status);

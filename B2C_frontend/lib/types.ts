@@ -222,6 +222,10 @@ export interface CartSummaryItem {
   product_id: number
   product_variant_id?: number | null
   quantity: number
+  max_quantity?: number | null
+  available_quantity?: number | null
+  can_increase_quantity?: boolean
+  quantity_error_message?: string | null
   unit_price_amount?: string
   unit_price_usd: string
   currency?: string

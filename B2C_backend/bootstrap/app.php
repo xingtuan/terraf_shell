@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\CartStockLimitException;
 use App\Middleware\EnsureRuntimeSettingEnabled;
 use App\Middleware\EnsureUserHasRole;
 use App\Middleware\EnsureUserNotBanned;
@@ -41,6 +42,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ValidationException $exception, Request $request) {
             if (! $request->is('api/*')) {
                 return null;
+            }
+
+            if ($exception instanceof CartStockLimitException) {
+                return ApiResponse::error(
+                    $exception->getMessage(),
+                    $exception->errors(),
+                    $exception->status,
+                    $exception->meta(),
+                );
             }
 
             return ApiResponse::error(

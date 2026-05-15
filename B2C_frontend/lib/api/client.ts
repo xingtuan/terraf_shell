@@ -20,6 +20,7 @@ export type ApiErrorResponse = {
   success: false
   message: string
   errors?: Record<string, string[]>
+  meta?: Record<string, unknown>
 }
 
 type ApiRequestOptions = {
@@ -39,18 +40,21 @@ export class ApiError extends Error {
   status: number
   errors?: Record<string, string[]>
   code?: string
+  meta?: Record<string, unknown>
 
   constructor(
     message: string,
     status: number,
     errors?: Record<string, string[]>,
     code?: string,
+    meta?: Record<string, unknown>,
   ) {
     super(message)
     this.name = "ApiError"
     this.status = status
     this.errors = errors
     this.code = code
+    this.meta = meta
   }
 
   firstFieldError(): { field: string; message: string } | null {
@@ -231,6 +235,14 @@ export async function requestApi<T>(
   const payload = parseApiPayload(rawText)
   const validationErrors =
     payload !== null && "errors" in payload ? payload.errors : undefined
+  const errorMeta =
+    payload !== null &&
+    "meta" in payload &&
+    payload.meta !== null &&
+    typeof payload.meta === "object" &&
+    !Array.isArray(payload.meta)
+      ? (payload.meta as Record<string, unknown>)
+      : undefined
 
   if (!response.ok || payload === null || payload.success === false) {
     throw new ApiError(
@@ -238,6 +250,7 @@ export async function requestApi<T>(
       response.status,
       validationErrors,
       payload?.message ? undefined : "request_failed",
+      errorMeta,
     )
   }
 
