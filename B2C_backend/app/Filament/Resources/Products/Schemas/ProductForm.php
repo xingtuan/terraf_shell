@@ -577,14 +577,19 @@ class ProductForm
             return __('admin.ui.select_an_attribute_to_see_metadata');
         }
 
+        $type = (string) $definition->type;
+        $typeLabel = AdminOptions::productAttributeTypes()[$type] ?? $type;
+        $yes = __('admin.ui.yes');
+        $no = __('admin.ui.no');
+
         return collect([
-            __('admin.fields.type').': '.$definition->type,
+            __('admin.fields.type').': '.$typeLabel,
             $definition->unit ? __('admin.ui.unit').': '.$definition->unit : null,
             $definition->group ? __('admin.ui.group').': '.$definition->group : null,
-            __('admin.ui.filterable').': '.($definition->is_filterable ? __('admin.ui.yes') : __('admin.ui.no')),
-            __('admin.ui.specification').': '.($definition->is_specification ? __('admin.ui.yes') : __('admin.ui.no')),
-            __('admin.ui.variant').': '.($definition->is_variant_option ? __('admin.ui.yes') : __('admin.ui.no')),
-            __('admin.ui.allows_multiple').': '.($definition->allows_multiple ? __('admin.ui.yes') : __('admin.ui.no')),
+            __('admin.ui.filterable').': '.($definition->is_filterable ? $yes : $no),
+            __('admin.ui.specification').': '.($definition->is_specification ? $yes : $no),
+            __('admin.ui.variant').': '.($definition->is_variant_option ? $yes : $no),
+            __('admin.ui.allows_multiple').': '.($definition->allows_multiple ? $yes : $no),
         ])->filter()->implode(' | ');
     }
 

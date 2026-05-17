@@ -29,7 +29,7 @@ class AdminOptions
      */
     public static function productAttributeTypes(): array
     {
-        return self::translatedKeys('admin.product_attributes.type_options', ProductAttributeDefinition::TYPE_OPTIONS);
+        return self::translatedKeys('admin.products.attribute_type', ProductAttributeDefinition::TYPE_OPTIONS);
     }
 
     /**
