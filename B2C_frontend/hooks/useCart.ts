@@ -12,6 +12,7 @@ import {
 import { usePathname } from "next/navigation"
 
 import {
+  type AddCartItemResult,
   addCartItem,
   clearCart as clearServerCart,
   getCart,
@@ -42,7 +43,7 @@ type CartContextValue = {
     productId: number,
     quantity: number,
     variantId?: number | null,
-  ) => Promise<CartSummary | null>
+  ) => Promise<AddCartItemResult | null>
   updateItem: (
     productId: number,
     quantity: number,
@@ -170,7 +171,7 @@ export function CartProvider({ children }: CartProviderProps) {
     try {
       const nextCart = await addCartItem(productId, quantity, token, variantId)
       syncCartSessionKeyFromCookie()
-      setCart(nextCart)
+      setCart(nextCart.cart)
       setIsOpen(true)
 
       return nextCart

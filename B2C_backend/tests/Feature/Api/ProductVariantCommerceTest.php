@@ -199,7 +199,7 @@ class ProductVariantCommerceTest extends TestCase
         ]);
     }
 
-    public function test_inventory_policy_deny_blocks_overselling_but_continue_allows_it(): void
+    public function test_inventory_policy_deny_clamps_add_to_stock_but_continue_allows_it(): void
     {
         $denyProduct = Product::factory()->published()->create();
         $denyVariant = $denyProduct->defaultVariant();
@@ -217,8 +217,12 @@ class ProductVariantCommerceTest extends TestCase
                 'variant_id' => $denyVariant?->id,
                 'quantity' => 2,
             ], ['Accept' => 'application/json'])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['quantity']);
+            ->assertOk()
+            ->assertJsonPath('data.items.0.quantity', 1)
+            ->assertJsonPath('data.items.0.max_quantity', 1)
+            ->assertJsonPath('data.items.0.can_increase_quantity', false)
+            ->assertJsonPath('meta.cart_adjustment.available_quantity', 1)
+            ->assertJsonPath('meta.cart_adjustment.requested_quantity', 2);
 
         $continueProduct = Product::factory()->published()->create();
         $continueVariant = $continueProduct->defaultVariant();
@@ -237,7 +241,7 @@ class ProductVariantCommerceTest extends TestCase
             ->assertOk();
     }
 
-    public function test_adding_quantity_beyond_variant_stock_returns_quantity_error(): void
+    public function test_adding_quantity_beyond_variant_stock_clamps_to_available_quantity(): void
     {
         $product = Product::factory()->published()->create();
         $variant = $product->defaultVariant();
@@ -258,15 +262,18 @@ class ProductVariantCommerceTest extends TestCase
                 'variant_id' => $variant->id,
                 'quantity' => 2,
             ], ['Accept' => 'application/json'])
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['quantity'])
+            ->assertOk()
             ->assertJsonPath('message', 'Only 1 units are available.')
-            ->assertJsonPath('errors.quantity.0', 'Only 1 units are available.')
-            ->assertJsonPath('meta.available_quantity', 1)
-            ->assertJsonPath('meta.requested_quantity', 2)
-            ->assertJsonPath('meta.product_variant_id', $variant->id)
-            ->assertJsonPath('meta.stock_status', 'in_stock')
-            ->assertJsonPath('meta.inventory_policy', 'deny');
+            ->assertJsonPath('data.item_count', 1)
+            ->assertJsonPath('data.items.0.quantity', 1)
+            ->assertJsonPath('data.items.0.max_quantity', 1)
+            ->assertJsonPath('data.items.0.available_quantity', 1)
+            ->assertJsonPath('data.items.0.can_increase_quantity', false)
+            ->assertJsonPath('meta.cart_adjustment.available_quantity', 1)
+            ->assertJsonPath('meta.cart_adjustment.requested_quantity', 2)
+            ->assertJsonPath('meta.cart_adjustment.product_variant_id', $variant->id)
+            ->assertJsonPath('meta.cart_adjustment.stock_status', 'in_stock')
+            ->assertJsonPath('meta.cart_adjustment.inventory_policy', 'deny');
     }
 
     public function test_updating_cart_item_beyond_variant_stock_returns_quantity_error(): void

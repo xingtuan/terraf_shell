@@ -35,10 +35,13 @@ class CartController extends Controller
             (int) ($request->validated('quantity') ?? 1),
             $this->variantIdFromValidated($request->validated()),
         );
+        $quantityAdjustment = $this->cartService->pullQuantityAdjustment();
 
         $response = $this->successResponse(
             new CartResource($cart->fresh(['items.product.variants', 'items.variant'])),
-            'Item added to cart.',
+            $quantityAdjustment['message'] ?? 'Item added to cart.',
+            200,
+            $quantityAdjustment !== null ? ['cart_adjustment' => $quantityAdjustment] : [],
         );
 
         return $this->withGuestCartCookie($response, $request, $cart->session_key);

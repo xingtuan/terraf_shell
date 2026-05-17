@@ -1356,6 +1356,7 @@
     "decreaseQuantity": "수량 줄이기",
     "quantityUnavailable": "수량을 선택할 수 없습니다",
     "onlyAvailable": "{count}개만 구매할 수 있습니다.",
+    "addedMaximumAvailable": "{count}개만 구매할 수 있어 장바구니 수량을 최대로 맞췄습니다.",
     "quantityUpdated": "수량이 업데이트되었습니다",
     "unableToUpdateQuantity": "수량을 업데이트할 수 없습니다",
     "itemRemoved": "상품이 삭제되었습니다",

@@ -19,6 +19,11 @@ class CartService
 
     public const COOKIE_TTL_MINUTES = 43_200;
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    private ?array $lastQuantityAdjustment = null;
+
     public function getOrCreateCart(Request $request): Cart
     {
         $user = $request->user('sanctum');
@@ -62,6 +67,8 @@ class CartService
 
     public function addItem(Cart $cart, int $productId, int $quantity = 1, ?int $variantId = null): CartItem
     {
+        $this->lastQuantityAdjustment = null;
+
         $product = Product::query()
             ->with('variants')
             ->whereKey($productId)
@@ -91,10 +98,21 @@ class CartService
             $item->currency = $variant->currency ?: 'NZD';
         }
 
-        $this->guardStockAvailability($variant, $item->quantity);
+        $item->quantity = $this->quantityForAdd($variant, $item->quantity);
         $item->save();
 
         return $item->fresh(['product.variants', 'variant']);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function pullQuantityAdjustment(): ?array
+    {
+        $adjustment = $this->lastQuantityAdjustment;
+        $this->lastQuantityAdjustment = null;
+
+        return $adjustment;
     }
 
     public function updateItem(Cart $cart, int $productId, int $quantity, ?int $variantId = null): ?CartItem
@@ -273,6 +291,38 @@ class CartService
                 $this->availableQuantityForStockLimit($variant),
             );
         }
+    }
+
+    private function quantityForAdd(ProductVariant $variant, int $desiredQuantity): int
+    {
+        $desiredQuantity = max(1, $desiredQuantity);
+
+        if ($variant->canFulfillQuantity($desiredQuantity)) {
+            return $desiredQuantity;
+        }
+
+        if ($variant->stock_quantity !== null && $variant->inventory_policy === 'deny') {
+            $availableQuantity = max(0, (int) $variant->stock_quantity);
+
+            if ($availableQuantity > 0) {
+                $this->lastQuantityAdjustment = [
+                    'type' => 'quantity_clamped',
+                    'available_quantity' => $availableQuantity,
+                    'requested_quantity' => $desiredQuantity,
+                    'product_variant_id' => $variant->id,
+                    'product_id' => $variant->product_id,
+                    'stock_status' => $variant->stock_status,
+                    'inventory_policy' => $variant->inventory_policy,
+                    'message' => "Only {$availableQuantity} units are available.",
+                ];
+
+                return $availableQuantity;
+            }
+        }
+
+        $this->guardStockAvailability($variant, $desiredQuantity);
+
+        return $desiredQuantity;
     }
 
     private function clampQuantityForMerge(ProductVariant $variant, int $desiredQuantity): int

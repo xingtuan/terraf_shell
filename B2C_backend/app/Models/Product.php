@@ -248,6 +248,10 @@ class Product extends Model
 
     public function primaryImageUrl(): ?string
     {
+        if ($this->image_url) {
+            return $this->image_url;
+        }
+
         if ($this->relationLoaded('images')) {
             $primaryImage = $this->images->first();
 
@@ -256,7 +260,7 @@ class Product extends Model
             }
         }
 
-        return $this->image_url;
+        return null;
     }
 
     public function stockStatusLabel(): string

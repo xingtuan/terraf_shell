@@ -13,7 +13,7 @@ export type ApiSuccessResponse<T> = {
   success: true
   message: string | null
   data: T
-  meta?: ApiPaginationMeta
+  meta?: ApiPaginationMeta | Record<string, unknown>
 }
 
 export type ApiErrorResponse = {

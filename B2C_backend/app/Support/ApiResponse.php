@@ -14,9 +14,10 @@ trait ApiResponse
     protected function successResponse(
         mixed $data = null,
         ?string $message = null,
-        int $status = 200
+        int $status = 200,
+        array $meta = [],
     ): JsonResponse {
-        return self::success($data, $message, $status);
+        return self::success($data, $message, $status, $meta);
     }
 
     protected function errorResponse(
@@ -40,13 +41,20 @@ trait ApiResponse
     public static function success(
         mixed $data = null,
         ?string $message = null,
-        int $status = 200
+        int $status = 200,
+        array $meta = [],
     ): JsonResponse {
-        return response()->json([
+        $payload = [
             'success' => true,
             'message' => $message,
             'data' => self::resolveData($data),
-        ], $status);
+        ];
+
+        if ($meta !== []) {
+            $payload['meta'] = $meta;
+        }
+
+        return response()->json($payload, $status);
     }
 
     public static function error(

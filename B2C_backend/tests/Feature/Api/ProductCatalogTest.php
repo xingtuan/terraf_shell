@@ -165,6 +165,8 @@ class ProductCatalogTest extends TestCase
                 'category_slug' => 'architectural',
                 'inquiry_only' => true,
                 'sample_request_enabled' => true,
+                'media_url' => null,
+                'image_url' => null,
                 'seo_title' => 'Wall Panel Sample | OXP',
                 'seo_description' => 'Architectural sample for OXP finish review.',
             ],
@@ -232,6 +234,29 @@ class ProductCatalogTest extends TestCase
         $specifications = collect($response->json('data.specifications'));
         $this->assertSame('Sample Format', $specifications->firstWhere('key', 'sample_format')['label']);
         $this->assertSame('Panel tile', $specifications->firstWhere('key', 'sample_format')['value']);
+    }
+
+    public function test_product_primary_image_takes_precedence_over_gallery_images(): void
+    {
+        $product = $this->catalogProduct([
+            'name' => 'Primary Image Product',
+            'slug' => 'primary-image-product',
+            'category_slug' => 'tableware',
+            'image_url' => 'https://cdn.example.com/product-main.jpg',
+        ]);
+
+        ProductImage::factory()->create([
+            'product_id' => $product->id,
+            'media_url' => 'https://cdn.example.com/gallery-detail.jpg',
+            'sort_order' => 1,
+        ]);
+
+        $this->getJson("/api/products/{$product->slug}")
+            ->assertOk()
+            ->assertJsonPath('data.primary_image_url', 'https://cdn.example.com/product-main.jpg')
+            ->assertJsonPath('data.image_url', 'https://cdn.example.com/product-main.jpg')
+            ->assertJsonPath('data.gallery_images.0.media_url', 'https://cdn.example.com/product-main.jpg')
+            ->assertJsonPath('data.gallery_images.1.media_url', 'https://cdn.example.com/gallery-detail.jpg');
     }
 
     public function test_category_id_singular_attribute_and_legacy_attribute_filters_work(): void

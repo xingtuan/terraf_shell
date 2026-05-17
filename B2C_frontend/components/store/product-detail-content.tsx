@@ -10,7 +10,6 @@ import { ProductGallery } from "@/components/store/ProductGallery"
 import { ProductCard } from "@/components/store/ProductCard"
 import { ProductSpecificationGrid } from "@/components/store/ProductSpecificationGrid"
 import { Button } from "@/components/ui/button"
-import { getLocalizedErrorMessage } from "@/lib/api/client"
 import {
   formatCurrencyAmount,
   formatProductPrice,
@@ -20,6 +19,11 @@ import {
   getProductInquiryHref,
   getProductSampleRequestHref,
 } from "@/lib/product-links"
+import {
+  getCartAdjustmentMessage,
+  getLocalizedCartQuantityErrorMessage,
+  formatQuantityCountMessage,
+} from "@/lib/store/cart-messages"
 import {
   getProductAvailabilitySummary,
   getProductQuantityLimit,
@@ -80,6 +84,11 @@ function productWithSelectedVariant(
     return product
   }
 
+  const variantImageUrl =
+    variant.image_url && (!variant.is_default || !product.primary_image_url)
+      ? variant.image_url
+      : null
+
   return {
     ...product,
     sku: variant.sku || product.sku,
@@ -94,8 +103,8 @@ function productWithSelectedVariant(
     can_add_to_cart: Boolean(variant.can_add_to_cart) && !product.inquiry_only,
     default_variant: variant,
     weight_grams: variant.weight_grams ?? product.weight_grams,
-    primary_image_url: variant.image_url ?? product.primary_image_url,
-    image_url: variant.image_url ?? product.image_url,
+    primary_image_url: variantImageUrl ?? product.primary_image_url,
+    image_url: variantImageUrl ?? product.image_url,
   }
 }
 
@@ -141,7 +150,13 @@ export function ProductDetailContent({
       (variant) => Object.keys(variant.option_values ?? {}).length > 0,
     )
   const selectedGalleryImages = useMemo<ProductImage[]>(() => {
-    if (!selectedVariant?.image_url) {
+    const variantImageUrl =
+      selectedVariant?.image_url &&
+      (!selectedVariant.is_default || !product.primary_image_url)
+        ? selectedVariant.image_url
+        : null
+
+    if (!selectedVariant || !variantImageUrl) {
       return product.gallery_images ?? []
     }
 
@@ -150,17 +165,17 @@ export function ProductDetailContent({
       product_id: product.id,
       alt_text: `${product.name} ${selectedVariant.display_title ?? ""}`.trim(),
       caption: selectedVariant.display_title ?? null,
-      media_url: selectedVariant.image_url,
+      media_url: variantImageUrl,
       sort_order: -1,
     }
 
     return [
       variantImage,
       ...(product.gallery_images ?? []).filter(
-        (image) => image.media_url !== selectedVariant.image_url,
+        (image) => image.media_url !== variantImageUrl,
       ),
     ]
-  }, [product.gallery_images, product.id, product.name, selectedVariant])
+  }, [product.gallery_images, product.id, product.name, product.primary_image_url, selectedVariant])
 
   useEffect(() => {
     setQuantity((currentQuantity) =>
@@ -173,9 +188,24 @@ export function ProductDetailContent({
     setAddError(null)
 
     try {
-      await addItem(product.id, quantity, selectedVariant?.id ?? null)
+      const result = await addItem(product.id, quantity, selectedVariant?.id ?? null)
+      const adjustmentMessage = getCartAdjustmentMessage(
+        result?.adjustment,
+        messages.cartQuantity,
+      )
+
+      if (adjustmentMessage) {
+        setAddError(adjustmentMessage)
+        toast({
+          title: adjustmentMessage,
+        })
+      }
     } catch (nextError) {
-      const message = getLocalizedErrorMessage(nextError, messages.common.errors)
+      const message = getLocalizedCartQuantityErrorMessage(
+        nextError,
+        messages.common.errors,
+        messages.cartQuantity,
+      )
 
       setAddError(message)
       toast({
@@ -470,9 +500,9 @@ export function ProductDetailContent({
                       aria-disabled={quantity >= maxQuantity}
                       title={
                         quantity >= maxQuantity
-                          ? messages.cartQuantity.onlyAvailable.replace(
-                              "{count}",
-                              String(maxQuantity),
+                          ? formatQuantityCountMessage(
+                              messages.cartQuantity.onlyAvailable,
+                              maxQuantity,
                             )
                           : undefined
                       }

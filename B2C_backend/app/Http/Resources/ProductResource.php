@@ -25,8 +25,15 @@ class ProductResource extends JsonResource
         $longDescription = $this->localizedString($request, 'full_description');
         $leadTime = $this->localizedString($request, 'lead_time')
             ?? $this->localizedString($request, 'availability_text');
+        $productPrimaryImageUrl = $this->image_url;
         $primaryImageUrl = $this->primaryImageUrl();
-        $galleryImages = $this->galleryImages($request, $title, $subtitle, $primaryImageUrl);
+        $galleryImages = $this->galleryImages(
+            $request,
+            $title,
+            $subtitle,
+            $productPrimaryImageUrl,
+            $primaryImageUrl,
+        );
         $defaultVariant = $this->defaultVariant();
         $price = $this->effectivePrice();
         $compareAtPrice = $this->effectiveCompareAtPrice();
@@ -120,10 +127,31 @@ class ProductResource extends JsonResource
         Request $request,
         string $title,
         ?string $subtitle,
+        ?string $productPrimaryImageUrl,
         ?string $primaryImageUrl,
     ): array {
         if ($this->resource->relationLoaded('images')) {
             $images = ProductImageResource::collection($this->resource->getRelation('images'))->resolve($request);
+
+            if ($productPrimaryImageUrl !== null) {
+                $primaryImage = [
+                    'id' => 0,
+                    'product_id' => $this->id,
+                    'alt_text' => $title,
+                    'caption' => $subtitle,
+                    'media_url' => $productPrimaryImageUrl,
+                    'sort_order' => -1,
+                    'created_at' => null,
+                    'updated_at' => null,
+                ];
+
+                $galleryAlreadyContainsPrimary = collect($images)
+                    ->contains(fn (array $image): bool => ($image['media_url'] ?? null) === $productPrimaryImageUrl);
+
+                if (! $galleryAlreadyContainsPrimary) {
+                    array_unshift($images, $primaryImage);
+                }
+            }
 
             if ($images !== []) {
                 return $images;

@@ -391,28 +391,31 @@ export function normalizeProduct(
   const variants = ensureArray(product.variants)
     .map(normalizeProductVariant)
     .filter((variant): variant is ProductVariant => Boolean(variant))
-  const primaryImageUrl = resolveApiUrl(
-    defaultVariant?.image_url ?? product.primary_image_url ?? product.image_url,
+  const productPrimaryImageUrl = resolveApiUrl(
+    product.primary_image_url ?? product.image_url,
   )
+  const primaryImageUrl =
+    productPrimaryImageUrl ?? resolveApiUrl(defaultVariant?.image_url)
   const galleryImages = ensureArray(product.gallery_images).map(normalizeProductImage)
 
+  const primaryGalleryImage = primaryImageUrl
+    ? {
+        id: 0,
+        product_id: Number(product.id ?? 0),
+        alt_text: title,
+        caption: product.subtitle ?? product.short_description ?? null,
+        media_url: primaryImageUrl,
+        sort_order: -1,
+        created_at: null,
+        updated_at: null,
+      }
+    : null
+
   const normalizedGallery =
-    galleryImages.length > 0
-      ? galleryImages
-      : primaryImageUrl
-        ? [
-            {
-              id: 0,
-              product_id: Number(product.id ?? 0),
-              alt_text: title,
-              caption: product.subtitle ?? product.short_description ?? null,
-              media_url: primaryImageUrl,
-              sort_order: 0,
-              created_at: null,
-              updated_at: null,
-            },
-          ]
-        : []
+    primaryGalleryImage &&
+    !galleryImages.some((image) => image.media_url === primaryGalleryImage.media_url)
+      ? [primaryGalleryImage, ...galleryImages]
+      : galleryImages
 
   return {
     ...product,

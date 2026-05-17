@@ -6,7 +6,6 @@ import Link from "next/link"
 
 import { ProductAvailabilityBadge } from "@/components/store/ProductAvailabilityBadge"
 import { Button } from "@/components/ui/button"
-import { getLocalizedErrorMessage } from "@/lib/api/client"
 import {
   formatCurrencyAmount,
   formatProductPrice,
@@ -17,6 +16,10 @@ import {
   getProductInquiryHref,
   getProductSampleRequestHref,
 } from "@/lib/product-links"
+import {
+  getCartAdjustmentMessage,
+  getLocalizedCartQuantityErrorMessage,
+} from "@/lib/store/cart-messages"
 import { getProductAvailabilitySummary, supportsProjectEnquiry } from "@/lib/store/product-display"
 import type { Product } from "@/lib/types"
 import { useCart } from "@/hooks/useCart"
@@ -65,9 +68,24 @@ export function ProductCard({ locale, product }: ProductCardProps) {
     setAddError(null)
 
     try {
-      await addItem(product.id, 1)
+      const result = await addItem(product.id, 1)
+      const adjustmentMessage = getCartAdjustmentMessage(
+        result?.adjustment,
+        messages.cartQuantity,
+      )
+
+      if (adjustmentMessage) {
+        setAddError(adjustmentMessage)
+        toast({
+          title: adjustmentMessage,
+        })
+      }
     } catch (nextError) {
-      const message = getLocalizedErrorMessage(nextError, messages.common.errors)
+      const message = getLocalizedCartQuantityErrorMessage(
+        nextError,
+        messages.common.errors,
+        messages.cartQuantity,
+      )
 
       setAddError(message)
       toast({

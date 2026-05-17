@@ -26,9 +26,9 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { getLocalizedErrorMessage } from "@/lib/api/client"
 import { formatCurrencyAmount } from "@/lib/api/products"
 import { getMessages, getLocalizedHref, type Locale } from "@/lib/i18n"
+import { getLocalizedCartQuantityErrorMessage } from "@/lib/store/cart-messages"
 import { getCartItemQuantityLimit } from "@/lib/store/product-display"
 import type { CartSummaryItem } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
@@ -50,6 +50,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
     cart,
     error,
     loading,
+    clearError,
     updateItem,
     removeItem,
     clearCart,
@@ -83,12 +84,17 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
       await updateItem(item.product_id, nextQuantity, item.product_variant_id)
       toast({ title: quantityCopy.quantityUpdated })
     } catch (nextError) {
-      const message = getLocalizedErrorMessage(nextError, messages.common.errors)
+      const message = getLocalizedCartQuantityErrorMessage(
+        nextError,
+        messages.common.errors,
+        quantityCopy,
+      )
 
       setLineErrors((currentErrors) => ({
         ...currentErrors,
         [lineKey]: message,
       }))
+      clearError()
       toast({
         title: quantityCopy.unableToUpdateQuantity,
         description: message,
@@ -113,12 +119,17 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
       await removeItem(item.product_id, item.product_variant_id)
       toast({ title: quantityCopy.itemRemoved })
     } catch (nextError) {
-      const message = getLocalizedErrorMessage(nextError, messages.common.errors)
+      const message = getLocalizedCartQuantityErrorMessage(
+        nextError,
+        messages.common.errors,
+        quantityCopy,
+      )
 
       setLineErrors((currentErrors) => ({
         ...currentErrors,
         [lineKey]: message,
       }))
+      clearError()
       toast({
         title: quantityCopy.unableToUpdateQuantity,
         description: message,
