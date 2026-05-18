@@ -166,8 +166,8 @@ DB_PASSWORD=
 
 ```env
 SESSION_DRIVER=database        # Required by Filament admin panel
-QUEUE_CONNECTION=redis
-CACHE_STORE=redis
+QUEUE_CONNECTION=database
+CACHE_STORE=database
 REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 ```
@@ -262,7 +262,7 @@ Most events use queued jobs:
 php artisan queue:work
 ```
 
-Set `QUEUE_CONNECTION=sync` only for local development.
+Use `QUEUE_CONNECTION=redis` only when the PHP Redis extension or Predis is installed and a Redis worker is running. Set `QUEUE_CONNECTION=sync` only for local development.
 
 ### Developer Commands
 

@@ -16,7 +16,6 @@ use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section as InfolistSection;
@@ -160,9 +159,18 @@ class EmailLogResource extends Resource
                 ->columns(3),
             InfolistSection::make(__('admin.ui.recipients'))
                 ->schema([
-                    KeyValueEntry::make('to')->label(__('admin.ui.to')),
-                    KeyValueEntry::make('cc')->label(__('admin.ui.cc')),
-                    KeyValueEntry::make('bcc')->label(__('admin.ui.bcc')),
+                    TextEntry::make('to')
+                        ->label(__('admin.ui.to'))
+                        ->state(fn (EmailLog $record): ?string => self::formatRecipients($record->to) ?: null)
+                        ->placeholder('-'),
+                    TextEntry::make('cc')
+                        ->label(__('admin.ui.cc'))
+                        ->state(fn (EmailLog $record): ?string => self::formatRecipients($record->cc) ?: null)
+                        ->placeholder('-'),
+                    TextEntry::make('bcc')
+                        ->label(__('admin.ui.bcc'))
+                        ->state(fn (EmailLog $record): ?string => self::formatRecipients($record->bcc) ?: null)
+                        ->placeholder('-'),
                 ]),
             InfolistSection::make(__('admin.ui.rendered_content'))
                 ->schema([
@@ -176,7 +184,12 @@ class EmailLogResource extends Resource
                 ]),
             InfolistSection::make(__('admin.ui.payload'))
                 ->schema([
-                    KeyValueEntry::make('payload')->label(__('admin.ui.payload'))->columnSpanFull(),
+                    TextEntry::make('payload')
+                        ->label(__('admin.ui.payload'))
+                        ->state(fn (EmailLog $record): ?string => self::formatStructuredValue($record->payload))
+                        ->placeholder('-')
+                        ->copyable()
+                        ->columnSpanFull(),
                 ]),
         ]);
     }
@@ -213,6 +226,30 @@ class EmailLogResource extends Resource
         return is_scalar($email) && trim((string) $email) !== ''
             ? trim((string) $email)
             : null;
+    }
+
+    public static function formatStructuredValue(mixed $value): ?string
+    {
+        if ($value === null || $value === []) {
+            return null;
+        }
+
+        if (is_scalar($value)) {
+            if (is_bool($value)) {
+                return $value ? 'true' : 'false';
+            }
+
+            $value = trim((string) $value);
+
+            return $value === '' ? null : $value;
+        }
+
+        $encoded = json_encode(
+            $value,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR,
+        );
+
+        return is_string($encoded) && $encoded !== '' ? $encoded : null;
     }
 
     public static function canView(Model $record): bool

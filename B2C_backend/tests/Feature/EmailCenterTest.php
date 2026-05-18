@@ -16,6 +16,7 @@ use App\Services\AdminModerationService;
 use App\Services\Email\EmailDispatchService;
 use App\Services\Email\EmailTemplateRenderer;
 use App\Services\Email\MailSettingsService;
+use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -76,15 +77,23 @@ class EmailCenterTest extends TestCase
     {
         $admin = User::factory()->admin()->create();
 
-        EmailLog::query()->create([
+        $log = EmailLog::query()->create([
             'event_key' => 'admin.test_email',
             'template_key' => 'admin.test_email',
             'locale' => 'en',
             'mailer' => 'smtp',
             'to' => [null, ['email' => 'ops@example.com'], 'team@example.com', ['address' => 'support@example.com']],
+            'cc' => [[['email' => 'nested@example.com']]],
             'subject' => 'Test',
             'status' => EmailLog::STATUS_FAILED,
-            'payload' => [],
+            'payload' => [
+                'user' => ['email' => 'ops@example.com'],
+                '_rendered' => [
+                    'subject' => 'Test',
+                    'html' => '<p>Hello</p>',
+                    'meta' => ['nested' => true],
+                ],
+            ],
             'queued_at' => now(),
         ]);
 
@@ -93,7 +102,13 @@ class EmailCenterTest extends TestCase
             EmailLogResource::formatRecipients([null, ['email' => 'ops@example.com'], 'team@example.com', ['address' => 'support@example.com']]),
         );
 
+        $this->assertStringContainsString(
+            '"user"',
+            EmailLogResource::formatStructuredValue($log->payload),
+        );
+
         $this->actingAs($admin)->get('/admin/email-logs')->assertOk();
+        $this->actingAs($admin)->get("/admin/email-logs/{$log->id}")->assertOk();
     }
 
     public function test_runtime_email_delivery_is_disabled_until_admin_enables_it(): void
@@ -342,6 +357,40 @@ class EmailCenterTest extends TestCase
             'id' => $log->id,
             'status' => EmailLog::STATUS_FAILED,
         ]);
+    }
+
+    public function test_retry_marks_log_failed_when_queue_dispatch_fails(): void
+    {
+        $log = EmailLog::query()->create([
+            'event_key' => 'admin.test_email',
+            'template_key' => 'admin.test_email',
+            'locale' => 'en',
+            'mailer' => 'array',
+            'to' => [['email' => 'ops@example.com', 'name' => null]],
+            'subject' => 'Retry',
+            'status' => EmailLog::STATUS_FAILED,
+            'payload' => [
+                '_rendered' => [
+                    'subject' => 'Retry',
+                    'html' => '<p>Retry</p>',
+                    'text' => 'Retry',
+                ],
+            ],
+            'failed_at' => now(),
+            'error_message' => 'Previous failure',
+        ]);
+
+        $dispatcher = \Mockery::mock(Dispatcher::class);
+        $dispatcher->shouldReceive('dispatch')
+            ->once()
+            ->andThrow(new \RuntimeException('Queue unavailable'));
+
+        app()->instance(Dispatcher::class, $dispatcher);
+
+        $retried = app(EmailDispatchService::class)->retry($log);
+
+        $this->assertSame(EmailLog::STATUS_FAILED, $retried->status);
+        $this->assertStringContainsString('Queue unavailable', (string) $retried->error_message);
     }
 
     /**

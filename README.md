@@ -195,7 +195,7 @@ FILESYSTEM_DISK=public
 COMMUNITY_UPLOAD_DISK=public
 ```
 
-Start the queue worker (required for async notifications when `QUEUE_CONNECTION=redis`):
+Start the queue worker when using an async queue driver such as `database` or `redis`:
 
 ```bash
 php artisan queue:work
@@ -242,8 +242,8 @@ NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api
 | `DB_CONNECTION` | `mysql` | Database driver |
 | `DB_HOST` / `DB_PORT` / `DB_DATABASE` | — | MySQL connection details |
 | `SESSION_DRIVER` | `database` | Required for Filament admin panel |
-| `QUEUE_CONNECTION` | `redis` | Job queue driver |
-| `CACHE_STORE` | `redis` | Cache driver |
+| `QUEUE_CONNECTION` | `database` | Job queue driver |
+| `CACHE_STORE` | `database` | Cache driver |
 | `FILESYSTEM_DISK` | `azure` | Primary storage disk |
 | `COMMUNITY_UPLOAD_DISK` | `azure` | Disk used for community media uploads |
 | `SANCTUM_STATEFUL_DOMAINS` | `localhost:3000` | Domains allowed for Sanctum SPA auth |

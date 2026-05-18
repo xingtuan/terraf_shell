@@ -185,7 +185,7 @@ class EmailDispatchService
             'error_message' => null,
         ])->save();
 
-        SendEmailEventJob::dispatch($log->id);
+        $this->dispatchEmailJob($log);
 
         return $log->fresh();
     }
@@ -450,17 +450,7 @@ class EmailDispatchService
     private function queueLog(EmailLog $log): void
     {
         $dispatch = function () use ($log): void {
-            try {
-                SendEmailEventJob::dispatch($log->id);
-            } catch (Throwable $throwable) {
-                $this->markLogFailed($log, $throwable);
-
-                Log::warning('Email event queue dispatch failed.', [
-                    'email_log_id' => $log->id,
-                    'event_key' => $log->event_key,
-                    'exception' => $throwable,
-                ]);
-            }
+            $this->dispatchEmailJob($log);
         };
 
         try {
@@ -469,6 +459,21 @@ class EmailDispatchService
             $this->markLogFailed($log, $throwable);
 
             Log::warning('Email event after-commit registration failed.', [
+                'email_log_id' => $log->id,
+                'event_key' => $log->event_key,
+                'exception' => $throwable,
+            ]);
+        }
+    }
+
+    private function dispatchEmailJob(EmailLog $log): void
+    {
+        try {
+            SendEmailEventJob::dispatch($log->id);
+        } catch (Throwable $throwable) {
+            $this->markLogFailed($log, $throwable);
+
+            Log::warning('Email event queue dispatch failed.', [
                 'email_log_id' => $log->id,
                 'event_key' => $log->event_key,
                 'exception' => $throwable,
