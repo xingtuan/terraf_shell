@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\HomepageController;
 use App\Http\Controllers\Api\HomeSectionController;
 use App\Http\Controllers\Api\InquiryController;
+use App\Http\Controllers\Api\LegalPageController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
@@ -127,6 +128,8 @@ Route::get('/users/{user}/following', [UserController::class, 'following']);
 Route::get('/users/{user}', [UserController::class, 'show']);
 Route::get('/search', [SearchController::class, 'index']);
 Route::get('/search/posts', [SearchController::class, 'posts']);
+Route::get('/legal-pages/{page}', [LegalPageController::class, 'show'])
+    ->whereIn('page', ['privacy', 'terms']);
 Route::get('/public-settings', PublicSettingsController::class)->name('api.public-settings');
 Route::get('/health', [HealthController::class, 'index']);
 Route::get('/health/database', [HealthController::class, 'database']);

@@ -1,6 +1,6 @@
 # Legal Pages
 
-Last updated: 2026-05-11
+Last updated: 2026-05-19
 
 ## Implemented Routes
 
@@ -21,10 +21,14 @@ These pages are business-appropriate general website copy. They are not a substi
 
 ## Localization
 
-The content is stored in the frontend message dictionaries:
+The default content is stored in the frontend message dictionaries:
 
 - `B2C_frontend/messages/en.json`
 - `B2C_frontend/messages/ko.json`
 - `B2C_frontend/messages/zh.json`
 
-Keep the EN / KO / ZH key structure identical. Run `corepack pnpm exec node scripts/check-i18n-keys.mjs` after edits.
+Admins can override privacy policy and terms content in the backend via **CMS / Website Content -> Legal Pages**. Overrides are saved in `app_settings` under `legal.*` keys and exposed through `GET /api/legal-pages/{privacy|terms}?locale=en`.
+
+Frontend legal routes merge backend overrides with the static dictionaries. Empty backend fields continue to use the frontend defaults, and an edited rich-text body replaces the default section list for that page and locale.
+
+Keep the EN / KO / ZH dictionary key structure identical when editing defaults. Run `corepack pnpm exec node scripts/check-i18n-keys.mjs` after frontend dictionary edits.

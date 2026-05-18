@@ -8,3 +8,4 @@ playwright.config.ts
 test-results/
 tests/
 SYSTEM_QA_REPORT.md
+playwright-report/
