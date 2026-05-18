@@ -45,10 +45,14 @@ class RecentOrders extends TableWidget
                     ->label(__('admin.fields.order_number'))
                     ->copyable()
                     ->searchable(),
-                TextColumn::make('user.name')
+                TextColumn::make('shipping_name')
                     ->label(__('admin.fields.customer'))
-                    ->description(fn (Order $record): string => $record->user?->email ?? __('admin.ui.customer_email_unavailable'))
-                    ->searchable(),
+                    ->state(fn (Order $record): ?string => $record->customerDisplayName())
+                    ->description(fn (Order $record): string => collect([
+                        $record->customerDisplayEmail(),
+                        $record->customerDisplayPhone(),
+                    ])->filter()->implode(' | ') ?: __('admin.ui.customer_email_unavailable'))
+                    ->searchable(['shipping_name', 'guest_email', 'shipping_phone']),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (OrderStatus|string|null $state): string => $state instanceof OrderStatus ? $state->label() : (OrderStatus::tryFrom((string) $state)?->label() ?? (string) $state))

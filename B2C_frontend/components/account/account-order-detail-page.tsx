@@ -10,6 +10,10 @@ import { cancelOrder, getOrder } from "@/lib/api/orders"
 import { getErrorMessage } from "@/lib/api/client"
 import { formatCurrencyAmount } from "@/lib/api/products"
 import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
+import {
+  getLocalizedShippingMethodLabel,
+  getPaymentMethodLabel,
+} from "@/lib/store/order-display"
 import type { StoreOrder } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import {
@@ -223,7 +227,7 @@ export function AccountOrderDetailPage({
                         </p>
                       ) : null}
                       <p className="mt-1 text-sm text-muted-foreground">
-                        {checkoutMessages.qty} {item.quantity} ·{" "}
+                        {checkoutMessages.qty} {item.quantity} x{" "}
                         {formatCurrencyAmount(
                           item.unit_price_usd,
                           locale,
@@ -265,6 +269,13 @@ export function AccountOrderDetailPage({
                       is_default: false,
                     })}
                   </p>
+                  <p>
+                    {checkoutMessages.shippingMethods}:{" "}
+                    {getLocalizedShippingMethodLabel(
+                      order.shipping_method,
+                      siteMessages.shippingMethods,
+                    ) ?? "-"}
+                  </p>
                 </div>
               </AccountPanel>
 
@@ -290,6 +301,13 @@ export function AccountOrderDetailPage({
                       {formatCurrencyAmount(order.tax_usd, locale)}
                     </p>
                   ) : null}
+                  <p>
+                    {siteMessages.orderLookup.paymentMethod}:{" "}
+                    {getPaymentMethodLabel(
+                      order.payment_method,
+                      siteMessages.paymentMethods,
+                    )}
+                  </p>
                 </div>
               </AccountPanel>
 

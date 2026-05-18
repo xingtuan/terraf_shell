@@ -57,7 +57,7 @@ class OrderResource extends Resource
                             ->content(fn (Order $record): string => $record->order_number),
                         Placeholder::make('payment_method')
                             ->label(__('admin.fields.payment_method'))
-                            ->content(fn (Order $record): string => $record->payment_method ?: __('admin.placeholders.manual_follow_up')),
+                            ->content(fn (Order $record): string => self::paymentMethodLabel($record->payment_method)),
                         Placeholder::make('payment_reference')
                             ->label(__('admin.fields.payment_reference'))
                             ->content(fn (Order $record): string => $record->payment_reference ?: __('admin.placeholders.not_captured')),
@@ -109,12 +109,22 @@ class OrderResource extends Resource
                     ->columns(2),
                 Section::make(__('admin.sections.customer'))
                     ->schema([
-                        TextEntry::make('user.name')
+                        TextEntry::make('customer_type')
+                            ->label(__('admin.fields.type'))
+                            ->state(fn (Order $record): string => $record->user_id === null ? __('admin.fields.guest') : __('admin.fields.registered')),
+                        TextEntry::make('customer_name')
                             ->label(__('admin.fields.name'))
                             ->url(fn (Order $record): ?string => $record->user ? UserFilamentResource::getUrl('view', ['record' => $record->user]) : null)
+                            ->state(fn (Order $record): ?string => $record->customerDisplayName())
                             ->placeholder('-'),
-                        TextEntry::make('user.email')
+                        TextEntry::make('customer_email')
                             ->label(__('admin.fields.email'))
+                            ->state(fn (Order $record): ?string => $record->customerDisplayEmail())
+                            ->copyable()
+                            ->placeholder('-'),
+                        TextEntry::make('customer_phone')
+                            ->label(__('admin.fields.phone'))
+                            ->state(fn (Order $record): ?string => $record->customerDisplayPhone())
                             ->copyable()
                             ->placeholder('-'),
                     ])
@@ -147,6 +157,7 @@ class OrderResource extends Resource
                     ->schema([
                         TextEntry::make('payment_method')
                             ->label(__('admin.fields.payment_method'))
+                            ->formatStateUsing(fn (?string $state): string => self::paymentMethodLabel($state))
                             ->placeholder('-'),
                         TextEntry::make('payment_reference')
                             ->label(__('admin.fields.payment_reference'))
@@ -207,6 +218,10 @@ class OrderResource extends Resource
                             ->label(__('admin.orders.status.confirmed'))
                             ->dateTime()
                             ->placeholder('-'),
+                        TextEntry::make('processing_at')
+                            ->label(__('admin.orders.status.processing'))
+                            ->dateTime()
+                            ->placeholder('-'),
                         TextEntry::make('shipped_at')
                             ->label(__('admin.orders.status.shipped'))
                             ->dateTime()
@@ -235,18 +250,21 @@ class OrderResource extends Resource
                     ->searchable()
                     ->copyable()
                     ->description(fn (Order $record): string => collect([
-                        $record->payment_method ?: null,
+                        $record->payment_method ? self::paymentMethodLabel($record->payment_method) : null,
                         $record->payment_reference ?: null,
                     ])->filter()->implode(' | ')),
-                TextColumn::make('user.name')
+                TextColumn::make('shipping_name')
                     ->label(__('admin.fields.customer'))
-                    ->searchable()
+                    ->searchable(['shipping_name', 'guest_email', 'shipping_phone'])
+                    ->state(fn (Order $record): ?string => $record->customerDisplayName())
                     ->description(fn (Order $record): string => collect([
-                        $record->user?->email ?: $record->guest_email,
+                        $record->customerDisplayEmail(),
+                        $record->customerDisplayPhone(),
                         $record->shipping_country,
                     ])->filter()->implode(' | ') ?: '-'),
                 TextColumn::make('guest_email')
                     ->label(__('admin.fields.guest_email'))
+                    ->searchable()
                     ->copyable()
                     ->placeholder('-')
                     ->toggleable(),
@@ -271,6 +289,10 @@ class OrderResource extends Resource
                 TextColumn::make('shipping_city')
                     ->label(__('admin.fields.city'))
                     ->toggleable(),
+                TextColumn::make('shipping_phone')
+                    ->label(__('admin.fields.phone'))
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('customer_note')
                     ->label(__('admin.fields.customer_note'))
                     ->limit(40)
@@ -335,6 +357,7 @@ class OrderResource extends Resource
                         ->distinct()
                         ->orderBy('payment_method')
                         ->pluck('payment_method', 'payment_method')
+                        ->mapWithKeys(fn (string $method, string $value): array => [$value => self::paymentMethodLabel($method)])
                         ->all()),
                 Filter::make('created_at')
                     ->schema([
@@ -458,22 +481,6 @@ class OrderResource extends Resource
     {
         $payload = ['status' => $status];
 
-        if ($status === OrderStatus::Confirmed && $record->confirmed_at === null) {
-            $payload['confirmed_at'] = now();
-        }
-
-        if ($status === OrderStatus::Shipped && $record->shipped_at === null) {
-            $payload['shipped_at'] = now();
-        }
-
-        if ($status === OrderStatus::Delivered && $record->delivered_at === null) {
-            $payload['delivered_at'] = now();
-        }
-
-        if ($status === OrderStatus::Cancelled && $record->cancelled_at === null) {
-            $payload['cancelled_at'] = now();
-        }
-
         $previousStatus = $record->status instanceof OrderStatus ? $record->status->value : (string) $record->status;
 
         $record->forceFill($payload)->save();
@@ -481,6 +488,18 @@ class OrderResource extends Resource
         if ($previousStatus !== $status->value) {
             app(OrderService::class)->dispatchStatusChangedEmail($record->fresh(['user', 'items.product.variants', 'items.variant']), $previousStatus);
         }
+    }
+
+    private static function paymentMethodLabel(?string $method): string
+    {
+        if (blank($method)) {
+            return __('admin.placeholders.manual_follow_up');
+        }
+
+        $key = 'admin.orders.payment_method.'.strtolower(trim($method));
+        $label = __($key);
+
+        return $label === $key ? str($method)->replace('_', ' ')->headline()->toString() : $label;
     }
 
     public static function getEloquentQuery(): Builder

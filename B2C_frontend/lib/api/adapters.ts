@@ -752,6 +752,7 @@ export function normalizeStoreOrder(order: StoreOrder): StoreOrder {
     is_guest: Boolean(order.is_guest),
     guest_email: order.guest_email ?? null,
     guest_order_token: order.guest_order_token ?? null,
+    payment_method: order.payment_method ?? null,
     item_count: Number(order.item_count ?? 0),
     subtotal_usd:
       order.subtotal_usd === null || order.subtotal_usd === undefined

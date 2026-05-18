@@ -43,6 +43,7 @@ class Order extends Model
         'payment_status',
         'payment_reference',
         'confirmed_at',
+        'processing_at',
         'shipped_at',
         'delivered_at',
         'cancelled_at',
@@ -61,6 +62,7 @@ class Order extends Model
             'total_usd' => 'decimal:2',
             'shipping_quote_snapshot' => 'array',
             'confirmed_at' => 'datetime',
+            'processing_at' => 'datetime',
             'shipped_at' => 'datetime',
             'delivered_at' => 'datetime',
             'cancelled_at' => 'datetime',
@@ -77,6 +79,10 @@ class Order extends Model
             $latest = static::max('id') ?? 0;
             $order->order_number = 'OXP-'.str_pad((string) ($latest + 1), 6, '0', STR_PAD_LEFT);
         });
+
+        static::saving(function (self $order): void {
+            $order->recordStatusTimeline();
+        });
     }
 
     public function user(): BelongsTo
@@ -92,5 +98,62 @@ class Order extends Model
     public function getFormattedTotalAttribute(): string
     {
         return '$'.number_format((float) $this->total_usd, 2).' '.($this->currency ?: 'NZD');
+    }
+
+    public function customerDisplayName(): ?string
+    {
+        return $this->user?->name ?: $this->shipping_name;
+    }
+
+    public function customerDisplayEmail(): ?string
+    {
+        return $this->user?->email ?: $this->guest_email;
+    }
+
+    public function customerDisplayPhone(): ?string
+    {
+        return $this->shipping_phone;
+    }
+
+    public function recordStatusTimeline(?OrderStatus $status = null): void
+    {
+        $status ??= $this->status instanceof OrderStatus
+            ? $this->status
+            : OrderStatus::tryFrom((string) $this->status);
+
+        if (! $status instanceof OrderStatus) {
+            return;
+        }
+
+        $timestamp = now();
+
+        if (
+            in_array($status, [OrderStatus::Confirmed, OrderStatus::Processing, OrderStatus::Shipped, OrderStatus::Delivered], true)
+            && $this->confirmed_at === null
+        ) {
+            $this->confirmed_at = $timestamp;
+        }
+
+        if (
+            in_array($status, [OrderStatus::Processing, OrderStatus::Shipped, OrderStatus::Delivered], true)
+            && $this->processing_at === null
+        ) {
+            $this->processing_at = $timestamp;
+        }
+
+        if (
+            in_array($status, [OrderStatus::Shipped, OrderStatus::Delivered], true)
+            && $this->shipped_at === null
+        ) {
+            $this->shipped_at = $timestamp;
+        }
+
+        if ($status === OrderStatus::Delivered && $this->delivered_at === null) {
+            $this->delivered_at = $timestamp;
+        }
+
+        if ($status === OrderStatus::Cancelled && $this->cancelled_at === null) {
+            $this->cancelled_at = $timestamp;
+        }
     }
 }

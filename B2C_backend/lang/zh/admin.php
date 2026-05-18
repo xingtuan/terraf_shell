@@ -374,6 +374,9 @@ return [
             'paid' => '手动已付款',
             'refunded' => '手动已退款',
         ],
+        'payment_method' => [
+            'manual' => '手动跟进付款',
+        ],
     ],
     'leads' => [
         'status' => [

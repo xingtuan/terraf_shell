@@ -1444,6 +1444,19 @@
     "paid": "人工付款完成",
     "refunded": "人工退款完成"
   },
+  "paymentMethods": {
+    "manual": "手动跟进付款"
+  },
+  "shippingMethods": {
+    "standard": {
+      "label": "新西兰标准配送",
+      "description": "新西兰境内可追踪配送"
+    },
+    "express": {
+      "label": "新西兰优先配送",
+      "description": "新西兰境内更快的可追踪配送"
+    }
+  },
   "addressPage": {
     "eyebrow": "地址",
     "editTitle": "编辑地址",
@@ -1972,6 +1985,7 @@
     "summaryTitle": "订单状态",
     "orderStatus": "订单状态",
     "paymentStatus": "付款状态",
+    "paymentMethod": "付款方式",
     "submittedOn": "提交时间",
     "total": "预估总计",
     "confirmationEmail": "确认邮箱",

@@ -1444,6 +1444,19 @@
     "paid": "Paid manually",
     "refunded": "Refunded manually"
   },
+  "paymentMethods": {
+    "manual": "Manual follow-up"
+  },
+  "shippingMethods": {
+    "standard": {
+      "label": "Standard NZ delivery",
+      "description": "Tracked delivery within New Zealand"
+    },
+    "express": {
+      "label": "Priority NZ delivery",
+      "description": "Faster tracked delivery within New Zealand"
+    }
+  },
   "addressPage": {
     "eyebrow": "Addresses",
     "editTitle": "Edit Address",
@@ -1972,6 +1985,7 @@
     "summaryTitle": "Order status",
     "orderStatus": "Order status",
     "paymentStatus": "Payment status",
+    "paymentMethod": "Payment handling",
     "submittedOn": "Submitted on",
     "total": "Total estimate",
     "confirmationEmail": "Confirmation email",

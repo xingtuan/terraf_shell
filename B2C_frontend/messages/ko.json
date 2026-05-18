@@ -1444,6 +1444,19 @@
     "paid": "수동 결제 완료",
     "refunded": "수동 환불 완료"
   },
+  "paymentMethods": {
+    "manual": "수동 후속 결제"
+  },
+  "shippingMethods": {
+    "standard": {
+      "label": "뉴질랜드 일반 배송",
+      "description": "뉴질랜드 내 추적 배송"
+    },
+    "express": {
+      "label": "뉴질랜드 우선 배송",
+      "description": "뉴질랜드 내 빠른 추적 배송"
+    }
+  },
   "addressPage": {
     "eyebrow": "주소",
     "editTitle": "주소 수정",
@@ -1972,6 +1985,7 @@
     "summaryTitle": "주문 상태",
     "orderStatus": "주문 상태",
     "paymentStatus": "결제 상태",
+    "paymentMethod": "결제 방식",
     "submittedOn": "제출 시간",
     "total": "예상 합계",
     "confirmationEmail": "확인 이메일",

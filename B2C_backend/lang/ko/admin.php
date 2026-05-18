@@ -374,6 +374,9 @@ return [
             'paid' => '수동 결제 완료',
             'refunded' => '수동 환불 완료',
         ],
+        'payment_method' => [
+            'manual' => '수동 후속 결제',
+        ],
     ],
     'leads' => [
         'status' => [

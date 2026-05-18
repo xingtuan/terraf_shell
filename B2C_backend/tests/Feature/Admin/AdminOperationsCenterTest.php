@@ -8,6 +8,7 @@ use App\Enums\OrderStatus;
 use App\Enums\ProductStatus;
 use App\Filament\Resources\B2BLeads\Pages\ListB2BLeads;
 use App\Filament\Resources\Enquiries\Pages\ListEnquiries;
+use App\Filament\Resources\OrderResource\Pages\EditOrder;
 use App\Filament\Resources\OrderResource\Pages\ListOrders;
 use App\Filament\Resources\Posts\Pages\ListPosts;
 use App\Filament\Resources\Products\Pages\CreateProduct;
@@ -193,7 +194,49 @@ class AdminOperationsCenterTest extends TestCase
         $order->refresh();
 
         $this->assertSame(OrderStatus::Shipped, $order->status);
+        $this->assertNotNull($order->confirmed_at);
+        $this->assertNotNull($order->processing_at);
         $this->assertNotNull($order->shipped_at);
+    }
+
+    public function test_order_admin_edit_page_updates_status_timeline_for_manual_status_changes(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $customer = User::factory()->create();
+
+        $order = Order::query()->create([
+            'user_id' => $customer->id,
+            'order_number' => 'OXP-900002',
+            'status' => OrderStatus::Pending->value,
+            'subtotal_usd' => 48.00,
+            'shipping_usd' => 8.00,
+            'total_usd' => 56.00,
+            'currency' => 'NZD',
+            'shipping_name' => 'OXP Buyer',
+            'shipping_phone' => '+64 21 123 456',
+            'shipping_address_line1' => '123 Ocean Road',
+            'shipping_city' => 'Auckland',
+            'shipping_country' => 'NZ',
+            'payment_method' => 'manual',
+            'payment_status' => OrderPaymentStatus::Unpaid->value,
+        ]);
+
+        $this->actingAs($admin);
+
+        Livewire::test(EditOrder::class, ['record' => $order->getKey()])
+            ->fillForm([
+                'status' => OrderStatus::Processing->value,
+                'payment_status' => OrderPaymentStatus::Unpaid->value,
+                'admin_note' => 'Moving into fulfilment.',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $order->refresh();
+
+        $this->assertSame(OrderStatus::Processing, $order->status);
+        $this->assertNotNull($order->confirmed_at);
+        $this->assertNotNull($order->processing_at);
     }
 
     public function test_frontend_lead_submissions_are_visible_in_admin_lead_center(): void

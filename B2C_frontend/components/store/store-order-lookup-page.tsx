@@ -22,6 +22,10 @@ import { ApiError, getErrorMessage } from "@/lib/api/client"
 import { getGuestOrder, lookupGuestOrder } from "@/lib/api/orders"
 import { formatCurrencyAmount } from "@/lib/api/products"
 import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
+import {
+  getLocalizedShippingMethodLabel,
+  getPaymentMethodLabel,
+} from "@/lib/store/order-display"
 import type { StoreOrder, StoreOrderStatus } from "@/lib/types"
 import {
   formatAccountDate,
@@ -72,7 +76,7 @@ function statusTimestamp(
     case "confirmed":
       return order.confirmed_at
     case "processing":
-      return null
+      return order.processing_at
     case "shipped":
       return order.shipped_at
     case "delivered":
@@ -341,7 +345,10 @@ export function StoreOrderLookupPage({
                       {t.shippingMethod}
                     </p>
                     <p className="mt-2 text-sm font-medium text-foreground">
-                      {order.shipping_method?.label ?? t.waitingStep}
+                      {getLocalizedShippingMethodLabel(
+                        order.shipping_method,
+                        messages.shippingMethods,
+                      ) ?? t.waitingStep}
                     </p>
                   </div>
                 </div>
@@ -497,6 +504,13 @@ export function StoreOrderLookupPage({
                         <p className="pt-2 font-medium text-foreground">
                           {t.orderStatus}:{" "}
                           {getOrderStatusLabel(order.status, messages.orderStatuses)}
+                        </p>
+                        <p className="font-medium text-foreground">
+                          {t.paymentMethod}:{" "}
+                          {getPaymentMethodLabel(
+                            order.payment_method,
+                            messages.paymentMethods,
+                          )}
                         </p>
                         <p className="font-medium text-foreground">
                           {t.paymentStatus}:{" "}

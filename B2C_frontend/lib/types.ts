@@ -331,6 +331,7 @@ export interface StoreOrder {
   guest_email?: string | null
   guest_order_token?: string | null
   status: StoreOrderStatus
+  payment_method?: string | null
   payment_status: StoreOrderPaymentStatus
   item_count?: number
   subtotal_usd: string
@@ -345,6 +346,7 @@ export interface StoreOrder {
   items: StoreOrderItem[]
   created_at?: string | null
   confirmed_at?: string | null
+  processing_at?: string | null
   shipped_at?: string | null
   delivered_at?: string | null
   cancelled_at?: string | null

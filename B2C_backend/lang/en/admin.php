@@ -374,6 +374,9 @@ return [
             'paid' => 'Paid manually',
             'refunded' => 'Refunded manually',
         ],
+        'payment_method' => [
+            'manual' => 'Manual follow-up',
+        ],
     ],
     'leads' => [
         'status' => [

@@ -20,6 +20,10 @@ import {
 } from "@/lib/api/shipping"
 import { clearCartSessionKey } from "@/lib/cart/session"
 import { getLocalizedHref, getMessages, isValidLocale, type Locale } from "@/lib/i18n"
+import {
+  getLocalizedShippingMethodDescription,
+  getLocalizedShippingMethodLabel,
+} from "@/lib/store/order-display"
 import type { Address, AddressSearchResult, NzAddress, ShippingQuote } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCart } from "@/hooks/useCart"
@@ -84,7 +88,8 @@ function formatEta(min?: number | null, max?: number | null) {
 function CheckoutScreen({ locale }: { locale: Locale }) {
   const router = useRouter()
   const session = useAuthSession()
-  const t = getMessages(locale).checkout
+  const messages = getMessages(locale)
+  const t = messages.checkout
   const { cart, loading, loadCart } = useCart()
   const [addresses, setAddresses] = useState<Address[]>([])
   const [form, setForm] = useState<CheckoutFormState>(defaultFormState)
@@ -722,6 +727,14 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
               <div className="mt-4 grid gap-3">
                 {shippingQuote.options.map((option) => {
                   const eta = formatEta(option.eta_min_days, option.eta_max_days)
+                  const label = getLocalizedShippingMethodLabel(
+                    option,
+                    messages.shippingMethods,
+                  )
+                  const description = getLocalizedShippingMethodDescription(
+                    option,
+                    messages.shippingMethods,
+                  )
 
                   return (
                     <button
@@ -736,10 +749,10 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <p className="font-medium text-foreground">{option.label}</p>
-                          {option.description ? (
+                          <p className="font-medium text-foreground">{label}</p>
+                          {description ? (
                             <p className="mt-1 text-sm text-muted-foreground">
-                              {option.description}
+                              {description}
                             </p>
                           ) : null}
                           {eta ? (

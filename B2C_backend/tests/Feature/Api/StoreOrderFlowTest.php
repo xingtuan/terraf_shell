@@ -71,6 +71,7 @@ class StoreOrderFlowTest extends TestCase
         ])
             ->assertCreated()
             ->assertJsonPath('data.status', 'pending')
+            ->assertJsonPath('data.payment_method', 'manual')
             ->assertJsonPath('data.payment_status', 'unpaid')
             ->assertJsonPath('data.subtotal_usd', '96.00')
             ->assertJsonPath('data.shipping_usd', '8.00')
@@ -151,6 +152,9 @@ class StoreOrderFlowTest extends TestCase
             ->assertCreated()
             ->assertJsonPath('data.is_guest', true)
             ->assertJsonPath('data.guest_email', 'guest@example.com')
+            ->assertJsonPath('data.payment_method', 'manual')
+            ->assertJsonPath('data.shipping_address.name', 'Guest Buyer')
+            ->assertJsonPath('data.shipping_address.phone', '+64 21 000 000')
             ->assertJsonPath('data.subtotal_usd', '96.00')
             ->assertJsonPath('data.shipping_usd', '8.00')
             ->assertJsonPath('data.tax_usd', '13.57')
@@ -166,6 +170,8 @@ class StoreOrderFlowTest extends TestCase
             'order_number' => $orderNumber,
             'user_id' => null,
             'guest_email' => 'guest@example.com',
+            'shipping_name' => 'Guest Buyer',
+            'shipping_phone' => '+64 21 000 000',
             'shipping_country' => 'NZ',
             'shipping_method_code' => 'standard',
         ]);
