@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\Email\MailSettingsService;
 use App\Services\Settings\SettingsService;
 use Illuminate\Support\ServiceProvider;
 use Throwable;
@@ -69,6 +70,11 @@ class RuntimeSettingsServiceProvider extends ServiceProvider
     private function applyMailSettings(SettingsService $settings): void
     {
         $mailer = $settings->string('mail.mailer', (string) config('mail.default', 'log'));
+        $smtpEncryption = $settings->string(
+            'mail.encryption',
+            MailSettingsService::smtpEncryptionFromTransportConfig((array) config('mail.mailers.smtp', [])) ?? '',
+        );
+        $smtpTransportOptions = MailSettingsService::smtpTransportOptions($smtpEncryption);
 
         config([
             'mail.default' => $mailer,
@@ -76,8 +82,10 @@ class RuntimeSettingsServiceProvider extends ServiceProvider
             'mail.mailers.smtp.port' => $settings->integer('mail.port', (int) config('mail.mailers.smtp.port', 2525)),
             'mail.mailers.smtp.username' => $settings->string('mail.username', (string) config('mail.mailers.smtp.username', '')),
             'mail.mailers.smtp.password' => $settings->secret('mail.password', config('mail.mailers.smtp.password')),
-            'mail.mailers.smtp.scheme' => $settings->string('mail.encryption', (string) config('mail.mailers.smtp.scheme', '')),
-            'mail.mailers.smtp.encryption' => $settings->string('mail.encryption', (string) config('mail.mailers.smtp.encryption', '')),
+            'mail.mailers.smtp.scheme' => $smtpTransportOptions['scheme'],
+            'mail.mailers.smtp.auto_tls' => $smtpTransportOptions['auto_tls'],
+            'mail.mailers.smtp.require_tls' => $smtpTransportOptions['require_tls'],
+            'mail.mailers.smtp.encryption' => $smtpEncryption,
             'mail.from.address' => $settings->string('mail.from_address', (string) config('mail.from.address')),
             'mail.from.name' => $settings->string('mail.from_name', (string) config('mail.from.name')),
         ]);

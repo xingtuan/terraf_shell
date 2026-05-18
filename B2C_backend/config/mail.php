@@ -1,5 +1,7 @@
 <?php
 
+$smtpEncryption = strtolower((string) (env('MAIL_SCHEME') ?: env('MAIL_ENCRYPTION')));
+
 return [
 
     /*
@@ -39,12 +41,22 @@ return [
 
         'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
+            'scheme' => match ($smtpEncryption) {
+                'ssl', 'smtps' => 'smtps',
+                'tls', 'starttls', 'smtp' => 'smtp',
+                default => null,
+            },
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
+            'auto_tls' => match ($smtpEncryption) {
+                'tls', 'starttls' => true,
+                'none' => false,
+                default => null,
+            },
+            'require_tls' => in_array($smtpEncryption, ['tls', 'starttls'], true),
             'timeout' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],

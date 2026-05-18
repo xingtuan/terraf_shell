@@ -17,9 +17,9 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\KeyValueEntry;
-use Filament\Schemas\Components\Section as InfolistSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section as InfolistSection;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -66,10 +66,7 @@ class EmailLogResource extends Resource
                     ->copyable(),
                 TextColumn::make('to')
                     ->label(__('admin.ui.to'))
-                    ->formatStateUsing(fn ($state): string => collect($state ?? [])
-                        ->map(fn (array $recipient): string => $recipient['email'] ?? '')
-                        ->filter()
-                        ->implode(', '))
+                    ->formatStateUsing(fn ($state): string => self::formatRecipients($state))
                     ->limit(50)
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->where('to', 'like', '%'.$search.'%');
@@ -187,6 +184,35 @@ class EmailLogResource extends Resource
     public static function canViewAny(): bool
     {
         return PanelAccess::isAdmin();
+    }
+
+    public static function formatRecipients(mixed $recipients): string
+    {
+        return collect(is_array($recipients) ? $recipients : [$recipients])
+            ->map(fn (mixed $recipient): ?string => self::recipientEmail($recipient))
+            ->filter()
+            ->implode(', ');
+    }
+
+    private static function recipientEmail(mixed $recipient): ?string
+    {
+        if (is_string($recipient)) {
+            return trim($recipient) ?: null;
+        }
+
+        if (! is_array($recipient)) {
+            return null;
+        }
+
+        $email = $recipient['email'] ?? $recipient['address'] ?? null;
+
+        if (! is_string($email) && count($recipient) === 1) {
+            $email = reset($recipient);
+        }
+
+        return is_scalar($email) && trim((string) $email) !== ''
+            ? trim((string) $email)
+            : null;
     }
 
     public static function canView(Model $record): bool

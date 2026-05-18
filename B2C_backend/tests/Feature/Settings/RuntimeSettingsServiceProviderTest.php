@@ -20,6 +20,7 @@ class RuntimeSettingsServiceProviderTest extends TestCase
         $settings->set('storage.azure.account_name', 'runtimeaccount', ['type' => 'string']);
         $settings->set('mail.mailer', 'smtp', ['type' => 'string']);
         $settings->set('mail.host', 'smtp.runtime.test', ['type' => 'string']);
+        $settings->set('mail.encryption', 'tls', ['type' => 'string']);
         $settings->set('tax.gst_rate', 0.2, ['type' => 'float']);
 
         (new RuntimeSettingsServiceProvider(app()))->boot($settings);
@@ -28,6 +29,8 @@ class RuntimeSettingsServiceProviderTest extends TestCase
         $this->assertSame('runtimeaccount', config('filesystems.disks.azure.name'));
         $this->assertSame('smtp', config('mail.default'));
         $this->assertSame('smtp.runtime.test', config('mail.mailers.smtp.host'));
+        $this->assertSame('smtp', config('mail.mailers.smtp.scheme'));
+        $this->assertTrue(config('mail.mailers.smtp.require_tls'));
         $this->assertSame(0.2, config('store.tax.gst_rate'));
     }
 

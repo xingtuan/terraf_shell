@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\ContentStatus;
+use App\Filament\Resources\EmailLogs\EmailLogResource;
 use App\Models\Cart;
 use App\Models\EmailEvent;
 use App\Models\EmailLog;
@@ -50,6 +51,49 @@ class EmailCenterTest extends TestCase
         $this->assertSame('super-secret', $settings->fresh()->password);
         $this->assertSame('********', $settings->fresh()->maskedPassword());
         $this->assertSame('********', $settings->fresh()->maskedApiKey());
+    }
+
+    public function test_smtp_encryption_values_are_mapped_to_supported_mailer_schemes(): void
+    {
+        $service = app(MailSettingsService::class);
+
+        $service->applyRuntimeConfig($this->smtpRuntimeSettings('tls'));
+
+        $this->assertSame('smtp', config('mail.mailers.smtp.scheme'));
+        $this->assertTrue(config('mail.mailers.smtp.auto_tls'));
+        $this->assertTrue(config('mail.mailers.smtp.require_tls'));
+        $this->assertNotNull(app('mail.manager')->mailer('smtp'));
+
+        $service->applyRuntimeConfig($this->smtpRuntimeSettings('ssl'));
+
+        $this->assertSame('smtps', config('mail.mailers.smtp.scheme'));
+        $this->assertTrue(config('mail.mailers.smtp.auto_tls'));
+        $this->assertFalse(config('mail.mailers.smtp.require_tls'));
+        $this->assertNotNull(app('mail.manager')->mailer('smtp'));
+    }
+
+    public function test_email_log_recipient_column_handles_malformed_recipient_payloads(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        EmailLog::query()->create([
+            'event_key' => 'admin.test_email',
+            'template_key' => 'admin.test_email',
+            'locale' => 'en',
+            'mailer' => 'smtp',
+            'to' => [null, ['email' => 'ops@example.com'], 'team@example.com', ['address' => 'support@example.com']],
+            'subject' => 'Test',
+            'status' => EmailLog::STATUS_FAILED,
+            'payload' => [],
+            'queued_at' => now(),
+        ]);
+
+        $this->assertSame(
+            'ops@example.com, team@example.com, support@example.com',
+            EmailLogResource::formatRecipients([null, ['email' => 'ops@example.com'], 'team@example.com', ['address' => 'support@example.com']]),
+        );
+
+        $this->actingAs($admin)->get('/admin/email-logs')->assertOk();
     }
 
     public function test_runtime_email_delivery_is_disabled_until_admin_enables_it(): void
@@ -339,5 +383,22 @@ class EmailCenterTest extends TestCase
                 ]);
             }
         }
+    }
+
+    private function smtpRuntimeSettings(?string $encryption): array
+    {
+        return [
+            'is_enabled' => true,
+            'mailer' => 'smtp',
+            'host' => 'smtp.example.com',
+            'port' => $encryption === 'ssl' ? 465 : 587,
+            'encryption' => $encryption,
+            'username' => 'mailer',
+            'password' => 'secret',
+            'from_address' => 'hello@example.com',
+            'from_name' => 'OXP',
+            'timeout' => 10,
+            'use_queue' => false,
+        ];
     }
 }

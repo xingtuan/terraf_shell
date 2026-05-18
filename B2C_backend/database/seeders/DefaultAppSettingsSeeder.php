@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\AppSetting;
 use App\Models\EmailSetting;
+use App\Services\Email\MailSettingsService;
 use App\Services\Settings\SettingsService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
@@ -57,7 +58,10 @@ class DefaultAppSettingsSeeder extends Seeder
             'mail.port' => ['value' => $mail?->port ?? config('mail.mailers.smtp.port'), 'type' => 'integer'],
             'mail.username' => ['value' => $mail?->username ?? config('mail.mailers.smtp.username'), 'type' => 'string'],
             'mail.password' => ['value' => $mail?->password ?? config('mail.mailers.smtp.password'), 'type' => 'string', 'is_secret' => true],
-            'mail.encryption' => ['value' => $mail?->encryption ?? config('mail.mailers.smtp.scheme'), 'type' => 'string'],
+            'mail.encryption' => [
+                'value' => $mail?->encryption ?? MailSettingsService::smtpEncryptionFromTransportConfig((array) config('mail.mailers.smtp', [])),
+                'type' => 'string',
+            ],
             'mail.from_address' => ['value' => $mail?->from_address ?? config('mail.from.address'), 'type' => 'string'],
             'mail.from_name' => ['value' => $mail?->from_name ?? config('mail.from.name'), 'type' => 'string'],
             'community.allow_guest_upload' => ['value' => config('community.uploads.allow_guest_upload', false), 'type' => 'boolean'],

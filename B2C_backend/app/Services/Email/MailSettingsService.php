@@ -64,7 +64,7 @@ class MailSettingsService
             'mailer' => (string) config('mail.default', 'log'),
             'host' => config('mail.mailers.smtp.host'),
             'port' => config('mail.mailers.smtp.port'),
-            'encryption' => config('mail.mailers.smtp.scheme'),
+            'encryption' => self::smtpEncryptionFromTransportConfig((array) config('mail.mailers.smtp', [])),
             'username' => config('mail.mailers.smtp.username'),
             'password' => config('mail.mailers.smtp.password'),
             'api_key' => config('services.resend.key') ?: config('services.postmark.key'),
@@ -92,6 +92,8 @@ class MailSettingsService
         ]);
 
         if ($mailer === 'smtp') {
+            $smtpTransportOptions = self::smtpTransportOptions($settings['encryption'] ?? null);
+
             config([
                 'mail.mailers.smtp.transport' => 'smtp',
                 'mail.mailers.smtp.host' => $settings['host'],
@@ -99,7 +101,9 @@ class MailSettingsService
                 'mail.mailers.smtp.username' => $settings['username'],
                 'mail.mailers.smtp.password' => $settings['password'],
                 'mail.mailers.smtp.timeout' => $settings['timeout'],
-                'mail.mailers.smtp.scheme' => $settings['encryption'],
+                'mail.mailers.smtp.scheme' => $smtpTransportOptions['scheme'],
+                'mail.mailers.smtp.auto_tls' => $smtpTransportOptions['auto_tls'],
+                'mail.mailers.smtp.require_tls' => $smtpTransportOptions['require_tls'],
                 'mail.mailers.smtp.encryption' => $settings['encryption'],
             ]);
         }
@@ -217,7 +221,7 @@ class MailSettingsService
                 'mailer' => (string) config('mail.default', 'log'),
                 'host' => config('mail.mailers.smtp.host'),
                 'port' => config('mail.mailers.smtp.port'),
-                'encryption' => config('mail.mailers.smtp.scheme'),
+                'encryption' => self::smtpEncryptionFromTransportConfig((array) config('mail.mailers.smtp', [])),
                 'username' => config('mail.mailers.smtp.username'),
                 'password' => null,
                 'api_key' => null,
@@ -272,6 +276,50 @@ class MailSettingsService
         }
 
         return $payload;
+    }
+
+    /**
+     * @return array{scheme: string, auto_tls: bool, require_tls: bool}
+     */
+    public static function smtpTransportOptions(mixed $encryption): array
+    {
+        $encryption = Str::lower(trim((string) $encryption));
+
+        return match ($encryption) {
+            'ssl', 'smtps' => [
+                'scheme' => 'smtps',
+                'auto_tls' => true,
+                'require_tls' => false,
+            ],
+            'tls', 'starttls' => [
+                'scheme' => 'smtp',
+                'auto_tls' => true,
+                'require_tls' => true,
+            ],
+            default => [
+                'scheme' => 'smtp',
+                'auto_tls' => false,
+                'require_tls' => false,
+            ],
+        };
+    }
+
+    /**
+     * @param  array<string, mixed>  $config
+     */
+    public static function smtpEncryptionFromTransportConfig(array $config): ?string
+    {
+        if ((bool) ($config['require_tls'] ?? false)) {
+            return 'tls';
+        }
+
+        $encryption = Str::lower(trim((string) ($config['encryption'] ?? $config['scheme'] ?? '')));
+
+        return match ($encryption) {
+            'ssl', 'smtps' => 'ssl',
+            'tls', 'starttls' => 'tls',
+            default => null,
+        };
     }
 
     private function syncToRuntimeSettings(EmailSetting $settings, ?User $actor): void
