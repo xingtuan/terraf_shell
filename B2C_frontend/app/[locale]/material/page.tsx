@@ -18,6 +18,7 @@ import {
 } from "@/components/sections/trust-and-b2b-sections"
 import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { PageIntro } from "@/components/page-intro"
+import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
 import {
   getMaterialInfo,
   getMaterialSpecs,
@@ -28,6 +29,7 @@ import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildApplicationsContent,
+  buildPilotProjectsContent,
   resolveLocalizedApiValue,
 } from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
@@ -54,12 +56,22 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   } as const
 
   let materialInfo: MaterialInfo | null = null
+  let pilotProjectsSection = null
 
   try {
     const response = await getMaterialInfo(materialRequestOptions)
     materialInfo = response.data
   } catch {
     materialInfo = null
+  }
+
+  try {
+    pilotProjectsSection = findHomeSection(
+      await getHomeSections(materialRequestOptions),
+      "pilot_projects",
+    )
+  } catch {
+    pilotProjectsSection = null
   }
 
   const intro = messages.materialPage.intro
@@ -214,6 +226,11 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
         })),
       }
     : messages.home.credibility
+  const pilotProjectsContent = buildPilotProjectsContent(
+    messages.pilotProjects,
+    pilotProjectsSection,
+    locale,
+  )
 
   return (
     <>
@@ -266,7 +283,7 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
       <MaterialComparisonSection content={messages.materialProof.comparison} />
       <CredibilitySection content={credibilityContent} />
       <TrustAndCredibilitySection content={messages.trustAndCredibility} />
-      <PilotProjectsSection content={messages.pilotProjects} />
+      <PilotProjectsSection content={pilotProjectsContent} />
       <CollaborationSection
         locale={locale}
         content={messages.home.collaboration}

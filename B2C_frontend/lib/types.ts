@@ -681,6 +681,7 @@ export type HomeSectionPayload = JsonObject & {
   theme?: string
   material_slug?: string
   limit?: number
+  items?: JsonValue[]
 }
 
 export interface HomeSection {

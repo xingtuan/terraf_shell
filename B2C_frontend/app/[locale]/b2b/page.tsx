@@ -14,12 +14,14 @@ import {
   PilotProjectsSection,
   TrustAndCredibilitySection,
 } from "@/components/sections/trust-and-b2b-sections"
+import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
 import { getFeaturedMaterial, getMaterialSpecs } from "@/lib/api/materials"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildCredibilityContent,
   buildMaterialFactsContent,
+  buildPilotProjectsContent,
 } from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
 
@@ -33,11 +35,21 @@ export default async function B2BPage({ params }: B2BPageProps) {
   const messages = getMessages(locale)
 
   let material = null
+  let pilotProjectsSection = null
 
   try {
     material = await getFeaturedMaterial({ baseUrl: apiBaseUrl, locale })
   } catch {
     material = null
+  }
+
+  try {
+    pilotProjectsSection = findHomeSection(
+      await getHomeSections({ baseUrl: apiBaseUrl, locale }),
+      "pilot_projects",
+    )
+  } catch {
+    pilotProjectsSection = null
   }
 
   const fallbackSpecs =
@@ -55,6 +67,11 @@ export default async function B2BPage({ params }: B2BPageProps) {
   const credibilityContent = buildCredibilityContent(
     messages.home.credibility,
     material,
+    locale,
+  )
+  const pilotProjectsContent = buildPilotProjectsContent(
+    messages.pilotProjects,
+    pilotProjectsSection,
     locale,
   )
 
@@ -93,7 +110,7 @@ export default async function B2BPage({ params }: B2BPageProps) {
       />
       <CredibilitySection content={credibilityContent} />
       <TrustAndCredibilitySection content={messages.trustAndCredibility} />
-      <PilotProjectsSection content={messages.pilotProjects} />
+      <PilotProjectsSection content={pilotProjectsContent} />
       <Suspense fallback={null}>
         <B2BInquiryFormSection
           locale={locale}

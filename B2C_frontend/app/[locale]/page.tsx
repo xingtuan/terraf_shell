@@ -23,6 +23,7 @@ import {
   buildCredibilityContent,
   buildHeroContent,
   buildMaterialFactsContent,
+  buildPilotProjectsContent,
   buildMaterialStoryContent,
   resolveLocalizedApiString,
   resolveCmsHref,
@@ -98,6 +99,7 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
   const heroSection = findHomeSection(homeSections, "hero")
   const scienceSection = findHomeSection(homeSections, "science_block")
   const articlesSection = findHomeSection(homeSections, "latest_updates")
+  const pilotProjectsSection = findHomeSection(homeSections, "pilot_projects")
   const primaryMaterial = (await loadPrimaryMaterial(
     scienceSection,
     homepage,
@@ -136,6 +138,11 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
   const credibilityContent = buildCredibilityContent(
     messages.home.credibility,
     primaryMaterial,
+    locale,
+  )
+  const pilotProjectsContent = buildPilotProjectsContent(
+    messages.pilotProjects,
+    pilotProjectsSection,
     locale,
   )
 
@@ -177,7 +184,7 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
       />
       <CredibilitySection content={credibilityContent} />
       <TrustAndCredibilitySection content={messages.trustAndCredibility} />
-      <PilotProjectsSection content={messages.pilotProjects} />
+      <PilotProjectsSection content={pilotProjectsContent} />
       <ArticleFeedSection
         locale={locale}
         eyebrow={resolveLocalizedApiString(

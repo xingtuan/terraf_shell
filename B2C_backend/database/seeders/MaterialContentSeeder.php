@@ -857,6 +857,62 @@ class MaterialContentSeeder extends Seeder
                 ],
                 'sort_order' => 3,
             ],
+            [
+                'key' => 'pilot_projects',
+                'title' => 'Pilot projects and collaborations',
+                'subtitle' => 'Pilot projects',
+                'content' => 'Client, partner, and case-study names are shown only after approval. Until then, transparent placeholders keep the site credible.',
+                'cta_label' => null,
+                'cta_url' => null,
+                'payload' => [
+                    'variant' => 'pilot_projects',
+                    'items' => [
+                        [
+                            'title' => 'Pilot collaboration details coming soon',
+                            'title_translations' => [
+                                'en' => 'Pilot collaboration details coming soon',
+                            ],
+                            'status' => 'Coming soon',
+                            'status_translations' => [
+                                'en' => 'Coming soon',
+                            ],
+                            'description' => 'Project details will be added after client approval.',
+                            'description_translations' => [
+                                'en' => 'Project details will be added after client approval.',
+                            ],
+                        ],
+                        [
+                            'title' => 'University and industry review in progress',
+                            'title_translations' => [
+                                'en' => 'University and industry review in progress',
+                            ],
+                            'status' => 'In testing',
+                            'status_translations' => [
+                                'en' => 'In testing',
+                            ],
+                            'description' => 'Research or review partners can be named after confirmation.',
+                            'description_translations' => [
+                                'en' => 'Research or review partners can be named after confirmation.',
+                            ],
+                        ],
+                        [
+                            'title' => 'Client-provided case studies pending approval',
+                            'title_translations' => [
+                                'en' => 'Client-provided case studies pending approval',
+                            ],
+                            'status' => 'Client confirmation pending',
+                            'status_translations' => [
+                                'en' => 'Client confirmation pending',
+                            ],
+                            'description' => 'Case studies remain hidden or generic until publication is approved.',
+                            'description_translations' => [
+                                'en' => 'Case studies remain hidden or generic until publication is approved.',
+                            ],
+                        ],
+                    ],
+                ],
+                'sort_order' => 11,
+            ],
         ];
 
         foreach ($homeSections as $section) {

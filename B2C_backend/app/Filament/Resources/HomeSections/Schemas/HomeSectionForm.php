@@ -6,12 +6,14 @@ use App\Enums\PublishStatus;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class HomeSectionForm
@@ -27,6 +29,7 @@ class HomeSectionForm
                                 TextInput::make('key')
                                     ->label(__('admin.ui.section_key'))
                                     ->required()
+                                    ->live(onBlur: true)
                                     ->maxLength(120)
                                     ->unique(ignoreRecord: true)
                                     ->helperText(__('admin.ui.section_key_helper')),
@@ -61,11 +64,60 @@ class HomeSectionForm
                                     ->label(__('admin.ui.payload'))
                                     ->keyLabel(__('admin.ui.setting'))
                                     ->valueLabel(__('admin.ui.value'))
+                                    ->hidden(fn (Get $get): bool => $get('key') === 'pilot_projects')
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
                                     ->label(__('admin.ui.published_at')),
                             ]),
                     ]),
+                Section::make(__('admin.ui.pilot_projects'))
+                    ->description(__('admin.ui.pilot_projects_payload_help'))
+                    ->schema([
+                        Repeater::make('payload.items')
+                            ->label(__('admin.ui.pilot_project_cards'))
+                            ->addActionLabel(__('admin.ui.add_pilot_project_card'))
+                            ->collapsible()
+                            ->reorderableWithButtons()
+                            ->defaultItems(0)
+                            ->schema([
+                                TextInput::make('title_translations.en')
+                                    ->label(__('admin.ui.title_en'))
+                                    ->required()
+                                    ->maxLength(180),
+                                TextInput::make('status_translations.en')
+                                    ->label(__('admin.fields.status').' (EN)')
+                                    ->required()
+                                    ->maxLength(120),
+                                Textarea::make('description_translations.en')
+                                    ->label(__('admin.ui.description_en'))
+                                    ->required()
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                                TextInput::make('title_translations.ko')
+                                    ->label(__('admin.ui.title_ko'))
+                                    ->maxLength(180),
+                                TextInput::make('status_translations.ko')
+                                    ->label(__('admin.fields.status').' (KO)')
+                                    ->maxLength(120),
+                                Textarea::make('description_translations.ko')
+                                    ->label(__('admin.ui.description_ko'))
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                                TextInput::make('title_translations.zh')
+                                    ->label(__('admin.ui.title_zh'))
+                                    ->maxLength(180),
+                                TextInput::make('status_translations.zh')
+                                    ->label(__('admin.fields.status').' (ZH)')
+                                    ->maxLength(120),
+                                Textarea::make('description_translations.zh')
+                                    ->label(__('admin.ui.description_zh'))
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+                    ])
+                    ->visible(fn (Get $get): bool => $get('key') === 'pilot_projects'),
                 Section::make(__('admin.ui.english'))
                     ->schema([
                         TextInput::make('title_translations.en')

@@ -8,6 +8,10 @@ function nonEmptyString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
 export function isLikelyEnglishOnly(value: unknown): boolean {
   const text = nonEmptyString(value)
 
@@ -434,5 +438,85 @@ export function buildCredibilityContent(
       : material.headline || fallback.title,
     benefits: benefits.length ? benefits.slice(0, 4) : fallback.benefits,
     features: features.length ? features : fallback.features,
+  }
+}
+
+function resolvePayloadItemString(
+  item: Record<string, unknown>,
+  field: string,
+  locale: Locale,
+  fallback?: string | null,
+) {
+  const translations = item[`${field}_translations`]
+  const translatedValue =
+    isRecord(translations) ? nonEmptyString(translations[locale]) : null
+
+  if (translatedValue) {
+    return translatedValue
+  }
+
+  const fallbackValue = nonEmptyString(fallback)
+
+  if (locale !== "en" && fallbackValue) {
+    return fallbackValue
+  }
+
+  const directValue = nonEmptyString(item[field])
+  const englishValue =
+    isRecord(translations) ? nonEmptyString(translations.en) : null
+
+  return directValue ?? englishValue ?? fallbackValue ?? ""
+}
+
+export function buildPilotProjectsContent(
+  fallback: SiteMessages["pilotProjects"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): SiteMessages["pilotProjects"] {
+  const rawItems = section?.payload?.items
+  const items = Array.isArray(rawItems)
+    ? rawItems
+        .flatMap((rawItem, index) => {
+          if (!isRecord(rawItem)) {
+            return []
+          }
+
+          const fallbackItem = fallback.items[index]
+          const item = {
+            title: resolvePayloadItemString(
+              rawItem,
+              "title",
+              locale,
+              fallbackItem?.title,
+            ),
+            status: resolvePayloadItemString(
+              rawItem,
+              "status",
+              locale,
+              fallbackItem?.status,
+            ),
+            description: resolvePayloadItemString(
+              rawItem,
+              "description",
+              locale,
+              fallbackItem?.description,
+            ),
+          }
+
+          return item.title || item.status || item.description ? [item] : []
+        })
+    : []
+
+  return {
+    ...fallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, fallback.title),
+    description: resolveLocalizedApiString(
+      section,
+      "content",
+      locale,
+      fallback.description,
+    ),
+    items: items.length ? items : fallback.items,
   }
 }
