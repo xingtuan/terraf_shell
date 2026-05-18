@@ -30,7 +30,7 @@ class EmailPayloadFactory
         ];
         $frontendUrl = rtrim((string) (config('services.frontend.url') ?: config('app.url')), '/');
         $orderUrl = $order->guest_order_token
-            ? $frontendUrl.'/en/store/order-submitted/'.$order->order_number.'?token='.$order->guest_order_token
+            ? $frontendUrl.'/en/store/orders/'.$order->order_number.'?token='.$order->guest_order_token
             : $frontendUrl.'/en/account/orders/'.$order->order_number;
 
         return array_replace_recursive([

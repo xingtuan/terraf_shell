@@ -411,7 +411,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
       }
 
       router.push(
-        `${getLocalizedHref(locale, `store/order-submitted/${order.order_number}`)}?token=${encodeURIComponent(order.guest_order_token ?? "")}`,
+        `${getLocalizedHref(locale, `store/orders/${order.order_number}`)}?token=${encodeURIComponent(order.guest_order_token ?? "")}`,
       )
     } catch (error) {
       if (error instanceof ApiError) {

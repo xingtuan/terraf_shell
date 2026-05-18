@@ -13,6 +13,7 @@ use App\Services\Settings\SettingsService;
 use App\Services\Shipping\ShippingQuoteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -146,6 +147,29 @@ class OrderController extends Controller
             ->where('guest_order_token', $token)
             ->with(['items.product.variants', 'items.variant'])
             ->firstOrFail();
+
+        return $this->successResponse(new OrderResource($order));
+    }
+
+    public function lookupGuest(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'order_number' => ['required', 'string', 'max:50'],
+            'email' => ['required', 'email', 'max:255'],
+        ]);
+
+        $order = Order::query()
+            ->where('order_number', Str::upper(trim((string) $validated['order_number'])))
+            ->whereNull('user_id')
+            ->where('guest_email', Str::lower(trim((string) $validated['email'])))
+            ->with(['items.product.variants', 'items.variant'])
+            ->first();
+
+        if ($order === null) {
+            throw ValidationException::withMessages([
+                'order_number' => ['We could not find a guest order matching those details.'],
+            ]);
+        }
 
         return $this->successResponse(new OrderResource($order));
     }

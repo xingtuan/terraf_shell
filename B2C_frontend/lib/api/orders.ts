@@ -71,6 +71,23 @@ export async function getGuestOrder(
   return normalizeStoreOrder(response.data)
 }
 
+export async function lookupGuestOrder(
+  orderNumber: string,
+  email: string,
+  options: ApiRequestOverrides = {},
+) {
+  const response = await requestApi<StoreOrder>("/orders/guest/lookup", {
+    method: "POST",
+    baseUrl: options.baseUrl,
+    body: {
+      order_number: orderNumber,
+      email,
+    },
+  })
+
+  return normalizeStoreOrder(response.data)
+}
+
 export async function createOrder(payload: CreateOrderPayload, token?: string | null) {
   const response = await requestApi<StoreOrder>("/orders", {
     method: "POST",

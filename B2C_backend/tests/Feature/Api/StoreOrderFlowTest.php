@@ -217,6 +217,21 @@ class StoreOrderFlowTest extends TestCase
 
         $this->getJson("/api/orders/guest/{$orderNumber}?token=wrong-token")
             ->assertNotFound();
+
+        $this->postJson('/api/orders/guest/lookup', [
+            'order_number' => strtolower((string) $orderNumber),
+            'email' => 'LOOKUP@example.com',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.order_number', $orderNumber)
+            ->assertJsonPath('data.guest_email', 'lookup@example.com');
+
+        $this->postJson('/api/orders/guest/lookup', [
+            'order_number' => $orderNumber,
+            'email' => 'wrong@example.com',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['order_number']);
     }
 
     public function test_guest_checkout_can_be_disabled_by_runtime_setting_without_removing_route(): void

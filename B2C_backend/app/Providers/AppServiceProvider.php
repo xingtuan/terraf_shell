@@ -153,6 +153,13 @@ class AppServiceProvider extends ServiceProvider
                 strtolower((string) $request->input('email')).'|'.$request->ip()
             )
         );
+        RateLimiter::for(
+            'order-lookup',
+            fn ($request): Limit => Limit::perMinute(10)->by(
+                strtolower((string) ($request->input('order_number') ?: $request->route('orderNumber'))).'|'.
+                strtolower((string) $request->input('email')).'|'.$request->ip()
+            )
+        );
         RateLimiter::for('install', fn ($request): Limit => Limit::perMinute(5)->by($request->ip()));
     }
 }

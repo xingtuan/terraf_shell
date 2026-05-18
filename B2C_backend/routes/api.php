@@ -119,7 +119,10 @@ Route::middleware(['throttle:leads', 'runtime_setting:feature.b2b_inquiry_enable
     Route::post('/product-development-collaborations', [PartnershipInquiryController::class, 'storeProductDevelopment']);
 });
 Route::post('/orders', [OrderController::class, 'store']);
-Route::get('/orders/guest/{orderNumber}', [OrderController::class, 'showGuest']);
+Route::post('/orders/guest/lookup', [OrderController::class, 'lookupGuest'])
+    ->middleware('throttle:order-lookup');
+Route::get('/orders/guest/{orderNumber}', [OrderController::class, 'showGuest'])
+    ->middleware('throttle:order-lookup');
 Route::get('/users/{user}/posts', [UserController::class, 'posts']);
 Route::get('/users/{user}/favorites', [UserController::class, 'favorites']);
 Route::get('/users/{user}/comments', [UserController::class, 'comments']);

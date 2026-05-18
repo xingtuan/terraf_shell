@@ -34,7 +34,7 @@ export function StoreNav({ locale }: StoreNavProps) {
               {t.cart}
             </Link>
             <Link
-              href={getLocalizedHref(locale, "account/orders")}
+              href={getLocalizedHref(locale, "store/orders")}
               className="transition-colors hover:text-foreground"
             >
               {t.orders}

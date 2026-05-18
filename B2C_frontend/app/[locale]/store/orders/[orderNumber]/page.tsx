@@ -1,19 +1,28 @@
-import { redirect } from "next/navigation"
-
-import { getLocalizedHref } from "@/lib/i18n"
+import { StoreOrderLookupPage } from "@/components/store/store-order-lookup-page"
 import { resolveLocale } from "@/lib/resolve-locale"
 
-type StoreOrderRedirectPageProps = {
+type StoreOrderPageProps = {
   params: Promise<{ locale: string; orderNumber: string }>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
-export default async function StoreOrderRedirectPage({
+function firstSearchValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value
+}
+
+export default async function StoreOrderPage({
   params,
-}: StoreOrderRedirectPageProps) {
+  searchParams,
+}: StoreOrderPageProps) {
   const locale = await resolveLocale(params)
   const resolvedParams = await params
+  const resolvedSearchParams = await searchParams
 
-  redirect(
-    getLocalizedHref(locale, `account/orders/${resolvedParams.orderNumber}`),
+  return (
+    <StoreOrderLookupPage
+      locale={locale}
+      initialOrderNumber={resolvedParams.orderNumber}
+      initialToken={firstSearchValue(resolvedSearchParams?.token)}
+    />
   )
 }
