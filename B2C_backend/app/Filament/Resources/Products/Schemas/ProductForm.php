@@ -368,9 +368,20 @@ class ProductForm
                                                     ->helperText(__('admin.ui.use_client_confirmation_pending_when_a_lab_is_not_approved_for_publication')),
                                                 DatePicker::make('tested_at')
                                                     ->label(__('admin.ui.test_date')),
+                                                FileUpload::make('document_path')
+                                                    ->label(__('admin.ui.file'))
+                                                    ->disk((string) config('community.uploads.disk'))
+                                                    ->directory('cms/products/certifications')
+                                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                                    ->acceptedFileTypes(self::proofDocumentFileTypes())
+                                                    ->maxSize(10240),
                                                 TextInput::make('document_url')
                                                     ->label(__('admin.ui.document_url'))
-                                                    ->url()
+                                                    ->placeholder('https://example.com/document.pdf')
+                                                    ->helperText('Use only full external http/https URLs. For local/admin uploaded documents, use the upload field.')
+                                                    ->type('text')
+                                                    ->rules(['nullable', 'url'])
+                                                    ->afterStateHydrated(fn (TextInput $component, Get $get, Set $set, ?string $state): null => self::moveHydratedRelativeUrlToPath($component, $get, $set, $state, 'document_path'))
                                                     ->maxLength(2048),
                                                 Textarea::make('description')
                                                     ->label(__('admin.ui.description'))
@@ -399,9 +410,20 @@ class ProductForm
                                                     ->options(fn (): array => AdminOptions::technicalDownloadStatuses())
                                                     ->default('on_request')
                                                     ->required(),
+                                                FileUpload::make('file_path')
+                                                    ->label(__('admin.ui.file'))
+                                                    ->disk((string) config('community.uploads.disk'))
+                                                    ->directory('cms/products/downloads')
+                                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                                    ->acceptedFileTypes(self::proofDocumentFileTypes())
+                                                    ->maxSize(10240),
                                                 TextInput::make('url')
                                                     ->label(__('admin.ui.file_url'))
-                                                    ->url()
+                                                    ->placeholder('https://example.com/file.pdf')
+                                                    ->helperText('Use only full external http/https URLs. For local/admin uploaded files, use the upload field.')
+                                                    ->type('text')
+                                                    ->rules(['nullable', 'url'])
+                                                    ->afterStateHydrated(fn (TextInput $component, Get $get, Set $set, ?string $state): null => self::moveHydratedRelativeUrlToPath($component, $get, $set, $state, 'file_path'))
                                                     ->maxLength(2048),
                                                 Textarea::make('description')
                                                     ->label(__('admin.ui.description'))
@@ -532,6 +554,11 @@ class ProductForm
 
     private static function moveHydratedRelativeImageUrlToMediaPath(TextInput $component, Get $get, Set $set, ?string $state): null
     {
+        return self::moveHydratedRelativeUrlToPath($component, $get, $set, $state, 'media_path');
+    }
+
+    private static function moveHydratedRelativeUrlToPath(TextInput $component, Get $get, Set $set, ?string $state, string $pathField): null
+    {
         $value = is_string($state) ? trim($state) : '';
 
         if ($value === '') {
@@ -540,14 +567,14 @@ class ProductForm
             return null;
         }
 
-        if (self::isExternalImageUrl($value)) {
+        if (self::isExternalUrl($value)) {
             $component->state($value);
 
             return null;
         }
 
-        if (blank($get('media_path'))) {
-            $set('media_path', ltrim($value, '/'));
+        if (blank($get($pathField))) {
+            $set($pathField, ltrim($value, '/'));
         }
 
         $component->state(null);
@@ -555,12 +582,31 @@ class ProductForm
         return null;
     }
 
-    private static function isExternalImageUrl(string $value): bool
+    private static function isExternalUrl(string $value): bool
     {
         $value = strtolower(trim($value));
 
         return str_starts_with($value, 'http://')
             || str_starts_with($value, 'https://');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private static function proofDocumentFileTypes(): array
+    {
+        return [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'text/csv',
+            'text/plain',
+        ];
     }
 
     private static function attributeMetadata(int $definitionId): string

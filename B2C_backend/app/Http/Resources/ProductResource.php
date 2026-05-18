@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Http\Resources\Concerns\ResolvesLocalizedFields;
 use App\Models\Product;
+use App\Support\StorageUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
@@ -99,8 +100,8 @@ class ProductResource extends JsonResource
             'variants' => $includeVariants && $this->resource->relationLoaded('variants')
                 ? ProductVariantResource::collection($this->resource->getRelation('variants')->where('is_active', true))->resolve($request)
                 : [],
-            'certifications' => $this->normalizedJsonEntries($this->certifications ?? []),
-            'technical_downloads' => $this->normalizedJsonEntries($this->technical_downloads ?? []),
+            'certifications' => $this->normalizedFileUrlEntries($this->certifications ?? [], 'document_url', 'document_path'),
+            'technical_downloads' => $this->normalizedFileUrlEntries($this->technical_downloads ?? [], 'url', 'file_path'),
             'care_instructions' => $this->localizedArray($request, 'care_instructions'),
             'material_benefits' => $this->localizedArray($request, 'material_benefits'),
             'selling_points' => $this->localizedArray($request, 'selling_points'),
@@ -279,5 +280,41 @@ class ProductResource extends JsonResource
             })
             ->values()
             ->all();
+    }
+
+    /**
+     * @return array<int, mixed>
+     */
+    private function normalizedFileUrlEntries(mixed $entries, string $urlKey, string $pathKey): array
+    {
+        return collect($this->normalizedJsonEntries($entries))
+            ->map(function (mixed $entry) use ($urlKey, $pathKey): mixed {
+                if (! is_array($entry)) {
+                    return $entry;
+                }
+
+                $resolvedUrl = $this->resolveStoredFileUrl($entry[$pathKey] ?? null);
+
+                if ($resolvedUrl !== null) {
+                    $entry[$urlKey] = $resolvedUrl;
+                } elseif (isset($entry[$urlKey]) && is_string($entry[$urlKey])) {
+                    $entry[$urlKey] = trim($entry[$urlKey]) !== '' ? trim($entry[$urlKey]) : null;
+                }
+
+                unset($entry[$pathKey]);
+
+                return $entry;
+            })
+            ->values()
+            ->all();
+    }
+
+    private function resolveStoredFileUrl(mixed $path): ?string
+    {
+        if (! is_string($path) || trim($path) === '') {
+            return null;
+        }
+
+        return StorageUrl::resolve(ltrim(trim($path), '/'));
     }
 }

@@ -129,6 +129,7 @@ class Product extends Model
     {
         static::saving(function (self $product): void {
             self::normalizeImageUrlBeforeSave($product);
+            self::normalizeProofDownloadUrlsBeforeSave($product);
 
             if (blank($product->subtitle) && filled($product->short_description)) {
                 $product->subtitle = $product->short_description;
@@ -199,6 +200,65 @@ class Product extends Model
         }
 
         $product->image_url = null;
+    }
+
+    private static function normalizeProofDownloadUrlsBeforeSave(self $product): void
+    {
+        $product->certifications = self::normalizeUrlBackedEntries(
+            $product->certifications,
+            'document_url',
+            'document_path',
+        );
+        $product->technical_downloads = self::normalizeUrlBackedEntries(
+            $product->technical_downloads,
+            'url',
+            'file_path',
+        );
+    }
+
+    private static function normalizeUrlBackedEntries(mixed $entries, string $urlKey, string $pathKey): mixed
+    {
+        if (! is_array($entries)) {
+            return $entries;
+        }
+
+        return collect($entries)
+            ->map(function (mixed $entry) use ($urlKey, $pathKey): mixed {
+                if (! is_array($entry)) {
+                    return $entry;
+                }
+
+                $rawPath = $entry[$pathKey] ?? null;
+
+                if (is_string($rawPath) && trim($rawPath) !== '') {
+                    $entry[$pathKey] = ltrim(trim($rawPath), '/');
+                }
+
+                $rawUrl = $entry[$urlKey] ?? null;
+                $url = is_string($rawUrl) ? trim($rawUrl) : '';
+
+                if ($url === '') {
+                    $entry[$urlKey] = null;
+
+                    return $entry;
+                }
+
+                if (self::isExternalImageUrl($url)) {
+                    $entry[$urlKey] = $url;
+
+                    return $entry;
+                }
+
+                if (blank($entry[$pathKey] ?? null)) {
+                    $entry[$pathKey] = ltrim($url, '/');
+                }
+
+                $entry[$urlKey] = null;
+
+                return $entry;
+            })
+            ->values()
+            ->all();
     }
 
     private static function isExternalImageUrl(string $value): bool

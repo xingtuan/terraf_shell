@@ -12,6 +12,7 @@ use App\Models\ProductVariant;
 use App\Models\User;
 use App\Services\CartService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -21,6 +22,8 @@ class ProductVariantCommerceTest extends TestCase
 
     public function test_product_api_returns_default_variant_variants_attributes_and_selling_fields(): void
     {
+        Config::set('community.uploads.disk', 'public');
+
         $product = Product::factory()->published()->create([
             'slug' => 'variant-api-product',
             'selling_points' => ['Made with recovered shell'],
@@ -29,8 +32,20 @@ class ProductVariantCommerceTest extends TestCase
             'product_faqs' => [
                 ['question' => 'Can I order samples?', 'answer' => 'Yes.'],
             ],
+            'certifications' => [
+                [
+                    'name' => 'Water absorption',
+                    'status' => 'tested',
+                    'document_path' => 'cms/products/certifications/water-absorption.pdf',
+                ],
+            ],
             'technical_downloads' => [
-                ['title' => 'Spec sheet', 'type' => 'product_specification_sheet', 'status' => 'available'],
+                [
+                    'title' => 'Spec sheet',
+                    'type' => 'product_specification_sheet',
+                    'status' => 'available',
+                    'file_path' => 'cms/products/downloads/spec-sheet.pdf',
+                ],
             ],
         ]);
         $variant = $product->defaultVariant();
@@ -67,7 +82,15 @@ class ProductVariantCommerceTest extends TestCase
             ->assertJsonPath('data.shipping_notes.0', 'Ships within New Zealand')
             ->assertJsonPath('data.return_notes.0', 'Email support for return requests')
             ->assertJsonPath('data.product_faqs.0.question', 'Can I order samples?')
-            ->assertJsonPath('data.technical_downloads.0.title', 'Spec sheet');
+            ->assertJsonPath('data.certifications.0.document_url', route('media.files.show', [
+                'disk' => 'public',
+                'path' => 'cms/products/certifications/water-absorption.pdf',
+            ]))
+            ->assertJsonPath('data.technical_downloads.0.title', 'Spec sheet')
+            ->assertJsonPath('data.technical_downloads.0.url', route('media.files.show', [
+                'disk' => 'public',
+                'path' => 'cms/products/downloads/spec-sheet.pdf',
+            ]));
     }
 
     public function test_cart_uses_default_variant_when_variant_is_missing_and_merges_same_variant(): void

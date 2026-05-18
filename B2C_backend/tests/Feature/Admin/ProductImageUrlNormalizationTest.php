@@ -105,6 +105,68 @@ class ProductImageUrlNormalizationTest extends TestCase
         $this->assertSame('https://example.com/variant.jpg', $variant->getRawOriginal('image_url'));
     }
 
+    public function test_relative_product_proof_urls_are_moved_to_stored_paths_and_cleared(): void
+    {
+        $product = $this->productWithRequiredAdminFields([
+            'certifications' => [
+                [
+                    'name' => 'Water absorption',
+                    'status' => 'tested',
+                    'document_url' => ' /docs/water-absorption.pdf ',
+                ],
+            ],
+            'technical_downloads' => [
+                [
+                    'title' => 'Spec sheet',
+                    'type' => 'product_specification_sheet',
+                    'status' => 'available',
+                    'url' => ' cms/products/downloads/spec-sheet.pdf ',
+                ],
+            ],
+        ]);
+
+        $product->refresh();
+
+        $certification = $product->certifications[0] ?? [];
+        $download = $product->technical_downloads[0] ?? [];
+
+        $this->assertSame('docs/water-absorption.pdf', $certification['document_path'] ?? null);
+        $this->assertNull($certification['document_url'] ?? null);
+        $this->assertSame('cms/products/downloads/spec-sheet.pdf', $download['file_path'] ?? null);
+        $this->assertNull($download['url'] ?? null);
+    }
+
+    public function test_external_product_proof_urls_remain_unchanged(): void
+    {
+        $product = $this->productWithRequiredAdminFields([
+            'certifications' => [
+                [
+                    'name' => 'Water absorption',
+                    'status' => 'tested',
+                    'document_url' => ' https://example.com/water-absorption.pdf ',
+                ],
+            ],
+            'technical_downloads' => [
+                [
+                    'title' => 'Spec sheet',
+                    'type' => 'product_specification_sheet',
+                    'status' => 'available',
+                    'url' => ' https://example.com/spec-sheet.pdf ',
+                ],
+            ],
+        ]);
+
+        $product->refresh();
+
+        $certification = $product->certifications[0] ?? [];
+        $download = $product->technical_downloads[0] ?? [];
+
+        $this->assertSame('https://example.com/water-absorption.pdf', $certification['document_url'] ?? null);
+        $this->assertArrayNotHasKey('document_path', $certification);
+        $this->assertSame('https://example.com/spec-sheet.pdf', $download['url'] ?? null);
+        $this->assertArrayNotHasKey('file_path', $download);
+    }
+
     public function test_invalid_external_url_uses_filament_validation_instead_of_native_browser_validation(): void
     {
         $admin = User::factory()->admin()->create();
