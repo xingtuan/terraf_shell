@@ -151,6 +151,16 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   }, [session.user?.email, session.user?.name])
 
   useEffect(() => {
+    if (loading || !cart || cart.items.length > 0) return
+
+    const timer = window.setTimeout(() => {
+      router.push(getLocalizedHref(locale, "store"))
+    }, 4000)
+
+    return () => window.clearTimeout(timer)
+  }, [loading, cart, locale, router])
+
+  useEffect(() => {
     const query = addressQuery.trim()
 
     if (query.length < 3) {

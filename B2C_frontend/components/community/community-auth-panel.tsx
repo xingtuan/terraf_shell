@@ -61,6 +61,7 @@ type CommunityAuthPanelProps = {
   redirectAfterLogin?: string
   context?: "community" | "store"
   onSuccess?: () => void
+  defaultMode?: "login" | "register"
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -187,9 +188,10 @@ export function CommunityAuthPanel({
   redirectAfterLogin,
   context = "community",
   onSuccess,
+  defaultMode = "login",
 }: CommunityAuthPanelProps) {
   const router = useRouter()
-  const [mode, setMode] = useState<"login" | "register">("login")
+  const [mode, setMode] = useState<"login" | "register">(defaultMode)
   const [message, setMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string> | null>(null)
   const [showVerificationBanner, setShowVerificationBanner] = useState(false)

@@ -13,7 +13,6 @@ import {
   UserRound,
 } from "lucide-react"
 
-import { AuthGate } from "@/components/auth/AuthGate"
 import {
   AccountStatusNotice,
   isAccountBanned,
@@ -53,12 +52,26 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
   const [isSigningOut, setIsSigningOut] = useState(false)
 
   useEffect(() => {
+    if (!session.isReady) return
+
     if (!session.token) {
+      const loginHref = `${getLocalizedHref(locale, "auth/login")}?next=${encodeURIComponent(pathname)}`
+      router.replace(loginHref)
       return
     }
 
     void session.refreshUser().catch(() => null)
-  }, [session.refreshUser, session.token])
+  }, [session.isReady, session.token, session.refreshUser, router, locale, pathname])
+
+  if (!session.isReady) {
+    return (
+      <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8">
+        <div className="rounded-3xl border border-border/60 bg-card p-8 text-sm text-muted-foreground">
+          {getAccountCopy(locale).overview.loading}
+        </div>
+      </div>
+    )
+  }
 
   if (!session.user) {
     return null
@@ -206,14 +219,5 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
 }
 
 export function AccountShell({ children, locale }: AccountShellProps) {
-  const pathname = usePathname()
-
-  return (
-    <AuthGate
-      locale={locale}
-      redirectAfterLogin={pathname || getLocalizedHref(locale, "account")}
-    >
-      <AccountShellContent locale={locale}>{children}</AccountShellContent>
-    </AuthGate>
-  )
+  return <AccountShellContent locale={locale}>{children}</AccountShellContent>
 }

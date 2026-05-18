@@ -1,17 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
-import { CommunityAuthPanel } from "@/components/community/community-auth-panel"
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,11 +19,10 @@ type UserNavProps = {
 
 export function UserNav({ locale }: UserNavProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const session = useAuthSession()
   const messages = getMessages(locale)
-  const authCopy = messages.community.auth
   const t = messages.userNav
-  const [isAuthOpen, setIsAuthOpen] = useState(false)
 
   if (session.user) {
     return (
@@ -80,32 +71,11 @@ export function UserNav({ locale }: UserNavProps) {
     )
   }
 
-  return (
-    <>
-      <Button type="button" variant="outline" onClick={() => setIsAuthOpen(true)}>
-        {t.signIn}
-      </Button>
+  const loginHref = `${getLocalizedHref(locale, "auth/login")}${pathname && !pathname.includes("/auth/") ? `?next=${encodeURIComponent(pathname)}` : ""}`
 
-      <Dialog open={isAuthOpen} onOpenChange={setIsAuthOpen}>
-        <DialogContent className="max-w-2xl border-none bg-transparent p-0 shadow-none">
-          <DialogTitle className="sr-only">{t.dialogTitle}</DialogTitle>
-          <DialogDescription className="sr-only">
-            {t.dialogDescription}
-          </DialogDescription>
-          <CommunityAuthPanel
-            copy={authCopy}
-            user={session.user}
-            isReady={session.isReady}
-            isLoadingUser={session.isLoadingUser}
-            context="community"
-            onSuccess={() => setIsAuthOpen(false)}
-            onLogin={session.login}
-            onRegister={session.register}
-            onLogout={session.logout}
-            onRefresh={session.refreshUser}
-          />
-        </DialogContent>
-      </Dialog>
-    </>
+  return (
+    <Button asChild variant="outline">
+      <a href={loginHref}>{t.signIn}</a>
+    </Button>
   )
 }

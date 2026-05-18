@@ -76,8 +76,33 @@ export function LanguageSwitcher({
   content,
   className,
 }: LanguageSwitcherProps) {
+  const fallback = (
+    <div
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border border-border/70 bg-background/85 p-1 backdrop-blur-sm",
+        className,
+      )}
+      aria-label={content.label}
+    >
+      {locales.map((language) => (
+        <a
+          key={language}
+          href={`/${language}`}
+          className={cn(
+            "rounded-full px-3 py-1.5 text-xs tracking-[0.18em] uppercase transition-colors",
+            language === locale
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {content.locales[language]}
+        </a>
+      ))}
+    </div>
+  )
+
   return (
-    <Suspense>
+    <Suspense fallback={fallback}>
       <LanguageSwitcherLinks locale={locale} content={content} className={className} />
     </Suspense>
   )
