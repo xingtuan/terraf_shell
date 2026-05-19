@@ -41,8 +41,14 @@ class MediaUploadTest extends TestCase
 
         Storage::disk('public')->assertExists($path);
         $this->assertSame(StorageUrl::publicResolve($path, 'public'), $url);
+        $this->assertSame('/storage/'.$path, parse_url($url, PHP_URL_PATH));
 
-        $response = $this->get($url)
+        $proxyUrl = route('media.files.show', [
+            'disk' => 'public',
+            'path' => $path,
+        ]);
+
+        $response = $this->get($proxyUrl)
             ->assertOk();
 
         $cacheControl = (string) $response->headers->get('cache-control');
@@ -128,8 +134,10 @@ class MediaUploadTest extends TestCase
             ->assertJsonPath('data.disk', 'public');
 
         $path = (string) $uploadResponse->json('data.path');
+        $url = (string) $uploadResponse->json('data.url');
 
         Storage::disk('public')->assertExists($path);
+        $this->assertSame('/storage/'.$path, parse_url($url, PHP_URL_PATH));
         $this->assertDatabaseHas('media_files', [
             'user_id' => $user->id,
             'path' => $path,

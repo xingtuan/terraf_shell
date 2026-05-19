@@ -47,6 +47,10 @@ class StorageUrl
             }
         }
 
+        if (self::isPublicLocalDisk($resolvedDisk)) {
+            return self::publicLocalUrl($path, $resolvedDisk);
+        }
+
         if (self::shouldServeThroughApplication($resolvedDisk)) {
             return route('media.files.show', [
                 'disk' => $resolvedDisk,
@@ -95,6 +99,24 @@ class StorageUrl
 
         return (string) ($config['visibility'] ?? '') === 'public'
             || $disk === (string) config('community.uploads.disk');
+    }
+
+    private static function isPublicLocalDisk(string $disk): bool
+    {
+        $config = config("filesystems.disks.{$disk}");
+
+        return is_array($config)
+            && (string) ($config['driver'] ?? '') === 'local'
+            && (string) ($config['visibility'] ?? '') === 'public';
+    }
+
+    private static function publicLocalUrl(string $path, string $disk): string
+    {
+        if ($disk === 'public') {
+            return url('/storage/'.ltrim($path, '/'));
+        }
+
+        return Storage::disk($disk)->url($path);
     }
 
     private static function normalizeDisk(string $disk): string

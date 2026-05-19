@@ -11,6 +11,7 @@ use App\Models\ProductAttributeValue;
 use App\Models\ProductVariant;
 use App\Models\User;
 use App\Services\CartService;
+use App\Support\StorageUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
 use Laravel\Sanctum\Sanctum;
@@ -82,15 +83,15 @@ class ProductVariantCommerceTest extends TestCase
             ->assertJsonPath('data.shipping_notes.0', 'Ships within New Zealand')
             ->assertJsonPath('data.return_notes.0', 'Email support for return requests')
             ->assertJsonPath('data.product_faqs.0.question', 'Can I order samples?')
-            ->assertJsonPath('data.certifications.0.document_url', route('media.files.show', [
-                'disk' => 'public',
-                'path' => 'cms/products/certifications/water-absorption.pdf',
-            ]))
+            ->assertJsonPath('data.certifications.0.document_url', StorageUrl::publicResolve(
+                'cms/products/certifications/water-absorption.pdf',
+                'public',
+            ))
             ->assertJsonPath('data.technical_downloads.0.title', 'Spec sheet')
-            ->assertJsonPath('data.technical_downloads.0.url', route('media.files.show', [
-                'disk' => 'public',
-                'path' => 'cms/products/downloads/spec-sheet.pdf',
-            ]));
+            ->assertJsonPath('data.technical_downloads.0.url', StorageUrl::publicResolve(
+                'cms/products/downloads/spec-sheet.pdf',
+                'public',
+            ));
     }
 
     public function test_cart_uses_default_variant_when_variant_is_missing_and_merges_same_variant(): void
