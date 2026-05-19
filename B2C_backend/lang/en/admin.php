@@ -975,6 +975,9 @@ return [
         'test_email_failed' => 'Test email failed.',
         'test_email_logged' => 'Test email logged.',
         'updated' => 'Updated.',
+        'email_retry_sent' => 'Email sent successfully.',
+        'email_retry_failed' => 'Retry failed.',
+        'email_marked_ignored' => 'Email marked as ignored.',
     ],
     'funding_campaign_status' => [
         'draft' => 'Draft',

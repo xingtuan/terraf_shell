@@ -14,6 +14,7 @@ use App\Services\Email\EmailDispatchService;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -127,15 +128,44 @@ class EmailLogResource extends Resource
                     ->label(__('admin.ui.retry'))
                     ->visible(fn (EmailLog $record): bool => $record->status === EmailLog::STATUS_FAILED)
                     ->requiresConfirmation()
-                    ->action(fn (EmailLog $record): EmailLog => app(EmailDispatchService::class)->retry($record)),
+                    ->action(function (EmailLog $record): void {
+                        $record->forceFill([
+                            'status' => EmailLog::STATUS_QUEUED,
+                            'queued_at' => now(),
+                            'failed_at' => null,
+                            'error_message' => null,
+                        ])->save();
+
+                        $result = app(EmailDispatchService::class)->sendLog($record);
+
+                        if ($result->status === EmailLog::STATUS_SENT) {
+                            Notification::make()
+                                ->title(__('admin.notifications.email_retry_sent'))
+                                ->success()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title(__('admin.notifications.email_retry_failed'))
+                                ->body($result->error_message)
+                                ->danger()
+                                ->send();
+                        }
+                    }),
                 Action::make('markIgnored')
                     ->label(__('admin.ui.mark_ignored'))
                     ->visible(fn (EmailLog $record): bool => $record->status === EmailLog::STATUS_FAILED)
                     ->requiresConfirmation()
-                    ->action(fn (EmailLog $record): bool => $record->forceFill([
-                        'status' => EmailLog::STATUS_SKIPPED,
-                        'skip_reason' => 'ignored',
-                    ])->save()),
+                    ->action(function (EmailLog $record): void {
+                        $record->forceFill([
+                            'status' => EmailLog::STATUS_SKIPPED,
+                            'skip_reason' => 'ignored',
+                        ])->save();
+
+                        Notification::make()
+                            ->title(__('admin.notifications.email_marked_ignored'))
+                            ->success()
+                            ->send();
+                    }),
             ]);
     }
 

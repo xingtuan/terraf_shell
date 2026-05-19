@@ -975,6 +975,9 @@ return [
         'test_email_failed' => '测试邮件失败。',
         'test_email_logged' => '测试邮件已记录。',
         'updated' => '已更新。',
+        'email_retry_sent' => '邮件已成功发送。',
+        'email_retry_failed' => '重新发送失败。',
+        'email_marked_ignored' => '邮件已标记为忽略。',
     ],
     'funding_campaign_status' => [
         'draft' => '草稿',

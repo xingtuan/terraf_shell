@@ -975,6 +975,9 @@ return [
         'test_email_failed' => '테스트 이메일에 실패했습니다.',
         'test_email_logged' => '테스트 이메일 로그가 생성되었습니다.',
         'updated' => '업데이트되었습니다.',
+        'email_retry_sent' => '이메일을 성공적으로 보냈습니다.',
+        'email_retry_failed' => '재시도에 실패했습니다.',
+        'email_marked_ignored' => '이메일이 무시됨으로 표시되었습니다.',
     ],
     'funding_campaign_status' => [
         'draft' => '초안',
