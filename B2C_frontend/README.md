@@ -71,6 +71,7 @@ node scripts/check-i18n-keys.mjs
 | Variable | Default | Description |
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | `/api` | Backend API base URL. Change to an absolute URL (e.g., `http://127.0.0.1:8000/api`) when running frontend and backend on different ports without a reverse proxy. |
+| `API_PROXY_TARGET` | `http://127.0.0.1:8000` in development | Laravel origin used by the Next.js `/api/*` rewrite when `NEXT_PUBLIC_API_BASE_URL=/api`. |
 | `NEXT_PUBLIC_MEDIA_BASE_URL` | *(empty)* | Optional CDN base URL for media assets served from Azure Blob Storage. |
 | `NEXT_PUBLIC_BRAND_CONTACT_EMAIL` | *(empty)* | Optional confirmed OXP contact email. Leave empty until the client confirms the final address. |
 

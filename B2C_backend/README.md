@@ -264,6 +264,62 @@ php artisan queue:work
 
 Use `QUEUE_CONNECTION=redis` only when Redis is reachable and a Redis queue worker is running. Predis is included and is the default Redis client (`REDIS_CLIENT=predis`); use `REDIS_CLIENT=phpredis` only on servers with the PHP Redis extension installed. Set `QUEUE_CONNECTION=sync` only for local development.
 
+For Redis queues, run the worker with the Redis connection:
+
+```bash
+php artisan queue:work redis --queue=default --tries=3 -vvv
+```
+
+On production servers, keep the worker running with Supervisor instead of a manual terminal session:
+
+```bash
+sudo apt update
+sudo apt install supervisor
+sudo systemctl enable --now supervisor
+sudo nano /etc/supervisor/conf.d/terraf-queue.conf
+```
+
+Example Supervisor config:
+
+```ini
+[program:terraf-queue]
+process_name=%(program_name)s_%(process_num)02d
+command=php /www/terraf_shell/B2C_backend/artisan queue:work redis --queue=default --sleep=3 --tries=3 --timeout=90
+directory=/www/terraf_shell/B2C_backend
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=victor
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/www/terraf_shell/B2C_backend/storage/logs/queue-worker.log
+stopwaitsecs=3600
+```
+
+Load and start the worker:
+
+```bash
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start terraf-queue:*
+sudo supervisorctl status
+```
+
+After deployment or `.env` changes, restart Laravel queue workers:
+
+```bash
+php artisan optimize:clear
+php artisan queue:restart
+sudo supervisorctl restart terraf-queue:*
+```
+
+Check worker output with:
+
+```bash
+tail -f storage/logs/queue-worker.log
+```
+
 ### Developer Commands
 
 ```bash
