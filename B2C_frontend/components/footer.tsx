@@ -7,22 +7,38 @@ import {
   getBrandContactLabel,
 } from "@/lib/brand"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
+import type { FooterContent } from "@/lib/page-content"
 
 type FooterProps = {
   locale: Locale
   header: SiteMessages["header"]
-  footer: SiteMessages["footer"]
+  footer: FooterContent
+}
+
+const defaultPhoneValue = "+82 51-555-0188"
+
+function phoneHrefFromValue(value: string) {
+  const normalized = value.replace(/[^\d+]/g, "")
+
+  return normalized ? `tel:${normalized}` : "tel:+82515550188"
+}
+
+function emailHrefFromValue(value: string, fallbackHref: string) {
+  return value.includes("@") ? `mailto:${value}` : fallbackHref
 }
 
 export function Footer({ locale, header, footer }: FooterProps) {
   const exploreLinks = [
-    { label: header.home, href: getLocalizedHref(locale) },
-    { label: header.material, href: getLocalizedHref(locale, "material") },
-    { label: header.store, href: getLocalizedHref(locale, "store") },
+    { label: footer.homeLabel ?? header.home, href: getLocalizedHref(locale) },
+    {
+      label: footer.materialLabel ?? header.material,
+      href: getLocalizedHref(locale, "material"),
+    },
+    { label: footer.storeLabel ?? header.store, href: getLocalizedHref(locale, "store") },
   ]
 
   const businessLinks = [
-    { label: header.b2b, href: getLocalizedHref(locale, "b2b") },
+    { label: footer.b2bLabel ?? header.b2b, href: getLocalizedHref(locale, "b2b") },
     { label: footer.materialSheet, href: getLocalizedHref(locale, "material") },
     {
       label: footer.sampleRequest,
@@ -35,30 +51,42 @@ export function Footer({ locale, header, footer }: FooterProps) {
   ]
 
   const communityLinks = [
-    { label: header.community, href: getLocalizedHref(locale, "community") },
+    {
+      label: footer.communityLinkLabel ?? header.community,
+      href: getLocalizedHref(locale, "community"),
+    },
     { label: footer.ideaSupport, href: getLocalizedHref(locale, "community") },
     { label: footer.conceptFund, href: getLocalizedHref(locale, "community") },
-    { label: header.contact, href: getLocalizedHref(locale, "contact") },
+    {
+      label: footer.contactLabel ?? header.contact,
+      href: getLocalizedHref(locale, "contact"),
+    },
   ]
+
+  const defaultContactHref = getBrandContactHref(
+    `${getLocalizedHref(locale, "contact")}#contact-form`,
+  )
+  const emailValue = footer.emailValue ?? getBrandContactLabel()
+  const phoneValue = footer.phoneValue ?? defaultPhoneValue
 
   const contactItems = [
     {
       icon: Mail,
       label: footer.emailLabel,
-      value: getBrandContactLabel(),
-      href: getBrandContactHref(`${getLocalizedHref(locale, "contact")}#contact-form`),
+      value: emailValue,
+      href: footer.emailHref ?? emailHrefFromValue(emailValue, defaultContactHref),
     },
     {
       icon: Phone,
       label: footer.phoneLabel,
-      value: "+82 51-555-0188",
-      href: "tel:+82515550188",
+      value: phoneValue,
+      href: footer.phoneHref ?? phoneHrefFromValue(phoneValue),
     },
     {
       icon: MapPin,
       label: footer.locationLabel,
       value: footer.locationValue,
-      href: getLocalizedHref(locale, "contact"),
+      href: footer.locationHref ?? getLocalizedHref(locale, "contact"),
     },
   ]
 
@@ -149,13 +177,13 @@ export function Footer({ locale, header, footer }: FooterProps) {
           <p>{footer.copyright}</p>
           <div className="flex gap-6">
             <Link
-              href={getLocalizedHref(locale, "privacy")}
+              href={footer.privacyHref ?? getLocalizedHref(locale, "privacy")}
               className="transition-colors hover:text-background/70"
             >
               {footer.privacy}
             </Link>
             <Link
-              href={getLocalizedHref(locale, "terms")}
+              href={footer.termsHref ?? getLocalizedHref(locale, "terms")}
               className="transition-colors hover:text-background/70"
             >
               {footer.terms}

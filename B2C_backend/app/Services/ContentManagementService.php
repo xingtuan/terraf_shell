@@ -552,9 +552,13 @@ class ContentManagementService
             $attributes = $this->applyPublishState([
                 'key' => $this->uniqueKey($data['key']),
                 'title' => $data['title'] ?? null,
+                'title_translations' => $data['title_translations'] ?? null,
                 'subtitle' => $data['subtitle'] ?? null,
+                'subtitle_translations' => $data['subtitle_translations'] ?? null,
                 'content' => $data['content'] ?? null,
+                'content_translations' => $data['content_translations'] ?? null,
                 'cta_label' => $data['cta_label'] ?? null,
+                'cta_label_translations' => $data['cta_label_translations'] ?? null,
                 'cta_url' => $data['cta_url'] ?? null,
                 'payload' => $data['payload'] ?? null,
                 'sort_order' => $data['sort_order'] ?? 0,
@@ -572,9 +576,13 @@ class ContentManagementService
         return DB::transaction(function () use ($section, $data): HomeSection {
             $attributes = $this->applyPublishState([
                 'title' => $data['title'] ?? $section->title,
+                'title_translations' => $data['title_translations'] ?? $section->title_translations,
                 'subtitle' => $data['subtitle'] ?? $section->subtitle,
+                'subtitle_translations' => $data['subtitle_translations'] ?? $section->subtitle_translations,
                 'content' => $data['content'] ?? $section->content,
+                'content_translations' => $data['content_translations'] ?? $section->content_translations,
                 'cta_label' => $data['cta_label'] ?? $section->cta_label,
+                'cta_label_translations' => $data['cta_label_translations'] ?? $section->cta_label_translations,
                 'cta_url' => $data['cta_url'] ?? $section->cta_url,
                 'payload' => $data['payload'] ?? $section->payload,
                 'sort_order' => $data['sort_order'] ?? $section->sort_order,

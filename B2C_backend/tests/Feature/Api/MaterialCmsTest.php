@@ -149,10 +149,11 @@ class MaterialCmsTest extends TestCase
 
         $this->getJson('/api/home-sections')
             ->assertOk()
-            ->assertJsonCount(2, 'data')
+            ->assertJsonCount(3, 'data')
             ->assertJsonPath('data.0.key', 'hero')
             ->assertJsonPath('data.1.key', 'pilot_projects')
-            ->assertJsonPath('data.1.payload.items.0.title', 'Pilot collaboration details coming soon');
+            ->assertJsonPath('data.1.payload.items.0.title', 'Pilot collaboration details coming soon')
+            ->assertJsonPath('data.2.key', 'footer');
 
         $this->getJson('/api/articles')
             ->assertOk()
@@ -161,7 +162,7 @@ class MaterialCmsTest extends TestCase
 
         $this->getJson('/api/homepage')
             ->assertOk()
-            ->assertJsonCount(2, 'data.home_sections')
+            ->assertJsonCount(3, 'data.home_sections')
             ->assertJsonCount(1, 'data.materials')
             ->assertJsonCount(1, 'data.articles')
             ->assertJsonPath('data.materials.0.slug', 'oyster-shell-material');

@@ -220,6 +220,197 @@ export function resolveCmsHref(
   )
 }
 
+export type FooterContent = SiteMessages["footer"] & {
+  homeLabel?: string
+  materialLabel?: string
+  storeLabel?: string
+  b2bLabel?: string
+  communityLinkLabel?: string
+  contactLabel?: string
+  emailValue?: string
+  emailHref?: string
+  phoneValue?: string
+  phoneHref?: string
+  locationHref?: string
+  privacyHref?: string
+  termsHref?: string
+}
+
+function payloadString(
+  payload: Record<string, unknown> | null,
+  field: string,
+): string | null {
+  return payload ? nonEmptyString(payload[field]) : null
+}
+
+function resolveFooterHref(
+  locale: Locale,
+  href: string | null,
+  fallback: string,
+) {
+  if (!href) {
+    return fallback
+  }
+
+  if (/^(mailto|tel):/i.test(href)) {
+    return href
+  }
+
+  return resolveCmsHref(locale, href, fallback)
+}
+
+export function buildFooterContent(
+  fallback: SiteMessages["footer"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+  headerFallback?: SiteMessages["header"],
+): FooterContent {
+  const payload =
+    section?.key === "footer" && isRecord(section.payload) ? section.payload : null
+
+  return {
+    ...fallback,
+    homeLabel: headerFallback
+      ? resolveLocalizedApiString(payload, "home", locale, headerFallback.home)
+      : undefined,
+    materialLabel: headerFallback
+      ? resolveLocalizedApiString(
+          payload,
+          "material",
+          locale,
+          headerFallback.material,
+        )
+      : undefined,
+    storeLabel: headerFallback
+      ? resolveLocalizedApiString(payload, "store", locale, headerFallback.store)
+      : undefined,
+    b2bLabel: headerFallback
+      ? resolveLocalizedApiString(payload, "b2b", locale, headerFallback.b2b)
+      : undefined,
+    communityLinkLabel: headerFallback
+      ? resolveLocalizedApiString(
+          payload,
+          "community",
+          locale,
+          headerFallback.community,
+        )
+      : undefined,
+    contactLabel: headerFallback
+      ? resolveLocalizedApiString(
+          payload,
+          "contact",
+          locale,
+          headerFallback.contact,
+        )
+      : undefined,
+    description: resolveLocalizedApiString(
+      section,
+      "content",
+      locale,
+      fallback.description,
+    ),
+    explore: resolveLocalizedApiString(payload, "explore", locale, fallback.explore),
+    business: resolveLocalizedApiString(
+      payload,
+      "business",
+      locale,
+      fallback.business,
+    ),
+    communityLabel: resolveLocalizedApiString(
+      payload,
+      "community_label",
+      locale,
+      fallback.communityLabel,
+    ),
+    materialSheet: resolveLocalizedApiString(
+      payload,
+      "material_sheet",
+      locale,
+      fallback.materialSheet,
+    ),
+    sampleRequest: resolveLocalizedApiString(
+      payload,
+      "sample_request",
+      locale,
+      fallback.sampleRequest,
+    ),
+    productDevelopment: resolveLocalizedApiString(
+      payload,
+      "product_development",
+      locale,
+      fallback.productDevelopment,
+    ),
+    ideaSupport: resolveLocalizedApiString(
+      payload,
+      "idea_support",
+      locale,
+      fallback.ideaSupport,
+    ),
+    conceptFund: resolveLocalizedApiString(
+      payload,
+      "concept_fund",
+      locale,
+      fallback.conceptFund,
+    ),
+    emailLabel: resolveLocalizedApiString(
+      payload,
+      "email_label",
+      locale,
+      fallback.emailLabel,
+    ),
+    phoneLabel: resolveLocalizedApiString(
+      payload,
+      "phone_label",
+      locale,
+      fallback.phoneLabel,
+    ),
+    locationLabel: resolveLocalizedApiString(
+      payload,
+      "location_label",
+      locale,
+      fallback.locationLabel,
+    ),
+    locationValue: resolveLocalizedApiString(
+      payload,
+      "location_value",
+      locale,
+      fallback.locationValue,
+    ),
+    copyright: resolveLocalizedApiString(
+      payload,
+      "copyright",
+      locale,
+      fallback.copyright,
+    ),
+    privacy: resolveLocalizedApiString(
+      payload,
+      "privacy",
+      locale,
+      fallback.privacy,
+    ),
+    terms: resolveLocalizedApiString(payload, "terms", locale, fallback.terms),
+    emailValue: payloadString(payload, "email_value") ?? undefined,
+    emailHref: payloadString(payload, "email_href") ?? undefined,
+    phoneValue: payloadString(payload, "phone_value") ?? undefined,
+    phoneHref: payloadString(payload, "phone_href") ?? undefined,
+    locationHref: resolveFooterHref(
+      locale,
+      payloadString(payload, "location_href"),
+      getLocalizedHref(locale, "contact"),
+    ),
+    privacyHref: resolveFooterHref(
+      locale,
+      payloadString(payload, "privacy_href"),
+      getLocalizedHref(locale, "privacy"),
+    ),
+    termsHref: resolveFooterHref(
+      locale,
+      payloadString(payload, "terms_href"),
+      getLocalizedHref(locale, "terms"),
+    ),
+  }
+}
+
 function buildSpecIndicator(spec: MaterialSpec, locale?: Locale) {
   const label = locale
     ? resolveLocalizedApiValue(spec.label, null, locale)

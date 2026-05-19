@@ -4,7 +4,10 @@ import { AppProviders } from "@/components/app-providers"
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { LocaleHtmlSync } from "@/components/locale-html-sync"
-import { getMessages, locales } from "@/lib/i18n"
+import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
+import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { getMessages, locales, type Locale, type SiteMessages } from "@/lib/i18n"
+import { buildFooterContent } from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
 
 type LocaleLayoutProps = {
@@ -35,12 +38,33 @@ export async function generateMetadata({
   }
 }
 
+async function loadFooterContent(
+  locale: Locale,
+  fallback: SiteMessages["footer"],
+  headerFallback: SiteMessages["header"],
+) {
+  try {
+    const apiBaseUrl = await getServerApiBaseUrl()
+    const sections = await getHomeSections({ baseUrl: apiBaseUrl, locale })
+
+    return buildFooterContent(
+      fallback,
+      findHomeSection(sections, "footer"),
+      locale,
+      headerFallback,
+    )
+  } catch {
+    return fallback
+  }
+}
+
 export default async function LocaleLayout({
   children,
   params,
 }: LocaleLayoutProps) {
   const locale = await resolveLocale(params)
   const messages = getMessages(locale)
+  const footer = await loadFooterContent(locale, messages.footer, messages.header)
 
   return (
     <>
@@ -52,7 +76,7 @@ export default async function LocaleLayout({
           languageSwitcher={messages.languageSwitcher}
         />
         <main className="min-h-screen pt-20">{children}</main>
-        <Footer locale={locale} header={messages.header} footer={messages.footer} />
+        <Footer locale={locale} header={messages.header} footer={footer} />
       </AppProviders>
     </>
   )
