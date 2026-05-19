@@ -21,34 +21,34 @@ class IdeaMediaFactory extends Factory
      */
     public function definition(): array
     {
-        $file = fake()->uuid().'.jpg';
+        $file = $this->faker->uuid().'.jpg';
 
         return [
             'post_id' => Post::factory(),
             'source_type' => IdeaMediaSourceType::Upload->value,
             'media_type' => IdeaMediaType::Image->value,
             'kind' => IdeaMediaKind::ConceptImage->value,
-            'title' => fake()->sentence(3),
-            'alt_text' => fake()->sentence(6),
+            'title' => $this->faker->sentence(3),
+            'alt_text' => $this->faker->sentence(6),
             'disk' => 'public',
             'original_name' => $file,
             'file_name' => $file,
             'extension' => 'jpg',
             'mime_type' => 'image/jpeg',
-            'size_bytes' => fake()->numberBetween(15000, 350000),
+            'size_bytes' => $this->faker->numberBetween(15000, 350000),
             'path' => 'ideas/'.$file,
             'url' => 'https://cdn.example.com/ideas/'.$file,
             'preview_url' => 'https://cdn.example.com/ideas/'.$file,
             'thumbnail_url' => 'https://cdn.example.com/ideas/'.$file,
             'external_url' => null,
             'metadata' => null,
-            'sort_order' => fake()->numberBetween(0, 5),
+            'sort_order' => $this->faker->numberBetween(0, 5),
         ];
     }
 
     public function document(): static
     {
-        $file = fake()->uuid().'.pdf';
+        $file = $this->faker->uuid().'.pdf';
 
         return $this->state(fn (): array => [
             'media_type' => IdeaMediaType::Document->value,

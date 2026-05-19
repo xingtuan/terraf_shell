@@ -22,10 +22,10 @@ class MaterialStorySectionFactory extends Factory
     {
         return [
             'material_id' => Material::factory(),
-            'title' => Str::title(fake()->words(3, true)),
-            'subtitle' => fake()->sentence(),
-            'content' => fake()->paragraphs(2, true),
-            'highlight' => fake()->sentence(6),
+            'title' => Str::title($this->faker->words(3, true)),
+            'subtitle' => $this->faker->sentence(),
+            'content' => $this->faker->paragraphs(2, true),
+            'highlight' => $this->faker->sentence(6),
             'status' => PublishStatus::Draft->value,
             'sort_order' => 0,
             'media_path' => null,

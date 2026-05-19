@@ -28,10 +28,10 @@ class SampleRequestFactory extends Factory
             ]),
             'material_interest' => 'Premium shell composite pellets',
             'quantity_estimate' => '5kg',
-            'shipping_country' => fake()->country(),
-            'shipping_region' => fake()->state(),
-            'shipping_address' => fake()->address(),
-            'intended_use' => fake()->sentence(10),
+            'shipping_country' => $this->faker->country(),
+            'shipping_region' => $this->faker->state(),
+            'shipping_address' => $this->faker->address(),
+            'intended_use' => $this->faker->sentence(10),
             'metadata' => null,
         ];
     }

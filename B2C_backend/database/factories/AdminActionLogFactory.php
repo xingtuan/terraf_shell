@@ -25,7 +25,7 @@ class AdminActionLogFactory extends Factory
             'subject_type' => 'post',
             'subject_id' => Post::factory(),
             'action' => 'post.status_updated',
-            'description' => fake()->sentence(8),
+            'description' => $this->faker->sentence(8),
             'metadata' => [
                 'source' => 'factory',
             ],

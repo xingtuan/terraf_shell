@@ -19,13 +19,13 @@ class HomeSectionFactory extends Factory
     public function definition(): array
     {
         return [
-            'key' => fake()->unique()->slug(2),
-            'title' => fake()->sentence(),
-            'subtitle' => fake()->sentence(),
-            'content' => fake()->paragraph(),
+            'key' => $this->faker->unique()->slug(2),
+            'title' => $this->faker->sentence(),
+            'subtitle' => $this->faker->sentence(),
+            'content' => $this->faker->paragraph(),
             'cta_label' => 'Explore',
-            'cta_url' => fake()->url(),
-            'payload' => ['theme' => fake()->randomElement(['hero', 'story', 'science'])],
+            'cta_url' => $this->faker->url(),
+            'payload' => ['theme' => $this->faker->randomElement(['hero', 'story', 'science'])],
             'status' => PublishStatus::Draft->value,
             'sort_order' => 0,
             'media_path' => null,

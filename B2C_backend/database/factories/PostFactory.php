@@ -21,14 +21,14 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->unique()->sentence(6);
-        $content = collect(fake()->paragraphs(4))->implode("\n\n");
+        $title = $this->faker->unique()->sentence(6);
+        $content = collect($this->faker->paragraphs(4))->implode("\n\n");
 
         return [
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
             'title' => $title,
-            'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(100, 9999),
+            'slug' => Str::slug($title).'-'.$this->faker->unique()->numberBetween(100, 9999),
             'content' => $content,
             'content_json' => null,
             'excerpt' => Str::limit(strip_tags($content), 180),

@@ -20,16 +20,16 @@ class MaterialSpecFactory extends Factory
      */
     public function definition(): array
     {
-        $label = Str::title(fake()->words(2, true));
+        $label = Str::title($this->faker->words(2, true));
 
         return [
             'material_id' => Material::factory(),
-            'key' => fake()->unique()->slug(2),
+            'key' => $this->faker->unique()->slug(2),
             'label' => $label,
-            'value' => fake()->randomElement(['Low', 'Medium', 'High', '42']),
-            'unit' => fake()->randomElement(['%', 'MPa', 'kg', null]),
-            'detail' => fake()->sentence(12),
-            'icon' => fake()->randomElement(['shield', 'leaf', 'feather', 'beaker']),
+            'value' => $this->faker->randomElement(['Low', 'Medium', 'High', '42']),
+            'unit' => $this->faker->randomElement(['%', 'MPa', 'kg', null]),
+            'detail' => $this->faker->sentence(12),
+            'icon' => $this->faker->randomElement(['shield', 'leaf', 'feather', 'beaker']),
             'status' => PublishStatus::Draft->value,
             'sort_order' => 0,
             'media_path' => null,

@@ -21,7 +21,7 @@ class PostImageFactory extends Factory
      */
     public function definition(): array
     {
-        $file = fake()->uuid().'.jpg';
+        $file = $this->faker->uuid().'.jpg';
 
         return [
             'post_id' => Post::factory(),
@@ -33,15 +33,15 @@ class PostImageFactory extends Factory
             'file_name' => $file,
             'extension' => 'jpg',
             'mime_type' => 'image/jpeg',
-            'size_bytes' => fake()->numberBetween(20000, 400000),
+            'size_bytes' => $this->faker->numberBetween(20000, 400000),
             'path' => 'ideas/'.$file,
             'url' => 'https://cdn.example.com/ideas/'.$file,
             'preview_url' => 'https://cdn.example.com/ideas/'.$file,
             'thumbnail_url' => 'https://cdn.example.com/ideas/'.$file,
             'external_url' => null,
-            'alt_text' => fake()->sentence(6),
+            'alt_text' => $this->faker->sentence(6),
             'metadata' => null,
-            'sort_order' => fake()->numberBetween(0, 3),
+            'sort_order' => $this->faker->numberBetween(0, 3),
         ];
     }
 }

@@ -14,7 +14,7 @@ class ProductAttributeValueFactory extends Factory
 {
     public function definition(): array
     {
-        $label = Str::title(fake()->unique()->word());
+        $label = Str::title($this->faker->unique()->word());
 
         return [
             'attribute_definition_id' => ProductAttributeDefinition::factory(),

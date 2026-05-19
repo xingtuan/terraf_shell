@@ -16,24 +16,24 @@ class ProductFactory extends Factory
 {
     public function definition(): array
     {
-        $name = Str::title(fake()->unique()->words(3, true));
-        $imageUrl = fake()->imageUrl(1200, 800, 'business', true);
-        $priceAmount = fake()->randomFloat(2, 28, 180);
+        $name = Str::title($this->faker->unique()->words(3, true));
+        $imageUrl = $this->faker->imageUrl(1200, 800, 'business', true);
+        $priceAmount = $this->faker->randomFloat(2, 28, 180);
 
         return [
             'category_id' => ProductCategory::factory(),
             'name' => $name,
-            'subtitle' => fake()->sentence(),
-            'short_description' => fake()->sentence(),
-            'full_description' => fake()->paragraphs(2, true),
-            'features' => fake()->randomElements([
+            'subtitle' => $this->faker->sentence(),
+            'short_description' => $this->faker->sentence(),
+            'full_description' => $this->faker->paragraphs(2, true),
+            'features' => $this->faker->randomElements([
                 'Compression-moulded shell composite',
                 'Refined mineral finish',
                 'Premium service durability',
                 'Lightweight handling',
             ], 3),
-            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(100, 9999),
-            'weight_grams' => fake()->numberBetween(240, 1200),
+            'slug' => Str::slug($name).'-'.$this->faker->unique()->numberBetween(100, 9999),
+            'weight_grams' => $this->faker->numberBetween(240, 1200),
             'certifications' => [
                 '0% water absorption',
                 'Food-contact reviewed',
@@ -79,7 +79,7 @@ class ProductFactory extends Factory
             'sample_request_enabled' => true,
             'lead_time' => 'Ships in 3-5 business days',
             'seo_title' => $name,
-            'seo_description' => fake()->sentence(),
+            'seo_description' => $this->faker->sentence(),
             'published_at' => null,
         ];
     }

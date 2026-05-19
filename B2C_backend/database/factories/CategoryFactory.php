@@ -18,14 +18,14 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
-        $name = Str::title(fake()->unique()->words(2, true));
+        $name = Str::title($this->faker->unique()->words(2, true));
 
         return [
             'name' => $name,
             'slug' => Str::slug($name),
-            'description' => fake()->sentence(10),
+            'description' => $this->faker->sentence(10),
             'is_active' => true,
-            'sort_order' => fake()->numberBetween(0, 50),
+            'sort_order' => $this->faker->numberBetween(0, 50),
         ];
     }
 }

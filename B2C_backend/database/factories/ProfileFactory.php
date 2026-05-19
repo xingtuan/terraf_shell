@@ -20,13 +20,13 @@ class ProfileFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'bio' => fake()->sentence(12),
-            'school_or_company' => fake()->company(),
-            'region' => fake()->city().', '.fake()->country(),
-            'location' => fake()->city().', '.fake()->country(),
-            'portfolio_url' => fake()->url(),
-            'website' => fake()->url(),
-            'open_to_collab' => fake()->boolean(),
+            'bio' => $this->faker->sentence(12),
+            'school_or_company' => $this->faker->company(),
+            'region' => $this->faker->city().', '.$this->faker->country(),
+            'location' => $this->faker->city().', '.$this->faker->country(),
+            'portfolio_url' => $this->faker->url(),
+            'website' => $this->faker->url(),
+            'open_to_collab' => $this->faker->boolean(),
             'avatar_path' => null,
             'avatar_url' => null,
         ];

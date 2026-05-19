@@ -13,14 +13,14 @@ class ProductCategoryFactory extends Factory
 {
     public function definition(): array
     {
-        $name = Str::title(fake()->unique()->words(2, true));
+        $name = Str::title($this->faker->unique()->words(2, true));
 
         return [
             'name' => $name,
             'name_translations' => ['en' => $name],
-            'description' => fake()->paragraph(),
-            'description_translations' => ['en' => fake()->paragraph()],
-            'slug' => Str::slug($name).'-'.fake()->unique()->numberBetween(100, 9999),
+            'description' => $this->faker->paragraph(),
+            'description_translations' => ['en' => $this->faker->paragraph()],
+            'slug' => Str::slug($name).'-'.$this->faker->unique()->numberBetween(100, 9999),
             'sort_order' => 0,
             'is_active' => true,
         ];

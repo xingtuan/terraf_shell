@@ -27,7 +27,7 @@ class PartnershipInquiryFactory extends Factory
                 'inquiry_type' => B2BLeadType::PartnershipInquiry->label(),
             ]),
             'collaboration_type' => B2BLeadType::PartnershipInquiry->value,
-            'collaboration_goal' => fake()->sentence(8),
+            'collaboration_goal' => $this->faker->sentence(8),
             'project_stage' => 'pilot',
             'timeline' => 'Q3 2026',
             'metadata' => null,

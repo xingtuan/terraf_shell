@@ -25,7 +25,7 @@ class FundingCampaignFactory extends Factory
             'post_id' => Post::factory(),
             'support_enabled' => true,
             'support_button_text' => 'Support this concept',
-            'external_crowdfunding_url' => fake()->url(),
+            'external_crowdfunding_url' => $this->faker->url(),
             'campaign_status' => FundingCampaignStatus::Live->value,
             'target_amount' => 10000,
             'pledged_amount' => 2500,

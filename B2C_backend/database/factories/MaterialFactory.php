@@ -19,15 +19,15 @@ class MaterialFactory extends Factory
      */
     public function definition(): array
     {
-        $title = Str::title(fake()->unique()->words(3, true));
+        $title = Str::title($this->faker->unique()->words(3, true));
 
         return [
             'title' => $title,
-            'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(100, 9999),
-            'headline' => fake()->sentence(),
-            'summary' => fake()->paragraph(),
-            'story_overview' => fake()->paragraphs(2, true),
-            'science_overview' => fake()->paragraphs(2, true),
+            'slug' => Str::slug($title).'-'.$this->faker->unique()->numberBetween(100, 9999),
+            'headline' => $this->faker->sentence(),
+            'summary' => $this->faker->paragraph(),
+            'story_overview' => $this->faker->paragraphs(2, true),
+            'science_overview' => $this->faker->paragraphs(2, true),
             'status' => PublishStatus::Draft->value,
             'is_featured' => false,
             'sort_order' => 0,

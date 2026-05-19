@@ -33,7 +33,7 @@ class UserViolationFactory extends Factory
             'type' => UserViolationType::ManualWarning->value,
             'severity' => UserViolationSeverity::Warning->value,
             'status' => UserViolationStatus::Open->value,
-            'reason' => fake()->sentence(8),
+            'reason' => $this->faker->sentence(8),
             'resolution_note' => null,
             'metadata' => [
                 'source' => 'factory',

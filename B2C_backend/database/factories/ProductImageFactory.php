@@ -13,8 +13,8 @@ class ProductImageFactory extends Factory
 {
     public function definition(): array
     {
-        $altText = fake()->sentence(4);
-        $caption = fake()->sentence();
+        $altText = $this->faker->sentence(4);
+        $caption = $this->faker->sentence();
 
         return [
             'product_id' => Product::factory(),
@@ -23,7 +23,7 @@ class ProductImageFactory extends Factory
             'caption' => $caption,
             'caption_translations' => ['en' => $caption],
             'media_path' => null,
-            'media_url' => fake()->imageUrl(1200, 800, 'business', true),
+            'media_url' => $this->faker->imageUrl(1200, 800, 'business', true),
             'sort_order' => 0,
         ];
     }

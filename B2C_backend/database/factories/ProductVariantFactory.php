@@ -14,26 +14,26 @@ class ProductVariantFactory extends Factory
 {
     public function definition(): array
     {
-        $sku = 'OXP_'.Str::upper(fake()->unique()->bothify('SKU_####'));
+        $sku = 'OXP_'.Str::upper($this->faker->unique()->bothify('SKU_####'));
 
         return [
             'product_id' => Product::factory(),
             'sku' => $sku,
-            'title' => fake()->randomElement(['Default', 'Matte / Ocean Bone', 'Warm Sand / M']),
+            'title' => $this->faker->randomElement(['Default', 'Matte / Ocean Bone', 'Warm Sand / M']),
             'option_values' => [
-                'finish' => fake()->randomElement(['matte', 'glossy']),
-                'color' => fake()->randomElement(['ocean_bone', 'forged_ash']),
+                'finish' => $this->faker->randomElement(['matte', 'glossy']),
+                'color' => $this->faker->randomElement(['ocean_bone', 'forged_ash']),
             ],
-            'price_amount' => fake()->randomFloat(2, 28, 180),
+            'price_amount' => $this->faker->randomFloat(2, 28, 180),
             'compare_at_price_amount' => null,
             'currency' => 'NZD',
-            'stock_quantity' => fake()->numberBetween(6, 60),
+            'stock_quantity' => $this->faker->numberBetween(6, 60),
             'stock_status' => 'in_stock',
             'inventory_policy' => 'deny',
             'low_stock_threshold' => 5,
-            'weight_grams' => fake()->numberBetween(240, 1200),
+            'weight_grams' => $this->faker->numberBetween(240, 1200),
             'dimensions' => null,
-            'image_url' => fake()->imageUrl(1200, 800, 'business', true),
+            'image_url' => $this->faker->imageUrl(1200, 800, 'business', true),
             'media_path' => null,
             'is_default' => false,
             'is_active' => true,

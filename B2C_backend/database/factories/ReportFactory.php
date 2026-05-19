@@ -25,7 +25,7 @@ class ReportFactory extends Factory
             'target_type' => 'post',
             'target_id' => Post::factory(),
             'reason' => 'Spam or misleading information',
-            'description' => fake()->sentence(12),
+            'description' => $this->faker->sentence(12),
             'status' => ReportStatus::Pending->value,
             'moderator_note' => null,
             'public_note' => null,

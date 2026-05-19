@@ -22,12 +22,12 @@ class MaterialApplicationFactory extends Factory
     {
         return [
             'material_id' => Material::factory(),
-            'title' => Str::title(fake()->words(3, true)),
-            'subtitle' => fake()->sentence(),
-            'description' => fake()->paragraphs(2, true),
-            'audience' => fake()->company(),
+            'title' => Str::title($this->faker->words(3, true)),
+            'subtitle' => $this->faker->sentence(),
+            'description' => $this->faker->paragraphs(2, true),
+            'audience' => $this->faker->company(),
             'cta_label' => 'Learn more',
-            'cta_url' => fake()->url(),
+            'cta_url' => $this->faker->url(),
             'status' => PublishStatus::Draft->value,
             'sort_order' => 0,
             'media_path' => null,

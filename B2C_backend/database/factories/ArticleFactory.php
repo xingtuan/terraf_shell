@@ -19,14 +19,14 @@ class ArticleFactory extends Factory
      */
     public function definition(): array
     {
-        $title = Str::title(fake()->unique()->words(4, true));
+        $title = Str::title($this->faker->unique()->words(4, true));
 
         return [
             'title' => $title,
-            'slug' => Str::slug($title).'-'.fake()->unique()->numberBetween(100, 9999),
-            'excerpt' => fake()->paragraph(),
-            'content' => fake()->paragraphs(3, true),
-            'category' => fake()->randomElement(['news', 'science', 'updates']),
+            'slug' => Str::slug($title).'-'.$this->faker->unique()->numberBetween(100, 9999),
+            'excerpt' => $this->faker->paragraph(),
+            'content' => $this->faker->paragraphs(3, true),
+            'category' => $this->faker->randomElement(['news', 'science', 'updates']),
             'status' => PublishStatus::Draft->value,
             'sort_order' => 0,
             'media_path' => null,

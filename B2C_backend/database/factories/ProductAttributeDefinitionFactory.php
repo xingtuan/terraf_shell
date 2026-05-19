@@ -13,13 +13,13 @@ class ProductAttributeDefinitionFactory extends Factory
 {
     public function definition(): array
     {
-        $label = Str::title(fake()->unique()->words(2, true));
+        $label = Str::title($this->faker->unique()->words(2, true));
 
         return [
             'key' => Str::slug($label, '_'),
             'label' => $label,
             'label_translations' => ['en' => $label],
-            'type' => fake()->randomElement(array_keys(ProductAttributeDefinition::TYPE_OPTIONS)),
+            'type' => $this->faker->randomElement(array_keys(ProductAttributeDefinition::TYPE_OPTIONS)),
             'unit' => null,
             'is_variant_option' => false,
             'is_filterable' => true,

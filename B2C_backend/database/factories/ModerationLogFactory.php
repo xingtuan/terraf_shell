@@ -24,7 +24,7 @@ class ModerationLogFactory extends Factory
             'subject_type' => 'post',
             'subject_id' => Post::factory(),
             'action' => 'approved',
-            'reason' => fake()->sentence(8),
+            'reason' => $this->faker->sentence(8),
             'metadata' => [
                 'source' => 'factory',
             ],
