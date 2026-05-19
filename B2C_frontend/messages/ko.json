@@ -1633,6 +1633,62 @@
       "namePlaceholder": "이름을 입력하세요",
       "signInToContinue": "계속하려면 로그인하세요",
       "loadingAccount": "OXP 계정을 불러오는 중...",
+      "forgotPasswordLink": "비밀번호를 잊으셨나요?",
+      "forgotPassword": {
+        "eyebrow": "비밀번호 도움",
+        "title": "비밀번호 재설정",
+        "description": "OXP 계정에 사용하는 이메일 주소를 입력하세요. 계정이 있으면 안전한 재설정 링크를 보내드립니다.",
+        "emailLabel": "계정 이메일",
+        "emailPlaceholder": "name@example.com",
+        "submit": "재설정 링크 보내기",
+        "submitPending": "보내는 중...",
+        "successTitle": "이메일을 확인하세요",
+        "successDescription": "해당 이메일의 계정이 있으면 비밀번호 재설정 링크가 발송되었습니다. 링크가 만료될 수 있으니 가장 최근에 받은 이메일을 사용하세요.",
+        "rememberPassword": "로그인으로 돌아가기",
+        "backToLogin": "로그인",
+        "backHome": "홈",
+        "validation": {
+          "emailRequired": "이메일 주소를 입력하세요.",
+          "emailInvalid": "올바른 이메일 주소를 입력하세요."
+        }
+      },
+      "resetPassword": {
+        "eyebrow": "비밀번호 재설정",
+        "title": "새 비밀번호 만들기",
+        "description": "OXP 계정의 새 비밀번호를 설정하세요. 이메일에서 가장 최근에 받은 재설정 링크를 사용하세요.",
+        "emailLabel": "계정 이메일",
+        "passwordLabel": "새 비밀번호",
+        "confirmPasswordLabel": "새 비밀번호 확인",
+        "submit": "비밀번호 재설정",
+        "submitPending": "재설정 중...",
+        "successTitle": "비밀번호가 업데이트되었습니다",
+        "successDescription": "비밀번호가 재설정되었습니다. 이제 새 비밀번호로 로그인할 수 있습니다.",
+        "missingTitle": "재설정 링크가 완전하지 않습니다",
+        "missingDescription": "이 재설정 링크에는 필요한 정보가 없습니다. 새 링크를 요청하고 가장 최근에 받은 이메일을 사용하세요.",
+        "invalidResetLink": "이 재설정 링크는 만료되었거나 유효하지 않습니다. 새 비밀번호 재설정 이메일을 요청하세요.",
+        "requestNewLink": "새 링크 요청",
+        "backToLogin": "로그인으로 돌아가기",
+        "signIn": "로그인",
+        "validation": {
+          "emailRequired": "이메일 주소를 입력하세요.",
+          "emailInvalid": "올바른 이메일 주소를 입력하세요.",
+          "passwordRequired": "새 비밀번호를 입력하세요.",
+          "passwordMin": "비밀번호는 최소 8자 이상이어야 합니다.",
+          "passwordMismatch": "비밀번호가 일치하지 않습니다."
+        }
+      },
+      "emailVerification": {
+        "eyebrow": "이메일 인증",
+        "verifiedTitle": "이메일 인증이 완료되었습니다.",
+        "verifiedDescription": "OXP 계정 이메일이 확인되었습니다. 계속 로그인하고 계정 기능을 사용할 수 있습니다.",
+        "expiredTitle": "이 인증 링크는 만료되었습니다.",
+        "expiredDescription": "보안을 위해 이메일 인증 링크는 만료됩니다. 로그인한 뒤 계정에서 새 인증 이메일을 요청하세요.",
+        "invalidTitle": "이 인증 링크는 유효하지 않습니다.",
+        "invalidDescription": "링크가 이미 사용되었거나 변경되었거나 일부만 복사되었을 수 있습니다. 계정이 아직 인증되지 않았다면 로그인한 뒤 새 인증 이메일을 요청하세요.",
+        "signIn": "로그인",
+        "signInToRequest": "로그인하고 새 인증 이메일 요청",
+        "contactSupport": "지원 문의"
+      },
       "validation": {
         "nameRequired": "성명을 입력하세요.",
         "emailRequired": "이메일 주소를 입력하세요.",

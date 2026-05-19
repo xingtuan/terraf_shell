@@ -48,6 +48,7 @@ export function AuthPageClient({ locale, defaultMode = "login" }: AuthPageClient
       onRegister={session.register}
       onLogout={session.logout}
       onRefresh={session.refreshUser}
+      forgotPasswordHref={getLocalizedHref(locale, "auth/forgot-password")}
     />
   )
 }

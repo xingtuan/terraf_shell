@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import type { LoginPayload, RegisterPayload } from "@/lib/api/auth"
@@ -35,6 +36,7 @@ export type CommunityAuthCopy = {
   namePlaceholder: string
   signInToContinue: string
   loadingAccount: string
+  forgotPasswordLink?: string
   validation?: {
     nameRequired: string
     emailRequired: string
@@ -62,6 +64,7 @@ type CommunityAuthPanelProps = {
   context?: "community" | "store"
   onSuccess?: () => void
   defaultMode?: "login" | "register"
+  forgotPasswordHref?: string
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -189,6 +192,7 @@ export function CommunityAuthPanel({
   context = "community",
   onSuccess,
   defaultMode = "login",
+  forgotPasswordHref,
 }: CommunityAuthPanelProps) {
   const router = useRouter()
   const [mode, setMode] = useState<"login" | "register">(defaultMode)
@@ -380,7 +384,17 @@ export function CommunityAuthPanel({
           </div>
           <div className="space-y-1">
             <label className="space-y-2">
-              <span className="text-sm text-foreground">{copy.password}</span>
+              <span className="flex items-center justify-between gap-3 text-sm text-foreground">
+                <span>{copy.password}</span>
+                {forgotPasswordHref && copy.forgotPasswordLink ? (
+                  <Link
+                    href={forgotPasswordHref}
+                    className="text-xs text-primary underline-offset-4 hover:underline"
+                  >
+                    {copy.forgotPasswordLink}
+                  </Link>
+                ) : null}
+              </span>
               <Input
                 name="password"
                 type="password"

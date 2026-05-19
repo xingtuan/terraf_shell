@@ -70,6 +70,71 @@ class AuthTest extends TestCase
             ->assertJsonPath('data.email_verified', true);
     }
 
+    public function test_email_verification_browser_request_redirects_to_frontend_result_page(): void
+    {
+        config()->set('services.frontend.url', 'http://frontend.test');
+
+        $user = User::factory()->create([
+            'email' => 'verify-me@example.com',
+            'email_verified_at' => null,
+        ]);
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            [
+                'id' => $user->id,
+                'hash' => sha1($user->email),
+                'locale' => 'zh',
+            ]
+        );
+
+        $this->get($verificationUrl)
+            ->assertRedirect('http://frontend.test/email-verified?status=verified&locale=zh');
+
+        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+    }
+
+    public function test_expired_email_verification_browser_request_redirects_to_frontend_result_page(): void
+    {
+        config()->set('services.frontend.url', 'http://frontend.test');
+
+        $user = User::factory()->create(['email' => 'expired-link@example.com']);
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->subMinute(),
+            [
+                'id' => $user->id,
+                'hash' => sha1($user->email),
+                'locale' => 'ko',
+            ]
+        );
+
+        $this->get($verificationUrl)
+            ->assertRedirect('http://frontend.test/email-verified?status=expired&locale=ko');
+    }
+
+    public function test_invalid_email_verification_hash_browser_request_redirects_to_frontend_result_page(): void
+    {
+        config()->set('services.frontend.url', 'http://frontend.test');
+
+        $user = User::factory()->create(['email' => 'wrong-hash@example.com']);
+
+        $verificationUrl = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes(60),
+            [
+                'id' => $user->id,
+                'hash' => sha1('other@example.com'),
+                'locale' => 'en',
+            ]
+        );
+
+        $this->get($verificationUrl)
+            ->assertRedirect('http://frontend.test/email-verified?status=invalid&locale=en');
+    }
+
     public function test_registration_succeeds_even_when_verification_email_dispatch_fails(): void
     {
         $this->mock(EmailDispatchService::class, function ($mock): void {

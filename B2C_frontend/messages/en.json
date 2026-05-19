@@ -1633,6 +1633,62 @@
       "namePlaceholder": "Your full name",
       "signInToContinue": "Sign in to continue",
       "loadingAccount": "Loading your OXP account...",
+      "forgotPasswordLink": "Forgot password?",
+      "forgotPassword": {
+        "eyebrow": "Password help",
+        "title": "Reset your password",
+        "description": "Enter the email address on your OXP account and we will send a secure reset link if the account exists.",
+        "emailLabel": "Account email",
+        "emailPlaceholder": "you@example.com",
+        "submit": "Send reset link",
+        "submitPending": "Sending...",
+        "successTitle": "Check your email",
+        "successDescription": "If an account exists for that email address, a password reset link has been sent. The link may expire, so use the latest email you receive.",
+        "rememberPassword": "Back to sign in",
+        "backToLogin": "Sign in",
+        "backHome": "Home",
+        "validation": {
+          "emailRequired": "Please enter your email address.",
+          "emailInvalid": "Please enter a valid email address."
+        }
+      },
+      "resetPassword": {
+        "eyebrow": "Password reset",
+        "title": "Create a new password",
+        "description": "Choose a new password for your OXP account. Use the latest reset link from your email.",
+        "emailLabel": "Account email",
+        "passwordLabel": "New password",
+        "confirmPasswordLabel": "Confirm new password",
+        "submit": "Reset password",
+        "submitPending": "Resetting...",
+        "successTitle": "Password updated",
+        "successDescription": "Your password has been reset. You can now sign in with the new password.",
+        "missingTitle": "This reset link is incomplete",
+        "missingDescription": "The reset link is missing required information. Request a new link and use the latest email you receive.",
+        "invalidResetLink": "This reset link has expired or is not valid. Request a new password reset email.",
+        "requestNewLink": "Request a new link",
+        "backToLogin": "Back to sign in",
+        "signIn": "Sign in",
+        "validation": {
+          "emailRequired": "Please enter your email address.",
+          "emailInvalid": "Please enter a valid email address.",
+          "passwordRequired": "Please enter a new password.",
+          "passwordMin": "Password must be at least 8 characters.",
+          "passwordMismatch": "Passwords do not match."
+        }
+      },
+      "emailVerification": {
+        "eyebrow": "Email verification",
+        "verifiedTitle": "Your email has been verified.",
+        "verifiedDescription": "Your OXP account email is confirmed. You can continue signing in and using account features.",
+        "expiredTitle": "This verification link has expired.",
+        "expiredDescription": "For security, email verification links expire. Sign in and request a new verification email from your account.",
+        "invalidTitle": "This verification link is not valid.",
+        "invalidDescription": "The link may have already been used, changed, or copied incorrectly. Sign in and request a new verification email if your account is still unverified.",
+        "signIn": "Sign in",
+        "signInToRequest": "Sign in to request a new email",
+        "contactSupport": "Contact support"
+      },
       "validation": {
         "nameRequired": "Please enter your full name.",
         "emailRequired": "Please enter your email address.",

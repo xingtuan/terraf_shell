@@ -16,6 +16,17 @@ export type RegisterPayload = {
   device_name?: string
 }
 
+export type ForgotPasswordPayload = {
+  email: string
+}
+
+export type ResetPasswordPayload = {
+  email: string
+  token: string
+  password: string
+  password_confirmation: string
+}
+
 export type UpdateProfilePayload = {
   name?: string
   username?: string
@@ -59,6 +70,24 @@ export async function getCurrentUser(token: string) {
   })
 
   return normalizeCommunityUser(response.data) ?? response.data
+}
+
+export async function forgotPassword(payload: ForgotPasswordPayload) {
+  const response = await requestApi<null>("/auth/forgot-password", {
+    method: "POST",
+    body: payload,
+  })
+
+  return response.message
+}
+
+export async function resetPassword(payload: ResetPasswordPayload) {
+  const response = await requestApi<null>("/auth/reset-password", {
+    method: "POST",
+    body: payload,
+  })
+
+  return response.message
 }
 
 export async function logout(token: string) {

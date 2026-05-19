@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Models\User;
 use App\Services\Email\EmailDispatchService;
 use App\Services\Email\EmailPayloadFactory;
+use App\Support\FrontendUrl;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\DB;
@@ -199,6 +200,7 @@ class AuthService
             [
                 'id' => $user->getKey(),
                 'hash' => sha1($user->getEmailForVerification()),
+                'locale' => FrontendUrl::currentLocale(),
             ]
         );
 
@@ -223,12 +225,14 @@ class AuthService
                 .'?'.http_build_query([
                     'token' => $token,
                     'email' => $user->email,
+                    'locale' => FrontendUrl::currentLocale(),
                 ]);
         }
 
         return URL::route('password.reset', [
             'token' => $token,
             'email' => $user->email,
+            'locale' => FrontendUrl::currentLocale(),
         ]);
     }
 }

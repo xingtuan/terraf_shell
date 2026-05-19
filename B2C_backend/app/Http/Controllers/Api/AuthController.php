@@ -10,6 +10,9 @@ use App\Http\Requests\Auth\ResendVerificationEmailRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Services\AuthService;
+use App\Support\FrontendUrl;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -84,7 +87,22 @@ class AuthController extends Controller
         string $hash,
         AuthService $authService
     ): JsonResponse|RedirectResponse {
-        $user = $authService->verifyEmail($id, $hash);
+        try {
+            $user = $authService->verifyEmail($id, $hash);
+        } catch (AuthorizationException|ModelNotFoundException $exception) {
+            if (! $request->expectsJson() && ! $request->wantsJson()) {
+                $redirectUrl = FrontendUrl::emailVerificationUrl(
+                    'invalid',
+                    (string) ($request->query('locale') ?: FrontendUrl::currentLocale()),
+                );
+
+                if ($redirectUrl !== null) {
+                    return redirect()->away($redirectUrl);
+                }
+            }
+
+            throw $exception;
+        }
 
         if ($request->expectsJson() || $request->wantsJson()) {
             return $this->successResponse(
@@ -93,9 +111,9 @@ class AuthController extends Controller
             );
         }
 
-        $redirectUrl = $this->frontendUrl(
-            (string) config('services.frontend.email_verification_path', '/email-verified'),
-            ['status' => 'verified']
+        $redirectUrl = FrontendUrl::emailVerificationUrl(
+            'verified',
+            (string) ($request->query('locale') ?: FrontendUrl::currentLocale()),
         );
 
         if ($redirectUrl !== null) {
@@ -110,11 +128,12 @@ class AuthController extends Controller
 
     public function showResetPassword(Request $request, string $token): JsonResponse|RedirectResponse
     {
-        $redirectUrl = $this->frontendUrl(
+        $redirectUrl = FrontendUrl::to(
             (string) config('services.frontend.password_reset_path', '/reset-password'),
             [
                 'token' => $token,
                 'email' => (string) $request->query('email'),
+                'locale' => (string) ($request->query('locale') ?: FrontendUrl::currentLocale()),
             ]
         );
 
@@ -131,21 +150,4 @@ class AuthController extends Controller
         );
     }
 
-    private function frontendUrl(string $path, array $query = []): ?string
-    {
-        $baseUrl = rtrim((string) config('services.frontend.url'), '/');
-
-        if ($baseUrl === '') {
-            return null;
-        }
-
-        $url = $baseUrl.'/'.ltrim($path, '/');
-        $query = array_filter($query, fn (mixed $value): bool => filled($value));
-
-        if ($query === []) {
-            return $url;
-        }
-
-        return $url.'?'.http_build_query($query);
-    }
 }
