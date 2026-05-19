@@ -44,6 +44,7 @@ class PostResource extends JsonResource
             'funding_url' => $fundingEnabled ? $this->funding_url : null,
             'cover_image_url' => $this->coverImageUrl(),
             'cover_image_path' => $this->when($this->includeDetailFields, $this->cover_image_path),
+            'cover_image_disk' => $this->when($this->includeDetailFields, $this->coverImageDisk()),
             'reading_time' => (int) ($this->reading_time ?? 0),
             'status' => $this->status,
             'is_pinned' => (bool) $this->is_pinned,

@@ -4,18 +4,25 @@ namespace App\Filament\Resources\Posts\Schemas;
 
 use App\Enums\ContentStatus;
 use App\Filament\Support\PanelAccess;
+use App\Models\IdeaMedia;
+use App\Models\Post;
 use App\Models\User;
 use App\Rules\ExternalSafeUrl;
+use App\Services\Storage\StorageManagerService;
+use App\Support\StorageUrl;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PostForm
@@ -94,6 +101,34 @@ class PostForm
                     ]),
                 Section::make(__('admin.ui.images'))
                     ->schema([
+                        Hidden::make('cover_image_disk'),
+                        FileUpload::make('cover_image_path')
+                            ->label(__('admin.ui.cover_image'))
+                            ->image()
+                            ->disk(fn (): string => self::activeUploadDisk())
+                            ->directory('posts/covers')
+                            ->visibility(fn (): string => self::visibilityForDisk(self::activeUploadDisk()))
+                            ->fetchFileInformation(false)
+                            ->getUploadedFileUsing(fn (string $file, ?Post $record = null, string|array|null $storedFileNames = null): ?array => self::uploadedFileInfo(
+                                $file,
+                                $record?->coverImageDisk(),
+                                $storedFileNames,
+                            ))
+                            ->afterStateUpdated(function (Set $set): void {
+                                $set('cover_image_disk', self::activeUploadDisk());
+                            })
+                            ->imagePreviewHeight('180')
+                            ->openable()
+                            ->downloadable()
+                            ->columnSpanFull(),
+                        ViewField::make('content_images_preview')
+                            ->label(__('admin.ui.content_images'))
+                            ->view('filament.components.media-image-grid', fn (?Post $record): array => [
+                                'urls' => $record?->contentImageUrls() ?? [],
+                            ])
+                            ->dehydrated(false)
+                            ->visible(fn (?Post $record): bool => count($record?->contentImageUrls() ?? []) > 0)
+                            ->columnSpanFull(),
                         Repeater::make('images')
                             ->relationship()
                             ->label(__('admin.ui.post_images'))
@@ -103,13 +138,24 @@ class PostForm
                             ->collapsible()
                             ->grid(2)
                             ->schema([
+                                Hidden::make('disk')
+                                    ->default(fn (): string => self::activeUploadDisk()),
                                 FileUpload::make('path')
                                     ->label(__('admin.ui.image'))
                                     ->image()
                                     ->required()
-                                    ->disk((string) config('community.uploads.disk'))
+                                    ->disk(fn (): string => self::activeUploadDisk())
                                     ->directory('posts')
-                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                    ->visibility(fn (): string => self::visibilityForDisk(self::activeUploadDisk()))
+                                    ->fetchFileInformation(false)
+                                    ->getUploadedFileUsing(fn (string $file, ?IdeaMedia $record = null, string|array|null $storedFileNames = null): ?array => self::uploadedFileInfo(
+                                        $file,
+                                        $record?->storageDisk(),
+                                        $storedFileNames,
+                                    ))
+                                    ->afterStateUpdated(function (Set $set): void {
+                                        $set('disk', self::activeUploadDisk());
+                                    })
                                     ->imagePreviewHeight('140'),
                                 TextInput::make('alt_text')
                                     ->label(__('admin.ui.alt_text'))
@@ -117,5 +163,42 @@ class PostForm
                             ]),
                     ]),
             ]);
+    }
+
+    private static function activeUploadDisk(): string
+    {
+        return app(StorageManagerService::class)->disk();
+    }
+
+    private static function visibilityForDisk(string $disk): string
+    {
+        return StorageUrl::normalizeDisk($disk) === 'azure' ? 'private' : 'public';
+    }
+
+    /**
+     * @return array{name: string, size: int, type: ?string, url: string}|null
+     */
+    private static function uploadedFileInfo(string $file, ?string $disk, string|array|null $storedFileNames = null): ?array
+    {
+        $resolvedDisk = StorageUrl::normalizeDisk($disk ?: self::activeUploadDisk());
+        $storage = Storage::disk($resolvedDisk);
+        $size = 0;
+        $type = null;
+
+        try {
+            if ($storage->exists($file)) {
+                $size = (int) $storage->size($file);
+                $type = $storage->mimeType($file) ?: null;
+            }
+        } catch (\Throwable) {
+            //
+        }
+
+        return [
+            'name' => is_array($storedFileNames) ? ($storedFileNames[$file] ?? basename($file)) : ($storedFileNames ?: basename($file)),
+            'size' => $size,
+            'type' => $type,
+            'url' => (string) StorageUrl::resolve($file, $resolvedDisk),
+        ];
     }
 }

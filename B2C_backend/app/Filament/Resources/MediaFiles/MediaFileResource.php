@@ -159,7 +159,7 @@ class MediaFileResource extends Resource
                     ->label(__('admin.ui.test_file_exists'))
                     ->icon('heroicon-o-check-circle')
                     ->action(function (MediaFile $record): void {
-                        $exists = Storage::disk($record->disk ?: (string) config('community.uploads.disk'))->exists($record->path);
+                        $exists = Storage::disk($record->storageDisk())->exists($record->path);
 
                         Notification::make()
                             ->title($exists ? __('admin.ui.file_exists_on_disk') : __('admin.ui.file_missing_from_disk'))
@@ -171,7 +171,7 @@ class MediaFileResource extends Resource
                     ->icon('heroicon-o-arrow-path')
                     ->action(function (MediaFile $record): void {
                         $record->forceFill([
-                            'url' => StorageUrl::publicResolve($record->path, $record->disk),
+                            'url' => StorageUrl::publicResolve($record->path, $record->storageDisk()),
                         ])->save();
 
                         Notification::make()
@@ -192,7 +192,7 @@ class MediaFileResource extends Resource
                     ->requiresConfirmation()
                     ->visible(fn (MediaFile $record): bool => PanelAccess::isAdmin() && blank($record->fileable_type) && blank($record->fileable_id))
                     ->action(function (MediaFile $record): void {
-                        Storage::disk($record->disk ?: (string) config('community.uploads.disk'))->delete($record->path);
+                        Storage::disk($record->storageDisk())->delete($record->path);
                         $record->delete();
 
                         Notification::make()

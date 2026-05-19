@@ -13,6 +13,7 @@ use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Post;
+use App\Support\StorageUrl;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -112,6 +113,24 @@ class PostResource extends Resource
             && (string) $data['content'] !== (string) $record->content
         ) {
             $data['content_json'] = null;
+        }
+
+        if (array_key_exists('cover_image_path', $data)) {
+            $coverImagePath = is_string($data['cover_image_path']) ? trim($data['cover_image_path']) : null;
+            $data['cover_image_path'] = $coverImagePath !== '' ? $coverImagePath : null;
+
+            if ($data['cover_image_path'] !== null) {
+                $coverImageDisk = $data['cover_image_disk'] ?? null;
+                $data['cover_image_disk'] = StorageUrl::normalizeDisk(
+                    is_string($coverImageDisk) && trim($coverImageDisk) !== ''
+                        ? $coverImageDisk
+                        : ($record?->cover_image_path === $data['cover_image_path'] ? $record->coverImageDisk() : null),
+                );
+                $data['cover_image_url'] = StorageUrl::publicResolve($data['cover_image_path'], $data['cover_image_disk']);
+            } else {
+                $data['cover_image_disk'] = null;
+                $data['cover_image_url'] = null;
+            }
         }
 
         if (($data['status'] ?? $record?->status) === ContentStatus::Approved->value) {

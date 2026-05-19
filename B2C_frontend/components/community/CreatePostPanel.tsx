@@ -216,6 +216,7 @@ export function CreatePostPanel({
   const [fundingUrl, setFundingUrl] = useState("")
   const [coverImageUrl, setCoverImageUrl] = useState("")
   const [coverImagePath, setCoverImagePath] = useState("")
+  const [coverImageDisk, setCoverImageDisk] = useState<string | null>(null)
   const [attachments, setAttachments] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<
     Array<{ index: number; url: string }>
@@ -321,6 +322,7 @@ export function CreatePostPanel({
     setFundingUrl(currentPost?.funding_url ?? "")
     setCoverImageUrl(currentPost?.cover_image_url ?? "")
     setCoverImagePath(currentPost?.cover_image_path ?? "")
+    setCoverImageDisk(currentPost?.cover_image_disk ?? null)
   }, [currentPost, open])
 
   useEffect(() => {
@@ -410,6 +412,7 @@ export function CreatePostPanel({
               excerpt: excerpt.trim() || null,
               cover_image_url: coverImageUrl || null,
               cover_image_path: coverImagePath || null,
+              cover_image_disk: coverImageDisk,
               funding_url: fundingUrl.trim() || null,
               attachments,
             }
@@ -550,9 +553,10 @@ export function CreatePostPanel({
                 setContentJson(nextJson)
                 setContent(plainText)
               }}
-              onCoverImageChange={(url, path) => {
+              onCoverImageChange={(url, path, disk) => {
                 setCoverImageUrl(url)
                 setCoverImagePath(path)
+                setCoverImageDisk(disk ?? null)
               }}
             />
             {errors.content ? (

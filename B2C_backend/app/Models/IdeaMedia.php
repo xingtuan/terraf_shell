@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\IdeaMediaKind;
 use App\Enums\IdeaMediaSourceType;
 use App\Enums\IdeaMediaType;
+use App\Services\Storage\StorageManagerService;
 use App\Support\StorageUrl;
 use Database\Factories\IdeaMediaFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -47,6 +48,7 @@ class IdeaMedia extends Model
     protected function casts(): array
     {
         return [
+            'disk' => 'string',
             'size_bytes' => 'integer',
             'download_count' => 'integer',
             'metadata' => 'array',
@@ -81,7 +83,9 @@ class IdeaMedia extends Model
                 return;
             }
 
-            $media->disk = $media->disk ?: (string) config('community.uploads.disk');
+            $media->disk = $media->isDirty('path')
+                ? app(StorageManagerService::class)->disk()
+                : $media->storageDisk();
             $media->file_name = $media->file_name ?: basename($media->path);
             $media->extension = $media->extension ?: strtolower((string) pathinfo($media->file_name, PATHINFO_EXTENSION));
             $media->original_name = $media->original_name ?: $media->file_name;
@@ -99,7 +103,7 @@ class IdeaMedia extends Model
                 return;
             }
 
-            Storage::disk($media->disk ?: (string) config('community.uploads.disk'))
+            Storage::disk($media->storageDisk())
                 ->delete($media->path);
         });
     }
@@ -160,6 +164,11 @@ class IdeaMedia extends Model
         return $this->sourceTypeValue() === IdeaMediaSourceType::ExternalUrl->value;
     }
 
+    public function storageDisk(): string
+    {
+        return self::storageDiskFromAttributes($this->attributes);
+    }
+
     public static function inferMediaTypeFromExtension(?string $extension): IdeaMediaType
     {
         $normalized = strtolower((string) $extension);
@@ -185,7 +194,7 @@ class IdeaMedia extends Model
         $path = $attributes['path'] ?? null;
 
         if (blank($path)) {
-            return $attributes['url'] ?? null;
+            return StorageUrl::normalizePublicUrl($attributes['url'] ?? null);
         }
 
         $mediaType = IdeaMediaType::tryFrom((string) ($attributes['media_type'] ?? ''));
@@ -194,6 +203,30 @@ class IdeaMedia extends Model
             return null;
         }
 
-        return StorageUrl::resolve((string) $path, $attributes['disk'] ?? null);
+        return StorageUrl::resolve((string) $path, self::storageDiskFromAttributes($attributes));
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private static function storageDiskFromAttributes(array $attributes): string
+    {
+        $disk = trim((string) ($attributes['disk'] ?? ''));
+
+        if ($disk !== '') {
+            return StorageUrl::normalizeDisk($disk);
+        }
+
+        $url = (string) ($attributes['url'] ?? '');
+
+        if (str_contains($url, '/storage/') || str_contains($url, '/media/files/public/')) {
+            return 'public';
+        }
+
+        if (str_contains($url, '.blob.core.windows.net/')) {
+            return 'azure';
+        }
+
+        return StorageUrl::normalizeDisk();
     }
 }

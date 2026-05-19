@@ -8,6 +8,7 @@ use App\Models\Post;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -75,6 +76,12 @@ class PostInfolist
                     ]),
                 Section::make(__('admin.ui.content'))
                     ->schema([
+                        ImageEntry::make('cover_image_preview')
+                            ->label(__('admin.ui.cover_image'))
+                            ->state(fn (Post $record): ?string => $record->coverImageUrl())
+                            ->checkFileExistence(false)
+                            ->height(220)
+                            ->columnSpanFull(),
                         TextEntry::make('excerpt')
                             ->placeholder(__('admin.ui.no_excerpt_available'))
                             ->columnSpanFull(),
@@ -85,6 +92,13 @@ class PostInfolist
                             ->openUrlInNewTab()
                             ->columnSpanFull(),
                         TextEntry::make('content')
+                            ->columnSpanFull(),
+                        ViewEntry::make('content_images_preview')
+                            ->label(__('admin.ui.content_images'))
+                            ->view('filament.components.media-image-grid', fn (Post $record): array => [
+                                'urls' => $record->contentImageUrls(),
+                            ])
+                            ->visible(fn (Post $record): bool => count($record->contentImageUrls()) > 0)
                             ->columnSpanFull(),
                     ]),
                 Section::make(__('admin.ui.discovery_metrics'))
@@ -145,6 +159,8 @@ class PostInfolist
                             ->schema([
                                 ImageEntry::make('thumbnail_url')
                                     ->label(__('admin.ui.preview'))
+                                    ->state(fn ($record): ?string => $record?->thumbnail_url)
+                                    ->checkFileExistence(false)
                                     ->height(140),
                                 TextEntry::make('title')
                                     ->placeholder(__('admin.ui.untitled_asset')),

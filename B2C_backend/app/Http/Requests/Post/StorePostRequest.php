@@ -46,6 +46,7 @@ class StorePostRequest extends FormRequest
             ],
             'cover_image_url' => ['nullable', 'url', 'max:2048'],
             'cover_image_path' => ['nullable', 'string', 'max:1024'],
+            'cover_image_disk' => ['nullable', 'string', 'max:255'],
             'reading_time' => ['nullable', 'integer', 'min:0', 'max:999'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'tags' => [$this->tagsRule()],

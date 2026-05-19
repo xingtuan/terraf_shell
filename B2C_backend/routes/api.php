@@ -50,6 +50,7 @@ use App\Http\Controllers\Api\StoreShippingController;
 use App\Http\Controllers\Api\TagController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\MediaController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function (): void {
@@ -138,6 +139,9 @@ Route::get('/health', [HealthController::class, 'index']);
 Route::get('/health/database', [HealthController::class, 'database']);
 Route::get('/health/storage', [HealthController::class, 'storage']);
 Route::get('/health/mail', [HealthController::class, 'mail']);
+Route::get('/media/files/{disk}/{path}', [MediaController::class, 'show'])
+    ->where('path', '.*')
+    ->name('api.media.files.show');
 
 Route::post('/media/upload/guest', [UploadController::class, 'upload'])
     ->middleware('runtime_setting:community.allow_guest_upload,false');

@@ -52,7 +52,7 @@ import { cn } from "@/lib/utils"
 type RichPostEditorProps = {
   content?: Record<string, unknown> | null
   onChange: (json: Record<string, unknown>, plainText: string) => void
-  onCoverImageChange?: (url: string, path: string) => void
+  onCoverImageChange?: (url: string, path: string, disk?: string | null) => void
   coverImageUrl?: string
   coverImagePath?: string
   placeholder?: string
@@ -64,6 +64,7 @@ type RichPostEditorProps = {
 type CoverImageState = {
   url: string
   path: string
+  disk?: string | null
 }
 
 function ToolbarButton({
@@ -196,6 +197,7 @@ export function RichPostEditor({
   const [coverImage, setCoverImage] = useState<CoverImageState>({
     url: coverImageUrl,
     path: coverImagePath,
+    disk: null,
   })
   const shouldShowCoverImage =
     showCoverImage ?? Boolean(onCoverImageChange || coverImage.url || coverImage.path)
@@ -259,6 +261,7 @@ export function RichPostEditor({
     setCoverImage({
       url: coverImageUrl,
       path: coverImagePath,
+      disk: null,
     })
   }, [coverImagePath, coverImageUrl])
 
@@ -313,10 +316,11 @@ export function RichPostEditor({
       const nextCoverImage = {
         url: uploaded.url,
         path: uploaded.path,
+        disk: uploaded.disk ?? null,
       }
 
       setCoverImage(nextCoverImage)
-      onCoverImageChange?.(uploaded.url, uploaded.path)
+      onCoverImageChange?.(uploaded.url, uploaded.path, uploaded.disk ?? null)
     } catch {
       setCoverError(labels.coverUploadFailed)
     } finally {
@@ -337,7 +341,7 @@ export function RichPostEditor({
       }
 
       setCoverImage({ url: "", path: "" })
-      onCoverImageChange?.("", "")
+      onCoverImageChange?.("", "", null)
     } catch {
       setCoverError(labels.coverRemoveFailed)
     }

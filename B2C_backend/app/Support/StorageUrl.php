@@ -15,7 +15,7 @@ class StorageUrl
             return null;
         }
 
-        $resolvedDisk = self::normalizeDisk((string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public'))));
+        $resolvedDisk = self::normalizeDisk($disk);
 
         if ($resolvedDisk === 'azure' && self::shouldUseAzureSignedUrls()) {
             return Storage::disk($resolvedDisk)->temporaryUrl(
@@ -36,7 +36,7 @@ class StorageUrl
             return null;
         }
 
-        $resolvedDisk = self::normalizeDisk((string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public'))));
+        $resolvedDisk = self::normalizeDisk($disk);
 
         if ($resolvedDisk === 'azure') {
             $baseUrl = self::azureBaseUrl();
@@ -79,6 +79,38 @@ class StorageUrl
             : '';
     }
 
+    public static function normalizePublicUrl(?string $url): ?string
+    {
+        if (blank($url)) {
+            return null;
+        }
+
+        $value = trim((string) $url);
+        $path = parse_url($value, PHP_URL_PATH);
+        $path = is_string($path) ? $path : $value;
+
+        $legacyPrefix = '/media/files/public/';
+
+        if (str_starts_with($path, $legacyPrefix)) {
+            return self::publicLocalUrl(substr($path, strlen($legacyPrefix)), 'public');
+        }
+
+        $storagePrefix = '/storage/';
+
+        if (str_starts_with($path, $storagePrefix)) {
+            return self::publicLocalUrl(substr($path, strlen($storagePrefix)), 'public');
+        }
+
+        return $value;
+    }
+
+    public static function normalizeDisk(?string $disk = null): string
+    {
+        $disk = trim((string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public'))));
+
+        return $disk === '' || $disk === 'local' ? 'public' : $disk;
+    }
+
     private static function shouldUseAzureSignedUrls(): bool
     {
         return (bool) config('community.uploads.azure.use_sas_urls', true);
@@ -117,12 +149,5 @@ class StorageUrl
         }
 
         return Storage::disk($disk)->url($path);
-    }
-
-    private static function normalizeDisk(string $disk): string
-    {
-        $disk = trim($disk);
-
-        return $disk === '' || $disk === 'local' ? 'public' : $disk;
     }
 }

@@ -85,6 +85,7 @@ export function CommunityPostComposer({
   )
   const [coverImageUrl, setCoverImageUrl] = useState("")
   const [coverImagePath, setCoverImagePath] = useState("")
+  const [coverImageDisk, setCoverImageDisk] = useState<string | null>(null)
   const [fundingUrl, setFundingUrl] = useState("")
   const [errors, setErrors] = useState<ComposerErrors>({})
   const [isPending, startTransition] = useTransition()
@@ -128,6 +129,7 @@ export function CommunityPostComposer({
     setContentJson(createRichTextDocumentFromText("") as Record<string, unknown>)
     setCoverImageUrl("")
     setCoverImagePath("")
+    setCoverImageDisk(null)
     setFundingUrl("")
     setErrors({})
   }
@@ -247,9 +249,10 @@ export function CommunityPostComposer({
               setContentJson(nextJson)
               setContent(plainText)
             }}
-            onCoverImageChange={(url, path) => {
+            onCoverImageChange={(url, path, disk) => {
               setCoverImageUrl(url)
               setCoverImagePath(path)
+              setCoverImageDisk(disk ?? null)
             }}
           />
           {errors.content ? (
@@ -309,6 +312,7 @@ export function CommunityPostComposer({
                     tag_ids: selectedTagIds.length ? selectedTagIds : undefined,
                     cover_image_url: coverImageUrl || null,
                     cover_image_path: coverImagePath || null,
+                    cover_image_disk: coverImageDisk,
                     funding_url: trimmedFundingUrl || null,
                   },
                   token,

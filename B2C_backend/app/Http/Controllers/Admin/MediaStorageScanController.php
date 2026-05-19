@@ -51,13 +51,13 @@ class MediaStorageScanController extends Controller
             ->get()
             ->filter(function (MediaFile $mediaFile): bool {
                 try {
-                    return ! Storage::disk($mediaFile->disk ?: (string) config('community.uploads.disk'))->exists($mediaFile->path);
+                    return ! Storage::disk($mediaFile->storageDisk())->exists($mediaFile->path);
                 } catch (Throwable) {
                     return true;
                 }
             })
             ->map(fn (MediaFile $mediaFile): array => [
-                'disk' => $mediaFile->disk ?: (string) config('community.uploads.disk'),
+                'disk' => $mediaFile->storageDisk(),
                 'path' => $mediaFile->path,
             ])
             ->values()

@@ -9,6 +9,7 @@ use App\Enums\IdeaMediaType;
 use App\Enums\UserRole;
 use App\Models\Favorite;
 use App\Models\IdeaMedia;
+use App\Models\MediaFile;
 use App\Models\Post;
 use App\Models\PostLike;
 use App\Models\Tag;
@@ -136,6 +137,7 @@ class PostService
                 'funding_url' => $data['funding_url'] ?? null,
                 'cover_image_url' => $data['cover_image_url'] ?? null,
                 'cover_image_path' => $data['cover_image_path'] ?? null,
+                'cover_image_disk' => $data['cover_image_disk'] ?? null,
                 'reading_time' => $data['reading_time'] ?? 0,
                 'status' => $status,
                 'is_pinned' => $isAdmin ? (bool) ($data['is_pinned'] ?? false) : false,
@@ -167,6 +169,7 @@ class PostService
             $data = $this->preparePostData($data, $post);
             $wasFeatured = (bool) $post->is_featured;
             $previousCoverImagePath = $post->cover_image_path;
+            $previousCoverImageDisk = $post->coverImageDisk();
             $nextCoverImagePath = array_key_exists('cover_image_path', $data)
                 ? $data['cover_image_path']
                 : $post->cover_image_path;
@@ -184,6 +187,7 @@ class PostService
                 'funding_url' => array_key_exists('funding_url', $data) ? $data['funding_url'] : $post->funding_url,
                 'cover_image_url' => array_key_exists('cover_image_url', $data) ? $data['cover_image_url'] : $post->cover_image_url,
                 'cover_image_path' => $nextCoverImagePath,
+                'cover_image_disk' => array_key_exists('cover_image_disk', $data) ? $data['cover_image_disk'] : $post->cover_image_disk,
                 'reading_time' => $data['reading_time'] ?? $post->reading_time,
             ]);
 
@@ -232,8 +236,8 @@ class PostService
                 && filled($previousCoverImagePath)
                 && $previousCoverImagePath !== $nextCoverImagePath
             ) {
-                DB::afterCommit(function () use ($previousCoverImagePath): void {
-                    $this->mediaService->delete($previousCoverImagePath);
+                DB::afterCommit(function () use ($previousCoverImagePath, $previousCoverImageDisk): void {
+                    $this->mediaService->deletePath($previousCoverImagePath, $previousCoverImageDisk);
                 });
             }
 
@@ -891,11 +895,39 @@ class PostService
             $data['cover_image_path'] = $coverImagePath !== '' ? $coverImagePath : null;
 
             if ($data['cover_image_path'] !== null) {
-                $data['cover_image_url'] = StorageUrl::publicResolve($data['cover_image_path']);
+                $data['cover_image_disk'] = $this->normalizeCoverImageDisk(
+                    $data['cover_image_disk'] ?? null,
+                    $data['cover_image_path'],
+                    $post,
+                );
+                $data['cover_image_url'] = StorageUrl::publicResolve($data['cover_image_path'], $data['cover_image_disk']);
+            } else {
+                $data['cover_image_disk'] = null;
             }
         }
 
         return $data;
+    }
+
+    private function normalizeCoverImageDisk(mixed $disk, string $path, ?Post $post = null): string
+    {
+        if (is_string($disk) && trim($disk) !== '') {
+            return StorageUrl::normalizeDisk($disk);
+        }
+
+        if ($post instanceof Post && $post->cover_image_path === $path && filled($post->cover_image_disk)) {
+            return $post->coverImageDisk();
+        }
+
+        $mediaDisk = MediaFile::query()
+            ->where('path', $path)
+            ->value('disk');
+
+        if (filled($mediaDisk)) {
+            return StorageUrl::normalizeDisk((string) $mediaDisk);
+        }
+
+        return StorageUrl::normalizeDisk();
     }
 
     private function normalizeContentJson(mixed $value): ?array

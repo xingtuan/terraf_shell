@@ -5,6 +5,8 @@ namespace Tests\Feature\Admin;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminResourcesAccessTest extends TestCase
@@ -233,5 +235,63 @@ class AdminResourcesAccessTest extends TestCase
         $this->actingAs($admin)
             ->get("/admin/posts/{$post->getKey()}/edit")
             ->assertOk();
+    }
+
+    public function test_post_admin_pages_show_local_cover_and_inline_images_after_storage_switch(): void
+    {
+        Storage::fake('public');
+        Storage::fake('azure');
+        Config::set('community.uploads.disk', 'public');
+
+        $admin = User::factory()->admin()->create();
+        $coverPath = 'images/community/2026/05/cover.png';
+        $inlinePath = 'images/community/2026/05/inline.png';
+        $attachmentPath = 'images/community/2026/05/attachment.png';
+
+        Storage::disk('public')->put($coverPath, 'cover');
+        Storage::disk('public')->put($inlinePath, 'inline');
+        Storage::disk('public')->put($attachmentPath, 'attachment');
+
+        $post = Post::factory()->create([
+            'cover_image_path' => $coverPath,
+            'cover_image_disk' => 'public',
+            'content_json' => [
+                'type' => 'doc',
+                'content' => [
+                    [
+                        'type' => 'image',
+                        'attrs' => [
+                            'src' => "/media/files/public/{$inlinePath}",
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $post->media()->create([
+            'source_type' => 'upload',
+            'media_type' => 'image',
+            'kind' => 'concept_image',
+            'disk' => 'public',
+            'path' => $attachmentPath,
+            'original_name' => 'attachment.png',
+            'file_name' => 'attachment.png',
+            'extension' => 'png',
+            'mime_type' => 'image/png',
+            'size_bytes' => 10,
+            'sort_order' => 0,
+        ]);
+
+        Config::set('community.uploads.disk', 'azure');
+
+        $this->actingAs($admin)
+            ->get("/admin/posts/{$post->getKey()}")
+            ->assertOk()
+            ->assertSee('inline.png');
+
+        $this->actingAs($admin)
+            ->get("/admin/posts/{$post->getKey()}/edit")
+            ->assertOk()
+            ->assertSee('inline.png');
     }
 }

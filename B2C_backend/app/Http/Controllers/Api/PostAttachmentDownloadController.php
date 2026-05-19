@@ -33,7 +33,7 @@ class PostAttachmentDownloadController extends Controller
             404
         );
 
-        $disk = $media->disk ?: (string) config('community.uploads.disk');
+        $disk = $media->storageDisk();
 
         abort_unless(Storage::disk($disk)->exists($media->path), 404);
 

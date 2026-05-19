@@ -43,7 +43,7 @@ class MediaFile extends Model
             get: fn (?string $value, array $attributes): ?string => StorageUrl::resolve(
                 $attributes['path'] ?? null,
                 self::storageDiskFromAttributes($attributes),
-            ) ?? $value,
+            ) ?? StorageUrl::normalizePublicUrl($value),
         );
     }
 

@@ -22,6 +22,8 @@ class IdeaMediaResource extends JsonResource
             'kind' => $this->kind,
             'title' => $this->title,
             'alt_text' => $this->alt_text,
+            'disk' => $this->storageDisk(),
+            'path' => $this->path,
             'original_name' => $this->original_name,
             'file_name' => $this->file_name,
             'extension' => $this->extension,

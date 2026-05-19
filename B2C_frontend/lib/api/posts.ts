@@ -53,6 +53,7 @@ export type PostFormPayload = {
   excerpt?: string | null
   cover_image_url?: string | null
   cover_image_path?: string | null
+  cover_image_disk?: string | null
   tag_ids?: number[]
 }
 
@@ -83,6 +84,9 @@ function buildPostBody(payload: Partial<PostFormPayload>) {
         : {}),
       ...(payload.cover_image_path !== undefined
         ? { cover_image_path: payload.cover_image_path }
+        : {}),
+      ...(payload.cover_image_disk !== undefined
+        ? { cover_image_disk: payload.cover_image_disk }
         : {}),
       ...(payload.tag_ids !== undefined ? { tag_ids: payload.tag_ids } : {}),
     }
@@ -131,6 +135,10 @@ function buildPostBody(payload: Partial<PostFormPayload>) {
 
   if (payload.cover_image_path !== undefined) {
     form.append("cover_image_path", payload.cover_image_path ?? "")
+  }
+
+  if (payload.cover_image_disk !== undefined) {
+    form.append("cover_image_disk", payload.cover_image_disk ?? "")
   }
 
   if (payload.tag_ids) {

@@ -1528,6 +1528,8 @@ return [
         'plain_text_body' => '纯文本正文',
         'portfolio' => '作品集',
         'post' => '帖子',
+        'cover_image' => 'Cover image',
+        'content_images' => 'Inline content images',
         'post_images' => '帖子图片',
         'posts' => '帖子列表',
         'posts_waiting_for_moderation' => '等待审核的帖子',

@@ -211,6 +211,7 @@ class PostWorkflowTest extends TestCase
             'user_id' => $user->id,
             'cover_image_url' => 'https://example.com/old-cover.jpg',
             'cover_image_path' => $oldPath,
+            'cover_image_disk' => 'public',
         ]);
 
         Sanctum::actingAs($user);
@@ -218,11 +219,38 @@ class PostWorkflowTest extends TestCase
         $this->patchJson("/api/posts/{$post->id}", [
             'cover_image_url' => 'https://example.com/new-cover.jpg',
             'cover_image_path' => 'images/community/2026/04/new-cover.jpg',
+            'cover_image_disk' => 'public',
         ])
             ->assertOk()
             ->assertJsonPath('data.cover_image_url', StorageUrl::publicResolve('images/community/2026/04/new-cover.jpg', 'public'))
             ->assertJsonPath('data.cover_image_path', 'images/community/2026/04/new-cover.jpg');
 
         Storage::disk('public')->assertMissing($oldPath);
+    }
+
+    public function test_post_cover_uses_stored_disk_after_active_storage_switch(): void
+    {
+        Storage::fake('public');
+        Storage::fake('azure');
+
+        $admin = User::factory()->admin()->create();
+        $path = 'images/community/2026/05/local-cover.png';
+        Storage::disk('public')->put($path, 'cover');
+
+        $post = Post::factory()->create([
+            'user_id' => $admin->id,
+            'cover_image_path' => $path,
+            'cover_image_disk' => 'public',
+            'cover_image_url' => StorageUrl::publicResolve($path, 'public'),
+            'status' => 'approved',
+        ]);
+
+        Config::set('community.uploads.disk', 'azure');
+        Sanctum::actingAs($admin);
+
+        $this->getJson("/api/posts/{$post->id}")
+            ->assertOk()
+            ->assertJsonPath('data.cover_image_disk', 'public')
+            ->assertJsonPath('data.cover_image_url', StorageUrl::resolve($path, 'public'));
     }
 }

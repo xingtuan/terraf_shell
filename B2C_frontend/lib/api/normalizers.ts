@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from "@/lib/api/client"
+import { getApiBaseUrl } from "./client.ts"
 import type { ApiPaginationMeta, MaterialSpecIcon } from "@/lib/types"
 
 function getConfiguredMediaOrigin() {
@@ -85,29 +85,78 @@ export function rewriteLegacyPublicMediaUrl(url?: string | null) {
   }
 
   const legacyPrefix = "/media/files/public/"
+  const storagePrefix = "/storage/"
+  const path = extractUrlPath(url)
+  let storedPath: string | null = null
 
+  if (path?.startsWith(legacyPrefix)) {
+    storedPath = path.slice(legacyPrefix.length)
+  } else if (path?.startsWith(storagePrefix)) {
+    storedPath = path.slice(storagePrefix.length)
+  }
+
+  if (!storedPath) {
+    return null
+  }
+
+  return buildPublicLocalMediaUrl(storedPath)
+}
+
+function extractUrlPath(url: string) {
   if (/^https?:\/\//i.test(url)) {
     try {
-      const parsed = new URL(url)
-
-      if (!parsed.pathname.startsWith(legacyPrefix)) {
-        return null
-      }
-
-      parsed.pathname = `/storage/${parsed.pathname.slice(legacyPrefix.length)}`
-
-      return parsed.toString()
+      return new URL(url).pathname
     } catch {
       return null
     }
   }
 
-  if (!url.startsWith(legacyPrefix)) {
-    return null
+  return url.startsWith("/") ? url : null
+}
+
+function buildPublicLocalMediaUrl(storedPath: string) {
+  const normalizedStoredPath = storedPath.replace(/^\/+/, "")
+  const configuredMediaBaseUrl = process.env.NEXT_PUBLIC_MEDIA_BASE_URL?.trim()
+
+  if (configuredMediaBaseUrl && /^https?:\/\//i.test(configuredMediaBaseUrl)) {
+    try {
+      const mediaBase = new URL(configuredMediaBaseUrl)
+      mediaBase.pathname = `/storage/${normalizedStoredPath}`
+      mediaBase.search = ""
+      mediaBase.hash = ""
+
+      return mediaBase.toString()
+    } catch {
+      // Fall through to API based URLs.
+    }
   }
 
-  const rewrittenPath = `/storage/${url.slice(legacyPrefix.length)}`
+  const apiBaseUrl = getApiBaseUrl()
+  const apiMediaPath = `/media/files/public/${normalizedStoredPath}`
+
+  if (/^https?:\/\//i.test(apiBaseUrl)) {
+    try {
+      const apiBase = new URL(apiBaseUrl)
+      const basePath = apiBase.pathname.replace(/\/+$/, "")
+      const mediaPath = `${basePath}${apiMediaPath}`.replace(/\/{2,}/g, "/")
+
+      apiBase.pathname = mediaPath
+      apiBase.search = ""
+      apiBase.hash = ""
+
+      return apiBase.toString()
+    } catch {
+      // Fall through to relative URL.
+    }
+  }
+
+  if (apiBaseUrl.startsWith("/")) {
+    const basePath = apiBaseUrl.replace(/\/+$/, "")
+    return `${basePath}${apiMediaPath}`.replace(/\/{2,}/g, "/")
+  }
+
   const apiOrigin = getApiOrigin()
+  const rewrittenPath = `/storage/${normalizedStoredPath}`
 
   if (!apiOrigin) {
     return rewrittenPath

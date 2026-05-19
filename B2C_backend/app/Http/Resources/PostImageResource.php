@@ -18,6 +18,8 @@ class PostImageResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'disk' => $this->storageDisk(),
+            'path' => $this->path,
             'url' => $this->url,
             'preview_url' => $this->preview_url,
             'thumbnail_url' => $this->thumbnail_url,

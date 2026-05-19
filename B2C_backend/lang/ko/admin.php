@@ -1528,6 +1528,8 @@ return [
         'plain_text_body' => '일반 텍스트 본문',
         'portfolio' => '포트폴리오',
         'post' => '게시물',
+        'cover_image' => 'Cover image',
+        'content_images' => 'Inline content images',
         'post_images' => '게시물 이미지',
         'posts' => '게시물',
         'posts_waiting_for_moderation' => '관리 대기 중인 게시물',

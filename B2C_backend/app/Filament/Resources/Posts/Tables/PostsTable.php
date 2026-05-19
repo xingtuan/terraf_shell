@@ -38,6 +38,7 @@ class PostsTable
                 ImageColumn::make('cover_image')
                     ->label(__('admin.ui.image'))
                     ->state(fn (Post $record): ?string => $record->coverImageUrl())
+                    ->checkFileExistence(false)
                     ->defaultImageUrl('https://placehold.co/96x64?text=Post')
                     ->square(),
                 TextColumn::make('id')

@@ -34,6 +34,7 @@ class PostFactory extends Factory
             'excerpt' => Str::limit(strip_tags($content), 180),
             'cover_image_url' => null,
             'cover_image_path' => null,
+            'cover_image_disk' => null,
             'reading_time' => 1,
             'status' => ContentStatus::Approved->value,
             'is_pinned' => false,

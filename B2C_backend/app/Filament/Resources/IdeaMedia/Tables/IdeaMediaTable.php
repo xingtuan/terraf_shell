@@ -19,6 +19,8 @@ class IdeaMediaTable
             ->columns([
                 ImageColumn::make('thumbnail_url')
                     ->label(__('admin.ui.preview'))
+                    ->state(fn ($record): ?string => $record?->thumbnail_url)
+                    ->checkFileExistence(false)
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x96?text=File'),
                 TextColumn::make('post.title')

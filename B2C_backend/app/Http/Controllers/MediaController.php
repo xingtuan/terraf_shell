@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\StorageUrl;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -9,6 +10,8 @@ class MediaController extends Controller
 {
     public function show(string $disk, string $path): StreamedResponse
     {
+        $disk = StorageUrl::normalizeDisk($disk);
+
         abort_unless($this->isResolvableLocalDisk($disk), 404);
 
         $normalizedPath = ltrim(str_replace('\\', '/', $path), '/');

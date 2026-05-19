@@ -1528,6 +1528,8 @@ return [
         'plain_text_body' => 'Plain text body',
         'portfolio' => 'Portfolio',
         'post' => 'Post',
+        'cover_image' => 'Cover image',
+        'content_images' => 'Inline content images',
         'post_images' => 'Post images',
         'posts' => 'Posts',
         'posts_waiting_for_moderation' => 'Posts waiting for moderation',

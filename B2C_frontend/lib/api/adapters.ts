@@ -911,6 +911,8 @@ export function normalizeCommunityPostImage(
 ): CommunityPostImage {
   return {
     ...image,
+    disk: image.disk ?? null,
+    path: image.path ?? null,
     url: resolveApiUrl(image.url) ?? image.url,
     preview_url: resolveApiUrl(image.preview_url),
     thumbnail_url: resolveApiUrl(image.thumbnail_url),
@@ -920,6 +922,8 @@ export function normalizeCommunityPostImage(
 export function normalizeCommunityMedia(media: CommunityMedia): CommunityMedia {
   return {
     ...media,
+    disk: media.disk ?? null,
+    path: media.path ?? null,
     url: resolveApiUrl(media.url),
     preview_url: resolveApiUrl(media.preview_url),
     thumbnail_url: resolveApiUrl(media.thumbnail_url),
@@ -965,6 +969,7 @@ export function normalizeCommunityPost(post: CommunityPost): CommunityPost {
     content_json: normalizeCommunityContentJson(post.content_json),
     cover_image_url: resolveApiUrl(post.cover_image_url),
     cover_image_path: post.cover_image_path ?? null,
+    cover_image_disk: post.cover_image_disk ?? null,
     reading_time: Number(post.reading_time ?? 0),
     support_enabled: normalizeBoolean(post.support_enabled),
     target_amount: normalizeOptionalNumber(post.target_amount),

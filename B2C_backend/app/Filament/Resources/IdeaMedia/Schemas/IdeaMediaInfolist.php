@@ -20,6 +20,8 @@ class IdeaMediaInfolist
                             ->schema([
                                 ImageEntry::make('thumbnail_url')
                                     ->label(__('admin.ui.preview'))
+                                    ->state(fn ($record): ?string => $record?->thumbnail_url)
+                                    ->checkFileExistence(false)
                                     ->height(180),
                                 Grid::make(2)
                                     ->schema([

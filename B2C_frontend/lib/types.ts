@@ -895,6 +895,8 @@ export interface CommunityTag {
 
 export interface CommunityPostImage {
   id: number
+  disk?: string | null
+  path?: string | null
   url: string
   preview_url?: string | null
   thumbnail_url?: string | null
@@ -910,6 +912,8 @@ export interface CommunityMedia {
   kind?: string | null
   title?: string | null
   alt_text?: string | null
+  disk?: string | null
+  path?: string | null
   original_name?: string | null
   file_name?: string | null
   extension?: string | null
@@ -963,6 +967,7 @@ export interface CommunityPost {
   funding_url?: string | null
   cover_image_url?: string | null
   cover_image_path?: string | null
+  cover_image_disk?: string | null
   reading_time?: number
   status: string
   is_pinned: boolean
