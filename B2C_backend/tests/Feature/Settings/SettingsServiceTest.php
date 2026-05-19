@@ -2,12 +2,14 @@
 
 namespace Tests\Feature\Settings;
 
+use App\Filament\Pages\LegalPageSettings;
 use App\Models\AppSetting;
 use App\Models\AppSettingAuditLog;
 use App\Models\User;
 use App\Services\Settings\SettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class SettingsServiceTest extends TestCase
@@ -109,5 +111,39 @@ class SettingsServiceTest extends TestCase
         $this->assertDatabaseMissing('app_setting_audit_logs', [
             'new_value' => 'second-secret',
         ]);
+    }
+
+    public function test_runtime_settings_pages_dehydrate_form_state_before_saving(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+
+        Livewire::test(LegalPageSettings::class)
+            ->set('data.privacy_en_meta_title', 'Backend Privacy Meta')
+            ->set('data.privacy_en_body_html', [
+                'type' => 'doc',
+                'content' => [
+                    [
+                        'type' => 'heading',
+                        'attrs' => ['level' => 2],
+                        'content' => [
+                            ['type' => 'text', 'text' => 'Backend body'],
+                        ],
+                    ],
+                    [
+                        'type' => 'paragraph',
+                        'content' => [
+                            ['type' => 'text', 'text' => 'Managed in Legal Pages.'],
+                        ],
+                    ],
+                ],
+            ])
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $settings = app(SettingsService::class);
+
+        $this->assertSame('Backend Privacy Meta', $settings->string('legal.privacy.en.meta_title'));
+        $this->assertStringContainsString('<h2>Backend body</h2>', $settings->string('legal.privacy.en.body_html'));
+        $this->assertStringContainsString('<p>Managed in Legal Pages.</p>', $settings->string('legal.privacy.en.body_html'));
     }
 }

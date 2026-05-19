@@ -1608,8 +1608,8 @@
       "logout": "退出登录"
     },
     "auth": {
-      "title": "社区访问",
-      "description": "登录后即可发布创意、关注创作者，并参与围绕 OXP 材料应用的讨论。",
+      "title": "OXP访问",
+      "description": "登录后即可购物，发布创意、关注创作者，并参与围绕 OXP 材料应用的讨论。",
       "loginTab": "登录",
       "registerTab": "注册",
       "loadingSession": "正在检查你的已保存会话...",

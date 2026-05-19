@@ -1608,8 +1608,8 @@
       "logout": "Log Out"
     },
     "auth": {
-      "title": "Community Access",
-      "description": "Sign in to post ideas, follow makers, and join the conversation around OXP material applications.",
+      "title": "OXP Access",
+      "description": "Sign in to shopping, post ideas, follow makers, and join the conversation around OXP material applications.",
       "loginTab": "Login",
       "registerTab": "Register",
       "loadingSession": "Checking your saved session...",

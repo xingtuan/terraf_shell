@@ -11,19 +11,20 @@ trait ManagesRuntimeSettings
 
     public function save(SettingsService $settings): void
     {
+        $state = $this->form->getState();
         $payload = [];
 
         foreach ($this->settingMap() as $field => $meta) {
             if (($meta['is_secret'] ?? false) && (
-                ! array_key_exists($field, $this->data ?? [])
-                || ($this->data[$field] ?? null) === SettingsService::SECRET_MASK
-                || blank($this->data[$field] ?? null)
+                ! array_key_exists($field, $state)
+                || ($state[$field] ?? null) === SettingsService::SECRET_MASK
+                || blank($state[$field] ?? null)
             )) {
                 continue;
             }
 
             $payload[$meta['key']] = array_merge($meta, [
-                'value' => $this->data[$field] ?? null,
+                'value' => $state[$field] ?? null,
             ]);
         }
 
