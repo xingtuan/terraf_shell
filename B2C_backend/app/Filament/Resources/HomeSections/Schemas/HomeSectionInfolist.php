@@ -17,6 +17,8 @@ class HomeSectionInfolist
                     ->schema([
                         Grid::make(2)
                             ->schema([
+                                TextEntry::make('page_key')
+                                    ->label('Page'),
                                 TextEntry::make('key')
                                     ->label(__('admin.ui.section_key')),
                                 TextEntry::make('status'),

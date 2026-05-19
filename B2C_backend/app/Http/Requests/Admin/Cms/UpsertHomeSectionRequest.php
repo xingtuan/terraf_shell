@@ -14,6 +14,7 @@ class UpsertHomeSectionRequest extends AdminCmsRequest
     public function rules(): array
     {
         return [
+            'page_key' => ['nullable', 'string', Rule::in(['home', 'material'])],
             'key' => [$this->requiredRule(), 'string', 'max:120'],
             'title' => ['nullable', 'string', 'max:200'],
             'title_translations' => ['nullable', 'array'],

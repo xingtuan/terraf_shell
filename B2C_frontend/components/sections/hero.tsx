@@ -9,7 +9,7 @@ import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 
 type HeroSectionProps = {
   locale: Locale
-  content: SiteMessages["home"]["hero"]
+  content: SiteMessages["home"]["hero"] & { mediaUrl?: string | null }
   primaryHref?: string
   secondaryHref?: string
 }
@@ -26,7 +26,7 @@ export function HeroSection({
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/hero-material.jpg"
+          src={content.mediaUrl ?? "/images/hero-material.jpg"}
           alt={content.title}
           fill
           className="object-cover"

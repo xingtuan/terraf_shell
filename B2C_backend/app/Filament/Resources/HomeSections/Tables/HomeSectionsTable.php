@@ -29,6 +29,11 @@ class HomeSectionsTable
                     ->label(__('admin.ui.media'))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Home'),
+                TextColumn::make('page_key')
+                    ->label('Page')
+                    ->badge()
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('key')
                     ->label(__('admin.ui.section_key'))
                     ->searchable(),
@@ -58,6 +63,12 @@ class HomeSectionsTable
                     ->sortable(),
             ])
             ->filters([
+                SelectFilter::make('page_key')
+                    ->label('Page')
+                    ->options([
+                        'home' => 'Home',
+                        'material' => 'Material',
+                    ]),
                 SelectFilter::make('status')
                     ->options(PublishStatus::options()),
                 Filter::make('updated_at')

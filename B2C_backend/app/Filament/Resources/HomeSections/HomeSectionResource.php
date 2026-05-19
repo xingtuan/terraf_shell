@@ -32,6 +32,21 @@ class HomeSectionResource extends Resource
 
     protected static ?int $navigationSort = 10;
 
+    public static function getNavigationLabel(): string
+    {
+        return 'Page Sections';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Page Section';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Page Sections';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return HomeSectionForm::configure($schema);

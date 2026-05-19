@@ -22,6 +22,7 @@ class HomeSection extends Model
     ];
 
     protected $fillable = [
+        'page_key',
         'key',
         'title',
         'title_translations',
@@ -39,6 +40,10 @@ class HomeSection extends Model
         'media_path',
         'media_url',
         'published_at',
+    ];
+
+    protected $attributes = [
+        'page_key' => 'home',
     ];
 
     protected function casts(): array

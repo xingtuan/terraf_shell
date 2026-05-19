@@ -7,7 +7,13 @@ import type { SiteMessages } from "@/lib/i18n"
 import { useSectionInView } from "@/hooks/use-section-in-view"
 
 type ApplicationsSectionProps = {
-  content: SiteMessages["home"]["applications"]
+  content: SiteMessages["home"]["applications"] & {
+    items: Array<
+      SiteMessages["home"]["applications"]["items"][number] & {
+        mediaUrl?: string | null
+      }
+    >
+  }
 }
 
 const applicationImages = [
@@ -21,6 +27,11 @@ export function ApplicationsSection({
   content,
 }: ApplicationsSectionProps) {
   const { sectionRef, isVisible } = useSectionInView<HTMLElement>(0.1)
+  const items = content.items as Array<
+    SiteMessages["home"]["applications"]["items"][number] & {
+      mediaUrl?: string | null
+    }
+  >
 
   return (
     <section ref={sectionRef} className="bg-card py-24 lg:py-32">
@@ -43,7 +54,7 @@ export function ApplicationsSection({
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8">
-          {content.items.map((item, index) => (
+          {items.map((item, index) => (
             <div
               key={item.title}
               className={`group relative overflow-hidden rounded-2xl bg-background transition-all duration-700 ${
@@ -53,7 +64,7 @@ export function ApplicationsSection({
             >
               <div className="relative aspect-[16/10] overflow-hidden">
                 <Image
-                  src={applicationImages[index] ?? applicationImages[0]}
+                  src={item.mediaUrl ?? applicationImages[index] ?? applicationImages[0]}
                   alt={item.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"

@@ -1,4 +1,5 @@
 import { requestApi } from "@/lib/api/client"
+import { getPageSections, findPageSection } from "@/lib/api/page-sections"
 import { ensureArray } from "@/lib/api/normalizers"
 import {
   normalizeArticleSummary,
@@ -15,6 +16,7 @@ import type {
 type ApiRequestOverrides = {
   baseUrl?: string
   locale?: string
+  page?: "home" | "material"
 }
 
 type HomepageApiPayload = {
@@ -43,16 +45,13 @@ export async function getHomepageContent(
 }
 
 export async function getHomeSections(options: ApiRequestOverrides = {}) {
-  const response = await requestApi<HomeSection[]>("/home-sections", {
-    query: {
-      locale: options.locale,
-    },
+  return getPageSections({
     baseUrl: options.baseUrl,
+    locale: options.locale,
+    page: options.page ?? "home",
   })
-
-  return ensureArray(response.data).map(normalizeHomeSection)
 }
 
 export function findHomeSection(sections: HomeSection[], key: string) {
-  return sections.find((section) => section.key === key) ?? null
+  return findPageSection(sections, key)
 }

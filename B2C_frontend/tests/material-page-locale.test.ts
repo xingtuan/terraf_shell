@@ -35,3 +35,42 @@ describe("MaterialPage locale handling", () => {
     )
   })
 })
+
+describe("CMS page sections wiring", () => {
+  it("home page fetches home sections and builds visible sections CMS-first", () => {
+    const source = readFileSync(
+      join(process.cwd(), "app", "[locale]", "page.tsx"),
+      "utf8",
+    )
+
+    assert.match(source, /getHomeSections\(\{ baseUrl: apiBaseUrl, locale, page: "home" \}\)/)
+    for (const builder of [
+      "buildAudiencePathsContent",
+      "buildBusinessPillarsContent",
+      "buildWhyItMattersContent",
+      "buildOpenSourceLegacyContent",
+      "buildCollaborationContent",
+      "buildTrustAndCredibilityContent",
+      "buildFinalCtaContent",
+    ]) {
+      assert.match(source, new RegExp(`${builder}\\(`))
+    }
+    assert.doesNotMatch(source, /cardHrefs=\{\[/)
+  })
+
+  it("material page fetches material sections and applies marketing-section overrides", () => {
+    const source = readMaterialPageSource()
+
+    assert.match(source, /getPageSections\(\{ \.\.\.materialRequestOptions, page: "material" \}\)/)
+    for (const builder of [
+      "buildMaterialFamilyContent",
+      "buildMaterialProofPointsContent",
+      "buildTechnicalDownloadsContent",
+      "buildMaterialComparisonContent",
+      "buildCertificationsContent",
+      "buildFinalCtaContent",
+    ]) {
+      assert.match(source, new RegExp(`${builder}\\(`))
+    }
+  })
+})

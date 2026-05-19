@@ -20,6 +20,7 @@ class HomeSectionResource extends JsonResource
         return [
             'id' => $this->id,
             'key' => $this->key,
+            'page_key' => $this->page_key ?: 'home',
             'title' => $this->localizedString($request, 'title'),
             'subtitle' => $this->localizedString($request, 'subtitle'),
             'content' => $this->localizedString($request, 'content'),

@@ -19,6 +19,7 @@ class HomeSectionFactory extends Factory
     public function definition(): array
     {
         return [
+            'page_key' => 'home',
             'key' => $this->faker->unique()->slug(2),
             'title' => $this->faker->sentence(),
             'subtitle' => $this->faker->sentence(),

@@ -9,6 +9,7 @@ use App\Models\Material;
 use App\Models\MaterialApplication;
 use App\Models\MaterialSpec;
 use App\Models\MaterialStorySection;
+use App\Support\DefaultPageSections;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
@@ -964,7 +965,10 @@ class MaterialContentSeeder extends Seeder
         foreach ($homeSections as $section) {
             $this->firstOrCreateSeeded(
                 HomeSection::class,
-                ['key' => $section['key']],
+                [
+                    'page_key' => $section['page_key'] ?? 'home',
+                    'key' => $section['key'],
+                ],
                 [
                     'title' => $section['title'],
                     'title_translations' => $section['title_translations'] ?? [
@@ -991,6 +995,33 @@ class MaterialContentSeeder extends Seeder
                 ]
             );
         }
+
+        foreach (DefaultPageSections::records() as $section) {
+            $this->firstOrCreateSeeded(
+                HomeSection::class,
+                [
+                    'page_key' => $section['page_key'],
+                    'key' => $section['key'],
+                ],
+                [
+                    'title' => $section['title'],
+                    'title_translations' => $section['title_translations'],
+                    'subtitle' => $section['subtitle'],
+                    'subtitle_translations' => $section['subtitle_translations'],
+                    'content' => $section['content'],
+                    'content_translations' => $section['content_translations'],
+                    'cta_label' => $section['cta_label'],
+                    'cta_label_translations' => $section['cta_label_translations'],
+                    'cta_url' => $section['cta_url'],
+                    'payload' => $section['payload'],
+                    'is_seeded' => true,
+                    'status' => PublishStatus::Published->value,
+                    'sort_order' => $section['sort_order'],
+                    'media_url' => $section['media_url'] ?? null,
+                    'published_at' => $publishedAt,
+                ]
+            );
+        }
     }
 
     /**
@@ -1006,6 +1037,10 @@ class MaterialContentSeeder extends Seeder
             $query->orWhere(function ($query) use ($attributes, $identity): void {
                 if (array_key_exists('material_id', $identity)) {
                     $query->where('material_id', $identity['material_id']);
+                }
+
+                if (array_key_exists('page_key', $identity)) {
+                    $query->where('page_key', $identity['page_key']);
                 }
 
                 $query

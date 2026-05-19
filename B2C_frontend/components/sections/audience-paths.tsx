@@ -12,6 +12,12 @@ type AudiencePathsSectionProps = {
   content: SiteMessages["home"]["audiencePaths"]
 }
 
+function audienceHref(locale: Locale, href: string) {
+  return /^https?:\/\//i.test(href) || href.startsWith("/")
+    ? href
+    : getLocalizedHref(locale, href)
+}
+
 export function AudiencePathsSection({ locale, content }: AudiencePathsSectionProps) {
   const { sectionRef, isVisible } = useSectionInView<HTMLElement>(0.2)
 
@@ -55,7 +61,7 @@ export function AudiencePathsSection({ locale, content }: AudiencePathsSectionPr
                 {card.description}
               </p>
               <Button asChild variant="outline" className="group w-full">
-                <Link href={getLocalizedHref(locale, card.href)}>
+                <Link href={audienceHref(locale, card.href)}>
                   {card.cta}
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>

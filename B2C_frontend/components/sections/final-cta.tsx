@@ -12,7 +12,10 @@ import { useSectionInView } from "@/hooks/use-section-in-view"
 
 type FinalCtaSectionProps = {
   locale: Locale
-  content: SiteMessages["home"]["finalCta"]
+  content: SiteMessages["home"]["finalCta"] & {
+    primaryHref?: string
+    secondaryHref?: string
+  }
 }
 
 export function FinalCtaSection({ locale, content }: FinalCtaSectionProps) {
@@ -44,7 +47,7 @@ export function FinalCtaSection({ locale, content }: FinalCtaSectionProps) {
             }`}
           >
             <Button asChild size="lg" className="bg-primary-foreground px-8 text-base text-primary hover:bg-primary-foreground/90">
-              <Link href={`${getLocalizedHref(locale, "b2b")}#inquiry`}>
+              <Link href={content.primaryHref ?? `${getLocalizedHref(locale, "b2b")}#inquiry`}>
                 {content.primaryCta}
               </Link>
             </Button>
@@ -54,7 +57,7 @@ export function FinalCtaSection({ locale, content }: FinalCtaSectionProps) {
               variant="outline"
               className="border-primary-foreground/50 bg-transparent px-8 text-base text-primary-foreground shadow-none hover:bg-primary-foreground/10 hover:text-primary-foreground"
             >
-              <Link href={getLocalizedHref(locale, "store")}>
+              <Link href={content.secondaryHref ?? getLocalizedHref(locale, "store")}>
                 {content.secondaryCta}
               </Link>
             </Button>

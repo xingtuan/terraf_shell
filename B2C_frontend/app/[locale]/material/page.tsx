@@ -18,7 +18,7 @@ import {
 } from "@/components/sections/trust-and-b2b-sections"
 import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { PageIntro } from "@/components/page-intro"
-import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
+import { findPageSection, getPageSections } from "@/lib/api/page-sections"
 import {
   getMaterialInfo,
   getMaterialSpecs,
@@ -29,20 +29,30 @@ import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildApplicationsContent,
+  buildCertificationsContent,
+  buildCollaborationContent,
+  buildCredibilityContent,
+  buildFinalCtaContent,
+  buildMaterialComparisonContent,
+  buildMaterialFactsContent,
+  buildMaterialFamilyContent,
+  buildMaterialProofPointsContent,
+  buildMaterialStoryContent,
   buildPilotProjectsContent,
+  buildTechnicalDownloads,
+  buildTechnicalDownloadsContent,
+  buildTrustAndCredibilityContent,
+  buildWhyItMattersContent,
+  buildOpenSourceLegacyContent,
+  resolveCmsHref,
+  resolveLocalizedApiString,
   resolveLocalizedApiValue,
 } from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
-import type { MaterialInfo } from "@/lib/types"
+import type { HomeSection, MaterialInfo } from "@/lib/types"
 
 type MaterialPageProps = {
   params: Promise<{ locale: string }>
-}
-
-function cleanCertificationText(value: string | null | undefined) {
-  return typeof value === "string" && value.trim().length > 0
-    ? value.trim()
-    : null
 }
 
 export default async function MaterialPage({ params }: MaterialPageProps) {
@@ -56,7 +66,7 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   } as const
 
   let materialInfo: MaterialInfo | null = null
-  let pilotProjectsSection = null
+  let pageSections: HomeSection[] = []
 
   try {
     const response = await getMaterialInfo(materialRequestOptions)
@@ -66,234 +76,241 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
   }
 
   try {
-    pilotProjectsSection = findHomeSection(
-      await getHomeSections(materialRequestOptions),
-      "pilot_projects",
-    )
+    pageSections = await getPageSections({ ...materialRequestOptions, page: "material" })
   } catch {
-    pilotProjectsSection = null
+    pageSections = []
   }
 
+  const introSection = findPageSection(pageSections, "intro")
+  const materialFamilySection = findPageSection(pageSections, "material_family")
+  const whyItMattersSection = findPageSection(pageSections, "why_it_matters")
+  const materialStorySection = findPageSection(pageSections, "material_story")
+  const openSourceLegacySection = findPageSection(pageSections, "open_source_legacy")
+  const applicationsSection = findPageSection(pageSections, "applications")
+  const materialFactsSection = findPageSection(pageSections, "material_facts")
+  const proofPointsSection = findPageSection(pageSections, "proof_points")
+  const certificationsSection = findPageSection(pageSections, "certifications")
+  const technicalDownloadsSection = findPageSection(pageSections, "technical_downloads")
+  const comparisonSection = findPageSection(pageSections, "comparison")
+  const credibilitySection = findPageSection(pageSections, "credibility")
+  const trustSection = findPageSection(pageSections, "trust_and_credibility")
+  const pilotProjectsSection = findPageSection(pageSections, "pilot_projects")
+  const collaborationSection = findPageSection(pageSections, "collaboration")
+  const finalCtaSection = findPageSection(pageSections, "final_cta")
   const intro = messages.materialPage.intro
   const materialDetail = materialInfo ? materialInfoToDetail(materialInfo) : null
   const specs = materialInfo
     ? materialInfoToSpecs(materialInfo)
     : await getMaterialSpecs(locale, materialRequestOptions)
-  const certificationSummaries = (materialInfo?.certifications ?? [])
-    .map((certification) => {
-      const title = cleanCertificationText(
-        resolveLocalizedApiValue(
-          certification.label ?? certification.name ?? certification.key,
-          null,
-          locale,
-        ),
-      )
-      const measuredResult = [certification.result, certification.unit]
-        .filter(Boolean)
-        .join(" ")
-      const result = cleanCertificationText(
-        resolveLocalizedApiValue(
-          certification.value ||
-            measuredResult ||
-            certification.description ||
-            certification.status,
-          null,
-          locale,
-        ),
-      )
-
-      return title && result
-        ? {
-            title,
-            result,
-          }
-        : null
-    })
-    .filter((summary): summary is { title: string; result: string } =>
-      Boolean(summary),
-    )
-  const whyItMattersContent = materialInfo
-    ? {
-        ...messages.home.whyItMatters,
-        title: resolveLocalizedApiValue(
-          materialInfo.tagline,
-          messages.home.whyItMatters.title,
-          locale,
-        ),
-        cards: materialInfo.properties.slice(0, 3).map((property, index) => ({
-          title: resolveLocalizedApiValue(
-            property.label,
-            messages.home.whyItMatters.cards[index]?.title,
-            locale,
-          ),
-          description: [
-            resolveLocalizedApiValue(property.value, null, locale),
-            resolveLocalizedApiValue(property.vs, null, locale),
-          ]
-            .filter(Boolean)
-            .join(". "),
-        })),
-        stats: [
-          resolveLocalizedApiValue(
-            materialInfo.origin,
-            messages.home.whyItMatters.stats[0],
-            locale,
-          ),
-          materialInfo.models
-            .map((model) => `${model.name} (${model.finish}): ${model.description}`)
-            .join(" "),
-          materialInfo.colors
-            .map((color) => `${color.name} (${color.temp}): ${color.description}`)
-            .join(" "),
-        ],
-      }
-    : messages.home.whyItMatters
-  const storyContent = materialInfo
-    ? {
-        ...messages.home.materialStory,
-        title: resolveLocalizedApiValue(
-          materialInfo.process_steps.map((step) => step.title).join(" -> "),
-          messages.home.materialStory.title,
-          locale,
-        ),
-        steps: materialInfo.process_steps.map((step) => ({
-          number: String(step.step).padStart(2, "0"),
-          title: resolveLocalizedApiValue(
-            step.title,
-            messages.home.materialStory.steps[step.step - 1]?.title,
-            locale,
-          ),
-          description: resolveLocalizedApiValue(
-            step.body,
-            messages.home.materialStory.steps[step.step - 1]?.description,
-            locale,
-          ),
-        })),
-      }
-    : messages.home.materialStory
-  const applicationsContent = buildApplicationsContent(
-    messages.home.applications,
+  const whyItMattersContent = buildWhyItMattersContent(
+    messages.home.whyItMatters,
+    whyItMattersSection,
+    locale,
     materialDetail,
+  )
+  const storyContent = {
+    ...buildMaterialStoryContent(
+      messages.home.materialStory,
+      materialDetail,
+      locale,
+      materialDetail?.story_sections.length ? null : materialStorySection,
+    ),
+    eyebrow: resolveLocalizedApiString(
+      materialStorySection,
+      "subtitle",
+      locale,
+      messages.home.materialStory.eyebrow,
+    ),
+    title: resolveLocalizedApiString(
+      materialStorySection,
+      "title",
+      locale,
+      materialInfo
+        ? resolveLocalizedApiValue(
+            materialInfo.process_steps.map((step) => step.title).join(" -> "),
+            messages.home.materialStory.title,
+            locale,
+          )
+        : messages.home.materialStory.title,
+    ),
+  }
+  const applicationsContent = {
+    ...buildApplicationsContent(
+      messages.home.applications,
+      materialDetail,
+      locale,
+      materialDetail?.applications.length ? null : applicationsSection,
+    ),
+    eyebrow: resolveLocalizedApiString(
+      applicationsSection,
+      "subtitle",
+      locale,
+      messages.home.applications.eyebrow,
+    ),
+    title: resolveLocalizedApiString(
+      applicationsSection,
+      "title",
+      locale,
+      messages.home.applications.title,
+    ),
+  }
+  const materialFactsContent = buildMaterialFactsContent(
+    messages.home.materialFacts,
+    materialDetail,
+    materialFactsSection,
     locale,
   )
-  const materialFactsContent = materialInfo
-    ? {
-        ...messages.home.materialFacts,
-        title: resolveLocalizedApiValue(
-          materialInfo.tagline,
-          messages.home.materialFacts.title,
-          locale,
-        ),
-        sheetTitle: `${resolveLocalizedApiValue(
-          materialInfo.name,
-          messages.home.materialFacts.sheetTitle,
-          locale,
-        )} ${messages.materialPage.sheetTitleSuffix}`,
-        sheetDescription: certificationSummaries
-          .map((certification) => `${certification.title}: ${certification.result}`)
-          .join(" / "),
-        infoCards: [
-          {
-            label: messages.materialPage.modelsLabel,
-            value: materialInfo.models.map((model) => model.name).join(", "),
-          },
-          {
-            label: messages.materialPage.colorsLabel,
-            value: materialInfo.colors.map((color) => color.name).join(", "),
-          },
-        ],
-        note: resolveLocalizedApiValue(
-          materialInfo.origin,
-          messages.home.materialFacts.note,
-          locale,
-        ),
-      }
-    : messages.home.materialFacts
-  const credibilityContent = materialInfo
-    ? {
-        ...messages.home.credibility,
-        title: resolveLocalizedApiValue(
-          materialInfo.tagline,
-          messages.home.credibility.title,
-          locale,
-        ),
-        benefits: certificationSummaries.map(
-          (certification) => certification.result,
-        ),
-        features: certificationSummaries.map((certification) => ({
-          title: certification.title,
-          description: certification.result,
-        })),
-      }
-    : messages.home.credibility
+  const certificationsContent = buildCertificationsContent(
+    certificationMessages,
+    certificationsSection,
+    locale,
+  )
+  const credibilityContent = buildCredibilityContent(
+    messages.home.credibility,
+    materialDetail,
+    locale,
+    credibilitySection,
+  )
+  const collaborationContent = buildCollaborationContent(
+    messages.home.collaboration,
+    collaborationSection,
+    locale,
+  )
   const pilotProjectsContent = buildPilotProjectsContent(
     messages.pilotProjects,
     pilotProjectsSection,
     locale,
   )
+  const cmsDownloads = buildTechnicalDownloads(technicalDownloadsSection, locale)
+  const downloads =
+    materialInfo?.technical_downloads?.length ? materialInfo.technical_downloads : cmsDownloads
 
   return (
     <>
       <PageIntro
-        eyebrow={intro.eyebrow}
-        title={resolveLocalizedApiValue(materialInfo?.tagline, intro.title, locale)}
-        description={resolveLocalizedApiValue(
-          materialInfo?.origin,
-          intro.description,
+        eyebrow={resolveLocalizedApiString(introSection, "subtitle", locale, intro.eyebrow)}
+        title={resolveLocalizedApiString(
+          introSection,
+          "title",
           locale,
+          resolveLocalizedApiValue(materialInfo?.tagline, intro.title, locale),
+        )}
+        description={resolveLocalizedApiString(
+          introSection,
+          "content",
+          locale,
+          resolveLocalizedApiValue(materialInfo?.origin, intro.description, locale),
         )}
         primaryAction={{
-          label: intro.primaryCta,
-          href: `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
+          label: resolveLocalizedApiString(
+            introSection,
+            "cta_label",
+            locale,
+            intro.primaryCta,
+          ),
+          href: resolveCmsHref(
+            locale,
+            introSection?.cta_url,
+            `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
+          ),
         }}
         secondaryAction={{
-          label: intro.secondaryCta,
-          href: getLocalizedHref(locale, "contact"),
+          label: resolveLocalizedApiString(
+            introSection?.payload,
+            "secondary_cta_label",
+            locale,
+            intro.secondaryCta,
+          ),
+          href: resolveCmsHref(
+            locale,
+            typeof introSection?.payload?.secondary_cta_url === "string"
+              ? introSection.payload.secondary_cta_url
+              : null,
+            getLocalizedHref(locale, "contact"),
+          ),
         }}
       />
-      <MaterialFamilySection locale={locale} content={messages.home.materialFamily} />
+      <MaterialFamilySection
+        locale={locale}
+        content={buildMaterialFamilyContent(
+          messages.home.materialFamily,
+          materialFamilySection,
+          locale,
+        )}
+      />
       <WhyItMattersSection content={whyItMattersContent} />
       <MaterialStorySection content={storyContent} />
-      <OpenSourceLegacySection content={messages.home.openSourceLegacy} />
+      <OpenSourceLegacySection
+        content={buildOpenSourceLegacyContent(
+          messages.home.openSourceLegacy,
+          openSourceLegacySection,
+          locale,
+        )}
+      />
       <ApplicationsSection content={applicationsContent} />
       <MaterialFactsSection
         locale={locale}
         content={materialFactsContent}
         specs={specs}
-        sheetHref={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}
+        sheetHref={resolveCmsHref(
+          locale,
+          materialFactsSection?.cta_url,
+          `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
+        )}
       />
-      <MaterialProofPointsSection content={messages.materialProof.proofPoints} />
+      <MaterialProofPointsSection
+        content={buildMaterialProofPointsContent(
+          messages.materialProof.proofPoints,
+          proofPointsSection,
+          locale,
+        )}
+      />
       <CertificationsAtAGlance
         certifications={materialInfo?.certifications ?? []}
-        eyebrow={certificationMessages.eyebrow}
-        title={certificationMessages.title}
-        description={certificationMessages.description}
+        eyebrow={certificationsContent.eyebrow}
+        title={certificationsContent.title}
+        description={certificationsContent.description}
         variant="material"
-        verifiedLabel={certificationMessages.verifiedLabel}
-        emptyMessage={certificationMessages.emptyMessage}
-        statusLabels={certificationMessages.statusLabels}
-        issuerLabel={certificationMessages.issuerLabel}
-        testedAtLabel={certificationMessages.testedAtLabel}
-        downloadLabel={certificationMessages.downloadLabel}
+        verifiedLabel={certificationsContent.verifiedLabel}
+        emptyMessage={certificationsContent.emptyMessage}
+        statusLabels={certificationsContent.statusLabels}
+        issuerLabel={certificationsContent.issuerLabel}
+        testedAtLabel={certificationsContent.testedAtLabel}
+        downloadLabel={certificationsContent.downloadLabel}
       />
       <TechnicalDownloadsSection
-        content={messages.materialProof.technicalDownloads}
-        downloads={materialInfo?.technical_downloads ?? []}
+        content={buildTechnicalDownloadsContent(
+          messages.materialProof.technicalDownloads,
+          technicalDownloadsSection,
+          locale,
+        )}
+        downloads={downloads}
       />
-      <MaterialComparisonSection content={messages.materialProof.comparison} />
+      <MaterialComparisonSection
+        content={buildMaterialComparisonContent(
+          messages.materialProof.comparison,
+          comparisonSection,
+          locale,
+        )}
+      />
       <CredibilitySection content={credibilityContent} />
-      <TrustAndCredibilitySection content={messages.trustAndCredibility} />
+      <TrustAndCredibilitySection
+        content={buildTrustAndCredibilityContent(
+          messages.trustAndCredibility,
+          trustSection,
+          locale,
+        )}
+      />
       <PilotProjectsSection content={pilotProjectsContent} />
       <CollaborationSection
         locale={locale}
-        content={messages.home.collaboration}
-        cardHrefs={[
-          `${getLocalizedHref(locale, "b2b")}#inquiry`,
-          `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
-          `${getLocalizedHref(locale, "b2b")}?leadType=product_development_collaboration#inquiry`,
-        ]}
+        content={collaborationContent}
+        cardHrefs={collaborationContent.cardHrefs}
       />
-      <FinalCtaSection locale={locale} content={messages.home.finalCta} />
+      <FinalCtaSection
+        locale={locale}
+        content={buildFinalCtaContent(messages.home.finalCta, finalCtaSection, locale)}
+      />
     </>
   )
 }

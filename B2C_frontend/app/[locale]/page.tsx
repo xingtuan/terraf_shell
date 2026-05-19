@@ -19,12 +19,19 @@ import { getFeaturedMaterial, getMaterial, getMaterialSpecs } from "@/lib/api/ma
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
 import {
+  buildAudiencePathsContent,
+  buildBusinessPillarsContent,
+  buildCollaborationContent,
   buildApplicationsContent,
   buildCredibilityContent,
+  buildFinalCtaContent,
   buildHeroContent,
   buildMaterialFactsContent,
+  buildOpenSourceLegacyContent,
   buildPilotProjectsContent,
   buildMaterialStoryContent,
+  buildTrustAndCredibilityContent,
+  buildWhyItMattersContent,
   resolveLocalizedApiString,
   resolveCmsHref,
 } from "@/lib/page-content"
@@ -44,7 +51,7 @@ const emptyHomepageContent: HomepageContent = {
 async function loadHomepageData(apiBaseUrl: string, locale: Locale) {
   const [homepageResult, sectionsResult] = await Promise.allSettled([
     getHomepageContent({ baseUrl: apiBaseUrl, locale }),
-    getHomeSections({ baseUrl: apiBaseUrl, locale }),
+    getHomeSections({ baseUrl: apiBaseUrl, locale, page: "home" }),
   ])
 
   return {
@@ -97,9 +104,19 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
   const { homepage, homeSections } = await loadHomepageData(apiBaseUrl, locale)
 
   const heroSection = findHomeSection(homeSections, "hero")
+  const audiencePathsSection = findHomeSection(homeSections, "audience_paths")
+  const businessPillarsSection = findHomeSection(homeSections, "business_pillars")
+  const whyItMattersSection = findHomeSection(homeSections, "why_it_matters")
+  const materialStorySection = findHomeSection(homeSections, "material_story")
+  const openSourceLegacySection = findHomeSection(homeSections, "open_source_legacy")
+  const applicationsSection = findHomeSection(homeSections, "applications")
   const scienceSection = findHomeSection(homeSections, "science_block")
+  const collaborationSection = findHomeSection(homeSections, "collaboration")
+  const credibilitySection = findHomeSection(homeSections, "credibility")
+  const trustSection = findHomeSection(homeSections, "trust_and_credibility")
   const articlesSection = findHomeSection(homeSections, "latest_updates")
   const pilotProjectsSection = findHomeSection(homeSections, "pilot_projects")
+  const finalCtaSection = findHomeSection(homeSections, "final_cta")
   const primaryMaterial = (await loadPrimaryMaterial(
     scienceSection,
     homepage,
@@ -123,11 +140,13 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
     messages.home.materialStory,
     primaryMaterial,
     locale,
+    materialStorySection,
   )
   const applicationsContent = buildApplicationsContent(
     messages.home.applications,
     primaryMaterial,
     locale,
+    applicationsSection,
   )
   const materialFactsContent = buildMaterialFactsContent(
     messages.home.materialFacts,
@@ -139,10 +158,21 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
     messages.home.credibility,
     primaryMaterial,
     locale,
+    credibilitySection,
+  )
+  const collaborationContent = buildCollaborationContent(
+    messages.home.collaboration,
+    collaborationSection,
+    locale,
   )
   const pilotProjectsContent = buildPilotProjectsContent(
     messages.pilotProjects,
     pilotProjectsSection,
+    locale,
+  )
+  const finalCtaContent = buildFinalCtaContent(
+    messages.home.finalCta,
+    finalCtaSection,
     locale,
   )
 
@@ -156,12 +186,45 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
           heroSection?.cta_url,
           getLocalizedHref(locale, "material"),
         )}
+        secondaryHref={resolveCmsHref(
+          locale,
+          typeof heroSection?.payload?.secondary_cta_url === "string"
+            ? heroSection.payload.secondary_cta_url
+            : null,
+          getLocalizedHref(locale, "b2b"),
+        )}
       />
-      <AudiencePathsSection locale={locale} content={messages.home.audiencePaths} />
-      <BusinessPillarsSection content={messages.home.businessPillars} />
-      <WhyItMattersSection content={messages.home.whyItMatters} />
+      <AudiencePathsSection
+        locale={locale}
+        content={buildAudiencePathsContent(
+          messages.home.audiencePaths,
+          audiencePathsSection,
+          locale,
+        )}
+      />
+      <BusinessPillarsSection
+        content={buildBusinessPillarsContent(
+          messages.home.businessPillars,
+          businessPillarsSection,
+          locale,
+        )}
+      />
+      <WhyItMattersSection
+        content={buildWhyItMattersContent(
+          messages.home.whyItMatters,
+          whyItMattersSection,
+          locale,
+          primaryMaterial,
+        )}
+      />
       <MaterialStorySection content={storyContent} />
-      <OpenSourceLegacySection content={messages.home.openSourceLegacy} />
+      <OpenSourceLegacySection
+        content={buildOpenSourceLegacyContent(
+          messages.home.openSourceLegacy,
+          openSourceLegacySection,
+          locale,
+        )}
+      />
       <ApplicationsSection content={applicationsContent} />
       <MaterialFactsSection
         locale={locale}
@@ -175,15 +238,17 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
       />
       <CollaborationSection
         locale={locale}
-        content={messages.home.collaboration}
-        cardHrefs={[
-          `${getLocalizedHref(locale, "b2b")}#inquiry`,
-          `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
-          `${getLocalizedHref(locale, "b2b")}?leadType=product_development_collaboration#inquiry`,
-        ]}
+        content={collaborationContent}
+        cardHrefs={collaborationContent.cardHrefs}
       />
       <CredibilitySection content={credibilityContent} />
-      <TrustAndCredibilitySection content={messages.trustAndCredibility} />
+      <TrustAndCredibilitySection
+        content={buildTrustAndCredibilityContent(
+          messages.trustAndCredibility,
+          trustSection,
+          locale,
+        )}
+      />
       <PilotProjectsSection content={pilotProjectsContent} />
       <ArticleFeedSection
         locale={locale}
@@ -220,7 +285,7 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
           ),
         }}
       />
-      <FinalCtaSection locale={locale} content={messages.home.finalCta} />
+      <FinalCtaSection locale={locale} content={finalCtaContent} />
     </>
   )
 }

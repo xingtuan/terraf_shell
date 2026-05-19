@@ -16,6 +16,8 @@ class ListContentRequest extends AdminCmsRequest
         return [
             'search' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', Rule::in(PublishStatus::values())],
+            'page' => ['nullable', 'string', Rule::in(['home', 'material'])],
+            'page_key' => ['nullable', 'string', Rule::in(['home', 'material'])],
             'material_id' => ['nullable', 'integer', 'exists:materials,id'],
             'category' => ['nullable', 'string', 'max:100'],
             'featured' => ['nullable', 'boolean'],

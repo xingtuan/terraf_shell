@@ -91,6 +91,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/tags', [TagController::class, 'index']);
 Route::get('/homepage', [HomepageController::class, 'show']);
 Route::get('/home-sections', [HomeSectionController::class, 'index']);
+Route::get('/page-sections', [HomeSectionController::class, 'index']);
 Route::get('/materials', [MaterialController::class, 'index']);
 Route::get('/materials/{identifier}', [MaterialController::class, 'show']);
 Route::get('/articles', [ArticleController::class, 'index']);

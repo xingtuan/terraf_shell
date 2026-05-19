@@ -8,7 +8,7 @@ import { useSectionInView } from "@/hooks/use-section-in-view"
 
 type MaterialFamilySectionProps = {
   locale: Locale
-  content: SiteMessages["home"]["materialFamily"]
+  content: SiteMessages["home"]["materialFamily"] & { mediaUrl?: string | null }
 }
 
 const legendDotClasses = [
@@ -19,7 +19,8 @@ const legendDotClasses = [
 
 export function MaterialFamilySection({ locale, content }: MaterialFamilySectionProps) {
   const { sectionRef, isVisible } = useSectionInView<HTMLElement>(0.2)
-  const diagramSrc = locale === "ko" ? "/images/terraf_ko.jpg" : "/images/terraf_en.jpg"
+  const diagramSrc =
+    content.mediaUrl ?? (locale === "ko" ? "/images/terraf_ko.jpg" : "/images/terraf_en.jpg")
 
   return (
     <section ref={sectionRef} className="bg-background py-24 lg:py-32">

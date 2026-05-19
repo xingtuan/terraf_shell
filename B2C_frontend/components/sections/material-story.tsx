@@ -6,7 +6,13 @@ import type { SiteMessages } from "@/lib/i18n"
 import { useSectionInView } from "@/hooks/use-section-in-view"
 
 type MaterialStorySectionProps = {
-  content: SiteMessages["home"]["materialStory"]
+  content: SiteMessages["home"]["materialStory"] & {
+    steps: Array<
+      SiteMessages["home"]["materialStory"]["steps"][number] & {
+        mediaUrl?: string | null
+      }
+    >
+  }
 }
 
 const processImages = [
@@ -20,6 +26,11 @@ export function MaterialStorySection({
   content,
 }: MaterialStorySectionProps) {
   const { sectionRef, isVisible } = useSectionInView<HTMLElement>(0.18)
+  const steps = content.steps as Array<
+    SiteMessages["home"]["materialStory"]["steps"][number] & {
+      mediaUrl?: string | null
+    }
+  >
 
   return (
     <section ref={sectionRef} className="bg-background py-24 lg:py-32">
@@ -45,7 +56,7 @@ export function MaterialStorySection({
           <div className="hidden lg:absolute lg:left-0 lg:right-0 lg:top-[200px] lg:block lg:h-px lg:bg-border" />
 
           <div className="grid grid-cols-1 gap-12 md:grid-cols-2 xl:grid-cols-4 xl:gap-8">
-            {content.steps.map((step, index) => (
+            {steps.map((step, index) => (
               <div
                 key={step.number}
                 className={`relative transition-all duration-700 ${
@@ -55,7 +66,7 @@ export function MaterialStorySection({
               >
                 <div className="group relative mb-8 aspect-[4/3] overflow-hidden rounded-2xl">
                   <Image
-                    src={processImages[index] ?? processImages[0]}
+                    src={step.mediaUrl ?? processImages[index] ?? processImages[0]}
                     alt={step.title}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"

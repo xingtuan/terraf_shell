@@ -81,9 +81,10 @@ class ContentManagementService
         );
     }
 
-    public function listPublicHomeSections(): Collection
+    public function listPublicHomeSections(string $pageKey = 'home'): Collection
     {
         return HomeSection::query()
+            ->where('page_key', $this->normalizePageKey($pageKey))
             ->published()
             ->ordered()
             ->get();
@@ -105,7 +106,7 @@ class ContentManagementService
             ->get();
 
         return [
-            'home_sections' => $this->listPublicHomeSections(),
+            'home_sections' => $this->listPublicHomeSections('home'),
             'materials' => $featuredMaterials,
             'articles' => $latestArticles,
         ];
@@ -529,10 +530,15 @@ class ContentManagementService
     {
         return HomeSection::query()
             ->when(
+                filled($filters['page_key'] ?? $filters['page'] ?? null),
+                fn ($query) => $query->where('page_key', $this->normalizePageKey($filters['page_key'] ?? $filters['page']))
+            )
+            ->when(
                 filled($filters['search'] ?? null),
                 fn ($query) => $query->where(function ($searchQuery) use ($filters): void {
                     $searchQuery
-                        ->where('key', 'like', '%'.$filters['search'].'%')
+                        ->where('page_key', 'like', '%'.$filters['search'].'%')
+                        ->orWhere('key', 'like', '%'.$filters['search'].'%')
                         ->orWhere('title', 'like', '%'.$filters['search'].'%')
                         ->orWhere('subtitle', 'like', '%'.$filters['search'].'%');
                 })
@@ -550,7 +556,8 @@ class ContentManagementService
     {
         return DB::transaction(function () use ($data): HomeSection {
             $attributes = $this->applyPublishState([
-                'key' => $this->uniqueKey($data['key']),
+                'page_key' => $this->normalizePageKey($data['page_key'] ?? null),
+                'key' => $this->uniqueKey($data['key'], null, $data['page_key'] ?? null),
                 'title' => $data['title'] ?? null,
                 'title_translations' => $data['title_translations'] ?? null,
                 'subtitle' => $data['subtitle'] ?? null,
@@ -575,6 +582,7 @@ class ContentManagementService
     {
         return DB::transaction(function () use ($section, $data): HomeSection {
             $attributes = $this->applyPublishState([
+                'page_key' => $this->normalizePageKey($data['page_key'] ?? $section->page_key),
                 'title' => $data['title'] ?? $section->title,
                 'title_translations' => $data['title_translations'] ?? $section->title_translations,
                 'subtitle' => $data['subtitle'] ?? $section->subtitle,
@@ -589,7 +597,11 @@ class ContentManagementService
             ], $data, $section);
 
             if (array_key_exists('key', $data)) {
-                $attributes['key'] = $this->uniqueKey($data['key'], $section->id);
+                $attributes['key'] = $this->uniqueKey(
+                    $data['key'],
+                    $section->id,
+                    $attributes['page_key'] ?? $section->page_key
+                );
             }
 
             $section->fill($attributes);
@@ -713,16 +725,18 @@ class ContentManagementService
         return $slug;
     }
 
-    private function uniqueKey(string $value, ?int $ignoreId = null): string
+    private function uniqueKey(string $value, ?int $ignoreId = null, ?string $pageKey = null): string
     {
         $base = Str::slug($value, '_');
         $key = $base === '' ? 'section' : $base;
         $original = $key;
         $counter = 2;
+        $pageKey = $this->normalizePageKey($pageKey);
 
         while (
             HomeSection::query()
                 ->when($ignoreId !== null, fn ($query) => $query->where('id', '!=', $ignoreId))
+                ->where('page_key', $pageKey)
                 ->where('key', $key)
                 ->exists()
         ) {
@@ -731,6 +745,11 @@ class ContentManagementService
         }
 
         return $key;
+    }
+
+    private function normalizePageKey(?string $pageKey): string
+    {
+        return in_array($pageKey, ['home', 'material'], true) ? $pageKey : 'home';
     }
 
     private function perPage(null|int|string $requested): int

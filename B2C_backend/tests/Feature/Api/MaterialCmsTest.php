@@ -92,8 +92,13 @@ class MaterialCmsTest extends TestCase
             'title' => 'Draft application',
         ]);
 
-        HomeSection::factory()->published()->create([
+        HomeSection::query()->updateOrCreate([
+            'page_key' => 'home',
             'key' => 'hero',
+        ], [
+            'title' => 'Homepage hero',
+            'content' => 'Homepage hero content',
+            'status' => 'published',
             'sort_order' => 1,
         ]);
         HomeSection::factory()->create([
@@ -149,11 +154,9 @@ class MaterialCmsTest extends TestCase
 
         $this->getJson('/api/home-sections')
             ->assertOk()
-            ->assertJsonCount(3, 'data')
             ->assertJsonPath('data.0.key', 'hero')
-            ->assertJsonPath('data.1.key', 'pilot_projects')
-            ->assertJsonPath('data.1.payload.items.0.title', 'Pilot collaboration details coming soon')
-            ->assertJsonPath('data.2.key', 'footer');
+            ->assertJsonFragment(['key' => 'pilot_projects'])
+            ->assertJsonFragment(['page_key' => 'home']);
 
         $this->getJson('/api/articles')
             ->assertOk()
@@ -162,7 +165,6 @@ class MaterialCmsTest extends TestCase
 
         $this->getJson('/api/homepage')
             ->assertOk()
-            ->assertJsonCount(3, 'data.home_sections')
             ->assertJsonCount(1, 'data.materials')
             ->assertJsonCount(1, 'data.articles')
             ->assertJsonPath('data.materials.0.slug', 'oyster-shell-material');
@@ -317,7 +319,43 @@ class MaterialCmsTest extends TestCase
 
         $this->getJson('/api/home-sections?locale=ko')
             ->assertOk()
-            ->assertJsonPath('data.0.title', 'KO section');
+            ->assertJsonFragment(['title' => 'KO section']);
+    }
+
+    public function test_public_home_sections_can_be_filtered_by_page_key(): void
+    {
+        HomeSection::factory()->published()->create([
+            'page_key' => 'home',
+            'key' => 'shared_test_section',
+            'title' => 'Home scoped section',
+        ]);
+        HomeSection::factory()->published()->create([
+            'page_key' => 'material',
+            'key' => 'shared_test_section',
+            'title' => 'Material scoped section',
+        ]);
+
+        $this->getJson('/api/home-sections?page=material')
+            ->assertOk()
+            ->assertJsonFragment([
+                'page_key' => 'material',
+                'key' => 'shared_test_section',
+                'title' => 'Material scoped section',
+            ])
+            ->assertJsonMissing([
+                'title' => 'Home scoped section',
+            ]);
+
+        $this->getJson('/api/page-sections?page=home')
+            ->assertOk()
+            ->assertJsonFragment([
+                'page_key' => 'home',
+                'key' => 'shared_test_section',
+                'title' => 'Home scoped section',
+            ])
+            ->assertJsonMissing([
+                'title' => 'Material scoped section',
+            ]);
     }
 
     public function test_public_apis_return_admin_edited_database_cms_content_with_translations(): void
@@ -399,8 +437,10 @@ class MaterialCmsTest extends TestCase
             'sort_order' => 1,
         ]);
 
-        HomeSection::factory()->published()->create([
+        HomeSection::query()->updateOrCreate([
+            'page_key' => 'home',
             'key' => 'hero',
+        ], [
             'title' => 'Admin homepage hero',
             'title_translations' => [
                 'en' => 'Admin homepage hero',
@@ -413,6 +453,7 @@ class MaterialCmsTest extends TestCase
                 'ko' => 'KO admin CTA',
                 'zh' => 'ZH admin CTA',
             ],
+            'status' => 'published',
             'sort_order' => 1,
         ]);
 

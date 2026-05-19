@@ -125,6 +125,7 @@ function normalizeLocalizedStringSet(value: unknown): LocalizedStringSet | undef
 export function normalizeHomeSection(section: HomeSection): HomeSection {
   return {
     ...section,
+    page_key: section.page_key ?? "home",
     payload: isJsonObject(section.payload)
       ? (section.payload as HomeSectionPayload)
       : null,

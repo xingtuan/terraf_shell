@@ -686,6 +686,7 @@ export type HomeSectionPayload = JsonObject & {
 
 export interface HomeSection {
   id: number
+  page_key?: "home" | "material" | string | null
   key: string
   title?: string | null
   title_translations?: LocalizedStringSet

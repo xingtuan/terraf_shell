@@ -7,7 +7,7 @@ import type { SiteMessages } from "@/lib/i18n"
 import { useSectionInView } from "@/hooks/use-section-in-view"
 
 type CredibilitySectionProps = {
-  content: SiteMessages["home"]["credibility"]
+  content: SiteMessages["home"]["credibility"] & { mediaUrl?: string | null }
 }
 
 export function CredibilitySection({ content }: CredibilitySectionProps) {
@@ -41,7 +41,7 @@ export function CredibilitySection({ content }: CredibilitySectionProps) {
           >
             <div className="relative mb-8 aspect-[4/3] overflow-hidden rounded-2xl">
               <Image
-                src="/images/material-texture.jpg"
+                src={content.mediaUrl ?? "/images/material-texture.jpg"}
                 alt={content.title}
                 fill
                 className="object-cover"
