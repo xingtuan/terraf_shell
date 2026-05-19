@@ -25,14 +25,14 @@ class LegalPageSettings extends Page
     use ManagesRuntimeSettings;
 
     private const PAGES = [
-        'privacy' => 'Privacy Policy',
-        'terms' => 'Terms of Use',
+        'privacy',
+        'terms',
     ];
 
     private const LOCALES = [
-        'en' => 'English',
-        'ko' => 'Korean',
-        'zh' => 'Chinese',
+        'en',
+        'ko',
+        'zh',
     ];
 
     private const FIELDS = [
@@ -70,12 +70,12 @@ class LegalPageSettings extends Page
 
     public static function getNavigationLabel(): string
     {
-        return 'Legal Pages';
+        return __('admin.pages.legal_page_settings');
     }
 
     public function getTitle(): string
     {
-        return 'Legal Pages';
+        return __('admin.pages.legal_page_settings');
     }
 
     public function form(Schema $schema): Schema
@@ -83,7 +83,7 @@ class LegalPageSettings extends Page
         return $schema
             ->statePath('data')
             ->components([
-                Tabs::make('Legal page content')
+                Tabs::make(__('admin.legal_pages.tabs.content'))
                     ->persistTab()
                     ->tabs($this->pageTabs())
                     ->columnSpanFull(),
@@ -108,8 +108,8 @@ class LegalPageSettings extends Page
     {
         $map = [];
 
-        foreach (array_keys(self::PAGES) as $page) {
-            foreach (array_keys(self::LOCALES) as $locale) {
+        foreach (self::PAGES as $page) {
+            foreach (self::LOCALES as $locale) {
                 foreach (self::FIELDS as $field => $meta) {
                     $map[$this->fieldName($page, $locale, $field)] = [
                         'key' => "legal.{$page}.{$locale}.{$field}",
@@ -131,8 +131,8 @@ class LegalPageSettings extends Page
     {
         $tabs = [];
 
-        foreach (self::PAGES as $page => $label) {
-            $tabs[] = Tab::make($label)
+        foreach (self::PAGES as $page) {
+            $tabs[] = Tab::make($this->pageLabel($page))
                 ->schema($this->localeSections($page));
         }
 
@@ -146,38 +146,38 @@ class LegalPageSettings extends Page
     {
         $sections = [];
 
-        foreach (self::LOCALES as $locale => $label) {
-            $sections[] = Section::make($label)
-                ->description('Leave fields empty to use the current frontend default text for this locale.')
+        foreach (self::LOCALES as $locale) {
+            $sections[] = Section::make($this->localeLabel($locale))
+                ->description(__('admin.legal_pages.help.locale_section'))
                 ->schema([
                     Grid::make(2)->schema([
                         TextInput::make($this->fieldName($page, $locale, 'meta_title'))
-                            ->label('Meta title')
+                            ->label(__('admin.legal_pages.fields.meta_title'))
                             ->maxLength(255),
                         TextInput::make($this->fieldName($page, $locale, 'eyebrow'))
-                            ->label('Eyebrow')
+                            ->label(__('admin.legal_pages.fields.eyebrow'))
                             ->maxLength(120),
                         Textarea::make($this->fieldName($page, $locale, 'meta_description'))
-                            ->label('Meta description')
+                            ->label(__('admin.legal_pages.fields.meta_description'))
                             ->rows(2)
                             ->columnSpanFull(),
                         TextInput::make($this->fieldName($page, $locale, 'title'))
-                            ->label('Page title')
+                            ->label(__('admin.legal_pages.fields.title'))
                             ->maxLength(255),
                         TextInput::make($this->fieldName($page, $locale, 'last_updated_label'))
-                            ->label('Last updated label')
+                            ->label(__('admin.legal_pages.fields.last_updated_label'))
                             ->maxLength(120),
                         TextInput::make($this->fieldName($page, $locale, 'last_updated'))
-                            ->label('Last updated value')
-                            ->placeholder('May 2026')
+                            ->label(__('admin.legal_pages.fields.last_updated'))
+                            ->placeholder(__('admin.legal_pages.placeholders.last_updated'))
                             ->maxLength(120),
                         Textarea::make($this->fieldName($page, $locale, 'description'))
-                            ->label('Intro summary')
+                            ->label(__('admin.legal_pages.fields.description'))
                             ->rows(3)
                             ->columnSpanFull(),
                         RichEditor::make($this->fieldName($page, $locale, 'body_html'))
-                            ->label('Page body')
-                            ->helperText('When this field has content, it replaces the default section list on the public page.')
+                            ->label(__('admin.legal_pages.fields.body_html'))
+                            ->helperText(__('admin.legal_pages.help.body'))
                             ->columnSpanFull(),
                     ]),
                 ]);
@@ -189,5 +189,15 @@ class LegalPageSettings extends Page
     private function fieldName(string $page, string $locale, string $field): string
     {
         return "{$page}_{$locale}_{$field}";
+    }
+
+    private function pageLabel(string $page): string
+    {
+        return __("admin.legal_pages.pages.{$page}");
+    }
+
+    private function localeLabel(string $locale): string
+    {
+        return __("admin.legal_pages.locales.{$locale}");
     }
 }

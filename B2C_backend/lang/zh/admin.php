@@ -119,6 +119,7 @@ return [
         'settings_backup_import' => '设置备份与导入',
         'demo_cleanup' => '演示数据清理',
         'media_storage_scan' => '媒体存储扫描',
+        'legal_page_settings' => '法律页面',
     ],
     'widgets' => [
         'analytics_snapshot' => '数据概览',
@@ -1807,5 +1808,36 @@ return [
         'recent_moderation_activity' => '最近审核活动',
         'n_creators' => ':count 位创作者',
         'n_total_concepts' => '总计 :count 个概念',
+    ],
+    'legal_pages' => [
+        'tabs' => [
+            'content' => '法律页面内容',
+        ],
+        'pages' => [
+            'privacy' => '隐私政策',
+            'terms' => '使用条款',
+        ],
+        'locales' => [
+            'en' => '英文',
+            'ko' => '韩文',
+            'zh' => '中文',
+        ],
+        'fields' => [
+            'meta_title' => 'Meta 标题',
+            'meta_description' => 'Meta 描述',
+            'eyebrow' => '眉标',
+            'title' => '页面标题',
+            'description' => '简介摘要',
+            'last_updated_label' => '最后更新标签',
+            'last_updated' => '最后更新内容',
+            'body_html' => '页面正文',
+        ],
+        'help' => [
+            'locale_section' => '编辑该语言在前台法律页面展示的内容。',
+            'body' => '前台会按所选页面和语言直接渲染这里的 HTML 内容。',
+        ],
+        'placeholders' => [
+            'last_updated' => '2026年5月',
+        ],
     ],
 ];

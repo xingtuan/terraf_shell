@@ -119,6 +119,7 @@ return [
         'settings_backup_import' => '설정 백업 및 가져오기',
         'demo_cleanup' => '데모 데이터 정리',
         'media_storage_scan' => '미디어 저장소 점검',
+        'legal_page_settings' => '법적 페이지',
     ],
     'widgets' => [
         'analytics_snapshot' => '분석 요약',
@@ -1807,5 +1808,36 @@ return [
         'recent_moderation_activity' => '최근 모더레이션 활동',
         'n_creators' => ':count명의 창작자',
         'n_total_concepts' => '총 :count개의 콘셉트',
+    ],
+    'legal_pages' => [
+        'tabs' => [
+            'content' => '법적 페이지 콘텐츠',
+        ],
+        'pages' => [
+            'privacy' => '개인정보 처리방침',
+            'terms' => '이용약관',
+        ],
+        'locales' => [
+            'en' => '영어',
+            'ko' => '한국어',
+            'zh' => '중국어',
+        ],
+        'fields' => [
+            'meta_title' => 'Meta 제목',
+            'meta_description' => 'Meta 설명',
+            'eyebrow' => '상단 라벨',
+            'title' => '페이지 제목',
+            'description' => '소개 요약',
+            'last_updated_label' => '마지막 업데이트 라벨',
+            'last_updated' => '마지막 업데이트 값',
+            'body_html' => '페이지 본문',
+        ],
+        'help' => [
+            'locale_section' => '이 언어의 공개 법적 페이지에 표시될 콘텐츠를 편집합니다.',
+            'body' => '공개 프론트엔드는 선택한 페이지와 언어에 대해 이 HTML을 직접 렌더링합니다.',
+        ],
+        'placeholders' => [
+            'last_updated' => '2026년 5월',
+        ],
     ],
 ];

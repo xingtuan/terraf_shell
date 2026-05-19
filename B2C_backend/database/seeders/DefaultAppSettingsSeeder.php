@@ -6,6 +6,7 @@ use App\Models\AppSetting;
 use App\Models\EmailSetting;
 use App\Services\Email\MailSettingsService;
 use App\Services\Settings\SettingsService;
+use App\Support\LegalPageDefaults;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
@@ -102,14 +103,29 @@ class DefaultAppSettingsSeeder extends Seeder
             'maintenance.notice_level' => ['value' => 'info', 'type' => 'string'],
         ];
 
+        $defaults = array_merge($defaults, LegalPageDefaults::settings());
+
         foreach ($defaults as $key => $payload) {
             [$group, $settingKey] = explode('.', $key, 2);
+            $existing = AppSetting::query()
+                ->where('group', $group)
+                ->where('key', $settingKey)
+                ->first();
 
-            if (AppSetting::query()->where('group', $group)->where('key', $settingKey)->exists()) {
+            if ($existing) {
+                if (str_starts_with($key, 'legal.') && $this->isBlankLegalSetting((string) ($existing->value ?? ''))) {
+                    $settings->set($key, $payload['value'], $payload);
+                }
+
                 continue;
             }
 
             $settings->set($key, $payload['value'], $payload);
         }
+    }
+
+    private function isBlankLegalSetting(string $value): bool
+    {
+        return trim(str_ireplace('&nbsp;', ' ', strip_tags($value))) === '';
     }
 }

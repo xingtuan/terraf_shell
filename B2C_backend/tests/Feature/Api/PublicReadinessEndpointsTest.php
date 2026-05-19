@@ -3,7 +3,9 @@
 namespace Tests\Feature\Api;
 
 use App\Services\Settings\SettingsService;
+use App\Support\LegalPageDefaults;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class PublicReadinessEndpointsTest extends TestCase
@@ -88,5 +90,55 @@ class PublicReadinessEndpointsTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.title', 'Backend Terms Title')
             ->assertJsonMissingPath('data.bodyHtml');
+    }
+
+    public function test_default_legal_page_examples_are_available_for_public_locales(): void
+    {
+        app(SettingsService::class)->forgetCache();
+
+        foreach (['privacy', 'terms'] as $page) {
+            foreach (['en', 'ko', 'zh'] as $locale) {
+                $data = $this->getJson("/api/legal-pages/{$page}?locale={$locale}")
+                    ->assertOk()
+                    ->assertJsonPath('success', true)
+                    ->json('data');
+
+                $this->assertNotEmpty($data['metaTitle'] ?? null);
+                $this->assertNotEmpty($data['title'] ?? null);
+                $this->assertNotEmpty($data['description'] ?? null);
+                $this->assertNotEmpty($data['lastUpdatedLabel'] ?? null);
+                $this->assertNotEmpty($data['lastUpdated'] ?? null);
+                $this->assertNotEmpty($data['bodyHtml'] ?? null);
+            }
+        }
+    }
+
+    public function test_default_legal_page_migration_fills_blank_values_without_overwriting_edits(): void
+    {
+        DB::table('app_settings')
+            ->where('group', 'legal')
+            ->where('key', 'privacy.zh.meta_title')
+            ->update(['value' => '']);
+
+        DB::table('app_settings')
+            ->where('group', 'legal')
+            ->where('key', 'privacy.zh.title')
+            ->update(['value' => 'Custom legal title']);
+
+        DB::table('app_settings')
+            ->where('group', 'legal')
+            ->where('key', 'terms.en.body_html')
+            ->update(['value' => '<p>&nbsp;</p>']);
+
+        $migration = include database_path('migrations/2026_05_20_000000_seed_default_legal_page_settings.php');
+        $migration->up();
+
+        app(SettingsService::class)->forgetCache();
+        $settings = app(SettingsService::class);
+        $defaults = LegalPageDefaults::settings();
+
+        $this->assertSame($defaults['legal.privacy.zh.meta_title']['value'], $settings->string('legal.privacy.zh.meta_title'));
+        $this->assertSame('Custom legal title', $settings->string('legal.privacy.zh.title'));
+        $this->assertSame($defaults['legal.terms.en.body_html']['value'], $settings->string('legal.terms.en.body_html'));
     }
 }

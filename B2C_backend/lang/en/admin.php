@@ -119,6 +119,7 @@ return [
         'settings_backup_import' => 'Settings Backup & Import',
         'demo_cleanup' => 'Demo Cleanup',
         'media_storage_scan' => 'Media Storage Scan',
+        'legal_page_settings' => 'Legal Pages',
     ],
     'widgets' => [
         'analytics_snapshot' => 'Analytics Snapshot',
@@ -1807,5 +1808,36 @@ return [
         'recent_moderation_activity' => 'Recent Moderation Activity',
         'n_creators' => ':count creators',
         'n_total_concepts' => ':count total concepts',
+    ],
+    'legal_pages' => [
+        'tabs' => [
+            'content' => 'Legal page content',
+        ],
+        'pages' => [
+            'privacy' => 'Privacy Policy',
+            'terms' => 'Terms of Use',
+        ],
+        'locales' => [
+            'en' => 'English',
+            'ko' => 'Korean',
+            'zh' => 'Chinese',
+        ],
+        'fields' => [
+            'meta_title' => 'Meta title',
+            'meta_description' => 'Meta description',
+            'eyebrow' => 'Eyebrow',
+            'title' => 'Page title',
+            'description' => 'Intro summary',
+            'last_updated_label' => 'Last updated label',
+            'last_updated' => 'Last updated value',
+            'body_html' => 'Page body',
+        ],
+        'help' => [
+            'locale_section' => 'Edit the content rendered by the public legal page for this locale.',
+            'body' => 'The public frontend renders this HTML directly for the selected page and locale.',
+        ],
+        'placeholders' => [
+            'last_updated' => 'May 2026',
+        ],
     ],
 ];
