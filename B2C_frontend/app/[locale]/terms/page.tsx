@@ -1,9 +1,12 @@
 import type { Metadata } from "next"
+import { notFound } from "next/navigation"
 
 import { LegalPage } from "@/components/legal/legal-page"
-import { getLegalPageContent } from "@/lib/api/legal-pages"
+import {
+  getLegalPageContent,
+  hasRenderableLegalPageContent,
+} from "@/lib/api/legal-pages"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
-import { getMessages } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
 
 type TermsPageProps = {
@@ -14,31 +17,27 @@ export async function generateMetadata({
   params,
 }: TermsPageProps): Promise<Metadata> {
   const locale = await resolveLocale(params)
-  const content = await getLegalPageContent(
-    "terms",
-    getMessages(locale).legal.terms,
-    {
-      baseUrl: await getServerApiBaseUrl(),
-      locale,
-    },
-  )
+  const content = await getLegalPageContent("terms", {
+    baseUrl: await getServerApiBaseUrl(),
+    locale,
+  })
 
   return {
-    title: content.metaTitle,
-    description: content.metaDescription,
+    title: content.metaTitle ?? content.title ?? undefined,
+    description: content.metaDescription ?? content.description ?? undefined,
   }
 }
 
 export default async function TermsPage({ params }: TermsPageProps) {
   const locale = await resolveLocale(params)
-  const content = await getLegalPageContent(
-    "terms",
-    getMessages(locale).legal.terms,
-    {
-      baseUrl: await getServerApiBaseUrl(),
-      locale,
-    },
-  )
+  const content = await getLegalPageContent("terms", {
+    baseUrl: await getServerApiBaseUrl(),
+    locale,
+  })
+
+  if (!hasRenderableLegalPageContent(content)) {
+    notFound()
+  }
 
   return <LegalPage content={content} />
 }

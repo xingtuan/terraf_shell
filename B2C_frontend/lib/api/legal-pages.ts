@@ -1,36 +1,28 @@
 import { requestApi } from "@/lib/api/client"
-import type { SiteMessages } from "@/lib/i18n"
 
 export type LegalPageKey = "privacy" | "terms"
 
-export type LegalPageContent = SiteMessages["legal"]["privacy"] & {
+export type LegalPageContent = {
+  metaTitle?: string | null
+  metaDescription?: string | null
+  eyebrow?: string | null
+  title?: string | null
+  description?: string | null
+  lastUpdatedLabel?: string | null
+  lastUpdated?: string | null
   bodyHtml?: string | null
 }
-
-type LegalPageOverride = Partial<
-  Pick<
-    LegalPageContent,
-    | "metaTitle"
-    | "metaDescription"
-    | "eyebrow"
-    | "title"
-    | "description"
-    | "lastUpdatedLabel"
-    | "lastUpdated"
-    | "bodyHtml"
-  >
->
 
 type GetLegalPageOptions = {
   baseUrl?: string
   locale?: string
 }
 
-export async function getLegalPageOverride(
+export async function getLegalPageContent(
   page: LegalPageKey,
   options: GetLegalPageOptions = {},
-): Promise<LegalPageOverride> {
-  const response = await requestApi<LegalPageOverride>(
+): Promise<LegalPageContent> {
+  const response = await requestApi<LegalPageContent>(
     `/legal-pages/${encodeURIComponent(page)}`,
     {
       query: {
@@ -41,33 +33,25 @@ export async function getLegalPageOverride(
     },
   )
 
-  return response.data ?? {}
+  return nonBlankLegalContent(response.data ?? {})
 }
 
-export async function getLegalPageContent(
-  page: LegalPageKey,
-  fallback: SiteMessages["legal"]["privacy"],
-  options: GetLegalPageOptions = {},
-): Promise<LegalPageContent> {
-  try {
-    const override = await getLegalPageOverride(page, options)
-
-    return {
-      ...fallback,
-      ...nonBlankLegalOverride(override),
-    }
-  } catch {
-    return fallback
-  }
+export function hasRenderableLegalPageContent(content: LegalPageContent) {
+  return Boolean(
+    content.eyebrow ||
+      content.title ||
+      content.description ||
+      content.lastUpdated ||
+      content.lastUpdatedLabel ||
+      content.bodyHtml,
+  )
 }
 
-function nonBlankLegalOverride(
-  override: LegalPageOverride,
-): LegalPageOverride {
-  const result: LegalPageOverride = {}
+function nonBlankLegalContent(content: LegalPageContent): LegalPageContent {
+  const result: LegalPageContent = {}
 
-  for (const [key, value] of Object.entries(override) as Array<
-    [keyof LegalPageOverride, string | null | undefined]
+  for (const [key, value] of Object.entries(content) as Array<
+    [keyof LegalPageContent, string | null | undefined]
   >) {
     if (typeof value === "string" && value.trim().length > 0) {
       result[key] = value
