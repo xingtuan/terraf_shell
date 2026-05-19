@@ -314,7 +314,9 @@ class PostService
             $data['attachment_titles'] ?? [],
             $data['attachment_alts'] ?? [],
             $data['attachment_kinds'] ?? [],
-            $nextSortOrder
+            $nextSortOrder,
+            null,
+            true
         );
         $this->storeExternalLinks(
             $post,
@@ -759,6 +761,7 @@ class PostService
         array $kinds,
         int $nextSortOrder,
         ?IdeaMediaKind $defaultKind = null,
+        bool $markAsAttachment = false,
     ): int {
         foreach ($files as $index => $file) {
             $type = $this->detectUploadType($file);
@@ -771,7 +774,7 @@ class PostService
                 'kind' => $kind->value,
                 'title' => $titles[$index] ?? null,
                 'alt_text' => $alts[$index] ?? ($type === IdeaMediaType::Image ? $post->title : null),
-                'metadata' => null,
+                'metadata' => $markAsAttachment ? ['is_attachment' => true] : null,
                 'sort_order' => $nextSortOrder,
                 ...$upload,
             ]);

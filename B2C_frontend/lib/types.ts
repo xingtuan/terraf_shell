@@ -928,6 +928,7 @@ export interface CommunityMedia {
   is_image?: boolean
   is_document?: boolean
   is_external?: boolean
+  is_attachment?: boolean
   sort_order?: number
   download_count?: number
   metadata?: JsonObject | null

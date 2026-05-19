@@ -120,7 +120,7 @@ export function PostCard({
   const supportUrl = getCommunitySupportUrl(post)
   const readingTime = post.reading_time ?? 0
   const downloadableAttachmentCount =
-    post.media?.filter((item) => !item.is_image && !item.is_external).length ?? 0
+    post.media?.filter((item) => !item.is_external && (item.is_attachment || !item.is_image)).length ?? 0
   const moderationLabel = getPostModerationLabel(
     post.status,
     messages.post.pendingBadge,

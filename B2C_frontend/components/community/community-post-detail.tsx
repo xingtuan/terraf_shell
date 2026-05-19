@@ -449,7 +449,7 @@ export function CommunityPostDetail({
       : null
   const isOwner = session.user?.id === post?.user?.id
   const downloadableAttachments =
-    post?.media?.filter((item) => !item.is_image && !item.is_external) ?? []
+    post?.media?.filter((item) => !item.is_external && (item.is_attachment || !item.is_image)) ?? []
   const externalMedia =
     post?.media?.filter((item) => item.is_external) ?? []
 

@@ -80,7 +80,7 @@ function buildPostBody(payload: Partial<PostFormPayload>) {
         : {}),
       ...(payload.excerpt !== undefined ? { excerpt: payload.excerpt } : {}),
       ...(payload.cover_image_url !== undefined
-        ? { cover_image_url: payload.cover_image_url }
+        ? { cover_image_url: payload.cover_image_path ? null : payload.cover_image_url }
         : {}),
       ...(payload.cover_image_path !== undefined
         ? { cover_image_path: payload.cover_image_path }
@@ -129,7 +129,7 @@ function buildPostBody(payload: Partial<PostFormPayload>) {
     form.append("excerpt", payload.excerpt ?? "")
   }
 
-  if (payload.cover_image_url !== undefined) {
+  if (payload.cover_image_url !== undefined && !payload.cover_image_path) {
     form.append("cover_image_url", payload.cover_image_url ?? "")
   }
 

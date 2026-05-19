@@ -26,11 +26,21 @@ class StorePostRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'cover_image_url' => filled($this->input('cover_image_url')) ? $this->input('cover_image_url') : null,
+            'cover_image_path' => filled($this->input('cover_image_path')) ? $this->input('cover_image_path') : null,
+            'cover_image_disk' => filled($this->input('cover_image_disk')) ? $this->input('cover_image_disk') : null,
+        ]);
+    }
+
     public function rules(): array
     {
         $maxFileSize = (int) config('community.idea_media.max_file_size_kb', 10240);
         $maxFiles = (int) config('community.idea_media.max_files', 12);
         $maxExternalLinks = (int) config('community.idea_media.max_external_links', 4);
+        $hasLocalCoverPath = filled($this->input('cover_image_path'));
 
         return [
             'title' => ['required', 'string', 'max:100'],
@@ -44,7 +54,10 @@ class StorePostRequest extends FormRequest
                 new ExternalSafeUrl,
                 'max:2048',
             ],
-            'cover_image_url' => ['nullable', 'url', 'max:2048'],
+            'cover_image_url' => array_merge(
+                ['nullable', 'max:2048'],
+                $hasLocalCoverPath ? [] : ['url'],
+            ),
             'cover_image_path' => ['nullable', 'string', 'max:1024'],
             'cover_image_disk' => ['nullable', 'string', 'max:255'],
             'reading_time' => ['nullable', 'integer', 'min:0', 'max:999'],

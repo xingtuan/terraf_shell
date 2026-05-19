@@ -310,7 +310,7 @@ export function CommunityPostComposer({
                     content_json: JSON.stringify(contentJson),
                     category_id: categoryId ? Number(categoryId) : undefined,
                     tag_ids: selectedTagIds.length ? selectedTagIds : undefined,
-                    cover_image_url: coverImageUrl || null,
+                    cover_image_url: coverImagePath ? null : (coverImageUrl || null),
                     cover_image_path: coverImagePath || null,
                     cover_image_disk: coverImageDisk,
                     funding_url: trimmedFundingUrl || null,

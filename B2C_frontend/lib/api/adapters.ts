@@ -933,6 +933,7 @@ export function normalizeCommunityMedia(media: CommunityMedia): CommunityMedia {
     is_image: Boolean(media.is_image),
     is_document: Boolean(media.is_document),
     is_external: Boolean(media.is_external),
+    is_attachment: Boolean(media.is_attachment),
     download_count: Number(media.download_count ?? 0),
     metadata: isJsonObject(media.metadata) ? media.metadata : null,
   }

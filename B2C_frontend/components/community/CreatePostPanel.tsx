@@ -410,7 +410,7 @@ export function CreatePostPanel({
               content: content.trim(),
               content_json: JSON.stringify(contentJson),
               excerpt: excerpt.trim() || null,
-              cover_image_url: coverImageUrl || null,
+              cover_image_url: coverImagePath ? null : (coverImageUrl || null),
               cover_image_path: coverImagePath || null,
               cover_image_disk: coverImageDisk,
               funding_url: fundingUrl.trim() || null,
@@ -611,12 +611,12 @@ export function CreatePostPanel({
           ) : null}
 
           {isEditing &&
-          currentPost?.media?.some((media) => !media.is_image && !media.is_external) ? (
+          currentPost?.media?.some((media) => !media.is_external && (media.is_attachment || !media.is_image)) ? (
             <div className="space-y-3">
               <p className="text-sm font-medium text-foreground">Current attachments</p>
               <div className="space-y-2">
                 {currentPost.media
-                  .filter((media) => !media.is_image && !media.is_external)
+                  .filter((media) => !media.is_external && (media.is_attachment || !media.is_image))
                   .map((media) => (
                     <div
                       key={media.id}

@@ -155,9 +155,12 @@ class Post extends Model
             return StorageUrl::normalizePublicUrl($this->cover_image_url);
         }
 
+        $isGalleryImage = fn (IdeaMedia $media): bool =>
+            $media->isImage() && ! ($media->metadata['is_attachment'] ?? false);
+
         $image = $this->relationLoaded('media')
-            ? $this->media->first(fn (IdeaMedia $media): bool => $media->isImage())
-            : $this->media()->ordered()->get()->first(fn (IdeaMedia $media): bool => $media->isImage());
+            ? $this->media->first($isGalleryImage)
+            : $this->media()->ordered()->get()->first($isGalleryImage);
 
         if ($image instanceof IdeaMedia) {
             return $image->thumbnail_url ?: $image->preview_url ?: $image->url;

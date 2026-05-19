@@ -44,6 +44,7 @@ class IdeaMediaResource extends JsonResource
             'is_image' => $this->isImage(),
             'is_document' => $this->isDocument(),
             'is_external' => $this->isExternal(),
+            'is_attachment' => (bool) ($this->metadata['is_attachment'] ?? false),
             'sort_order' => $this->sort_order,
             'download_count' => (int) ($this->download_count ?? 0),
             'metadata' => $this->metadata,
