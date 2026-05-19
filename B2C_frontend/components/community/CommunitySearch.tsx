@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Search } from "lucide-react"
-import { useDeferredValue, useEffect, useState } from "react"
+import { useDeferredValue, useEffect, useRef, useState } from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { searchPosts } from "@/lib/api/search"
@@ -20,14 +20,43 @@ export function CommunitySearch({ locale, messages }: CommunitySearchProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const containerRef = useRef<HTMLDivElement>(null)
   const [query, setQuery] = useState(searchParams.get("q") ?? "")
   const [suggestions, setSuggestions] = useState<CommunityPost[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false)
   const deferredQuery = useDeferredValue(query)
+  const trimmedDeferredQuery = deferredQuery.trim()
+  const shouldShowSuggestions =
+    isSuggestionsOpen &&
+    (isLoading || suggestions.length > 0 || trimmedDeferredQuery.length >= 2)
 
   useEffect(() => {
     setQuery(searchParams.get("q") ?? "")
+    setIsSuggestionsOpen(false)
   }, [pathname, searchParams])
+
+  useEffect(() => {
+    if (!isSuggestionsOpen) {
+      return
+    }
+
+    function closeOnOutsidePointerDown(event: PointerEvent) {
+      if (
+        containerRef.current &&
+        event.target instanceof Node &&
+        !containerRef.current.contains(event.target)
+      ) {
+        setIsSuggestionsOpen(false)
+      }
+    }
+
+    document.addEventListener("pointerdown", closeOnOutsidePointerDown)
+
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePointerDown)
+    }
+  }, [isSuggestionsOpen])
 
   useEffect(() => {
     const trimmedQuery = deferredQuery.trim()
@@ -76,11 +105,12 @@ export function CommunitySearch({ locale, messages }: CommunitySearchProps) {
       ? `${getLocalizedHref(locale, "community")}?q=${encodeURIComponent(trimmedQuery)}`
       : getLocalizedHref(locale, "community")
 
+    setIsSuggestionsOpen(false)
     router.push(href)
   }
 
   return (
-    <div className="relative w-full sm:max-w-md">
+    <div ref={containerRef} className="relative w-full sm:max-w-md">
       <form
         className="flex items-center gap-2"
         onSubmit={(event) => {
@@ -92,7 +122,11 @@ export function CommunitySearch({ locale, messages }: CommunitySearchProps) {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value)
+              setIsSuggestionsOpen(true)
+            }}
+            onFocus={() => setIsSuggestionsOpen(true)}
             placeholder={messages.placeholder}
             className="pl-9"
           />
@@ -102,7 +136,7 @@ export function CommunitySearch({ locale, messages }: CommunitySearchProps) {
         </Button>
       </form>
 
-      {(isLoading || suggestions.length > 0 || deferredQuery.trim().length >= 2) && (
+      {shouldShowSuggestions && (
         <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 overflow-hidden rounded-2xl border border-border/60 bg-background shadow-xl">
           <div className="border-b border-border/60 px-4 py-3 text-xs uppercase tracking-[0.18em] text-primary">
             {messages.suggestions}
@@ -127,7 +161,7 @@ export function CommunitySearch({ locale, messages }: CommunitySearchProps) {
                 {messages.noSuggestions}
               </div>
             )}
-            {!isLoading && deferredQuery.trim().length >= 2 ? (
+            {!isLoading && trimmedDeferredQuery.length >= 2 ? (
               <button
                 type="button"
                 className="mt-1 block w-full rounded-xl px-3 py-3 text-left text-sm text-primary transition-colors hover:bg-muted"
