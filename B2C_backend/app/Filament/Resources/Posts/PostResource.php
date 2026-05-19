@@ -106,6 +106,14 @@ class PostResource extends Resource
             ? $data['excerpt']
             : Str::limit(strip_tags((string) ($data['content'] ?? $record?->content ?? '')), 180);
 
+        if (
+            array_key_exists('content', $data)
+            && $record instanceof Post
+            && (string) $data['content'] !== (string) $record->content
+        ) {
+            $data['content_json'] = null;
+        }
+
         if (($data['status'] ?? $record?->status) === ContentStatus::Approved->value) {
             $data['published_at'] = $data['published_at'] ?? $record?->published_at ?? now();
         } else {

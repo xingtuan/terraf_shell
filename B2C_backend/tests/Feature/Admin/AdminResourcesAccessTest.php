@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -217,5 +218,20 @@ class AdminResourcesAccessTest extends TestCase
         $this->actingAs($smePartner)
             ->get('/admin/comments')
             ->assertForbidden();
+    }
+
+    public function test_post_edit_page_handles_json_like_plain_content_without_tiptap_crash(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $post = Post::factory()->create([
+            'content' => json_encode([
+                'type' => 'doc',
+                'content' => [0.15],
+            ], JSON_THROW_ON_ERROR),
+        ]);
+
+        $this->actingAs($admin)
+            ->get("/admin/posts/{$post->getKey()}/edit")
+            ->assertOk();
     }
 }

@@ -3,6 +3,7 @@ import {
   normalizeMaterialSpecIcon,
   normalizePaginationMeta,
   resolveApiUrl,
+  rewriteLegacyPublicMediaUrl,
 } from "@/lib/api/normalizers"
 import type {
   ArticleDetail,
@@ -19,6 +20,7 @@ import type {
   HomeSection,
   HomeSectionPayload,
   JsonObject,
+  JsonValue,
   MaterialApplication,
   MaterialDetail,
   MaterialSpec,
@@ -50,6 +52,33 @@ import type {
 
 function isJsonObject(value: unknown): value is JsonObject {
   return value !== null && typeof value === "object" && !Array.isArray(value)
+}
+
+function normalizeCommunityContentJson(value: unknown): JsonObject | null {
+  if (!isJsonObject(value)) {
+    return null
+  }
+
+  return normalizeCommunityContentValue(value) as JsonObject
+}
+
+function normalizeCommunityContentValue(value: JsonValue): JsonValue {
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeCommunityContentValue(item))
+  }
+
+  if (!isJsonObject(value)) {
+    return value
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [
+      key,
+      (key === "src" || key === "href") && typeof item === "string"
+        ? (rewriteLegacyPublicMediaUrl(item) ?? item)
+        : normalizeCommunityContentValue(item),
+    ]),
+  )
 }
 
 function normalizeBoolean(value: unknown): boolean {
@@ -933,7 +962,7 @@ export function normalizeCommunityPost(post: CommunityPost): CommunityPost {
     title: post.title ?? "",
     slug: post.slug ?? "",
     content: post.content ?? "",
-    content_json: isJsonObject(post.content_json) ? post.content_json : null,
+    content_json: normalizeCommunityContentJson(post.content_json),
     cover_image_url: resolveApiUrl(post.cover_image_url),
     cover_image_path: post.cover_image_path ?? null,
     reading_time: Number(post.reading_time ?? 0),

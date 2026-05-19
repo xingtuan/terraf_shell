@@ -56,6 +56,12 @@ export function resolveApiUrl(url?: string | null) {
     return null
   }
 
+  const legacyPublicMediaUrl = rewriteLegacyPublicMediaUrl(url)
+
+  if (legacyPublicMediaUrl) {
+    return legacyPublicMediaUrl
+  }
+
   if (/^https?:\/\//i.test(url)) {
     return url
   }
@@ -70,6 +76,47 @@ export function resolveApiUrl(url?: string | null) {
     return new URL(url, `${apiOrigin}/`).toString()
   } catch {
     return url
+  }
+}
+
+export function rewriteLegacyPublicMediaUrl(url?: string | null) {
+  if (!url) {
+    return null
+  }
+
+  const legacyPrefix = "/media/files/public/"
+
+  if (/^https?:\/\//i.test(url)) {
+    try {
+      const parsed = new URL(url)
+
+      if (!parsed.pathname.startsWith(legacyPrefix)) {
+        return null
+      }
+
+      parsed.pathname = `/storage/${parsed.pathname.slice(legacyPrefix.length)}`
+
+      return parsed.toString()
+    } catch {
+      return null
+    }
+  }
+
+  if (!url.startsWith(legacyPrefix)) {
+    return null
+  }
+
+  const rewrittenPath = `/storage/${url.slice(legacyPrefix.length)}`
+  const apiOrigin = getApiOrigin()
+
+  if (!apiOrigin) {
+    return rewrittenPath
+  }
+
+  try {
+    return new URL(rewrittenPath, `${apiOrigin}/`).toString()
+  } catch {
+    return rewrittenPath
   }
 }
 

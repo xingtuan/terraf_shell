@@ -5,12 +5,14 @@ import {
   requestApi,
   type ApiSuccessResponse,
 } from "@/lib/api/client"
+import { resolveApiUrl } from "@/lib/api/normalizers"
 import { getStoredAuthToken } from "@/lib/auth/token-storage"
 
 export interface UploadedMedia {
   id: number
   url: string
   path: string
+  disk?: string
   type: string
   mime: string
   size: number
@@ -120,7 +122,10 @@ export async function uploadMedia(
       }
 
       onProgress?.(100)
-      resolve(payload.data)
+      resolve({
+        ...payload.data,
+        url: resolveApiUrl(payload.data.url) ?? payload.data.url,
+      })
     })
 
     xhr.send(formData)
