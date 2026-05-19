@@ -164,7 +164,7 @@ class StorageSettings extends Page
 
         $payload = [
             'storage.default_driver' => ['value' => $state['default_driver'] ?? 'local', 'type' => 'string'],
-            'storage.local.disk' => ['value' => $state['local_disk'] ?? 'public', 'type' => 'string'],
+            'storage.local.disk' => ['value' => $this->normalizeLocalDisk((string) ($state['local_disk'] ?? 'public')), 'type' => 'string'],
             'storage.azure.account_name' => ['value' => $state['azure_account_name'] ?? null, 'type' => 'string'],
             'storage.azure.container' => ['value' => $state['azure_container'] ?? 'uploads', 'type' => 'string'],
             'storage.azure.url' => ['value' => $state['azure_url'] ?? null, 'type' => 'string'],
@@ -189,7 +189,7 @@ class StorageSettings extends Page
 
     public function testLocal(StorageManagerService $storage, SettingsService $settings): void
     {
-        $result = $storage->test($this->data['local_disk'] ?? 'public');
+        $result = $storage->test($this->localDiskValue());
         $this->persistStorageTest($settings, 'local', $result->ok, $result->message);
         $this->notifyResult($result->ok, $result->message);
     }
@@ -203,8 +203,11 @@ class StorageSettings extends Page
 
     public function testUpload(StorageManagerService $storage, SettingsService $settings): void
     {
-        $result = $storage->test($this->data['default_driver'] ?? null);
-        $scope = ($this->data['default_driver'] ?? 'local') === 'azure' ? 'azure' : 'local';
+        $driver = ($this->data['default_driver'] ?? 'local') === 'azure' ? 'azure' : 'local';
+        $result = $driver === 'azure'
+            ? $storage->test('azure')
+            : $storage->test($this->localDiskValue());
+        $scope = $driver === 'azure' ? 'azure' : 'local';
         $this->persistStorageTest($settings, $scope, $result->ok, $result->message);
         $this->notifyResult($result->ok, $result->message);
     }
@@ -269,7 +272,7 @@ class StorageSettings extends Page
     {
         return [
             'default_driver' => $settings->string('storage.default_driver', config('community.uploads.disk') === 'azure' ? 'azure' : 'local'),
-            'local_disk' => $settings->string('storage.local.disk', 'public'),
+            'local_disk' => $this->normalizeLocalDisk($settings->string('storage.local.disk', 'public')),
             'azure_account_name' => $settings->string('storage.azure.account_name', (string) config('filesystems.disks.azure.name', '')),
             'azure_account_key' => $settings->secret('storage.azure.account_key') ? SettingsService::SECRET_MASK : null,
             'azure_container' => $settings->string('storage.azure.container', (string) config('filesystems.disks.azure.container', 'uploads')),
@@ -344,5 +347,17 @@ class StorageSettings extends Page
             ->replaceMatches('/[A-Za-z0-9+\/=]{32,}/', '[masked]')
             ->limit(500)
             ->toString();
+    }
+
+    private function localDiskValue(): string
+    {
+        return $this->normalizeLocalDisk((string) ($this->data['local_disk'] ?? 'public'));
+    }
+
+    private function normalizeLocalDisk(string $disk): string
+    {
+        $disk = trim($disk);
+
+        return $disk === '' || $disk === 'local' ? 'public' : $disk;
     }
 }

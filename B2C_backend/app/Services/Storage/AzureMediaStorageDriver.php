@@ -64,7 +64,12 @@ class AzureMediaStorageDriver implements MediaStorageDriverInterface
 
         try {
             $storage = Storage::disk($this->disk());
-            $storage->put($path, 'ok', ['visibility' => 'public']);
+            $written = $storage->put($path, 'ok', ['visibility' => 'public']);
+
+            if ($written !== true) {
+                return StorageHealthResult::fail('Azure test upload did not write to storage.', ['disk' => $this->disk()]);
+            }
+
             $exists = $storage->exists($path);
             $storage->delete($path);
 

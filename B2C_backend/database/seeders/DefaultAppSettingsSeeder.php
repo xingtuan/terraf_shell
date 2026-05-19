@@ -25,6 +25,7 @@ class DefaultAppSettingsSeeder extends Seeder
 
         $uploadDisk = (string) config('community.uploads.disk', config('filesystems.default', 'public'));
         $storageDriver = $uploadDisk === 'azure' ? 'azure' : 'local';
+        $localDisk = in_array($uploadDisk, ['', 'azure', 'local'], true) ? 'public' : $uploadDisk;
 
         $defaults = [
             'app.site_name' => ['value' => config('app.name', 'Terraf OXP'), 'type' => 'string'],
@@ -37,7 +38,7 @@ class DefaultAppSettingsSeeder extends Seeder
             'app.contact_email' => ['value' => config('mail.from.address'), 'type' => 'string'],
             'app.support_email' => ['value' => config('mail.from.address'), 'type' => 'string'],
             'storage.default_driver' => ['value' => $storageDriver, 'type' => 'string'],
-            'storage.local.disk' => ['value' => $uploadDisk === 'azure' ? 'public' : $uploadDisk, 'type' => 'string'],
+            'storage.local.disk' => ['value' => $localDisk, 'type' => 'string'],
             'storage.azure.account_name' => ['value' => config('filesystems.disks.azure.name'), 'type' => 'string'],
             'storage.azure.account_key' => ['value' => config('filesystems.disks.azure.key'), 'type' => 'string', 'is_secret' => true],
             'storage.azure.container' => ['value' => config('filesystems.disks.azure.container', 'uploads'), 'type' => 'string'],

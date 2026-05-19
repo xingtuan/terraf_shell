@@ -9,6 +9,7 @@ use App\Http\Resources\MediaFileResource;
 use App\Services\MediaFileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use RuntimeException;
 
 class UploadController extends Controller
 {
@@ -26,11 +27,15 @@ class UploadController extends Controller
         /** @var UploadedFile $file */
         $file = $request->file('file');
 
-        $mediaFile = $this->mediaFileService->upload(
-            $request->user(),
-            $file,
-            $validated['category'] ?? null
-        );
+        try {
+            $mediaFile = $this->mediaFileService->upload(
+                $request->user(),
+                $file,
+                $validated['category'] ?? null
+            );
+        } catch (RuntimeException $exception) {
+            return $this->errorResponse($exception->getMessage(), [], 500);
+        }
 
         return $this->successResponse(new MediaFileResource($mediaFile));
     }

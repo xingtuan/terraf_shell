@@ -32,6 +32,7 @@ class MediaFile extends Model
     protected function casts(): array
     {
         return [
+            'disk' => 'string',
             'size' => 'integer',
         ];
     }
@@ -41,9 +42,30 @@ class MediaFile extends Model
         return Attribute::make(
             get: fn (?string $value, array $attributes): ?string => StorageUrl::resolve(
                 $attributes['path'] ?? null,
-                $attributes['disk'] ?? null,
+                self::storageDiskFromAttributes($attributes),
             ) ?? $value,
         );
+    }
+
+    public function storageDisk(): string
+    {
+        return self::storageDiskFromAttributes($this->attributes);
+    }
+
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    private static function storageDiskFromAttributes(array $attributes): string
+    {
+        $disk = trim((string) ($attributes['disk'] ?? ''));
+
+        if ($disk !== '') {
+            return $disk === 'local' ? 'public' : $disk;
+        }
+
+        $fallback = trim((string) config('community.uploads.disk', config('filesystems.default', 'public')));
+
+        return $fallback !== '' && $fallback !== 'local' ? $fallback : 'public';
     }
 
     /**

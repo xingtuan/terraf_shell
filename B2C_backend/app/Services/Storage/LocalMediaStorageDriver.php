@@ -66,7 +66,15 @@ class LocalMediaStorageDriver implements MediaStorageDriverInterface
 
         try {
             $storage = Storage::disk($this->disk);
-            $storage->put($path, 'ok', 'public');
+            $written = $storage->put($path, 'ok', ['visibility' => 'public']);
+
+            if ($written !== true) {
+                return StorageHealthResult::fail(
+                    "Local storage disk [{$this->disk}] is not writable. Check storage/app/public permissions and run php artisan storage:link.",
+                    ['disk' => $this->disk],
+                );
+            }
+
             $exists = $storage->exists($path);
             $storage->delete($path);
 

@@ -29,7 +29,7 @@ class StorageManagerService
         }
 
         $disk = $driverOrDisk === '' || $driverOrDisk === 'local'
-            ? $this->settings->string('storage.local.disk', 'public')
+            ? $this->localDisk()
             : $driverOrDisk;
 
         return new LocalMediaStorageDriver($disk);
@@ -83,5 +83,12 @@ class StorageManagerService
     public function test(?string $driverOrDisk = null): StorageHealthResult
     {
         return $this->driver($driverOrDisk)->testConnection();
+    }
+
+    private function localDisk(): string
+    {
+        $disk = trim($this->settings->string('storage.local.disk', 'public'));
+
+        return $disk === '' || $disk === 'local' ? 'public' : $disk;
     }
 }

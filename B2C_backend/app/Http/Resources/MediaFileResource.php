@@ -18,7 +18,7 @@ class MediaFileResource extends JsonResource
             'id' => $this->id,
             'url' => $this->url,
             'path' => $this->path,
-            'disk' => $this->disk,
+            'disk' => $this->storageDisk(),
             'type' => $this->type,
             'mime' => $this->mime_type,
             'size' => $this->size,

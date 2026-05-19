@@ -7,6 +7,7 @@ use App\Services\Storage\StorageManagerService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 class MediaService
 {
@@ -75,6 +76,7 @@ class MediaService
      */
     public function upload(UploadedFile $file, ?string $category = null): array
     {
+        $disk = $this->disk();
         $mime = (string) ($file->getClientMimeType() ?: $file->getMimeType() ?: 'application/octet-stream');
         $type = $this->type($mime, $file);
         $normalizedCategory = $this->normalizeCategory($category);
@@ -82,18 +84,25 @@ class MediaService
         $filename = (string) Str::uuid().($extension !== '' ? '.'.$extension : '');
         $path = sprintf('%s/%s/%s/%s', $type, $normalizedCategory, now()->format('Y/m'), $filename);
 
-        $contents = file_get_contents((string) $file->getRealPath());
+        $contents = $this->readUploadedFile($file);
 
-        if ($contents === false) {
-            throw new RuntimeException('Unable to read the uploaded file.');
+        try {
+            $written = $this->storage->put($path, $contents, ['visibility' => 'public']);
+        } catch (Throwable $throwable) {
+            throw new RuntimeException(
+                sprintf('Unable to write uploaded file to storage disk [%s]: %s', $disk, $throwable->getMessage()),
+                previous: $throwable,
+            );
         }
 
-        $this->storage->put($path, $contents, ['visibility' => 'public']);
+        if ($written !== true) {
+            throw new RuntimeException($this->writeFailureMessage($disk));
+        }
 
         return [
-            'url' => $this->url($path),
+            'url' => $this->url($path, $disk),
             'path' => $path,
-            'disk' => $this->disk(),
+            'disk' => $disk,
             'type' => $type,
             'mime' => $mime,
             'size' => (int) ($file->getSize() ?? 0),
@@ -144,17 +153,49 @@ class MediaService
     /**
      * Resolve the public URL for a stored path.
      */
-    public function url(string $path): string
+    public function url(string $path, ?string $disk = null): string
     {
-        return $this->storage->url($path);
+        return $this->storage->url($path, $disk);
     }
 
     /**
      * Resolve a stable public URL for a stored path.
      */
-    public function publicUrl(string $path): string
+    public function publicUrl(string $path, ?string $disk = null): string
     {
-        return $this->storage->publicUrl($path);
+        return $this->storage->publicUrl($path, $disk);
+    }
+
+    private function readUploadedFile(UploadedFile $file): string
+    {
+        $pathname = $file->getPathname();
+
+        if ($pathname === '' || ! is_readable($pathname)) {
+            throw new RuntimeException('Unable to read the uploaded file from the temporary upload directory.');
+        }
+
+        $contents = file_get_contents($pathname);
+
+        if ($contents === false) {
+            throw new RuntimeException('Unable to read the uploaded file from the temporary upload directory.');
+        }
+
+        return $contents;
+    }
+
+    private function writeFailureMessage(string $disk): string
+    {
+        $config = config("filesystems.disks.{$disk}");
+        $isLocal = is_array($config) && ($config['driver'] ?? null) === 'local';
+
+        if ($isLocal) {
+            return sprintf(
+                'Unable to write uploaded file to local storage disk [%s]. Check that storage/app/public is writable and run php artisan storage:link for public uploads.',
+                $disk,
+            );
+        }
+
+        return sprintf('Unable to write uploaded file to storage disk [%s]. Check the active storage configuration.', $disk);
     }
 
     /**

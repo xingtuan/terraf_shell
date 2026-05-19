@@ -44,9 +44,11 @@ class RuntimeSettingsServiceProvider extends ServiceProvider
     private function applyStorageSettings(SettingsService $settings): void
     {
         $driver = $settings->string('storage.default_driver', (string) config('community.uploads.disk', config('filesystems.default', 'public')));
+        $localDisk = trim($settings->string('storage.local.disk', 'public'));
+        $localDisk = $localDisk === '' || $localDisk === 'local' ? 'public' : $localDisk;
         $disk = $driver === 'azure'
             ? 'azure'
-            : $settings->string('storage.local.disk', $driver === 'local' ? 'public' : $driver);
+            : $localDisk;
 
         config([
             'filesystems.default' => $disk,

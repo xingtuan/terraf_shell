@@ -9,9 +9,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('media_files', function (Blueprint $table): void {
-            $table->string('disk')->nullable()->after('user_id')->index();
-        });
+        if (! Schema::hasColumn('media_files', 'disk')) {
+            Schema::table('media_files', function (Blueprint $table): void {
+                $table->string('disk')->nullable()->after('user_id')->index();
+            });
+        }
 
         DB::table('media_files')
             ->whereNull('disk')
@@ -22,9 +24,11 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('media_files', function (Blueprint $table): void {
-            $table->dropIndex(['disk']);
-            $table->dropColumn('disk');
-        });
+        if (Schema::hasColumn('media_files', 'disk')) {
+            Schema::table('media_files', function (Blueprint $table): void {
+                $table->dropIndex(['disk']);
+                $table->dropColumn('disk');
+            });
+        }
     }
 };

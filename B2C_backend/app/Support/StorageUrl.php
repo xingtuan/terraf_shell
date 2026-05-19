@@ -15,7 +15,7 @@ class StorageUrl
             return null;
         }
 
-        $resolvedDisk = (string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public')));
+        $resolvedDisk = self::normalizeDisk((string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public'))));
 
         if ($resolvedDisk === 'azure' && self::shouldUseAzureSignedUrls()) {
             return Storage::disk($resolvedDisk)->temporaryUrl(
@@ -36,7 +36,7 @@ class StorageUrl
             return null;
         }
 
-        $resolvedDisk = (string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public')));
+        $resolvedDisk = self::normalizeDisk((string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public'))));
 
         if ($resolvedDisk === 'azure') {
             $baseUrl = self::azureBaseUrl();
@@ -95,5 +95,12 @@ class StorageUrl
 
         return (string) ($config['visibility'] ?? '') === 'public'
             || $disk === (string) config('community.uploads.disk');
+    }
+
+    private static function normalizeDisk(string $disk): string
+    {
+        $disk = trim($disk);
+
+        return $disk === '' || $disk === 'local' ? 'public' : $disk;
     }
 }

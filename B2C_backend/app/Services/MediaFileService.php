@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class MediaFileService
 {
@@ -21,22 +22,26 @@ class MediaFileService
      */
     public function upload(?User $user, UploadedFile $file, ?string $category = null): MediaFile
     {
-        return DB::transaction(function () use ($user, $file, $category): MediaFile {
-            $stored = $this->mediaService->upload($file, $category);
-            $pathSegments = explode('/', $stored['path']);
+        $stored = $this->mediaService->upload($file, $category);
+        $pathSegments = explode('/', $stored['path']);
 
-            return MediaFile::query()->create([
+        try {
+            return DB::transaction(fn (): MediaFile => MediaFile::query()->create([
                 'user_id' => $user?->id,
                 'disk' => $stored['disk'],
                 'original_name' => $stored['original_name'],
                 'path' => $stored['path'],
-                'url' => $this->mediaService->publicUrl($stored['path']),
+                'url' => $this->mediaService->publicUrl($stored['path'], $stored['disk']),
                 'type' => $stored['type'],
                 'mime_type' => $stored['mime'],
                 'size' => $stored['size'],
                 'category' => $pathSegments[1] ?? 'general',
-            ])->fresh();
-        });
+            ])->fresh());
+        } catch (Throwable $throwable) {
+            $this->mediaService->deletePath($stored['path'], $stored['disk']);
+
+            throw $throwable;
+        }
     }
 
     /**
@@ -55,7 +60,7 @@ class MediaFileService
         }
 
         DB::transaction(function () use ($mediaFile): void {
-            $this->mediaService->deletePath($mediaFile->path, $mediaFile->disk);
+            $this->mediaService->deletePath($mediaFile->path, $mediaFile->storageDisk());
             $mediaFile->delete();
         });
     }

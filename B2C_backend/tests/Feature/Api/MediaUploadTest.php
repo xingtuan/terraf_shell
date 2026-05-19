@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\User;
 use App\Services\Settings\SettingsService;
+use App\Services\Storage\StorageManagerService;
 use App\Support\StorageUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -99,6 +100,87 @@ class MediaUploadTest extends TestCase
         $this->assertDatabaseMissing('media_files', [
             'path' => $path,
         ]);
+    }
+
+    public function test_runtime_local_storage_setting_writes_to_public_disk_and_survives_driver_switch_on_delete(): void
+    {
+        Config::set('community.uploads.disk', 'azure');
+        Config::set('filesystems.default', 'azure');
+        Storage::fake('public');
+
+        $settings = app(SettingsService::class);
+        $settings->set('storage.default_driver', 'local', ['type' => 'string']);
+        $settings->set('storage.local.disk', 'public', ['type' => 'string']);
+
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $uploadResponse = $this->post('/api/media/upload', [
+            'file' => UploadedFile::fake()->image('local-runtime.png'),
+            'category' => 'community',
+        ], [
+            'Accept' => 'application/json',
+        ]);
+
+        $uploadResponse
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.disk', 'public');
+
+        $path = (string) $uploadResponse->json('data.path');
+
+        Storage::disk('public')->assertExists($path);
+        $this->assertDatabaseHas('media_files', [
+            'user_id' => $user->id,
+            'path' => $path,
+            'disk' => 'public',
+        ]);
+
+        $settings->set('storage.default_driver', 'azure', ['type' => 'string']);
+
+        $this->deleteJson('/api/media', [
+            'path' => $path,
+        ])
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        Storage::disk('public')->assertMissing($path);
+        $this->assertDatabaseMissing('media_files', [
+            'path' => $path,
+        ]);
+    }
+
+    public function test_failed_storage_write_returns_error_without_creating_media_record(): void
+    {
+        $this->instance(StorageManagerService::class, new class(app(SettingsService::class)) extends StorageManagerService
+        {
+            public function disk(): string
+            {
+                return 'public';
+            }
+
+            public function put(string $path, string $contents, array $options = []): bool
+            {
+                return false;
+            }
+        });
+
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $response = $this->post('/api/media/upload', [
+            'file' => UploadedFile::fake()->image('broken.png'),
+            'category' => 'community',
+        ], [
+            'Accept' => 'application/json',
+        ]);
+
+        $response
+            ->assertStatus(500)
+            ->assertJsonPath('success', false)
+            ->assertJsonPath('message', 'Unable to write uploaded file to local storage disk [public]. Check that storage/app/public is writable and run php artisan storage:link for public uploads.');
+
+        $this->assertDatabaseCount('media_files', 0);
     }
 
     public function test_user_cannot_delete_another_users_media_file(): void
