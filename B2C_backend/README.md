@@ -262,7 +262,7 @@ Most events use queued jobs:
 php artisan queue:work
 ```
 
-Use `QUEUE_CONNECTION=redis` only when the PHP Redis extension or Predis is installed and a Redis worker is running. Set `QUEUE_CONNECTION=sync` only for local development.
+Use `QUEUE_CONNECTION=redis` only when Redis is reachable and a Redis queue worker is running. Predis is included and is the default Redis client (`REDIS_CLIENT=predis`); use `REDIS_CLIENT=phpredis` only on servers with the PHP Redis extension installed. Set `QUEUE_CONNECTION=sync` only for local development.
 
 ### Developer Commands
 
