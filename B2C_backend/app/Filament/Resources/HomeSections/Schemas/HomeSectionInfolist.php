@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\HomeSections\Schemas;
 
+use App\Models\HomeSection;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -18,7 +19,8 @@ class HomeSectionInfolist
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('page_key')
-                                    ->label('Page'),
+                                    ->label(__('admin.home_sections.fields.page'))
+                                    ->formatStateUsing(fn (?string $state): string => HomeSection::pageKeyLabel($state)),
                                 TextEntry::make('key')
                                     ->label(__('admin.ui.section_key')),
                                 TextEntry::make('status'),

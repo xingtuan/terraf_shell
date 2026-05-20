@@ -32,7 +32,8 @@ class HomeSectionsTable
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Home'),
                 TextColumn::make('page_key')
-                    ->label('Page')
+                    ->label(__('admin.home_sections.fields.page'))
+                    ->formatStateUsing(fn (?string $state): string => HomeSection::pageKeyLabel($state))
                     ->badge()
                     ->sortable()
                     ->searchable(),
@@ -66,7 +67,7 @@ class HomeSectionsTable
             ])
             ->filters([
                 SelectFilter::make('page_key')
-                    ->label('Page')
+                    ->label(__('admin.home_sections.fields.page'))
                     ->options(HomeSection::pageKeyOptions()),
                 SelectFilter::make('status')
                     ->options(PublishStatus::options()),

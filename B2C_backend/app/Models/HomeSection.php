@@ -61,7 +61,22 @@ class HomeSection extends Model
      */
     public static function pageKeyOptions(): array
     {
-        return self::PAGE_KEY_OPTIONS;
+        $options = [];
+
+        foreach (self::PAGE_KEY_OPTIONS as $key => $label) {
+            $options[$key] = self::pageKeyLabel($key, $label);
+        }
+
+        return $options;
+    }
+
+    public static function pageKeyLabel(?string $key, ?string $fallback = null): string
+    {
+        if (is_string($key) && array_key_exists($key, self::PAGE_KEY_OPTIONS)) {
+            return __("admin.home_sections.pages.{$key}");
+        }
+
+        return $fallback ?? (is_string($key) ? $key : '');
     }
 
     /**

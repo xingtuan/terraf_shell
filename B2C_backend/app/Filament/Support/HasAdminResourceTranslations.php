@@ -36,7 +36,7 @@ trait HasAdminResourceTranslations
             'EmailTemplateResource' => ['navigation' => 'admin.resources.email_templates', 'model' => 'admin.resources.email_template', 'plural' => 'admin.resources.email_templates'],
             'EnquiryResource' => ['navigation' => 'admin.resources.general_enquiries', 'model' => 'admin.resources.general_enquiry', 'plural' => 'admin.resources.general_enquiries'],
             'FundingCampaignResource' => ['navigation' => 'admin.resources.funding_campaigns', 'model' => 'admin.resources.funding_campaign', 'plural' => 'admin.resources.funding_campaigns'],
-            'HomeSectionResource' => ['navigation' => 'admin.resources.homepage_sections', 'model' => 'admin.resources.homepage_section', 'plural' => 'admin.resources.homepage_sections'],
+            'HomeSectionResource' => ['navigation' => 'admin.resources.page_sections', 'model' => 'admin.resources.page_section', 'plural' => 'admin.resources.page_sections'],
             'IdeaMediaResource' => ['navigation' => 'admin.resources.concept_media', 'model' => 'admin.resources.concept_medium', 'plural' => 'admin.resources.concept_media'],
             'InventoryResource' => ['navigation' => 'admin.resources.inventory', 'model' => 'admin.resources.inventory', 'plural' => 'admin.resources.inventory'],
             'MaterialApplicationResource' => ['navigation' => 'admin.resources.material_applications', 'model' => 'admin.resources.material_application', 'plural' => 'admin.resources.material_applications'],

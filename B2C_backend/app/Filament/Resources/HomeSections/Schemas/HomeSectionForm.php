@@ -75,7 +75,7 @@ class HomeSectionForm
                         Grid::make(2)
                             ->schema([
                                 Select::make('page_key')
-                                    ->label('Page')
+                                    ->label(self::field('page'))
                                     ->options(HomeSection::pageKeyOptions())
                                     ->required()
                                     ->default('home'),
@@ -158,7 +158,7 @@ class HomeSectionForm
                                     ->label(__('admin.ui.title_en'))
                                     ->maxLength(180),
                                 TextInput::make('status_translations.en')
-                                    ->label(__('admin.fields.status').' (EN)')
+                                    ->label(self::localizedField('status', 'en'))
                                     ->maxLength(120),
                                 Textarea::make('description_translations.en')
                                     ->label(__('admin.ui.description_en'))
@@ -168,7 +168,7 @@ class HomeSectionForm
                                     ->label(__('admin.ui.title_ko'))
                                     ->maxLength(180),
                                 TextInput::make('status_translations.ko')
-                                    ->label(__('admin.fields.status').' (KO)')
+                                    ->label(self::localizedField('status', 'ko'))
                                     ->maxLength(120),
                                 Textarea::make('description_translations.ko')
                                     ->label(__('admin.ui.description_ko'))
@@ -178,7 +178,7 @@ class HomeSectionForm
                                     ->label(__('admin.ui.title_zh'))
                                     ->maxLength(180),
                                 TextInput::make('status_translations.zh')
-                                    ->label(__('admin.fields.status').' (ZH)')
+                                    ->label(self::localizedField('status', 'zh'))
                                     ->maxLength(120),
                                 Textarea::make('description_translations.zh')
                                     ->label(__('admin.ui.description_zh'))
@@ -269,33 +269,33 @@ class HomeSectionForm
 
     private static function itemsSection(): Section
     {
-        return Section::make('Cards / items')
-            ->description('Structured cards shown by page sections. Leave optional fields blank when unused by the frontend component.')
+        return Section::make(self::sectionTitle('cards_items'))
+            ->description(self::helpText('cards_items'))
             ->schema([
                 Repeater::make('payload.items')
-                    ->label('Items')
-                    ->addActionLabel('Add item')
+                    ->label(self::field('items'))
+                    ->addActionLabel(self::actionLabel('add_item'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
                         TextInput::make('key')
-                            ->label('Key')
+                            ->label(self::field('key'))
                             ->maxLength(120),
                         TextInput::make('icon')
-                            ->label('Icon')
+                            ->label(self::field('icon'))
                             ->maxLength(80),
                         TextInput::make('status')
                             ->label(__('admin.fields.status'))
                             ->maxLength(120),
                         TextInput::make('status_translations.en')
-                            ->label(__('admin.fields.status').' (EN)')
+                            ->label(self::localizedField('status', 'en'))
                             ->maxLength(120),
                         TextInput::make('status_translations.zh')
-                            ->label(__('admin.fields.status').' (ZH)')
+                            ->label(self::localizedField('status', 'zh'))
                             ->maxLength(120),
                         TextInput::make('status_translations.ko')
-                            ->label(__('admin.fields.status').' (KO)')
+                            ->label(self::localizedField('status', 'ko'))
                             ->maxLength(120),
                         TextInput::make('cta_url')
                             ->label(__('admin.ui.cta_url'))
@@ -307,13 +307,13 @@ class HomeSectionForm
                             ->label(__('admin.ui.external_media_url'))
                             ->maxLength(255),
                         TextInput::make('label_translations.en')
-                            ->label('Label (EN)')
+                            ->label(__('admin.ui.label_en'))
                             ->maxLength(180),
                         TextInput::make('label_translations.zh')
-                            ->label('Label (ZH)')
+                            ->label(__('admin.ui.label_zh'))
                             ->maxLength(180),
                         TextInput::make('label_translations.ko')
-                            ->label('Label (KO)')
+                            ->label(__('admin.ui.label_ko'))
                             ->maxLength(180),
                         TextInput::make('title_translations.en')
                             ->label(__('admin.ui.title_en'))
@@ -325,13 +325,13 @@ class HomeSectionForm
                             ->label(__('admin.ui.title_ko'))
                             ->maxLength(180),
                         TextInput::make('subtitle_translations.en')
-                            ->label('Subtitle (EN)')
+                            ->label(__('admin.ui.subtitle_en'))
                             ->maxLength(180),
                         TextInput::make('subtitle_translations.zh')
-                            ->label('Subtitle (ZH)')
+                            ->label(__('admin.ui.subtitle_zh'))
                             ->maxLength(180),
                         TextInput::make('subtitle_translations.ko')
-                            ->label('Subtitle (KO)')
+                            ->label(__('admin.ui.subtitle_ko'))
                             ->maxLength(180),
                         Textarea::make('description_translations.en')
                             ->label(__('admin.ui.description_en'))
@@ -346,13 +346,13 @@ class HomeSectionForm
                             ->rows(3)
                             ->columnSpanFull(),
                         TextInput::make('cta_label_translations.en')
-                            ->label('CTA label (EN)')
+                            ->label(__('admin.ui.cta_label_en'))
                             ->maxLength(120),
                         TextInput::make('cta_label_translations.zh')
-                            ->label('CTA label (ZH)')
+                            ->label(__('admin.ui.cta_label_zh'))
                             ->maxLength(120),
                         TextInput::make('cta_label_translations.ko')
-                            ->label('CTA label (KO)')
+                            ->label(__('admin.ui.cta_label_ko'))
                             ->maxLength(120),
                     ])
                     ->columns(3)
@@ -363,58 +363,58 @@ class HomeSectionForm
 
     private static function metricsSection(): Section
     {
-        return Section::make('Stats / metrics')
-            ->description('Use for hero indicators, material fact cards, and science metrics.')
+        return Section::make(self::sectionTitle('stats_metrics'))
+            ->description(self::helpText('stats_metrics'))
             ->schema([
                 Grid::make(2)
                     ->schema([
                         TextInput::make('payload.sheet_title_translations.en')
-                            ->label('Sheet title (EN)'),
+                            ->label(self::localizedField('sheet_title', 'en')),
                         TextInput::make('payload.sheet_title_translations.zh')
-                            ->label('Sheet title (ZH)'),
+                            ->label(self::localizedField('sheet_title', 'zh')),
                         TextInput::make('payload.sheet_title_translations.ko')
-                            ->label('Sheet title (KO)'),
+                            ->label(self::localizedField('sheet_title', 'ko')),
                         Textarea::make('payload.note_translations.en')
-                            ->label('Note (EN)')
+                            ->label(self::localizedField('note', 'en'))
                             ->rows(2),
                         Textarea::make('payload.note_translations.zh')
-                            ->label('Note (ZH)')
+                            ->label(self::localizedField('note', 'zh'))
                             ->rows(2),
                         Textarea::make('payload.note_translations.ko')
-                            ->label('Note (KO)')
+                            ->label(self::localizedField('note', 'ko'))
                             ->rows(2),
                     ])
                     ->visible(fn (Get $get): bool => in_array($get('key'), ['science_block', 'material_facts'], true)),
                 Repeater::make('payload.metrics')
-                    ->label('Metrics')
-                    ->addActionLabel('Add metric')
+                    ->label(self::field('metrics'))
+                    ->addActionLabel(self::actionLabel('add_metric'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
                         TextInput::make('key')
-                            ->label('Key')
+                            ->label(self::field('key'))
                             ->maxLength(120),
                         TextInput::make('icon')
-                            ->label('Icon')
+                            ->label(self::field('icon'))
                             ->maxLength(80),
                         TextInput::make('label_translations.en')
-                            ->label('Label (EN)')
+                            ->label(__('admin.ui.label_en'))
                             ->maxLength(180),
                         TextInput::make('label_translations.zh')
-                            ->label('Label (ZH)')
+                            ->label(__('admin.ui.label_zh'))
                             ->maxLength(180),
                         TextInput::make('label_translations.ko')
-                            ->label('Label (KO)')
+                            ->label(__('admin.ui.label_ko'))
                             ->maxLength(180),
                         TextInput::make('value_translations.en')
-                            ->label('Value (EN)')
+                            ->label(__('admin.ui.value_en'))
                             ->maxLength(180),
                         TextInput::make('value_translations.zh')
-                            ->label('Value (ZH)')
+                            ->label(__('admin.ui.value_zh'))
                             ->maxLength(180),
                         TextInput::make('value_translations.ko')
-                            ->label('Value (KO)')
+                            ->label(__('admin.ui.value_ko'))
                             ->maxLength(180),
                         Textarea::make('description_translations.en')
                             ->label(__('admin.ui.description_en'))
@@ -437,19 +437,19 @@ class HomeSectionForm
 
     private static function secondaryCtaSection(): Section
     {
-        return Section::make('Secondary CTA')
+        return Section::make(self::sectionTitle('secondary_cta'))
             ->schema([
                 Grid::make(2)
                     ->schema([
                         TextInput::make('payload.secondary_cta_url')
-                            ->label('Secondary CTA URL')
+                            ->label(self::field('secondary_cta_url'))
                             ->maxLength(255),
                         TextInput::make('payload.secondary_cta_label_translations.en')
-                            ->label('Secondary CTA label (EN)'),
+                            ->label(self::localizedField('secondary_cta_label', 'en')),
                         TextInput::make('payload.secondary_cta_label_translations.zh')
-                            ->label('Secondary CTA label (ZH)'),
+                            ->label(self::localizedField('secondary_cta_label', 'zh')),
                         TextInput::make('payload.secondary_cta_label_translations.ko')
-                            ->label('Secondary CTA label (KO)'),
+                            ->label(self::localizedField('secondary_cta_label', 'ko')),
                     ]),
             ])
             ->visible(fn (Get $get): bool => in_array($get('key'), ['hero', 'intro'], true));
@@ -457,27 +457,27 @@ class HomeSectionForm
 
     private static function collaborationStepsSection(): Section
     {
-        return Section::make('Collaboration process')
+        return Section::make(self::sectionTitle('collaboration_process'))
             ->schema([
                 Grid::make(3)
                     ->schema([
                         TextInput::make('payload.process_title_translations.en')
-                            ->label('Process title (EN)'),
+                            ->label(self::localizedField('process_title', 'en')),
                         TextInput::make('payload.process_title_translations.zh')
-                            ->label('Process title (ZH)'),
+                            ->label(self::localizedField('process_title', 'zh')),
                         TextInput::make('payload.process_title_translations.ko')
-                            ->label('Process title (KO)'),
+                            ->label(self::localizedField('process_title', 'ko')),
                     ]),
                 Repeater::make('payload.steps')
-                    ->label('Process steps')
-                    ->addActionLabel('Add step')
+                    ->label(self::field('process_steps'))
+                    ->addActionLabel(self::actionLabel('add_step'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
-                        TextInput::make('label_translations.en')->label('Step (EN)'),
-                        TextInput::make('label_translations.zh')->label('Step (ZH)'),
-                        TextInput::make('label_translations.ko')->label('Step (KO)'),
+                        TextInput::make('label_translations.en')->label(self::localizedField('step', 'en')),
+                        TextInput::make('label_translations.zh')->label(self::localizedField('step', 'zh')),
+                        TextInput::make('label_translations.ko')->label(self::localizedField('step', 'ko')),
                     ])
                     ->columns(3)
                     ->columnSpanFull(),
@@ -487,49 +487,49 @@ class HomeSectionForm
 
     private static function materialFamilyExtrasSection(): Section
     {
-        return Section::make('Material family details')
+        return Section::make(self::sectionTitle('material_family_details'))
             ->schema([
                 Grid::make(3)
                     ->schema([
-                        TextInput::make('payload.diagram.title_translations.en')->label('Diagram title (EN)'),
-                        TextInput::make('payload.diagram.title_translations.zh')->label('Diagram title (ZH)'),
-                        TextInput::make('payload.diagram.title_translations.ko')->label('Diagram title (KO)'),
-                        Textarea::make('payload.diagram.alt_translations.en')->label('Diagram alt (EN)')->rows(2),
-                        Textarea::make('payload.diagram.alt_translations.zh')->label('Diagram alt (ZH)')->rows(2),
-                        Textarea::make('payload.diagram.alt_translations.ko')->label('Diagram alt (KO)')->rows(2),
-                        Textarea::make('payload.diagram.caption_translations.en')->label('Caption (EN)')->rows(2),
-                        Textarea::make('payload.diagram.caption_translations.zh')->label('Caption (ZH)')->rows(2),
-                        Textarea::make('payload.diagram.caption_translations.ko')->label('Caption (KO)')->rows(2),
-                        TextInput::make('payload.diagram.media_url')->label('Diagram media URL'),
-                        TextInput::make('payload.diagram.media_url_ko')->label('Korean diagram media URL'),
+                        TextInput::make('payload.diagram.title_translations.en')->label(self::localizedField('diagram_title', 'en')),
+                        TextInput::make('payload.diagram.title_translations.zh')->label(self::localizedField('diagram_title', 'zh')),
+                        TextInput::make('payload.diagram.title_translations.ko')->label(self::localizedField('diagram_title', 'ko')),
+                        Textarea::make('payload.diagram.alt_translations.en')->label(self::localizedField('diagram_alt', 'en'))->rows(2),
+                        Textarea::make('payload.diagram.alt_translations.zh')->label(self::localizedField('diagram_alt', 'zh'))->rows(2),
+                        Textarea::make('payload.diagram.alt_translations.ko')->label(self::localizedField('diagram_alt', 'ko'))->rows(2),
+                        Textarea::make('payload.diagram.caption_translations.en')->label(self::localizedField('caption', 'en'))->rows(2),
+                        Textarea::make('payload.diagram.caption_translations.zh')->label(self::localizedField('caption', 'zh'))->rows(2),
+                        Textarea::make('payload.diagram.caption_translations.ko')->label(self::localizedField('caption', 'ko'))->rows(2),
+                        TextInput::make('payload.diagram.media_url')->label(self::field('diagram_media_url')),
+                        TextInput::make('payload.diagram.media_url_ko')->label(self::field('korean_diagram_media_url')),
                     ]),
                 Repeater::make('payload.legend')
-                    ->label('Legend')
-                    ->addActionLabel('Add legend item')
+                    ->label(self::field('legend'))
+                    ->addActionLabel(self::actionLabel('add_legend_item'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
-                        TextInput::make('label_translations.en')->label('Label (EN)'),
-                        TextInput::make('label_translations.zh')->label('Label (ZH)'),
-                        TextInput::make('label_translations.ko')->label('Label (KO)'),
-                        Textarea::make('description_translations.en')->label('Description (EN)')->rows(2),
-                        Textarea::make('description_translations.zh')->label('Description (ZH)')->rows(2),
-                        Textarea::make('description_translations.ko')->label('Description (KO)')->rows(2),
+                        TextInput::make('label_translations.en')->label(__('admin.ui.label_en')),
+                        TextInput::make('label_translations.zh')->label(__('admin.ui.label_zh')),
+                        TextInput::make('label_translations.ko')->label(__('admin.ui.label_ko')),
+                        Textarea::make('description_translations.en')->label(__('admin.ui.description_en'))->rows(2),
+                        Textarea::make('description_translations.zh')->label(__('admin.ui.description_zh'))->rows(2),
+                        Textarea::make('description_translations.ko')->label(__('admin.ui.description_ko'))->rows(2),
                     ])
                     ->columns(3)
                     ->columnSpanFull(),
                 Grid::make(3)
                     ->schema([
-                        TextInput::make('payload.badges.current_translations.en')->label('Current badge (EN)'),
-                        TextInput::make('payload.badges.current_translations.zh')->label('Current badge (ZH)'),
-                        TextInput::make('payload.badges.current_translations.ko')->label('Current badge (KO)'),
-                        TextInput::make('payload.badges.sibling_translations.en')->label('Sibling badge (EN)'),
-                        TextInput::make('payload.badges.sibling_translations.zh')->label('Sibling badge (ZH)'),
-                        TextInput::make('payload.badges.sibling_translations.ko')->label('Sibling badge (KO)'),
-                        TextInput::make('payload.badges.inactive_translations.en')->label('Inactive badge (EN)'),
-                        TextInput::make('payload.badges.inactive_translations.zh')->label('Inactive badge (ZH)'),
-                        TextInput::make('payload.badges.inactive_translations.ko')->label('Inactive badge (KO)'),
+                        TextInput::make('payload.badges.current_translations.en')->label(self::localizedField('current_badge', 'en')),
+                        TextInput::make('payload.badges.current_translations.zh')->label(self::localizedField('current_badge', 'zh')),
+                        TextInput::make('payload.badges.current_translations.ko')->label(self::localizedField('current_badge', 'ko')),
+                        TextInput::make('payload.badges.sibling_translations.en')->label(self::localizedField('sibling_badge', 'en')),
+                        TextInput::make('payload.badges.sibling_translations.zh')->label(self::localizedField('sibling_badge', 'zh')),
+                        TextInput::make('payload.badges.sibling_translations.ko')->label(self::localizedField('sibling_badge', 'ko')),
+                        TextInput::make('payload.badges.inactive_translations.en')->label(self::localizedField('inactive_badge', 'en')),
+                        TextInput::make('payload.badges.inactive_translations.zh')->label(self::localizedField('inactive_badge', 'zh')),
+                        TextInput::make('payload.badges.inactive_translations.ko')->label(self::localizedField('inactive_badge', 'ko')),
                     ]),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'material_family');
@@ -537,51 +537,51 @@ class HomeSectionForm
 
     private static function comparisonSection(): Section
     {
-        return Section::make('Comparison content')
+        return Section::make(self::sectionTitle('comparison_content'))
             ->schema([
                 Repeater::make('payload.columns')
-                    ->label('Columns')
-                    ->addActionLabel('Add column')
+                    ->label(self::field('columns'))
+                    ->addActionLabel(self::actionLabel('add_column'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
-                        TextInput::make('label_translations.en')->label('Column (EN)'),
-                        TextInput::make('label_translations.zh')->label('Column (ZH)'),
-                        TextInput::make('label_translations.ko')->label('Column (KO)'),
+                        TextInput::make('label_translations.en')->label(self::localizedField('column', 'en')),
+                        TextInput::make('label_translations.zh')->label(self::localizedField('column', 'zh')),
+                        TextInput::make('label_translations.ko')->label(self::localizedField('column', 'ko')),
                     ])
                     ->columns(3)
                     ->columnSpanFull(),
                 Repeater::make('payload.rows')
-                    ->label('Rows')
-                    ->addActionLabel('Add comparison row')
+                    ->label(self::field('rows'))
+                    ->addActionLabel(self::actionLabel('add_comparison_row'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
-                        TextInput::make('label_translations.en')->label('Criteria (EN)'),
-                        TextInput::make('label_translations.zh')->label('Criteria (ZH)'),
-                        TextInput::make('label_translations.ko')->label('Criteria (KO)'),
-                        Textarea::make('oxp_translations.en')->label('OXP (EN)')->rows(2),
-                        Textarea::make('oxp_translations.zh')->label('OXP (ZH)')->rows(2),
-                        Textarea::make('oxp_translations.ko')->label('OXP (KO)')->rows(2),
-                        Textarea::make('plastic_translations.en')->label('Plastic (EN)')->rows(2),
-                        Textarea::make('plastic_translations.zh')->label('Plastic (ZH)')->rows(2),
-                        Textarea::make('plastic_translations.ko')->label('Plastic (KO)')->rows(2),
-                        Textarea::make('ceramic_translations.en')->label('Ceramic (EN)')->rows(2),
-                        Textarea::make('ceramic_translations.zh')->label('Ceramic (ZH)')->rows(2),
-                        Textarea::make('ceramic_translations.ko')->label('Ceramic (KO)')->rows(2),
-                        Textarea::make('paper_translations.en')->label('Paper (EN)')->rows(2),
-                        Textarea::make('paper_translations.zh')->label('Paper (ZH)')->rows(2),
-                        Textarea::make('paper_translations.ko')->label('Paper (KO)')->rows(2),
+                        TextInput::make('label_translations.en')->label(self::localizedField('criteria', 'en')),
+                        TextInput::make('label_translations.zh')->label(self::localizedField('criteria', 'zh')),
+                        TextInput::make('label_translations.ko')->label(self::localizedField('criteria', 'ko')),
+                        Textarea::make('oxp_translations.en')->label(self::localizedField('oxp', 'en'))->rows(2),
+                        Textarea::make('oxp_translations.zh')->label(self::localizedField('oxp', 'zh'))->rows(2),
+                        Textarea::make('oxp_translations.ko')->label(self::localizedField('oxp', 'ko'))->rows(2),
+                        Textarea::make('plastic_translations.en')->label(self::localizedField('plastic', 'en'))->rows(2),
+                        Textarea::make('plastic_translations.zh')->label(self::localizedField('plastic', 'zh'))->rows(2),
+                        Textarea::make('plastic_translations.ko')->label(self::localizedField('plastic', 'ko'))->rows(2),
+                        Textarea::make('ceramic_translations.en')->label(self::localizedField('ceramic', 'en'))->rows(2),
+                        Textarea::make('ceramic_translations.zh')->label(self::localizedField('ceramic', 'zh'))->rows(2),
+                        Textarea::make('ceramic_translations.ko')->label(self::localizedField('ceramic', 'ko'))->rows(2),
+                        Textarea::make('paper_translations.en')->label(self::localizedField('paper', 'en'))->rows(2),
+                        Textarea::make('paper_translations.zh')->label(self::localizedField('paper', 'zh'))->rows(2),
+                        Textarea::make('paper_translations.ko')->label(self::localizedField('paper', 'ko'))->rows(2),
                     ])
                     ->columns(3)
                     ->columnSpanFull(),
                 Grid::make(3)
                     ->schema([
-                        Textarea::make('payload.disclaimer_translations.en')->label('Disclaimer (EN)')->rows(2),
-                        Textarea::make('payload.disclaimer_translations.zh')->label('Disclaimer (ZH)')->rows(2),
-                        Textarea::make('payload.disclaimer_translations.ko')->label('Disclaimer (KO)')->rows(2),
+                        Textarea::make('payload.disclaimer_translations.en')->label(self::localizedField('disclaimer', 'en'))->rows(2),
+                        Textarea::make('payload.disclaimer_translations.zh')->label(self::localizedField('disclaimer', 'zh'))->rows(2),
+                        Textarea::make('payload.disclaimer_translations.ko')->label(self::localizedField('disclaimer', 'ko'))->rows(2),
                     ]),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'comparison');
@@ -589,13 +589,13 @@ class HomeSectionForm
 
     private static function trustDisclaimerSection(): Section
     {
-        return Section::make('Trust disclaimer')
+        return Section::make(self::sectionTitle('trust_disclaimer'))
             ->schema([
                 Grid::make(3)
                     ->schema([
-                        Textarea::make('payload.disclaimer_translations.en')->label('Disclaimer (EN)')->rows(2),
-                        Textarea::make('payload.disclaimer_translations.zh')->label('Disclaimer (ZH)')->rows(2),
-                        Textarea::make('payload.disclaimer_translations.ko')->label('Disclaimer (KO)')->rows(2),
+                        Textarea::make('payload.disclaimer_translations.en')->label(self::localizedField('disclaimer', 'en'))->rows(2),
+                        Textarea::make('payload.disclaimer_translations.zh')->label(self::localizedField('disclaimer', 'zh'))->rows(2),
+                        Textarea::make('payload.disclaimer_translations.ko')->label(self::localizedField('disclaimer', 'ko'))->rows(2),
                     ]),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'trust_and_credibility');
@@ -603,23 +603,23 @@ class HomeSectionForm
 
     private static function downloadsSection(): Section
     {
-        return Section::make('Technical downloads')
+        return Section::make(self::sectionTitle('technical_downloads'))
             ->schema([
                 Repeater::make('payload.downloads')
-                    ->label('Downloads')
-                    ->addActionLabel('Add download')
+                    ->label(self::field('downloads'))
+                    ->addActionLabel(self::actionLabel('add_download'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
                         TextInput::make('type')
-                            ->label('Type')
+                            ->label(__('admin.fields.type'))
                             ->maxLength(120),
                         TextInput::make('url')
-                            ->label('URL')
+                            ->label(__('admin.fields.url'))
                             ->maxLength(255),
                         TextInput::make('document_url')
-                            ->label('Document URL')
+                            ->label(__('admin.ui.document_url'))
                             ->maxLength(255),
                         TextInput::make('title_translations.en')->label(__('admin.ui.title_en')),
                         TextInput::make('title_translations.zh')->label(__('admin.ui.title_zh')),
@@ -636,22 +636,22 @@ class HomeSectionForm
 
     private static function downloadLabelsSection(): Section
     {
-        return Section::make('Download empty-state labels')
+        return Section::make(self::sectionTitle('download_empty_state_labels'))
             ->schema([
                 Grid::make(3)
                     ->schema([
-                        TextInput::make('payload.empty_title_translations.en')->label('Empty title (EN)'),
-                        TextInput::make('payload.empty_title_translations.zh')->label('Empty title (ZH)'),
-                        TextInput::make('payload.empty_title_translations.ko')->label('Empty title (KO)'),
-                        Textarea::make('payload.empty_description_translations.en')->label('Empty description (EN)')->rows(2),
-                        Textarea::make('payload.empty_description_translations.zh')->label('Empty description (ZH)')->rows(2),
-                        Textarea::make('payload.empty_description_translations.ko')->label('Empty description (KO)')->rows(2),
-                        TextInput::make('payload.file_label_translations.en')->label('File label (EN)'),
-                        TextInput::make('payload.file_label_translations.zh')->label('File label (ZH)'),
-                        TextInput::make('payload.file_label_translations.ko')->label('File label (KO)'),
-                        TextInput::make('payload.on_request_label_translations.en')->label('On request label (EN)'),
-                        TextInput::make('payload.on_request_label_translations.zh')->label('On request label (ZH)'),
-                        TextInput::make('payload.on_request_label_translations.ko')->label('On request label (KO)'),
+                        TextInput::make('payload.empty_title_translations.en')->label(self::localizedField('empty_title', 'en')),
+                        TextInput::make('payload.empty_title_translations.zh')->label(self::localizedField('empty_title', 'zh')),
+                        TextInput::make('payload.empty_title_translations.ko')->label(self::localizedField('empty_title', 'ko')),
+                        Textarea::make('payload.empty_description_translations.en')->label(self::localizedField('empty_description', 'en'))->rows(2),
+                        Textarea::make('payload.empty_description_translations.zh')->label(self::localizedField('empty_description', 'zh'))->rows(2),
+                        Textarea::make('payload.empty_description_translations.ko')->label(self::localizedField('empty_description', 'ko'))->rows(2),
+                        TextInput::make('payload.file_label_translations.en')->label(self::localizedField('file_label', 'en')),
+                        TextInput::make('payload.file_label_translations.zh')->label(self::localizedField('file_label', 'zh')),
+                        TextInput::make('payload.file_label_translations.ko')->label(self::localizedField('file_label', 'ko')),
+                        TextInput::make('payload.on_request_label_translations.en')->label(self::localizedField('on_request_label', 'en')),
+                        TextInput::make('payload.on_request_label_translations.zh')->label(self::localizedField('on_request_label', 'zh')),
+                        TextInput::make('payload.on_request_label_translations.ko')->label(self::localizedField('on_request_label', 'ko')),
                     ]),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'technical_downloads');
@@ -659,43 +659,43 @@ class HomeSectionForm
 
     private static function certificationLabelsSection(): Section
     {
-        return Section::make('Certification labels')
+        return Section::make(self::sectionTitle('certification_labels'))
             ->schema([
                 Grid::make(3)
                     ->schema([
-                        TextInput::make('payload.verified_label_translations.en')->label('Verified label (EN)'),
-                        TextInput::make('payload.verified_label_translations.zh')->label('Verified label (ZH)'),
-                        TextInput::make('payload.verified_label_translations.ko')->label('Verified label (KO)'),
-                        TextInput::make('payload.empty_message_translations.en')->label('Empty message (EN)'),
-                        TextInput::make('payload.empty_message_translations.zh')->label('Empty message (ZH)'),
-                        TextInput::make('payload.empty_message_translations.ko')->label('Empty message (KO)'),
-                        TextInput::make('payload.issuer_label_translations.en')->label('Issuer label (EN)'),
-                        TextInput::make('payload.issuer_label_translations.zh')->label('Issuer label (ZH)'),
-                        TextInput::make('payload.issuer_label_translations.ko')->label('Issuer label (KO)'),
-                        TextInput::make('payload.tested_at_label_translations.en')->label('Test date label (EN)'),
-                        TextInput::make('payload.tested_at_label_translations.zh')->label('Test date label (ZH)'),
-                        TextInput::make('payload.tested_at_label_translations.ko')->label('Test date label (KO)'),
-                        TextInput::make('payload.download_label_translations.en')->label('Download label (EN)'),
-                        TextInput::make('payload.download_label_translations.zh')->label('Download label (ZH)'),
-                        TextInput::make('payload.download_label_translations.ko')->label('Download label (KO)'),
-                        TextInput::make('payload.status_labels.certified_translations.en')->label('Certified (EN)'),
-                        TextInput::make('payload.status_labels.certified_translations.zh')->label('Certified (ZH)'),
-                        TextInput::make('payload.status_labels.certified_translations.ko')->label('Certified (KO)'),
-                        TextInput::make('payload.status_labels.tested_translations.en')->label('Tested (EN)'),
-                        TextInput::make('payload.status_labels.tested_translations.zh')->label('Tested (ZH)'),
-                        TextInput::make('payload.status_labels.tested_translations.ko')->label('Tested (KO)'),
-                        TextInput::make('payload.status_labels.in_testing_translations.en')->label('In testing (EN)'),
-                        TextInput::make('payload.status_labels.in_testing_translations.zh')->label('In testing (ZH)'),
-                        TextInput::make('payload.status_labels.in_testing_translations.ko')->label('In testing (KO)'),
-                        TextInput::make('payload.status_labels.pending_translations.en')->label('Pending (EN)'),
-                        TextInput::make('payload.status_labels.pending_translations.zh')->label('Pending (ZH)'),
-                        TextInput::make('payload.status_labels.pending_translations.ko')->label('Pending (KO)'),
-                        TextInput::make('payload.status_labels.demo_translations.en')->label('Demo (EN)'),
-                        TextInput::make('payload.status_labels.demo_translations.zh')->label('Demo (ZH)'),
-                        TextInput::make('payload.status_labels.demo_translations.ko')->label('Demo (KO)'),
-                        TextInput::make('payload.status_labels.not_applicable_translations.en')->label('Not applicable (EN)'),
-                        TextInput::make('payload.status_labels.not_applicable_translations.zh')->label('Not applicable (ZH)'),
-                        TextInput::make('payload.status_labels.not_applicable_translations.ko')->label('Not applicable (KO)'),
+                        TextInput::make('payload.verified_label_translations.en')->label(self::localizedField('verified_label', 'en')),
+                        TextInput::make('payload.verified_label_translations.zh')->label(self::localizedField('verified_label', 'zh')),
+                        TextInput::make('payload.verified_label_translations.ko')->label(self::localizedField('verified_label', 'ko')),
+                        TextInput::make('payload.empty_message_translations.en')->label(self::localizedField('empty_message', 'en')),
+                        TextInput::make('payload.empty_message_translations.zh')->label(self::localizedField('empty_message', 'zh')),
+                        TextInput::make('payload.empty_message_translations.ko')->label(self::localizedField('empty_message', 'ko')),
+                        TextInput::make('payload.issuer_label_translations.en')->label(self::localizedField('issuer_label', 'en')),
+                        TextInput::make('payload.issuer_label_translations.zh')->label(self::localizedField('issuer_label', 'zh')),
+                        TextInput::make('payload.issuer_label_translations.ko')->label(self::localizedField('issuer_label', 'ko')),
+                        TextInput::make('payload.tested_at_label_translations.en')->label(self::localizedField('test_date_label', 'en')),
+                        TextInput::make('payload.tested_at_label_translations.zh')->label(self::localizedField('test_date_label', 'zh')),
+                        TextInput::make('payload.tested_at_label_translations.ko')->label(self::localizedField('test_date_label', 'ko')),
+                        TextInput::make('payload.download_label_translations.en')->label(self::localizedField('download_label', 'en')),
+                        TextInput::make('payload.download_label_translations.zh')->label(self::localizedField('download_label', 'zh')),
+                        TextInput::make('payload.download_label_translations.ko')->label(self::localizedField('download_label', 'ko')),
+                        TextInput::make('payload.status_labels.certified_translations.en')->label(self::localizedField('certified', 'en')),
+                        TextInput::make('payload.status_labels.certified_translations.zh')->label(self::localizedField('certified', 'zh')),
+                        TextInput::make('payload.status_labels.certified_translations.ko')->label(self::localizedField('certified', 'ko')),
+                        TextInput::make('payload.status_labels.tested_translations.en')->label(self::localizedField('tested', 'en')),
+                        TextInput::make('payload.status_labels.tested_translations.zh')->label(self::localizedField('tested', 'zh')),
+                        TextInput::make('payload.status_labels.tested_translations.ko')->label(self::localizedField('tested', 'ko')),
+                        TextInput::make('payload.status_labels.in_testing_translations.en')->label(self::localizedField('in_testing', 'en')),
+                        TextInput::make('payload.status_labels.in_testing_translations.zh')->label(self::localizedField('in_testing', 'zh')),
+                        TextInput::make('payload.status_labels.in_testing_translations.ko')->label(self::localizedField('in_testing', 'ko')),
+                        TextInput::make('payload.status_labels.pending_translations.en')->label(self::localizedField('pending', 'en')),
+                        TextInput::make('payload.status_labels.pending_translations.zh')->label(self::localizedField('pending', 'zh')),
+                        TextInput::make('payload.status_labels.pending_translations.ko')->label(self::localizedField('pending', 'ko')),
+                        TextInput::make('payload.status_labels.demo_translations.en')->label(self::localizedField('demo', 'en')),
+                        TextInput::make('payload.status_labels.demo_translations.zh')->label(self::localizedField('demo', 'zh')),
+                        TextInput::make('payload.status_labels.demo_translations.ko')->label(self::localizedField('demo', 'ko')),
+                        TextInput::make('payload.status_labels.not_applicable_translations.en')->label(self::localizedField('not_applicable', 'en')),
+                        TextInput::make('payload.status_labels.not_applicable_translations.zh')->label(self::localizedField('not_applicable', 'zh')),
+                        TextInput::make('payload.status_labels.not_applicable_translations.ko')->label(self::localizedField('not_applicable', 'ko')),
                     ]),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'certifications');
@@ -703,28 +703,28 @@ class HomeSectionForm
 
     private static function finalCtaSection(): Section
     {
-        return Section::make('Final CTA actions')
+        return Section::make(self::sectionTitle('final_cta_actions'))
             ->schema([
                 Grid::make(2)
                     ->schema([
                         TextInput::make('payload.primary_cta_url')
-                            ->label('Primary CTA URL')
+                            ->label(self::field('primary_cta_url'))
                             ->maxLength(255),
                         TextInput::make('payload.secondary_cta_url')
-                            ->label('Secondary CTA URL')
+                            ->label(self::field('secondary_cta_url'))
                             ->maxLength(255),
                         TextInput::make('payload.primary_cta_label_translations.en')
-                            ->label('Primary CTA label (EN)'),
+                            ->label(self::localizedField('primary_cta_label', 'en')),
                         TextInput::make('payload.primary_cta_label_translations.zh')
-                            ->label('Primary CTA label (ZH)'),
+                            ->label(self::localizedField('primary_cta_label', 'zh')),
                         TextInput::make('payload.primary_cta_label_translations.ko')
-                            ->label('Primary CTA label (KO)'),
+                            ->label(self::localizedField('primary_cta_label', 'ko')),
                         TextInput::make('payload.secondary_cta_label_translations.en')
-                            ->label('Secondary CTA label (EN)'),
+                            ->label(self::localizedField('secondary_cta_label', 'en')),
                         TextInput::make('payload.secondary_cta_label_translations.zh')
-                            ->label('Secondary CTA label (ZH)'),
+                            ->label(self::localizedField('secondary_cta_label', 'zh')),
                         TextInput::make('payload.secondary_cta_label_translations.ko')
-                            ->label('Secondary CTA label (KO)'),
+                            ->label(self::localizedField('secondary_cta_label', 'ko')),
                     ]),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'final_cta');
@@ -787,38 +787,66 @@ class HomeSectionForm
 
     private static function footerLinksSection(): Section
     {
-        return Section::make('Footer link groups')
+        return Section::make(self::sectionTitle('footer_link_groups'))
             ->schema([
                 Repeater::make('payload.social_links')
-                    ->label('Social links')
-                    ->addActionLabel('Add social link')
+                    ->label(self::field('social_links'))
+                    ->addActionLabel(self::actionLabel('add_social_link'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
-                        TextInput::make('label_translations.en')->label('Label (EN)')->maxLength(120),
-                        TextInput::make('label_translations.zh')->label('Label (ZH)')->maxLength(120),
-                        TextInput::make('label_translations.ko')->label('Label (KO)')->maxLength(120),
-                        TextInput::make('href')->label('URL')->maxLength(255),
+                        TextInput::make('label_translations.en')->label(__('admin.ui.label_en'))->maxLength(120),
+                        TextInput::make('label_translations.zh')->label(__('admin.ui.label_zh'))->maxLength(120),
+                        TextInput::make('label_translations.ko')->label(__('admin.ui.label_ko'))->maxLength(120),
+                        TextInput::make('href')->label(__('admin.fields.url'))->maxLength(255),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
                 Repeater::make('payload.legal_links')
-                    ->label('Legal links')
-                    ->addActionLabel('Add legal link')
+                    ->label(self::field('legal_links'))
+                    ->addActionLabel(self::actionLabel('add_legal_link'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
-                        TextInput::make('label_translations.en')->label('Label (EN)')->maxLength(120),
-                        TextInput::make('label_translations.zh')->label('Label (ZH)')->maxLength(120),
-                        TextInput::make('label_translations.ko')->label('Label (KO)')->maxLength(120),
-                        TextInput::make('href')->label('URL')->maxLength(255),
+                        TextInput::make('label_translations.en')->label(__('admin.ui.label_en'))->maxLength(120),
+                        TextInput::make('label_translations.zh')->label(__('admin.ui.label_zh'))->maxLength(120),
+                        TextInput::make('label_translations.ko')->label(__('admin.ui.label_ko'))->maxLength(120),
+                        TextInput::make('href')->label(__('admin.fields.url'))->maxLength(255),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
             ])
             ->hidden(fn (Get $get): bool => ! self::isFooterSection($get));
+    }
+
+    private static function sectionTitle(string $key): string
+    {
+        return __("admin.home_sections.sections.{$key}");
+    }
+
+    private static function helpText(string $key): string
+    {
+        return __("admin.home_sections.help.{$key}");
+    }
+
+    private static function actionLabel(string $key): string
+    {
+        return __("admin.home_sections.actions.{$key}");
+    }
+
+    private static function field(string $key): string
+    {
+        return __("admin.home_sections.fields.{$key}");
+    }
+
+    private static function localizedField(string $key, string $locale): string
+    {
+        return __('admin.labels.localized_field', [
+            'field' => self::field($key),
+            'locale' => strtoupper($locale),
+        ]);
     }
 
     /**
