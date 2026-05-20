@@ -116,6 +116,7 @@ class HomeSectionForm
                                     ->valueLabel(__('admin.ui.value'))
                                     ->hidden(fn (Get $get): bool => self::hasStructuredPayload($get))
                                     ->dehydrated(fn (Get $get): bool => ! self::hasStructuredPayload($get))
+                                    ->fillStateUsing(fn (Get $get, mixed $state): mixed => self::hasStructuredPayload($get) ? null : $state)
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
                                     ->label(__('admin.ui.published_at')),
