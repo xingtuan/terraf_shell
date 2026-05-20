@@ -34,7 +34,11 @@ return new class extends Migration
         });
 
         Schema::table('home_sections', function (Blueprint $table): void {
-            $table->unique(['page_key', 'key'], 'home_sections_page_key_key_unique');
+            try {
+                $table->unique(['page_key', 'key'], 'home_sections_page_key_key_unique');
+            } catch (Throwable) {
+                // Index may already exist on repeated migration runs.
+            }
         });
     }
 

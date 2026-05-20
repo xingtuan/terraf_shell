@@ -115,6 +115,7 @@ class HomeSectionForm
                                     ->keyLabel(__('admin.ui.setting'))
                                     ->valueLabel(__('admin.ui.value'))
                                     ->hidden(fn (Get $get): bool => self::hasStructuredPayload($get))
+                                    ->dehydrated(fn (Get $get): bool => ! self::hasStructuredPayload($get))
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
                                     ->label(__('admin.ui.published_at')),
@@ -218,7 +219,8 @@ class HomeSectionForm
                             ->label(__('admin.ui.subtitle')),
                         Textarea::make('content_translations.en')
                             ->label(__('admin.ui.content'))
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->dehydrated(fn (Get $get): bool => ! self::isFooterSection($get)),
                         TextInput::make('cta_label_translations.en')
                             ->label(__('admin.ui.cta_label')),
                     ])
@@ -231,7 +233,8 @@ class HomeSectionForm
                             ->label(__('admin.ui.subtitle')),
                         Textarea::make('content_translations.ko')
                             ->label(__('admin.ui.content'))
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->dehydrated(fn (Get $get): bool => ! self::isFooterSection($get)),
                         TextInput::make('cta_label_translations.ko')
                             ->label(__('admin.ui.cta_label')),
                     ])
@@ -244,7 +247,8 @@ class HomeSectionForm
                             ->label(__('admin.ui.subtitle')),
                         Textarea::make('content_translations.zh')
                             ->label(__('admin.ui.content'))
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->dehydrated(fn (Get $get): bool => ! self::isFooterSection($get)),
                         TextInput::make('cta_label_translations.zh')
                             ->label(__('admin.ui.cta_label')),
                     ])
