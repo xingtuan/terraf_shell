@@ -116,7 +116,26 @@ class HomeSectionForm
                                     ->valueLabel(__('admin.ui.value'))
                                     ->hidden(fn (Get $get): bool => self::hasStructuredPayload($get))
                                     ->dehydrated(fn (Get $get): bool => ! self::hasStructuredPayload($get))
-                                    ->fillStateUsing(fn (Get $get, mixed $state): mixed => self::hasStructuredPayload($get) ? null : $state)
+                                    ->afterStateHydrated(function (KeyValue $component, Get $get): void {
+                                        if (! self::hasStructuredPayload($get)) {
+                                            return;
+                                        }
+                                        // KeyValue converts the model's associative payload to a sequential
+                                        // [{key=>, value=>},...] list, which breaks payload.* Livewire bindings.
+                                        // Convert it back to an associative array so those bindings work.
+                                        $rows = $component->getState();
+                                        if (! is_array($rows)) {
+                                            $component->state([]);
+                                            return;
+                                        }
+                                        $assoc = [];
+                                        foreach ($rows as $row) {
+                                            if (is_array($row) && isset($row['key']) && $row['key'] !== null) {
+                                                $assoc[(string) $row['key']] = $row['value'];
+                                            }
+                                        }
+                                        $component->state($assoc);
+                                    })
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
                                     ->label(__('admin.ui.published_at')),
