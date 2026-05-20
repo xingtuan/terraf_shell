@@ -18,4 +18,18 @@ class EditHomeSection extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        file_put_contents(
+            public_path('_debug_payload.json'),
+            json_encode([
+                'key'       => $data['key'] ?? null,
+                'payload'   => $data['payload'] ?? 'NOT SET',
+                'timestamp' => date('c'),
+            ], JSON_PRETTY_PRINT)
+        );
+
+        return $data;
+    }
 }
