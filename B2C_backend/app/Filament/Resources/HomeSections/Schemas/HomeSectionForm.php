@@ -207,7 +207,7 @@ class HomeSectionForm
                                     ->maxLength(255),
                             ]),
                     ])
-                    ->visible(fn (Get $get): bool => self::isFooterSection($get)),
+                    ->hidden(fn (Get $get): bool => ! self::isFooterSection($get)),
                 self::footerLocaleSection('en', __('admin.ui.english')),
                 self::footerLocaleSection('ko', __('admin.ui.korean')),
                 self::footerLocaleSection('zh', __('admin.ui.chinese')),
@@ -224,7 +224,7 @@ class HomeSectionForm
                         TextInput::make('cta_label_translations.en')
                             ->label(__('admin.ui.cta_label')),
                     ])
-                    ->visible(fn (Get $get): bool => ! self::isFooterSection($get)),
+                    ->hidden(fn (Get $get): bool => self::isFooterSection($get)),
                 Section::make(__('admin.ui.korean'))
                     ->schema([
                         TextInput::make('title_translations.ko')
@@ -238,7 +238,7 @@ class HomeSectionForm
                         TextInput::make('cta_label_translations.ko')
                             ->label(__('admin.ui.cta_label')),
                     ])
-                    ->visible(fn (Get $get): bool => ! self::isFooterSection($get)),
+                    ->hidden(fn (Get $get): bool => self::isFooterSection($get)),
                 Section::make(__('admin.ui.chinese'))
                     ->schema([
                         TextInput::make('title_translations.zh')
@@ -252,7 +252,7 @@ class HomeSectionForm
                         TextInput::make('cta_label_translations.zh')
                             ->label(__('admin.ui.cta_label')),
                     ])
-                    ->visible(fn (Get $get): bool => ! self::isFooterSection($get)),
+                    ->hidden(fn (Get $get): bool => self::isFooterSection($get)),
             ]);
     }
 
@@ -729,7 +729,7 @@ class HomeSectionForm
                     ->label(__('admin.ui.footer_terms_label')),
             ])
             ->columns(2)
-            ->visible(fn (Get $get): bool => self::isFooterSection($get));
+            ->hidden(fn (Get $get): bool => ! self::isFooterSection($get));
     }
 
     private static function isFooterSection(Get $get): bool
