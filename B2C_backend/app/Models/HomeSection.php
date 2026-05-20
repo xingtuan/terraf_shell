@@ -14,6 +14,16 @@ class HomeSection extends Model
     /** @use HasFactory<HomeSectionFactory> */
     use HasFactory, HasLocalizedAttributes, HasOptionalMediaUrl, HasPublishStatus;
 
+    public const PAGE_KEY_OPTIONS = [
+        'home' => 'Home',
+        'material' => 'Material',
+        'contact' => 'Contact',
+        'b2b' => 'B2B',
+        'store' => 'Store',
+        'community' => 'Community',
+        'articles' => 'Articles',
+    ];
+
     protected array $localizedAttributes = [
         'title',
         'subtitle',
@@ -45,6 +55,22 @@ class HomeSection extends Model
     protected $attributes = [
         'page_key' => 'home',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    public static function pageKeyOptions(): array
+    {
+        return self::PAGE_KEY_OPTIONS;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function allowedPageKeys(): array
+    {
+        return array_keys(self::PAGE_KEY_OPTIONS);
+    }
 
     protected function casts(): array
     {

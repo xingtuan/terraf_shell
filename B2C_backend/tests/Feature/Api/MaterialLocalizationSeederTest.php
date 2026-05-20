@@ -8,6 +8,7 @@ use App\Models\Material;
 use App\Models\MaterialApplication;
 use App\Models\MaterialSpec;
 use App\Models\MaterialStorySection;
+use App\Support\DefaultPageSections;
 use Database\Seeders\MaterialContentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -15,6 +16,43 @@ use Tests\TestCase;
 class MaterialLocalizationSeederTest extends TestCase
 {
     use RefreshDatabase;
+
+    private const HOME_PAGE_SECTION_KEYS = [
+        'hero',
+        'audience_paths',
+        'business_pillars',
+        'why_it_matters',
+        'material_story',
+        'open_source_legacy',
+        'applications',
+        'science_block',
+        'collaboration',
+        'credibility',
+        'trust_and_credibility',
+        'latest_updates',
+        'pilot_projects',
+        'final_cta',
+        'footer',
+    ];
+
+    private const MATERIAL_PAGE_SECTION_KEYS = [
+        'intro',
+        'material_family',
+        'why_it_matters',
+        'material_story',
+        'open_source_legacy',
+        'applications',
+        'material_facts',
+        'proof_points',
+        'certifications',
+        'technical_downloads',
+        'comparison',
+        'credibility',
+        'trust_and_credibility',
+        'pilot_projects',
+        'collaboration',
+        'final_cta',
+    ];
 
     public function test_homepage_endpoint_returns_chinese_material_data_from_seeded_cms_content(): void
     {
@@ -159,5 +197,148 @@ class MaterialLocalizationSeederTest extends TestCase
             ->assertJsonPath('data.home_sections.0.title', 'Admin edited hero')
             ->assertJsonPath('data.materials.0.title', 'Admin edited material title')
             ->assertJsonPath('data.articles.0.title', 'Admin edited article title');
+    }
+
+    public function test_home_sections_support_duplicate_keys_across_page_keys(): void
+    {
+        HomeSection::factory()->published()->create([
+            'page_key' => 'home',
+            'key' => 'shared_key',
+        ]);
+
+        HomeSection::factory()->published()->create([
+            'page_key' => 'material',
+            'key' => 'shared_key',
+        ]);
+
+        $this->assertSame(2, HomeSection::query()->where('key', 'shared_key')->count());
+    }
+
+    public function test_seeder_backfills_all_expected_home_and_material_page_sections(): void
+    {
+        $this->seed(MaterialContentSeeder::class);
+        $this->seed(MaterialContentSeeder::class);
+
+        $homeKeys = HomeSection::query()
+            ->where('page_key', 'home')
+            ->pluck('key')
+            ->all();
+        $materialKeys = HomeSection::query()
+            ->where('page_key', 'material')
+            ->pluck('key')
+            ->all();
+
+        $this->assertSame([], array_values(array_diff(self::HOME_PAGE_SECTION_KEYS, $homeKeys)));
+        $this->assertSame([], array_values(array_diff(self::MATERIAL_PAGE_SECTION_KEYS, $materialKeys)));
+        $this->assertSame(count(array_unique($homeKeys)), count($homeKeys));
+        $this->assertSame(count(array_unique($materialKeys)), count($materialKeys));
+    }
+
+    public function test_seeded_page_sections_only_fill_missing_fields_and_nested_payload_values(): void
+    {
+        HomeSection::query()
+            ->where('page_key', 'home')
+            ->where('key', 'hero')
+            ->delete();
+
+        HomeSection::query()->create([
+            'page_key' => 'home',
+            'key' => 'hero',
+            'title' => 'Admin kept title',
+            'title_translations' => ['en' => 'Admin kept title'],
+            'content' => null,
+            'content_translations' => [],
+            'payload' => [
+                'custom' => ['keep' => true],
+                'metrics' => [
+                    [
+                        'label_translations' => [
+                            'en' => 'Admin kept metric',
+                        ],
+                    ],
+                ],
+            ],
+            'is_seeded' => true,
+            'status' => 'published',
+            'sort_order' => 1,
+            'published_at' => now(),
+        ]);
+
+        DefaultPageSections::backfill();
+
+        $section = HomeSection::query()
+            ->where('page_key', 'home')
+            ->where('key', 'hero')
+            ->firstOrFail();
+
+        $this->assertSame('Admin kept title', $section->title);
+        $this->assertNotNull($section->content);
+        $this->assertTrue($section->payload['custom']['keep']);
+        $this->assertSame('Admin kept metric', $section->payload['metrics'][0]['label_translations']['en']);
+        $this->assertArrayHasKey('zh', $section->payload['metrics'][0]['label_translations']);
+        $this->assertSame('b2b', $section->payload['secondary_cta_url']);
+    }
+
+    public function test_admin_edited_page_sections_are_not_backfilled_over(): void
+    {
+        HomeSection::query()
+            ->where('page_key', 'home')
+            ->where('key', 'hero')
+            ->delete();
+
+        HomeSection::query()->create([
+            'page_key' => 'home',
+            'key' => 'hero',
+            'title' => 'Admin-owned hero',
+            'content' => null,
+            'payload' => ['metrics' => []],
+            'is_seeded' => false,
+            'status' => 'published',
+            'sort_order' => 1,
+            'published_at' => now(),
+        ]);
+
+        DefaultPageSections::backfill();
+
+        $section = HomeSection::query()
+            ->where('page_key', 'home')
+            ->where('key', 'hero')
+            ->firstOrFail();
+
+        $this->assertSame('Admin-owned hero', $section->title);
+        $this->assertNull($section->content);
+        $this->assertArrayNotHasKey('secondary_cta_url', $section->payload);
+    }
+
+    public function test_public_page_sections_endpoints_return_expected_keys_and_locales(): void
+    {
+        $this->seed(MaterialContentSeeder::class);
+
+        $homeResponse = $this->getJson('/api/home-sections?page=home')
+            ->assertOk()
+            ->assertJsonFragment(['page_key' => 'home', 'key' => 'footer']);
+
+        foreach (self::HOME_PAGE_SECTION_KEYS as $key) {
+            $homeResponse->assertJsonFragment(['key' => $key]);
+        }
+
+        $materialResponse = $this->getJson('/api/home-sections?page=material')
+            ->assertOk()
+            ->assertJsonFragment(['page_key' => 'material', 'key' => 'intro']);
+
+        foreach (self::MATERIAL_PAGE_SECTION_KEYS as $key) {
+            $materialResponse->assertJsonFragment(['key' => $key]);
+        }
+
+        $introDefault = collect(DefaultPageSections::records())
+            ->first(fn (array $record): bool => $record['page_key'] === 'material' && $record['key'] === 'intro');
+
+        $koIntro = collect($this->getJson('/api/page-sections?page=material&locale=ko')->json('data'))
+            ->firstWhere('key', 'intro');
+        $zhIntro = collect($this->getJson('/api/page-sections?page=material&locale=zh')->json('data'))
+            ->firstWhere('key', 'intro');
+
+        $this->assertSame($introDefault['title_translations']['ko'], $koIntro['title']);
+        $this->assertSame($introDefault['title_translations']['zh'], $zhIntro['title']);
     }
 }

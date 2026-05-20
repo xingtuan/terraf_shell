@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\HomeSections\Pages;
 
 use App\Filament\Resources\HomeSections\HomeSectionResource;
+use App\Filament\Resources\HomeSections\Schemas\HomeSectionForm;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
@@ -21,17 +22,8 @@ class EditHomeSection extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Filament's form dehydration prunes state to only validated keys, which
-        // strips locale fields (e.g. payload.home_translations.*) that have no
-        // validation rules. For the footer section we read the full payload
-        // directly from the Livewire component state, which holds every key
-        // correctly after afterStateHydrated converted it to an associative array.
-        if (($data['key'] ?? null) === 'footer') {
-            $livewirePayload = $this->data['payload'] ?? null;
-            if (is_array($livewirePayload)) {
-                $data['payload'] = $livewirePayload;
-            }
-        }
+        $data = HomeSectionForm::applyPayloadState($data, $this->data, $this->record);
+        $data['is_seeded'] = false;
 
         return $data;
     }

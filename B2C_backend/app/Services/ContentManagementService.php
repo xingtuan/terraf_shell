@@ -15,6 +15,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ContentManagementService
 {
@@ -88,6 +89,14 @@ class ContentManagementService
             ->published()
             ->ordered()
             ->get();
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function allowedPageKeys(): array
+    {
+        return HomeSection::allowedPageKeys();
     }
 
     public function getHomepageContent(): array
@@ -568,6 +577,7 @@ class ContentManagementService
                 'cta_label_translations' => $data['cta_label_translations'] ?? null,
                 'cta_url' => $data['cta_url'] ?? null,
                 'payload' => $data['payload'] ?? null,
+                'media_url' => $data['media_url'] ?? null,
                 'sort_order' => $data['sort_order'] ?? 0,
             ], $data);
 
@@ -593,6 +603,8 @@ class ContentManagementService
                 'cta_label_translations' => $data['cta_label_translations'] ?? $section->cta_label_translations,
                 'cta_url' => $data['cta_url'] ?? $section->cta_url,
                 'payload' => $data['payload'] ?? $section->payload,
+                'media_url' => $data['media_url'] ?? $section->media_url,
+                'is_seeded' => false,
                 'sort_order' => $data['sort_order'] ?? $section->sort_order,
             ], $data, $section);
 
@@ -749,7 +761,19 @@ class ContentManagementService
 
     private function normalizePageKey(?string $pageKey): string
     {
-        return in_array($pageKey, ['home', 'material'], true) ? $pageKey : 'home';
+        $normalized = strtolower(trim((string) $pageKey));
+
+        if ($normalized === '') {
+            return 'home';
+        }
+
+        if (in_array($normalized, self::allowedPageKeys(), true)) {
+            return $normalized;
+        }
+
+        throw ValidationException::withMessages([
+            'page_key' => 'Unsupported page key.',
+        ]);
     }
 
     private function perPage(null|int|string $requested): int

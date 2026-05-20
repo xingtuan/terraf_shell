@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Enums\PublishStatus;
+use App\Models\HomeSection;
 
 class DefaultPageSections
 {
@@ -57,6 +58,170 @@ class DefaultPageSections
             ],
             self::records()
         );
+    }
+
+    public static function backfill(): void
+    {
+        foreach (self::records() as $record) {
+            self::backfillRecord($record);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     */
+    private static function backfillRecord(array $record): void
+    {
+        $attributes = self::modelAttributes($record);
+
+        /** @var HomeSection|null $section */
+        $section = HomeSection::query()
+            ->where('page_key', $record['page_key'])
+            ->where('key', $record['key'])
+            ->first();
+
+        if (! $section) {
+            HomeSection::query()->create($attributes);
+
+            return;
+        }
+
+        if (! $section->is_seeded) {
+            return;
+        }
+
+        $updates = [];
+
+        foreach ([
+            'title',
+            'subtitle',
+            'content',
+            'cta_label',
+            'cta_url',
+            'media_url',
+            'status',
+            'published_at',
+        ] as $field) {
+            if (self::isMissingValue($section->{$field} ?? null) && ! self::isMissingValue($attributes[$field] ?? null)) {
+                $updates[$field] = $attributes[$field];
+            }
+        }
+
+        foreach ([
+            'title_translations',
+            'subtitle_translations',
+            'content_translations',
+            'cta_label_translations',
+        ] as $field) {
+            $merged = self::mergeMissingValues($section->{$field} ?? null, $attributes[$field] ?? null);
+
+            if ($merged !== ($section->{$field} ?? null)) {
+                $updates[$field] = $merged;
+            }
+        }
+
+        $mergedPayload = self::mergeMissingValues($section->payload ?? null, $attributes['payload']);
+
+        if ($mergedPayload !== ($section->payload ?? null)) {
+            $updates['payload'] = $mergedPayload;
+        }
+
+        if (($section->sort_order ?? null) === null) {
+            $updates['sort_order'] = $attributes['sort_order'];
+        }
+
+        if ($updates === []) {
+            return;
+        }
+
+        $section->fill($updates);
+        $section->save();
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     * @return array<string, mixed>
+     */
+    private static function modelAttributes(array $record): array
+    {
+        return [
+            'page_key' => $record['page_key'],
+            'key' => $record['key'],
+            'title' => $record['title'],
+            'title_translations' => $record['title_translations'],
+            'subtitle' => $record['subtitle'],
+            'subtitle_translations' => $record['subtitle_translations'],
+            'content' => $record['content'],
+            'content_translations' => $record['content_translations'],
+            'cta_label' => $record['cta_label'],
+            'cta_label_translations' => $record['cta_label_translations'],
+            'cta_url' => $record['cta_url'],
+            'payload' => $record['payload'],
+            'is_seeded' => true,
+            'status' => PublishStatus::Published->value,
+            'sort_order' => $record['sort_order'],
+            'media_path' => null,
+            'media_url' => $record['media_url'] ?? null,
+            'published_at' => now(),
+        ];
+    }
+
+    private static function mergeMissingValues(mixed $current, mixed $default): mixed
+    {
+        if (self::isMissingValue($current)) {
+            return $default;
+        }
+
+        if (! is_array($current) || ! is_array($default)) {
+            return $current;
+        }
+
+        if (array_is_list($current) || array_is_list($default)) {
+            return self::mergeMissingListValues($current, $default);
+        }
+
+        $merged = $current;
+
+        foreach ($default as $key => $defaultValue) {
+            $merged[$key] = array_key_exists($key, $merged)
+                ? self::mergeMissingValues($merged[$key], $defaultValue)
+                : $defaultValue;
+        }
+
+        return $merged;
+    }
+
+    /**
+     * @param  array<int, mixed>  $current
+     * @param  array<int, mixed>  $default
+     * @return array<int, mixed>
+     */
+    private static function mergeMissingListValues(array $current, array $default): array
+    {
+        $merged = $current;
+
+        foreach ($default as $index => $defaultValue) {
+            $merged[$index] = array_key_exists($index, $merged)
+                ? self::mergeMissingValues($merged[$index], $defaultValue)
+                : $defaultValue;
+        }
+
+        ksort($merged);
+
+        return array_values($merged);
+    }
+
+    private static function isMissingValue(mixed $value): bool
+    {
+        if ($value === null) {
+            return true;
+        }
+
+        if (is_string($value)) {
+            return trim($value) === '';
+        }
+
+        return is_array($value) && $value === [];
     }
 
     /**
@@ -178,6 +343,7 @@ class DefaultPageSections
                 'secondary_cta_label_translations' => self::translations($messages, 'home.finalCta.secondaryCta'),
                 'secondary_cta_url' => 'store',
             ], 14),
+            self::footerRecord($messages),
         ];
     }
 
@@ -343,6 +509,63 @@ class DefaultPageSections
     }
 
     /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<string, mixed>
+     */
+    private static function footerRecord(array $messages): array
+    {
+        $record = self::record($messages, 'home', 'footer', null, null, 'footer.description', null, null, [
+            'variant' => 'footer',
+            'home_translations' => self::translations($messages, 'header.home'),
+            'material_translations' => self::translations($messages, 'header.material'),
+            'store_translations' => self::translations($messages, 'header.store'),
+            'b2b_translations' => self::translations($messages, 'header.b2b'),
+            'community_translations' => self::translations($messages, 'header.community'),
+            'contact_translations' => self::translations($messages, 'header.contact'),
+            'explore_translations' => self::translations($messages, 'footer.explore'),
+            'business_translations' => self::translations($messages, 'footer.business'),
+            'community_label_translations' => self::translations($messages, 'footer.communityLabel'),
+            'material_sheet_translations' => self::translations($messages, 'footer.materialSheet'),
+            'sample_request_translations' => self::translations($messages, 'footer.sampleRequest'),
+            'product_development_translations' => self::translations($messages, 'footer.productDevelopment'),
+            'idea_support_translations' => self::translations($messages, 'footer.ideaSupport'),
+            'concept_fund_translations' => self::translations($messages, 'footer.conceptFund'),
+            'email_label_translations' => self::translations($messages, 'footer.emailLabel'),
+            'phone_label_translations' => self::translations($messages, 'footer.phoneLabel'),
+            'location_label_translations' => self::translations($messages, 'footer.locationLabel'),
+            'location_value_translations' => self::translations($messages, 'footer.locationValue'),
+            'copyright_translations' => self::translations($messages, 'footer.copyright'),
+            'privacy_translations' => self::translations($messages, 'footer.privacy'),
+            'terms_translations' => self::translations($messages, 'footer.terms'),
+            'email_value' => 'Contact us',
+            'email_href' => 'contact#contact-form',
+            'phone_value' => '+82 51-555-0188',
+            'phone_href' => 'tel:+82515550188',
+            'location_href' => 'contact',
+            'privacy_href' => 'privacy',
+            'terms_href' => 'terms',
+            'social_links' => [],
+            'legal_links' => [
+                [
+                    'label_translations' => self::translations($messages, 'footer.privacy'),
+                    'href' => 'privacy',
+                ],
+                [
+                    'label_translations' => self::translations($messages, 'footer.terms'),
+                    'href' => 'terms',
+                ],
+            ],
+        ], 99);
+
+        $record['title'] = 'Footer';
+        $record['title_translations'] = ['en' => 'Footer'];
+        $record['subtitle'] = 'Site footer';
+        $record['subtitle_translations'] = ['en' => 'Site footer'];
+
+        return $record;
+    }
+
+    /**
      * @return array<string, array<string, mixed>>
      */
     private static function messages(): array
@@ -414,7 +637,7 @@ class DefaultPageSections
             'cta_url' => $ctaUrl,
             'payload' => $payload,
             'sort_order' => $sortOrder,
-            'media_url' => null,
+            'media_url' => $mediaUrl,
         ];
     }
 

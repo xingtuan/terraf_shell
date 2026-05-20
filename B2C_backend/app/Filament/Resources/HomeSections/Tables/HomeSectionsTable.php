@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\HomeSections\Tables;
 
 use App\Enums\PublishStatus;
+use App\Models\HomeSection;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -27,6 +28,7 @@ class HomeSectionsTable
             ->columns([
                 ImageColumn::make('media_url')
                     ->label(__('admin.ui.media'))
+                    ->getStateUsing(fn (HomeSection $record): ?string => self::tableMediaUrl($record))
                     ->square()
                     ->defaultImageUrl('https://placehold.co/96x64?text=Home'),
                 TextColumn::make('page_key')
@@ -65,10 +67,7 @@ class HomeSectionsTable
             ->filters([
                 SelectFilter::make('page_key')
                     ->label('Page')
-                    ->options([
-                        'home' => 'Home',
-                        'material' => 'Material',
-                    ]),
+                    ->options(HomeSection::pageKeyOptions()),
                 SelectFilter::make('status')
                     ->options(PublishStatus::options()),
                 Filter::make('updated_at')
@@ -94,5 +93,22 @@ class HomeSectionsTable
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    private static function tableMediaUrl(HomeSection $record): ?string
+    {
+        $url = $record->media_url;
+
+        if (! is_string($url) || trim($url) === '') {
+            return null;
+        }
+
+        $url = trim($url);
+
+        if (filter_var($url, FILTER_VALIDATE_URL) !== false || str_starts_with($url, 'data:')) {
+            return $url;
+        }
+
+        return url('/'.ltrim($url, '/'));
     }
 }

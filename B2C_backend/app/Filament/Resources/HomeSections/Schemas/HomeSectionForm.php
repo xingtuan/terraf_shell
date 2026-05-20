@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\HomeSections\Schemas;
 
 use App\Enums\PublishStatus;
+use App\Models\HomeSection;
+use Filament\Forms\Components\CodeEditor;
+use Filament\Forms\Components\CodeEditor\Enums\Language;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -15,6 +17,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 
 class HomeSectionForm
 {
@@ -71,10 +74,7 @@ class HomeSectionForm
                             ->schema([
                                 Select::make('page_key')
                                     ->label('Page')
-                                    ->options([
-                                        'home' => 'Home',
-                                        'material' => 'Material',
-                                    ])
+                                    ->options(HomeSection::pageKeyOptions())
                                     ->required()
                                     ->default('home'),
                                 TextInput::make('key')
@@ -82,6 +82,13 @@ class HomeSectionForm
                                     ->required()
                                     ->live(onBlur: true)
                                     ->maxLength(120)
+                                    ->scopedUnique(
+                                        HomeSection::class,
+                                        'key',
+                                        ignoreRecord: true,
+                                        modifyQueryUsing: fn (Builder $query, Get $get): Builder => $query
+                                            ->where('page_key', $get('page_key') ?: 'home'),
+                                    )
                                     ->helperText(__('admin.ui.section_key_helper')),
                                 Select::make('status')
                                     ->label(__('admin.fields.status'))
@@ -95,7 +102,7 @@ class HomeSectionForm
                                     ->dehydrated(false),
                                 TextInput::make('cta_url')
                                     ->label(__('admin.ui.cta_url'))
-                                    ->url(),
+                                    ->maxLength(255),
                                 TextInput::make('sort_order')
                                     ->label(__('admin.ui.sort_order'))
                                     ->required()
@@ -109,33 +116,16 @@ class HomeSectionForm
                                     ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
                                 TextInput::make('media_url')
                                     ->label(__('admin.ui.external_media_url'))
-                                    ->url(),
-                                KeyValue::make('payload')
-                                    ->label(__('admin.ui.payload'))
-                                    ->keyLabel(__('admin.ui.setting'))
-                                    ->valueLabel(__('admin.ui.value'))
+                                    ->maxLength(255),
+                                CodeEditor::make('payload_json')
+                                    ->label(__('admin.ui.payload').' JSON')
+                                    ->language(Language::Json)
+                                    ->formatStateUsing(fn (?HomeSection $record): string => self::encodePayloadJson($record?->payload ?? []))
+                                    ->json(fn (Get $get): bool => ! self::hasStructuredPayload($get))
                                     ->hidden(fn (Get $get): bool => self::hasStructuredPayload($get))
-                                    ->dehydratedWhenHidden(true)
-                                    ->afterStateHydrated(function (KeyValue $component, Get $get): void {
-                                        if (! self::hasStructuredPayload($get)) {
-                                            return;
-                                        }
-                                        // KeyValue converts the model's associative payload to a sequential
-                                        // [{key=>, value=>},...] list, which breaks payload.* Livewire bindings.
-                                        // Convert it back to an associative array so those bindings work.
-                                        $rows = $component->getState();
-                                        if (! is_array($rows)) {
-                                            $component->state([]);
-                                            return;
-                                        }
-                                        $assoc = [];
-                                        foreach ($rows as $row) {
-                                            if (is_array($row) && isset($row['key']) && $row['key'] !== null) {
-                                                $assoc[(string) $row['key']] = $row['value'];
-                                            }
-                                        }
-                                        $component->state($assoc);
-                                    })
+                                    ->dehydrated(fn (Get $get): bool => ! self::hasStructuredPayload($get))
+                                    ->dehydratedWhenHidden(false)
+                                    ->validatedWhenNotDehydrated(false)
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
                                     ->label(__('admin.ui.published_at')),
@@ -147,6 +137,7 @@ class HomeSectionForm
                 self::collaborationStepsSection(),
                 self::materialFamilyExtrasSection(),
                 self::comparisonSection(),
+                self::trustDisclaimerSection(),
                 self::downloadsSection(),
                 self::downloadLabelsSection(),
                 self::certificationLabelsSection(),
@@ -228,6 +219,7 @@ class HomeSectionForm
                             ]),
                     ])
                     ->hidden(fn (Get $get): bool => ! self::isFooterSection($get)),
+                self::footerLinksSection(),
                 self::footerLocaleSection('en', __('admin.ui.english')),
                 self::footerLocaleSection('ko', __('admin.ui.korean')),
                 self::footerLocaleSection('zh', __('admin.ui.chinese')),
@@ -537,8 +529,21 @@ class HomeSectionForm
 
     private static function comparisonSection(): Section
     {
-        return Section::make('Comparison rows')
+        return Section::make('Comparison content')
             ->schema([
+                Repeater::make('payload.columns')
+                    ->label('Columns')
+                    ->addActionLabel('Add column')
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        TextInput::make('label_translations.en')->label('Column (EN)'),
+                        TextInput::make('label_translations.zh')->label('Column (ZH)'),
+                        TextInput::make('label_translations.ko')->label('Column (KO)'),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
                 Repeater::make('payload.rows')
                     ->label('Rows')
                     ->addActionLabel('Add comparison row')
@@ -564,8 +569,28 @@ class HomeSectionForm
                     ])
                     ->columns(3)
                     ->columnSpanFull(),
+                Grid::make(3)
+                    ->schema([
+                        Textarea::make('payload.disclaimer_translations.en')->label('Disclaimer (EN)')->rows(2),
+                        Textarea::make('payload.disclaimer_translations.zh')->label('Disclaimer (ZH)')->rows(2),
+                        Textarea::make('payload.disclaimer_translations.ko')->label('Disclaimer (KO)')->rows(2),
+                    ]),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'comparison');
+    }
+
+    private static function trustDisclaimerSection(): Section
+    {
+        return Section::make('Trust disclaimer')
+            ->schema([
+                Grid::make(3)
+                    ->schema([
+                        Textarea::make('payload.disclaimer_translations.en')->label('Disclaimer (EN)')->rows(2),
+                        Textarea::make('payload.disclaimer_translations.zh')->label('Disclaimer (ZH)')->rows(2),
+                        Textarea::make('payload.disclaimer_translations.ko')->label('Disclaimer (KO)')->rows(2),
+                    ]),
+            ])
+            ->visible(fn (Get $get): bool => $get('key') === 'trust_and_credibility');
     }
 
     private static function downloadsSection(): Section
@@ -752,6 +777,98 @@ class HomeSectionForm
             ->hidden(fn (Get $get): bool => ! self::isFooterSection($get));
     }
 
+    private static function footerLinksSection(): Section
+    {
+        return Section::make('Footer link groups')
+            ->schema([
+                Repeater::make('payload.social_links')
+                    ->label('Social links')
+                    ->addActionLabel('Add social link')
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        TextInput::make('label_translations.en')->label('Label (EN)')->maxLength(120),
+                        TextInput::make('label_translations.zh')->label('Label (ZH)')->maxLength(120),
+                        TextInput::make('label_translations.ko')->label('Label (KO)')->maxLength(120),
+                        TextInput::make('href')->label('URL')->maxLength(255),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+                Repeater::make('payload.legal_links')
+                    ->label('Legal links')
+                    ->addActionLabel('Add legal link')
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        TextInput::make('label_translations.en')->label('Label (EN)')->maxLength(120),
+                        TextInput::make('label_translations.zh')->label('Label (ZH)')->maxLength(120),
+                        TextInput::make('label_translations.ko')->label('Label (KO)')->maxLength(120),
+                        TextInput::make('href')->label('URL')->maxLength(255),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+            ])
+            ->hidden(fn (Get $get): bool => ! self::isFooterSection($get));
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $state
+     * @return array<string, mixed>
+     */
+    public static function applyPayloadState(array $data, array $state, ?HomeSection $record = null): array
+    {
+        $key = $data['key'] ?? $record?->key;
+
+        if (is_string($key) && self::hasStructuredPayloadKey($key)) {
+            if (isset($state['payload']) && is_array($state['payload'])) {
+                $data['payload'] = $state['payload'];
+            }
+
+            unset($data['payload_json']);
+
+            return $data;
+        }
+
+        if (array_key_exists('payload_json', $state)) {
+            $data['payload'] = self::decodePayloadJson($state['payload_json'] ?? null);
+        }
+
+        unset($data['payload_json']);
+
+        return $data;
+    }
+
+    public static function hasStructuredPayloadKey(?string $key): bool
+    {
+        return in_array($key, self::STRUCTURED_PAYLOAD_KEYS, true);
+    }
+
+    private static function encodePayloadJson(mixed $payload): string
+    {
+        if (! is_array($payload)) {
+            return '{}';
+        }
+
+        return json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private static function decodePayloadJson(mixed $payload): ?array
+    {
+        if (! is_string($payload) || trim($payload) === '') {
+            return null;
+        }
+
+        $decoded = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
+
+        return is_array($decoded) ? $decoded : null;
+    }
+
     private static function isFooterSection(Get $get): bool
     {
         return $get('key') === 'footer';
@@ -759,6 +876,6 @@ class HomeSectionForm
 
     private static function hasStructuredPayload(Get $get): bool
     {
-        return in_array($get('key'), self::STRUCTURED_PAYLOAD_KEYS, true);
+        return self::hasStructuredPayloadKey($get('key'));
     }
 }

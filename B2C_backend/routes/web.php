@@ -40,6 +40,20 @@ Route::get('/admin/locale/{locale}', function (string $locale) {
     return redirect(Str::contains($previous, '/admin') ? $previous : '/admin');
 })->name('admin.locale.switch');
 
+// Temporary debug route — remove after confirming footer save works
+Route::get('/api/debug-footer-payload', function () {
+    $record = \App\Models\HomeSection::find(5);
+    if (! $record) {
+        return response()->json(['error' => 'record not found']);
+    }
+    return response()->json([
+        'id'      => $record->id,
+        'key'     => $record->key,
+        'payload' => $record->payload,
+        'updated' => $record->updated_at,
+    ]);
+});
+
 Route::middleware('auth')->group(function (): void {
     Route::get('/admin/settings/export', [SettingsBackupController::class, 'export'])
         ->name('admin.settings.export');

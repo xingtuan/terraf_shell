@@ -253,7 +253,7 @@ class MaterialCmsTest extends TestCase
             ->assertJsonPath('data.status', 'published');
 
         $homeSectionResponse = $this->postJson('/api/admin/home-sections', [
-            'key' => 'hero',
+            'key' => 'custom_hero',
             'title' => 'Premium oyster shell materials',
             'content' => 'Homepage hero content',
             'payload' => ['variant' => 'hero'],
