@@ -485,6 +485,26 @@ export function buildFooterContent(
   }
 }
 
+export function buildContactDetailsFromFooterContent(
+  footerContent: FooterContent,
+  fallback: SiteMessages["contactPage"]["details"],
+  emailFallback: string,
+): SiteMessages["contactPage"]["details"] {
+  const cards = fallback.cards.map((card, index) => {
+    if (index === 0) {
+      return { ...card, value: footerContent.emailValue ?? emailFallback }
+    }
+    if (index === 1) {
+      return { ...card, value: footerContent.phoneValue ?? card.value }
+    }
+    if (index === 2) {
+      return { ...card, value: footerContent.locationValue ?? card.value }
+    }
+    return card
+  })
+  return { ...fallback, cards }
+}
+
 function buildSpecIndicator(spec: MaterialSpec, locale?: Locale) {
   const label = locale
     ? resolveLocalizedApiValue(spec.label, null, locale)

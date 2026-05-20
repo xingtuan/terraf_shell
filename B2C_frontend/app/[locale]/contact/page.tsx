@@ -4,8 +4,14 @@ import { PageIntro } from "@/components/page-intro"
 import { B2BInquiryFormSection } from "@/components/sections/b2b-inquiry-form"
 import { ContactDetailsSection } from "@/components/sections/contact-details"
 import { FinalCtaSection } from "@/components/sections/final-cta"
-import { getBrandContactHref } from "@/lib/brand"
+import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
+import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { getBrandContactHref, getBrandContactLabel } from "@/lib/brand"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
+import {
+  buildContactDetailsFromFooterContent,
+  buildFooterContent,
+} from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
 
 type ContactPageProps = {
@@ -16,6 +22,27 @@ export default async function ContactPage({ params }: ContactPageProps) {
   const locale = await resolveLocale(params)
   const messages = getMessages(locale)
   const intro = messages.contactPage.intro
+
+  let contactDetails = messages.contactPage.details
+
+  try {
+    const apiBaseUrl = await getServerApiBaseUrl()
+    const sections = await getHomeSections({ baseUrl: apiBaseUrl, locale })
+    const footerSection = findHomeSection(sections, "footer")
+    const footerContent = buildFooterContent(
+      messages.footer,
+      footerSection,
+      locale,
+      messages.header,
+    )
+    contactDetails = buildContactDetailsFromFooterContent(
+      footerContent,
+      messages.contactPage.details,
+      getBrandContactLabel(),
+    )
+  } catch {
+    // Use messages fallback
+  }
 
   return (
     <>
@@ -32,7 +59,7 @@ export default async function ContactPage({ params }: ContactPageProps) {
           href: `${getLocalizedHref(locale, "b2b")}#inquiry`,
         }}
       />
-      <ContactDetailsSection content={messages.contactPage.details} />
+      <ContactDetailsSection content={contactDetails} />
       <Suspense fallback={null}>
         <B2BInquiryFormSection
           locale={locale}
