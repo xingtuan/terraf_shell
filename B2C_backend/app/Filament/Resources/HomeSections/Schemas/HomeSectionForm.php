@@ -4,6 +4,7 @@ namespace App\Filament\Resources\HomeSections\Schemas;
 
 use App\Enums\PublishStatus;
 use App\Models\HomeSection;
+use App\Support\LocalizedContent;
 use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\CodeEditor\Enums\Language;
 use Filament\Forms\Components\DateTimePicker;
@@ -35,6 +36,7 @@ class HomeSectionForm
         'material_family',
         'certifications',
         'hero',
+        'intro',
         'science_block',
         'material_facts',
         'comparison',
@@ -133,7 +135,7 @@ class HomeSectionForm
                     ]),
                 self::itemsSection(),
                 self::metricsSection(),
-                self::heroActionsSection(),
+                self::secondaryCtaSection(),
                 self::collaborationStepsSection(),
                 self::materialFamilyExtrasSection(),
                 self::comparisonSection(),
@@ -154,15 +156,12 @@ class HomeSectionForm
                             ->schema([
                                 TextInput::make('title_translations.en')
                                     ->label(__('admin.ui.title_en'))
-                                    ->required()
                                     ->maxLength(180),
                                 TextInput::make('status_translations.en')
                                     ->label(__('admin.fields.status').' (EN)')
-                                    ->required()
                                     ->maxLength(120),
                                 Textarea::make('description_translations.en')
                                     ->label(__('admin.ui.description_en'))
-                                    ->required()
                                     ->rows(3)
                                     ->columnSpanFull(),
                                 TextInput::make('title_translations.ko')
@@ -288,6 +287,15 @@ class HomeSectionForm
                             ->maxLength(80),
                         TextInput::make('status')
                             ->label(__('admin.fields.status'))
+                            ->maxLength(120),
+                        TextInput::make('status_translations.en')
+                            ->label(__('admin.fields.status').' (EN)')
+                            ->maxLength(120),
+                        TextInput::make('status_translations.zh')
+                            ->label(__('admin.fields.status').' (ZH)')
+                            ->maxLength(120),
+                        TextInput::make('status_translations.ko')
+                            ->label(__('admin.fields.status').' (KO)')
                             ->maxLength(120),
                         TextInput::make('cta_url')
                             ->label(__('admin.ui.cta_url'))
@@ -427,9 +435,9 @@ class HomeSectionForm
             ->visible(fn (Get $get): bool => in_array($get('key'), self::METRIC_PAYLOAD_KEYS, true));
     }
 
-    private static function heroActionsSection(): Section
+    private static function secondaryCtaSection(): Section
     {
-        return Section::make('Hero secondary CTA')
+        return Section::make('Secondary CTA')
             ->schema([
                 Grid::make(2)
                     ->schema([
@@ -444,7 +452,7 @@ class HomeSectionForm
                             ->label('Secondary CTA label (KO)'),
                     ]),
             ])
-            ->visible(fn (Get $get): bool => $get('key') === 'hero');
+            ->visible(fn (Get $get): bool => in_array($get('key'), ['hero', 'intro'], true));
     }
 
     private static function collaborationStepsSection(): Section
@@ -820,11 +828,15 @@ class HomeSectionForm
      */
     public static function applyPayloadState(array $data, array $state, ?HomeSection $record = null): array
     {
+        $data = self::normalizeLocalizedArrays($data);
         $key = $data['key'] ?? $record?->key;
 
         if (is_string($key) && self::hasStructuredPayloadKey($key)) {
             if (isset($state['payload']) && is_array($state['payload'])) {
-                $data['payload'] = $state['payload'];
+                $data['payload'] = self::mergePayloadState(
+                    is_array($record?->payload) ? $record->payload : [],
+                    self::normalizeLocalizedArrays($state['payload'])
+                );
             }
 
             unset($data['payload_json']);
@@ -833,7 +845,8 @@ class HomeSectionForm
         }
 
         if (array_key_exists('payload_json', $state)) {
-            $data['payload'] = self::decodePayloadJson($state['payload_json'] ?? null);
+            $payload = self::decodePayloadJson($state['payload_json'] ?? null);
+            $data['payload'] = is_array($payload) ? self::normalizeLocalizedArrays($payload) : $payload;
         }
 
         unset($data['payload_json']);
@@ -867,6 +880,94 @@ class HomeSectionForm
         $decoded = json_decode($payload, true, 512, JSON_THROW_ON_ERROR);
 
         return is_array($decoded) ? $decoded : null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private static function normalizeLocalizedArrays(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            if (! is_array($value)) {
+                continue;
+            }
+
+            $data[$key] = is_string($key) && str_ends_with($key, '_translations')
+                ? self::normalizeTranslationSet($value)
+                : self::normalizeLocalizedArrays($value);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param  array<string, mixed>  $translations
+     * @return array<string, string>
+     */
+    private static function normalizeTranslationSet(array $translations): array
+    {
+        $normalized = [];
+
+        foreach (LocalizedContent::supportedLocales() as $locale) {
+            $value = $translations[$locale] ?? null;
+
+            if (! is_string($value)) {
+                continue;
+            }
+
+            $value = trim($value);
+
+            if ($value !== '') {
+                $normalized[$locale] = $value;
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param  array<string, mixed>  $existing
+     * @param  array<string, mixed>  $incoming
+     * @return array<string, mixed>
+     */
+    private static function mergePayloadState(array $existing, array $incoming): array
+    {
+        if (array_is_list($incoming)) {
+            return array_values(array_map(
+                fn (mixed $value, int $index): mixed => is_array($value)
+                    ? self::mergePayloadState(
+                        is_array($existing[$index] ?? null) ? $existing[$index] : [],
+                        $value
+                    )
+                    : $value,
+                $incoming,
+                array_keys($incoming)
+            ));
+        }
+
+        $merged = $existing;
+
+        foreach ($incoming as $key => $value) {
+            if (is_array($value)) {
+                if (is_string($key) && str_ends_with($key, '_translations')) {
+                    $merged[$key] = $value;
+
+                    continue;
+                }
+
+                $merged[$key] = self::mergePayloadState(
+                    is_array($existing[$key] ?? null) ? $existing[$key] : [],
+                    $value
+                );
+
+                continue;
+            }
+
+            $merged[$key] = $value;
+        }
+
+        return $merged;
     }
 
     private static function isFooterSection(Get $get): bool

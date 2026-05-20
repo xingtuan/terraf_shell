@@ -8,6 +8,7 @@ use App\Models\Material;
 use App\Models\MaterialApplication;
 use App\Models\MaterialSpec;
 use App\Models\MaterialStorySection;
+use App\Filament\Resources\HomeSections\Schemas\HomeSectionForm;
 use App\Support\DefaultPageSections;
 use Database\Seeders\MaterialContentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -340,5 +341,92 @@ class MaterialLocalizationSeederTest extends TestCase
 
         $this->assertSame($introDefault['title_translations']['ko'], $koIntro['title']);
         $this->assertSame($introDefault['title_translations']['zh'], $zhIntro['title']);
+    }
+
+    public function test_page_section_form_keeps_payload_hidden_keys_and_limits_translations_to_supported_locales(): void
+    {
+        HomeSection::query()
+            ->where('page_key', 'material')
+            ->where('key', 'intro')
+            ->delete();
+
+        $record = HomeSection::factory()->published()->create([
+            'page_key' => 'material',
+            'key' => 'intro',
+            'payload' => [
+                'variant' => 'intro',
+                'secondary_cta_url' => 'contact',
+                'secondary_cta_label_translations' => [
+                    'en' => 'Old EN',
+                    'zh' => 'Old ZH',
+                    'ko' => 'Old KO',
+                    'fr' => 'Old FR',
+                ],
+                'items' => [
+                    [
+                        'hidden_key' => 'keep-me',
+                        'title_translations' => [
+                            'en' => 'Old item EN',
+                            'zh' => 'Old item ZH',
+                            'ko' => 'Old item KO',
+                            'fr' => 'Old item FR',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $data = HomeSectionForm::applyPayloadState(
+            [
+                'page_key' => 'material',
+                'key' => 'intro',
+                'title_translations' => [
+                    'en' => 'Intro EN',
+                    'zh' => 'Intro ZH',
+                    'ko' => 'Intro KO',
+                    'fr' => 'Intro FR',
+                ],
+            ],
+            [
+                'payload' => [
+                    'secondary_cta_label_translations' => [
+                        'en' => 'CTA EN',
+                        'zh' => 'CTA ZH',
+                        'ko' => 'CTA KO',
+                        'fr' => 'CTA FR',
+                    ],
+                    'items' => [
+                        [
+                            'title_translations' => [
+                                'en' => 'Item EN',
+                                'zh' => 'Item ZH',
+                                'ko' => 'Item KO',
+                                'fr' => 'Item FR',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $record,
+        );
+
+        $this->assertSame([
+            'en' => 'Intro EN',
+            'ko' => 'Intro KO',
+            'zh' => 'Intro ZH',
+        ], $data['title_translations']);
+        $this->assertSame('intro', $data['payload']['variant']);
+        $this->assertSame('contact', $data['payload']['secondary_cta_url']);
+        $this->assertSame([
+            'en' => 'CTA EN',
+            'ko' => 'CTA KO',
+            'zh' => 'CTA ZH',
+        ], $data['payload']['secondary_cta_label_translations']);
+        $this->assertSame('keep-me', $data['payload']['items'][0]['hidden_key']);
+        $this->assertSame([
+            'en' => 'Item EN',
+            'ko' => 'Item KO',
+            'zh' => 'Item ZH',
+        ], $data['payload']['items'][0]['title_translations']);
     }
 }
