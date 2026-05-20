@@ -115,7 +115,7 @@ class HomeSectionForm
                                     ->keyLabel(__('admin.ui.setting'))
                                     ->valueLabel(__('admin.ui.value'))
                                     ->hidden(fn (Get $get): bool => self::hasStructuredPayload($get))
-                                    ->dehydrated(fn (Get $get): bool => ! self::hasStructuredPayload($get))
+                                    ->dehydratedWhenHidden(true)
                                     ->afterStateHydrated(function (KeyValue $component, Get $get): void {
                                         if (! self::hasStructuredPayload($get)) {
                                             return;
