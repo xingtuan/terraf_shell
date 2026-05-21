@@ -42,6 +42,9 @@ class HomeSectionForm
         'material_facts',
         'comparison',
         'technical_downloads',
+        'product_grid',
+        'store_faq',
+        'open_concepts',
         'pilot_projects',
         'details',
         'process',
@@ -99,11 +102,12 @@ class HomeSectionForm
                                             ->where('page_key', $get('page_key') ?: 'home'),
                                     )
                                     ->helperText(__('admin.ui.section_key_helper')),
-                                Select::make('status')
-                                    ->label(__('admin.fields.status'))
-                                    ->options(PublishStatus::options())
-                                    ->required()
-                                    ->default(PublishStatus::Draft->value),
+                                Toggle::make('status')
+                                    ->label(self::field('show_on_frontend'))
+                                    ->helperText(self::helpText('show_on_frontend'))
+                                    ->default(false)
+                                    ->formatStateUsing(fn (?string $state): bool => $state === PublishStatus::Published->value)
+                                    ->dehydrateStateUsing(fn (bool $state): string => $state ? PublishStatus::Published->value : PublishStatus::Draft->value),
                                 Toggle::make('is_seeded')
                                     ->label(__('admin.ui.seeded_demo_content'))
                                     ->helperText(__('admin.ui.seeded_demo_content_help'))
@@ -143,6 +147,10 @@ class HomeSectionForm
                 self::itemsSection(),
                 self::metricsSection(),
                 self::secondaryCtaSection(),
+                self::productGridLabelsSection(),
+                self::credibilityBenefitsSection(),
+                self::storeFaqSection(),
+                self::openConceptsSection(),
                 self::collaborationStepsSection(),
                 self::materialFamilyExtrasSection(),
                 self::comparisonSection(),
@@ -460,6 +468,124 @@ class HomeSectionForm
                     ]),
             ])
             ->visible(fn (Get $get): bool => in_array($get('key'), ['hero', 'intro'], true));
+    }
+
+    private static function productGridLabelsSection(): Section
+    {
+        return Section::make(self::sectionTitle('store_product_grid_labels'))
+            ->description(self::helpText('store_product_grid_labels'))
+            ->schema([
+                Grid::make(3)
+                    ->schema(self::localizedPayloadComponents([
+                        'price_prefix',
+                        'availability_label',
+                        'category_quick_filter_label',
+                        'filters_title',
+                        'search_label',
+                        'search_placeholder',
+                        'all_option',
+                        'filter_hint',
+                        'category_hint',
+                        'active_filters_label',
+                        'remove_filter_label',
+                        'sort_label',
+                        'stock_label',
+                        'price_label',
+                        'min_price',
+                        'max_price',
+                        'apply_filters',
+                        'clear_all',
+                        'result_label',
+                        'search_result_title',
+                        'filtered_products_title',
+                        'all_products_title',
+                        'showing_label',
+                        'empty_title',
+                        'empty_description',
+                        'empty_action',
+                        'error_title',
+                        'error_description',
+                        'retry_action',
+                        'attribute_label',
+                    ], [
+                        'filter_hint',
+                        'category_hint',
+                        'empty_description',
+                        'error_description',
+                    ])),
+            ])
+            ->visible(fn (Get $get): bool => $get('key') === 'product_grid');
+    }
+
+    private static function credibilityBenefitsSection(): Section
+    {
+        return Section::make(self::sectionTitle('credibility_benefits'))
+            ->description(self::helpText('credibility_benefits'))
+            ->schema([
+                Repeater::make('payload.benefits')
+                    ->label(self::field('benefits'))
+                    ->addActionLabel(self::actionLabel('add_benefit'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        Textarea::make('description_translations.en')->label(__('admin.ui.description_en'))->rows(2),
+                        Textarea::make('description_translations.zh')->label(__('admin.ui.description_zh'))->rows(2),
+                        Textarea::make('description_translations.ko')->label(__('admin.ui.description_ko'))->rows(2),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
+            ])
+            ->visible(fn (Get $get): bool => $get('key') === 'credibility');
+    }
+
+    private static function storeFaqSection(): Section
+    {
+        return Section::make(self::sectionTitle('store_faq_items'))
+            ->schema([
+                Repeater::make('payload.items')
+                    ->label(self::field('faq_items'))
+                    ->addActionLabel(self::actionLabel('add_faq_item'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        TextInput::make('question_translations.en')->label(self::localizedField('question', 'en'))->maxLength(240),
+                        TextInput::make('question_translations.zh')->label(self::localizedField('question', 'zh'))->maxLength(240),
+                        TextInput::make('question_translations.ko')->label(self::localizedField('question', 'ko'))->maxLength(240),
+                        Textarea::make('answer_translations.en')->label(self::localizedField('answer', 'en'))->rows(3),
+                        Textarea::make('answer_translations.zh')->label(self::localizedField('answer', 'zh'))->rows(3),
+                        Textarea::make('answer_translations.ko')->label(self::localizedField('answer', 'ko'))->rows(3),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
+            ])
+            ->visible(fn (Get $get): bool => $get('key') === 'store_faq');
+    }
+
+    private static function openConceptsSection(): Section
+    {
+        return Section::make(self::sectionTitle('community_open_concepts_labels'))
+            ->schema([
+                Grid::make(3)
+                    ->schema(self::localizedPayloadComponents([
+                        'focus_label',
+                        'stage_label',
+                        'support_label',
+                        'cta_primary_label',
+                        'cta_secondary_label',
+                    ])),
+                Grid::make(2)
+                    ->schema([
+                        TextInput::make('payload.cta_primary_url')
+                            ->label(self::field('primary_cta_url'))
+                            ->maxLength(255),
+                        TextInput::make('payload.cta_secondary_url')
+                            ->label(self::field('secondary_cta_url'))
+                            ->maxLength(255),
+                    ]),
+            ])
+            ->visible(fn (Get $get): bool => $get('key') === 'open_concepts');
     }
 
     private static function collaborationStepsSection(): Section
@@ -852,6 +978,43 @@ class HomeSectionForm
     {
         return __('admin.labels.localized_field', [
             'field' => self::field($key),
+            'locale' => strtoupper($locale),
+        ]);
+    }
+
+    /**
+     * @param  array<int, string>  $fields
+     * @param  array<int, string>  $textareaFields
+     * @return array<int, TextInput|Textarea>
+     */
+    private static function localizedPayloadComponents(array $fields, array $textareaFields = []): array
+    {
+        $components = [];
+
+        foreach ($fields as $field) {
+            foreach (LocalizedContent::supportedLocales() as $locale) {
+                $path = "payload.{$field}_translations.{$locale}";
+                $label = self::payloadFieldLabel($field, $locale);
+                $components[] = in_array($field, $textareaFields, true)
+                    ? Textarea::make($path)->label($label)->rows(2)
+                    : TextInput::make($path)->label($label)->maxLength(255);
+            }
+        }
+
+        return $components;
+    }
+
+    private static function payloadFieldLabel(string $field, string $locale): string
+    {
+        $translationKey = "admin.home_sections.fields.{$field}";
+        $fieldLabel = __($translationKey);
+
+        if ($fieldLabel === $translationKey) {
+            $fieldLabel = str_replace('_', ' ', ucfirst($field));
+        }
+
+        return __('admin.labels.localized_field', [
+            'field' => $fieldLabel,
             'locale' => strtoupper($locale),
         ]);
     }

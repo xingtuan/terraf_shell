@@ -11,6 +11,8 @@ export type PageKey =
   | "store"
   | "community"
   | "articles"
+  | "privacy"
+  | "terms"
 
 type PageSectionsRequest = {
   baseUrl?: string

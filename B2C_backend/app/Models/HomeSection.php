@@ -17,11 +17,13 @@ class HomeSection extends Model
     public const PAGE_KEY_OPTIONS = [
         'home' => 'Home',
         'material' => 'Material',
-        'contact' => 'Contact',
-        'b2b' => 'B2B',
         'store' => 'Store',
         'community' => 'Community',
+        'b2b' => 'B2B',
+        'contact' => 'Contact',
         'articles' => 'Articles',
+        'privacy' => 'Privacy',
+        'terms' => 'Terms',
     ];
 
     protected array $localizedAttributes = [
@@ -73,7 +75,12 @@ class HomeSection extends Model
     public static function pageKeyLabel(?string $key, ?string $fallback = null): string
     {
         if (is_string($key) && array_key_exists($key, self::PAGE_KEY_OPTIONS)) {
-            return __("admin.home_sections.pages.{$key}");
+            $translationKey = "admin.home_sections.pages.{$key}";
+            $translation = __($translationKey);
+
+            return $translation === $translationKey
+                ? self::PAGE_KEY_OPTIONS[$key]
+                : $translation;
         }
 
         return $fallback ?? (is_string($key) ? $key : '');

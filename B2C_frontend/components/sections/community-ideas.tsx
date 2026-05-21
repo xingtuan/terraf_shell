@@ -2,16 +2,13 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
-import {
-  getLocalizedHref,
-  type Locale,
-  type SiteMessages,
-} from "@/lib/i18n"
+import { getLocalizedHref, type Locale } from "@/lib/i18n"
+import type { CommunityIdeasContent } from "@/lib/page-content"
 import type { CommunityIdea } from "@/lib/types"
 
 type CommunityIdeasSectionProps = {
   locale: Locale
-  content: SiteMessages["communityPage"]["ideas"]
+  content: CommunityIdeasContent
   ideas: CommunityIdea[]
 }
 
@@ -95,12 +92,12 @@ export function CommunityIdeasSection({
 
         <div className="mt-12 flex flex-col gap-4 sm:flex-row">
           <Button asChild size="lg">
-            <Link href={`${getLocalizedHref(locale, "contact")}#contact-form`}>
+            <Link href={content.ctaPrimaryHref ?? getLocalizedHref(locale, "community/new")}>
               {content.ctaPrimary}
             </Link>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href={getLocalizedHref(locale, "contact")}>
+            <Link href={content.ctaSecondaryHref ?? getLocalizedHref(locale, "contact")}>
               {content.ctaSecondary}
             </Link>
           </Button>

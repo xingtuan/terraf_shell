@@ -20,8 +20,8 @@ import type { Product, ProductCatalogMeta } from "@/lib/types"
 type ProductGridSectionProps = {
   locale: Locale
   content: SiteMessages["storePage"]["grid"]
-  faqContent: SiteMessages["storePage"]["faq"]
-  trustContent: SiteMessages["home"]["credibility"]
+  faqContent?: SiteMessages["storePage"]["faq"] | null
+  trustContent?: SiteMessages["home"]["credibility"] | null
   products: Product[]
   filters: StoreCatalogFilters
   meta?: ProductCatalogMeta | null
@@ -368,8 +368,8 @@ export function ProductGridSection({
           </div>
         </div>
 
-        <StoreTrustPanel content={trustContent} />
-        <StoreFaq content={faqContent} />
+        {trustContent ? <StoreTrustPanel content={trustContent} /> : null}
+        {faqContent ? <StoreFaq content={faqContent} /> : null}
       </div>
     </section>
   )

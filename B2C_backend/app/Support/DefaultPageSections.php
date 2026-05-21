@@ -21,6 +21,8 @@ class DefaultPageSections
         return [
             ...self::homeRecords($messages),
             ...self::materialRecords($messages),
+            ...self::storeRecords($messages),
+            ...self::communityRecords($messages),
             ...self::contactRecords($messages),
             ...self::b2bRecords($messages),
         ];
@@ -514,6 +516,194 @@ class DefaultPageSections
      * @param  array<string, array<string, mixed>>  $messages
      * @return array<int, array<string, mixed>>
      */
+    private static function storeRecords(array $messages): array
+    {
+        return [
+            self::record($messages, 'store', 'intro', 'storePage.intro.title', 'storePage.intro.eyebrow', 'storePage.intro.description', 'storePage.intro.primaryCta', 'store#catalogue', [
+                'variant' => 'intro',
+                'secondary_cta_label_translations' => self::translations($messages, 'storePage.intro.secondaryCta'),
+                'secondary_cta_url' => 'material',
+            ], 1),
+            self::record($messages, 'store', 'product_grid', 'storePage.grid.title', 'storePage.grid.eyebrow', 'storePage.grid.description', null, null, [
+                'variant' => 'product_grid',
+                ...self::storeGridLabels($messages),
+            ], 2),
+            self::manualRecord('store', 'applications', self::literalTranslations(
+                'Built for tableware, hospitality, homeware, and premium collaborations.',
+                '面向餐具、酒店餐饮、家居用品与高端联名合作而构建。',
+                '테이블웨어, 호스피탈리티, 홈웨어, 프리미엄 협업을 위해 설계되었습니다.'
+            ), self::literalTranslations(
+                'Applications',
+                '应用场景',
+                '적용 분야'
+            ), [], [], null, [
+                'variant' => 'applications',
+                'items' => self::manualCardItems([
+                    [
+                        'title' => self::literalTranslations('Premium Tableware', '高端餐具', '프리미엄 테이블웨어'),
+                        'description' => self::literalTranslations(
+                            'Dining pieces with calm tactility and lighter handling.',
+                            '触感沉静、拿取更轻盈的餐饮器物。',
+                            '차분한 촉감과 더 가벼운 사용감을 지닌 다이닝 제품입니다.'
+                        ),
+                    ],
+                    [
+                        'title' => self::literalTranslations('Hospitality Programs', '酒店餐饮项目', '호스피탈리티 프로그램'),
+                        'description' => self::literalTranslations(
+                            'Tabletop and service objects for boutique hotels and chef-led spaces.',
+                            '适用于精品酒店与主厨主导空间的桌面和服务物件。',
+                            '부티크 호텔과 셰프 중심 공간을 위한 테이블 및 서비스 오브제입니다.'
+                        ),
+                    ],
+                    [
+                        'title' => self::literalTranslations('Homeware Objects', '家居物件', '홈웨어 오브제'),
+                        'description' => self::literalTranslations(
+                            'Trays, accents, and display pieces that carry the shell story into the home.',
+                            '将贝壳故事带入居家的托盘、摆件与展示物件。',
+                            '패각의 이야기를 집 안으로 가져오는 트레이, 포인트 오브제, 디스플레이 제품입니다.'
+                        ),
+                    ],
+                    [
+                        'title' => self::literalTranslations('Brand Collaborations', '品牌合作', '브랜드 협업'),
+                        'description' => self::literalTranslations(
+                            'Co-developed launches, gifting lines, and limited premium editions.',
+                            '共同开发的新品发布、礼赠系列与限量高端版本。',
+                            '공동 개발 출시, 기프트 라인, 한정 프리미엄 에디션에 적합합니다.'
+                        ),
+                    ],
+                ]),
+            ], 3),
+            self::manualRecord('store', 'credibility', self::literalTranslations(
+                'Prepared for certification conversations, traceability, and technical support.',
+                '为认证沟通、可追溯性和技术支持做好准备。',
+                '인증 논의, 추적성, 기술 지원을 위해 준비되어 있습니다.'
+            ), self::literalTranslations(
+                'Credibility',
+                '可信度',
+                '신뢰성'
+            ), [], [], null, [
+                'variant' => 'credibility',
+                'benefits' => self::manualStringItems([
+                    self::literalTranslations('Material story focused only on reclaimed oyster shell content', '材料叙事聚焦于回收牡蛎壳内容。', '소재 스토리는 회수된 굴 패각 함량에 집중합니다.'),
+                    self::literalTranslations('Traceability notes designed for sourcing and brand reviews', '可追溯说明面向采购与品牌审核而设计。', '소싱 및 브랜드 검토를 위한 추적성 메모를 제공합니다.'),
+                    self::literalTranslations('Technical support for samples, moulding direction, and application fit', '为样品、模具方向与应用适配提供技术支持。', '샘플, 성형 방향, 적용 적합성에 대한 기술 지원을 제공합니다.'),
+                    self::literalTranslations('Placeholder certification and food-contact modules ready for backend integration', '预留认证与食品接触模块，便于后续接入后端。', '인증 및 식품 접촉 모듈은 향후 백엔드 연동을 위해 준비되어 있습니다.'),
+                ], 'description'),
+                'metrics' => self::manualStringItems([
+                    self::literalTranslations('Material story focused only on reclaimed oyster shell content', '材料叙事聚焦于回收牡蛎壳内容。', '소재 스토리는 회수된 굴 패각 함량에 집중합니다.'),
+                    self::literalTranslations('Traceability notes designed for sourcing and brand reviews', '可追溯说明面向采购与品牌审核而设计。', '소싱 및 브랜드 검토를 위한 추적성 메모를 제공합니다.'),
+                    self::literalTranslations('Technical support for samples, moulding direction, and application fit', '为样品、模具方向与应用适配提供技术支持。', '샘플, 성형 방향, 적용 적합성에 대한 기술 지원을 제공합니다.'),
+                    self::literalTranslations('Placeholder certification and food-contact modules ready for backend integration', '预留认证与食品接触模块，便于后续接入后端。', '인증 및 식품 접촉 모듈은 향후 백엔드 연동을 위해 준비되어 있습니다.'),
+                ], 'description'),
+                'items' => self::manualCardItems([
+                    [
+                        'title' => self::literalTranslations('Certification Readiness', '认证准备', '인증 준비성'),
+                        'description' => self::literalTranslations(
+                            'Frontend placeholders are prepared for third-party testing documents and future compliance records.',
+                            '前端已预留第三方测试文件与未来合规记录的位置。',
+                            '제3자 시험 문서와 향후 컴플라이언스 기록을 위한 프런트엔드 영역이 준비되어 있습니다.'
+                        ),
+                    ],
+                    [
+                        'title' => self::literalTranslations('Technical Support', '技术支持', '기술 지원'),
+                        'description' => self::literalTranslations(
+                            'The site structure now includes space for project-specific material guidance and application reviews.',
+                            '站点结构已包含项目专属材料指导与应用评审空间。',
+                            '사이트 구조에는 프로젝트별 소재 가이드와 적용 검토를 위한 공간이 포함되어 있습니다.'
+                        ),
+                    ],
+                    [
+                        'title' => self::literalTranslations('Traceable Origin', '可追溯来源', '추적 가능한 원산지'),
+                        'description' => self::literalTranslations(
+                            'Source storytelling remains focused on South Korean oyster shell recovery and controlled pellet making.',
+                            '来源叙事持续聚焦韩国牡蛎壳回收与受控颗粒制造。',
+                            '원산지 스토리는 한국 굴 패각 회수와 관리된 펠릿 제조에 집중합니다.'
+                        ),
+                    ],
+                    [
+                        'title' => self::literalTranslations('Sample Workflow', '样品流程', '샘플 워크플로'),
+                        'description' => self::literalTranslations(
+                            'Teams can move from inquiry to sample planning without leaving the site architecture.',
+                            '团队可在站内从询盘推进到样品规划。',
+                            '팀은 사이트 구조 안에서 문의부터 샘플 계획까지 이어갈 수 있습니다.'
+                        ),
+                    ],
+                ]),
+            ], 4, '/images/material-texture.jpg'),
+            self::record($messages, 'store', 'store_faq', 'storePage.faq.title', 'storePage.faq.eyebrow', null, null, null, [
+                'variant' => 'store_faq',
+                'items' => self::faqItems($messages, 'storePage.faq.items'),
+            ], 5),
+            self::manualRecord('store', 'final_cta', self::literalTranslations(
+                'Bring OXP into your next tableware, pellet, or concept program.',
+                '将 OXP 带入你的下一个餐具、颗粒或概念项目。',
+                '다음 테이블웨어, 펠릿 또는 컨셉 프로그램에 OXP를 더하세요.'
+            ), [], self::literalTranslations(
+                'Use the store for product inspiration, or contact the team for B2B supply and development.',
+                '通过商店寻找产品灵感，或联系团队开展 B2B 供应与开发。',
+                '스토어에서 제품 영감을 얻거나 B2B 공급 및 개발을 위해 팀에 문의하세요.'
+            ), self::literalTranslations(
+                'Send a B2B Inquiry',
+                '发送 B2B 询盘',
+                'B2B 문의 보내기'
+            ), 'b2b', [
+                'variant' => 'final_cta',
+                'primary_cta_label_translations' => self::literalTranslations('Send a B2B Inquiry', '发送 B2B 询盘', 'B2B 문의 보내기'),
+                'primary_cta_url' => 'b2b',
+                'secondary_cta_label_translations' => self::literalTranslations('Browse the Store', '浏览商店', '스토어 둘러보기'),
+                'secondary_cta_url' => 'store',
+            ], 6),
+        ];
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<int, array<string, mixed>>
+     */
+    private static function communityRecords(array $messages): array
+    {
+        return [
+            self::record($messages, 'community', 'intro', 'communityPage.intro.title', 'communityPage.intro.eyebrow', 'communityPage.intro.description', 'communityPage.intro.primaryCta', 'community/new', [
+                'variant' => 'intro',
+                'secondary_cta_label_translations' => self::translations($messages, 'communityPage.intro.secondaryCta'),
+                'secondary_cta_url' => 'community',
+            ], 1),
+            self::record($messages, 'community', 'open_concepts', 'communityPage.ideas.title', 'communityPage.ideas.eyebrow', 'communityPage.ideas.description', null, null, [
+                'variant' => 'open_concepts',
+                ...self::localizedPayloadField('focus_label', self::translations($messages, 'communityPage.ideas.focusLabel')),
+                ...self::localizedPayloadField('stage_label', self::translations($messages, 'communityPage.ideas.stageLabel')),
+                ...self::localizedPayloadField('support_label', self::translations($messages, 'communityPage.ideas.supportLabel')),
+                ...self::localizedPayloadField('cta_primary_label', self::translations($messages, 'communityPage.ideas.ctaPrimary')),
+                'cta_primary_url' => 'community/new',
+                ...self::localizedPayloadField('cta_secondary_label', self::translations($messages, 'communityPage.ideas.ctaSecondary')),
+                'cta_secondary_url' => 'contact',
+            ], 2),
+            self::manualRecord('community', 'final_cta', self::literalTranslations(
+                'Share a concept or support the next OXP idea.',
+                '分享一个概念，或支持下一个 OXP 想法。',
+                '컨셉을 공유하거나 다음 OXP 아이디어를 지원하세요.'
+            ), [], self::literalTranslations(
+                'Join the community to post ideas, find collaborators, and connect product concepts to future support links.',
+                '加入社区，发布想法、寻找协作者，并将产品概念连接到未来支持链接。',
+                '커뮤니티에 참여해 아이디어를 올리고 협업자를 찾으며 제품 컨셉을 향후 지원 링크와 연결하세요.'
+            ), self::literalTranslations(
+                'Submit a Concept',
+                '提交概念',
+                '컨셉 제출'
+            ), 'community/new', [
+                'variant' => 'final_cta',
+                'primary_cta_label_translations' => self::literalTranslations('Submit a Concept', '提交概念', '컨셉 제출'),
+                'primary_cta_url' => 'community/new',
+                'secondary_cta_label_translations' => self::literalTranslations('Browse Concepts', '浏览概念', '컨셉 둘러보기'),
+                'secondary_cta_url' => 'community',
+            ], 3),
+        ];
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<int, array<string, mixed>>
+     */
     private static function contactRecords(array $messages): array
     {
         return [
@@ -697,6 +887,181 @@ class DefaultPageSections
         $record['subtitle_translations'] = ['en' => 'Site footer'];
 
         return $record;
+    }
+
+    /**
+     * @param  array<string, string>  $titleTranslations
+     * @param  array<string, string>  $subtitleTranslations
+     * @param  array<string, string>  $contentTranslations
+     * @param  array<string, string>  $ctaLabelTranslations
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private static function manualRecord(
+        string $pageKey,
+        string $key,
+        array $titleTranslations,
+        array $subtitleTranslations,
+        array $contentTranslations,
+        array $ctaLabelTranslations,
+        ?string $ctaUrl,
+        array $payload,
+        int $sortOrder,
+        ?string $mediaUrl = null,
+    ): array {
+        if ($mediaUrl !== null && ! array_key_exists('media_url', $payload)) {
+            $payload['media_url'] = $mediaUrl;
+        }
+
+        return [
+            'page_key' => $pageKey,
+            'key' => $key,
+            'title' => $titleTranslations['en'] ?? null,
+            'title_translations' => $titleTranslations,
+            'subtitle' => $subtitleTranslations['en'] ?? null,
+            'subtitle_translations' => $subtitleTranslations,
+            'content' => $contentTranslations['en'] ?? null,
+            'content_translations' => $contentTranslations,
+            'cta_label' => $ctaLabelTranslations['en'] ?? null,
+            'cta_label_translations' => $ctaLabelTranslations,
+            'cta_url' => $ctaUrl,
+            'payload' => $payload,
+            'sort_order' => $sortOrder,
+            'media_url' => $mediaUrl,
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function literalTranslations(string $en, string $zh, string $ko): array
+    {
+        return [
+            'en' => $en,
+            'zh' => $zh,
+            'ko' => $ko,
+        ];
+    }
+
+    /**
+     * @param  array<string, string>  $translations
+     * @return array<string, mixed>
+     */
+    private static function localizedPayloadField(string $key, array $translations): array
+    {
+        return [
+            $key => $translations['en'] ?? null,
+            $key.'_translations' => $translations,
+        ];
+    }
+
+    /**
+     * @param  array<int, array{title?: array<string, string>, description?: array<string, string>}>  $items
+     * @return array<int, array<string, mixed>>
+     */
+    private static function manualCardItems(array $items): array
+    {
+        return array_map(
+            fn (array $item): array => [
+                'title' => $item['title']['en'] ?? null,
+                'title_translations' => $item['title'] ?? [],
+                'description' => $item['description']['en'] ?? null,
+                'description_translations' => $item['description'] ?? [],
+            ],
+            $items
+        );
+    }
+
+    /**
+     * @param  array<int, array<string, string>>  $items
+     * @return array<int, array<string, mixed>>
+     */
+    private static function manualStringItems(array $items, string $field): array
+    {
+        return array_map(
+            fn (array $translations): array => [
+                $field => $translations['en'] ?? null,
+                $field.'_translations' => $translations,
+            ],
+            $items
+        );
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<string, mixed>
+     */
+    private static function storeGridLabels(array $messages): array
+    {
+        $fields = [
+            'price_prefix' => 'pricePrefix',
+            'availability_label' => 'availabilityLabel',
+            'category_quick_filter_label' => 'categoryQuickFilterLabel',
+            'filters_title' => 'filtersTitle',
+            'search_label' => 'searchLabel',
+            'search_placeholder' => 'searchPlaceholder',
+            'all_option' => 'allOption',
+            'filter_hint' => 'filterHint',
+            'category_hint' => 'categoryHint',
+            'active_filters_label' => 'activeFiltersLabel',
+            'remove_filter_label' => 'removeFilterLabel',
+            'sort_label' => 'sortLabel',
+            'stock_label' => 'stockLabel',
+            'price_label' => 'priceLabel',
+            'min_price' => 'minPrice',
+            'max_price' => 'maxPrice',
+            'apply_filters' => 'applyFilters',
+            'clear_all' => 'clearAll',
+            'result_label' => 'resultLabel',
+            'search_result_title' => 'searchResultTitle',
+            'filtered_products_title' => 'filteredProductsTitle',
+            'all_products_title' => 'allProductsTitle',
+            'showing_label' => 'showingLabel',
+            'empty_title' => 'emptyTitle',
+            'empty_description' => 'emptyDescription',
+            'empty_action' => 'emptyAction',
+            'error_title' => 'errorTitle',
+            'error_description' => 'errorDescription',
+            'retry_action' => 'retryAction',
+            'attribute_label' => 'attributeLabel',
+        ];
+        $payload = [];
+
+        foreach ($fields as $payloadKey => $messageKey) {
+            $payload = [
+                ...$payload,
+                ...self::localizedPayloadField(
+                    $payloadKey,
+                    self::translations($messages, "storePage.grid.{$messageKey}")
+                ),
+            ];
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<int, array<string, mixed>>
+     */
+    private static function faqItems(array $messages, string $path): array
+    {
+        $source = self::get($messages['en'], $path);
+
+        if (! is_array($source)) {
+            return [];
+        }
+
+        return array_values(array_map(
+            fn (mixed $item, int $index): array => [
+                'question' => is_array($item) && is_string($item['question'] ?? null) ? $item['question'] : null,
+                'question_translations' => self::translations($messages, "{$path}.{$index}.question"),
+                'answer' => is_array($item) && is_string($item['answer'] ?? null) ? $item['answer'] : null,
+                'answer_translations' => self::translations($messages, "{$path}.{$index}.answer"),
+            ],
+            $source,
+            array_keys($source)
+        ));
     }
 
     /**

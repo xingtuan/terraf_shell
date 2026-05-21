@@ -29,6 +29,11 @@ export type FinalCtaContent = HomeMessages["finalCta"] & {
   secondaryHref?: string
 }
 
+export type CommunityIdeasContent = SiteMessages["communityPage"]["ideas"] & {
+  ctaPrimaryHref?: string
+  ctaSecondaryHref?: string
+}
+
 function nonEmptyString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null
 }
@@ -603,6 +608,119 @@ export function buildPageIntroContent<T extends MarketingIntroContent>(
   }
 }
 
+export function buildStoreGridContent(
+  fallback: SiteMessages["storePage"]["grid"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): SiteMessages["storePage"]["grid"] {
+  const payload = sectionPayload(section)
+
+  return {
+    ...fallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, fallback.title),
+    description: resolveLocalizedApiString(
+      section,
+      "content",
+      locale,
+      fallback.description,
+    ),
+    pricePrefix: localizedPayloadString(payload, "price_prefix", locale, fallback.pricePrefix),
+    availabilityLabel: localizedPayloadString(payload, "availability_label", locale, fallback.availabilityLabel),
+    categoryQuickFilterLabel: localizedPayloadString(payload, "category_quick_filter_label", locale, fallback.categoryQuickFilterLabel),
+    filtersTitle: localizedPayloadString(payload, "filters_title", locale, fallback.filtersTitle),
+    searchLabel: localizedPayloadString(payload, "search_label", locale, fallback.searchLabel),
+    searchPlaceholder: localizedPayloadString(payload, "search_placeholder", locale, fallback.searchPlaceholder),
+    allOption: localizedPayloadString(payload, "all_option", locale, fallback.allOption),
+    filterHint: localizedPayloadString(payload, "filter_hint", locale, fallback.filterHint),
+    categoryHint: localizedPayloadString(payload, "category_hint", locale, fallback.categoryHint),
+    activeFiltersLabel: localizedPayloadString(payload, "active_filters_label", locale, fallback.activeFiltersLabel),
+    removeFilterLabel: localizedPayloadString(payload, "remove_filter_label", locale, fallback.removeFilterLabel),
+    sortLabel: localizedPayloadString(payload, "sort_label", locale, fallback.sortLabel),
+    stockLabel: localizedPayloadString(payload, "stock_label", locale, fallback.stockLabel),
+    priceLabel: localizedPayloadString(payload, "price_label", locale, fallback.priceLabel),
+    minPrice: localizedPayloadString(payload, "min_price", locale, fallback.minPrice),
+    maxPrice: localizedPayloadString(payload, "max_price", locale, fallback.maxPrice),
+    applyFilters: localizedPayloadString(payload, "apply_filters", locale, fallback.applyFilters),
+    clearAll: localizedPayloadString(payload, "clear_all", locale, fallback.clearAll),
+    resultLabel: localizedPayloadString(payload, "result_label", locale, fallback.resultLabel),
+    searchResultTitle: localizedPayloadString(payload, "search_result_title", locale, fallback.searchResultTitle),
+    filteredProductsTitle: localizedPayloadString(payload, "filtered_products_title", locale, fallback.filteredProductsTitle),
+    allProductsTitle: localizedPayloadString(payload, "all_products_title", locale, fallback.allProductsTitle),
+    showingLabel: localizedPayloadString(payload, "showing_label", locale, fallback.showingLabel),
+    emptyTitle: localizedPayloadString(payload, "empty_title", locale, fallback.emptyTitle),
+    emptyDescription: localizedPayloadString(payload, "empty_description", locale, fallback.emptyDescription),
+    emptyAction: localizedPayloadString(payload, "empty_action", locale, fallback.emptyAction),
+    errorTitle: localizedPayloadString(payload, "error_title", locale, fallback.errorTitle),
+    errorDescription: localizedPayloadString(payload, "error_description", locale, fallback.errorDescription),
+    retryAction: localizedPayloadString(payload, "retry_action", locale, fallback.retryAction),
+    attributeLabel: localizedPayloadString(payload, "attribute_label", locale, fallback.attributeLabel),
+  }
+}
+
+export function buildStoreFaqContent(
+  fallback: SiteMessages["storePage"]["faq"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): SiteMessages["storePage"]["faq"] {
+  const items = payloadArray(section, "items")
+    .flatMap((rawItem, index) => {
+      if (!isRecord(rawItem)) {
+        return []
+      }
+
+      const fallbackItem = fallback.items[index]
+      const item = {
+        question: payloadItemString(rawItem, "question", locale, fallbackItem?.question),
+        answer: payloadItemString(rawItem, "answer", locale, fallbackItem?.answer),
+      }
+
+      return item.question || item.answer ? [item] : []
+    })
+
+  return {
+    ...fallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, fallback.title),
+    items: items.length ? items : fallback.items,
+  }
+}
+
+export function buildCommunityIdeasContent(
+  fallback: SiteMessages["communityPage"]["ideas"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): CommunityIdeasContent {
+  const payload = sectionPayload(section)
+
+  return {
+    ...fallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, fallback.title),
+    description: resolveLocalizedApiString(
+      section,
+      "content",
+      locale,
+      fallback.description,
+    ),
+    focusLabel: localizedPayloadString(payload, "focus_label", locale, fallback.focusLabel),
+    stageLabel: localizedPayloadString(payload, "stage_label", locale, fallback.stageLabel),
+    supportLabel: localizedPayloadString(payload, "support_label", locale, fallback.supportLabel),
+    ctaPrimary: localizedPayloadString(payload, "cta_primary_label", locale, fallback.ctaPrimary),
+    ctaSecondary: localizedPayloadString(payload, "cta_secondary_label", locale, fallback.ctaSecondary),
+    ctaPrimaryHref: resolveCmsHref(
+      locale,
+      payloadString(payload, "cta_primary_url"),
+      getLocalizedHref(locale, "community/new"),
+    ),
+    ctaSecondaryHref: resolveCmsHref(
+      locale,
+      payloadString(payload, "cta_secondary_url"),
+      getLocalizedHref(locale, "contact"),
+    ),
+  }
+}
+
 export function buildContactDetailsContent(
   fallback: SiteMessages["contactPage"]["details"],
   section: HomeSection | null | undefined,
@@ -1114,8 +1232,14 @@ export function buildCredibilityContent(
 
       return item.title || item.description ? [item] : []
     })
-  const cmsBenefits = payloadArray(section, "metrics")
+  const benefitPayloadItems = payloadArray(section, "benefits")
+  const metricPayloadItems = payloadArray(section, "metrics")
+  const cmsBenefits = (benefitPayloadItems.length ? benefitPayloadItems : metricPayloadItems)
     .flatMap((rawItem, index) => {
+      if (typeof rawItem === "string") {
+        return rawItem.trim() ? [rawItem] : []
+      }
+
       if (!isRecord(rawItem)) {
         return []
       }
@@ -1613,6 +1737,11 @@ export function buildFinalCtaContent(
       payload,
       "primary_cta_label",
       locale,
+      null,
+    ) || resolveLocalizedApiString(
+      section,
+      "cta_label",
+      locale,
       fallback.primaryCta,
     ),
     secondaryCta: localizedPayloadString(
@@ -1623,7 +1752,7 @@ export function buildFinalCtaContent(
     ),
     primaryHref: resolveCmsHref(
       locale,
-      payloadString(payload, "primary_cta_url"),
+      payloadString(payload, "primary_cta_url") ?? section?.cta_url,
       `${getLocalizedHref(locale, "b2b")}#inquiry`,
     ),
     secondaryHref: resolveCmsHref(

@@ -108,6 +108,56 @@ describe("CMS page sections wiring", () => {
     assert.doesNotMatch(source, /cardHrefs=\{\[/)
   })
 
+  it("store page fetches store sections and applies CMS builders with visibility guards", () => {
+    const source = readFileSync(
+      join(process.cwd(), "app", "[locale]", "store", "page.tsx"),
+      "utf8",
+    )
+
+    assert.match(source, /getPageSections\(\{[\s\S]*baseUrl: apiBaseUrl,[\s\S]*locale,[\s\S]*page: "store",?[\s\S]*\}\)/)
+    for (const builder of [
+      "buildPageIntroContent",
+      "buildStoreGridContent",
+      "buildApplicationsContent",
+      "buildCredibilityContent",
+      "buildStoreFaqContent",
+      "buildFinalCtaContent",
+    ]) {
+      assert.match(source, new RegExp(`${builder}\\(`))
+    }
+    for (const sectionKey of [
+      "intro",
+      "product_grid",
+      "credibility",
+      "store_faq",
+      "applications",
+      "final_cta",
+    ]) {
+      assert.match(source, new RegExp(`shouldRender\\("${sectionKey}"\\)`))
+    }
+    assert.match(source, /shouldUseCmsVisibility/)
+  })
+
+  it("community page fetches community sections and applies CMS builders with visibility guards", () => {
+    const source = readFileSync(
+      join(process.cwd(), "app", "[locale]", "community", "page.tsx"),
+      "utf8",
+    )
+
+    assert.match(source, /getPageSections\(\{[\s\S]*baseUrl: apiBaseUrl,[\s\S]*locale,[\s\S]*page: "community",?[\s\S]*\}\)/)
+    for (const builder of [
+      "buildPageIntroContent",
+      "buildCommunityIdeasContent",
+      "buildFinalCtaContent",
+    ]) {
+      assert.match(source, new RegExp(`${builder}\\(`))
+    }
+    for (const sectionKey of ["intro", "open_concepts", "final_cta"]) {
+      assert.match(source, new RegExp(`shouldRender\\("${sectionKey}"\\)`))
+    }
+    assert.match(source, /shouldUseCmsVisibility/)
+  })
+
   it("footer renders configured social and legal link groups", () => {
     const source = readFileSync(join(process.cwd(), "components", "footer.tsx"), "utf8")
 
