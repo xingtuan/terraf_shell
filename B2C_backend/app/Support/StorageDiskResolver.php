@@ -22,7 +22,7 @@ final class StorageDiskResolver
     {
         $candidates = [];
 
-        foreach ([$preferredDisk, ...$fallbackDisks, 'azure', 'public', 'local'] as $candidate) {
+        foreach ([$preferredDisk, ...$fallbackDisks, 'public', 'local'] as $candidate) {
             $candidate = trim($candidate);
 
             if ($candidate === '' || in_array($candidate, $candidates, true)) {
