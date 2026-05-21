@@ -4,8 +4,10 @@ namespace Tests\Feature\Admin;
 
 use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\User;
+use App\Services\Settings\SettingsService;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
@@ -187,6 +189,70 @@ class ProductImageUrlNormalizationTest extends TestCase
                 'image_url' => 'url',
                 "variants.{$variantKey}.image_url" => 'url',
             ]);
+    }
+
+    public function test_product_media_urls_use_runtime_local_storage_when_env_disk_is_azure(): void
+    {
+        Config::set('community.uploads.disk', 'azure');
+        Config::set('filesystems.default', 'azure');
+        Config::set('filesystems.disks.azure.storage_url', 'https://example.blob.core.windows.net');
+        Config::set('filesystems.disks.azure.container', 'uploads');
+
+        $settings = app(SettingsService::class);
+        $settings->set('storage.default_driver', 'local', ['type' => 'string']);
+        $settings->set('storage.local.disk', 'public', ['type' => 'string']);
+
+        $product = $this->productWithRequiredAdminFields([
+            'image_url' => null,
+            'media_path' => 'cms/products/local-product.jpg',
+            'media_url' => null,
+        ]);
+        $image = ProductImage::factory()->for($product)->create([
+            'media_path' => 'cms/products/local-gallery.jpg',
+            'media_url' => null,
+        ]);
+
+        $this->assertSame(url('/storage/cms/products/local-product.jpg'), $product->getRawOriginal('media_url'));
+        $this->assertSame(url('/storage/cms/products/local-product.jpg'), $product->media_url);
+        $this->assertSame(url('/storage/cms/products/local-gallery.jpg'), $image->getRawOriginal('media_url'));
+        $this->assertSame(url('/storage/cms/products/local-gallery.jpg'), $image->media_url);
+    }
+
+    public function test_product_media_urls_use_azure_when_runtime_storage_is_azure(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+        Config::set('community.uploads.azure.use_sas_urls', false);
+        Config::set('filesystems.disks.azure.storage_url', 'https://example.blob.core.windows.net');
+        Config::set('filesystems.disks.azure.container', 'uploads');
+
+        app(SettingsService::class)->set('storage.default_driver', 'azure', ['type' => 'string']);
+
+        $product = $this->productWithRequiredAdminFields([
+            'image_url' => null,
+            'media_path' => 'cms/products/azure-product.jpg',
+            'media_url' => null,
+        ]);
+        $image = ProductImage::factory()->for($product)->create([
+            'media_path' => 'cms/products/azure-gallery.jpg',
+            'media_url' => null,
+        ]);
+
+        $this->assertSame(
+            'https://example.blob.core.windows.net/uploads/cms/products/azure-product.jpg',
+            $product->getRawOriginal('media_url')
+        );
+        $this->assertSame(
+            'https://example.blob.core.windows.net/uploads/cms/products/azure-product.jpg',
+            $product->media_url
+        );
+        $this->assertSame(
+            'https://example.blob.core.windows.net/uploads/cms/products/azure-gallery.jpg',
+            $image->getRawOriginal('media_url')
+        );
+        $this->assertSame(
+            'https://example.blob.core.windows.net/uploads/cms/products/azure-gallery.jpg',
+            $image->media_url
+        );
     }
 
     public function test_cleanup_migration_moves_legacy_relative_urls_without_overwriting_media_path(): void

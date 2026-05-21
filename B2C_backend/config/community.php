@@ -15,7 +15,7 @@ return [
         'trending_recency_boost_hours' => 168,
     ],
     'uploads' => [
-        'disk' => env('MEDIA_DRIVER', env('COMMUNITY_UPLOAD_DISK', env('STORAGE_DISK', env('FILESYSTEM_DISK', 'azure')))),
+        'disk' => env('COMMUNITY_UPLOAD_DISK', env('FILESYSTEM_DISK', 'public')),
         'allow_guest_upload' => (bool) env('ALLOW_GUEST_UPLOAD', false),
         'azure' => [
             'use_sas_urls' => (bool) env('AZURE_STORAGE_USE_SAS_URLS', true),

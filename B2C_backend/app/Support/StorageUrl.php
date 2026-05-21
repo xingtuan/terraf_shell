@@ -2,7 +2,9 @@
 
 namespace App\Support;
 
+use App\Services\Storage\StorageManagerService;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class StorageUrl
 {
@@ -15,7 +17,7 @@ class StorageUrl
             return null;
         }
 
-        $resolvedDisk = self::normalizeDisk($disk);
+        $resolvedDisk = $disk ? self::normalizeDisk($disk) : self::defaultDisk();
 
         if ($resolvedDisk === 'azure' && self::shouldUseAzureSignedUrls()) {
             return Storage::disk($resolvedDisk)->temporaryUrl(
@@ -36,7 +38,7 @@ class StorageUrl
             return null;
         }
 
-        $resolvedDisk = self::normalizeDisk($disk);
+        $resolvedDisk = $disk ? self::normalizeDisk($disk) : self::defaultDisk();
 
         if ($resolvedDisk === 'azure') {
             $baseUrl = self::azureBaseUrl();
@@ -106,9 +108,24 @@ class StorageUrl
 
     public static function normalizeDisk(?string $disk = null): string
     {
-        $disk = trim((string) ($disk ?: config('community.uploads.disk', config('filesystems.default', 'public'))));
+        if ($disk === null) {
+            return self::defaultDisk();
+        }
+
+        $disk = trim($disk);
 
         return $disk === '' || $disk === 'local' ? 'public' : $disk;
+    }
+
+    private static function defaultDisk(): string
+    {
+        try {
+            return self::normalizeDisk(app(StorageManagerService::class)->disk());
+        } catch (Throwable) {
+            $configuredDisk = config('community.uploads.disk', config('filesystems.default', 'public'));
+
+            return self::normalizeDisk(is_string($configuredDisk) ? $configuredDisk : 'public');
+        }
     }
 
     private static function shouldUseAzureSignedUrls(): bool
