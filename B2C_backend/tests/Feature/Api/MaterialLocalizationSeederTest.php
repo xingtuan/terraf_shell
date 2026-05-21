@@ -73,6 +73,13 @@ class MaterialLocalizationSeederTest extends TestCase
         'final_cta',
     ];
 
+    private const CONTACT_PAGE_SECTION_KEYS = [
+        'intro',
+        'details',
+        'inquiry_form',
+        'final_cta',
+    ];
+
     public function test_homepage_endpoint_returns_chinese_material_data_from_seeded_cms_content(): void
     {
         $this->seed(MaterialContentSeeder::class);
@@ -220,14 +227,14 @@ class MaterialLocalizationSeederTest extends TestCase
 
     public function test_home_sections_support_duplicate_keys_across_page_keys(): void
     {
-        foreach (['home', 'material', 'store', 'community'] as $pageKey) {
+        foreach (['home', 'material', 'store', 'community', 'contact'] as $pageKey) {
             HomeSection::factory()->published()->create([
                 'page_key' => $pageKey,
                 'key' => 'shared_key',
             ]);
         }
 
-        $this->assertSame(4, HomeSection::query()->where('key', 'shared_key')->count());
+        $this->assertSame(5, HomeSection::query()->where('key', 'shared_key')->count());
     }
 
     public function test_seeder_backfills_all_expected_page_sections(): void
@@ -251,15 +258,21 @@ class MaterialLocalizationSeederTest extends TestCase
             ->where('page_key', 'community')
             ->pluck('key')
             ->all();
+        $contactKeys = HomeSection::query()
+            ->where('page_key', 'contact')
+            ->pluck('key')
+            ->all();
 
         $this->assertSame([], array_values(array_diff(self::HOME_PAGE_SECTION_KEYS, $homeKeys)));
         $this->assertSame([], array_values(array_diff(self::MATERIAL_PAGE_SECTION_KEYS, $materialKeys)));
         $this->assertSame([], array_values(array_diff(self::STORE_PAGE_SECTION_KEYS, $storeKeys)));
         $this->assertSame([], array_values(array_diff(self::COMMUNITY_PAGE_SECTION_KEYS, $communityKeys)));
+        $this->assertSame([], array_values(array_diff(self::CONTACT_PAGE_SECTION_KEYS, $contactKeys)));
         $this->assertSame(count(array_unique($homeKeys)), count($homeKeys));
         $this->assertSame(count(array_unique($materialKeys)), count($materialKeys));
         $this->assertSame(count(array_unique($storeKeys)), count($storeKeys));
         $this->assertSame(count(array_unique($communityKeys)), count($communityKeys));
+        $this->assertSame(count(array_unique($contactKeys)), count($contactKeys));
     }
 
     public function test_seeded_page_sections_only_fill_missing_fields_and_nested_payload_values(): void
@@ -404,6 +417,17 @@ class MaterialLocalizationSeederTest extends TestCase
             'payload' => ['focus_label' => 'Admin focus label'],
             'is_seeded' => false,
         ]);
+        $contactForm = HomeSection::query()
+            ->where('page_key', 'contact')
+            ->where('key', 'inquiry_form')
+            ->firstOrFail();
+        $contactForm->update([
+            'title' => 'Admin contact form',
+            'payload' => ['form_anchor_id' => 'admin-inquiry'],
+            'is_seeded' => false,
+            'status' => PublishStatus::Draft->value,
+            'published_at' => null,
+        ]);
 
         $this->seed(MaterialContentSeeder::class);
 
@@ -413,12 +437,16 @@ class MaterialLocalizationSeederTest extends TestCase
         $this->assertNull($storeIntro->fresh()->published_at);
         $this->assertSame('Admin open concepts', $communityIdeas->fresh()->title);
         $this->assertSame(['focus_label' => 'Admin focus label'], $communityIdeas->fresh()->payload);
+        $this->assertSame('Admin contact form', $contactForm->fresh()->title);
+        $this->assertSame(['form_anchor_id' => 'admin-inquiry'], $contactForm->fresh()->payload);
+        $this->assertSame(PublishStatus::Draft->value, $contactForm->fresh()->status);
     }
 
     public function test_public_and_admin_page_key_validation_does_not_fallback_to_home(): void
     {
         $this->assertContains('store', HomeSection::allowedPageKeys());
         $this->assertContains('community', HomeSection::allowedPageKeys());
+        $this->assertContains('contact', HomeSection::allowedPageKeys());
         $this->assertContains('privacy', HomeSection::allowedPageKeys());
         $this->assertContains('terms', HomeSection::allowedPageKeys());
 
@@ -455,11 +483,24 @@ class MaterialLocalizationSeederTest extends TestCase
             'status' => PublishStatus::Draft->value,
             'published_at' => null,
         ]);
+        $contactDetails = HomeSection::query()
+            ->where('page_key', 'contact')
+            ->where('key', 'details')
+            ->firstOrFail();
+        $contactDetails->update([
+            'status' => PublishStatus::Draft->value,
+            'published_at' => null,
+        ]);
 
         $this->getJson('/api/home-sections?page=store')
             ->assertOk()
             ->assertJsonMissing([
                 'key' => 'store_faq',
+            ]);
+        $this->getJson('/api/home-sections?page=contact')
+            ->assertOk()
+            ->assertJsonMissing([
+                'key' => 'details',
             ]);
 
         $admin = User::factory()->admin()->create();
@@ -470,6 +511,13 @@ class MaterialLocalizationSeederTest extends TestCase
             ->assertJsonFragment([
                 'page_key' => 'store',
                 'key' => 'store_faq',
+                'status' => PublishStatus::Draft->value,
+            ]);
+        $this->getJson('/api/admin/home-sections?page_key=contact&status=draft')
+            ->assertOk()
+            ->assertJsonFragment([
+                'page_key' => 'contact',
+                'key' => 'details',
                 'status' => PublishStatus::Draft->value,
             ]);
     }
@@ -510,12 +558,24 @@ class MaterialLocalizationSeederTest extends TestCase
             $communityResponse->assertJsonFragment(['key' => $key]);
         }
 
+        $contactResponse = $this->getJson('/api/home-sections?page=contact')
+            ->assertOk()
+            ->assertJsonFragment(['page_key' => 'contact', 'key' => 'inquiry_form']);
+
+        foreach (self::CONTACT_PAGE_SECTION_KEYS as $key) {
+            $contactResponse->assertJsonFragment(['key' => $key]);
+        }
+
         $introDefault = collect(DefaultPageSections::records())
             ->first(fn (array $record): bool => $record['page_key'] === 'material' && $record['key'] === 'intro');
         $storeFaqDefault = collect(DefaultPageSections::records())
             ->first(fn (array $record): bool => $record['page_key'] === 'store' && $record['key'] === 'store_faq');
         $communityIdeasDefault = collect(DefaultPageSections::records())
             ->first(fn (array $record): bool => $record['page_key'] === 'community' && $record['key'] === 'open_concepts');
+        $contactDetailsDefault = collect(DefaultPageSections::records())
+            ->first(fn (array $record): bool => $record['page_key'] === 'contact' && $record['key'] === 'details');
+        $contactFormDefault = collect(DefaultPageSections::records())
+            ->first(fn (array $record): bool => $record['page_key'] === 'contact' && $record['key'] === 'inquiry_form');
 
         $koIntro = collect($this->getJson('/api/page-sections?page=material&locale=ko')->json('data'))
             ->firstWhere('key', 'intro');
@@ -525,6 +585,10 @@ class MaterialLocalizationSeederTest extends TestCase
             ->firstWhere('key', 'store_faq');
         $koCommunityIdeas = collect($this->getJson('/api/page-sections?page=community&locale=ko')->json('data'))
             ->firstWhere('key', 'open_concepts');
+        $zhContactDetails = collect($this->getJson('/api/page-sections?page=contact&locale=zh')->json('data'))
+            ->firstWhere('key', 'details');
+        $koContactForm = collect($this->getJson('/api/page-sections?page=contact&locale=ko')->json('data'))
+            ->firstWhere('key', 'inquiry_form');
 
         $this->assertSame($introDefault['title_translations']['ko'], $koIntro['title']);
         $this->assertSame($introDefault['title_translations']['zh'], $zhIntro['title']);
@@ -539,6 +603,17 @@ class MaterialLocalizationSeederTest extends TestCase
             $koCommunityIdeas['payload']['focus_label_translations']['ko']
         );
         $this->assertSame('community/new', $koCommunityIdeas['payload']['cta_primary_url']);
+        $this->assertSame($contactDetailsDefault['title_translations']['zh'], $zhContactDetails['title']);
+        $this->assertSame('email', $zhContactDetails['payload']['cards'][0]['href_type']);
+        $this->assertSame('contact#inquiry', $zhContactDetails['payload']['cards'][0]['href']);
+        $this->assertSame(
+            $contactDetailsDefault['payload']['response_translations']['zh'],
+            $zhContactDetails['payload']['response_translations']['zh']
+        );
+        $this->assertSame($contactFormDefault['title_translations']['ko'], $koContactForm['title']);
+        $this->assertSame('inquiry', $koContactForm['payload']['form_anchor_id']);
+        $this->assertCount(7, $koContactForm['payload']['topic_options']);
+        $this->assertSame('샘플 요청', $koContactForm['payload']['topic_options'][1]['label_translations']['ko']);
     }
 
     public function test_page_section_form_keeps_payload_hidden_keys_and_limits_translations_to_supported_locales(): void

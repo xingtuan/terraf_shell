@@ -15,10 +15,11 @@ import type { LeadFormType, LeadFormValues, LeadInterestType } from "@/lib/types
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import type { B2BFormContent } from "@/lib/page-content"
 
 type B2BInquiryFormSectionProps = {
   locale: Locale
-  content: SiteMessages["b2bPage"]["form"]
+  content: B2BFormContent
   common: SiteMessages["common"]
   id?: string
   sourcePage?: string
@@ -918,7 +919,7 @@ export function B2BInquiryFormSection({
               {submission ? (
                 <div className="rounded-2xl bg-primary/8 px-4 py-3 text-sm text-foreground">
                   <p>
-                    {common.success.inquirySubmitted.replace(
+                    {(content.successMessage ?? common.success.inquirySubmitted).replace(
                       "{reference}",
                       submission.reference,
                     )}

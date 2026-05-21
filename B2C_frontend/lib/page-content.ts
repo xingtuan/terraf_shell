@@ -34,6 +34,21 @@ export type CommunityIdeasContent = SiteMessages["communityPage"]["ideas"] & {
   ctaSecondaryHref?: string
 }
 
+export type ContactDetailsContent = Omit<SiteMessages["contactPage"]["details"], "cards"> & {
+  cards: Array<
+    SiteMessages["contactPage"]["details"]["cards"][number] & {
+      hrefType?: string | null
+      href?: string | null
+    }
+  >
+}
+
+export type B2BFormContent = SiteMessages["b2bPage"]["form"] & {
+  formAnchorId?: string
+  successMessage?: string
+  topicOptions?: string[]
+}
+
 function nonEmptyString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null
 }
@@ -727,14 +742,15 @@ export function buildContactDetailsContent(
   footerContent: FooterContent,
   emailFallback: string,
   locale: Locale,
-): SiteMessages["contactPage"]["details"] {
+): ContactDetailsContent {
   const syncedFallback = buildContactDetailsFromFooterContent(
     footerContent,
     fallback,
     emailFallback,
   )
   const payload = sectionPayload(section)
-  const cmsCards = payloadArray(section, "items")
+  const rawCards = payloadArray(section, "cards")
+  const cmsCards = (rawCards.length ? rawCards : payloadArray(section, "items"))
     .flatMap((rawItem, index) => {
       if (!isRecord(rawItem)) {
         return []
@@ -745,6 +761,8 @@ export function buildContactDetailsContent(
         label: payloadItemString(rawItem, "label", locale, fallbackCard?.label),
         value: payloadItemString(rawItem, "value", locale, fallbackCard?.value),
         detail: payloadItemString(rawItem, "detail", locale, fallbackCard?.detail),
+        hrefType: nonEmptyString(rawItem.href_type),
+        href: nonEmptyString(rawItem.href),
       }
 
       return card.label || card.value || card.detail ? [card] : []
@@ -866,8 +884,22 @@ export function buildB2BFormContent(
   fallback: SiteMessages["b2bPage"]["form"],
   section: HomeSection | null | undefined,
   locale: Locale,
-): SiteMessages["b2bPage"]["form"] {
+): B2BFormContent {
   const payload = sectionPayload(section)
+  const topicOptions = payloadArray(section, "topic_options")
+    .flatMap((rawItem, index) => {
+      if (isRecord(rawItem)) {
+        const fallbackOption = fallback.interestOptions[
+          Object.keys(fallback.interestOptions)[index] as keyof typeof fallback.interestOptions
+        ]?.label
+
+        return [
+          payloadItemString(rawItem, "label", locale, fallbackOption),
+        ].filter(Boolean)
+      }
+
+      return [resolveLocalizedApiValue(rawItem, null, locale)].filter(Boolean)
+    })
 
   return {
     ...fallback,
@@ -879,14 +911,32 @@ export function buildB2BFormContent(
       locale,
       fallback.description,
     ),
-    submit: resolveLocalizedApiString(section, "cta_label", locale, fallback.submit),
     productContextLabel: localizedPayloadString(
       payload,
       "product_context_label",
       locale,
       fallback.productContextLabel,
     ),
-    disclaimer: localizedPayloadString(payload, "disclaimer", locale, fallback.disclaimer),
+    disclaimer: localizedPayloadString(
+      payload,
+      "privacy_note",
+      locale,
+      localizedPayloadString(payload, "disclaimer", locale, fallback.disclaimer),
+    ),
+    submit: localizedPayloadString(
+      payload,
+      "submit_button_label",
+      locale,
+      resolveLocalizedApiString(section, "cta_label", locale, fallback.submit),
+    ),
+    formAnchorId: payloadString(payload, "form_anchor_id") ?? undefined,
+    successMessage: localizedPayloadString(
+      payload,
+      "submit_success_message",
+      locale,
+      "",
+    ) || undefined,
+    topicOptions: topicOptions.length ? topicOptions : undefined,
   }
 }
 

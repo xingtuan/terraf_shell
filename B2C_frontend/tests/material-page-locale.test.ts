@@ -85,6 +85,11 @@ describe("CMS page sections wiring", () => {
     assert.match(source, /buildContactDetailsContent\(/)
     assert.match(source, /buildB2BFormContent\(/)
     assert.match(source, /buildFooterContent\(/)
+    assert.match(source, /contactSection\("inquiry_form"\)/)
+    assert.match(source, /id=\{formContent\.formAnchorId \?\? "inquiry"\}/)
+    for (const sectionKey of ["intro", "details", "inquiry_form", "final_cta"]) {
+      assert.match(source, new RegExp(`shouldRender\\("${sectionKey}"\\)`))
+    }
   })
 
   it("b2b page fetches b2b sections and applies CMS builders", () => {

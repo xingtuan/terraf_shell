@@ -45,6 +45,7 @@ class HomeSectionForm
         'product_grid',
         'store_faq',
         'open_concepts',
+        'inquiry_form',
         'pilot_projects',
         'details',
         'process',
@@ -151,6 +152,8 @@ class HomeSectionForm
                 self::credibilityBenefitsSection(),
                 self::storeFaqSection(),
                 self::openConceptsSection(),
+                self::contactDetailsSection(),
+                self::contactInquiryFormSection(),
                 self::collaborationStepsSection(),
                 self::materialFamilyExtrasSection(),
                 self::comparisonSection(),
@@ -586,6 +589,82 @@ class HomeSectionForm
                     ]),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'open_concepts');
+    }
+
+    private static function contactDetailsSection(): Section
+    {
+        return Section::make(self::sectionTitle('contact_detail_cards'))
+            ->schema([
+                Repeater::make('payload.cards')
+                    ->label(self::field('cards'))
+                    ->addActionLabel(self::actionLabel('add_card'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        TextInput::make('label_translations.en')->label(self::localizedField('label', 'en'))->maxLength(120),
+                        TextInput::make('label_translations.zh')->label(self::localizedField('label', 'zh'))->maxLength(120),
+                        TextInput::make('label_translations.ko')->label(self::localizedField('label', 'ko'))->maxLength(120),
+                        TextInput::make('value_translations.en')->label(self::localizedField('value', 'en'))->maxLength(180),
+                        TextInput::make('value_translations.zh')->label(self::localizedField('value', 'zh'))->maxLength(180),
+                        TextInput::make('value_translations.ko')->label(self::localizedField('value', 'ko'))->maxLength(180),
+                        Textarea::make('detail_translations.en')->label(self::localizedField('detail', 'en'))->rows(2),
+                        Textarea::make('detail_translations.zh')->label(self::localizedField('detail', 'zh'))->rows(2),
+                        Textarea::make('detail_translations.ko')->label(self::localizedField('detail', 'ko'))->rows(2),
+                        Select::make('href_type')
+                            ->label(self::field('href_type'))
+                            ->options([
+                                'email' => 'Email',
+                                'phone' => 'Phone',
+                                'text' => 'Text',
+                            ])
+                            ->default('text'),
+                        TextInput::make('href')
+                            ->label(self::field('href'))
+                            ->maxLength(255),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
+                Grid::make(3)
+                    ->schema(self::localizedPayloadComponents(['response'], ['response'])),
+            ])
+            ->visible(fn (Get $get): bool => $get('page_key') === 'contact' && $get('key') === 'details');
+    }
+
+    private static function contactInquiryFormSection(): Section
+    {
+        return Section::make(self::sectionTitle('contact_inquiry_form'))
+            ->schema([
+                Grid::make(2)
+                    ->schema([
+                        TextInput::make('payload.form_anchor_id')
+                            ->label(self::field('form_anchor_id'))
+                            ->maxLength(120),
+                    ]),
+                Grid::make(3)
+                    ->schema(self::localizedPayloadComponents([
+                        'submit_button_label',
+                        'submit_success_message',
+                        'privacy_note',
+                    ], [
+                        'submit_success_message',
+                        'privacy_note',
+                    ])),
+                Repeater::make('payload.topic_options')
+                    ->label(self::field('topic_options'))
+                    ->addActionLabel(self::actionLabel('add_topic_option'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        TextInput::make('label_translations.en')->label(self::localizedField('label', 'en'))->maxLength(160),
+                        TextInput::make('label_translations.zh')->label(self::localizedField('label', 'zh'))->maxLength(160),
+                        TextInput::make('label_translations.ko')->label(self::localizedField('label', 'ko'))->maxLength(160),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
+            ])
+            ->visible(fn (Get $get): bool => $get('page_key') === 'contact' && $get('key') === 'inquiry_form');
     }
 
     private static function collaborationStepsSection(): Section

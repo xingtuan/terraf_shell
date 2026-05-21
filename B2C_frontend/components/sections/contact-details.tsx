@@ -1,9 +1,9 @@
 import { Mail, MapPin, Phone } from "lucide-react"
 
-import type { SiteMessages } from "@/lib/i18n"
+import type { ContactDetailsContent } from "@/lib/page-content"
 
 type ContactDetailsSectionProps = {
-  content: SiteMessages["contactPage"]["details"]
+  content: ContactDetailsContent
 }
 
 const contactIcons = [Mail, Phone, MapPin]
@@ -29,7 +29,14 @@ export function ContactDetailsSection({
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           {content.cards.map((card, index) => {
             const Icon = contactIcons[index] ?? Mail
-            const value = card.value
+            const value =
+              card.href && card.hrefType !== "text" ? (
+                <a className="transition-colors hover:text-primary" href={card.href}>
+                  {card.value}
+                </a>
+              ) : (
+                card.value
+              )
 
             return (
               <div

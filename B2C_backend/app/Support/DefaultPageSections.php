@@ -707,31 +707,73 @@ class DefaultPageSections
     private static function contactRecords(array $messages): array
     {
         return [
-            self::record($messages, 'contact', 'intro', 'contactPage.intro.title', 'contactPage.intro.eyebrow', 'contactPage.intro.description', 'contactPage.intro.primaryCta', 'contact#contact-form', [
+            self::record($messages, 'contact', 'intro', 'contactPage.intro.title', 'contactPage.intro.eyebrow', 'contactPage.intro.description', 'contactPage.intro.primaryCta', 'contact#inquiry', [
                 'variant' => 'intro',
                 'secondary_cta_label_translations' => self::translations($messages, 'contactPage.intro.secondaryCta'),
-                'secondary_cta_url' => 'b2b#inquiry',
+                'secondary_cta_url' => '#inquiry',
+                'anchor_id' => 'contact-intro',
             ], 1),
             self::record($messages, 'contact', 'details', 'contactPage.details.title', 'contactPage.details.eyebrow', 'contactPage.details.description', null, null, [
                 'variant' => 'contact_details',
-                'items' => self::cardItems($messages, 'contactPage.details.cards', [
-                    'label' => 'label',
-                    'value' => 'value',
-                    'detail' => 'detail',
-                ]),
+                'cards' => self::contactDetailCards($messages),
+                'items' => self::contactDetailCards($messages),
                 'response_translations' => self::translations($messages, 'contactPage.details.response'),
             ], 2),
-            self::record($messages, 'contact', 'form', 'b2bPage.form.title', 'b2bPage.form.eyebrow', 'b2bPage.form.description', 'b2bPage.form.submit', null, [
+            self::manualRecord('contact', 'inquiry_form', self::literalTranslations(
+                'Send a structured inquiry',
+                '发送结构化询盘',
+                '구조화된 문의 보내기'
+            ), self::literalTranslations(
+                'Project Brief',
+                '项目简报',
+                '프로젝트 브리프'
+            ), self::literalTranslations(
+                'Tell us about your product, material, retail, hospitality, or collaboration request. The team will review the details and respond by email.',
+                '请告诉我们你的产品、材料、零售、酒店餐饮或合作需求。团队会审核详情并通过邮件回复。',
+                '제품, 소재, 리테일, 호스피탈리티 또는 협업 요청을 알려주세요. 팀이 내용을 검토한 뒤 이메일로 답변합니다.'
+            ), self::literalTranslations(
+                'Submit Inquiry',
+                '提交询盘',
+                '문의 제출'
+            ), null, [
                 'variant' => 'lead_form',
-                'product_context_label_translations' => self::translations($messages, 'b2bPage.form.productContextLabel'),
-                'disclaimer_translations' => self::translations($messages, 'b2bPage.form.disclaimer'),
+                'form_anchor_id' => 'inquiry',
+                'submit_success_message_translations' => self::translations($messages, 'common.success.inquirySubmitted'),
+                'submit_button_label_translations' => self::literalTranslations('Submit Inquiry', '提交询盘', '문의 제출'),
+                'privacy_note_translations' => self::literalTranslations(
+                    'Your details are used only to respond to this inquiry and related project communication.',
+                    '你的信息仅用于回复此询盘及相关项目沟通。',
+                    '입력하신 정보는 이 문의와 관련 프로젝트 커뮤니케이션에 응답하는 데에만 사용됩니다.'
+                ),
+                'topic_options' => self::manualStringItems([
+                    self::literalTranslations('Material supply', '材料供应', '소재 공급'),
+                    self::literalTranslations('Sample request', '样品申请', '샘플 요청'),
+                    self::literalTranslations('Product development', '产品开发', '제품 개발'),
+                    self::literalTranslations('Retail or store inquiry', '零售或商店咨询', '리테일 또는 스토어 문의'),
+                    self::literalTranslations('Hospitality project', '酒店餐饮项目', '호스피탈리티 프로젝트'),
+                    self::literalTranslations('Community collaboration', '社区合作', '커뮤니티 협업'),
+                    self::literalTranslations('General question', '一般问题', '일반 질문'),
+                ], 'label'),
             ], 3),
-            self::record($messages, 'contact', 'final_cta', 'home.finalCta.title', null, 'home.finalCta.description', null, null, [
+            self::manualRecord('contact', 'final_cta', self::literalTranslations(
+                'Start with a short message. We will guide the next step.',
+                '从一段简短留言开始。我们会引导下一步。',
+                '짧은 메시지로 시작하세요. 다음 단계를 안내해 드리겠습니다.'
+            ), [], self::literalTranslations(
+                'Whether you are exploring pellets, finished products, hospitality use, or community concepts, the OXP team can route your inquiry to the right workflow.',
+                '无论你正在了解颗粒、成品、酒店餐饮应用或社区概念，OXP 团队都可以将你的询盘转入合适流程。',
+                '펠릿, 완제품, 호스피탈리티 활용 또는 커뮤니티 콘셉트를 검토 중이라면 OXP 팀이 문의를 알맞은 워크플로로 연결합니다.'
+            ), self::literalTranslations(
+                'Email the Team',
+                '给团队发邮件',
+                '팀에 이메일 보내기'
+            ), 'contact#inquiry', [
                 'variant' => 'final_cta',
-                'primary_cta_label_translations' => self::translations($messages, 'home.finalCta.primaryCta'),
-                'primary_cta_url' => 'b2b#inquiry',
-                'secondary_cta_label_translations' => self::translations($messages, 'home.finalCta.secondaryCta'),
-                'secondary_cta_url' => 'store',
+                'primary_cta_label_translations' => self::literalTranslations('Email the Team', '给团队发邮件', '팀에 이메일 보내기'),
+                'primary_cta_url' => 'contact#inquiry',
+                'secondary_cta_label_translations' => self::literalTranslations('Request Samples', '申请样品', '샘플 요청'),
+                'secondary_cta_url' => 'b2b',
+                'anchor_id' => 'contact-final-cta',
             ], 4),
         ];
     }
@@ -1062,6 +1104,31 @@ class DefaultPageSections
             $source,
             array_keys($source)
         ));
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<int, array<string, mixed>>
+     */
+    private static function contactDetailCards(array $messages): array
+    {
+        $cards = self::cardItems($messages, 'contactPage.details.cards', [
+            'label' => 'label',
+            'value' => 'value',
+            'detail' => 'detail',
+        ]);
+
+        $hrefs = [
+            ['href_type' => 'email', 'href' => 'contact#inquiry'],
+            ['href_type' => 'phone', 'href' => 'tel:+82515550188'],
+            ['href_type' => 'text', 'href' => null],
+        ];
+
+        return array_map(
+            fn (array $card, int $index): array => $card + ($hrefs[$index] ?? ['href_type' => 'text', 'href' => null]),
+            $cards,
+            array_keys($cards)
+        );
     }
 
     /**
