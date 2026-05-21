@@ -42,6 +42,9 @@ class HomeSectionForm
         'comparison',
         'technical_downloads',
         'pilot_projects',
+        'details',
+        'process',
+        'after_submit',
         'final_cta',
         'footer',
     ];
@@ -58,6 +61,9 @@ class HomeSectionForm
         'trust_and_credibility',
         'proof_points',
         'material_family',
+        'details',
+        'process',
+        'after_submit',
     ];
 
     private const METRIC_PAYLOAD_KEYS = [

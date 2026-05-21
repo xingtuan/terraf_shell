@@ -154,11 +154,13 @@ All backend endpoints return a consistent envelope:
 | Shipping quotes | `lib/api/shipping.ts` | `/api/store/address-search`, `/api/store/shipping-options` | Live |
 | Public runtime settings | `lib/api/public-settings.ts` | `GET /api/public-settings` | Live |
 | Health checks | *(n/a)* | `GET /up`, `GET /api/health*` | Live |
-| Community idea cards | `lib/api/community.ts` | *(not implemented)* | Mock only |
+| Community idea cards | `lib/api/posts.ts` | `GET /api/posts` | Live |
 
-The remaining mock-only community idea card module is an intentional design boundary. Product catalog, cart, guest checkout, registered checkout, NZ-only shipping quotes, and NZ Post-backed address lookup now use live backend routes.
+Product catalog, cart, guest checkout, registered checkout, community post cards, NZ-only shipping quotes, and NZ Post-backed address lookup now use live backend routes.
 
 Admin delivery status: Filament includes English, Korean, and Chinese admin language files plus resources/pages for products, variants, inventory, carts, addresses, orders, leads, CMS, Email Center, media files, storage settings, runtime feature flags, settings backup/import, demo cleanup, media storage scan, and System / Handover Readiness. Runtime settings and storage driver switching are managed through the admin panel; secrets are encrypted and never exported in plain JSON.
+
+CMS coverage now includes homepage, material, footer/contact sync, legal pages, Contact page copy, and B2B marketing/process/form sections. Contact and B2B pages keep translation-file fallback when CMS content is empty.
 
 ---
 
@@ -168,7 +170,7 @@ Admin delivery status: Filament includes English, Korean, and Chinese admin lang
 
 - Node.js 20+
 - pnpm (via Corepack: `corepack enable`)
-- PHP 8.3+
+- PHP 8.4+ for the current locked backend dependency set
 - Composer
 - MySQL 8+
 - Redis
@@ -203,6 +205,29 @@ php artisan queue:work
 
 Backend runs at: `http://127.0.0.1:8000`  
 Admin panel at: `http://127.0.0.1:8000/admin`
+
+### Deployment Verification
+
+Before production handover, run:
+
+```bash
+cd B2C_backend
+php artisan deploy:verify
+php artisan route:list | grep debug-footer-payload # must return no route
+```
+
+The verification command checks `ext-intl`, production env/debug flags, database, queue/mail production defaults, Laravel caches, and local media storage readiness. It does not set production values for you.
+
+### Playwright / E2E
+
+Copy `playwright.env.example` into your shell or CI secret set, then run:
+
+```bash
+npm install
+npm test
+```
+
+Required variables are `PLAYWRIGHT_BASE_URL`, `PLAYWRIGHT_API_URL`, `PLAYWRIGHT_ADMIN_URL`, and disposable admin/frontend test credentials. The suite defaults to local development URLs and no longer targets a staging IP.
 
 ### Start the Frontend
 

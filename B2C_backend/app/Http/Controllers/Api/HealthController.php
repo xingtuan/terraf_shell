@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmailSetting;
+use App\Support\LocalStorageReadiness;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -57,8 +58,9 @@ class HealthController extends Controller
         try {
             $disk = (string) config('community.uploads.disk', config('filesystems.default'));
             Storage::disk($disk);
+            $readiness = LocalStorageReadiness::check($disk);
 
-            return 'ok';
+            return $readiness['status'];
         } catch (Throwable) {
             return 'error';
         }

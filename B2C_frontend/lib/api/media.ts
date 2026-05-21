@@ -23,6 +23,11 @@ type MediaCategory =
   | "products"
   | "designs"
   | "community"
+  | "community-cover"
+  | "community-image"
+  | "community-attachment"
+  | "attachments"
+  | "documents"
   | "avatars"
   | "general"
 

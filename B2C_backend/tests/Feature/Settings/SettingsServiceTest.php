@@ -124,7 +124,7 @@ class SettingsServiceTest extends TestCase
                 'content' => [
                     [
                         'type' => 'heading',
-                        'attrs' => ['level' => 2],
+                        'attrs' => ['level' => 2, 'onclick' => 'alert(1)'],
                         'content' => [
                             ['type' => 'text', 'text' => 'Backend body'],
                         ],
@@ -145,5 +145,6 @@ class SettingsServiceTest extends TestCase
         $this->assertSame('Backend Privacy Meta', $settings->string('legal.privacy.en.meta_title'));
         $this->assertStringContainsString('<h2>Backend body</h2>', $settings->string('legal.privacy.en.body_html'));
         $this->assertStringContainsString('<p>Managed in Legal Pages.</p>', $settings->string('legal.privacy.en.body_html'));
+        $this->assertStringNotContainsString('onclick', $settings->string('legal.privacy.en.body_html'));
     }
 }

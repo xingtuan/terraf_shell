@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Rules\ExternalSafeUrl;
 use App\Rules\ValidTiptapDocument;
 use App\Services\Settings\SettingsService;
+use App\Support\MediaUploadRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
@@ -37,7 +38,6 @@ class StorePostRequest extends FormRequest
 
     public function rules(): array
     {
-        $maxFileSize = (int) config('community.idea_media.max_file_size_kb', 10240);
         $maxFiles = (int) config('community.idea_media.max_files', 12);
         $maxExternalLinks = (int) config('community.idea_media.max_external_links', 4);
         $hasLocalCoverPath = filled($this->input('cover_image_path'));
@@ -58,7 +58,7 @@ class StorePostRequest extends FormRequest
                 ['nullable', 'max:2048'],
                 $hasLocalCoverPath ? [] : ['url'],
             ),
-            'cover_image_path' => ['nullable', 'string', 'max:1024'],
+            'cover_image_path' => ['nullable', 'string', 'max:1024', 'not_regex:/\.\.|[\\\\]/'],
             'cover_image_disk' => ['nullable', 'string', 'max:255'],
             'reading_time' => ['nullable', 'integer', 'min:0', 'max:999'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
@@ -66,11 +66,11 @@ class StorePostRequest extends FormRequest
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
             'images' => ['nullable', 'array', 'max:4'],
-            'images.*' => ['image', 'max:'.$maxFileSize],
+            'images.*' => MediaUploadRules::optionalImageRules(),
             'image_alts' => ['nullable', 'array'],
             'image_alts.*' => ['nullable', 'string', 'max:150'],
             'attachments' => ['nullable', 'array', 'max:'.$maxFiles],
-            'attachments.*' => ['file', 'extensions:'.$this->allowedAttachmentExtensionsRule(), 'max:'.$maxFileSize],
+            'attachments.*' => MediaUploadRules::optionalAttachmentRules(),
             'attachment_titles' => ['nullable', 'array'],
             'attachment_titles.*' => ['nullable', 'string', 'max:150'],
             'attachment_alts' => ['nullable', 'array'],
@@ -97,11 +97,6 @@ class StorePostRequest extends FormRequest
                 $this->validateAttachmentKinds($validator, 'attachments', 'attachment_kinds');
             },
         ];
-    }
-
-    private function allowedAttachmentExtensionsRule(): string
-    {
-        return implode(',', config('community.idea_media.allowed_extensions', []));
     }
 
     private function detectUploadType(UploadedFile $file): IdeaMediaType

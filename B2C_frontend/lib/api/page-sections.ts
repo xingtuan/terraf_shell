@@ -3,7 +3,14 @@ import { normalizeHomeSection } from "@/lib/api/adapters"
 import { ensureArray } from "@/lib/api/normalizers"
 import type { HomeSection } from "@/lib/types"
 
-type PageKey = "home" | "material"
+export type PageKey =
+  | "home"
+  | "material"
+  | "contact"
+  | "b2b"
+  | "store"
+  | "community"
+  | "articles"
 
 type PageSectionsRequest = {
   baseUrl?: string

@@ -5,6 +5,7 @@ use App\Models\EmailEvent;
 use App\Models\EmailTemplate;
 use App\Services\Email\EmailDispatchService;
 use App\Services\Email\EmailTemplateRenderer;
+use App\Support\LocalStorageReadiness;
 use Database\Seeders\EmailCenterSeeder;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Arr;
@@ -75,6 +76,56 @@ Artisan::command('email:center:preview {eventKey} {--locale=en}', function (stri
 
     return Command::SUCCESS;
 })->purpose('Preview a rendered Email Center template');
+
+Artisan::command('deploy:verify', function (): int {
+    $isProduction = app()->environment('production');
+    $storageReadiness = LocalStorageReadiness::check((string) config('community.uploads.disk', config('filesystems.default')));
+    $databaseReachable = true;
+
+    try {
+        DB::select('select 1');
+    } catch (Throwable) {
+        $databaseReachable = false;
+    }
+
+    $checks = [
+        ['PHP intl extension', extension_loaded('intl'), 'Install ext-intl in the production PHP runtime.'],
+        ['APP_ENV=production', $isProduction, 'Set APP_ENV=production in the production .env.'],
+        ['APP_DEBUG=false', ! (bool) config('app.debug'), 'Set APP_DEBUG=false before public launch.'],
+        ['Database connection', $databaseReachable, 'Check DB credentials and network access.'],
+        ['Local upload directory writable', $storageReadiness['writable'], 'Make storage/app/public writable by the PHP user.'],
+        ['Public storage link', ! $storageReadiness['public'] || $storageReadiness['link_exists'], 'Run php artisan storage:link when local public storage is selected.'],
+        ['Config cached', app()->configurationIsCached(), 'Run php artisan config:cache after setting production .env.'],
+        ['Routes cached', app()->routesAreCached(), 'Run php artisan route:cache after deployment.'],
+        ['Queue is async in production', ! $isProduction || config('queue.default') !== 'sync', 'Use a queue worker in production instead of QUEUE_CONNECTION=sync.'],
+        ['Mail is not log in production', ! $isProduction || config('mail.default') !== 'log', 'Configure SMTP or the production mail provider.'],
+    ];
+
+    $failed = false;
+
+    $this->table(['Check', 'Status', 'Remediation'], array_map(
+        function (array $check) use (&$failed): array {
+            [$label, $ok, $remediation] = $check;
+
+            if (! $ok) {
+                $failed = true;
+            }
+
+            return [$label, $ok ? 'ok' : 'fail', $ok ? '-' : $remediation];
+        },
+        $checks
+    ));
+
+    if ($failed) {
+        $this->error('Deployment verification found items that need attention.');
+
+        return Command::FAILURE;
+    }
+
+    $this->info('Deployment verification passed.');
+
+    return Command::SUCCESS;
+})->purpose('Verify production deployment readiness checks');
 
 Artisan::command('admin:check-translations', function (): int {
     $locales = ['en', 'ko', 'zh'];

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\Settings\SettingsService;
+use App\Support\LegalHtmlSanitizer;
 use App\Support\LocalizedContent;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class LegalPageController extends Controller
         'bodyHtml' => 'body_html',
     ];
 
-    public function show(string $page, Request $request, SettingsService $settings): JsonResponse
+    public function show(string $page, Request $request, SettingsService $settings, LegalHtmlSanitizer $sanitizer): JsonResponse
     {
         if (! in_array($page, self::PAGES, true)) {
             abort(404);
@@ -41,6 +42,14 @@ class LegalPageController extends Controller
 
             if ($settingKey === 'body_html' && $this->isBlankHtml($value)) {
                 continue;
+            }
+
+            if ($settingKey === 'body_html') {
+                $value = $sanitizer->sanitize($value);
+
+                if ($this->isBlankHtml($value)) {
+                    continue;
+                }
             }
 
             $content[$responseKey] = $value;

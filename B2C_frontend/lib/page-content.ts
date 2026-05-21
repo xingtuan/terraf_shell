@@ -259,6 +259,8 @@ export type FooterContent = SiteMessages["footer"] & {
   locationHref?: string
   privacyHref?: string
   termsHref?: string
+  socialLinks?: Array<{ label: string; href: string }>
+  legalLinks?: Array<{ label: string; href: string }>
 }
 
 function payloadString(
@@ -333,6 +335,37 @@ function resolveFooterHref(
   return resolveCmsHref(locale, href, fallback)
 }
 
+function footerLinkItems(
+  locale: Locale,
+  payload: Record<string, unknown> | null,
+  field: string,
+  fallback: Array<{ label: string; href: string }>,
+) {
+  const rawItems = payload?.[field]
+  const items = Array.isArray(rawItems) ? rawItems : []
+  const resolved = items.flatMap((rawItem, index) => {
+    if (!isRecord(rawItem)) {
+      return []
+    }
+
+    const label = resolvePayloadItemString(
+      rawItem,
+      "label",
+      locale,
+      fallback[index]?.label,
+    )
+    const href = resolveFooterHref(
+      locale,
+      nonEmptyString(rawItem.href),
+      fallback[index]?.href ?? getLocalizedHref(locale),
+    )
+
+    return label && href ? [{ label, href }] : []
+  })
+
+  return resolved.length ? resolved : fallback
+}
+
 export function buildFooterContent(
   fallback: SiteMessages["footer"],
   section: HomeSection | null | undefined,
@@ -342,7 +375,25 @@ export function buildFooterContent(
   const payload =
     section?.key === "footer" && isRecord(section.payload) ? section.payload : null
 
-  return {
+  const privacyHref = resolveFooterHref(
+    locale,
+    payloadString(payload, "privacy_href"),
+    getLocalizedHref(locale, "privacy"),
+  )
+  const termsHref = resolveFooterHref(
+    locale,
+    payloadString(payload, "terms_href"),
+    getLocalizedHref(locale, "terms"),
+  )
+  const privacyLabel = resolveLocalizedApiString(
+    payload,
+    "privacy",
+    locale,
+    fallback.privacy,
+  )
+  const termsLabel = resolveLocalizedApiString(payload, "terms", locale, fallback.terms)
+
+  const footerContent = {
     ...fallback,
     homeLabel: headerFallback
       ? resolveLocalizedApiString(payload, "home", locale, headerFallback.home)
@@ -456,13 +507,8 @@ export function buildFooterContent(
       locale,
       fallback.copyright,
     ),
-    privacy: resolveLocalizedApiString(
-      payload,
-      "privacy",
-      locale,
-      fallback.privacy,
-    ),
-    terms: resolveLocalizedApiString(payload, "terms", locale, fallback.terms),
+    privacy: privacyLabel,
+    terms: termsLabel,
     emailValue: payloadString(payload, "email_value") ?? undefined,
     emailHref: payloadString(payload, "email_href") ?? undefined,
     phoneValue: payloadString(payload, "phone_value") ?? undefined,
@@ -472,17 +518,16 @@ export function buildFooterContent(
       payloadString(payload, "location_href"),
       getLocalizedHref(locale, "contact"),
     ),
-    privacyHref: resolveFooterHref(
-      locale,
-      payloadString(payload, "privacy_href"),
-      getLocalizedHref(locale, "privacy"),
-    ),
-    termsHref: resolveFooterHref(
-      locale,
-      payloadString(payload, "terms_href"),
-      getLocalizedHref(locale, "terms"),
-    ),
+    privacyHref,
+    termsHref,
+    socialLinks: footerLinkItems(locale, payload, "social_links", []),
+    legalLinks: footerLinkItems(locale, payload, "legal_links", [
+      { label: privacyLabel, href: privacyHref },
+      { label: termsLabel, href: termsHref },
+    ]),
   }
+
+  return footerContent
 }
 
 export function buildContactDetailsFromFooterContent(
@@ -503,6 +548,252 @@ export function buildContactDetailsFromFooterContent(
     return card
   })
   return { ...fallback, cards }
+}
+
+type MarketingIntroContent = {
+  eyebrow: string
+  title: string
+  description: string
+  primaryCta: string
+  secondaryCta: string
+}
+
+export type PageIntroContent<T extends MarketingIntroContent> = T & {
+  primaryHref?: string
+  secondaryHref?: string
+}
+
+export function buildPageIntroContent<T extends MarketingIntroContent>(
+  fallback: T,
+  section: HomeSection | null | undefined,
+  locale: Locale,
+  primaryHref: string,
+  secondaryHref: string,
+): PageIntroContent<T> {
+  const payload = sectionPayload(section)
+
+  return {
+    ...fallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, fallback.title),
+    description: resolveLocalizedApiString(
+      section,
+      "content",
+      locale,
+      fallback.description,
+    ),
+    primaryCta: resolveLocalizedApiString(
+      section,
+      "cta_label",
+      locale,
+      fallback.primaryCta,
+    ),
+    secondaryCta: localizedPayloadString(
+      payload,
+      "secondary_cta_label",
+      locale,
+      fallback.secondaryCta,
+    ),
+    primaryHref: resolveCmsHref(locale, section?.cta_url, primaryHref),
+    secondaryHref: resolveCmsHref(
+      locale,
+      payloadString(payload, "secondary_cta_url"),
+      secondaryHref,
+    ),
+  }
+}
+
+export function buildContactDetailsContent(
+  fallback: SiteMessages["contactPage"]["details"],
+  section: HomeSection | null | undefined,
+  footerContent: FooterContent,
+  emailFallback: string,
+  locale: Locale,
+): SiteMessages["contactPage"]["details"] {
+  const syncedFallback = buildContactDetailsFromFooterContent(
+    footerContent,
+    fallback,
+    emailFallback,
+  )
+  const payload = sectionPayload(section)
+  const cmsCards = payloadArray(section, "items")
+    .flatMap((rawItem, index) => {
+      if (!isRecord(rawItem)) {
+        return []
+      }
+
+      const fallbackCard = syncedFallback.cards[index]
+      const card = {
+        label: payloadItemString(rawItem, "label", locale, fallbackCard?.label),
+        value: payloadItemString(rawItem, "value", locale, fallbackCard?.value),
+        detail: payloadItemString(rawItem, "detail", locale, fallbackCard?.detail),
+      }
+
+      return card.label || card.value || card.detail ? [card] : []
+    })
+
+  return {
+    ...syncedFallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, syncedFallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, syncedFallback.title),
+    description: resolveLocalizedApiString(
+      section,
+      "content",
+      locale,
+      syncedFallback.description,
+    ),
+    cards: cmsCards.length ? cmsCards : syncedFallback.cards,
+    response: localizedPayloadString(payload, "response", locale, syncedFallback.response),
+  }
+}
+
+export function buildB2BProcessContent(
+  fallback: SiteMessages["b2bPage"]["process"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): SiteMessages["b2bPage"]["process"] {
+  const steps = payloadArray(section, "items")
+    .flatMap((rawItem, index) => {
+      if (!isRecord(rawItem)) {
+        return []
+      }
+
+      const fallbackStep = fallback.steps[index]
+      const step = {
+        title: payloadItemString(rawItem, "title", locale, fallbackStep?.title),
+        description: payloadItemString(
+          rawItem,
+          "description",
+          locale,
+          fallbackStep?.description,
+        ),
+      }
+
+      return step.title || step.description ? [step] : []
+    })
+
+  return {
+    ...fallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, fallback.title),
+    steps: steps.length ? steps : fallback.steps,
+  }
+}
+
+export function buildB2BCtaStripContent(
+  fallback: SiteMessages["b2bPage"]["ctaStrip"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): SiteMessages["b2bPage"]["ctaStrip"] {
+  const payload = sectionPayload(section)
+
+  return {
+    ...fallback,
+    sample: localizedPayloadString(payload, "sample", locale, fallback.sample),
+    materialData: localizedPayloadString(
+      payload,
+      "material_data",
+      locale,
+      fallback.materialData,
+    ),
+    requirements: localizedPayloadString(
+      payload,
+      "requirements",
+      locale,
+      fallback.requirements,
+    ),
+    bulkSupply: localizedPayloadString(
+      payload,
+      "bulk_supply",
+      locale,
+      fallback.bulkSupply,
+    ),
+  }
+}
+
+export function buildB2BApplicationsContent(
+  fallback: SiteMessages["b2bPage"]["applications"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): SiteMessages["b2bPage"]["applications"] {
+  const cards = payloadArray(section, "items")
+    .flatMap((rawItem, index) => {
+      if (!isRecord(rawItem)) {
+        return []
+      }
+
+      const fallbackCard = fallback.cards[index]
+      const card = {
+        title: payloadItemString(rawItem, "title", locale, fallbackCard?.title),
+        description: payloadItemString(
+          rawItem,
+          "description",
+          locale,
+          fallbackCard?.description,
+        ),
+      }
+
+      return card.title || card.description ? [card] : []
+    })
+
+  return {
+    ...fallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, fallback.title),
+    cards: cards.length ? cards : fallback.cards,
+  }
+}
+
+export function buildB2BFormContent(
+  fallback: SiteMessages["b2bPage"]["form"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): SiteMessages["b2bPage"]["form"] {
+  const payload = sectionPayload(section)
+
+  return {
+    ...fallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, fallback.title),
+    description: resolveLocalizedApiString(
+      section,
+      "content",
+      locale,
+      fallback.description,
+    ),
+    submit: resolveLocalizedApiString(section, "cta_label", locale, fallback.submit),
+    productContextLabel: localizedPayloadString(
+      payload,
+      "product_context_label",
+      locale,
+      fallback.productContextLabel,
+    ),
+    disclaimer: localizedPayloadString(payload, "disclaimer", locale, fallback.disclaimer),
+  }
+}
+
+export function buildB2BAfterSubmitContent(
+  fallback: SiteMessages["b2bPage"]["afterSubmit"],
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): SiteMessages["b2bPage"]["afterSubmit"] {
+  const items = payloadArray(section, "items")
+    .flatMap((rawItem, index) => {
+      if (!isRecord(rawItem)) {
+        return []
+      }
+
+      const item = payloadItemString(rawItem, "label", locale, fallback.items[index])
+
+      return item ? [item] : []
+    })
+
+  return {
+    ...fallback,
+    eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
+    title: resolveLocalizedApiString(section, "title", locale, fallback.title),
+    items: items.length ? items : fallback.items,
+  }
 }
 
 function buildSpecIndicator(spec: MaterialSpec, locale?: Locale) {

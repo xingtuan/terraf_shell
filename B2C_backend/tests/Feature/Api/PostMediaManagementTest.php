@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
+use App\Support\StorageUrl;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
@@ -27,7 +28,7 @@ class PostMediaManagementTest extends TestCase
             'title' => 'Oyster shell seating concept',
             'content' => 'A premium material concept with sketches, renders, and a supporting deck.',
             'images' => [
-                UploadedFile::fake()->create('sketch.jpg', 150, 'image/jpeg'),
+                UploadedFile::fake()->image('sketch.png')->size(150),
             ],
             'image_alts' => ['Initial oyster shell sketch'],
             'attachments' => [
@@ -84,7 +85,7 @@ class PostMediaManagementTest extends TestCase
             'title' => 'Oyster shell lamp concept',
             'content' => 'Original concept package.',
             'images' => [
-                UploadedFile::fake()->create('concept.jpg', 120, 'image/jpeg'),
+                UploadedFile::fake()->image('concept.png')->size(120),
             ],
             'attachments' => [
                 UploadedFile::fake()->create('spec.pdf', 150, 'application/pdf'),
@@ -217,6 +218,25 @@ class PostMediaManagementTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors(['attachments.0']);
 
+        foreach ([
+            ['payload.js', 'application/javascript'],
+            ['payload.html', 'text/html'],
+            ['payload.svg', 'image/svg+xml'],
+            ['payload.zip', 'application/zip'],
+        ] as [$name, $mime]) {
+            $this->post('/api/posts', [
+                'title' => 'Invalid attachment concept',
+                'content' => 'Should fail because the attachment type is unsupported.',
+                'attachments' => [
+                    UploadedFile::fake()->create($name, 50, $mime),
+                ],
+            ], [
+                'Accept' => 'application/json',
+            ])
+                ->assertStatus(422)
+                ->assertJsonValidationErrors(['attachments.0']);
+        }
+
         $this->post('/api/posts', [
             'title' => 'Oversized attachment concept',
             'content' => 'Should fail because the uploaded document is too large.',
@@ -240,12 +260,12 @@ class PostMediaManagementTest extends TestCase
 
         $createResponse = $this->post('/api/posts', [
             'title' => 'Mixed attachment package',
-            'content' => 'A concept package with notes, a zipped source archive, and a printable brief.',
+            'content' => 'A concept package with a printable brief and a spreadsheet estimate.',
             'attachments' => [
-                UploadedFile::fake()->create('brief.txt', 8, 'text/plain'),
-                UploadedFile::fake()->create('source-package.zip', 32, 'application/zip'),
+                UploadedFile::fake()->create('brief.pdf', 8, 'application/pdf'),
+                UploadedFile::fake()->create('estimate.xlsx', 32, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
             ],
-            'attachment_titles' => ['Brief', 'Source package'],
+            'attachment_titles' => ['Brief', 'Estimate'],
             'attachment_kinds' => ['reference_document', 'reference_document'],
         ], [
             'Accept' => 'application/json',
@@ -270,5 +290,49 @@ class PostMediaManagementTest extends TestCase
             'id' => $document['id'],
             'download_count' => 1,
         ]);
+    }
+
+    public function test_cover_media_and_attachments_remain_separate(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $coverUpload = $this->post('/api/media/upload', [
+            'file' => UploadedFile::fake()->image('cover.png'),
+            'category' => 'community-cover',
+        ], ['Accept' => 'application/json'])
+            ->assertOk();
+
+        $coverPath = (string) $coverUpload->json('data.path');
+
+        $createResponse = $this->post('/api/posts', [
+            'title' => 'Cover and attachment separation',
+            'content' => 'A community concept that keeps the cover image separate from downloadable files.',
+            'cover_image_url' => 'http://172.204.80.173/api/media/files/public/'.$coverPath,
+            'cover_image_path' => $coverPath,
+            'cover_image_disk' => 'public',
+            'attachments' => [
+                UploadedFile::fake()->create('supporting-brief.pdf', 120, 'application/pdf'),
+            ],
+            'attachment_titles' => ['Supporting brief'],
+            'attachment_kinds' => ['reference_document'],
+        ], ['Accept' => 'application/json'])
+            ->assertCreated()
+            ->assertJsonPath('data.cover_image_path', $coverPath)
+            ->assertJsonPath('data.cover_image_url', StorageUrl::resolve($coverPath, 'public'))
+            ->assertJsonCount(1, 'data.media');
+
+        $media = collect($createResponse->json('data.media'));
+
+        $this->assertTrue($media->contains(
+            fn (array $item): bool => $item['media_type'] === 'document'
+                && $item['title'] === 'Supporting brief'
+        ));
+        $this->assertFalse($media->contains(
+            fn (array $item): bool => ($item['path'] ?? null) === $coverPath
+        ));
     }
 }

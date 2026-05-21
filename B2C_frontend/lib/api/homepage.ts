@@ -1,5 +1,5 @@
 import { requestApi } from "@/lib/api/client"
-import { getPageSections, findPageSection } from "@/lib/api/page-sections"
+import { getPageSections, findPageSection, type PageKey } from "@/lib/api/page-sections"
 import { ensureArray } from "@/lib/api/normalizers"
 import {
   normalizeArticleSummary,
@@ -16,7 +16,7 @@ import type {
 type ApiRequestOverrides = {
   baseUrl?: string
   locale?: string
-  page?: "home" | "material"
+  page?: PageKey
 }
 
 type HomepageApiPayload = {

@@ -8,6 +8,7 @@ use App\Models\IdeaMedia;
 use App\Models\Post;
 use App\Rules\ExternalSafeUrl;
 use App\Rules\ValidTiptapDocument;
+use App\Support\MediaUploadRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
@@ -38,7 +39,6 @@ class UpdatePostRequest extends FormRequest
 
     public function rules(): array
     {
-        $maxFileSize = (int) config('community.idea_media.max_file_size_kb', 10240);
         $maxFiles = (int) config('community.idea_media.max_files', 12);
         $maxExternalLinks = (int) config('community.idea_media.max_external_links', 4);
         $hasLocalCoverPath = filled($this->input('cover_image_path'));
@@ -53,7 +53,7 @@ class UpdatePostRequest extends FormRequest
                 ['nullable', 'max:2048'],
                 $hasLocalCoverPath ? [] : ['url'],
             ),
-            'cover_image_path' => ['nullable', 'string', 'max:1024'],
+            'cover_image_path' => ['nullable', 'string', 'max:1024', 'not_regex:/\.\.|[\\\\]/'],
             'cover_image_disk' => ['nullable', 'string', 'max:255'],
             'reading_time' => ['nullable', 'integer', 'min:0', 'max:999'],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
@@ -61,11 +61,11 @@ class UpdatePostRequest extends FormRequest
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
             'images' => ['nullable', 'array', 'max:4'],
-            'images.*' => ['image', 'max:'.$maxFileSize],
+            'images.*' => MediaUploadRules::optionalImageRules(),
             'image_alts' => ['nullable', 'array'],
             'image_alts.*' => ['nullable', 'string', 'max:150'],
             'attachments' => ['nullable', 'array', 'max:'.$maxFiles],
-            'attachments.*' => ['file', 'extensions:'.$this->allowedAttachmentExtensionsRule(), 'max:'.$maxFileSize],
+            'attachments.*' => MediaUploadRules::optionalAttachmentRules(),
             'attachment_titles' => ['nullable', 'array'],
             'attachment_titles.*' => ['nullable', 'string', 'max:150'],
             'attachment_alts' => ['nullable', 'array'],
@@ -83,7 +83,7 @@ class UpdatePostRequest extends FormRequest
             'remove_media_ids.*' => ['integer', 'exists:idea_media,id'],
             'replace_media' => ['nullable', 'array'],
             'replace_media.*.id' => ['required', 'integer', 'exists:idea_media,id'],
-            'replace_media.*.file' => ['nullable', 'file', 'extensions:'.$this->allowedAttachmentExtensionsRule(), 'max:'.$maxFileSize],
+            'replace_media.*.file' => MediaUploadRules::optionalAttachmentRules(),
             'replace_media.*.external_url' => ['nullable', 'url', 'max:2048'],
             'replace_media.*.title' => ['nullable', 'string', 'max:150'],
             'replace_media.*.alt_text' => ['nullable', 'string', 'max:150'],
@@ -105,11 +105,6 @@ class UpdatePostRequest extends FormRequest
                 $this->validateMediaOwnership($validator);
             },
         ];
-    }
-
-    private function allowedAttachmentExtensionsRule(): string
-    {
-        return implode(',', config('community.idea_media.allowed_extensions', []));
     }
 
     private function detectUploadType(UploadedFile $file): IdeaMediaType

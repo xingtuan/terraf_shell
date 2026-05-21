@@ -15,7 +15,7 @@ return [
         'trending_recency_boost_hours' => 168,
     ],
     'uploads' => [
-        'disk' => env('COMMUNITY_UPLOAD_DISK', env('FILESYSTEM_DISK', 'azure')),
+        'disk' => env('MEDIA_DRIVER', env('COMMUNITY_UPLOAD_DISK', env('STORAGE_DISK', env('FILESYSTEM_DISK', 'azure')))),
         'allow_guest_upload' => (bool) env('ALLOW_GUEST_UPLOAD', false),
         'azure' => [
             'use_sas_urls' => (bool) env('AZURE_STORAGE_USE_SAS_URLS', true),
@@ -26,18 +26,28 @@ return [
         'directory' => env('IDEA_MEDIA_DIRECTORY', 'ideas'),
         'max_files' => (int) env('IDEA_MEDIA_MAX_FILES', 12),
         'max_external_links' => (int) env('IDEA_MEDIA_MAX_EXTERNAL_LINKS', 4),
-        'max_file_size_kb' => (int) env('IDEA_MEDIA_MAX_FILE_SIZE_KB', 10240),
+        'max_file_size_kb' => (int) env('IDEA_MEDIA_MAX_FILE_SIZE_KB', env('MEDIA_ATTACHMENT_MAX_FILE_SIZE_KB', 10240)),
+        'max_image_size_kb' => (int) env('IDEA_MEDIA_IMAGE_MAX_FILE_SIZE_KB', env('MEDIA_IMAGE_MAX_FILE_SIZE_KB', 5120)),
+        'max_attachment_size_kb' => (int) env('IDEA_MEDIA_ATTACHMENT_MAX_FILE_SIZE_KB', env('MEDIA_ATTACHMENT_MAX_FILE_SIZE_KB', 10240)),
         'allowed_extensions' => array_values(array_filter(array_map(
             static fn (string $value): string => trim($value),
-            explode(',', (string) env('IDEA_MEDIA_ALLOWED_EXTENSIONS', 'jpg,jpeg,png,webp,gif,pdf,doc,docx,ppt,pptx,xls,xlsx,txt,md,csv,zip,rar,7z,stl,obj,glb,gltf,dwg,dxf,step,stp,iges,igs'))
+            explode(',', (string) env('IDEA_MEDIA_ALLOWED_EXTENSIONS', 'jpg,jpeg,png,webp,pdf,doc,docx,xls,xlsx'))
         ))),
         'image_extensions' => array_values(array_filter(array_map(
             static fn (string $value): string => trim($value),
-            explode(',', (string) env('IDEA_MEDIA_IMAGE_EXTENSIONS', 'jpg,jpeg,png,webp,gif'))
+            explode(',', (string) env('IDEA_MEDIA_IMAGE_EXTENSIONS', 'jpg,jpeg,png,webp'))
         ))),
         'document_extensions' => array_values(array_filter(array_map(
             static fn (string $value): string => trim($value),
-            explode(',', (string) env('IDEA_MEDIA_DOCUMENT_EXTENSIONS', 'pdf,doc,docx,ppt,pptx,xls,xlsx'))
+            explode(',', (string) env('IDEA_MEDIA_DOCUMENT_EXTENSIONS', 'pdf,doc,docx,xls,xlsx'))
+        ))),
+        'image_mime_types' => array_values(array_filter(array_map(
+            static fn (string $value): string => trim($value),
+            explode(',', (string) env('MEDIA_IMAGE_MIME_TYPES', 'image/jpeg,image/png,image/webp'))
+        ))),
+        'attachment_mime_types' => array_values(array_filter(array_map(
+            static fn (string $value): string => trim($value),
+            explode(',', (string) env('MEDIA_ATTACHMENT_MIME_TYPES', 'image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))
         ))),
     ],
     'moderation' => [

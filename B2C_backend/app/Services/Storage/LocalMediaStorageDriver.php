@@ -3,6 +3,7 @@
 namespace App\Services\Storage;
 
 use App\Services\Storage\Contracts\MediaStorageDriverInterface;
+use App\Support\LocalStorageReadiness;
 use App\Support\StorageUrl;
 use DateTimeInterface;
 use Illuminate\Support\Facades\Storage;
@@ -62,6 +63,12 @@ class LocalMediaStorageDriver implements MediaStorageDriverInterface
 
     public function testConnection(): StorageHealthResult
     {
+        $readiness = LocalStorageReadiness::check($this->disk);
+
+        if ($readiness['status'] === 'error') {
+            return StorageHealthResult::fail($readiness['message'], ['disk' => $this->disk]);
+        }
+
         $path = 'health-checks/'.now()->format('YmdHis').'-local.txt';
 
         try {
@@ -78,9 +85,15 @@ class LocalMediaStorageDriver implements MediaStorageDriverInterface
             $exists = $storage->exists($path);
             $storage->delete($path);
 
-            return $exists
-                ? StorageHealthResult::ok('Local storage is writable.', ['disk' => $this->disk])
-                : StorageHealthResult::fail('Local storage write did not persist.', ['disk' => $this->disk]);
+            if (! $exists) {
+                return StorageHealthResult::fail('Local storage write did not persist.', ['disk' => $this->disk]);
+            }
+
+            if ($readiness['status'] === 'warning') {
+                return StorageHealthResult::fail($readiness['message'], ['disk' => $this->disk]);
+            }
+
+            return StorageHealthResult::ok('Local storage is writable and publicly linked.', ['disk' => $this->disk]);
         } catch (Throwable $throwable) {
             return StorageHealthResult::fail($throwable->getMessage(), ['disk' => $this->disk]);
         }

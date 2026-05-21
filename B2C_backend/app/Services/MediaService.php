@@ -106,7 +106,7 @@ class MediaService
             'type' => $type,
             'mime' => $mime,
             'size' => (int) ($file->getSize() ?? 0),
-            'original_name' => $file->getClientOriginalName(),
+            'original_name' => $this->originalName($file),
         ];
     }
 
@@ -222,7 +222,7 @@ class MediaService
             return 'documents';
         }
 
-        return 'others';
+        return 'documents';
     }
 
     /**
@@ -237,19 +237,6 @@ class MediaService
             'application/vnd.ms-powerpoint',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-            'text/plain',
-            'text/markdown',
-            'text/csv',
-            'application/zip',
-            'application/x-zip-compressed',
-            'application/x-rar-compressed',
-            'application/x-7z-compressed',
-            'model/gltf+json',
-            'model/gltf-binary',
-            'model/obj',
-            'model/stl',
-            'application/sla',
         ], true)) {
             return true;
         }
@@ -260,24 +247,6 @@ class MediaService
             'docx',
             'xls',
             'xlsx',
-            'ppt',
-            'pptx',
-            'txt',
-            'md',
-            'csv',
-            'zip',
-            'rar',
-            '7z',
-            'stl',
-            'obj',
-            'glb',
-            'gltf',
-            'dwg',
-            'dxf',
-            'step',
-            'stp',
-            'iges',
-            'igs',
         ], true);
     }
 
@@ -286,7 +255,18 @@ class MediaService
      */
     private function extension(UploadedFile $file): string
     {
-        return strtolower((string) ($file->getClientOriginalExtension() ?: $file->extension() ?: 'bin'));
+        $extension = strtolower((string) ($file->getClientOriginalExtension() ?: $file->extension() ?: 'bin'));
+        $extension = preg_replace('/[^a-z0-9]/', '', $extension) ?: 'bin';
+
+        return Str::limit($extension, 12, '');
+    }
+
+    private function originalName(UploadedFile $file): string
+    {
+        $name = basename(str_replace('\\', '/', $file->getClientOriginalName()));
+        $name = trim((string) preg_replace('/[^A-Za-z0-9._ -]/', '_', $name));
+
+        return Str::limit($name !== '' ? $name : 'upload.'.$this->extension($file), 180, '');
     }
 
     /**

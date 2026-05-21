@@ -290,7 +290,7 @@ export function RichPostEditor({
     setIsUploadingInlineImage(true)
 
     try {
-      const uploaded = await uploadMedia(file, "community")
+      const uploaded = await uploadMedia(file, "community-image")
       editor
         .chain()
         .focus()
@@ -312,7 +312,7 @@ export function RichPostEditor({
     setIsUploadingCoverImage(true)
 
     try {
-      const uploaded = await uploadMedia(file, "community")
+      const uploaded = await uploadMedia(file, "community-cover")
       const nextCoverImage = {
         url: uploaded.url,
         path: uploaded.path,

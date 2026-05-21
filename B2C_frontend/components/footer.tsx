@@ -89,6 +89,20 @@ export function Footer({ locale, header, footer }: FooterProps) {
       href: footer.locationHref ?? getLocalizedHref(locale, "contact"),
     },
   ]
+  const socialLinks = footer.socialLinks ?? []
+  const legalLinks =
+    footer.legalLinks?.length
+      ? footer.legalLinks
+      : [
+          {
+            label: footer.privacy,
+            href: footer.privacyHref ?? getLocalizedHref(locale, "privacy"),
+          },
+          {
+            label: footer.terms,
+            href: footer.termsHref ?? getLocalizedHref(locale, "terms"),
+          },
+        ]
 
   return (
     <footer className="bg-foreground text-background">
@@ -116,6 +130,19 @@ export function Footer({ locale, header, footer }: FooterProps) {
                 </Link>
               ))}
             </div>
+            {socialLinks.length ? (
+              <div className="mt-8 flex flex-wrap gap-4 text-sm">
+                {socialLinks.map((item) => (
+                  <Link
+                    key={`${item.label}-${item.href}`}
+                    href={item.href}
+                    className="text-background/75 underline-offset-4 transition-colors hover:text-background hover:underline"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           <div className="lg:col-span-8 grid grid-cols-2 gap-8 md:grid-cols-3">
@@ -175,19 +202,16 @@ export function Footer({ locale, header, footer }: FooterProps) {
 
         <div className="flex flex-col gap-4 border-t border-background/10 pt-8 text-sm text-background/50 md:flex-row md:items-center md:justify-between">
           <p>{footer.copyright}</p>
-          <div className="flex gap-6">
-            <Link
-              href={footer.privacyHref ?? getLocalizedHref(locale, "privacy")}
-              className="transition-colors hover:text-background/70"
-            >
-              {footer.privacy}
-            </Link>
-            <Link
-              href={footer.termsHref ?? getLocalizedHref(locale, "terms")}
-              className="transition-colors hover:text-background/70"
-            >
-              {footer.terms}
-            </Link>
+          <div className="flex flex-wrap gap-6">
+            {legalLinks.map((item) => (
+              <Link
+                key={`${item.label}-${item.href}`}
+                href={item.href}
+                className="text-background/75 transition-colors hover:text-background"
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

@@ -92,6 +92,28 @@ class PublicReadinessEndpointsTest extends TestCase
             ->assertJsonMissingPath('data.bodyHtml');
     }
 
+    public function test_legal_page_endpoint_sanitizes_admin_html(): void
+    {
+        $settings = app(SettingsService::class);
+        $settings->set('legal.privacy.en.title', 'Backend Privacy Title', ['type' => 'string', 'is_public' => true]);
+        $settings->set(
+            'legal.privacy.en.body_html',
+            '<script>alert(1)</script><p onclick="alert(2)">Safe <strong>formatting</strong></p><a href="javascript:alert(3)" onclick="alert(4)">Bad link</a><a href="https://example.com">Good link</a>',
+            ['type' => 'string', 'is_public' => true]
+        );
+
+        $body = (string) $this->getJson('/api/legal-pages/privacy?locale=en')
+            ->assertOk()
+            ->json('data.bodyHtml');
+
+        $this->assertStringNotContainsString('<script', $body);
+        $this->assertStringNotContainsString('onclick', $body);
+        $this->assertStringNotContainsString('javascript:', $body);
+        $this->assertStringContainsString('<p>Safe <strong>formatting</strong></p>', $body);
+        $this->assertStringContainsString('href="https://example.com"', $body);
+        $this->assertStringContainsString('rel="noopener noreferrer"', $body);
+    }
+
     public function test_default_legal_page_examples_are_available_for_public_locales(): void
     {
         app(SettingsService::class)->forgetCache();

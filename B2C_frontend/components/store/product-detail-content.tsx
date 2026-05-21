@@ -422,7 +422,7 @@ export function ProductDetailContent({
                   </div>
                   {selectedProduct.sku ? (
                     <p className="mt-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                      SKU {selectedProduct.sku}
+                      {t.productCodeLabel} {selectedProduct.sku}
                     </p>
                   ) : null}
                 </div>
@@ -443,7 +443,7 @@ export function ProductDetailContent({
               {hasVariantSelector ? (
                 <div className="mt-6 border-t border-border/60 pt-5">
                   <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                    Options
+                    {t.optionsLabel}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {activeVariants.map((variant) => {

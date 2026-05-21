@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\Install\InstallationService;
 use App\Services\Settings\SettingsService;
 use Filament\Pages\Page;
+use App\Support\LocalStorageReadiness;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
@@ -59,6 +60,7 @@ class SystemHandoverReadiness extends Page
         $settings = app(SettingsService::class);
         $installation = app(InstallationService::class);
         $frontendUrl = (string) config('app.frontend_url', config('services.frontend.url', ''));
+        $localReadiness = LocalStorageReadiness::check($uploadDisk);
 
         return [
             $this->row(__('admin.system.checks.app_name'), (string) config('app.name'), 'ok'),
@@ -66,10 +68,11 @@ class SystemHandoverReadiness extends Page
             $this->row(__('admin.system.checks.frontend_url'), $frontendUrl, filled($frontendUrl) ? 'ok' : 'warning'),
             $this->corsSanctumRow($frontendUrl),
             $this->row(__('admin.system.checks.environment'), (string) config('app.env'), app()->environment('production') ? 'ok' : 'warning'),
+            $this->row('Debug mode', config('app.debug') ? __('admin.system.enabled') : __('admin.system.disabled'), config('app.debug') && app()->environment('production') ? 'error' : (config('app.debug') ? 'warning' : 'ok')),
             $this->databaseRow(),
             $this->storageRow($uploadDisk),
             $this->row(__('admin.system.checks.active_storage_driver'), $settings->string('storage.default_driver', $uploadDisk), 'ok'),
-            $this->row(__('admin.system.checks.local_storage'), is_writable(storage_path('app/public')) ? __('admin.system.ok') : __('admin.system.failed'), is_writable(storage_path('app/public')) ? 'ok' : 'error'),
+            $this->row(__('admin.system.checks.local_storage'), $localReadiness['message'], $localReadiness['status']),
             $this->row(__('admin.system.checks.azure_storage'), $this->azureConfigured() ? __('admin.system.configured') : __('admin.system.not_configured'), $this->azureConfigured() ? 'ok' : 'warning', __('admin.system.secrets_hidden')),
             $this->row(
                 __('admin.system.checks.storage_last_test'),
@@ -87,7 +90,10 @@ class SystemHandoverReadiness extends Page
             $this->row(__('admin.system.checks.cache_driver'), (string) config('cache.default'), 'ok'),
             $this->row(__('admin.system.checks.session_driver'), (string) config('session.driver'), 'ok'),
             $this->row(__('admin.system.checks.upload_disk'), $uploadDisk, 'ok'),
-            $this->row(__('admin.system.checks.storage_link'), file_exists(public_path('storage')) ? __('admin.system.yes') : __('admin.system.no'), file_exists(public_path('storage')) ? 'ok' : 'warning'),
+            $this->row(__('admin.system.checks.storage_link'), file_exists(public_path('storage')) ? __('admin.system.yes') : __('admin.system.no'), $localReadiness['public'] && ! file_exists(public_path('storage')) ? 'warning' : 'ok'),
+            $this->row('PHP intl extension', extension_loaded('intl') ? __('admin.system.enabled') : __('admin.system.disabled'), extension_loaded('intl') ? 'ok' : 'error'),
+            $this->row('Config cached', app()->configurationIsCached() ? __('admin.system.yes') : __('admin.system.no'), app()->environment('production') && ! app()->configurationIsCached() ? 'warning' : 'ok'),
+            $this->row('Routes cached', app()->routesAreCached() ? __('admin.system.yes') : __('admin.system.no'), app()->environment('production') && ! app()->routesAreCached() ? 'warning' : 'ok'),
             $this->row(__('admin.system.checks.installed_lock'), file_exists($installation->lockPath()) ? __('admin.system.yes') : __('admin.system.no'), file_exists($installation->lockPath()) ? 'ok' : 'warning'),
             $this->row(__('admin.system.checks.installing_lock'), file_exists($installation->installingLockPath()) ? __('admin.system.yes') : __('admin.system.no'), file_exists($installation->installingLockPath()) ? 'warning' : 'ok'),
             $this->row(__('admin.system.checks.key_admin'), User::query()->where('role', 'admin')->exists() ? __('admin.system.yes') : __('admin.system.no'), User::query()->where('role', 'admin')->exists() ? 'ok' : 'error'),

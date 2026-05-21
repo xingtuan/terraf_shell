@@ -815,7 +815,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                   </p>
                   {item.variant_title || item.variant_sku ? (
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {[item.variant_title, item.variant_sku ? `SKU ${item.variant_sku}` : null]
+                      {[item.variant_title, item.variant_sku ? `${t.productCodeLabel} ${item.variant_sku}` : null]
                         .filter(Boolean)
                         .join(" | ")}
                     </p>

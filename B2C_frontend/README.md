@@ -201,16 +201,16 @@ lib/
     addresses.ts                    # User addresses
     media.ts                        # Media upload
     products.ts                     # Live product catalog API
-    community.ts                    # ⚠ Mock only — no backend endpoint yet
+    community.ts                    # Legacy compatibility wrappers for community data
     adapters.ts                     # Response transformation helpers
     normalizers.ts                  # Data normalization utilities
     request-throttle.ts             # Client-side request rate limiting
   auth/
     token-storage.ts                # localStorage wrapper for Sanctum tokens
-  data/                             # Intentional fallback/mock data
+  data/                             # Intentional fallback data for offline/non-API rendering paths
     products.ts                     # Product fallback data for offline/non-API rendering paths
     materials.ts                    # Material spec fallback data
-    community.ts                    # Community idea card mock data
+    community.ts                    # Community fallback data
   i18n.ts                           # Locale list, message loading, URL helpers
   resolve-locale.ts                 # Locale validation middleware helper
   types.ts                          # Shared TypeScript type definitions
@@ -310,6 +310,7 @@ The following API modules make real requests to the Laravel backend:
 | `materials.ts` | `/api/materials` |
 | `articles.ts` | `/api/articles` |
 | `homepage.ts` | `/api/homepage` |
+| `page-sections.ts` | `/api/page-sections` |
 | `leads.ts` | `/api/business-contacts`, `/api/partnership-inquiries`, etc. |
 | `products.ts` | `/api/products`, `/api/products/{slug}` |
 | `cart.ts` | `/api/cart` |
@@ -318,15 +319,9 @@ The following API modules make real requests to the Laravel backend:
 | `shipping.ts` | `/api/store/address-search`, `/api/store/address-details`, `/api/store/shipping-options` |
 | `media.ts` | `/api/media/upload` |
 
-### Mock-Only Modules
+### Fallback Data
 
-These modules return local data from `lib/data/` because the corresponding backend endpoints are not yet implemented:
-
-| Module | Reason |
-|---|---|
-| `community.ts` | Community idea submission API not yet implemented |
-
-These are deliberate boundaries, not technical debt. The page structure and components are already in place and will adopt live data when the backend endpoints are ready.
+Local data in `lib/data/` is used only as an offline/non-API fallback. Community posts, product catalog, cart, checkout, materials, articles, homepage CMS, Contact CMS, and B2B CMS all use live API data when the backend is available.
 
 ---
 
@@ -350,6 +345,12 @@ Product grid with category filtering. The product catalog is live through `GET /
 
 Collaboration pitch with inquiry form. Submission goes to `POST /api/partnership-inquiries` or `POST /api/business-contacts`.
 
+Main page title, intro, process, CTA, application, form helper, and trust copy can be managed from admin CMS page sections. Translation-file copy remains the fallback when CMS content is empty.
+
+### Contact Page
+
+Contact title, intro, contact details, form helper copy, and final CTA can be managed from admin CMS page sections. Footer contact details remain synchronized through the shared footer settings fallback.
+
 ### Community Page
 
 Post feed with sorting (latest, hot, trending, popular), filtering by category and tag, and full interaction support. Requires authentication for posting, liking, and favoriting.
@@ -372,9 +373,9 @@ The visual language follows a premium, minimal, editorial style:
 
 ---
 
-## Next Steps for Backend Integration
+## Remaining Integration Notes
 
-1. **Product catalog QA** — Continue verifying live `/api/products` filtering, variants, attributes, and localized content against seeded/admin data.
-2. **Community idea cards** — Implement idea submission and listing API endpoints, then wire `lib/api/community.ts`
-3. **Payments** — Checkout currently creates manual-payment order requests for guest and registered users; a full payment gateway is intentionally not implemented yet.
-4. **Community advanced UI** — Add create-post form, reply thread, follow button, report dialog, notification center, and full user profile page
+1. **Product catalog QA** - Continue verifying live `/api/products` filtering, variants, attributes, and localized content against seeded/admin data.
+2. **Payments** - Checkout currently creates manual-payment order requests for guest and registered users; a full payment gateway is intentionally not implemented yet.
+3. **Acceptance data** - Playwright tests should run against local or staging URLs configured with `PLAYWRIGHT_BASE_URL`, `PLAYWRIGHT_API_URL`, `PLAYWRIGHT_ADMIN_URL`, and disposable test credentials.
+4. **Media storage** - Local media requires `php artisan storage:link`; Azure media requires valid Azure storage credentials and public URL configuration.

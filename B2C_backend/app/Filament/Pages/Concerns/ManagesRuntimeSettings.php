@@ -11,7 +11,7 @@ trait ManagesRuntimeSettings
 
     public function save(SettingsService $settings): void
     {
-        $state = $this->form->getState();
+        $state = $this->mutateSettingsStateBeforeSave($this->form->getState());
         $payload = [];
 
         foreach ($this->settingMap() as $field => $meta) {
@@ -43,6 +43,15 @@ trait ManagesRuntimeSettings
      * @return array<string, array<string, mixed>>
      */
     abstract protected function settingMap(): array;
+
+    /**
+     * @param  array<string, mixed>  $state
+     * @return array<string, mixed>
+     */
+    protected function mutateSettingsStateBeforeSave(array $state): array
+    {
+        return $state;
+    }
 
     protected function formState(SettingsService $settings): array
     {

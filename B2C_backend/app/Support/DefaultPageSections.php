@@ -21,6 +21,8 @@ class DefaultPageSections
         return [
             ...self::homeRecords($messages),
             ...self::materialRecords($messages),
+            ...self::contactRecords($messages),
+            ...self::b2bRecords($messages),
         ];
     }
 
@@ -505,6 +507,138 @@ class DefaultPageSections
                 'secondary_cta_label_translations' => self::translations($messages, 'home.finalCta.secondaryCta'),
                 'secondary_cta_url' => 'store',
             ], 16),
+        ];
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<int, array<string, mixed>>
+     */
+    private static function contactRecords(array $messages): array
+    {
+        return [
+            self::record($messages, 'contact', 'intro', 'contactPage.intro.title', 'contactPage.intro.eyebrow', 'contactPage.intro.description', 'contactPage.intro.primaryCta', 'contact#contact-form', [
+                'variant' => 'intro',
+                'secondary_cta_label_translations' => self::translations($messages, 'contactPage.intro.secondaryCta'),
+                'secondary_cta_url' => 'b2b#inquiry',
+            ], 1),
+            self::record($messages, 'contact', 'details', 'contactPage.details.title', 'contactPage.details.eyebrow', 'contactPage.details.description', null, null, [
+                'variant' => 'contact_details',
+                'items' => self::cardItems($messages, 'contactPage.details.cards', [
+                    'label' => 'label',
+                    'value' => 'value',
+                    'detail' => 'detail',
+                ]),
+                'response_translations' => self::translations($messages, 'contactPage.details.response'),
+            ], 2),
+            self::record($messages, 'contact', 'form', 'b2bPage.form.title', 'b2bPage.form.eyebrow', 'b2bPage.form.description', 'b2bPage.form.submit', null, [
+                'variant' => 'lead_form',
+                'product_context_label_translations' => self::translations($messages, 'b2bPage.form.productContextLabel'),
+                'disclaimer_translations' => self::translations($messages, 'b2bPage.form.disclaimer'),
+            ], 3),
+            self::record($messages, 'contact', 'final_cta', 'home.finalCta.title', null, 'home.finalCta.description', null, null, [
+                'variant' => 'final_cta',
+                'primary_cta_label_translations' => self::translations($messages, 'home.finalCta.primaryCta'),
+                'primary_cta_url' => 'b2b#inquiry',
+                'secondary_cta_label_translations' => self::translations($messages, 'home.finalCta.secondaryCta'),
+                'secondary_cta_url' => 'store',
+            ], 4),
+        ];
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<int, array<string, mixed>>
+     */
+    private static function b2bRecords(array $messages): array
+    {
+        return [
+            self::record($messages, 'b2b', 'intro', 'b2bPage.intro.title', 'b2bPage.intro.eyebrow', 'b2bPage.intro.description', 'b2bPage.intro.primaryCta', 'b2b?leadType=inquiry#inquiry', [
+                'variant' => 'intro',
+                'secondary_cta_label_translations' => self::translations($messages, 'b2bPage.intro.secondaryCta'),
+                'secondary_cta_url' => 'material',
+            ], 1),
+            self::record($messages, 'b2b', 'collaboration', 'home.collaboration.title', 'home.collaboration.eyebrow', null, null, null, [
+                'variant' => 'collaboration',
+                'items' => self::cardItems($messages, 'home.collaboration.cards', [
+                    'title' => 'title',
+                    'subtitle' => 'forWhom',
+                    'description' => 'description',
+                    'cta_label' => 'cta',
+                ], [], ['b2b#inquiry', 'b2b?leadType=sample_request#inquiry', 'b2b?leadType=product_development_collaboration#inquiry']),
+                'process_title_translations' => self::translations($messages, 'home.collaboration.processTitle'),
+                'steps' => self::stringItems($messages, 'home.collaboration.steps', 'label'),
+            ], 2),
+            self::record($messages, 'b2b', 'process', 'b2bPage.process.title', 'b2bPage.process.eyebrow', null, null, null, [
+                'variant' => 'process',
+                'items' => self::cardItems($messages, 'b2bPage.process.steps', [
+                    'title' => 'title',
+                    'description' => 'description',
+                ]),
+            ], 3),
+            self::record($messages, 'b2b', 'cta_strip', null, null, null, null, null, [
+                'variant' => 'cta_strip',
+                'sample_translations' => self::translations($messages, 'b2bPage.ctaStrip.sample'),
+                'material_data_translations' => self::translations($messages, 'b2bPage.ctaStrip.materialData'),
+                'requirements_translations' => self::translations($messages, 'b2bPage.ctaStrip.requirements'),
+                'bulk_supply_translations' => self::translations($messages, 'b2bPage.ctaStrip.bulkSupply'),
+            ], 4),
+            self::record($messages, 'b2b', 'applications', 'b2bPage.applications.title', 'b2bPage.applications.eyebrow', null, null, null, [
+                'variant' => 'applications',
+                'items' => self::cardItems($messages, 'b2bPage.applications.cards', [
+                    'title' => 'title',
+                    'description' => 'description',
+                ]),
+            ], 5),
+            self::record($messages, 'b2b', 'material_facts', 'home.materialFacts.title', 'home.materialFacts.eyebrow', 'home.materialFacts.sheetDescription', 'home.materialFacts.sheetCta', 'b2b?leadType=sample_request#inquiry', [
+                'variant' => 'material_facts',
+                'sheet_title_translations' => self::translations($messages, 'home.materialFacts.sheetTitle'),
+                'note_translations' => self::translations($messages, 'home.materialFacts.note'),
+                'metrics' => self::cardItems($messages, 'home.materialFacts.infoCards', [
+                    'label' => 'label',
+                    'value' => 'value',
+                ]),
+            ], 6),
+            self::record($messages, 'b2b', 'credibility', 'home.credibility.title', 'home.credibility.eyebrow', null, null, null, [
+                'variant' => 'credibility',
+                'items' => self::cardItems($messages, 'home.credibility.features', [
+                    'title' => 'title',
+                    'description' => 'description',
+                ]),
+                'metrics' => self::stringItems($messages, 'home.credibility.benefits', 'description'),
+            ], 7, '/images/material-texture.jpg'),
+            self::record($messages, 'b2b', 'trust_and_credibility', 'trustAndCredibility.title', 'trustAndCredibility.eyebrow', 'trustAndCredibility.description', null, null, [
+                'variant' => 'trust',
+                'items' => self::cardItems($messages, 'trustAndCredibility.cards', [
+                    'title' => 'title',
+                    'description' => 'description',
+                ]),
+                'disclaimer_translations' => self::translations($messages, 'trustAndCredibility.disclaimer'),
+            ], 8),
+            self::record($messages, 'b2b', 'pilot_projects', 'pilotProjects.title', 'pilotProjects.eyebrow', 'pilotProjects.description', null, null, [
+                'variant' => 'pilot_projects',
+                'items' => self::cardItems($messages, 'pilotProjects.items', [
+                    'title' => 'title',
+                    'status' => 'status',
+                    'description' => 'description',
+                ]),
+            ], 9),
+            self::record($messages, 'b2b', 'form', 'b2bPage.form.title', 'b2bPage.form.eyebrow', 'b2bPage.form.description', 'b2bPage.form.submit', null, [
+                'variant' => 'lead_form',
+                'product_context_label_translations' => self::translations($messages, 'b2bPage.form.productContextLabel'),
+                'disclaimer_translations' => self::translations($messages, 'b2bPage.form.disclaimer'),
+            ], 10),
+            self::record($messages, 'b2b', 'after_submit', 'b2bPage.afterSubmit.title', 'b2bPage.afterSubmit.eyebrow', null, null, null, [
+                'variant' => 'after_submit',
+                'items' => self::stringItems($messages, 'b2bPage.afterSubmit.items', 'label'),
+            ], 11),
+            self::record($messages, 'b2b', 'final_cta', 'home.finalCta.title', null, 'home.finalCta.description', null, null, [
+                'variant' => 'final_cta',
+                'primary_cta_label_translations' => self::translations($messages, 'home.finalCta.primaryCta'),
+                'primary_cta_url' => 'b2b#inquiry',
+                'secondary_cta_label_translations' => self::translations($messages, 'home.finalCta.secondaryCta'),
+                'secondary_cta_url' => 'store',
+            ], 12),
         ];
     }
 

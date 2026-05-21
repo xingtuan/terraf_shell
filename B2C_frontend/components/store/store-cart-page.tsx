@@ -251,7 +251,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                         ) : null}
                         {item.variant_title || Object.keys(item.option_values ?? {}).length ? (
                           <p className="mt-2 text-sm text-muted-foreground">
-                            {[item.variant_title, item.variant_sku ? `SKU ${item.variant_sku}` : null]
+                            {[item.variant_title, item.variant_sku ? `${messages.checkout.productCodeLabel} ${item.variant_sku}` : null]
                               .filter(Boolean)
                               .join(" | ")}
                           </p>

@@ -67,7 +67,7 @@ class MediaUploadTest extends TestCase
 
         $uploadResponse = $this->post('/api/media/upload', [
             'file' => UploadedFile::fake()->create('concept-deck.pdf', 120, 'application/pdf'),
-            'category' => 'community',
+            'category' => 'documents',
         ], [
             'Accept' => 'application/json',
         ]);
@@ -82,7 +82,7 @@ class MediaUploadTest extends TestCase
         $path = (string) $uploadResponse->json('data.path');
 
         $this->assertMatchesRegularExpression(
-            '#^documents/community/\d{4}/\d{2}/[0-9a-f\-]+\.pdf$#',
+            '#^documents/documents/\d{4}/\d{2}/[0-9a-f\-]+\.pdf$#',
             $path
         );
 
@@ -93,7 +93,7 @@ class MediaUploadTest extends TestCase
             'path' => $path,
             'type' => 'documents',
             'mime_type' => 'application/pdf',
-            'category' => 'community',
+            'category' => 'documents',
         ]);
 
         $this->deleteJson('/api/media', [
@@ -261,5 +261,58 @@ class MediaUploadTest extends TestCase
             'path' => $path,
             'user_id' => null,
         ]);
+    }
+
+    public function test_generic_upload_rejects_executable_like_and_oversized_files(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $this->post('/api/media/upload', [
+            'file' => UploadedFile::fake()->create('payload.php', 1, 'application/x-php'),
+            'category' => 'documents',
+        ], ['Accept' => 'application/json'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['file']);
+
+        $this->post('/api/media/upload', [
+            'file' => UploadedFile::fake()->create('payload.svg', 1, 'image/svg+xml'),
+            'category' => 'community-cover',
+        ], ['Accept' => 'application/json'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['file']);
+
+        $this->post('/api/media/upload', [
+            'file' => UploadedFile::fake()->image('oversized.png')->size(6000),
+            'category' => 'community-cover',
+        ], ['Accept' => 'application/json'])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['file']);
+    }
+
+    public function test_community_cover_upload_uses_image_category_not_attachment_category(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+
+        $response = $this->post('/api/media/upload', [
+            'file' => UploadedFile::fake()->image('cover.png'),
+            'category' => 'community-cover',
+        ], ['Accept' => 'application/json']);
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('data.type', 'images');
+
+        $this->assertMatchesRegularExpression(
+            '#^images/community-cover/\d{4}/\d{2}/[0-9a-f\-]+\.png$#',
+            (string) $response->json('data.path')
+        );
     }
 }

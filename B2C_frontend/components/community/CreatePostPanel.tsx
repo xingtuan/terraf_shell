@@ -117,30 +117,15 @@ function getSubmissionToastTitle(
 const MAX_ATTACHMENTS = 12
 const MAX_CONTENT_CHARACTERS = 10000
 const SAFE_ATTACHMENT_ACCEPT = [
-  "image/*",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
   ".pdf",
   ".doc",
   ".docx",
-  ".ppt",
-  ".pptx",
   ".xls",
   ".xlsx",
-  ".txt",
-  ".md",
-  ".csv",
-  ".zip",
-  ".rar",
-  ".7z",
-  ".stl",
-  ".obj",
-  ".glb",
-  ".gltf",
-  ".dwg",
-  ".dxf",
-  ".step",
-  ".stp",
-  ".iges",
-  ".igs",
 ].join(",")
 
 function isImageAttachment(file: File | CommunityMedia) {
@@ -149,7 +134,7 @@ function isImageAttachment(file: File | CommunityMedia) {
       return true
     }
 
-    return /\.(avif|bmp|gif|jpe?g|png|svg|webp)$/i.test(file.name)
+    return /\.(jpe?g|png|webp)$/i.test(file.name)
   }
 
   if (file.is_image) {

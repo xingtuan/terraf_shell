@@ -182,6 +182,10 @@ Check `app/Http/Controllers/Api/OrderController.php` and `app/Services/OrderServ
 
 ## Informational (Design Decisions / Not Issues)
 
+### KI-D00: Azure Flysystem Package Maintenance
+
+Composer audit reports `league/flysystem-azure-blob-storage` as abandoned. It is currently retained to avoid a risky storage rewrite during delivery hardening. Plan a follow-up replacement with the maintained Azure Flysystem adapter after validating upload, URL generation, file visibility, and admin media workflows against staging data.
+
 ### KI-D01: Manual Payment Confirmation by Design
 
 The platform was delivered without payment gateway integration per initial project scope. This is a known design constraint, not a bug. See KI-001 for resolution path.

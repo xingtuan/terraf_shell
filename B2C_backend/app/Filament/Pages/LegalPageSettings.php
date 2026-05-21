@@ -6,6 +6,7 @@ use App\Filament\Pages\Concerns\ManagesRuntimeSettings;
 use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Services\Settings\SettingsService;
+use App\Support\LegalHtmlSanitizer;
 use Filament\Actions\Action;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
@@ -122,6 +123,65 @@ class LegalPageSettings extends Page
         }
 
         return $map;
+    }
+
+    /**
+     * @param  array<string, mixed>  $state
+     * @return array<string, mixed>
+     */
+    protected function mutateSettingsStateBeforeSave(array $state): array
+    {
+        $sanitizer = app(LegalHtmlSanitizer::class);
+
+        foreach (self::PAGES as $page) {
+            foreach (self::LOCALES as $locale) {
+                $field = $this->fieldName($page, $locale, 'body_html');
+
+                if (array_key_exists($field, $state)) {
+                    $state[$field] = $sanitizer->sanitize($this->legalHtmlValue($state[$field]));
+                }
+            }
+        }
+
+        return $state;
+    }
+
+    private function legalHtmlValue(mixed $value): string
+    {
+        if (is_scalar($value)) {
+            return (string) $value;
+        }
+
+        if (! is_array($value)) {
+            return '';
+        }
+
+        return $this->renderRichEditorNode($value);
+    }
+
+    /**
+     * @param  array<string, mixed>  $node
+     */
+    private function renderRichEditorNode(array $node): string
+    {
+        $type = (string) ($node['type'] ?? '');
+        $children = collect($node['content'] ?? [])
+            ->filter(fn (mixed $child): bool => is_array($child))
+            ->map(fn (array $child): string => $this->renderRichEditorNode($child))
+            ->implode('');
+
+        return match ($type) {
+            'doc' => $children,
+            'heading' => sprintf('<h%d>%s</h%d>', max(1, min(6, (int) data_get($node, 'attrs.level', 2))), $children, max(1, min(6, (int) data_get($node, 'attrs.level', 2)))),
+            'paragraph' => '<p>'.$children.'</p>',
+            'bulletList' => '<ul>'.$children.'</ul>',
+            'orderedList' => '<ol>'.$children.'</ol>',
+            'listItem' => '<li>'.$children.'</li>',
+            'blockquote' => '<blockquote>'.$children.'</blockquote>',
+            'hardBreak' => '<br>',
+            'text' => e((string) ($node['text'] ?? '')),
+            default => $children,
+        };
     }
 
     /**

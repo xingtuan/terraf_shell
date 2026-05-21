@@ -1,11 +1,12 @@
 import type { LegalPageContent } from "@/lib/api/legal-pages"
+import { sanitizeLegalHtml } from "@/lib/legal-html"
 
 type LegalPageProps = {
   content: LegalPageContent
 }
 
 export function LegalPage({ content }: LegalPageProps) {
-  const bodyHtml = renderableHtml(content.bodyHtml)
+  const bodyHtml = sanitizeLegalHtml(content.bodyHtml)
   const hasHeaderContent = Boolean(
     content.eyebrow ||
       content.title ||
@@ -51,19 +52,4 @@ export function LegalPage({ content }: LegalPageProps) {
       ) : null}
     </article>
   )
-}
-
-function renderableHtml(value?: string | null) {
-  const html = value?.trim()
-
-  if (!html) {
-    return null
-  }
-
-  const text = html
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/gi, " ")
-    .trim()
-
-  return text ? html : null
 }

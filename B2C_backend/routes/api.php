@@ -145,10 +145,11 @@ Route::get('/media/files/{disk}/{path}', [MediaController::class, 'show'])
     ->name('api.media.files.show');
 
 Route::post('/media/upload/guest', [UploadController::class, 'upload'])
-    ->middleware('runtime_setting:community.allow_guest_upload,false');
+    ->middleware(['throttle:uploads', 'runtime_setting:community.allow_guest_upload,false']);
 
 Route::middleware('auth:sanctum')->group(function (): void {
-    Route::post('/media/upload', [UploadController::class, 'upload']);
+    Route::post('/media/upload', [UploadController::class, 'upload'])
+        ->middleware('throttle:uploads');
     Route::delete('/media', [UploadController::class, 'destroy']);
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead']);

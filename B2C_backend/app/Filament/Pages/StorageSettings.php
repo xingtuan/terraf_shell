@@ -6,6 +6,7 @@ use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Services\Settings\SettingsService;
 use App\Services\Storage\StorageManagerService;
+use App\Support\LocalStorageReadiness;
 use App\Support\StorageUrl;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
@@ -90,6 +91,10 @@ class StorageSettings extends Page
                         Placeholder::make('driver_switch_notice')
                             ->hiddenLabel()
                             ->content(__('admin.storage.driver_switch_notice')),
+                        Placeholder::make('local_storage_warning')
+                            ->hiddenLabel()
+                            ->content(fn (): string => $this->localReadinessMessage())
+                            ->visible(fn (): bool => $this->localReadinessStatus() !== 'ok'),
                         Grid::make(3)->schema([
                             Placeholder::make('local_last_test')
                                 ->label(__('admin.storage.fields.local_last_test'))
@@ -128,6 +133,9 @@ class StorageSettings extends Page
                             Placeholder::make('storage_link_status')
                                 ->label(__('admin.storage.fields.storage_link_status'))
                                 ->content(fn (): string => File::exists(public_path('storage')) ? __('admin.system.yes') : __('admin.system.no')),
+                            Placeholder::make('local_upload_writable')
+                                ->label('Upload directory writable')
+                                ->content(fn (): string => is_writable(storage_path('app/public')) ? __('admin.system.yes') : __('admin.system.no')),
                         ]),
                     ]),
                 Section::make(__('admin.storage.sections.azure'))
@@ -352,6 +360,16 @@ class StorageSettings extends Page
     private function localDiskValue(): string
     {
         return $this->normalizeLocalDisk((string) ($this->data['local_disk'] ?? 'public'));
+    }
+
+    private function localReadinessStatus(): string
+    {
+        return LocalStorageReadiness::check($this->localDiskValue())['status'];
+    }
+
+    private function localReadinessMessage(): string
+    {
+        return LocalStorageReadiness::check($this->localDiskValue())['message'];
     }
 
     private function normalizeLocalDisk(string $disk): string

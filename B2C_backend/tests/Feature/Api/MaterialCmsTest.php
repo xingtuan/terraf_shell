@@ -358,6 +358,74 @@ class MaterialCmsTest extends TestCase
             ]);
     }
 
+    public function test_contact_and_b2b_page_sections_expose_locale_specific_cms_content(): void
+    {
+        HomeSection::query()->updateOrCreate([
+            'page_key' => 'contact',
+            'key' => 'intro',
+        ], [
+            'title' => 'Contact title',
+            'title_translations' => [
+                'en' => 'Contact title',
+                'ko' => 'KO contact title',
+                'zh' => 'ZH contact title',
+            ],
+            'content' => 'Contact description',
+            'content_translations' => [
+                'en' => 'Contact description',
+                'ko' => 'KO contact description',
+                'zh' => 'ZH contact description',
+            ],
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        HomeSection::query()->updateOrCreate([
+            'page_key' => 'b2b',
+            'key' => 'process',
+        ], [
+            'title' => 'B2B process',
+            'title_translations' => [
+                'en' => 'B2B process',
+                'ko' => 'KO B2B process',
+                'zh' => 'ZH B2B process',
+            ],
+            'payload' => [
+                'items' => [
+                    [
+                        'title_translations' => [
+                            'en' => 'Step one',
+                            'ko' => 'KO step one',
+                            'zh' => 'ZH step one',
+                        ],
+                    ],
+                ],
+            ],
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        $this->getJson('/api/page-sections?page=contact&locale=ko')
+            ->assertOk()
+            ->assertJsonFragment([
+                'page_key' => 'contact',
+                'key' => 'intro',
+                'title' => 'KO contact title',
+                'content' => 'KO contact description',
+            ]);
+
+        $this->getJson('/api/page-sections?page=b2b&locale=zh')
+            ->assertOk()
+            ->assertJsonFragment([
+                'page_key' => 'b2b',
+                'key' => 'process',
+                'title' => 'ZH B2B process',
+            ])
+            ->assertJsonFragment([
+                'zh' => 'ZH step one',
+            ]);
+    }
+
     public function test_public_apis_return_admin_edited_database_cms_content_with_translations(): void
     {
         $material = Material::factory()->published()->create([

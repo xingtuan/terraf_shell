@@ -73,4 +73,47 @@ describe("CMS page sections wiring", () => {
       assert.match(source, new RegExp(`${builder}\\(`))
     }
   })
+
+  it("contact page fetches contact sections and keeps footer-contact sync", () => {
+    const source = readFileSync(
+      join(process.cwd(), "app", "[locale]", "contact", "page.tsx"),
+      "utf8",
+    )
+
+    assert.match(source, /getPageSections\(\{ baseUrl: apiBaseUrl, locale, page: "contact" \}\)/)
+    assert.match(source, /buildPageIntroContent\(/)
+    assert.match(source, /buildContactDetailsContent\(/)
+    assert.match(source, /buildB2BFormContent\(/)
+    assert.match(source, /buildFooterContent\(/)
+  })
+
+  it("b2b page fetches b2b sections and applies CMS builders", () => {
+    const source = readFileSync(
+      join(process.cwd(), "app", "[locale]", "b2b", "page.tsx"),
+      "utf8",
+    )
+
+    assert.match(source, /getPageSections\(\{ baseUrl: apiBaseUrl, locale, page: "b2b" \}\)/)
+    for (const builder of [
+      "buildPageIntroContent",
+      "buildCollaborationContent",
+      "buildB2BProcessContent",
+      "buildB2BCtaStripContent",
+      "buildB2BApplicationsContent",
+      "buildB2BFormContent",
+      "buildB2BAfterSubmitContent",
+    ]) {
+      assert.match(source, new RegExp(`${builder}\\(`))
+    }
+    assert.doesNotMatch(source, /cardHrefs=\{\[/)
+  })
+
+  it("footer renders configured social and legal link groups", () => {
+    const source = readFileSync(join(process.cwd(), "components", "footer.tsx"), "utf8")
+
+    assert.match(source, /footer\.socialLinks/)
+    assert.match(source, /footer\.legalLinks/)
+    assert.match(source, /legalLinks\.map/)
+    assert.match(source, /socialLinks\.map/)
+  })
 })

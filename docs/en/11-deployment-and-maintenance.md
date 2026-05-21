@@ -12,7 +12,7 @@ This guide covers local development setup, production deployment, and ongoing ma
 
 | Component | Minimum Version | Recommended |
 |---|---|---|
-| PHP | 8.2 | 8.3+ |
+| PHP | 8.4 | 8.4+ |
 | MySQL | 8.0 | 8.0+ |
 | Composer | 2.x | Latest 2.x |
 | Node.js | 18.x | 20 LTS |
@@ -29,6 +29,7 @@ PHP extensions required:
 - `ctype`
 - `tokenizer`
 - `xml`
+- `intl` (required for locale-aware formatting and production readiness checks)
 
 ### 1.2 Frontend Requirements
 
@@ -105,6 +106,23 @@ The frontend will be available at `http://localhost:3000`.
 
 ## 3. Production Deployment
 
+### 3.0 Production Readiness Checklist
+
+Before handing over or exposing the site publicly, confirm each item below in the production environment:
+
+- PHP 8.4+ runtime installed for the current locked dependency set.
+- PHP extensions installed: `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `gd` or `imagick`, `bcmath`, `xml`, and `intl`.
+- Backend dependencies installed with `composer install --no-dev --optimize-autoloader`.
+- Frontend dependencies installed with `npm install`, followed by `npm run build`.
+- Database migrations applied with `php artisan migrate --force`.
+- Public local storage linked with `php artisan storage:link` when `STORAGE_DISK=public` or local media storage is selected.
+- Laravel caches built with `php artisan config:cache`, `php artisan route:cache`, and `php artisan view:cache`.
+- Queue worker configured under Supervisor, systemd, or the hosting provider's worker manager.
+- Scheduler configured to run `php artisan schedule:run` every minute.
+- SMTP configured and verified by sending a test email from Email Settings.
+- Admin media upload tested for a real image and a rejected unsafe file.
+- `php artisan deploy:verify` returns no Errors.
+
 ### 3.1 Backend Production Deployment
 
 ```bash
@@ -130,22 +148,21 @@ php artisan key:generate
 # 5. Run migrations
 php artisan migrate --force
 
-# 6. (Optional) Seed initial data
-php artisan db:seed
+# 6. Link public storage when local public storage is used
+php artisan storage:link
 
-# 7. Optimize Laravel
+# 7. Optimize Laravel caches
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-php artisan optimize
 
-# 8. Set file permissions
+# 8. Run deployment verification
+php artisan deploy:verify
+
+# 9. Set file permissions
 chmod -R 775 storage
 chmod -R 775 bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
-
-# 9. Create storage link (if using local disk)
-php artisan storage:link
 ```
 
 ### 3.2 Frontend Production Build
@@ -154,7 +171,7 @@ php artisan storage:link
 cd B2C_frontend
 
 # Install dependencies
-npm install --production
+npm install
 
 # Set production environment
 # Create .env.production with:
@@ -168,7 +185,36 @@ npm run start
 # Or deploy the .next/ output to your hosting provider
 ```
 
-### 3.3 Web Server Configuration
+### 3.3 Required Background Services
+
+Queue worker:
+
+```bash
+php artisan queue:work --sleep=3 --tries=3
+```
+
+Scheduler cron:
+
+```cron
+* * * * * cd /var/www/B2C_backend && php artisan schedule:run >> /dev/null 2>&1
+```
+
+The queue worker handles notifications and asynchronous jobs. The scheduler is required for scheduled Laravel tasks. Both should be managed by Supervisor, systemd, cron, or the hosting platform, and both should be included in deployment monitoring.
+
+### 3.4 Media Storage Verification
+
+Azure storage remains the recommended production disk when configured. Set `STORAGE_DISK=azure`, `MEDIA_DRIVER=azure`, and the `AZURE_*` credentials in `.env`.
+
+For local public storage, set `STORAGE_DISK=public` and `MEDIA_DRIVER=public`, then run:
+
+```bash
+php artisan storage:link
+php artisan deploy:verify
+```
+
+The admin Storage Settings page and System / Handover Readiness page show warnings when local storage is selected but `public/storage` is missing or `storage/app/public` is not writable. Test an image upload from the admin panel before handover.
+
+### 3.5 Web Server Configuration
 
 **Nginx example for Laravel backend:**
 
@@ -486,6 +532,25 @@ Before and after deployment:
 - [ ] `storage/` directory not publicly accessible (except `storage/app/public/`)
 - [ ] Regular dependency updates: `composer update` and `npm update`
 - [ ] HTTPS enforced via web server or load balancer
+
+---
+
+## 14. Client Handover Checklist
+
+Walk the client through these workflows before delivery sign-off:
+
+1. Log in to the admin panel and change any temporary password.
+2. Edit homepage CMS sections and confirm the public homepage updates.
+3. Edit material page content and confirm the public material page updates.
+4. Edit Contact and B2B page CMS sections in English, Korean, and Chinese.
+5. Edit footer contact details, social links, and legal links, then confirm footer/contact sync.
+6. Update Privacy Policy and Terms content; confirm unsafe HTML is removed and formatting remains.
+7. Add or update products, variants, inventory, product images, and category visibility.
+8. Place a test order and demonstrate the manual payment confirmation workflow.
+9. Review community posts, reports, restrictions, and unrestriction workflow.
+10. Configure SMTP and send a test email from Email Settings.
+11. Upload a valid media file and confirm an unsafe file is rejected with a clear error.
+12. Clear demo data or regenerate demo data only in a non-production environment.
 
 ---
 
