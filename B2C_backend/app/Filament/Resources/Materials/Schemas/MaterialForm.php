@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Materials\Schemas;
 
 use App\Enums\PublishStatus;
 use App\Filament\Support\AdminOptions;
+use App\Filament\Support\AdminUploadStorage;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -417,8 +418,8 @@ class MaterialForm
         return FileUpload::make('media_path')
             ->label(__('admin.ui.uploaded_media'))
             ->image()
-            ->disk((string) config('community.uploads.disk'))
+            ->disk(fn (): string => AdminUploadStorage::disk())
             ->directory($directory)
-            ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public');
+            ->visibility(fn (): string => AdminUploadStorage::visibility());
     }
 }

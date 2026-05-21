@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductVariants\Pages\CreateProductVariant;
 use App\Filament\Resources\ProductVariants\Pages\EditProductVariant;
 use App\Filament\Resources\ProductVariants\Pages\ListProductVariants;
 use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\AdminUploadStorage;
 use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Product;
@@ -124,9 +125,9 @@ class ProductVariantResource extends Resource
                             FileUpload::make('media_path')
                                 ->label(__('admin.ui.image'))
                                 ->image()
-                                ->disk((string) config('community.uploads.disk'))
+                                ->disk(fn (): string => AdminUploadStorage::disk())
                                 ->directory('cms/products/variants')
-                                ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
+                                ->visibility(fn (): string => AdminUploadStorage::visibility()),
                             Toggle::make('is_default')
                                 ->label(__('admin.fields.is_default')),
                             Toggle::make('is_active')

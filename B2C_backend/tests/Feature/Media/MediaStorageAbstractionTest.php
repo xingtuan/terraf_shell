@@ -2,10 +2,12 @@
 
 namespace Tests\Feature\Media;
 
+use App\Filament\Support\AdminUploadStorage;
 use App\Models\User;
 use App\Services\MediaFileService;
 use App\Services\MediaService;
 use App\Services\Settings\SettingsService;
+use App\Support\StorageUrl;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
@@ -74,6 +76,39 @@ class MediaStorageAbstractionTest extends TestCase
         Storage::disk('public')->assertMissing($media->path);
         Storage::disk('azure')->assertMissing($media->path);
         $this->assertDatabaseMissing('media_files', ['id' => $media->id]);
+    }
+
+    public function test_admin_upload_storage_uses_runtime_local_public_disk(): void
+    {
+        Storage::fake('public');
+        Config::set('community.uploads.disk', 'azure');
+
+        $settings = app(SettingsService::class);
+        $settings->set('storage.default_driver', 'local', ['type' => 'string']);
+        $settings->set('storage.local.disk', 'public', ['type' => 'string']);
+
+        $path = 'cms/products/admin-upload-test.txt';
+
+        $this->assertSame('public', AdminUploadStorage::disk());
+        $this->assertSame('public', AdminUploadStorage::visibility());
+        $this->assertSame(storage_path('app/public'), config('filesystems.disks.public.root'));
+        $this->assertSame(url('/storage/'.$path), StorageUrl::publicResolve($path, AdminUploadStorage::disk()));
+
+        Storage::disk(AdminUploadStorage::disk())->put($path, 'ok', [
+            'visibility' => AdminUploadStorage::visibility(),
+        ]);
+
+        Storage::disk('public')->assertExists($path);
+    }
+
+    public function test_admin_upload_storage_uses_private_visibility_for_azure(): void
+    {
+        Config::set('community.uploads.disk', 'public');
+
+        app(SettingsService::class)->set('storage.default_driver', 'azure', ['type' => 'string']);
+
+        $this->assertSame('azure', AdminUploadStorage::disk());
+        $this->assertSame('private', AdminUploadStorage::visibility());
     }
 
     public function test_existing_method_signatures_remain_compatible(): void

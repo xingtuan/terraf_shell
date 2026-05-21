@@ -13,9 +13,11 @@ Local storage:
 
 1. Set Storage Settings driver to `local`.
 2. Keep local disk as `public`.
-3. Ensure `storage/app/public` is writable.
-4. Ensure `public/storage` exists. Use the Storage Settings action or run `php artisan storage:link`.
-5. Test local storage and test upload.
+3. Run `php artisan optimize:clear` from `B2C_backend` so cached config/routes do not keep stale disk settings.
+4. Ensure `storage/app/public` is writable.
+5. Ensure `public/storage` exists. Use the Storage Settings action or run `php artisan storage:link`.
+6. Test local storage and test upload.
+7. Verify a new admin product upload writes under `storage/app/public/cms/products...` and is served through `/storage/...`.
 
 Azure Blob Storage:
 

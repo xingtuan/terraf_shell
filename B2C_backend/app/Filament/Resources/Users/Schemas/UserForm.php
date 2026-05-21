@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Users\Schemas;
 
 use App\Enums\AccountStatus;
 use App\Enums\UserRole;
+use App\Filament\Support\AdminUploadStorage;
 use App\Filament\Support\PanelAccess;
 use App\Models\User;
 use Filament\Forms\Components\FileUpload;
@@ -76,9 +77,9 @@ class UserForm
                                 FileUpload::make('avatar_path')
                                     ->label(__('admin.ui.avatar'))
                                     ->image()
-                                    ->disk((string) config('community.uploads.disk'))
+                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                     ->directory('avatars')
-                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                    ->visibility(fn (): string => AdminUploadStorage::visibility())
                                     ->imagePreviewHeight('140')
                                     ->avatar(),
                                 Textarea::make('bio')

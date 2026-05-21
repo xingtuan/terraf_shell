@@ -164,7 +164,7 @@ class StorageSettings extends Page
     public function save(SettingsService $settings): void
     {
         $state = $this->form->getState();
-        $currentDriver = $settings->string('storage.default_driver', (string) config('community.uploads.disk', 'local'));
+        $currentDriver = $settings->string('storage.default_driver', app(StorageManagerService::class)->activeDriverName());
 
         if (($state['default_driver'] ?? null) !== $currentDriver) {
             $settings->set('storage.previous_driver', $currentDriver, ['type' => 'string']);
@@ -279,7 +279,7 @@ class StorageSettings extends Page
     private function state(SettingsService $settings): array
     {
         return [
-            'default_driver' => $settings->string('storage.default_driver', config('community.uploads.disk') === 'azure' ? 'azure' : 'local'),
+            'default_driver' => $settings->string('storage.default_driver', app(StorageManagerService::class)->activeDriverName()),
             'local_disk' => $this->normalizeLocalDisk($settings->string('storage.local.disk', 'public')),
             'azure_account_name' => $settings->string('storage.azure.account_name', (string) config('filesystems.disks.azure.name', '')),
             'azure_account_key' => $settings->secret('storage.azure.account_key') ? SettingsService::SECRET_MASK : null,

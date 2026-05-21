@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\AdminUploadStorage;
 use App\Filament\Support\PanelAccess;
 use App\Models\MediaFile;
 use Filament\Actions\Action;
@@ -120,7 +121,7 @@ class MediaStorageScan extends Page
             ->get()
             ->filter(function (MediaFile $mediaFile): bool {
                 try {
-                    return ! Storage::disk($mediaFile->disk ?: (string) config('community.uploads.disk'))->exists($mediaFile->path);
+                    return ! Storage::disk($mediaFile->disk ?: AdminUploadStorage::disk())->exists($mediaFile->path);
                 } catch (Throwable) {
                     return true;
                 }

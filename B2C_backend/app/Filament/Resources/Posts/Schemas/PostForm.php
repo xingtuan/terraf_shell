@@ -3,12 +3,12 @@
 namespace App\Filament\Resources\Posts\Schemas;
 
 use App\Enums\ContentStatus;
+use App\Filament\Support\AdminUploadStorage;
 use App\Filament\Support\PanelAccess;
 use App\Models\IdeaMedia;
 use App\Models\Post;
 use App\Models\User;
 use App\Rules\ExternalSafeUrl;
-use App\Services\Storage\StorageManagerService;
 use App\Support\StorageUrl;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
@@ -105,9 +105,9 @@ class PostForm
                         FileUpload::make('cover_image_path')
                             ->label(__('admin.ui.cover_image'))
                             ->image()
-                            ->disk(fn (): string => self::activeUploadDisk())
+                            ->disk(fn (): string => AdminUploadStorage::disk())
                             ->directory('posts/covers')
-                            ->visibility(fn (): string => self::visibilityForDisk(self::activeUploadDisk()))
+                            ->visibility(fn (): string => AdminUploadStorage::visibility())
                             ->fetchFileInformation(false)
                             ->getUploadedFileUsing(fn (string $file, ?Post $record = null, string|array|null $storedFileNames = null): ?array => self::uploadedFileInfo(
                                 $file,
@@ -115,7 +115,7 @@ class PostForm
                                 $storedFileNames,
                             ))
                             ->afterStateUpdated(function (Set $set): void {
-                                $set('cover_image_disk', self::activeUploadDisk());
+                                $set('cover_image_disk', AdminUploadStorage::disk());
                             })
                             ->imagePreviewHeight('180')
                             ->openable()
@@ -139,14 +139,14 @@ class PostForm
                             ->grid(2)
                             ->schema([
                                 Hidden::make('disk')
-                                    ->default(fn (): string => self::activeUploadDisk()),
+                                    ->default(fn (): string => AdminUploadStorage::disk()),
                                 FileUpload::make('path')
                                     ->label(__('admin.ui.image'))
                                     ->image()
                                     ->required()
-                                    ->disk(fn (): string => self::activeUploadDisk())
+                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                     ->directory('posts')
-                                    ->visibility(fn (): string => self::visibilityForDisk(self::activeUploadDisk()))
+                                    ->visibility(fn (): string => AdminUploadStorage::visibility())
                                     ->fetchFileInformation(false)
                                     ->getUploadedFileUsing(fn (string $file, ?IdeaMedia $record = null, string|array|null $storedFileNames = null): ?array => self::uploadedFileInfo(
                                         $file,
@@ -154,7 +154,7 @@ class PostForm
                                         $storedFileNames,
                                     ))
                                     ->afterStateUpdated(function (Set $set): void {
-                                        $set('disk', self::activeUploadDisk());
+                                        $set('disk', AdminUploadStorage::disk());
                                     })
                                     ->imagePreviewHeight('140'),
                                 TextInput::make('alt_text')
@@ -165,22 +165,12 @@ class PostForm
             ]);
     }
 
-    private static function activeUploadDisk(): string
-    {
-        return app(StorageManagerService::class)->disk();
-    }
-
-    private static function visibilityForDisk(string $disk): string
-    {
-        return StorageUrl::normalizeDisk($disk) === 'azure' ? 'private' : 'public';
-    }
-
     /**
      * @return array{name: string, size: int, type: ?string, url: string}|null
      */
     private static function uploadedFileInfo(string $file, ?string $disk, string|array|null $storedFileNames = null): ?array
     {
-        $resolvedDisk = StorageUrl::normalizeDisk($disk ?: self::activeUploadDisk());
+        $resolvedDisk = StorageUrl::normalizeDisk($disk ?: AdminUploadStorage::disk());
         $storage = Storage::disk($resolvedDisk);
         $size = 0;
         $type = null;

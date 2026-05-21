@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ProductImages\Schemas;
 
+use App\Filament\Support\AdminUploadStorage;
 use App\Models\Product;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -36,9 +37,9 @@ class ProductImageForm
                                     ->label(__('admin.ui.image'))
                                     ->image()
                                     ->required()
-                                    ->disk((string) config('community.uploads.disk'))
+                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                     ->directory('cms/products/gallery')
-                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                    ->visibility(fn (): string => AdminUploadStorage::visibility())
                                     ->columnSpanFull(),
                             ]),
                     ]),

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MaterialSpecs\Schemas;
 
 use App\Enums\PublishStatus;
+use App\Filament\Support\AdminUploadStorage;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -50,9 +51,9 @@ class MaterialSpecForm
                                 FileUpload::make('media_path')
                                     ->label(__('admin.ui.uploaded_media'))
                                     ->image()
-                                    ->disk((string) config('community.uploads.disk'))
+                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                     ->directory('cms/material-specs')
-                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
+                                    ->visibility(fn (): string => AdminUploadStorage::visibility()),
                                 TextInput::make('media_url')
                                     ->label(__('admin.ui.external_media_url'))
                                     ->url(),

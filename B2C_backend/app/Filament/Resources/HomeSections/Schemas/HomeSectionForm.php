@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\HomeSections\Schemas;
 
 use App\Enums\PublishStatus;
+use App\Filament\Support\AdminUploadStorage;
 use App\Models\HomeSection;
 use App\Support\LocalizedContent;
 use Filament\Forms\Components\CodeEditor;
@@ -119,9 +120,9 @@ class HomeSectionForm
                                 FileUpload::make('media_path')
                                     ->label(__('admin.ui.uploaded_media'))
                                     ->image()
-                                    ->disk((string) config('community.uploads.disk'))
+                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                     ->directory('cms/home-sections')
-                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
+                                    ->visibility(fn (): string => AdminUploadStorage::visibility()),
                                 TextInput::make('media_url')
                                     ->label(__('admin.ui.external_media_url'))
                                     ->maxLength(255),

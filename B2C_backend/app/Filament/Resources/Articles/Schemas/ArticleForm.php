@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Articles\Schemas;
 
 use App\Enums\PublishStatus;
+use App\Filament\Support\AdminUploadStorage;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\RichEditor;
@@ -52,9 +53,9 @@ class ArticleForm
                                 FileUpload::make('media_path')
                                     ->label(__('admin.ui.uploaded_media'))
                                     ->image()
-                                    ->disk((string) config('community.uploads.disk'))
+                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                     ->directory('cms/articles')
-                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                    ->visibility(fn (): string => AdminUploadStorage::visibility())
                                     ->columnSpanFull(),
                                 DateTimePicker::make('published_at')
                                     ->label(__('admin.ui.published_at')),

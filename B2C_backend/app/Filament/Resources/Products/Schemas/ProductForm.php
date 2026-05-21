@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Products\Schemas;
 
 use App\Enums\ProductStatus;
 use App\Filament\Support\AdminOptions;
+use App\Filament\Support\AdminUploadStorage;
 use App\Models\Product;
 use App\Models\ProductAttributeDefinition;
 use App\Models\ProductAttributeValue;
@@ -178,9 +179,9 @@ class ProductForm
                                                         FileUpload::make('media_path')
                                                             ->label(__('admin.ui.image'))
                                                             ->image()
-                                                            ->disk((string) config('community.uploads.disk'))
+                                                            ->disk(fn (): string => AdminUploadStorage::disk())
                                                             ->directory('cms/products/variants')
-                                                            ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public'),
+                                                            ->visibility(fn (): string => AdminUploadStorage::visibility()),
                                                         Toggle::make('is_default')
                                                             ->label(__('admin.fields.is_default')),
                                                         Toggle::make('is_active')
@@ -370,9 +371,9 @@ class ProductForm
                                                     ->label(__('admin.ui.test_date')),
                                                 FileUpload::make('document_path')
                                                     ->label(__('admin.ui.document_upload'))
-                                                    ->disk((string) config('community.uploads.disk'))
+                                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                                     ->directory('cms/products/certifications')
-                                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                                    ->visibility(fn (): string => AdminUploadStorage::visibility())
                                                     ->acceptedFileTypes(self::proofDocumentFileTypes())
                                                     ->maxSize(10240),
                                                 TextInput::make('document_url')
@@ -412,9 +413,9 @@ class ProductForm
                                                     ->required(),
                                                 FileUpload::make('file_path')
                                                     ->label(__('admin.ui.file_upload'))
-                                                    ->disk((string) config('community.uploads.disk'))
+                                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                                     ->directory('cms/products/downloads')
-                                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                                    ->visibility(fn (): string => AdminUploadStorage::visibility())
                                                     ->acceptedFileTypes(self::proofDocumentFileTypes())
                                                     ->maxSize(10240),
                                                 TextInput::make('url')
@@ -447,9 +448,9 @@ class ProductForm
                                                 FileUpload::make('media_path')
                                                     ->label(__('admin.ui.primary_image'))
                                                     ->image()
-                                                    ->disk((string) config('community.uploads.disk'))
+                                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                                     ->directory('cms/products')
-                                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                                    ->visibility(fn (): string => AdminUploadStorage::visibility())
                                                     ->imagePreviewHeight('180'),
                                                 TextInput::make('image_url')
                                                     ->label(__('admin.ui.external_primary_image_url'))
@@ -481,9 +482,9 @@ class ProductForm
                                                     ->label(__('admin.ui.image'))
                                                     ->image()
                                                     ->required()
-                                                    ->disk((string) config('community.uploads.disk'))
+                                                    ->disk(fn (): string => AdminUploadStorage::disk())
                                                     ->directory('cms/products/gallery')
-                                                    ->visibility((string) config('community.uploads.disk') === 'azure' ? 'private' : 'public')
+                                                    ->visibility(fn (): string => AdminUploadStorage::visibility())
                                                     ->imagePreviewHeight('140'),
                                                 TextInput::make('alt_text_translations.en')
                                                     ->label(__('admin.ui.alt_text_en'))

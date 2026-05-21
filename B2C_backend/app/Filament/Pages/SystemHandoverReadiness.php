@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\AdminUploadStorage;
 use App\Filament\Support\PanelAccess;
 use App\Models\EmailLog;
 use App\Models\EmailSetting;
@@ -10,8 +11,8 @@ use App\Models\Post;
 use App\Models\User;
 use App\Services\Install\InstallationService;
 use App\Services\Settings\SettingsService;
-use Filament\Pages\Page;
 use App\Support\LocalStorageReadiness;
+use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
@@ -56,7 +57,7 @@ class SystemHandoverReadiness extends Page
     public function checks(): array
     {
         $emailSetting = Schema::hasTable('email_settings') ? EmailSetting::query()->latest('id')->first() : null;
-        $uploadDisk = (string) config('community.uploads.disk', config('filesystems.default'));
+        $uploadDisk = AdminUploadStorage::disk();
         $settings = app(SettingsService::class);
         $installation = app(InstallationService::class);
         $frontendUrl = (string) config('app.frontend_url', config('services.frontend.url', ''));
@@ -229,7 +230,7 @@ class SystemHandoverReadiness extends Page
         return $this->row(
             __('admin.system.checks.health_check'),
             '/api/health',
-            $this->databaseRow()['status'] === 'ok' && $this->storageRow((string) config('community.uploads.disk', config('filesystems.default')))['status'] === 'ok'
+            $this->databaseRow()['status'] === 'ok' && $this->storageRow(AdminUploadStorage::disk())['status'] === 'ok'
                 ? 'ok'
                 : 'warning',
         );
