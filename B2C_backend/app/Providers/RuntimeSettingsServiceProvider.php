@@ -53,6 +53,7 @@ class RuntimeSettingsServiceProvider extends ServiceProvider
         config([
             'filesystems.default' => $disk,
             'community.uploads.disk' => $disk,
+            'livewire.temporary_file_upload.disk' => $disk,
             'filesystems.disks.azure.name' => $settings->string('storage.azure.account_name', (string) config('filesystems.disks.azure.name', '')),
             'filesystems.disks.azure.key' => $settings->secret('storage.azure.account_key', config('filesystems.disks.azure.key')),
             'filesystems.disks.azure.container' => $settings->string('storage.azure.container', (string) config('filesystems.disks.azure.container', 'uploads')),
