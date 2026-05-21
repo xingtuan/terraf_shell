@@ -149,5 +149,4 @@ class AuthController extends Controller
             'Use this token and email with POST /api/auth/reset-password.'
         );
     }
-
 }

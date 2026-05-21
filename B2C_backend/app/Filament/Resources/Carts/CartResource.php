@@ -8,10 +8,13 @@ use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\HasAdminResourceTranslations;
 use App\Filament\Support\PanelAccess;
 use App\Models\Cart;
+use App\Models\CartItem;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -77,6 +80,7 @@ class CartResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
+                self::clearCartAction(),
             ]);
     }
 
@@ -114,7 +118,9 @@ class CartResource extends Resource
                             ->hiddenLabel()
                             ->schema([
                                 TextEntry::make('product.name')
-                                    ->label(__('admin.fields.product')),
+                                    ->label(__('admin.fields.product'))
+                                    ->placeholder('Deleted product')
+                                    ->suffixAction(self::removeCartItemAction()),
                                 TextEntry::make('variant.sku')
                                     ->label(__('admin.fields.sku'))
                                     ->placeholder(fn ($record): ?string => $record->product?->effectiveSku()),
@@ -126,6 +132,62 @@ class CartResource extends Resource
                             ->columns(4),
                     ]),
             ]);
+    }
+
+    public static function clearCartAction(): Action
+    {
+        return Action::make('clearCart')
+            ->label('Clear cart')
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->visible(fn (): bool => PanelAccess::isAdmin())
+            ->action(function (Cart $record, $livewire = null): void {
+                $deletedItems = $record->items()->delete();
+                self::refreshMountedCartRecord($record, $livewire);
+
+                Notification::make()
+                    ->title('Cart cleared')
+                    ->body("Removed {$deletedItems} cart item(s).")
+                    ->success()
+                    ->send();
+            });
+    }
+
+    private static function removeCartItemAction(): Action
+    {
+        return Action::make('removeCartItem')
+            ->label('Remove item')
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->visible(fn (?CartItem $record): bool => $record instanceof CartItem && PanelAccess::isAdmin())
+            ->action(function (CartItem $record, $livewire = null): void {
+                $cart = $record->cart;
+                $record->delete();
+
+                if ($cart instanceof Cart) {
+                    self::refreshMountedCartRecord($cart, $livewire);
+                }
+
+                Notification::make()
+                    ->title('Cart item removed')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    private static function refreshMountedCartRecord(Cart $cart, mixed $livewire): void
+    {
+        if (! is_object($livewire) || ! property_exists($livewire, 'record')) {
+            return;
+        }
+
+        $freshCart = $cart->fresh(['user', 'items.product', 'items.variant']);
+
+        if ($freshCart instanceof Cart) {
+            $livewire->record = $freshCart;
+        }
     }
 
     public static function canViewAny(): bool

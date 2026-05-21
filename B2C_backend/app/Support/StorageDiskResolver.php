@@ -22,7 +22,31 @@ final class StorageDiskResolver
     {
         $candidates = [];
 
-        foreach ([$preferredDisk, ...$fallbackDisks, 'public', 'local'] as $candidate) {
+        foreach ([$preferredDisk, ...$fallbackDisks] as $candidate) {
+            $candidate = trim($candidate);
+
+            if ($candidate === '' || in_array($candidate, $candidates, true)) {
+                continue;
+            }
+
+            $candidates[] = $candidate;
+        }
+
+        foreach (array_keys($this->disks) as $candidate) {
+            $candidate = trim((string) $candidate);
+
+            if (
+                $candidate === ''
+                || in_array($candidate, $candidates, true)
+                || in_array($candidate, ['public', 'local'], true)
+            ) {
+                continue;
+            }
+
+            $candidates[] = $candidate;
+        }
+
+        foreach (['public', 'local'] as $candidate) {
             $candidate = trim($candidate);
 
             if ($candidate === '' || in_array($candidate, $candidates, true)) {

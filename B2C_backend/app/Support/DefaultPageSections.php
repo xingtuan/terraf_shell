@@ -804,6 +804,7 @@ class DefaultPageSections
         foreach (explode('.', $path) as $segment) {
             if (is_array($value) && array_key_exists($segment, $value)) {
                 $value = $value[$segment];
+
                 continue;
             }
 
@@ -835,17 +836,20 @@ class DefaultPageSections
                 foreach ($fieldMap as $target => $sourceKey) {
                     if ($target === 'cta_url') {
                         $record['cta_url'] = is_array($item) && is_string($item[$sourceKey] ?? null) ? $item[$sourceKey] : null;
+
                         continue;
                     }
 
                     if ($target === 'key') {
                         $record['key'] = is_array($item) && is_string($item[$sourceKey] ?? null) ? $item[$sourceKey] : null;
+
                         continue;
                     }
 
                     if ($target === 'status') {
                         $record['status'] = is_array($item) && is_string($item[$sourceKey] ?? null) ? $item[$sourceKey] : null;
                         $record['status_translations'] = self::translations($messages, "{$path}.{$index}.{$sourceKey}");
+
                         continue;
                     }
 

@@ -16,7 +16,7 @@ class LegalHtmlSanitizer
             return '';
         }
 
-        $config = (new HtmlSanitizerConfig())
+        $config = (new HtmlSanitizerConfig)
             ->defaultAction(HtmlSanitizerAction::Block)
             ->allowLinkSchemes(['http', 'https', 'mailto', 'tel'])
             ->allowRelativeLinks()

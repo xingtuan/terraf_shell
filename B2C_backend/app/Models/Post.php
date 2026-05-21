@@ -155,8 +155,7 @@ class Post extends Model
             return StorageUrl::normalizePublicUrl($this->cover_image_url);
         }
 
-        $isGalleryImage = fn (IdeaMedia $media): bool =>
-            $media->isImage() && ! ($media->metadata['is_attachment'] ?? false);
+        $isGalleryImage = fn (IdeaMedia $media): bool => $media->isImage() && ! ($media->metadata['is_attachment'] ?? false);
 
         $image = $this->relationLoaded('media')
             ? $this->media->first($isGalleryImage)
