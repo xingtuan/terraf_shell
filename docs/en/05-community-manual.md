@@ -35,7 +35,7 @@ The community is designed to:
 | `status` | Auto | Draft / Published / Pending Review / Archived / Rejected |
 | `is_featured` | Admin | Whether the post appears in featured sections |
 | `is_pinned` | Admin | Whether the post is pinned to the top of the feed |
-| `is_demo_content` | System | Marks demo/seeder content |
+| `internal initial-content marker` | System | Marks initial/seeder content |
 | `published_at` | Auto | Timestamp when the post went live |
 
 ### 2.2 Rich Text Content

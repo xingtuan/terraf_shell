@@ -15,7 +15,7 @@ OXP is designed to:
 1. **Educate and engage** — Present the brand's material science, certifications, and sustainability credentials to a global audience.
 2. **Sell direct** — Enable customers to browse and purchase products through a modern e-commerce store with cart, checkout, and order tracking.
 3. **Build community** — Allow registered users to share ideas, projects, and knowledge through community posts, comments, likes, and follow relationships.
-4. **Generate B2B leads** — Capture qualified business inquiries for wholesale, distribution, manufacturing, sample requests, and partnership collaborations.
+4. **Generate B2B leads** — Capture qualified business inquiries for wholesale, distribution, manufacturing, material requests, and partnership collaborations.
 5. **Centralize administration** — Provide administrators with a powerful admin panel to manage all platform content, users, orders, and settings.
 
 ---
@@ -87,7 +87,7 @@ Lead generation and inquiry capture:
 - General contact / inquiry form
 - Structured B2B inquiry form with interest categorization
 - Partnership, university collaboration, and product development inquiry forms
-- Sample request form
+- Material request form
 - Admin review and lead qualification pipeline
 
 ### 6. Admin Panel
@@ -99,7 +99,7 @@ Built on Filament 5 (Laravel):
 - Email center (templates, events, logs)
 - Settings system (application, mail, storage, shipping, tax, community policies)
 - Handover readiness checklist
-- Demo data import/cleanup utility
+- Initial content maintained through standard resources
 
 ---
 

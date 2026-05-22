@@ -71,9 +71,9 @@ Navigate to `{your-backend-url}/admin`. Log in with an account that has the `adm
 
 > Or use `php artisan tinker` to manually update the role in the database.
 
-### B3. How do I remove demo content before going live?
+### B3. How do I manage initial content?
 
-Go to **Admin Panel → System → Demo Data Cleanup**. Review the list of demo items and click **Remove Demo Content**. This action is irreversible.
+Initial content is delivered as normal platform content. Use the standard product, CMS, community, and user resources to edit, archive, or replace individual records when required.
 
 ### B4. How do I update the legal pages (Privacy Policy / Terms of Service)?
 
@@ -134,7 +134,7 @@ php artisan migrate
 
 For status check: `php artisan migrate:status`
 
-### C2. How do I seed demo data?
+### C2. How do I seed initial content?
 
 ```bash
 php artisan db:seed

@@ -37,23 +37,23 @@ class PostSeeder extends Seeder
             return;
         }
 
-        foreach ($this->demoPosts() as $index => $demoPost) {
+        foreach ($this->initialPosts() as $index => $initialPost) {
             $post = Post::query()->updateOrCreate(
-                ['slug' => $demoPost['slug']],
+                ['slug' => $initialPost['slug']],
                 [
                     'status' => ContentStatus::Approved->value,
                     'user_id' => $users[$index % $users->count()]->id,
                     'category_id' => $categories[$index % $categories->count()]->id,
-                    'title' => $demoPost['title'],
-                    'content' => $demoPost['content'],
+                    'title' => $initialPost['title'],
+                    'content' => $initialPost['content'],
                     'content_json' => null,
-                    'excerpt' => Str::limit(strip_tags($demoPost['content']), 180),
+                    'excerpt' => Str::limit(strip_tags($initialPost['content']), 180),
                     'cover_image_url' => null,
                     'cover_image_path' => null,
                     'reading_time' => 1,
                     'is_pinned' => $index === 0,
                     'is_featured' => $index < 3,
-                    'is_demo_content' => true,
+                    'is_demo_content' => false,
                     'engagement_score' => 0,
                     'trending_score' => 0,
                     'featured_at' => $index < 3 ? now() : null,
@@ -141,7 +141,7 @@ class PostSeeder extends Seeder
                 'target_amount' => 15000,
                 'pledged_amount' => 4200,
                 'backer_count' => 64,
-                'reward_description' => 'Backers receive sample material tiles and early design updates.',
+                'reward_description' => 'Backers receive review material tiles and early design updates.',
                 'campaign_start_at' => now()->subDays(5),
                 'campaign_end_at' => now()->addDays(25),
             ]);
@@ -151,28 +151,28 @@ class PostSeeder extends Seeder
     /**
      * @return array<int, array{title: string, slug: string, content: string}>
      */
-    private function demoPosts(): array
+    private function initialPosts(): array
     {
         return [
-            $this->demoPost('Oyster shell composite desk tray', 'A desk tray concept using OXP sheet offcuts for a refined office accessory. The prototype focuses on small-batch tooling, easy finishing, and repairable edges.'),
-            $this->demoPost('Cafe service tile pilot', 'A hospitality tile concept for table numbers, tasting flights, and counter displays. The idea tests stain resistance, weight, and a quiet natural finish.'),
-            $this->demoPost('Modular retail display blocks', 'Stackable display blocks for small retailers that need durable visual merchandising without disposable acrylic props.'),
-            $this->demoPost('Community workshop sample kit', 'A compact sample kit designed for schools and makerspaces to compare finishes, thicknesses, and common joining methods.'),
-            $this->demoPost('Acoustic wall accent study', 'An early study exploring textured wall accents for reception spaces, with attention to mounting, cleaning, and replacement.'),
-            $this->demoPost('Restaurant menu stand concept', 'A simple menu stand made for repeated cleaning and heavy service use, designed around stable weight and understated material character.'),
-            $this->demoPost('Circular material classroom prompt', 'A classroom activity prompt that helps students map waste streams, constraints, and useful product ideas before prototyping.'),
-            $this->demoPost('Low-waste fixture bracket', 'A small fixture bracket concept that uses predictable nesting and simple drilling to reduce fabrication waste.'),
-            $this->demoPost('Giftware packaging insert trial', 'A packaging insert trial comparing recycled paper structures with rigid reusable OXP inserts for premium product presentation.'),
-            $this->demoPost('Public library signage marker', 'A tactile signage marker concept for public libraries that balances legibility, durability, and a calm material palette.'),
-            $this->demoPost('Sample request display board', 'A display board concept for sales teams to explain colour, finish, weight, and care instructions during sample conversations.'),
-            $this->demoPost('Repairable coaster set', 'A coaster set prototype designed to test edge sealing, day-to-day cleaning, and easy replacement of individual pieces.'),
+            $this->initialPost('Oyster shell composite desk tray', 'A desk tray concept using OXP sheet offcuts for a refined office accessory. The prototype focuses on small-batch tooling, easy finishing, and repairable edges.'),
+            $this->initialPost('Cafe service tile pilot', 'A hospitality tile concept for table numbers, tasting flights, and counter displays. The idea evaluates stain resistance, weight, and a quiet natural finish.'),
+            $this->initialPost('Modular retail display blocks', 'Stackable display blocks for small retailers that need durable visual merchandising without disposable acrylic props.'),
+            $this->initialPost('Community workshop review kit', 'A compact review kit designed for schools and makerspaces to compare finishes, thicknesses, and common joining methods.'),
+            $this->initialPost('Acoustic wall accent study', 'An early study exploring textured wall accents for reception spaces, with attention to mounting, cleaning, and replacement.'),
+            $this->initialPost('Restaurant menu stand concept', 'A simple menu stand made for repeated cleaning and heavy service use, designed around stable weight and understated material character.'),
+            $this->initialPost('Circular material classroom prompt', 'A classroom activity prompt that helps students map waste streams, constraints, and useful product ideas before prototyping.'),
+            $this->initialPost('Low-waste fixture bracket', 'A small fixture bracket concept that uses predictable nesting and simple drilling to reduce fabrication waste.'),
+            $this->initialPost('Giftware packaging insert trial', 'A packaging insert trial comparing recycled paper structures with rigid reusable OXP inserts for premium product presentation.'),
+            $this->initialPost('Public library signage marker', 'A tactile signage marker concept for public libraries that balances legibility, durability, and a calm material palette.'),
+            $this->initialPost('Material request display board', 'A display board concept for sales teams to explain colour, finish, weight, and care instructions during material conversations.'),
+            $this->initialPost('Repairable coaster set', 'A coaster set prototype designed to evaluate edge sealing, day-to-day cleaning, and easy replacement of individual pieces.'),
         ];
     }
 
     /**
      * @return array{title: string, slug: string, content: string}
      */
-    private function demoPost(string $title, string $content): array
+    private function initialPost(string $title, string $content): array
     {
         return [
             'title' => $title,

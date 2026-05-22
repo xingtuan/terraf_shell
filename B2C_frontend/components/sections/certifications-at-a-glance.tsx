@@ -53,7 +53,7 @@ const certificationIcons: Record<string, LucideIcon> = {
   compressive_stability: ShieldCheck,
   surface_safety: FlaskConical,
   material_origin: BadgeCheck,
-  demo_disclaimer: BadgeCheck,
+  verification_status: BadgeCheck,
 }
 
 function cleanText(value: unknown): string | undefined {
@@ -196,10 +196,7 @@ export function CertificationsAtAGlance({
           >
             {cards.map((card) => {
               const Icon = getCertificationIcon(card.key)
-              const statusKey =
-                card.status === "demo" || card.verified === false
-                  ? "demo"
-                  : card.status
+              const statusKey = card.verified === false ? "pending" : card.status
               const statusLabel =
                 card.verified === true
                   ? verifiedLabel

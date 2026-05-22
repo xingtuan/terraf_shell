@@ -48,10 +48,6 @@ class MaterialsTable
                 IconColumn::make('is_featured')
                     ->label(__('admin.ui.featured'))
                     ->boolean(),
-                IconColumn::make('is_seeded')
-                    ->label(__('admin.ui.seeded'))
-                    ->boolean()
-                    ->toggleable(),
                 TextColumn::make('specs_count')
                     ->label(__('admin.ui.specs'))
                     ->badge()

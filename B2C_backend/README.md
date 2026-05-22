@@ -395,7 +395,7 @@ Templates use safe `{{ variable.path }}` placeholders. Blade directives, PHP tag
 | `inquiries` | Generic inquiry submissions (legacy) |
 | `b2b_leads` | Unified B2B lead table |
 | `partnership_inquiries` | Partnership inquiry details |
-| `sample_requests` | Sample request details |
+| `sample_requests` | Material request details |
 | `business_contacts` | Business contact leads |
 
 ### Commerce
@@ -756,12 +756,12 @@ The Filament admin panel at `/admin` is for internal staff only.
 - Shipping Settings page for NZ-only delivery status, origin/fallback rate visibility, NZ Post configuration status, and safe lookup/quote tests
 - Media library review for uploaded files and linked objects
 - Korean, English, and Chinese admin locale switching with matching `lang/*/admin.php` key structures and English fallback
-- Handover readiness checks for database, storage, mail, queue, demo data, failed jobs, and writable paths
+- Handover readiness checks for database, storage, mail, queue, initial content, failed jobs, and writable paths
 - System announcement broadcasting to targeted user roles
 
 ---
 
-## Seeded Test Accounts
+## Initial Delivery Accounts
 
 After `php artisan migrate --seed`:
 
@@ -776,8 +776,8 @@ Seeded CMS content includes:
 - One published featured material at slug `premium-oyster-shell`
 - Published material specs, story sections, and application sections
 - Published homepage sections (hero, science, updates)
-- Published sample articles
-- One approved concept with a sample live external funding campaign
+- Published articles
+- One approved concept with a live external funding campaign
 
 ---
 
@@ -856,7 +856,7 @@ Seeded CMS content includes:
 }
 ```
 
-### Submit a Sample Request
+### Submit a Material Request
 
 ```json
 {
@@ -866,7 +866,7 @@ Seeded CMS content includes:
   "email": "mika@example.com",
   "country": "Japan",
   "region": "Osaka",
-  "message": "We need evaluation samples for an interior pilot.",
+  "message": "We need evaluation review packs for an interior pilot.",
   "material_interest": "Pressed oyster-shell panel",
   "quantity_estimate": "10 sheets",
   "shipping_country": "Japan",

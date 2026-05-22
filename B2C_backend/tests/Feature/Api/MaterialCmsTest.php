@@ -126,7 +126,7 @@ class MaterialCmsTest extends TestCase
             ->assertJsonPath('data.certifications.0.name', 'Water Absorption Test')
             ->assertJsonPath('data.certifications.0.status', 'pending')
             ->assertJsonCount(0, 'data.technical_downloads')
-            ->assertJsonPath('data.models.0.id', 'demo_pellet')
+            ->assertJsonPath('data.models.0.id', 'pellet_input')
             ->assertJsonPath('data.colors.1.id', 'thermal_ash');
 
         $this->getJson('/api/materials/oyster-shell-material')
@@ -140,7 +140,7 @@ class MaterialCmsTest extends TestCase
             ->assertJsonPath('data.origin', '从沿海废弃物流中回收的牡蛎壳')
             ->assertJsonPath('data.process_steps.0.title', '收集')
             ->assertJsonPath('data.properties.0.label', '轻量化')
-            ->assertJsonPath('data.models.0.name', '演示颗粒原料')
+            ->assertJsonPath('data.models.0.name', '颗粒原料')
             ->assertJsonPath('data.colors.0.name', '牡蛎矿物白');
 
         $this->getJson('/api/materials?locale=ko')
@@ -149,7 +149,7 @@ class MaterialCmsTest extends TestCase
             ->assertJsonPath('data.origin', '해안 폐기물 흐름에서 회수한 굴 껍데기')
             ->assertJsonPath('data.process_steps.0.title', '열 정화')
             ->assertJsonPath('data.properties.0.label', '충격 저항성')
-            ->assertJsonPath('data.models.0.name', '데모 펠릿 원료')
+            ->assertJsonPath('data.models.0.name', '펠릿 원료')
             ->assertJsonPath('data.colors.1.name', '써멀 애시');
 
         $this->getJson('/api/home-sections')

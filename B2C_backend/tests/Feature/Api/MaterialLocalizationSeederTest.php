@@ -91,7 +91,7 @@ class MaterialLocalizationSeederTest extends TestCase
             ->assertJsonPath('data.materials.0.summary', '面向高端室内物件、酒店餐饮项目、餐具概念以及未来联合产品开发。');
     }
 
-    public function test_material_endpoint_returns_chinese_material_specs_story_applications_and_demo_evidence(): void
+    public function test_material_endpoint_returns_chinese_material_specs_story_applications_and_verification_evidence(): void
     {
         $this->seed(MaterialContentSeeder::class);
 
@@ -108,8 +108,8 @@ class MaterialLocalizationSeederTest extends TestCase
             ->assertJsonPath('data.process_steps.3.title', '压缩成型与表面处理')
             ->assertJsonPath('data.applications.0.title', '酒店餐饮与桌面物件')
             ->assertJsonPath('data.certifications.0.label', '吸水率测试')
-            ->assertJsonPath('data.certifications.0.value', '0.00% 演示目标')
-            ->assertJsonPath('data.certifications.0.status', 'demo')
+            ->assertJsonPath('data.certifications.0.value', '0.00% 验证目标')
+            ->assertJsonPath('data.certifications.0.status', 'pending')
             ->assertJsonPath('data.certifications.0.verified', false);
 
         $payload = json_encode($response->json(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -142,8 +142,8 @@ class MaterialLocalizationSeederTest extends TestCase
             ->assertJsonPath('data.process_steps.3.title', '압축 성형 및 마감')
             ->assertJsonPath('data.applications.0.title', '호스피탈리티 및 테이블웨어')
             ->assertJsonPath('data.certifications.0.label', '흡수율 테스트')
-            ->assertJsonPath('data.certifications.0.value', '0.00% 데모 목표')
-            ->assertJsonPath('data.certifications.0.status', 'demo')
+            ->assertJsonPath('data.certifications.0.value', '0.00% 검증 목표')
+            ->assertJsonPath('data.certifications.0.status', 'pending')
             ->assertJsonPath('data.certifications.0.verified', false);
     }
 
@@ -613,7 +613,7 @@ class MaterialLocalizationSeederTest extends TestCase
         $this->assertSame($contactFormDefault['title_translations']['ko'], $koContactForm['title']);
         $this->assertSame('inquiry', $koContactForm['payload']['form_anchor_id']);
         $this->assertCount(7, $koContactForm['payload']['topic_options']);
-        $this->assertSame('샘플 요청', $koContactForm['payload']['topic_options'][1]['label_translations']['ko']);
+        $this->assertSame('소재 요청', $koContactForm['payload']['topic_options'][1]['label_translations']['ko']);
     }
 
     public function test_page_section_form_keeps_payload_hidden_keys_and_limits_translations_to_supported_locales(): void

@@ -42,8 +42,8 @@ export const communityIdeaRecords: RawCommunityIdeaRecord[] = [
     },
     tags: {
       en: ["tableware", "chef-led", "sampling"],
-      ko: ["테이블웨어", "셰프 협업", "샘플링"],
-      zh: ["餐具", "主厨合作", "样品测试"],
+      ko: ["테이블웨어", "셰프 협업", "소재 검토"],
+      zh: ["餐具", "主厨合作", "材料评估"],
     },
   },
   {
@@ -89,9 +89,9 @@ export const communityIdeaRecords: RawCommunityIdeaRecord[] = [
       zh: "OXP 材料实验基金",
     },
     summary: {
-      en: "A small funding track for pilot moulds, sample sets, and student or studio-led concept testing.",
-      ko: "파일럿 몰드, 샘플 세트, 학생 및 스튜디오 주도 콘셉트 테스트를 위한 소규모 지원 트랙입니다.",
-      zh: "面向试验模具、样品套组，以及学生或工作室主导概念测试的小型资助通道。",
+      en: "A small funding track for pilot moulds, review sets, and student or studio-led concept validation.",
+      ko: "파일럿 몰드, 검토 세트, 학생 및 스튜디오 주도 콘셉트 검증을 위한 소규모 지원 트랙입니다.",
+      zh: "面向试验模具、评估材料组合，以及学生或工作室主导概念验证的小型资助通道。",
     },
     stage: {
       en: "Open for applicants",

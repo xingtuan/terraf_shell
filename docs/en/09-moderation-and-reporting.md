@@ -212,7 +212,7 @@ Administrators can also moderate content directly without waiting for a report:
 **Location**: Admin Panel → Community → Posts
 
 - Change post status to **Archived** or **Rejected** directly.
-- Toggle **Featured** status to promote or demote posts.
+- Toggle **Featured** status to promote or unfeature posts.
 - Toggle **Pinned** status.
 - Edit post content (should be done cautiously and logged).
 

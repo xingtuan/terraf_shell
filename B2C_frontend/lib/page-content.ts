@@ -1970,12 +1970,6 @@ export function buildCertificationsContent(
         locale,
         fallback.statusLabels.pending,
       ),
-      demo: localizedPayloadString(
-        statusLabels,
-        "demo",
-        locale,
-        fallback.statusLabels.demo,
-      ),
       not_applicable: localizedPayloadString(
         statusLabels,
         "not_applicable",

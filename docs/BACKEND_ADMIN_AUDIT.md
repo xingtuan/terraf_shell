@@ -4,7 +4,7 @@ Date: 2026-05-07
 
 Scope reviewed: `B2C_backend/routes/api.php`, `app/Models`, `app/Http/Controllers/Api`, `app/Http/Requests`, `app/Http/Resources`, `app/Services`, `app/Filament/Resources`, `app/Filament/Pages`, `app/Filament/Widgets`, `database/migrations`, `database/seeders`, `lang/en`, `lang/ko`, `lang/zh`, README and backend docs.
 
-The backend already had strong API and model coverage. The largest gap was not data storage, but operator visibility in Filament: carts, addresses, central media, handover readiness, lead priority/follow-up, demo content cleanup, and a Korean-ready navigation structure were not exposed clearly enough.
+The backend already had strong API and model coverage. The largest gap was not data storage, but operator visibility in Filament: carts, addresses, central media, handover readiness, lead priority/follow-up, initial content review, and a Korean-ready navigation structure were not exposed clearly enough.
 
 | Feature area | Existing database tables/models | Existing API routes | Existing Filament admin resource/page/widget | Missing admin visibility | Missing backend functionality | Required fix | Priority |
 |---|---|---|---|---|---|---|---|
@@ -24,10 +24,10 @@ The backend already had strong API and model coverage. The largest gap was not d
 | Inquiries | `inquiries`; `B2BLead` legacy type | `/api/inquiries` | `EnquiryResource` | Follow-up and priority missing | Convert-to-lead is implicit because storage is unified | Added priority/follow-up fields and admin actions | P0 |
 | Business contacts | `inquiries.lead_type=business_contact` | `/api/business-contacts` | `B2BLeadResource`, `EnquiryResource` filters | Separate page not needed because table is unified | No separate business contacts table | Exposed through All Leads and General Enquiries | P0 |
 | Partnership inquiries | `partnership_inquiries`; `PartnershipInquiry` | `/api/partnership-inquiries` | `B2BLeadResource` | Needs type filter and detail visibility | None blocking | Unified lead center shows related detail and type | P0 |
-| Sample requests | `sample_requests`; `SampleRequest` | `/api/sample-requests` | `B2BLeadResource` | Needs type filter and detail visibility | None blocking | Unified lead center shows sample detail and type | P0 |
+| Material requests | `sample_requests`; `SampleRequest` | `/api/sample-requests` | `B2BLeadResource` | Needs type filter and detail visibility | None blocking | Unified lead center shows material request detail and type | P0 |
 | University collaborations | `partnership_inquiries.collaboration_type` | `/api/university-collaborations` | `B2BLeadResource` | No separate resource, but duplicate resource would be noisy | None blocking | Exposed by lead type/filter in All Leads | P1 |
 | Product development collaborations | `partnership_inquiries.collaboration_type` | `/api/product-development-collaborations` | `B2BLeadResource` | No separate resource, but duplicate resource would be noisy | None blocking | Exposed by lead type/filter in All Leads | P1 |
-| Community posts | `posts`, `post_images`, `idea_media`; `Post` | `/api/posts`, `/api/admin/posts/{post}/status` | `PostResource`, moderation pages/widgets | Demo content cleanup and funding URL validation needed | None blocking | Added demo content flag, cleanup action, funding URL validation | P0 |
+| Community posts | `posts`, `post_images`, `idea_media`; `Post` | `/api/posts`, `/api/admin/posts/{post}/status` | `PostResource`, moderation pages/widgets | Initial content review and funding URL validation needed | None blocking | Added initial content flag, content management action, funding URL validation | P0 |
 | Comments | `comments`, `comment_likes`; `Comment` | `/api/comments`, admin status routes | `CommentResource`, moderation queue/widgets | Existing queue usable | None blocking | Navigation and widget labels localized | P1 |
 | Likes/favorites/follows | `post_likes`, `comment_likes`, `favorites`, `follows` | Engagement APIs | Counts visible on posts/users | No standalone admin resources | Standalone moderation is not needed | Keep as metrics unless abuse tooling is needed later | P2 |
 | Funding campaigns / funding links | `posts.funding_url`, `funding_campaigns`; `FundingCampaign` | `/api/admin/posts/{post}/funding-campaign` | `FundingCampaignResource`, `PostResource` | Unsafe protocols were not explicitly rejected | Internal payment platform is intentionally out of scope | Added safe external URL rule; retain external-link-only approach | P0 |
@@ -47,7 +47,7 @@ The backend already had strong API and model coverage. The largest gap was not d
 | Email events | `email_events`; `EmailEvent` | Email dispatch services | `EmailEventResource` | Existing event switches usable | None blocking | Grouped under Email Center and labels translated | P1 |
 | Email templates | `email_templates`, `email_template_versions`; `EmailTemplate` | Email renderer/dispatch services | `EmailTemplateResource` | Existing localization present | None blocking | Grouped under Email Center and labels translated | P1 |
 | Email logs | `email_logs`; `EmailLog` | Dispatch services create logs | `EmailLogResource` | Existing logs usable | None blocking | Grouped under Email Center | P1 |
-| Dashboard widgets | Models aggregate store/leads/community | No public route | Store, lead, community, moderation widgets | Missing lead and demo-content operational stats | None blocking | Added lead week/overdue and community uploads/demo stats | P1 |
+| Dashboard widgets | Models aggregate store/leads/community | No public route | Store, lead, community, moderation widgets | Missing lead and initial-content operational stats | None blocking | Added lead week/overdue and community uploads/content stats | P1 |
 | System/handover readiness | App config, DB, storage, mail, queue, failed jobs | No API route | None before; added `SystemHandoverReadiness` page | No single pre-handover checklist | Secrets must not be exposed | Added System / Handover page with OK/Warning/Error badges | P0 |
 
 ## Admin Navigation Result

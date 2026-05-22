@@ -1,6 +1,6 @@
-# Demo Readiness Checklist
+# Delivery Readiness Checklist
 
-Run this on the final demo environment after `php artisan optimize:clear` and after the frontend build is deployed.
+Run this on the final delivery review environment after `php artisan optimize:clear` and after the frontend build is deployed.
 
 ## Frontend
 
@@ -27,14 +27,14 @@ Run this on the final demo environment after `php artisan optimize:clear` and af
 - [ ] Admin language switch works: English, Korean, Chinese.
 - [ ] Product, variants, inventory, carts, addresses, orders, leads, CMS, Email Center, media, and handover pages load.
 - [ ] Order list clearly shows guest versus registered orders.
-- [ ] Lead admin shows submitted B2B/sample/partnership leads.
+- [ ] Lead admin shows submitted B2B/material/partnership leads.
 - [ ] Storage Settings page loads.
 - [ ] Local storage test persists latest status.
 - [ ] Azure test handles missing credentials without exposing secrets.
 - [ ] System / Handover Readiness page loads and shows OK/Warning/Error badges.
 - [ ] Settings export downloads non-secret JSON.
 - [ ] Settings import rejects unknown or secret keys.
-- [ ] Demo Cleanup shows counts and does not delete protected data.
+- [ ] Initial content appears in standard content resources and remains editable as delivery content.
 - [ ] Media Storage Scan shows disk counts and exports a report.
 
 ## Installer And Package

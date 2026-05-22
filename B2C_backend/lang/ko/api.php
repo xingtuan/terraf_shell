@@ -77,7 +77,7 @@ return [
         'partnership_submitted' => '파트너십 문의가 제출되었습니다.',
         'university_submitted' => '대학 협업 요청이 제출되었습니다.',
         'product_development_submitted' => '제품 개발 협업 요청이 제출되었습니다.',
-        'sample_submitted' => '샘플 요청이 제출되었습니다.',
+        'sample_submitted' => '소재 요청이 제출되었습니다.',
     ],
     'community' => [
         'post_created' => '게시글을 만들었습니다.',

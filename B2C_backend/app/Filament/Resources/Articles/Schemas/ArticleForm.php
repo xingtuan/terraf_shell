@@ -10,7 +10,6 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
@@ -37,11 +36,6 @@ class ArticleForm
                                     ->options(PublishStatus::options())
                                     ->required()
                                     ->default(PublishStatus::Draft->value),
-                                Toggle::make('is_seeded')
-                                    ->label(__('admin.ui.seeded_demo_content'))
-                                    ->helperText(__('admin.ui.seeded_demo_content_help'))
-                                    ->disabled()
-                                    ->dehydrated(false),
                                 TextInput::make('sort_order')
                                     ->label(__('admin.ui.sort_order'))
                                     ->required()

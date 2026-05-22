@@ -2,7 +2,7 @@
 
 ## Overview
 
-The OXP platform provides several mechanisms for businesses and individuals to reach out for professional inquiries, partnership discussions, sample requests, and collaborations. All submissions are stored in the database and managed through the admin panel.
+The OXP platform provides several mechanisms for businesses and individuals to reach out for professional inquiries, partnership discussions, material requests, and collaborations. All submissions are stored in the database and managed through the admin panel.
 
 ---
 
@@ -15,7 +15,7 @@ The OXP platform provides several mechanisms for businesses and individuals to r
 | B2B Inquiry | `POST /api/partnership-inquiries` | `B2BLead` | Structured B2B lead form |
 | University Collaboration | `POST /api/university-collaborations` | `PartnershipInquiry` | Academic / university partnerships |
 | Product Development | `POST /api/product-development-collaborations` | `PartnershipInquiry` | Product development partnerships |
-| Sample Request | `POST /api/sample-requests` | `SampleRequest` | Request product samples |
+| Material Request | `POST /api/sample-requests` | `SampleRequest` | Request product review packs |
 
 ---
 
@@ -40,7 +40,7 @@ The structured B2B inquiry form captures:
 - Annual production volume (if applicable)
 
 **Inquiry Details**
-- Lead type: Material Inquiry / Partnership / Sample Request / Collaboration
+- Lead type: Material Inquiry / Partnership / Material Request / Collaboration
 - Interest type: Wholesale / Distribution / Manufacturing / Custom Production / Training
 - Message / description of needs
 
@@ -72,7 +72,7 @@ Submissions are stored as `Inquiry` records and visible in the admin panel under
 
 ---
 
-## 4. Sample Request Form
+## 4. Material Request Form
 
 Accessible when a product has `sample_request_enabled = true`.
 
@@ -82,9 +82,9 @@ Fields:
 - Intended use / description
 - Quantity requested
 
-Submissions are stored as `SampleRequest` records.
+Submissions are stored as `MaterialRequest` records.
 
-*Related code: `app/Http/Controllers/Api/SampleRequestController.php`*
+*Related code: `app/Http/Controllers/Api/MaterialRequestController.php`*
 
 ---
 
@@ -97,7 +97,7 @@ All inquiry types are stored in the database and never lost. The following model
 | `Inquiry` | `inquiries` | General and business contact inquiries |
 | `B2BLead` | `b2b_leads` | Structured B2B leads with full qualification data |
 | `PartnershipInquiry` | `partnership_inquiries` | Partnership and collaboration requests |
-| `SampleRequest` | `sample_requests` | Sample product requests |
+| `SampleRequest` | `sample_requests` | Material requests |
 
 The `B2BLead` model contains the richest data structure, including structured fields for:
 - Company size
@@ -117,7 +117,7 @@ The `B2BLead` model contains the richest data structure, including structured fi
 
 The lead list shows:
 - Company name and contact information
-- Lead type (Material Inquiry / Partnership / Sample Request / Collaboration)
+- Lead type (Material Inquiry / Partnership / Material Request / Collaboration)
 - Interest type
 - Status (New / Contacted / Qualified / Negotiating / Converted / Rejected)
 - Date received

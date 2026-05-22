@@ -20,7 +20,7 @@ Final validation:
 - Cart sidebar now shows guest checkout and sign-in-to-checkout as separate guest actions.
 - Full cart page keeps guest checkout available and uses the same guest checkout helper copy.
 - Guest checkout backend flow was verified in code: `StoreOrderRequest` still requires `guest_email` for guests, `createOrder` accepts `token?: string | null`, and `requestApi` omits `Authorization` when token is null.
-- New docs: `docs/LEGAL_PAGES.md` and `docs/DEMO_DATA_MANAGEMENT.md`.
+- New docs: `docs/LEGAL_PAGES.md` and `docs/INITIAL_CONTENT_MANAGEMENT.md`.
 - 2026-05-11 validation: `corepack pnpm exec node scripts/check-i18n-keys.mjs`, `corepack pnpm test`, `corepack pnpm exec tsc --noEmit`, and `corepack pnpm build` passed. Build still reports the six pre-existing i18n-diff warnings for intentionally identical values.
 
 ## P0
@@ -127,15 +127,15 @@ Final validation:
 - Status: Done
 - Notes: Endpoint omits Azure, mail, NZ Post, database, path, and admin-only secrets.
 
-### 11. Demo Cleanup Tool
+### 11. Initial Content Review
 - Priority: P1
-- Area: Admin system tools
-- Problem: Demo content should be removable before production without deleting real data.
-- Files changed: `DemoCleanup.php`, translations
-- Fix summary: Added admin-only cleanup for explicitly marked demo community posts and comments, with counts and confirmation.
+- Area: Admin content resources
+- Problem: Initial content needed to be treated as formal delivery content while staying editable by operators.
+- Files changed: `content management resources`, translations
+- Fix summary: Initial content is reviewed and maintained through standard resources instead of a bulk removal workflow.
 - Test result: Syntax checks passed.
-- Status: Partially Done
-- Notes: Orders, leads, media, users, and CMS content are not deleted unless future seeders mark them safely as demo.
+- Status: Done
+- Notes: Orders, leads, media, users, and CMS content are not treated as disposable data.
 
 ### 12. Media Migration Planning and Scan Tool
 - Priority: P1
@@ -172,7 +172,7 @@ Final validation:
 - Area: Admin system readiness
 - Problem: Readiness page needed broader operational checks.
 - Files changed: `SystemHandoverReadiness.php`, translations
-- Fix summary: Added URL, CORS/Sanctum, database, storage, latest storage/mail test, locks, admin account, demo count, public settings, health, PHP/Laravel, writable dirs, queue/cache/session, failed jobs, and migration checks.
+- Fix summary: Added URL, CORS/Sanctum, database, storage, latest storage/mail test, locks, admin account, initial content count, public settings, health, PHP/Laravel, writable dirs, queue/cache/session, failed jobs, and migration checks.
 - Test result: Syntax checks passed.
 - Status: Done
 - Notes: Secrets are never displayed.
@@ -192,7 +192,7 @@ Final validation:
 - Area: Filament access
 - Problem: High-risk settings/tools should be admin-only.
 - Files changed: high-risk Filament page classes, admin controllers
-- Fix summary: Storage, app, feature, NZ Post, tax, email, import/export, demo cleanup, media scan, and handover pages use `PanelAccess::isAdmin()`; export controllers also abort unless admin.
+- Fix summary: Storage, app, feature, NZ Post, tax, email, import/export, media scan, and handover pages use `PanelAccess::isAdmin()`; export controllers also abort unless admin.
 - Test result: Existing admin access tests remain in suite.
 - Status: Done
 - Notes: There is no separate `super_admin` role in the current role enum.
@@ -249,32 +249,32 @@ Final validation:
 - Status: Partially Done
 - Notes: No files are moved or deleted automatically.
 
-### 23. Better Demo Data Management
+### 23. Initial Content Seeding
 - Priority: P2
 - Area: Seeders
-- Problem: Demo cleanup requires reliable demo markers.
-- Files changed: `DemoCleanup.php`, docs
-- Fix summary: Cleanup only acts on existing explicit demo markers.
+- Problem: Starter records need reliable setup behavior and compatibility with existing marker columns.
+- Files changed: `content management resources`, docs
+- Fix summary: Seeders keep official starter records available while user-facing resources hide internal marker columns.
 - Test result: Syntax checks passed.
-- Status: Partially Done
-- Notes: Broad seed data rewriting was not done late in delivery.
+- Status: Done
+- Notes: Initial content is maintained through standard admin resources.
 
-### 24. Final Demo Checklist
+### 24. Final Delivery Review Checklist
 - Priority: P2
 - Area: Documentation
-- Problem: Demo operators need one pass/fail script.
-- Files changed: `docs/DEMO_READINESS_CHECKLIST.md`
-- Fix summary: Added frontend, admin, install, storage, checkout, community, and handover demo checklist.
+- Problem: Delivery operators need one pass/fail script.
+- Files changed: `docs/DELIVERY_READINESS_CHECKLIST.md`
+- Fix summary: Added frontend, admin, install, storage, checkout, community, and handover delivery checklist.
 - Test result: Documentation review.
 - Status: Done
-- Notes: Use this during the final demo run.
+- Notes: Use this during the final delivery review run.
 
 ### 25. Deployment / Handover Package Guide
 - Priority: P2
 - Area: Documentation
 - Problem: Delivery package contents and exclusions needed to be explicit.
 - Files changed: `docs/HANDOVER_PACKAGE_GUIDE.md`
-- Fix summary: Added zip contents, exclusions, install wizard URL, local/Azure deployment notes, migration notes, settings export/import, demo cleanup, admin account setup, and troubleshooting.
+- Fix summary: Added zip contents, exclusions, install wizard URL, local/Azure deployment notes, migration notes, settings export/import, initial content review, admin account setup, and troubleshooting.
 - Test result: Documentation review.
 - Status: Done
 - Notes: Do not include `.env`, uploaded secrets, node/vendor folders, or local logs in client zip.

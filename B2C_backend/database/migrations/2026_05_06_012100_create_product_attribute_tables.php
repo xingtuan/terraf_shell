@@ -160,7 +160,7 @@ return new class extends Migration
                     'tableware' => 'Tableware',
                     'hospitality' => 'Hospitality',
                     'interior_object' => 'Interior object',
-                    'sample_kit' => 'Sample kit',
+                    'review_kit' => 'Review kit',
                     'b2b_feedstock' => 'B2B feedstock',
                     'design_collaboration' => 'Design collaboration',
                     'home_dining' => 'Home Dining',

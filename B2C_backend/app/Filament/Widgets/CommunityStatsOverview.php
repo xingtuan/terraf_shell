@@ -42,7 +42,6 @@ class CommunityStatsOverview extends StatsOverviewWidget
         $published = Post::query()->where('status', ContentStatus::Approved->value)->count();
         $featured = Post::query()->where('is_featured', true)->count();
         $supportEnabled = FundingCampaign::query()->where('support_enabled', true)->count();
-        $demoContent = Post::query()->where('is_demo_content', true)->count();
         $recentUploads = IdeaMedia::query()->where('created_at', '>=', now()->subDays(7))->count();
 
         return [
@@ -70,11 +69,6 @@ class CommunityStatsOverview extends StatsOverviewWidget
                 ->description(__('admin.ui.community_media_uploaded_in_the_last_7_days'))
                 ->color('info')
                 ->icon('heroicon-o-photo')
-                ->url(PostResource::getUrl()),
-            Stat::make(__('admin.ui.demo_content'), number_format($demoContent))
-                ->description(__('admin.ui.seeded_records_to_clean_before_launch'))
-                ->color($demoContent > 0 ? 'warning' : 'success')
-                ->icon('heroicon-o-trash')
                 ->url(PostResource::getUrl()),
             Stat::make(__('admin.ui.banned_users'), number_format($bannedUsers))
                 ->description(__('admin.ui.accounts_currently_blocked'))

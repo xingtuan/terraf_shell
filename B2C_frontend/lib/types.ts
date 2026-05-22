@@ -105,7 +105,6 @@ export type CertificationStatus =
   | "tested"
   | "in_testing"
   | "pending"
-  | "demo"
   | "not_applicable"
 
 export interface CertificationRecord {

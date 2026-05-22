@@ -7,7 +7,6 @@ use App\Filament\Support\AdminUploadStorage;
 use App\Filament\Support\PanelAccess;
 use App\Models\EmailLog;
 use App\Models\EmailSetting;
-use App\Models\Post;
 use App\Models\User;
 use App\Services\Install\InstallationService;
 use App\Services\Settings\SettingsService;
@@ -98,8 +97,6 @@ class SystemHandoverReadiness extends Page
             $this->row(__('admin.system.checks.installed_lock'), file_exists($installation->lockPath()) ? __('admin.system.yes') : __('admin.system.no'), file_exists($installation->lockPath()) ? 'ok' : 'warning'),
             $this->row(__('admin.system.checks.installing_lock'), file_exists($installation->installingLockPath()) ? __('admin.system.yes') : __('admin.system.no'), file_exists($installation->installingLockPath()) ? 'warning' : 'ok'),
             $this->row(__('admin.system.checks.key_admin'), User::query()->where('role', 'admin')->exists() ? __('admin.system.yes') : __('admin.system.no'), User::query()->where('role', 'admin')->exists() ? 'ok' : 'error'),
-            $this->row(__('admin.system.checks.demo_data'), $this->demoDataExists() ? __('admin.system.yes') : __('admin.system.no'), $this->demoDataExists() ? 'warning' : 'ok'),
-            $this->row(__('admin.system.checks.demo_data_count'), (string) $this->demoDataCount(), $this->demoDataCount() > 0 ? 'warning' : 'ok'),
             $this->row(__('admin.system.checks.public_settings_endpoint'), Route::has('api.public-settings') ? __('admin.system.configured') : '/api/public-settings', 'ok'),
             $this->healthRow(),
             $this->row(__('admin.system.checks.failed_jobs'), __('admin.system.failed_jobs', ['count' => $this->failedJobsCount()]), $this->failedJobsCount() > 0 ? 'error' : 'ok'),
@@ -150,18 +147,6 @@ class SystemHandoverReadiness extends Page
         } catch (Throwable $throwable) {
             return $this->row(__('admin.system.checks.storage_disk'), __('admin.system.failed'), 'error', $throwable->getMessage());
         }
-    }
-
-    private function demoDataExists(): bool
-    {
-        return $this->demoDataCount() > 0;
-    }
-
-    private function demoDataCount(): int
-    {
-        return Schema::hasColumn('posts', 'is_demo_content')
-            ? (int) Post::query()->where('is_demo_content', true)->count()
-            : 0;
     }
 
     private function failedJobsCount(): int

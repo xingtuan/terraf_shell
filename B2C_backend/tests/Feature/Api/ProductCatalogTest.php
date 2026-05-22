@@ -263,12 +263,12 @@ class ProductCatalogTest extends TestCase
     {
         $product = $this->catalogProduct(
             [
-                'name' => 'Matte Planter Demo',
-                'slug' => 'matte-planter-demo',
+                'name' => 'Matte Planter Reference',
+                'slug' => 'matte-planter-reference',
                 'category_slug' => 'planters',
             ],
             [
-                'sku' => 'MATTE_PLANTER_DEMO',
+                'sku' => 'MATTE_PLANTER_REFERENCE',
                 'price_amount' => 55.00,
             ],
             [
@@ -289,7 +289,7 @@ class ProductCatalogTest extends TestCase
         $this->getJson("/api/products?{$categoryQuery}")
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('data.0.slug', 'matte-planter-demo')
+            ->assertJsonPath('data.0.slug', 'matte-planter-reference')
             ->assertJsonPath('meta.applied_filters.attributes.finish', 'matte');
 
         $legacyQuery = http_build_query([
@@ -302,7 +302,7 @@ class ProductCatalogTest extends TestCase
         $this->getJson("/api/products?{$legacyQuery}")
             ->assertOk()
             ->assertJsonPath('meta.total', 1)
-            ->assertJsonPath('data.0.slug', 'matte-planter-demo')
+            ->assertJsonPath('data.0.slug', 'matte-planter-reference')
             ->assertJsonPath('meta.applied_filters.attributes.model', 'heritage_16')
             ->assertJsonPath('meta.applied_filters.attributes.use_case', 'design_projects');
     }

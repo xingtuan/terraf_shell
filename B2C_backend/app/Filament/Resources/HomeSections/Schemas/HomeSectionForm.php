@@ -109,11 +109,6 @@ class HomeSectionForm
                                     ->default(false)
                                     ->formatStateUsing(fn (?string $state): bool => $state === PublishStatus::Published->value)
                                     ->dehydrateStateUsing(fn (bool $state): string => $state ? PublishStatus::Published->value : PublishStatus::Draft->value),
-                                Toggle::make('is_seeded')
-                                    ->label(__('admin.ui.seeded_demo_content'))
-                                    ->helperText(__('admin.ui.seeded_demo_content_help'))
-                                    ->disabled()
-                                    ->dehydrated(false),
                                 TextInput::make('cta_url')
                                     ->label(__('admin.ui.cta_url'))
                                     ->maxLength(255),
@@ -902,9 +897,6 @@ class HomeSectionForm
                         TextInput::make('payload.status_labels.pending_translations.en')->label(self::localizedField('pending', 'en')),
                         TextInput::make('payload.status_labels.pending_translations.zh')->label(self::localizedField('pending', 'zh')),
                         TextInput::make('payload.status_labels.pending_translations.ko')->label(self::localizedField('pending', 'ko')),
-                        TextInput::make('payload.status_labels.demo_translations.en')->label(self::localizedField('demo', 'en')),
-                        TextInput::make('payload.status_labels.demo_translations.zh')->label(self::localizedField('demo', 'zh')),
-                        TextInput::make('payload.status_labels.demo_translations.ko')->label(self::localizedField('demo', 'ko')),
                         TextInput::make('payload.status_labels.not_applicable_translations.en')->label(self::localizedField('not_applicable', 'en')),
                         TextInput::make('payload.status_labels.not_applicable_translations.zh')->label(self::localizedField('not_applicable', 'zh')),
                         TextInput::make('payload.status_labels.not_applicable_translations.ko')->label(self::localizedField('not_applicable', 'ko')),

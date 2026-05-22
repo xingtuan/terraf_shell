@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
         );
         $moderator->profile()->firstOrCreate();
 
-        foreach ($this->demoCreators() as $creator) {
+        foreach ($this->initialCreators() as $creator) {
             $user = User::query()->updateOrCreate(
                 ['username' => $creator['username']],
                 [
@@ -99,7 +99,7 @@ class UserSeeder extends Seeder
     /**
      * @return array<int, array{name: string, username: string, email: string, profile: array<string, mixed>}>
      */
-    private function demoCreators(): array
+    private function initialCreators(): array
     {
         return [
             [

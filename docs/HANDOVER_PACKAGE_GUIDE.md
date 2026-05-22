@@ -76,7 +76,7 @@ The installer is unavailable after `storage/app/installed.lock` or `system.insta
 
 ## Production Cutover
 
-- Run Demo Cleanup for explicitly marked demo content only.
+- Review initial content through the standard admin resources.
 - Create or confirm the production admin account.
 - Rotate any temporary installer/admin passwords.
 - Confirm `/api/public-settings`, `/api/health`, `/up`, products, cart, checkout, storage upload, and email test status.

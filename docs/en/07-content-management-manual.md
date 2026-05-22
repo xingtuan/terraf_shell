@@ -23,8 +23,8 @@ The material library showcases the brand's flagship sustainable materials. It is
 | `name` | Text | Yes | Material name |
 | `description` | Rich text | Yes | Main material description |
 | `story_cover_image` | Image | No | Cover image for the material story section |
-| `is_demo_content` | Boolean | No | Marks demo/seeder content |
-| `seeded_at` | Timestamp | No | When demo data was seeded |
+| `internal initial-content marker` | Boolean | No | Marks initial/seeder content |
+| `seeded_at` | Timestamp | No | When initial content was seeded |
 | Certification fields | Text | Yes | Quality and compliance certifications |
 
 ### 1.3 Material Specs
@@ -254,18 +254,11 @@ These are multilingual and should be filled for each language to optimize search
 
 ---
 
-## 9. Demo Content Management
+## 9. Initial Content
 
-Demo content is seeded during initial setup with `php artisan db:seed`. All demo items are marked with `is_demo_content = true` and `seeded_at` timestamp.
+Initial content is seeded during setup with `php artisan db:seed`. It is part of the delivered system and should be managed through the standard content resources.
 
-**Before going live**, remove all demo content:
-1. Go to **Admin Panel → System → Demo Data Cleanup**.
-2. Review the list of demo items.
-3. Click **Remove Demo Content**.
-
-> **Warning**: This is irreversible. Ensure real content has been added before removing demo data.
-
-*Related code: `app/Filament/Pages/DemoCleanup.php`*
+Review seeded articles, materials, homepage sections, and store content as normal production content. Edit, archive, or replace individual records only when required.
 
 ---
 

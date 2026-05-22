@@ -41,7 +41,7 @@ This table provides a comprehensive overview of all platform features and their 
 | Product FAQs | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
 | Featured products | ✅ | ✅ | ✅ | N/A | ✅ Complete | |
 | Inquiry-only products | ✅ | ✅ | ✅ | N/A | ✅ Complete | |
-| Sample request on products | ✅ | ✅ | ✅ | N/A | ✅ Complete | |
+| Material request on products | ✅ | ✅ | ✅ | N/A | ✅ Complete | |
 | Shopping cart (guest) | ✅ | N/A | ✅ | ✅ | ✅ Complete | |
 | Shopping cart (authenticated) | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
 | Cart merge on login | ✅ | N/A | ✅ | N/A | ✅ Complete | |
@@ -126,7 +126,7 @@ This table provides a comprehensive overview of all platform features and their 
 | Partnership inquiry | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
 | University collaboration inquiry | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
 | Product development inquiry | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
-| Sample request form | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
+| Material request form | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
 | B2B lead pipeline management | N/A | ✅ | ✅ | N/A | ✅ Complete | |
 | Lead assignment to team members | N/A | ✅ | ✅ | N/A | ✅ Complete | |
 | Lead export (CSV) | N/A | ✅ | ✅ | N/A | ✅ Complete | |
@@ -147,8 +147,8 @@ This table provides a comprehensive overview of all platform features and their 
 | Homepage sections (configurable) | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
 | Legal pages (editable) | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
 | SEO meta fields | ✅ | ✅ | ✅ | ✅ | ✅ Complete | |
-| Demo data system | N/A | ✅ | ✅ | N/A | ✅ Complete | |
-| Demo data cleanup | N/A | ✅ | ✅ | N/A | ✅ Complete | |
+| Initial content seeding | N/A | ✅ | ✅ | N/A | ✅ Complete | |
+| Initial content review through standard resources | N/A | ✅ | ✅ | N/A | ✅ Complete | |
 
 ---
 

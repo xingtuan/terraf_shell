@@ -167,7 +167,6 @@
       "tested": "Tested",
       "in_testing": "In testing",
       "pending": "Pending",
-      "demo": "Demo",
       "not_applicable": "Not applicable"
     }
   },
@@ -184,7 +183,7 @@
     "b2b": "B2B",
     "community": "Community",
     "contact": "Contact",
-    "primaryCta": "Request Sample",
+    "primaryCta": "Request Review Pack",
     "mobileMenuLabel": "Toggle menu"
   },
   "languageSwitcher": {
@@ -201,7 +200,7 @@
     "business": "Business",
     "communityLabel": "Community",
     "materialSheet": "Material Sheet",
-    "sampleRequest": "Sample Request",
+    "sampleRequest": "Material Request",
     "productDevelopment": "Product Development",
     "ideaSupport": "Idea Support",
     "conceptFund": "Concept Fund",
@@ -268,7 +267,7 @@
         {
           "title": "B2B inquiry information",
           "paragraphs": [
-            "For B2B inquiries, sample requests, product development requests, and contact forms, we collect the business contact details and project information you submit so the team can respond and assess the opportunity."
+            "For B2B inquiries, material requests, product development requests, and contact forms, we collect the business contact details and project information you submit so the team can respond and assess the opportunity."
           ]
         },
         {
@@ -391,9 +390,9 @@
           ]
         },
         {
-          "title": "B2B inquiries and samples",
+          "title": "B2B inquiries and review packs",
           "paragraphs": [
-            "B2B inquiries, sample requests, and product development discussions are exploratory unless a separate written agreement says otherwise. Any supply, sample, pricing, or development terms may require separate confirmation."
+            "B2B inquiries, material requests, and product development discussions are exploratory unless a separate written agreement says otherwise. Any supply, review pack, pricing, or development terms may require separate confirmation."
           ]
         },
         {
@@ -547,7 +546,7 @@
       "eyebrow": "Material Facts",
       "title": "The performance story behind the finish.",
       "sheetTitle": "Material Sheet",
-      "sheetDescription": "A technical summary can later connect to a live backend endpoint with full data sheets, certifications, and sample-kit availability.",
+      "sheetDescription": "A technical summary can later connect to a live backend endpoint with full data sheets, certifications, and review-pack availability.",
       "sheetCta": "Download Material Sheet",
       "infoCards": [
         {
@@ -563,7 +562,7 @@
     },
     "collaboration": {
       "eyebrow": "B2B Collaboration",
-      "title": "Supply pellets, request samples, or build a new product line.",
+      "title": "Supply pellets, request review packs, or build a new product line.",
       "cards": [
         {
           "title": "Pellet Supply",
@@ -572,10 +571,10 @@
           "cta": "Discuss Supply"
         },
         {
-          "title": "Sample Request",
+          "title": "Material Request",
           "forWhom": "For teams comparing materials",
-          "description": "Request sample kits and material notes before committing to development or testing.",
-          "cta": "Request Samples"
+          "description": "Request review pack kits and material notes before committing to development or testing.",
+          "cta": "Request Review Pack"
         },
         {
           "title": "Product Development",
@@ -584,10 +583,10 @@
           "cta": "Start Development"
         }
       ],
-      "processTitle": "A simple path from first brief to next sample.",
+      "processTitle": "A simple path from first brief to next review pack.",
       "steps": [
         "Share your target application",
-        "Review pellets, samples, and material notes",
+        "Review pellets, review packs, and material notes",
         "Move into pilot development or supply planning"
       ]
     },
@@ -597,7 +596,7 @@
       "benefits": [
         "Material story focused only on reclaimed oyster shell content",
         "Traceability notes designed for sourcing and brand reviews",
-        "Technical support for samples, moulding direction, and application fit",
+        "Technical support for review packs, moulding direction, and application fit",
         "Placeholder certification and food-contact modules ready for backend integration"
       ],
       "features": [
@@ -614,8 +613,8 @@
           "description": "Source storytelling remains focused on South Korean oyster shell recovery and controlled pellet making."
         },
         {
-          "title": "Sample Workflow",
-          "description": "Teams can move from inquiry to sample planning without leaving the site architecture."
+          "title": "Material Request Workflow",
+          "description": "Teams can move from inquiry to review pack planning without leaving the site architecture."
         }
       ]
     },
@@ -685,7 +684,7 @@
         {
           "label": "For Business",
           "title": "Source Raw Material",
-          "description": "Request pellet samples, technical sheets, and volume pricing for your production line.",
+          "description": "Request pellet review packs, technical sheets, and volume pricing for your production line.",
           "cta": "Start a B2B Conversation",
           "href": "b2b"
         },
@@ -777,7 +776,7 @@
       "step4": "Compression moulding: pellets are formed into lightweight, high-impact products and surfaces."
     },
     "certifications": {
-      "title": "Certifications & Test Data",
+      "title": "Certifications & Verification Data",
       "waterAbsorption": "Water Absorption Test",
       "toxicityHeavyMetals": "Toxicity / Heavy Metals",
       "acidResistance": "Acid Resistance",
@@ -891,7 +890,7 @@
         },
         {
           "label": "Best application",
-          "oxp": "Premium objects, samples, tableware concepts, and B2B product development.",
+          "oxp": "Premium objects, review packs, tableware concepts, and B2B product development.",
           "plastic": "Lightweight mass production and flexible formats.",
           "ceramic": "Long-life dining and heat-tolerant objects.",
           "paper": "Short-term packaging and serviceware."
@@ -953,11 +952,11 @@
         },
         {
           "question": "Can I order for hospitality or design projects?",
-          "answer": "Yes. The store supports direct B2C discovery, but products that fit hospitality, retail, or design-project use can route into bulk enquiry and sample workflows through the existing B2B lead flow."
+          "answer": "Yes. The store supports direct B2C discovery, but products that fit hospitality, retail, or design-project use can route into bulk enquiry and review pack workflows through the existing B2B lead flow."
         },
         {
           "question": "What happens if a product is sold out or made to order?",
-          "answer": "Availability states are surfaced per product. If a batch is sold out, the product page will steer you toward restock updates, sample requests, or a direct project enquiry instead of a dead-end purchase path."
+          "answer": "Availability states are surfaced per product. If a batch is sold out, the product page will steer you toward restock updates, material requests, or a direct project enquiry instead of a dead-end purchase path."
         },
         {
           "question": "Are shipping and tax fully calculated yet?",
@@ -971,7 +970,7 @@
       "eyebrow": "B2B collaboration",
       "title": "Build with OXP materials",
       "description": "Explore recycled oyster-shell based materials for product development, pilot production, and bulk supply.",
-      "primaryCta": "Request a sample",
+      "primaryCta": "Request a review pack",
       "secondaryCta": "Review material data"
     },
     "process": {
@@ -983,8 +982,8 @@
           "description": "Share product category, intended use, market, and technical constraints."
         },
         {
-          "title": "Request sample or material data",
-          "description": "Ask for available sample options, data sheets, or product references."
+          "title": "Request review pack or material data",
+          "description": "Ask for available review options, data sheets, or product references."
         },
         {
           "title": "Review technical compatibility",
@@ -1001,7 +1000,7 @@
       ]
     },
     "ctaStrip": {
-      "sample": "Request a sample",
+      "sample": "Request a review pack",
       "materialData": "Ask for material data sheet",
       "requirements": "Submit product requirements",
       "bulkSupply": "Discuss bulk supply"
@@ -1024,7 +1023,7 @@
         },
         {
           "title": "Hospitality and event supply",
-          "description": "Sample-led review for venues, hotels, events, and dining programs."
+          "description": "Review-led review for venues, hotels, events, and dining programs."
         },
         {
           "title": "Design and prototype projects",
@@ -1042,7 +1041,7 @@
       "items": [
         "We review your application and material needs.",
         "We confirm whether OXP is suitable for your use case.",
-        "We share available specifications or sample options.",
+        "We share available specifications or review options.",
         "We discuss timeline, quantity, and next steps."
       ]
     },
@@ -1057,7 +1056,7 @@
       },
       "interestOptions": {
         "sample_request": {
-          "label": "Sample request",
+          "label": "Material request",
           "description": "Evaluation kits, material notes, and shipping details."
         },
         "pellet_supply": {
@@ -1083,13 +1082,13 @@
       },
       "panelCopy": {
         "sample_request": [
-          "Sample handling supports material evaluation and technical review.",
+          "Material review support covers evaluation and technical review.",
           "We collect shipping context and intended use before confirming availability.",
-          "Sample options may depend on current production and approved documents."
+          "Review options may depend on current production and approved documents."
         ],
         "pellet_supply": [
           "Pellet supply requests are reviewed against application and formulation needs.",
-          "Available data sheets and sample options can be shared after review.",
+          "Available data sheets and review options can be shared after review.",
           "Supply is not guaranteed until quantity, timeline, and compatibility are confirmed."
         ],
         "product_development": [
@@ -1127,7 +1126,7 @@
         "volume": "Estimated quantity / volume",
         "timeline": "Target timeline",
         "materialInterest": "Material interest",
-        "quantityEstimate": "Sample quantity estimate",
+        "quantityEstimate": "Review quantity estimate",
         "shippingCountry": "Shipping country",
         "shippingRegion": "Shipping region",
         "shippingAddress": "Shipping address",
@@ -1147,14 +1146,14 @@
         "companyWebsite": "https://company.com",
         "jobTitle": "Founder, buyer, project lead...",
         "application": "Tableware, packaging, component, hospitality project...",
-        "volume": "Pilot run, annual demand, sample quantity...",
+        "volume": "Pilot run, annual demand, review quantity...",
         "timeline": "Quarter, launch date, or development window",
-        "materialInterest": "Pellets, pressed panel, tabletop material, product sample...",
+        "materialInterest": "Pellets, pressed panel, tabletop material, product review piece...",
         "quantityEstimate": "10 sheets, 5 kg, pilot set...",
         "shippingCountry": "Shipping country",
         "shippingRegion": "State, city, or region",
         "shippingAddress": "Shipping address",
-        "intendedUse": "How will the sample or material be evaluated?",
+        "intendedUse": "How will the review pack or material be evaluated?",
         "collaborationGoal": "What are you trying to build, test, or explore?",
         "projectStage": "Discovery, prototype, curriculum planning...",
         "message": "Share shape requirements, target market, finish expectations, or certification needs."
@@ -1221,7 +1220,7 @@
         {
           "label": "B2B Desk",
           "value": "+82 51-555-0188",
-          "detail": "Material supply and sample coordination"
+          "detail": "Material supply and review pack coordination"
         },
         {
           "label": "Location",
@@ -1534,7 +1533,7 @@
     "addToCart": "Add to Cart",
     "bulkEnquiry": "Bulk Enquiry",
     "requestUpdate": "Request Update",
-    "requestSample": "Request a sample or spec pack"
+    "requestSample": "Request a review pack or spec pack"
   },
   "productDetail": {
     "newBadge": "New",
@@ -1547,13 +1546,13 @@
     "addToCart": "Add to Cart",
     "bulkEnquiry": "Bulk Enquiry",
     "requestUpdate": "Request Update",
-    "requestSample": "Request Sample",
+    "requestSample": "Request Review Pack",
     "backToStore": "Back to store",
     "pageFallbackEyebrow": "Product",
     "pageFallbackDescription": "Review the OXP product specification, availability, and enquiry options.",
     "pageErrorTitle": "Product details are temporarily unavailable.",
     "pageErrorDescription": "The product page could not be loaded from the API. You can still browse the store or contact the team directly.",
-    "soldOutMessage": "This batch is sold out. Request a restock update or a sample pack and the team can guide you to the next release.",
+    "soldOutMessage": "This batch is sold out. Request a restock update or a review pack and the team can guide you to the next release.",
     "bulkOrderMessage": "This product is better suited to hospitality, bulk, or project-led ordering. Use the enquiry CTA for MOQ, lead time, and customization support.",
     "productStory": "Product story",
     "specificationEyebrow": "Specification",
@@ -1567,9 +1566,9 @@
     "bulkEnquiryTitle": "Bulk enquiry",
     "bulkEnquiryDescription": "For restaurant groups, design studios, and hospitality buyers reviewing MOQ and lead time.",
     "bulkEnquiryAction": "Open enquiry",
-    "requestSampleTitle": "Request sample",
+    "requestSampleTitle": "Request review pack",
     "requestSampleDescription": "Review OXP finish, density, and care notes before a larger commitment.",
-    "requestSampleAction": "Request sample",
+    "requestSampleAction": "Request review pack",
     "materialReviewTitle": "Material review",
     "materialReviewDescription": "Explore the oyster-shell material system behind this product and its sustainability story.",
     "materialReviewAction": "View material story",
@@ -1581,7 +1580,7 @@
     "premiumSurfaceBadge": "Premium surface feel",
     "nzDeliveryBadge": "Designed in Korea / New Zealand delivery",
     "hospitalityReadyBadge": "Hospitality / interior ready",
-    "sampleAvailableBadge": "Sample available",
+    "sampleAvailableBadge": "Review pack available",
     "glanceEyebrow": "Product at a glance",
     "glanceTitle": "The essentials before you request the order",
     "glanceDescription": "Key product, material, and delivery details for quick review.",
@@ -1612,9 +1611,9 @@
     "faqOysterShellAnswer": "Yes. This product is made with Terrafin OXP material, a material line that uses recovered oyster shell.",
     "faqShippingQuestion": "Do you ship outside New Zealand?",
     "faqShippingAnswer": "Not yet. The store currently supports delivery within New Zealand only.",
-    "faqSampleQuestion": "Can I request a sample?",
-    "faqSampleAvailableAnswer": "Yes. Use the sample request option on this page and the team will follow up by email.",
-    "faqSampleUnavailableAnswer": "Samples are not enabled for this product right now. You can still contact the team for project guidance.",
+    "faqSampleQuestion": "Can I request a review pack?",
+    "faqSampleAvailableAnswer": "Yes. Use the material request option on this page and the team will follow up by email.",
+    "faqSampleUnavailableAnswer": "Review packs are not enabled for this product right now. You can still contact the team for project guidance.",
     "faqB2bQuestion": "Can this be ordered for hospitality or B2B projects?",
     "faqB2bAvailableAnswer": "Yes. Use the bulk enquiry option for MOQ, lead time, and project requirements.",
     "faqB2bUnavailableAnswer": "For hospitality or B2B requirements, contact the team and include your quantity and timeline."

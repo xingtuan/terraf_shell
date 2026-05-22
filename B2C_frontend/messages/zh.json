@@ -167,7 +167,6 @@
       "tested": "已测试",
       "in_testing": "测试中",
       "pending": "待确认",
-      "demo": "演示",
       "not_applicable": "不适用"
     }
   },
@@ -184,7 +183,7 @@
     "b2b": "B2B",
     "community": "社区",
     "contact": "联系",
-    "primaryCta": "申请样品",
+    "primaryCta": "申请评估材料",
     "mobileMenuLabel": "切换菜单"
   },
   "languageSwitcher": {
@@ -201,7 +200,7 @@
     "business": "商务",
     "communityLabel": "社区",
     "materialSheet": "材料说明",
-    "sampleRequest": "样品申请",
+    "sampleRequest": "材料申请",
     "productDevelopment": "产品开发",
     "ideaSupport": "创意支持",
     "conceptFund": "概念基金",
@@ -268,7 +267,7 @@
         {
           "title": "B2B 询盘信息",
           "paragraphs": [
-            "对于 B2B 询盘、样品申请、产品开发请求和联系表单，我们会收集你提交的商务联系信息和项目信息，以便团队回复并评估机会。"
+            "对于 B2B 询盘、材料申请、产品开发请求和联系表单，我们会收集你提交的商务联系信息和项目信息，以便团队回复并评估机会。"
           ]
         },
         {
@@ -391,9 +390,9 @@
           ]
         },
         {
-          "title": "B2B 询盘和样品",
+          "title": "B2B 询盘和评估材料",
           "paragraphs": [
-            "B2B 询盘、样品申请和产品开发讨论均属探索性质，除非另有书面协议。任何供应、样品、价格或开发条件都可能需要单独确认。"
+            "B2B 询盘、材料申请和产品开发讨论均属探索性质，除非另有书面协议。任何供应、评估材料、价格或开发条件都可能需要单独确认。"
           ]
         },
         {
@@ -547,11 +546,11 @@
       "eyebrow": "材料事实",
       "title": "表面之下的性能逻辑。",
       "sheetTitle": "材料说明",
-      "sheetDescription": "技术摘要已经为后续后端接口预留位置，可连接完整数据表、认证信息与样品包状态。",
+      "sheetDescription": "技术摘要已经为后续后端接口预留位置，可连接完整数据表、认证信息与评估材料包状态。",
       "sheetCta": "下载材料说明",
       "infoCards": [
         {
-          "label": "样品",
+          "label": "评估材料",
           "value": "可供 B2B 审阅"
         },
         {
@@ -559,11 +558,11 @@
           "value": "已准备来源与批次说明"
         }
       ],
-      "note": "当前数值为前端导航演示用占位数据，正式上线前应替换为经过认证的实验室数据。"
+      "note": "当前数值为前端导航初始用占位数据，正式上线前应替换为经过认证的实验室数据。"
     },
     "collaboration": {
       "eyebrow": "B2B 协作",
-      "title": "供应颗粒、申请样品，或共同开发新的产品线。",
+      "title": "供应颗粒、申请评估材料，或共同开发新的产品线。",
       "cards": [
         {
           "title": "颗粒供应",
@@ -572,10 +571,10 @@
           "cta": "洽谈供应"
         },
         {
-          "title": "样品申请",
+          "title": "材料申请",
           "forWhom": "适用于正在比较材料的团队",
-          "description": "在开发或测试前申请样品套组与材料说明。",
-          "cta": "申请样品"
+          "description": "在开发或测试前申请评估材料套组与材料说明。",
+          "cta": "申请评估材料"
         },
         {
           "title": "产品开发",
@@ -584,10 +583,10 @@
           "cta": "开始开发"
         }
       ],
-      "processTitle": "从首份需求到下一轮样品的清晰路径。",
+      "processTitle": "从首份需求到下一轮评估材料的清晰路径。",
       "steps": [
         "提交目标应用场景",
-        "审核颗粒、样品与材料说明",
+        "审核颗粒、评估材料与材料说明",
         "进入试点开发或供应规划"
       ]
     },
@@ -597,7 +596,7 @@
       "benefits": [
         "材料叙事只聚焦再生牡蛎壳内容",
         "可追溯说明适用于采购与品牌审核",
-        "支持样品、模塑方向与应用适配咨询",
+        "支持评估材料、模塑方向与应用适配咨询",
         "已为后续认证与食品接触模块预留后端接入位置"
       ],
       "features": [
@@ -614,8 +613,8 @@
           "description": "来源叙事始终聚焦韩国牡蛎壳回收与受控颗粒生产。"
         },
         {
-          "title": "样品流程",
-          "description": "团队可以在同一站点架构内从询盘顺畅过渡到样品规划。"
+          "title": "评估材料流程",
+          "description": "团队可以在同一站点架构内从询盘顺畅过渡到评估材料规划。"
         }
       ]
     },
@@ -685,7 +684,7 @@
         {
           "label": "面向企业",
           "title": "采购原材料",
-          "description": "索取样品颗粒、技术规格与批量报价。",
+          "description": "索取评估材料颗粒、技术规格与批量报价。",
           "cta": "开启 B2B 洽谈",
           "href": "b2b"
         },
@@ -777,7 +776,7 @@
       "step4": "压缩成型：将颗粒成型为轻量且耐冲击的产品与表面材料。"
     },
     "certifications": {
-      "title": "认证与测试数据",
+      "title": "认证与验证数据",
       "waterAbsorption": "吸水率测试",
       "toxicityHeavyMetals": "毒性 / 重金属",
       "acidResistance": "耐酸性",
@@ -891,7 +890,7 @@
         },
         {
           "label": "最佳应用",
-          "oxp": "高端物件、样品、餐具概念和 B2B 产品开发。",
+          "oxp": "高端物件、评估材料、餐具概念和 B2B 产品开发。",
           "plastic": "轻量化量产和柔性格式。",
           "ceramic": "长期餐饮使用和耐热物件。",
           "paper": "短期包装和服务用品。"
@@ -953,11 +952,11 @@
         },
         {
           "question": "我可以为餐饮酒店或设计项目下单吗？",
-          "answer": "可以。商店支持直接的 B2C 浏览与发现，但适用于餐饮酒店、零售或设计项目的产品，也可以通过现有 B2B 线索流程进入批量询盘和样品申请流程。"
+          "answer": "可以。商店支持直接的 B2C 浏览与发现，但适用于餐饮酒店、零售或设计项目的产品，也可以通过现有 B2B 线索流程进入批量询盘和材料申请流程。"
         },
         {
           "question": "如果产品售罄或为定制生产，会怎么样？",
-          "answer": "每个产品都会显示供应状态。如果某一批次已经售罄，产品页会引导你查看补货更新、申请样品或直接发起项目询盘，而不是停留在无法继续的购买路径上。"
+          "answer": "每个产品都会显示供应状态。如果某一批次已经售罄，产品页会引导你查看补货更新、申请评估材料或直接发起项目询盘，而不是停留在无法继续的购买路径上。"
         },
         {
           "question": "运费和税费现在都已完整计算吗？",
@@ -971,7 +970,7 @@
       "eyebrow": "B2B 合作",
       "title": "使用 OXP 材料开发产品",
       "description": "探索基于再生牡蛎壳的材料，用于产品开发、试生产和批量供应。",
-      "primaryCta": "申请样品",
+      "primaryCta": "申请评估材料",
       "secondaryCta": "查看材料数据"
     },
     "process": {
@@ -983,8 +982,8 @@
           "description": "说明产品类别、预期用途、市场和技术限制。"
         },
         {
-          "title": "申请样品或材料数据",
-          "description": "可申请可用样品、数据表或产品参考。"
+          "title": "申请评估材料或材料数据",
+          "description": "可申请可用评估材料、数据表或产品参考。"
         },
         {
           "title": "评估技术兼容性",
@@ -1001,7 +1000,7 @@
       ]
     },
     "ctaStrip": {
-      "sample": "申请样品",
+      "sample": "申请评估材料",
       "materialData": "索取材料数据表",
       "requirements": "提交产品需求",
       "bulkSupply": "讨论批量供应"
@@ -1024,7 +1023,7 @@
         },
         {
           "title": "酒店与活动供应",
-          "description": "面向场地、酒店、活动和餐饮项目的样品评审。"
+          "description": "面向场地、酒店、活动和餐饮项目的评估材料评审。"
         },
         {
           "title": "设计与原型项目",
@@ -1042,7 +1041,7 @@
       "items": [
         "我们会评估你的应用方向和材料需求。",
         "我们会确认 OXP 是否适合你的使用场景。",
-        "我们会分享可用规格或样品选项。",
+        "我们会分享可用规格或评估材料选项。",
         "我们会讨论时间、数量和下一步。"
       ]
     },
@@ -1057,7 +1056,7 @@
       },
       "interestOptions": {
         "sample_request": {
-          "label": "样品申请",
+          "label": "材料申请",
           "description": "用于评估包、材料说明和配送信息。"
         },
         "pellet_supply": {
@@ -1083,13 +1082,13 @@
       },
       "panelCopy": {
         "sample_request": [
-          "样品流程支持材料评估和技术审核。",
+          "评估材料流程支持材料评估和技术审核。",
           "我们会先收集配送背景和预期用途，再确认可用性。",
-          "样品选项可能取决于当前生产情况和已批准文件。"
+          "评估材料选项可能取决于当前生产情况和已批准文件。"
         ],
         "pellet_supply": [
           "颗粒供应请求会根据应用和配方需求评估。",
-          "可用数据表和样品选项会在评估后分享。",
+          "可用数据表和评估材料选项会在评估后分享。",
           "数量、时间和兼容性确认前不保证供应。"
         ],
         "product_development": [
@@ -1127,7 +1126,7 @@
         "volume": "预估数量 / 量级",
         "timeline": "目标时间",
         "materialInterest": "材料兴趣",
-        "quantityEstimate": "样品数量预估",
+        "quantityEstimate": "评估材料数量预估",
         "shippingCountry": "配送国家",
         "shippingRegion": "配送地区",
         "shippingAddress": "配送地址",
@@ -1147,14 +1146,14 @@
         "companyWebsite": "https://company.com",
         "jobTitle": "创始人、采购、项目负责人等",
         "application": "餐具、包装、部件、酒店项目等",
-        "volume": "试产规模、年度需求、样品数量等",
+        "volume": "试产规模、年度需求、评估材料数量等",
         "timeline": "季度、发布日期或开发周期",
-        "materialInterest": "颗粒、压制板、桌面材料、产品样品等",
+        "materialInterest": "颗粒、压制板、桌面材料、产品评估材料等",
         "quantityEstimate": "10 张板、5 kg、试点套装等",
         "shippingCountry": "配送国家",
         "shippingRegion": "省/州、城市或地区",
         "shippingAddress": "配送地址",
-        "intendedUse": "你计划如何评估样品或材料？",
+        "intendedUse": "你计划如何评估评估材料或材料？",
         "collaborationGoal": "你希望构建、测试或探索什么？",
         "projectStage": "探索、原型、课程规划等",
         "message": "请说明形态要求、目标市场、表面方向或认证需求。"
@@ -1221,7 +1220,7 @@
         {
           "label": "B2B 专线",
           "value": "+82 51-555-0188",
-          "detail": "材料供应与样品协调"
+          "detail": "材料供应与评估材料协调"
         },
         {
           "label": "地点",
@@ -1534,7 +1533,7 @@
     "addToCart": "加入购物车",
     "bulkEnquiry": "批量询盘",
     "requestUpdate": "请求更新",
-    "requestSample": "申请样品或规格包"
+    "requestSample": "申请评估材料或规格包"
   },
   "productDetail": {
     "newBadge": "新品",
@@ -1547,13 +1546,13 @@
     "addToCart": "加入购物车",
     "bulkEnquiry": "批量询盘",
     "requestUpdate": "请求更新",
-    "requestSample": "申请样品",
+    "requestSample": "申请评估材料",
     "backToStore": "返回商店",
     "pageFallbackEyebrow": "产品",
     "pageFallbackDescription": "查看 OXP 产品规格、供应状态与询盘选项。",
     "pageErrorTitle": "产品详情暂时不可用。",
     "pageErrorDescription": "无法从 API 加载产品页面。你仍可以浏览商店或直接联系团队。",
-    "soldOutMessage": "该批次已售罄。你可以申请补货更新或样品包，团队将引导你了解下一次发售安排。",
+    "soldOutMessage": "该批次已售罄。你可以申请补货更新或评估材料包，团队将引导你了解下一次发售安排。",
     "bulkOrderMessage": "该产品更适合餐饮酒店、批量采购或项目制订购。请使用询盘按钮了解 MOQ、交付周期和定制支持。",
     "productStory": "产品故事",
     "specificationEyebrow": "规格",
@@ -1567,9 +1566,9 @@
     "bulkEnquiryTitle": "批量询盘",
     "bulkEnquiryDescription": "适用于正在评估 MOQ 和交付周期的餐饮集团、设计工作室与酒店采购方。",
     "bulkEnquiryAction": "打开询盘",
-    "requestSampleTitle": "申请样品",
+    "requestSampleTitle": "申请评估材料",
     "requestSampleDescription": "在作出更大规模决策前，先查看 OXP 的表面、密度和护理说明。",
-    "requestSampleAction": "申请样品",
+    "requestSampleAction": "申请评估材料",
     "materialReviewTitle": "材料解读",
     "materialReviewDescription": "了解该产品背后的牡蛎壳材料系统及其可持续叙事。",
     "materialReviewAction": "查看材料故事",
@@ -1581,7 +1580,7 @@
     "premiumSurfaceBadge": "高级表面质感",
     "nzDeliveryBadge": "韩国设计 / 新西兰配送",
     "hospitalityReadyBadge": "适用于餐饮酒店 / 室内项目",
-    "sampleAvailableBadge": "可申请样品",
+    "sampleAvailableBadge": "可申请评估材料",
     "glanceEyebrow": "产品一览",
     "glanceTitle": "提交订单请求前的关键信息",
     "glanceDescription": "快速查看产品、材料与配送的关键细节。",
@@ -1612,9 +1611,9 @@
     "faqOysterShellAnswer": "是的。本产品采用 Terrafin OXP 材料制成，该材料线使用回收牡蛎壳。",
     "faqShippingQuestion": "是否配送到新西兰以外地区？",
     "faqShippingAnswer": "暂不支持。商店目前仅支持新西兰境内配送。",
-    "faqSampleQuestion": "我可以申请样品吗？",
-    "faqSampleAvailableAnswer": "可以。使用本页的样品申请选项，团队会通过邮件跟进。",
-    "faqSampleUnavailableAnswer": "该产品目前未开放样品申请。你仍可以联系团队获取项目建议。",
+    "faqSampleQuestion": "我可以申请评估材料吗？",
+    "faqSampleAvailableAnswer": "可以。使用本页的材料申请选项，团队会通过邮件跟进。",
+    "faqSampleUnavailableAnswer": "该产品目前未开放材料申请。你仍可以联系团队获取项目建议。",
     "faqB2bQuestion": "可以用于餐饮酒店或 B2B 项目订购吗？",
     "faqB2bAvailableAnswer": "可以。请使用批量询盘选项提交 MOQ、交付周期与项目需求。",
     "faqB2bUnavailableAnswer": "如有餐饮酒店或 B2B 需求，请联系团队并注明数量和时间安排。"

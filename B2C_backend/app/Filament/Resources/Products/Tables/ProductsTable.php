@@ -66,13 +66,6 @@ class ProductsTable
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => ProductStatus::tryFrom($state)?->label() ?? $state)
                     ->color(fn (string $state): string => ProductStatus::tryFrom($state)?->color() ?? 'gray'),
-                TextColumn::make('demo_content')
-                    ->label('Demo')
-                    ->state(fn (Product $record): ?string => self::isDemoProduct($record) ? 'Demo' : null)
-                    ->badge()
-                    ->color('warning')
-                    ->placeholder('Real')
-                    ->toggleable(),
                 TextColumn::make('default_variant_stock_status')
                     ->label(__('admin.fields.stock'))
                     ->badge()
@@ -124,17 +117,6 @@ class ProductsTable
                 SelectFilter::make('status')
                     ->label(__('admin.fields.status'))
                     ->options(ProductStatus::options()),
-                SelectFilter::make('demo_content')
-                    ->label('Demo state')
-                    ->options([
-                        'demo' => 'Demo products',
-                        'real' => 'Real products',
-                    ])
-                    ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? null) {
-                        'demo' => self::demoProductQuery($query),
-                        'real' => self::realProductQuery($query),
-                        default => $query,
-                    }),
                 SelectFilter::make('variant_stock_status')
                     ->label(__('admin.fields.stock_status'))
                     ->options(fn (): array => self::stockStatusOptions())
@@ -181,10 +163,6 @@ class ProductsTable
                                 'stock_quantity' => 0,
                             ]),
                         )),
-                    BulkAction::make('mark_demo_content')
-                        ->label('Mark selected as demo')
-                        ->requiresConfirmation()
-                        ->action(fn ($records) => $records->each(fn (Product $record) => self::markProductAsDemo($record))),
                     DeleteBulkAction::make()
                         ->modalDescription(fn ($records = null): string => self::bulkDeleteConfirmationDescription($records ?? collect()))
                         ->using(function (DeleteBulkAction $action, EloquentCollection|Collection|LazyCollection $records): void {
@@ -391,36 +369,4 @@ class ProductsTable
         return "{$cartItems} cart item(s) will be removed. None of the selected products have order history.";
     }
 
-    private static function markProductAsDemo(Product $record): void
-    {
-        $metadata = [
-            'is_demo_content' => true,
-            'seed_source' => 'admin_marked_demo',
-            'seeded_at' => now(),
-        ];
-
-        $record->update($metadata);
-        $record->images()->update($metadata);
-        $record->variants()->update($metadata);
-        $record->attributeAssignments()->update($metadata);
-    }
-
-    private static function isDemoProduct(Product $record): bool
-    {
-        return (bool) $record->is_demo_content || filled($record->seed_source);
-    }
-
-    private static function demoProductQuery(Builder $query): Builder
-    {
-        return $query->where(fn (Builder $builder) => $builder
-            ->where('is_demo_content', true)
-            ->orWhereNotNull('seed_source'));
-    }
-
-    private static function realProductQuery(Builder $query): Builder
-    {
-        return $query
-            ->where('is_demo_content', false)
-            ->whereNull('seed_source');
-    }
 }

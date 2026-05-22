@@ -245,9 +245,9 @@ export const oxpMaterialRecord: RawMaterialContentRecord = {
   ],
   certifications: {
     title: {
-      en: "Certifications & Test Data",
+      en: "Certifications & Verification Data",
       ko: "인증 및 시험 데이터",
-      zh: "认证与测试数据",
+      zh: "认证与验证数据",
     },
     items: [
       {

@@ -10,9 +10,9 @@ Last updated: 2026-05-08
 | Product admin resource can create/update product | Pass | `AdminOperationsCenterTest` |
 | Order creation still works | Pass | Covered by `StoreOrderFlowTest` |
 | Order admin status update works | Pass | `AdminOperationsCenterTest` table action |
-| Lead submission appears in admin | Pass | Business, sample, and partnership leads visible in All Leads |
+| Lead submission appears in admin | Pass | Business, material, and partnership leads visible in All Leads |
 | Inquiry submission appears in admin | Pass | Legacy enquiry visible in General Enquiries |
-| Sample request appears in admin or unified Lead Center | Pass | Unified Lead Center |
+| Material request appears in admin or unified Lead Center | Pass | Unified Lead Center |
 | Partnership inquiry appears in admin or unified Lead Center | Pass | Unified Lead Center |
 | Community post with funding URL is stored and manageable | Pass | Safe external funding URL accepted and visible in admin |
 | Unsafe funding URL protocols rejected | Pass | `javascript:` rejected |
@@ -29,7 +29,7 @@ Last updated: 2026-05-08
 | Guest checkout route remains registered and is runtime gated | Pass | `StoreOrderFlowTest` |
 | Storage test results persist | Pending manual | Verify from Storage Settings after test actions |
 | Settings export/import validates safely | Pending manual | Verify in admin with non-secret JSON |
-| Demo cleanup protects unmarked data | Pending manual | Verify counts and confirmation before action |
+| initial content review preserves production data | Pending manual | Confirm initial content remains editable through standard resources |
 | Media scan export works | Pending manual | Verify downloaded JSON report |
 
 ## Command Results

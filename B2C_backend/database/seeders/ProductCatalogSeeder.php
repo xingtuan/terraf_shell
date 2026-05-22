@@ -15,7 +15,7 @@ use Illuminate\Support\Str;
 
 class ProductCatalogSeeder extends Seeder
 {
-    private const SEED_SOURCE = 'product_catalog_demo';
+    private const SEED_SOURCE = 'product_catalog_initial';
 
     public function run(): void
     {
@@ -76,11 +76,11 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => 'Architectural',
                     'zh' => 'Architectural',
                 ],
-                'description' => 'Material samples and surface objects for design studios and hospitality projects.',
+                'description' => 'Material review pieces and surface objects for design studios and hospitality projects.',
                 'description_translations' => [
-                    'en' => 'Material samples and surface objects for design studios and hospitality projects.',
-                    'ko' => 'Material samples and surface objects for design studios and hospitality projects.',
-                    'zh' => 'Material samples and surface objects for design studios and hospitality projects.',
+                    'en' => 'Material review pieces and surface objects for design studios and hospitality projects.',
+                    'ko' => 'Material review pieces and surface objects for design studios and hospitality projects.',
+                    'zh' => 'Material review pieces and surface objects for design studios and hospitality projects.',
                 ],
                 'sort_order' => 4,
             ],
@@ -90,21 +90,12 @@ class ProductCatalogSeeder extends Seeder
                 [
                     ...$category,
                     'is_active' => true,
-                    ...$this->demoMetadata(),
+                    ...$this->initialMetadata(),
                 ],
             );
 
             return [$category['slug'] => $record];
         });
-
-        ProductCategory::query()
-            ->where(function ($query): void {
-                $query
-                    ->where('is_demo_content', true)
-                    ->orWhere('seed_source', self::SEED_SOURCE);
-            })
-            ->whereNotIn('slug', $categories->keys()->all())
-            ->update(['is_active' => false]);
 
         $products = [
             [
@@ -205,7 +196,7 @@ class ProductCatalogSeeder extends Seeder
                 'related' => [
                     'harbor-serving-bowl',
                     'salt-air-espresso-set',
-                    'studio-sample-kit',
+                    'studio-review-kit',
                 ],
             ],
             [
@@ -617,12 +608,12 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => 'Cove Display Tile',
                     'zh' => 'Cove Display Tile',
                 ],
-                'subtitle' => 'Architectural shell composite sample tile for design libraries and hospitality fit-outs.',
-                'short_description' => 'A specification-oriented sample piece for interior teams evaluating OXP for hospitality and retail surfaces.',
+                'subtitle' => 'Architectural shell composite review tile for design libraries and hospitality fit-outs.',
+                'short_description' => 'A specification-oriented review piece for interior teams evaluating OXP for hospitality and retail surfaces.',
                 'short_description_translations' => [
-                    'en' => 'A specification-oriented sample piece for interior teams evaluating OXP for hospitality and retail surfaces.',
-                    'ko' => 'A specification-oriented sample piece for interior teams evaluating OXP for hospitality and retail surfaces.',
-                    'zh' => 'A specification-oriented sample piece for interior teams evaluating OXP for hospitality and retail surfaces.',
+                    'en' => 'A specification-oriented review piece for interior teams evaluating OXP for hospitality and retail surfaces.',
+                    'ko' => 'A specification-oriented review piece for interior teams evaluating OXP for hospitality and retail surfaces.',
+                    'zh' => 'A specification-oriented review piece for interior teams evaluating OXP for hospitality and retail surfaces.',
                 ],
                 'full_description' => 'Cove Display Tile is less a conventional B2C object and more a bridge into future B2B surface programs. It gives designers and hospitality buyers a clear way to review finish, tone, density, and care requirements before moving into larger material conversations.',
                 'full_description_translations' => [
@@ -631,23 +622,23 @@ class ProductCatalogSeeder extends Seeder
                     'zh' => 'Cove Display Tile is less a conventional B2C object and more a bridge into future B2B surface programs. It gives designers and hospitality buyers a clear way to review finish, tone, density, and care requirements before moving into larger material conversations.',
                 ],
                 'features' => [
-                    'Architectural sample format',
+                    'Architectural review format',
                     'Finish and density review tool',
                     'Hospitality specification bridge',
                 ],
                 'features_translations' => [
                     'en' => [
-                        'Architectural sample format',
+                        'Architectural review format',
                         'Finish and density review tool',
                         'Hospitality specification bridge',
                     ],
                     'ko' => [
-                        'Architectural sample format',
+                        'Architectural review format',
                         'Finish and density review tool',
                         'Hospitality specification bridge',
                     ],
                     'zh' => [
-                        'Architectural sample format',
+                        'Architectural review format',
                         'Finish and density review tool',
                         'Hospitality specification bridge',
                     ],
@@ -658,7 +649,7 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => 'Bulk and project enquiry recommended',
                     'zh' => 'Bulk and project enquiry recommended',
                 ],
-                'lead_time' => 'Sample review packs ship in 2-3 weeks',
+                'lead_time' => 'Review packs ship in 2-3 weeks',
                 'image_url' => '/images/application-packaging.jpg',
                 'gallery' => [
                     '/images/application-packaging.jpg',
@@ -672,11 +663,11 @@ class ProductCatalogSeeder extends Seeder
                 'dimensions' => 'W 10 cm x D 10 cm x H 0.8 cm',
                 'weight_grams' => 180,
                 'attribute_specs' => [
-                    ['key' => 'sample_format', 'label' => 'Sample Format', 'value' => 'Architectural swatch tile', 'group' => 'Program'],
+                    ['key' => 'review_format', 'label' => 'Review Format', 'value' => 'Architectural swatch tile', 'group' => 'Program'],
                     ['key' => 'moq', 'label' => 'Project MOQ', 'value' => 'Discuss with OXP team', 'group' => 'Commercial'],
                 ],
                 'care_instructions' => [
-                    'Use as a review sample for finish and tone comparison.',
+                    'Use as a review piece for finish and tone comparison.',
                     'Request project guidance before specifying in wet areas.',
                 ],
                 'material_benefits' => [
@@ -698,64 +689,64 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => true,
                 'inquiry_only' => true,
                 'sample_request_enabled' => true,
-                'seo_title' => 'Cove Display Tile | OXP architectural material sample',
-                'seo_description' => 'An OXP architectural sample tile for hospitality, retail, and interior design project review.',
+                'seo_title' => 'Cove Display Tile | OXP architectural material review tile',
+                'seo_description' => 'An OXP architectural review tile for hospitality, retail, and interior design project review.',
                 'related' => [
-                    'studio-sample-kit',
+                    'studio-review-kit',
                     'drift-planter-no-2',
                     'harbor-serving-bowl',
                 ],
             ],
             [
-                'slug' => 'studio-sample-kit',
-                'sku' => 'STUDIO_SAMPLE_KIT',
+                'slug' => 'studio-review-kit',
+                'sku' => 'STUDIO_REVIEW_KIT',
                 'category' => 'architectural',
-                'name' => 'Studio Sample Kit',
+                'name' => 'Studio Review Kit',
                 'name_translations' => [
-                    'en' => 'Studio Sample Kit',
-                    'ko' => 'Studio Sample Kit',
-                    'zh' => 'Studio Sample Kit',
+                    'en' => 'Studio Review Kit',
+                    'ko' => 'Studio Review Kit',
+                    'zh' => 'Studio Review Kit',
                 ],
-                'subtitle' => 'Entry sample kit for designers, specifiers, and hospitality buyers.',
+                'subtitle' => 'Entry review kit for designers, specifiers, and hospitality buyers.',
                 'short_description' => 'A compact pack of OXP finish chips and object references for teams reviewing the material story.',
                 'short_description_translations' => [
                     'en' => 'A compact pack of OXP finish chips and object references for teams reviewing the material story.',
                     'ko' => 'A compact pack of OXP finish chips and object references for teams reviewing the material story.',
                     'zh' => 'A compact pack of OXP finish chips and object references for teams reviewing the material story.',
                 ],
-                'full_description' => 'The Studio Sample Kit is intended for early project conversations. It combines finish references, a small-format object sample, and care notes so design teams can move from inspiration to a more grounded materials review without committing to a large order.',
+                'full_description' => 'The Studio Review Kit is intended for early project conversations. It combines finish references, a small-format object, and care notes so design teams can move from inspiration to a more grounded materials review without committing to a large order.',
                 'full_description_translations' => [
-                    'en' => 'The Studio Sample Kit is intended for early project conversations. It combines finish references, a small-format object sample, and care notes so design teams can move from inspiration to a more grounded materials review without committing to a large order.',
-                    'ko' => 'The Studio Sample Kit is intended for early project conversations. It combines finish references, a small-format object sample, and care notes so design teams can move from inspiration to a more grounded materials review without committing to a large order.',
-                    'zh' => 'The Studio Sample Kit is intended for early project conversations. It combines finish references, a small-format object sample, and care notes so design teams can move from inspiration to a more grounded materials review without committing to a large order.',
+                    'en' => 'The Studio Review Kit is intended for early project conversations. It combines finish references, a small-format object, and care notes so design teams can move from inspiration to a more grounded materials review without committing to a large order.',
+                    'ko' => 'The Studio Review Kit is intended for early project conversations. It combines finish references, a small-format object, and care notes so design teams can move from inspiration to a more grounded materials review without committing to a large order.',
+                    'zh' => 'The Studio Review Kit is intended for early project conversations. It combines finish references, a small-format object, and care notes so design teams can move from inspiration to a more grounded materials review without committing to a large order.',
                 ],
                 'features' => [
-                    'Finish chips and sample references',
+                    'Finish chips and review references',
                     'Early-stage hospitality and design review',
                     'Bridges B2C discovery into future B2B supply',
                 ],
                 'features_translations' => [
                     'en' => [
-                        'Finish chips and sample references',
+                        'Finish chips and review references',
                         'Early-stage hospitality and design review',
                         'Bridges B2C discovery into future B2B supply',
                     ],
                     'ko' => [
-                        'Finish chips and sample references',
+                        'Finish chips and review references',
                         'Early-stage hospitality and design review',
                         'Bridges B2C discovery into future B2B supply',
                     ],
                     'zh' => [
-                        'Finish chips and sample references',
+                        'Finish chips and review references',
                         'Early-stage hospitality and design review',
                         'Bridges B2C discovery into future B2B supply',
                     ],
                 ],
-                'availability_text' => 'Open for sample-kit orders',
+                'availability_text' => 'Open for review-kit orders',
                 'availability_text_translations' => [
-                    'en' => 'Open for sample-kit orders',
-                    'ko' => 'Open for sample-kit orders',
-                    'zh' => 'Open for sample-kit orders',
+                    'en' => 'Open for review-kit orders',
+                    'ko' => 'Open for review-kit orders',
+                    'zh' => 'Open for review-kit orders',
                 ],
                 'lead_time' => 'Dispatches in 7-10 business days',
                 'image_url' => '/images/process-collected.jpg',
@@ -771,11 +762,11 @@ class ProductCatalogSeeder extends Seeder
                 'dimensions' => 'A5 kit box',
                 'weight_grams' => 240,
                 'attribute_specs' => [
-                    ['key' => 'contents', 'label' => 'Kit Contents', 'value' => 'Finish chips, object sample, care notes', 'group' => 'Product'],
+                    ['key' => 'contents', 'label' => 'Kit Contents', 'value' => 'Finish chips, small object, care notes', 'group' => 'Product'],
                     ['key' => 'audience', 'label' => 'Audience', 'value' => 'Design studios and hospitality buyers', 'group' => 'Application'],
                 ],
                 'care_instructions' => [
-                    'Store samples flat and dry for finish comparison.',
+                    'Store review pieces flat and dry for finish comparison.',
                     'Contact OXP for project-specific care guidance.',
                 ],
                 'material_benefits' => [
@@ -797,8 +788,8 @@ class ProductCatalogSeeder extends Seeder
                 'in_stock' => true,
                 'inquiry_only' => false,
                 'sample_request_enabled' => true,
-                'seo_title' => 'Studio Sample Kit | OXP designer review kit',
-                'seo_description' => 'A compact OXP sample kit for design teams, hospitality buyers, and project evaluation.',
+                'seo_title' => 'Studio Review Kit | OXP designer review kit',
+                'seo_description' => 'A compact OXP review kit for design teams, hospitality buyers, and project evaluation.',
                 'related' => [
                     'cove-display-tile',
                     'tidal-dinner-plate',
@@ -822,11 +813,11 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => 'A shell composite vessel designed for candle programs, guest-room styling, and seasonal gifting capsules.',
                     'zh' => 'A shell composite vessel designed for candle programs, guest-room styling, and seasonal gifting capsules.',
                 ],
-                'full_description' => 'Reef is currently between production runs and is useful as a test case for the out-of-stock journey. The form is intended for boutique candle collaborations, guest-room amenities, and smaller branded gifting programs where the container itself adds material value.',
+                'full_description' => 'Reef is currently between production runs and is useful as a reference case for the out-of-stock journey. The form is intended for boutique candle collaborations, guest-room amenities, and smaller branded gifting programs where the container itself adds material value.',
                 'full_description_translations' => [
-                    'en' => 'Reef is currently between production runs and is useful as a test case for the out-of-stock journey. The form is intended for boutique candle collaborations, guest-room amenities, and smaller branded gifting programs where the container itself adds material value.',
-                    'ko' => 'Reef is currently between production runs and is useful as a test case for the out-of-stock journey. The form is intended for boutique candle collaborations, guest-room amenities, and smaller branded gifting programs where the container itself adds material value.',
-                    'zh' => 'Reef is currently between production runs and is useful as a test case for the out-of-stock journey. The form is intended for boutique candle collaborations, guest-room amenities, and smaller branded gifting programs where the container itself adds material value.',
+                    'en' => 'Reef is currently between production runs and is useful as a reference case for the out-of-stock journey. The form is intended for boutique candle collaborations, guest-room amenities, and smaller branded gifting programs where the container itself adds material value.',
+                    'ko' => 'Reef is currently between production runs and is useful as a reference case for the out-of-stock journey. The form is intended for boutique candle collaborations, guest-room amenities, and smaller branded gifting programs where the container itself adds material value.',
+                    'zh' => 'Reef is currently between production runs and is useful as a reference case for the out-of-stock journey. The form is intended for boutique candle collaborations, guest-room amenities, and smaller branded gifting programs where the container itself adds material value.',
                 ],
                 'features' => [
                     'Candle-ready interior form',
@@ -875,7 +866,7 @@ class ProductCatalogSeeder extends Seeder
                 ],
                 'care_instructions' => [
                     'Keep away from open flame until a certified fill program is approved.',
-                    'Request a sample or restock update for collaboration planning.',
+                    'Request a review pack or restock update for collaboration planning.',
                 ],
                 'material_benefits' => [
                     'Strong premium storytelling for fragrance and wellness collaborations.',
@@ -901,23 +892,10 @@ class ProductCatalogSeeder extends Seeder
                 'related' => [
                     'shoreline-wellness-tray',
                     'drift-planter-no-2',
-                    'studio-sample-kit',
+                    'studio-review-kit',
                 ],
             ],
         ];
-
-        Product::query()
-            ->where(function ($query): void {
-                $query
-                    ->where('is_demo_content', true)
-                    ->orWhere('seed_source', self::SEED_SOURCE);
-            })
-            ->whereNotIn('slug', collect($products)->pluck('slug')->all())
-            ->update([
-                'is_active' => false,
-                'status' => ProductStatus::Archived->value,
-                'published_at' => null,
-            ]);
 
         $records = [];
         $attributeDefinitions = ProductAttributeDefinition::query()
@@ -965,7 +943,7 @@ class ProductCatalogSeeder extends Seeder
                     'sample_request_enabled' => $productData['sample_request_enabled'],
                     'is_active' => true,
                     'published_at' => now(),
-                    ...$this->demoMetadata(),
+                    ...$this->initialMetadata(),
                 ],
             );
 
@@ -987,7 +965,7 @@ class ProductCatalogSeeder extends Seeder
                     'is_default' => true,
                     'is_active' => true,
                     'sort_order' => 0,
-                    ...$this->demoMetadata(),
+                    ...$this->initialMetadata(),
                 ],
             );
 
@@ -1005,20 +983,10 @@ class ProductCatalogSeeder extends Seeder
                         'caption' => $index === 0 ? $product->short_description : $product->subtitle,
                         'caption_translations' => $product->short_description_translations,
                         'media_url' => $mediaUrl,
-                        ...$this->demoMetadata(),
+                        ...$this->initialMetadata(),
                     ],
                 );
             }
-
-            ProductImage::query()
-                ->where('product_id', $product->id)
-                ->where(function ($query): void {
-                    $query
-                        ->where('is_demo_content', true)
-                        ->orWhere('seed_source', self::SEED_SOURCE);
-                })
-                ->whereNotIn('sort_order', range(1, count($productData['gallery'])))
-                ->delete();
 
             $records[$productData['slug']] = $product;
         }
@@ -1080,7 +1048,7 @@ class ProductCatalogSeeder extends Seeder
                         'value_number' => null,
                         'value_boolean' => null,
                         'value_json' => null,
-                        ...$this->demoMetadata(),
+                        ...$this->initialMetadata(),
                     ],
                 );
             }
@@ -1098,7 +1066,7 @@ class ProductCatalogSeeder extends Seeder
                     'value_number' => null,
                     'value_boolean' => null,
                     'value_json' => null,
-                    ...$this->demoMetadata(),
+                    ...$this->initialMetadata(),
                 ],
             );
         }
@@ -1146,7 +1114,7 @@ class ProductCatalogSeeder extends Seeder
                     'value_number' => null,
                     'value_boolean' => null,
                     'value_json' => null,
-                    ...$this->demoMetadata(),
+                    ...$this->initialMetadata(),
                 ],
             );
         }
@@ -1155,10 +1123,10 @@ class ProductCatalogSeeder extends Seeder
     /**
      * @return array<string, mixed>
      */
-    private function demoMetadata(): array
+    private function initialMetadata(): array
     {
         return [
-            'is_demo_content' => true,
+            'is_demo_content' => false,
             'seed_source' => self::SEED_SOURCE,
             'seeded_at' => now(),
         ];

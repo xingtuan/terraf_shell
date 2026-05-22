@@ -449,7 +449,6 @@ class DefaultPageSections
                     'tested_translations' => self::translations($messages, 'certificationsAtAGlance.statusLabels.tested'),
                     'in_testing_translations' => self::translations($messages, 'certificationsAtAGlance.statusLabels.in_testing'),
                     'pending_translations' => self::translations($messages, 'certificationsAtAGlance.statusLabels.pending'),
-                    'demo_translations' => self::translations($messages, 'certificationsAtAGlance.statusLabels.demo'),
                     'not_applicable_translations' => self::translations($messages, 'certificationsAtAGlance.statusLabels.not_applicable'),
                 ],
             ], 9),
@@ -586,13 +585,13 @@ class DefaultPageSections
                 'benefits' => self::manualStringItems([
                     self::literalTranslations('Material story focused only on reclaimed oyster shell content', '材料叙事聚焦于回收牡蛎壳内容。', '소재 스토리는 회수된 굴 패각 함량에 집중합니다.'),
                     self::literalTranslations('Traceability notes designed for sourcing and brand reviews', '可追溯说明面向采购与品牌审核而设计。', '소싱 및 브랜드 검토를 위한 추적성 메모를 제공합니다.'),
-                    self::literalTranslations('Technical support for samples, moulding direction, and application fit', '为样品、模具方向与应用适配提供技术支持。', '샘플, 성형 방향, 적용 적합성에 대한 기술 지원을 제공합니다.'),
+                    self::literalTranslations('Technical support for review packs, moulding direction, and application fit', '为评估材料、模具方向与应用适配提供技术支持。', '검토 패키지, 성형 방향, 적용 적합성에 대한 기술 지원을 제공합니다.'),
                     self::literalTranslations('Placeholder certification and food-contact modules ready for backend integration', '预留认证与食品接触模块，便于后续接入后端。', '인증 및 식품 접촉 모듈은 향후 백엔드 연동을 위해 준비되어 있습니다.'),
                 ], 'description'),
                 'metrics' => self::manualStringItems([
                     self::literalTranslations('Material story focused only on reclaimed oyster shell content', '材料叙事聚焦于回收牡蛎壳内容。', '소재 스토리는 회수된 굴 패각 함량에 집중합니다.'),
                     self::literalTranslations('Traceability notes designed for sourcing and brand reviews', '可追溯说明面向采购与品牌审核而设计。', '소싱 및 브랜드 검토를 위한 추적성 메모를 제공합니다.'),
-                    self::literalTranslations('Technical support for samples, moulding direction, and application fit', '为样品、模具方向与应用适配提供技术支持。', '샘플, 성형 방향, 적용 적합성에 대한 기술 지원을 제공합니다.'),
+                    self::literalTranslations('Technical support for review packs, moulding direction, and application fit', '为评估材料、模具方向与应用适配提供技术支持。', '검토 패키지, 성형 방향, 적용 적합성에 대한 기술 지원을 제공합니다.'),
                     self::literalTranslations('Placeholder certification and food-contact modules ready for backend integration', '预留认证与食品接触模块，便于后续接入后端。', '인증 및 식품 접촉 모듈은 향후 백엔드 연동을 위해 준비되어 있습니다.'),
                 ], 'description'),
                 'items' => self::manualCardItems([
@@ -621,11 +620,11 @@ class DefaultPageSections
                         ),
                     ],
                     [
-                        'title' => self::literalTranslations('Sample Workflow', '样品流程', '샘플 워크플로'),
+                        'title' => self::literalTranslations('Material Request Workflow', '材料申请流程', '소재 요청 워크플로'),
                         'description' => self::literalTranslations(
-                            'Teams can move from inquiry to sample planning without leaving the site architecture.',
-                            '团队可在站内从询盘推进到样品规划。',
-                            '팀은 사이트 구조 안에서 문의부터 샘플 계획까지 이어갈 수 있습니다.'
+                            'Teams can move from inquiry to material review planning without leaving the site architecture.',
+                            '团队可在站内从询盘推进到材料评估规划。',
+                            '팀은 사이트 구조 안에서 문의부터 소재 검토 계획까지 이어갈 수 있습니다.'
                         ),
                     ],
                 ]),
@@ -747,7 +746,7 @@ class DefaultPageSections
                 ),
                 'topic_options' => self::manualStringItems([
                     self::literalTranslations('Material supply', '材料供应', '소재 공급'),
-                    self::literalTranslations('Sample request', '样品申请', '샘플 요청'),
+                    self::literalTranslations('Material request', '材料申请', '소재 요청'),
                     self::literalTranslations('Product development', '产品开发', '제품 개발'),
                     self::literalTranslations('Retail or store inquiry', '零售或商店咨询', '리테일 또는 스토어 문의'),
                     self::literalTranslations('Hospitality project', '酒店餐饮项目', '호스피탈리티 프로젝트'),
@@ -771,7 +770,7 @@ class DefaultPageSections
                 'variant' => 'final_cta',
                 'primary_cta_label_translations' => self::literalTranslations('Email the Team', '给团队发邮件', '팀에 이메일 보내기'),
                 'primary_cta_url' => 'contact#inquiry',
-                'secondary_cta_label_translations' => self::literalTranslations('Request Samples', '申请样品', '샘플 요청'),
+                'secondary_cta_label_translations' => self::literalTranslations('Request Review Pack', '申请评估材料', '검토 패키지 요청'),
                 'secondary_cta_url' => 'b2b',
                 'anchor_id' => 'contact-final-cta',
             ], 4),

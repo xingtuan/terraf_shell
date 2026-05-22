@@ -30,7 +30,7 @@ class FundingCampaignFactory extends Factory
             'target_amount' => 10000,
             'pledged_amount' => 2500,
             'backer_count' => 32,
-            'reward_description' => 'Early backers receive a material sample pack.',
+            'reward_description' => 'Early backers receive a material review pack.',
             'campaign_start_at' => now()->subDays(3),
             'campaign_end_at' => now()->addDays(27),
         ];

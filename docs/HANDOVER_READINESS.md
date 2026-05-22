@@ -18,7 +18,7 @@ The Filament page System / Handover -> System / Handover Readiness gives operato
 - Upload disk
 - Storage link
 - Key admin account
-- Demo seed data
+- Initial content
 - Failed jobs
 - PHP version
 - Laravel version
@@ -43,7 +43,7 @@ Before zip handover or client deployment:
 5. Run `php artisan storage:link` when using local public storage.
 6. Configure Email Center and send a test email.
 7. Confirm queue mode. Use a worker-backed queue for production.
-8. Clean demo community content.
+8. Clean community content.
 9. Check failed jobs and resolve any failures.
 10. Run `php artisan optimize:clear` after `.env` changes.
 

@@ -64,7 +64,7 @@ php artisan key:generate
 # 6. Run database migrations
 php artisan migrate
 
-# 7. Seed demo data (optional)
+# 7. Seed initial content (optional)
 php artisan db:seed
 
 # 8. Create storage symlink (for local disk storage)
@@ -546,11 +546,11 @@ Walk the client through these workflows before delivery sign-off:
 5. Edit footer contact details, social links, and legal links, then confirm footer/contact sync.
 6. Update Privacy Policy and Terms content; confirm unsafe HTML is removed and formatting remains.
 7. Add or update products, variants, inventory, product images, and category visibility.
-8. Place a test order and demonstrate the manual payment confirmation workflow.
+8. Place a test order and validate the manual payment confirmation workflow.
 9. Review community posts, reports, restrictions, and unrestriction workflow.
 10. Configure SMTP and send a test email from Email Settings.
 11. Upload a valid media file and confirm an unsafe file is rejected with a clear error.
-12. Clear demo data or regenerate demo data only in a non-production environment.
+12. Review initial content through the standard admin resources and reseed only in a controlled non-production environment.
 
 ---
 

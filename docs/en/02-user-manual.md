@@ -105,7 +105,7 @@ Click on any product card to open the product detail page. You will find:
 - **Shipping and return notes**
 - **Product FAQs**
 - **Add to Cart** button (or inquiry button for inquiry-only products)
-- **Sample Request** button (if enabled for this product)
+- **Material Request** button (if enabled for this product)
 
 [Screenshot placeholder: Product detail page]
 
@@ -326,7 +326,7 @@ Reports are reviewed by moderators and administrators.
 
 ## 11. B2B Inquiry
 
-If you are a business looking to wholesale, partner, or request samples:
+If you are a business looking to wholesale, partner, or request review packs:
 
 1. Navigate to **B2B** or **Contact** in the navigation or footer.
 2. Fill in the structured inquiry form with:

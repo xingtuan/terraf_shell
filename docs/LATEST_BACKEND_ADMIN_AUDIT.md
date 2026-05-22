@@ -17,7 +17,7 @@ Scope checked: `routes/api.php`, backend models/controllers/requests/resources/s
 - Shipping quote: `/api/store/shipping-options` exists and calculates fallback NZ shipping plus GST/tax snapshots.
 - NZ Post address lookup: `/api/store/address-search` and `/api/store/address-details` exist with safe fallback data when credentials are unavailable.
 - Tax/GST calculation: `TaxService` and `ShippingQuoteService` use configured GST rate and included/excluded behavior.
-- B2B leads, enquiries, partnership inquiries, and sample requests: public submission endpoints and admin lead/enquiry resources exist.
+- B2B leads, enquiries, partnership inquiries, and material requests: public submission endpoints and admin lead/enquiry resources exist.
 - Community moderation: reports, posts/comments moderation, moderation logs, user violations, moderation settings, and queue pages exist.
 - Funding campaign links: external funding metadata/resources exist; no internal payment/pledge processing is attempted.
 - Media files: central media tracking and admin media library resource exist.
@@ -77,7 +77,7 @@ Scope checked: `routes/api.php`, backend models/controllers/requests/resources/s
 | B2B leads | Implemented |
 | Enquiries | Implemented |
 | Partnership inquiries | Implemented |
-| Sample requests | Implemented |
+| Material requests | Implemented |
 | Community moderation | Implemented |
 | Funding campaign links | Implemented as external links |
 | Media files | Implemented; priority labels localized |

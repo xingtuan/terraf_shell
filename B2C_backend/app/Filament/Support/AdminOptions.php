@@ -35,21 +35,15 @@ class AdminOptions
     /**
      * @return array<string, string>
      */
-    public static function certificationStatuses(bool $includeDemo = false): array
+    public static function certificationStatuses(): array
     {
-        $options = [
+        return [
             'certified' => __('admin.certifications.status.certified'),
             'tested' => __('admin.certifications.status.tested'),
             'in_testing' => __('admin.certifications.status.in_testing'),
             'pending' => __('admin.certifications.status.pending'),
             'not_applicable' => __('admin.certifications.status.not_applicable'),
         ];
-
-        if ($includeDemo) {
-            $options['demo'] = __('admin.certifications.status.demo');
-        }
-
-        return $options;
     }
 
     /**

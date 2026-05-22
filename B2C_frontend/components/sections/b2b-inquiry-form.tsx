@@ -67,7 +67,7 @@ const leadTypeOptions: Array<{
   {
     id: "sample_request",
     interestType: "sample_request",
-    label: "Sample request",
+    label: "Material request",
     description: "Evaluation kits, material notes, and shipping details.",
   },
   {
@@ -327,9 +327,9 @@ function getPanelCopy(type: LeadFormType) {
       ]
     case "sample_request":
       return [
-        "Sample handling for material evaluation and technical review.",
+        "Material review support for evaluation and technical review.",
         "Collect shipping context and intended use without adding a new form layout.",
-        "Backed by the dedicated sample request endpoint.",
+        "Backed by the dedicated material request workflow.",
       ]
     case "university_collaboration":
       return [
@@ -348,7 +348,7 @@ function getPanelCopy(type: LeadFormType) {
       return [
         "Pellet supply for raw material buying and pilot programs.",
         "Compress-moulded product development for tableware and objects.",
-        "Sample handling, technical support, and future certification workflows.",
+        "Material review support, technical guidance, and future certification workflows.",
       ]
   }
 }

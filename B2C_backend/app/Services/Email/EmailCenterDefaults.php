@@ -29,7 +29,7 @@ class EmailCenterDefaults
             ['key' => 'b2b_lead.submitted_user_confirmation', 'category' => 'B2B / Contact', 'name' => 'B2B lead user confirmation', 'recipient_type' => 'user', 'enabled' => false],
             ['key' => 'b2b_lead.submitted_admin_notification', 'category' => 'B2B / Contact', 'name' => 'B2B lead admin notification', 'recipient_type' => 'admin', 'enabled' => false],
             ['key' => 'partnership_inquiry.submitted_user_confirmation', 'category' => 'B2B / Contact', 'name' => 'Partnership inquiry confirmation', 'recipient_type' => 'user', 'enabled' => false],
-            ['key' => 'sample_request.submitted_user_confirmation', 'category' => 'B2B / Contact', 'name' => 'Sample request confirmation', 'recipient_type' => 'user', 'enabled' => false],
+            ['key' => 'sample_request.submitted_user_confirmation', 'category' => 'B2B / Contact', 'name' => 'Material request confirmation', 'recipient_type' => 'user', 'enabled' => false],
             ['key' => 'lead.assigned_admin_notification', 'category' => 'B2B / Contact', 'name' => 'Lead assigned to admin', 'recipient_type' => 'custom', 'enabled' => false],
             ['key' => 'lead.status_changed_user_update', 'category' => 'B2B / Contact', 'name' => 'Lead status changed user update', 'recipient_type' => 'user', 'enabled' => false],
 
@@ -74,7 +74,7 @@ class EmailCenterDefaults
             'b2b_lead.submitted_user_confirmation' => 'We received your request',
             'b2b_lead.submitted_admin_notification' => 'New B2B lead {{ lead.reference }}',
             'partnership_inquiry.submitted_user_confirmation' => 'We received your partnership inquiry',
-            'sample_request.submitted_user_confirmation' => 'We received your sample request',
+            'sample_request.submitted_user_confirmation' => 'We received your material request',
             'lead.assigned_admin_notification' => 'Lead {{ lead.reference }} was assigned',
             'lead.status_changed_user_update' => 'Your inquiry status changed',
             'community.comment_created' => 'New comment on {{ post.title }}',

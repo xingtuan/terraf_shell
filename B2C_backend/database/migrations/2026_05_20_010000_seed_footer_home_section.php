@@ -52,7 +52,7 @@ return new class extends Migration
                 'business_translations' => ['en' => 'Business'],
                 'community_label_translations' => ['en' => 'Community'],
                 'material_sheet_translations' => ['en' => 'Material Sheet'],
-                'sample_request_translations' => ['en' => 'Sample Request'],
+                'sample_request_translations' => ['en' => 'Material Request'],
                 'product_development_translations' => ['en' => 'Product Development'],
                 'idea_support_translations' => ['en' => 'Idea Support'],
                 'concept_fund_translations' => ['en' => 'Concept Fund'],

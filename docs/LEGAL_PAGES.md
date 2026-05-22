@@ -13,7 +13,7 @@ Footer links now point to the localized privacy policy and terms routes instead 
 
 The privacy policy covers account, checkout, guest checkout, community upload, B2B inquiry, cookie/analytics, service provider, access/correction, retention, children, contact, and policy-change topics.
 
-The terms page covers account use, guest checkout, product availability, manual payment orders, shipping, returns/refunds placeholder language, B2B samples, community submissions, funding/external links, user content, IP, prohibited conduct, third-party links, disclaimer, liability, changes, and contact topics.
+The terms page covers account use, guest checkout, product availability, manual payment orders, shipping, returns/refunds placeholder language, B2B review packs, community submissions, funding/external links, user content, IP, prohibited conduct, third-party links, disclaimer, liability, changes, and contact topics.
 
 ## Production Requirement
 

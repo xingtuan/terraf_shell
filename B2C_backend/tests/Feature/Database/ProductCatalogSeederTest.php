@@ -15,7 +15,7 @@ class ProductCatalogSeederTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_database_seed_succeeds_and_marks_shop_catalog_demo_records(): void
+    public function test_database_seed_succeeds_and_marks_shop_catalog_initial_records(): void
     {
         $this->seed(DatabaseSeeder::class);
 
@@ -25,11 +25,11 @@ class ProductCatalogSeederTest extends TestCase
 
         $this->assertSame(
             Product::query()->count(),
-            Product::query()->where('is_demo_content', true)->where('seed_source', 'product_catalog_demo')->count(),
+            Product::query()->where('is_demo_content', false)->where('seed_source', 'product_catalog_initial')->count(),
         );
-        $this->assertGreaterThan(0, ProductCategory::query()->where('is_demo_content', true)->count());
-        $this->assertGreaterThan(0, ProductImage::query()->where('is_demo_content', true)->count());
-        $this->assertGreaterThan(0, ProductVariant::query()->where('is_demo_content', true)->count());
-        $this->assertGreaterThan(0, ProductAttributeAssignment::query()->where('is_demo_content', true)->count());
+        $this->assertGreaterThan(0, ProductCategory::query()->where('is_demo_content', false)->where('seed_source', 'product_catalog_initial')->count());
+        $this->assertGreaterThan(0, ProductImage::query()->where('is_demo_content', false)->where('seed_source', 'product_catalog_initial')->count());
+        $this->assertGreaterThan(0, ProductVariant::query()->where('is_demo_content', false)->where('seed_source', 'product_catalog_initial')->count());
+        $this->assertGreaterThan(0, ProductAttributeAssignment::query()->where('is_demo_content', false)->where('seed_source', 'product_catalog_initial')->count());
     }
 }

@@ -33,7 +33,7 @@ Each product contains the following fields:
 - `price` — decimal, in NZD
 - `compare_at_price` — original price for sale display
 - `inquiry_only` — boolean; if true, product cannot be added to cart
-- `sample_request_enabled` — boolean; allows sample requests
+- `sample_request_enabled` — boolean; allows material requests
 - `is_featured` — boolean; shown in featured product sections
 
 **SEO**
@@ -54,7 +54,7 @@ Products are organized by categories. Categories support:
 - Name (multilingual: EN / KO / ZH)
 - Slug (unique URL identifier)
 - Parent category (for hierarchy)
-- Demo content flag
+- Initial content flag
 
 ### 1.3 Product Variants
 

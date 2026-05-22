@@ -61,7 +61,7 @@ B2C_backend/
 ├── config/                  # Laravel configuration files
 ├── database/
 │   ├── migrations/          # 73+ database migrations
-│   └── seeders/             # Demo data seeders
+│   └── seeders/             # Initial content seeders
 ├── routes/
 │   ├── api.php              # All REST API routes
 │   └── web.php              # Admin panel + media serving routes
@@ -136,7 +136,7 @@ The admin panel is accessible at `/admin` (backend URL). It is built with Filame
 | **Email** | Email Templates, Email Events, Email Logs |
 | **Funding** | Funding Campaigns |
 | **Community Settings** | Categories, Tags |
-| **System** | Application Settings, Feature Flags, Community Settings, Moderation Settings, Email Settings, Shipping Settings, Tax Settings, Storage Settings, NZ Post Settings, Legal Page Settings, Settings Backup, Media Storage Scan, Handover Readiness, Demo Data Cleanup |
+| **System** | Application Settings, Feature Flags, Community Settings, Moderation Settings, Email Settings, Shipping Settings, Tax Settings, Storage Settings, NZ Post Settings, Legal Page Settings, Settings Backup, Media Storage Scan, Handover Readiness |
 
 ---
 

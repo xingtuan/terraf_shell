@@ -7,7 +7,6 @@ Use `/admin` to run OXP operations. Admin-only areas require the `admin` role; m
 Open Store Operations -> Products.
 
 - Use the list filters for category, stock status, published state, featured, bestseller, and new arrival.
-- Use the demo state filter to separate seeded/demo products from real catalog records. The bulk "Mark selected as demo" action is intended for records that should be removable through Demo Cleanup.
 - Edit a product through the tabs: Basic Info, Storefront Content, Pricing & Inventory, Images, SEO, and Publishing-related controls.
 - Variant SKU, NZD price, inventory policy, and stock quantity are managed in Pricing & Inventory.
 - Storefront price and stock state come from the active default variant.
@@ -41,7 +40,7 @@ Open Store Operations -> Addresses for customer address review.
 
 Open B2B / Leads -> All Leads for all frontend lead submissions.
 
-- Business contacts, sample requests, partnership inquiries, university collaborations, and product development collaborations are stored in the unified lead table.
+- Business contacts, material requests, partnership inquiries, university collaborations, and product development collaborations are stored in the unified lead table.
 - Use filters for lead type, status, priority, assignee, source page, follow-up, and dates.
 - Use actions to assign a lead, change status, change priority, add notes, mark follow-up date, resolve, archive, or export CSV.
 
@@ -54,10 +53,10 @@ Open B2B / Leads -> General Enquiries for legacy business contact enquiries.
 
 Open Community -> Concepts, Comments, Reports, Funding Campaigns, and Moderation Queue.
 
-- Posts show status, author, category, funding URL, attachment count, comments, likes, reports, and demo content state where available.
+- Posts show status, author, category, funding URL, attachment count, comments, likes, and reports.
 - Comments and reports can be approved, rejected, hidden, or otherwise handled through their row actions.
 - Funding links must be external `http` or `https` URLs. `javascript:` and `data:` style URLs are rejected.
-- Use the demo content cleanup actions before production launch to remove seeded demo community posts and safe demo shop catalog records. Demo shop products referenced by order history are reported and kept.
+- Initial community posts and shop catalog records are delivery content. Review or archive them through the standard admin resources only when the business requires it.
 
 ## CMS Content
 
@@ -100,7 +99,7 @@ Review:
 - Mail enabled state and provider
 - Queue, cache, and session drivers
 - Key admin account
-- Demo seed content
+- Initial content
 - Failed jobs
 - PHP and Laravel versions
 - Writable directories

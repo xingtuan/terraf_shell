@@ -76,9 +76,6 @@ class PostForm
                                 Toggle::make('is_featured')
                                     ->label(__('admin.ui.featured'))
                                     ->visible(fn (): bool => PanelAccess::isAdmin()),
-                                Toggle::make('is_demo_content')
-                                    ->label(__('admin.ui.demo_seed_content'))
-                                    ->visible(fn (): bool => PanelAccess::isAdmin()),
                                 Textarea::make('excerpt')
                                     ->label(__('admin.ui.excerpt'))
                                     ->rows(4)

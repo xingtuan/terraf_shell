@@ -10,7 +10,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -49,10 +48,6 @@ class ArticlesTable
                     ->label(__('admin.ui.sort_order'))
                     ->numeric()
                     ->sortable(),
-                IconColumn::make('is_seeded')
-                    ->label(__('admin.ui.seeded'))
-                    ->boolean()
-                    ->toggleable(),
                 TextColumn::make('published_at')
                     ->label(__('admin.ui.published_at'))
                     ->dateTime()

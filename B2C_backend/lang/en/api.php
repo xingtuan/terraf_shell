@@ -77,7 +77,7 @@ return [
         'partnership_submitted' => 'Partnership inquiry submitted successfully.',
         'university_submitted' => 'University collaboration request submitted successfully.',
         'product_development_submitted' => 'Product development collaboration request submitted successfully.',
-        'sample_submitted' => 'Sample request submitted successfully.',
+        'sample_submitted' => 'Material request submitted successfully.',
     ],
     'community' => [
         'post_created' => 'Post created successfully.',

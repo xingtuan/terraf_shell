@@ -60,7 +60,7 @@ The following modules have been fully implemented and delivered:
 - ✅ General contact form
 - ✅ B2B structured inquiry form
 - ✅ Partnership, university, and product development inquiry forms
-- ✅ Sample request form
+- ✅ Material request form
 - ✅ Lead pipeline management in admin panel
 - ✅ Lead export to CSV
 
@@ -82,7 +82,7 @@ The following modules have been fully implemented and delivered:
 - ✅ Feature flags
 - ✅ Settings backup and import
 - ✅ Handover readiness page
-- ✅ Demo data system with cleanup tool
+- ✅ Initial content system with seeding support
 - ✅ Media storage scan
 - ✅ Health check API endpoints
 - ✅ Web installer
@@ -187,7 +187,7 @@ The following items must be completed before the platform goes live with real cu
 ### Database
 - [ ] `php artisan migrate --force` completed successfully
 - [ ] Admin user account created
-- [ ] Demo content removed via Demo Data Cleanup tool
+- [ ] Initial content reviewed as delivery content
 - [ ] Real product catalog, materials, and articles added
 
 ### Content

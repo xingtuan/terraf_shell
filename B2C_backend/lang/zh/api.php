@@ -77,7 +77,7 @@ return [
         'partnership_submitted' => '合作咨询已提交。',
         'university_submitted' => '大学合作请求已提交。',
         'product_development_submitted' => '产品开发合作请求已提交。',
-        'sample_submitted' => '样品请求已提交。',
+        'sample_submitted' => '材料申请已提交。',
     ],
     'community' => [
         'post_created' => '帖子已创建。',

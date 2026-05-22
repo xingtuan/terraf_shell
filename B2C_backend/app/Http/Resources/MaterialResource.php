@@ -34,7 +34,6 @@ class MaterialResource extends JsonResource
             'science_overview_translations' => $this->localizedStringSet('science_overview'),
             'status' => $this->status,
             'is_featured' => (bool) $this->is_featured,
-            'is_seeded' => (bool) $this->is_seeded,
             'sort_order' => $this->sort_order,
             'media_url' => $this->media_url,
             'specs_count' => $this->when(isset($this->specs_count), (int) $this->specs_count),

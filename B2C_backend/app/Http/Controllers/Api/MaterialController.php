@@ -330,8 +330,8 @@ class MaterialController extends Controller
                     [
                         'key' => 'absorption',
                         'label' => 'Water absorption',
-                        'value' => '0.00% demo target',
-                        'vs' => 'Demo figure for layout only. Replace with verified laboratory results before public certification claims.',
+                        'value' => '0.00% verification target',
+                        'vs' => 'Initial figure for layout validation. Replace with verified laboratory results before public certification claims.',
                     ],
                     [
                         'key' => 'surface',
@@ -348,8 +348,8 @@ class MaterialController extends Controller
                 ],
                 'models' => [
                     [
-                        'id' => 'demo_pellet',
-                        'name' => 'Demo pellet input',
+                        'id' => 'pellet_input',
+                        'name' => 'Pellet input',
                         'finish' => 'Provisional',
                         'gravity' => 1.5,
                         'description' => 'Example B2B feedstock record for layout and sampling discussions.',
@@ -357,7 +357,7 @@ class MaterialController extends Controller
                     [
                         'id' => 'prototype_object',
                         'name' => 'Prototype object grade',
-                        'finish' => 'Demo finish',
+                        'finish' => 'Provisional finish',
                         'gravity' => 1.6,
                         'description' => 'Prototype-grade material profile pending project-specific testing.',
                     ],
@@ -373,7 +373,7 @@ class MaterialController extends Controller
                         'id' => 'thermal_ash',
                         'temp' => '700C',
                         'name' => 'Thermal ash',
-                        'description' => 'Grey shell-mineral tone for demo material storytelling.',
+                        'description' => 'Grey shell-mineral tone for material storytelling.',
                     ],
                 ],
             ],
@@ -425,7 +425,7 @@ class MaterialController extends Controller
                     [
                         'key' => 'absorption',
                         'label' => '吸水率',
-                        'value' => '0.00% 演示目标',
+                        'value' => '0.00% 验证目标',
                         'vs' => '此为页面展示用模拟数据。正式对外认证声明前必须替换为真实实验室结果。',
                     ],
                     [
@@ -443,16 +443,16 @@ class MaterialController extends Controller
                 ],
                 'models' => [
                     [
-                        'id' => 'demo_pellet',
-                        'name' => '演示颗粒原料',
+                        'id' => 'pellet_input',
+                        'name' => '颗粒原料',
                         'finish' => '临时数据',
                         'gravity' => 1.5,
-                        'description' => '用于页面展示和样品讨论的 B2B 原料记录。',
+                        'description' => '用于页面展示和材料评估讨论的 B2B 原料记录。',
                     ],
                     [
                         'id' => 'prototype_object',
                         'name' => '原型物件等级',
-                        'finish' => '演示表面',
+                        'finish' => '临时表面',
                         'gravity' => 1.6,
                         'description' => '原型级材料档案，最终数据需按项目测试确认。',
                     ],
@@ -468,7 +468,7 @@ class MaterialController extends Controller
                         'id' => 'thermal_ash',
                         'temp' => '700C',
                         'name' => '热处理灰',
-                        'description' => '用于演示材料叙事的灰色贝壳矿物色调。',
+                        'description' => '用于材料叙事的灰色贝壳矿物色调。',
                     ],
                 ],
             ],
@@ -520,7 +520,7 @@ class MaterialController extends Controller
                     [
                         'key' => 'absorption',
                         'label' => '흡수율',
-                        'value' => '0.00% 데모 목표',
+                        'value' => '0.00% 검증 목표',
                         'vs' => '화면 구성을 위한 예시 수치입니다. 공개 인증 주장 전 실제 시험 결과로 교체해야 합니다.',
                     ],
                     [
@@ -538,16 +538,16 @@ class MaterialController extends Controller
                 ],
                 'models' => [
                     [
-                        'id' => 'demo_pellet',
-                        'name' => '데모 펠릿 원료',
+                        'id' => 'pellet_input',
+                        'name' => '펠릿 원료',
                         'finish' => '임시 데이터',
                         'gravity' => 1.5,
-                        'description' => '화면 구성과 샘플 논의를 위한 B2B 원료 예시 기록입니다.',
+                        'description' => '화면 구성과 소재 논의를 위한 B2B 원료 기록입니다.',
                     ],
                     [
                         'id' => 'prototype_object',
                         'name' => '프로토타입 오브젝트 등급',
-                        'finish' => '데모 마감',
+                        'finish' => '임시 마감',
                         'gravity' => 1.6,
                         'description' => '프로토타입 수준 소재 프로필이며 최종 데이터는 프로젝트별 시험으로 확인해야 합니다.',
                     ],
@@ -563,7 +563,7 @@ class MaterialController extends Controller
                         'id' => 'thermal_ash',
                         'temp' => '700C',
                         'name' => '써멀 애시',
-                        'description' => '데모 소재 스토리텔링을 위한 회색 쉘 미네랄 톤입니다.',
+                        'description' => '소재 스토리텔링을 위한 회색 쉘 미네랄 톤입니다.',
                     ],
                 ],
             ],

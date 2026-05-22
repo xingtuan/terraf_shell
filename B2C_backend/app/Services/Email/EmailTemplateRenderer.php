@@ -64,10 +64,10 @@ class EmailTemplateRenderer
 
         return array_replace_recursive($base, match (true) {
             Str::startsWith($eventKey, 'auth.email_verification') => [
-                'verification_url' => config('app.url', 'https://example.com').'/verify/sample',
+                'verification_url' => config('app.url', 'https://example.com').'/verify/preview',
             ],
             $eventKey === 'auth.password_reset' => [
-                'reset_url' => config('app.url', 'https://example.com').'/reset-password?token=sample',
+                'reset_url' => config('app.url', 'https://example.com').'/reset-password?token=preview',
                 'expires_minutes' => 60,
             ],
             Str::startsWith($eventKey, 'order.') => [
@@ -88,8 +88,8 @@ class EmailTemplateRenderer
                     'name' => 'Mina Park',
                     'email' => 'mina@example.com',
                     'company' => 'Design Lab',
-                    'message' => 'We would like to discuss material samples.',
-                    'type' => 'Sample request',
+                    'message' => 'We would like to discuss material review packs.',
+                    'type' => 'Material request',
                 ],
                 'lead' => [
                     'reference' => 'INQ-000123',

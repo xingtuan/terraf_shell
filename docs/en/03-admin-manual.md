@@ -141,7 +141,7 @@ Click **New Product**. Fill in the following sections:
 
 **Commerce Settings**
 - **Inquiry Only** — if enabled, the "Add to Cart" button is replaced with an inquiry button
-- **Sample Request Enabled** — allows users to request product samples
+- **Material Request Enabled** — allows users to request product review packs
 - **Featured** — marks product as featured (shown in featured section)
 
 **SEO**
@@ -286,7 +286,7 @@ Click any post to edit or review. Admins can:
 Manage the taxonomy used by community posts:
 - Create, edit, and delete categories and tags
 - Categories and tags support multilingual names (EN / KO / ZH)
-- Tags track whether they are demo content (is_demo_content flag)
+- Tags track whether they are initial content (internal initial-content marker flag)
 
 ---
 
@@ -342,7 +342,7 @@ From a report:
 Shows all B2B leads with:
 - Company name
 - Contact name and email
-- Lead type (Material Inquiry / Partnership / Sample Request / Collaboration)
+- Lead type (Material Inquiry / Partnership / Material Request / Collaboration)
 - Status (New / Contacted / Qualified / Negotiating / Converted / Rejected)
 - Date received
 
@@ -488,20 +488,11 @@ Toggle specific platform features on or off at runtime without code changes.
 
 ---
 
-## 14. Demo Data Management
+## 14. Initial Content
 
-**Location**: System → Demo Data Cleanup
+The platform ships with initial content for products, materials, community posts, users, and CMS sections. This content is part of the delivered system.
 
-The platform ships with optional demo data (products, materials, community posts, users) for demonstration purposes.
-
-**Before going live with real customers:**
-1. Navigate to **System → Demo Data Cleanup**.
-2. Review which items are marked as demo content.
-3. Click **Remove Demo Content** to delete all demo data.
-
-> **Warning**: This action is irreversible. Ensure you have real content prepared before removing demo data.
-
-*Related code: `app/Filament/Pages/DemoCleanup.php`*
+Review and maintain initial records through the standard product, community, user, and CMS resources. Edit, archive, or replace individual records only when the business requires it.
 
 ---
 
@@ -518,7 +509,7 @@ Checks include:
 - Mail configuration
 - Queue mode
 - Admin account presence
-- Demo data status
+- Initial content status
 - Failed jobs
 - PHP and Laravel versions
 - Storage directory permissions
@@ -560,7 +551,7 @@ Supported locales: `en`, `ko`, `zh`
 4. **Review B2B leads regularly** — Follow up on new leads within 1 business day.
 5. **Back up settings** — Export settings configuration after any significant changes.
 6. **Test email delivery** — After any mail server change, send a test email to verify delivery.
-7. **Keep demo data removed** — Ensure demo content is cleaned up before real customer activity begins.
+7. **Keep initial content current** — Review starter records and update them as production activity begins.
 8. **Monitor storage** — Use the Media Storage Scan tool to identify orphaned or unused files.
 
 ---

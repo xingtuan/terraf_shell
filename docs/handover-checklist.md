@@ -61,7 +61,7 @@ Work through all sections with the handover team. Sign off each section when com
 | 3.2 | Migration status clean: `php artisan migrate:status` shows all migrations as "Ran" | ☐ | |
 | 3.3 | Initial admin user account created | ☐ | |
 | 3.4 | Admin user password changed from any default/seeded value | ☐ | |
-| 3.5 | Demo content removed via **Admin Panel → System → Demo Data Cleanup** | ☐ | |
+| 3.5 | Initial content reviewed through standard admin resources | ☐ | |
 | 3.6 | Database backup process configured and first backup taken | ☐ | |
 
 ---
@@ -96,7 +96,7 @@ Work through all sections with the handover team. Sign off each section when com
 | 5.11 | Contact page CMS content reviewed in EN, KO, and ZH | ☐ | |
 | 5.12 | B2B page CMS content reviewed in EN, KO, and ZH | ☐ | |
 | 5.13 | Footer contact, social links, and legal links reviewed | ☐ | |
-| 5.14 | All demo content removed | ☐ | |
+| 5.14 | Initial content reviewed and approved | ☐ | |
 | 5.15 | SEO titles and descriptions filled for key pages | ☐ | |
 
 ---
@@ -175,7 +175,7 @@ Work through all sections with the handover team. Sign off each section when com
 | 10.7 | Admin panel login credentials provided to client | ☐ | |
 | 10.8 | Client trained to edit homepage, material, Contact, B2B, footer/contact, and legal content | ☐ | |
 | 10.9 | Client trained to manage products, orders, manual payment status, community posts, reports, and user restrictions | ☐ | |
-| 10.10 | Demo data cleanup/regeneration procedure documented and reviewed | ☐ | |
+| 10.10 | Initial content management/regeneration procedure documented and reviewed | ☐ | |
 
 ---
 

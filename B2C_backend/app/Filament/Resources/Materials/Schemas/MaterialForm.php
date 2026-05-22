@@ -40,11 +40,6 @@ class MaterialForm
                                     ->default(PublishStatus::Draft->value),
                                 Toggle::make('is_featured')
                                     ->required(),
-                                Toggle::make('is_seeded')
-                                    ->label(__('admin.ui.seeded_demo_content'))
-                                    ->helperText(__('admin.ui.seeded_demo_content_help'))
-                                    ->disabled()
-                                    ->dehydrated(false),
                                 TextInput::make('sort_order')
                                     ->label(__('admin.ui.sort_order'))
                                     ->required()
@@ -133,7 +128,7 @@ class MaterialForm
                                     ->maxLength(180),
                                 Select::make('status')
                                     ->label(__('admin.fields.status'))
-                                    ->options(fn (): array => AdminOptions::certificationStatuses(includeDemo: true))
+                                    ->options(fn (): array => AdminOptions::certificationStatuses())
                                     ->required()
                                     ->default('pending'),
                                 Toggle::make('verified')
@@ -237,11 +232,6 @@ class MaterialForm
                                             ->options(PublishStatus::options())
                                             ->required()
                                             ->default(PublishStatus::Draft->value),
-                                        Toggle::make('is_seeded')
-                                            ->label(__('admin.ui.seeded_demo_content'))
-                                            ->helperText(__('admin.ui.seeded_demo_content_help'))
-                                            ->disabled()
-                                            ->dehydrated(false),
                                         self::mediaUpload('cms/material-specs'),
                                         TextInput::make('media_url')
                                             ->label(__('admin.ui.external_media_url'))
@@ -296,11 +286,6 @@ class MaterialForm
                                             ->options(PublishStatus::options())
                                             ->required()
                                             ->default(PublishStatus::Draft->value),
-                                        Toggle::make('is_seeded')
-                                            ->label(__('admin.ui.seeded_demo_content'))
-                                            ->helperText(__('admin.ui.seeded_demo_content_help'))
-                                            ->disabled()
-                                            ->dehydrated(false),
                                         self::mediaUpload('cms/material-story-sections'),
                                         TextInput::make('media_url')
                                             ->label(__('admin.ui.external_media_url'))
@@ -361,11 +346,6 @@ class MaterialForm
                                             ->options(PublishStatus::options())
                                             ->required()
                                             ->default(PublishStatus::Draft->value),
-                                        Toggle::make('is_seeded')
-                                            ->label(__('admin.ui.seeded_demo_content'))
-                                            ->helperText(__('admin.ui.seeded_demo_content_help'))
-                                            ->disabled()
-                                            ->dehydrated(false),
                                         self::mediaUpload('cms/material-applications'),
                                         TextInput::make('media_url')
                                             ->label(__('admin.ui.external_media_url'))

@@ -65,7 +65,7 @@ return new class extends Migration
             ],
             'architectural' => [
                 'name' => 'Architectural',
-                'description' => 'Material samples and surface objects for design studios and hospitality projects.',
+                'description' => 'Material review pieces and surface objects for design studios and hospitality projects.',
                 'sort_order' => 4,
             ],
         ];

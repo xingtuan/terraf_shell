@@ -48,7 +48,7 @@ The platform is built around OXP's oyster shell material narrative and covers th
 │   ├── config/                 # Laravel configuration files
 │   ├── database/
 │   │   ├── migrations/         # Database schema migrations
-│   │   ├── seeders/            # Sample data seeders
+│   │   ├── seeders/            # Initial data seeders
 │   │   └── factories/          # Model factories for testing
 │   ├── routes/
 │   │   ├── api.php             # REST API routes (prefix: /api)
@@ -158,7 +158,7 @@ All backend endpoints return a consistent envelope:
 
 Product catalog, cart, guest checkout, registered checkout, community post cards, NZ-only shipping quotes, and NZ Post-backed address lookup now use live backend routes.
 
-Admin delivery status: Filament includes English, Korean, and Chinese admin language files plus resources/pages for products, variants, inventory, carts, addresses, orders, leads, CMS, Email Center, media files, storage settings, runtime feature flags, settings backup/import, demo cleanup, media storage scan, and System / Handover Readiness. Runtime settings and storage driver switching are managed through the admin panel; secrets are encrypted and never exported in plain JSON.
+Admin delivery status: Filament includes English, Korean, and Chinese admin language files plus resources/pages for products, variants, inventory, carts, addresses, orders, leads, CMS, Email Center, media files, storage settings, runtime feature flags, settings backup/import, media storage scan, and System / Handover Readiness. Initial content is maintained through the standard admin resources. Runtime settings and storage driver switching are managed through the admin panel; secrets are encrypted and never exported in plain JSON.
 
 CMS coverage now includes homepage, material, footer/contact sync, legal pages, Contact page copy, and B2B marketing/process/form sections. Contact and B2B pages keep translation-file fallback when CMS content is empty.
 
@@ -282,7 +282,7 @@ NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api
 
 ---
 
-## Seeded Test Accounts
+## Initial Delivery Accounts
 
 After running `php artisan migrate --seed`:
 
