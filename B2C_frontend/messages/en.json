@@ -1492,6 +1492,8 @@
     "emptyTitle": "No orders yet",
     "emptyDescription": "Browse the OXP collection and submit your first order request.",
     "browseCollection": "Browse Collection",
+    "continueShopping": "Continue shopping",
+    "queryMoreOrders": "Query more orders",
     "pendingDate": "Request date",
     "viewDetails": "View Details",
     "cancel": "Cancel",

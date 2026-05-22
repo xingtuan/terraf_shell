@@ -90,6 +90,18 @@ export async function resetPassword(payload: ResetPasswordPayload) {
   return response.message
 }
 
+export async function resendVerificationEmail(token: string) {
+  const response = await requestApi<null>(
+    "/auth/email/verification-notification",
+    {
+      method: "POST",
+      token,
+    },
+  )
+
+  return response.message
+}
+
 export async function logout(token: string) {
   await requestApi<null>("/auth/logout", {
     method: "POST",

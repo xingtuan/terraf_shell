@@ -1,4 +1,6 @@
-import { AccountOrdersPage } from "@/components/account/account-orders-page"
+import { redirect } from "next/navigation"
+
+import { getLocalizedHref } from "@/lib/i18n"
 import { resolveLocale } from "@/lib/resolve-locale"
 
 type AccountOrdersRoutePageProps = {
@@ -10,5 +12,5 @@ export default async function AccountOrdersRoutePage({
 }: AccountOrdersRoutePageProps) {
   const locale = await resolveLocale(params)
 
-  return <AccountOrdersPage locale={locale} />
+  redirect(getLocalizedHref(locale, "account/store"))
 }

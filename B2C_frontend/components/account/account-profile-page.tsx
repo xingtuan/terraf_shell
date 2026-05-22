@@ -2,7 +2,6 @@
 
 import { Loader2 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
 
 import { CommunityUserAvatar } from "@/components/community/CommunityUserAvatar"
 import { Button } from "@/components/ui/button"
@@ -10,10 +9,11 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { getAccountCopy } from "@/lib/account-copy"
+import { resendVerificationEmail } from "@/lib/api/auth"
 import { ApiError, getErrorMessage } from "@/lib/api/client"
 import { uploadMedia } from "@/lib/api/media"
 import { getUserProfile, updateProfile } from "@/lib/api/users"
-import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
+import { getMessages, type Locale } from "@/lib/i18n"
 import type { UserProfile } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import {
@@ -87,6 +87,8 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
   const [loading, setLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [isSendingVerificationEmail, setIsSendingVerificationEmail] =
+    useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -199,10 +201,29 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
     }
   }
 
-  const previewProfileHref = getLocalizedHref(
-    locale,
-    `community/u/${session.user?.username ?? ""}`,
-  )
+  async function handleResendVerificationEmail() {
+    if (!session.token) {
+      return
+    }
+
+    setIsSendingVerificationEmail(true)
+    setMessage(null)
+    setFormError(null)
+
+    try {
+      await resendVerificationEmail(session.token)
+      setMessage(copy.profile.verificationEmailSent)
+      void session.refreshUser().catch(() => null)
+    } catch (sendError) {
+      setFormError(
+        getErrorMessage(sendError) || copy.profile.verificationEmailSendFailed,
+      )
+    } finally {
+      setIsSendingVerificationEmail(false)
+    }
+  }
+
+  const showVerificationEmailAction = session.user?.email_verified === false
 
   return (
     <AccountPanel>
@@ -210,11 +231,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
         eyebrow={copy.profile.eyebrow}
         title={copy.profile.title}
         description={copy.profile.description}
-        actions={
-          <Button asChild variant="outline">
-            <Link href={previewProfileHref}>{copy.profile.viewPublicProfile}</Link>
-          </Button>
-        }
       />
 
       {message ? (
@@ -649,9 +665,18 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
                 <Button type="button" onClick={() => void handleSubmit()} disabled={isSaving}>
                   {isSaving ? copy.profile.saving : copy.profile.save}
                 </Button>
-                <Button asChild variant="outline">
-                  <Link href={previewProfileHref}>{copy.profile.viewPublicProfile}</Link>
-                </Button>
+                {showVerificationEmailAction ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => void handleResendVerificationEmail()}
+                    disabled={isSendingVerificationEmail}
+                  >
+                    {isSendingVerificationEmail
+                      ? copy.profile.resendingVerificationEmail
+                      : copy.profile.resendVerificationEmail}
+                  </Button>
+                ) : null}
               </div>
             </AccountPanel>
           </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 
 import {
   AlertDialog,
@@ -13,13 +13,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import {
   createAddress,
   deleteAddress,
   listAddresses,
-  setDefaultAddress,
   updateAddress,
   type AddressPayload,
 } from "@/lib/api/addresses"
@@ -34,10 +32,7 @@ import {
   AccountPanel,
   AccountStatCard,
 } from "@/components/account/account-ui"
-import {
-  formatAddressSummary,
-  getDefaultAddress,
-} from "@/components/account/account-utils"
+import { formatAddressSummary } from "@/components/account/account-utils"
 
 type AccountAddressesPageProps = {
   locale: Locale
@@ -53,7 +48,6 @@ const emptyAddressForm: AddressPayload = {
   state_province: "",
   postal_code: "",
   country: "NZ",
-  is_default: false,
 }
 
 function isFormEqual(a: AddressPayload, b: AddressPayload) {
@@ -82,6 +76,12 @@ function addressToForm(address: Address): AddressPayload {
     country: address.country,
     is_default: address.is_default,
   }
+}
+
+function addressPayloadWithoutDefault(payload: AddressPayload) {
+  const nextPayload = { ...payload }
+  delete nextPayload.is_default
+  return nextPayload
 }
 
 export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
@@ -114,15 +114,6 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
       .catch((loadError) => setError(getErrorMessage(loadError)))
       .finally(() => setLoading(false))
   }, [session.token])
-
-  const orderedAddresses = useMemo(
-    () =>
-      [...addresses].sort(
-        (a, b) => Number(b.is_default) - Number(a.is_default),
-      ),
-    [addresses],
-  )
-  const defaultAddress = useMemo(() => getDefaultAddress(addresses), [addresses])
 
   function runOrConfirm(action: () => void) {
     if (formVisible && isDirty) {
@@ -184,10 +175,12 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
     if (!session.token) return
     setError(null)
     setMessage(null)
+
     try {
+      const payload = addressPayloadWithoutDefault(form)
       const nextAddress = editingAddressId
-        ? await updateAddress(editingAddressId, form, session.token)
-        : await createAddress(form, session.token)
+        ? await updateAddress(editingAddressId, payload, session.token)
+        : await createAddress(payload, session.token)
       setAddresses((current) => mergeAddress(current, nextAddress))
       closeForm()
       setMessage(editingAddressId ? messages.updatedSuccess : messages.createdSuccess)
@@ -206,17 +199,6 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
       setError(getErrorMessage(deleteError))
     } finally {
       setPendingDeleteId(null)
-    }
-  }
-
-  async function handleSetDefault(addressId: number) {
-    if (!session.token) return
-    try {
-      const nextAddress = await setDefaultAddress(addressId, session.token)
-      setAddresses((current) => mergeAddress(current, nextAddress))
-      setMessage(siteMessages.common.success.addressDefaultSet)
-    } catch (defaultError) {
-      setError(getErrorMessage(defaultError))
     }
   }
 
@@ -249,21 +231,6 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
         <AccountStatCard
           label={copy.addresses.totalSaved}
           value={addresses.length}
-          detail={messages.savedAddresses}
-        />
-        <AccountStatCard
-          label={copy.addresses.defaultStatus}
-          value={defaultAddress ? copy.addresses.defaultReady : copy.addresses.noDefault}
-          detail={
-            defaultAddress
-              ? defaultAddress.label || defaultAddress.recipient_name
-              : copy.addresses.description
-          }
-        />
-        <AccountStatCard
-          label={messages.savedAddresses}
-          value={formVisible ? (editingAddressId ? messages.editTitle : messages.addTitle) : "—"}
-          detail={copy.addresses.makeDefault}
         />
       </div>
 
@@ -353,15 +320,6 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
                 }
               />
             </div>
-            <label className="flex items-start gap-3 rounded-[1.25rem] border border-border/60 bg-card px-4 py-4 text-sm text-foreground">
-              <Checkbox
-                checked={Boolean(form.is_default)}
-                onCheckedChange={(checked) =>
-                  setForm((f) => ({ ...f, is_default: Boolean(checked) }))
-                }
-              />
-              <span>{copy.addresses.makeDefault}</span>
-            </label>
 
             <div className="flex flex-wrap gap-3">
               <Button type="button" onClick={() => void handleSubmit()}>
@@ -386,30 +344,14 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
       ) : null}
 
       <AccountPanel className="mt-8 bg-background/70 p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-sm uppercase tracking-[0.18em] text-primary">
-              {messages.savedAddresses}
-            </p>
-            <h2 className="mt-3 font-serif text-3xl text-foreground">
-              {messages.savedAddresses}
-            </h2>
-          </div>
-          {!formVisible ? (
-            <Button type="button" variant="outline" onClick={startAddNew}>
-              {copy.addresses.startNew}
-            </Button>
-          ) : null}
-        </div>
-
-        <div className="mt-6 space-y-4">
-          {!loading && orderedAddresses.length === 0 ? (
+        <div className="space-y-4">
+          {!loading && addresses.length === 0 ? (
             <AccountEmptyState
-              title={messages.savedAddresses}
-              description={messages.noAddresses}
+              title={messages.noAddresses}
+              description={copy.addresses.description}
             />
           ) : (
-            orderedAddresses.map((address) => (
+            addresses.map((address) => (
               <div
                 key={address.id}
                 className={`rounded-[1.5rem] border bg-card p-5 transition-colors ${
@@ -420,16 +362,9 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
               >
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <p className="font-medium text-foreground">
-                        {address.label || address.recipient_name}
-                      </p>
-                      {address.is_default ? (
-                        <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-primary">
-                          {messages.defaultBadge}
-                        </span>
-                      ) : null}
-                    </div>
+                    <p className="font-medium text-foreground">
+                      {address.label || address.recipient_name}
+                    </p>
                     <p className="mt-2 text-sm text-muted-foreground">
                       {address.recipient_name}
                     </p>
@@ -438,16 +373,6 @@ export function AccountAddressesPage({ locale }: AccountAddressesPageProps) {
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    {!address.is_default ? (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => void handleSetDefault(address.id)}
-                      >
-                        {messages.setDefault}
-                      </Button>
-                    ) : null}
                     <Button
                       type="button"
                       variant={editingAddressId === address.id ? "default" : "outline"}

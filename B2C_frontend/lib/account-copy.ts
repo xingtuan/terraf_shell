@@ -97,11 +97,7 @@ export type AccountCopy = {
     description: string
     loading: string
     totalSaved: string
-    defaultStatus: string
-    defaultReady: string
-    noDefault: string
     startNew: string
-    makeDefault: string
     resetForm: string
   }
   profile: {
@@ -138,7 +134,10 @@ export type AccountCopy = {
     avatarHint: string
     publicPreviewTitle: string
     publicPreviewDescription: string
-    viewPublicProfile: string
+    resendVerificationEmail: string
+    resendingVerificationEmail: string
+    verificationEmailSent: string
+    verificationEmailSendFailed: string
     save: string
     saving: string
     success: string
@@ -344,14 +343,10 @@ const en: AccountCopy = {
     eyebrow: "Addresses",
     title: "Address book",
     description:
-      "Keep delivery details organized and make order requests faster with a default shipping address.",
+      "Keep delivery details organized so they are ready for order requests.",
     loading: "Loading your saved addresses...",
     totalSaved: "Saved addresses",
-    defaultStatus: "Default status",
-    defaultReady: "Default address ready",
-    noDefault: "No default address",
     startNew: "New address",
-    makeDefault: "Use as default shipping address",
     resetForm: "Reset form",
   },
   profile: {
@@ -393,7 +388,11 @@ const en: AccountCopy = {
     publicPreviewTitle: "Public preview",
     publicPreviewDescription:
       "This is the identity summary people see first on your public profile.",
-    viewPublicProfile: "View public profile",
+    resendVerificationEmail: "Resend verification email",
+    resendingVerificationEmail: "Sending verification email...",
+    verificationEmailSent: "Verification email sent. Please check your inbox.",
+    verificationEmailSendFailed:
+      "Unable to send verification email. Please try again.",
     save: "Save changes",
     saving: "Saving changes...",
     success: "Profile updated.",
@@ -606,14 +605,10 @@ const ko: AccountCopy = {
   addresses: {
     eyebrow: "주소",
     title: "주소록",
-    description: "배송 정보를 정리하고 기본 주소를 설정해 주문 요청을 더 빠르게 진행하세요.",
+    description: "배송 정보를 정리해 주문 요청에 바로 사용할 수 있게 관리하세요.",
     loading: "저장된 주소를 불러오는 중...",
     totalSaved: "저장된 주소",
-    defaultStatus: "기본 상태",
-    defaultReady: "기본 주소 준비 완료",
-    noDefault: "기본 주소 없음",
     startNew: "새 주소",
-    makeDefault: "기본 배송 주소로 설정",
     resetForm: "양식 초기화",
   },
   profile: {
@@ -650,7 +645,11 @@ const ko: AccountCopy = {
     avatarHint: "공개 프로필, 커뮤니티, 계정 화면에 표시됩니다.",
     publicPreviewTitle: "공개 미리보기",
     publicPreviewDescription: "공개 프로필에서 처음 보이는 정보입니다.",
-    viewPublicProfile: "공개 프로필 보기",
+    resendVerificationEmail: "인증 이메일 다시 보내기",
+    resendingVerificationEmail: "인증 이메일을 보내는 중...",
+    verificationEmailSent: "인증 이메일을 보냈습니다. 받은 편지함을 확인해 주세요.",
+    verificationEmailSendFailed:
+      "인증 이메일을 보내지 못했습니다. 다시 시도해 주세요.",
     save: "변경사항 저장",
     saving: "저장 중...",
     success: "프로필이 업데이트되었습니다.",
@@ -853,14 +852,10 @@ const zh: AccountCopy = {
   addresses: {
     eyebrow: "地址",
     title: "地址簿",
-    description: "整理配送信息，设置默认配送地址以加快订单请求流程。",
+    description: "整理配送信息，方便在订单请求中直接使用。",
     loading: "正在加载已保存地址...",
     totalSaved: "已保存地址",
-    defaultStatus: "默认状态",
-    defaultReady: "默认地址已就绪",
-    noDefault: "暂无默认地址",
     startNew: "新增地址",
-    makeDefault: "设为默认配送地址",
     resetForm: "重置表单",
   },
   profile: {
@@ -897,7 +892,10 @@ const zh: AccountCopy = {
     avatarHint: "显示在公开主页、社区和账户各界面中。",
     publicPreviewTitle: "公开预览",
     publicPreviewDescription: "这是他人在你的公开主页上首先看到的身份摘要。",
-    viewPublicProfile: "查看公开主页",
+    resendVerificationEmail: "重新发送验证邮件",
+    resendingVerificationEmail: "正在发送验证邮件...",
+    verificationEmailSent: "验证邮件已发送，请检查邮箱。",
+    verificationEmailSendFailed: "验证邮件发送失败，请重试。",
     save: "保存更改",
     saving: "正在保存...",
     success: "资料已更新。",

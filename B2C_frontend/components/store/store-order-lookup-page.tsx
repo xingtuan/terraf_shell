@@ -4,6 +4,7 @@ import type { FormEvent } from "react"
 import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   CheckCircle2,
   Clock3,
@@ -22,6 +23,7 @@ import { ApiError, getErrorMessage } from "@/lib/api/client"
 import { getGuestOrder, lookupGuestOrder } from "@/lib/api/orders"
 import { formatCurrencyAmount } from "@/lib/api/products"
 import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
+import { useAuthSession } from "@/hooks/use-auth-session"
 import {
   getLocalizedShippingMethodLabel,
   getPaymentMethodLabel,
@@ -119,6 +121,8 @@ export function StoreOrderLookupPage({
   initialOrderNumber = "",
   initialToken = "",
 }: StoreOrderLookupPageProps) {
+  const router = useRouter()
+  const session = useAuthSession()
   const messages = getMessages(locale)
   const t = messages.orderLookup
   const checkoutMessages = messages.checkout
@@ -131,9 +135,24 @@ export function StoreOrderLookupPage({
     () => (order ? completedStatusIndex(order) : 0),
     [order],
   )
+  const shouldRedirectToAccountStore =
+    session.isReady && Boolean(session.token && session.user)
 
   useEffect(() => {
-    if (!initialOrderNumber || !initialToken) {
+    if (!shouldRedirectToAccountStore) {
+      return
+    }
+
+    router.replace(getLocalizedHref(locale, "account/store"))
+  }, [locale, router, shouldRedirectToAccountStore])
+
+  useEffect(() => {
+    if (
+      !session.isReady ||
+      shouldRedirectToAccountStore ||
+      !initialOrderNumber ||
+      !initialToken
+    ) {
       return
     }
 
@@ -168,7 +187,17 @@ export function StoreOrderLookupPage({
     return () => {
       cancelled = true
     }
-  }, [initialOrderNumber, initialToken, t.lookupFailed])
+  }, [
+    initialOrderNumber,
+    initialToken,
+    session.isReady,
+    shouldRedirectToAccountStore,
+    t.lookupFailed,
+  ])
+
+  if (!session.isReady || shouldRedirectToAccountStore) {
+    return null
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -265,7 +294,7 @@ export function StoreOrderLookupPage({
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <Button asChild variant="outline" size="sm">
-                  <Link href={getLocalizedHref(locale, "account/orders")}>
+                  <Link href={getLocalizedHref(locale, "account/store")}>
                     {t.accountOrdersAction}
                   </Link>
                 </Button>

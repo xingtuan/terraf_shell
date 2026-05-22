@@ -1,0 +1,368 @@
+"use client"
+
+import { useEffect, useMemo, useState, type ReactNode } from "react"
+import Image from "next/image"
+import Link from "next/link"
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+import { getAccountCopy } from "@/lib/account-copy"
+import { getErrorMessage } from "@/lib/api/client"
+import { cancelOrder, getOrders } from "@/lib/api/orders"
+import { formatCurrencyAmount } from "@/lib/api/products"
+import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
+import type { StoreOrder } from "@/lib/types"
+import { useAuthSession } from "@/hooks/use-auth-session"
+import {
+  AccountEmptyState,
+  AccountStatCard,
+} from "@/components/account/account-ui"
+import {
+  formatAccountDate,
+  getOrderStatusClasses,
+  getOrderStatusLabel,
+} from "@/components/account/account-utils"
+
+export type AccountOrderListSummary = {
+  totalOrders: number
+  latestOrderDate: string | null
+}
+
+type AccountOrderListProps = {
+  locale: Locale
+  showStats?: boolean
+  emptyActions?: ReactNode
+  onSummaryChange?: (summary: AccountOrderListSummary) => void
+}
+
+const emptySummary: AccountOrderListSummary = {
+  totalOrders: 0,
+  latestOrderDate: null,
+}
+
+export function AccountOrderActions({ locale }: { locale: Locale }) {
+  const messages = getMessages(locale).ordersPage
+
+  return (
+    <>
+      <Button asChild>
+        <Link href={getLocalizedHref(locale, "store")}>
+          {messages.continueShopping}
+        </Link>
+      </Button>
+      <Button asChild variant="outline">
+        <Link href={getLocalizedHref(locale, "store/orders")}>
+          {messages.queryMoreOrders}
+        </Link>
+      </Button>
+    </>
+  )
+}
+
+export function AccountOrderList({
+  locale,
+  showStats = true,
+  emptyActions,
+  onSummaryChange,
+}: AccountOrderListProps) {
+  const session = useAuthSession()
+  const copy = getAccountCopy(locale)
+  const siteMessages = getMessages(locale)
+  const messages = siteMessages.ordersPage
+  const [orders, setOrders] = useState<StoreOrder[]>([])
+  const [page, setPage] = useState(1)
+  const [lastPage, setLastPage] = useState(1)
+  const [totalOrders, setTotalOrders] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+  const [cancelingOrderNumber, setCancelingOrderNumber] = useState<string | null>(
+    null,
+  )
+
+  useEffect(() => {
+    const token = session.token
+
+    if (!token) {
+      setLoading(false)
+      onSummaryChange?.(emptySummary)
+      return
+    }
+
+    const authToken: string = token
+    let cancelled = false
+
+    async function loadOrders() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const response = await getOrders(authToken, page, 10)
+        if (cancelled) return
+
+        setOrders(response.items)
+        setLastPage(response.meta.last_page)
+        setTotalOrders(response.meta.total)
+        onSummaryChange?.({
+          totalOrders: response.meta.total,
+          latestOrderDate: response.items[0]?.created_at ?? null,
+        })
+      } catch (loadError) {
+        if (!cancelled) setError(getErrorMessage(loadError))
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    void loadOrders()
+
+    return () => {
+      cancelled = true
+    }
+  }, [session.token, page, onSummaryChange])
+
+  const activeOrders = useMemo(
+    () =>
+      orders.filter(
+        (order) => order.status !== "delivered" && order.status !== "cancelled",
+      ).length,
+    [orders],
+  )
+  const pendingOrders = useMemo(
+    () => orders.filter((order) => order.status === "pending").length,
+    [orders],
+  )
+
+  async function handleCancel(orderNumber: string) {
+    const authToken = session.token
+
+    if (!authToken) {
+      return
+    }
+
+    try {
+      const updatedOrder = await cancelOrder(orderNumber, authToken)
+      setOrders((currentOrders) =>
+        currentOrders.map((order) =>
+          order.order_number === orderNumber ? updatedOrder : order,
+        ),
+      )
+      setMessage(siteMessages.common.success.orderCancelled)
+    } catch (cancelError) {
+      setError(getErrorMessage(cancelError))
+    } finally {
+      setCancelingOrderNumber(null)
+    }
+  }
+
+  return (
+    <>
+      {error ? (
+        <div className="mt-6 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      ) : null}
+
+      {message ? (
+        <div className="mt-6 rounded-2xl bg-primary/8 px-4 py-3 text-sm text-foreground">
+          {message}
+        </div>
+      ) : null}
+
+      {showStats ? (
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <AccountStatCard
+            label={copy.orders.totalOrders}
+            value={totalOrders}
+            detail={copy.orders.title}
+          />
+          <AccountStatCard
+            label={copy.orders.activeOrders}
+            value={activeOrders}
+            detail={messages.pageOf
+              .replace("{page}", String(page))
+              .replace("{lastPage}", String(lastPage))}
+          />
+          <AccountStatCard
+            label={copy.orders.pendingOrders}
+            value={pendingOrders}
+            detail={messages.cancel}
+          />
+        </div>
+      ) : null}
+
+      {loading ? (
+        <div className="mt-8 rounded-[1.5rem] border border-border/60 bg-background/70 p-6 text-sm text-muted-foreground">
+          {messages.loading}
+        </div>
+      ) : null}
+
+      {!loading && orders.length === 0 ? (
+        <div className="mt-8">
+          <AccountEmptyState
+            title={messages.emptyTitle}
+            description={messages.emptyDescription}
+            action={
+              <div className="flex flex-wrap justify-center gap-3">
+                {emptyActions ?? <AccountOrderActions locale={locale} />}
+              </div>
+            }
+          />
+        </div>
+      ) : null}
+
+      <div className="mt-8 space-y-5">
+        {orders.map((order) => (
+          <article
+            key={order.order_number}
+            className="rounded-[2rem] border border-border/60 bg-background/70 p-6"
+          >
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <h2 className="font-serif text-2xl text-foreground">
+                    {order.order_number}
+                  </h2>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${getOrderStatusClasses(order.status)}`}
+                  >
+                    {getOrderStatusLabel(order.status, siteMessages.orderStatuses)}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  {formatAccountDate(locale, order.created_at) ?? messages.pendingDate}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  {order.items.slice(0, 3).map((item) => (
+                    <div
+                      key={`${order.order_number}-${item.product_id}-${item.product_variant_id ?? "default"}`}
+                      className="relative h-10 w-10 overflow-hidden rounded-full border border-border/60 bg-muted"
+                    >
+                      <Image
+                        src={
+                          item.product?.primary_image_url ||
+                          item.product?.image_url ||
+                          "/placeholder.jpg"
+                        }
+                        alt={item.product_name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                  {order.items.length > 3 ? (
+                    <span className="text-sm text-muted-foreground">
+                      {messages.moreItems.replace(
+                        "{count}",
+                        String(order.items.length - 3),
+                      )}
+                    </span>
+                  ) : null}
+                </div>
+                <p className="text-sm font-medium text-foreground">
+                  {formatCurrencyAmount(order.total_usd, locale)}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button asChild variant="outline">
+                <Link
+                  href={getLocalizedHref(
+                    locale,
+                    `account/orders/${order.order_number}`,
+                  )}
+                >
+                  {messages.viewDetails}
+                </Link>
+              </Button>
+              {order.status === "pending" ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setCancelingOrderNumber(order.order_number)
+                  }}
+                >
+                  {messages.cancel}
+                </Button>
+              ) : null}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {lastPage > 1 ? (
+        <div className="mt-8 flex items-center justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={page <= 1}
+            onClick={() => setPage((currentPage) => Math.max(1, currentPage - 1))}
+          >
+            {messages.previous}
+          </Button>
+          <p className="text-sm text-muted-foreground">
+            {messages.pageOf
+              .replace("{page}", String(page))
+              .replace("{lastPage}", String(lastPage))}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={page >= lastPage}
+            onClick={() =>
+              setPage((currentPage) => Math.min(lastPage, currentPage + 1))
+            }
+          >
+            {messages.next}
+          </Button>
+        </div>
+      ) : null}
+
+      <AlertDialog
+        open={cancelingOrderNumber !== null}
+        onOpenChange={(open) => {
+          if (!open) setCancelingOrderNumber(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {siteMessages.common.confirm.cancelOrder.title}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {siteMessages.common.confirm.cancelOrder.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {siteMessages.common.confirm.cancelOrder.cancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (cancelingOrderNumber !== null) {
+                  void handleCancel(cancelingOrderNumber)
+                }
+              }}
+            >
+              {siteMessages.common.confirm.cancelOrder.confirm}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
+}
