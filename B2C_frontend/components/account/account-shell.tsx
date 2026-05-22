@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   MapPinHouse,
   MessageSquareText,
-  Package,
   ShoppingBag,
   UserRound,
 } from "lucide-react"
@@ -83,11 +82,6 @@ function AccountShellContent({ children, locale }: AccountShellProps) {
       href: accountHomeHref,
       icon: LayoutDashboard,
       label: copy.nav.overview,
-    },
-    {
-      href: getLocalizedHref(locale, "account/orders"),
-      icon: Package,
-      label: copy.nav.orders,
     },
     {
       href: getLocalizedHref(locale, "account/addresses"),

@@ -31,7 +31,7 @@ const initialOrderSummary: AccountOrderListSummary = {
 }
 
 export function AccountStorePage({ locale }: AccountStorePageProps) {
-  const { cart, openCart } = useCart()
+  const { cart } = useCart()
   const copy = getAccountCopy(locale)
   const siteMessages = getMessages(locale)
   const [orderSummary, setOrderSummary] =
@@ -74,9 +74,6 @@ export function AccountStorePage({ locale }: AccountStorePageProps) {
             </h2>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button type="button" variant="outline" onClick={() => openCart()}>
-              {copy.store.openCart}
-            </Button>
             <Button asChild>
               <Link href={getLocalizedHref(locale, "store/cart")}>
                 {copy.store.viewCart}
@@ -139,11 +136,6 @@ export function AccountStorePage({ locale }: AccountStorePageProps) {
                   {copy.store.goToCheckout}
                 </Link>
               </Button>
-              <Button asChild variant="outline">
-                <Link href={getLocalizedHref(locale, "store")}>
-                  {copy.store.browseStore}
-                </Link>
-              </Button>
             </div>
           </div>
         ) : (
@@ -151,13 +143,6 @@ export function AccountStorePage({ locale }: AccountStorePageProps) {
             <AccountEmptyState
               title={copy.store.cartTitle}
               description={copy.store.cartEmpty}
-              action={
-                <Button asChild>
-                  <Link href={getLocalizedHref(locale, "store")}>
-                    {copy.store.browseStore}
-                  </Link>
-                </Button>
-              }
             />
           </div>
         )}
@@ -180,17 +165,6 @@ export function AccountStorePage({ locale }: AccountStorePageProps) {
         />
       </AccountPanel>
 
-      <AccountPanel className="mt-8 bg-background/70 p-6">
-        <p className="text-sm uppercase tracking-[0.18em] text-primary">
-          {copy.store.savedItemsTitle}
-        </p>
-        <h2 className="mt-3 font-serif text-3xl text-foreground">
-          {copy.store.savedItemsTitle}
-        </h2>
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-          {copy.store.savedItemsDescription}
-        </p>
-      </AccountPanel>
     </AccountPanel>
   )
 }

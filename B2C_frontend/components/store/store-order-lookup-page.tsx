@@ -40,6 +40,7 @@ type StoreOrderLookupPageProps = {
   locale: Locale
   initialOrderNumber?: string
   initialToken?: string
+  allowAuthenticatedManualLookup?: boolean
 }
 
 const TRACKED_STATUSES: Exclude<StoreOrderStatus, "cancelled">[] = [
@@ -120,6 +121,7 @@ export function StoreOrderLookupPage({
   locale,
   initialOrderNumber = "",
   initialToken = "",
+  allowAuthenticatedManualLookup = false,
 }: StoreOrderLookupPageProps) {
   const router = useRouter()
   const session = useAuthSession()
@@ -136,7 +138,9 @@ export function StoreOrderLookupPage({
     [order],
   )
   const shouldRedirectToAccountStore =
-    session.isReady && Boolean(session.token && session.user)
+    session.isReady &&
+    Boolean(session.token && session.user) &&
+    !allowAuthenticatedManualLookup
 
   useEffect(() => {
     if (!shouldRedirectToAccountStore) {

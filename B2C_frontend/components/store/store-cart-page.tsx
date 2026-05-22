@@ -155,9 +155,6 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             {messages.common.empty.cart.description}
           </p>
-          <Button asChild className="mt-6">
-            <Link href={getLocalizedHref(locale, "store")}>{messages.common.empty.cart.cta}</Link>
-          </Button>
         </div>
       </div>
     )
@@ -382,7 +379,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                   router.push(getLocalizedHref(locale, "store/checkout"))
                 }}
               >
-                {session.user ? t.proceedToCheckout : t.guestCheckout}
+                {session.user ? t.checkout : t.guestCheckout}
               </Button>
               {!session.user ? (
                 <>
@@ -399,11 +396,6 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                   </Button>
                 </>
               ) : null}
-              <Button asChild variant="outline" className="w-full">
-                <Link href={getLocalizedHref(locale, "store")}>
-                  {t.continueShopping}
-                </Link>
-              </Button>
             </div>
           </aside>
         </div>

@@ -195,11 +195,6 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                 <p className="mt-3 text-sm text-muted-foreground">
                   {messages.common.empty.cart.description}
                 </p>
-                <Button asChild className="mt-6">
-                  <Link href={getLocalizedHref(locale, "store")}>
-                    {messages.common.empty.cart.cta}
-                  </Link>
-                </Button>
               </div>
             ) : (
               <div className="space-y-4">
@@ -344,7 +339,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                       router.push(getLocalizedHref(locale, "store/checkout"))
                     }}
                   >
-                    {t.proceedToCheckout}
+                    {t.checkout}
                   </Button>
                 ) : (
                   <>

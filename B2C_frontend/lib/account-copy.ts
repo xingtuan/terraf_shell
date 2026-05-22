@@ -11,7 +11,6 @@ export type AccountCopy = {
   }
   nav: {
     overview: string
-    orders: string
     addresses: string
     profile: string
     community: string
@@ -211,12 +210,8 @@ export type AccountCopy = {
     checkoutNeedsAddress: string
     latestOrderTitle: string
     latestOrderEmpty: string
-    browseStore: string
-    openCart: string
     viewCart: string
     goToCheckout: string
-    savedItemsTitle: string
-    savedItemsDescription: string
   }
   settings: {
     eyebrow: string
@@ -252,11 +247,10 @@ const en: AccountCopy = {
   },
   nav: {
     overview: "Overview",
-    orders: "Orders",
     addresses: "Addresses",
     profile: "Profile",
     community: "Community",
-    store: "Store",
+    store: "Store and Orders",
     settings: "Settings",
   },
   accountStatus: {
@@ -460,10 +454,10 @@ const en: AccountCopy = {
     },
   },
   store: {
-    eyebrow: "Store",
-    title: "Store activity",
+    eyebrow: "Store and Orders",
+    title: "Store and order activity",
     description:
-      "Keep shopping progress, fulfilment readiness, and order follow-up close to the rest of your account.",
+      "Manage your cart, checkout flow, and order history from one place.",
     loading: "Loading store activity...",
     cartTitle: "Active cart",
     cartEmpty: "Your cart is empty right now.",
@@ -475,13 +469,8 @@ const en: AccountCopy = {
       "Add a default address to make order requests and support flows smoother.",
     latestOrderTitle: "Latest order request",
     latestOrderEmpty: "No recent store activity yet.",
-    browseStore: "Browse store",
-    openCart: "Open cart",
     viewCart: "View cart",
     goToCheckout: "Go to order request",
-    savedItemsTitle: "Saved items",
-    savedItemsDescription:
-      "Store-side wishlists are not available in the current API yet. This section is structured so they can be added without redesigning the account.",
   },
   settings: {
     eyebrow: "Settings",
@@ -520,11 +509,10 @@ const ko: AccountCopy = {
   },
   nav: {
     overview: "개요",
-    orders: "주문",
     addresses: "주소",
     profile: "프로필",
     community: "커뮤니티",
-    store: "스토어",
+    store: "스토어 및 주문",
     settings: "설정",
   },
   accountStatus: {
@@ -716,9 +704,9 @@ const ko: AccountCopy = {
     },
   },
   store: {
-    eyebrow: "스토어",
-    title: "스토어 활동",
-    description: "쇼핑 진행 상황, 주문 요청 준비 상태, 주문 후속 조치를 계정과 함께 관리하세요.",
+    eyebrow: "스토어 및 주문",
+    title: "스토어 및 주문 활동",
+    description: "장바구니, 결제 흐름, 주문 내역을 한 곳에서 관리하세요.",
     loading: "스토어 활동을 불러오는 중...",
     cartTitle: "현재 장바구니",
     cartEmpty: "장바구니가 비어 있습니다.",
@@ -728,12 +716,8 @@ const ko: AccountCopy = {
     checkoutNeedsAddress: "기본 주소를 추가하면 주문 요청과 지원 흐름이 더 원활해집니다.",
     latestOrderTitle: "최근 주문 요청",
     latestOrderEmpty: "아직 스토어 활동이 없습니다.",
-    browseStore: "스토어 둘러보기",
-    openCart: "장바구니 열기",
     viewCart: "장바구니 보기",
     goToCheckout: "주문 요청으로 이동",
-    savedItemsTitle: "저장한 상품",
-    savedItemsDescription: "위시리스트 기능은 현재 API에서 아직 지원되지 않습니다. 추후 계정을 재설계하지 않고도 추가할 수 있도록 구조가 준비되어 있습니다.",
   },
   settings: {
     eyebrow: "설정",
@@ -768,11 +752,10 @@ const zh: AccountCopy = {
   },
   nav: {
     overview: "概览",
-    orders: "订单",
     addresses: "地址",
     profile: "资料",
     community: "社区",
-    store: "商店",
+    store: "商店和订单",
     settings: "设置",
   },
   accountStatus: {
@@ -960,9 +943,9 @@ const zh: AccountCopy = {
     },
   },
   store: {
-    eyebrow: "商店",
-    title: "商店活动",
-    description: "将购物进度、履单准备情况与订单跟进纳入账户整体管理。",
+    eyebrow: "商店和订单",
+    title: "商店和订单记录",
+    description: "在一个页面管理购物车、结算流程和订单历史。",
     loading: "正在加载商店活动...",
     cartTitle: "当前购物车",
     cartEmpty: "你的购物车目前为空。",
@@ -972,12 +955,8 @@ const zh: AccountCopy = {
     checkoutNeedsAddress: "添加默认地址，让订单请求和支持流程更顺畅。",
     latestOrderTitle: "最新订单请求",
     latestOrderEmpty: "暂无最近的商店活动。",
-    browseStore: "浏览商店",
-    openCart: "打开购物车",
     viewCart: "查看购物车",
     goToCheckout: "前往订单请求",
-    savedItemsTitle: "已保存商品",
-    savedItemsDescription: "当前 API 暂不支持商店端的愿望清单功能。此区域已预留结构，后续可在无需重新设计账户的情况下直接添加。",
   },
   settings: {
     eyebrow: "设置",

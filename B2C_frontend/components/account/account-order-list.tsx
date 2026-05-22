@@ -60,7 +60,7 @@ export function AccountOrderActions({ locale }: { locale: Locale }) {
         </Link>
       </Button>
       <Button asChild variant="outline">
-        <Link href={getLocalizedHref(locale, "store/orders")}>
+        <Link href={`${getLocalizedHref(locale, "store/orders")}?manual=1`}>
           {messages.queryMoreOrders}
         </Link>
       </Button>

@@ -16,12 +16,16 @@ export default async function StoreOrdersPage({
 }: StoreOrdersPageProps) {
   const locale = await resolveLocale(params)
   const resolvedSearchParams = await searchParams
+  const manualParam = firstSearchValue(resolvedSearchParams?.manual)
+  const allowAuthenticatedManualLookup =
+    manualParam === "1" || manualParam === "true"
 
   return (
     <StoreOrderLookupPage
       locale={locale}
       initialOrderNumber={firstSearchValue(resolvedSearchParams?.order)}
       initialToken={firstSearchValue(resolvedSearchParams?.token)}
+      allowAuthenticatedManualLookup={allowAuthenticatedManualLookup}
     />
   )
 }
