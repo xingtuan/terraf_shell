@@ -143,10 +143,13 @@ class NotificationService
             NotificationType::Like,
             $post,
             [
-                'title' => 'New like on your concept',
-                'body' => sprintf('%s liked "%s".', $actor->name, $this->displayPostTitle($post)),
+                'title' => __('api.notifications.post_liked_title'),
+                'body' => __('api.notifications.post_liked_body', [
+                    'actor' => $actor->name,
+                    'title' => $this->displayPostTitle($post),
+                ]),
                 'action_url' => $this->postActionUrl($post),
-                'message' => sprintf('%s liked your concept.', $actor->name),
+                'message' => __('api.notifications.post_liked_message', ['actor' => $actor->name]),
                 'post_id' => $post->id,
                 'post_slug' => $post->slug,
                 'interaction_target' => 'post',
@@ -166,10 +169,13 @@ class NotificationService
             NotificationType::Like,
             $comment,
             [
-                'title' => 'New like on your comment',
-                'body' => sprintf('%s liked your comment on "%s".', $actor->name, $this->displayPostTitle($comment->post)),
+                'title' => __('api.notifications.comment_liked_title'),
+                'body' => __('api.notifications.comment_liked_body', [
+                    'actor' => $actor->name,
+                    'title' => $this->displayPostTitle($comment->post),
+                ]),
                 'action_url' => $this->commentActionUrl($comment),
-                'message' => sprintf('%s liked your comment.', $actor->name),
+                'message' => __('api.notifications.comment_liked_message', ['actor' => $actor->name]),
                 'post_id' => $comment->post_id,
                 'comment_id' => $comment->id,
                 'interaction_target' => 'comment',
@@ -187,10 +193,13 @@ class NotificationService
             NotificationType::Favorite,
             $post,
             [
-                'title' => 'Your concept was favorited',
-                'body' => sprintf('%s favorited "%s".', $actor->name, $this->displayPostTitle($post)),
+                'title' => __('api.notifications.post_favorited_title'),
+                'body' => __('api.notifications.post_favorited_body', [
+                    'actor' => $actor->name,
+                    'title' => $this->displayPostTitle($post),
+                ]),
                 'action_url' => $this->postActionUrl($post),
-                'message' => sprintf('%s added your concept to favorites.', $actor->name),
+                'message' => __('api.notifications.post_favorited_message', ['actor' => $actor->name]),
                 'post_id' => $post->id,
                 'post_slug' => $post->slug,
             ]
@@ -207,10 +216,10 @@ class NotificationService
             NotificationType::Follow,
             $recipient,
             [
-                'title' => 'New follower',
-                'body' => sprintf('%s started following you.', $actor->name),
+                'title' => __('api.notifications.user_followed_title'),
+                'body' => __('api.notifications.user_followed_body', ['actor' => $actor->name]),
                 'action_url' => '/users/'.$actor->id,
-                'message' => sprintf('%s started following you.', $actor->name),
+                'message' => __('api.notifications.user_followed_body', ['actor' => $actor->name]),
                 'user_id' => $actor->id,
                 'username' => $actor->username,
             ]
@@ -235,10 +244,13 @@ class NotificationService
             NotificationType::Comment,
             $comment,
             [
-                'title' => 'New comment on your concept',
-                'body' => sprintf('%s commented on "%s".', $actor->name, $this->displayPostTitle($post)),
+                'title' => __('api.notifications.comment_created_title'),
+                'body' => __('api.notifications.comment_created_body', [
+                    'actor' => $actor->name,
+                    'title' => $this->displayPostTitle($post),
+                ]),
                 'action_url' => $this->commentActionUrl($comment),
-                'message' => sprintf('%s commented on your concept.', $actor->name),
+                'message' => __('api.notifications.comment_created_message', ['actor' => $actor->name]),
                 'post_id' => $post->id,
                 'post_slug' => $post->slug,
                 'comment_id' => $comment->id,
@@ -258,10 +270,13 @@ class NotificationService
             NotificationType::Reply,
             $reply,
             [
-                'title' => 'New reply to your comment',
-                'body' => sprintf('%s replied to your comment on "%s".', $actor->name, $this->displayPostTitle($parent->post)),
+                'title' => __('api.notifications.reply_created_title'),
+                'body' => __('api.notifications.reply_created_body', [
+                    'actor' => $actor->name,
+                    'title' => $this->displayPostTitle($parent->post),
+                ]),
                 'action_url' => $this->commentActionUrl($reply),
-                'message' => sprintf('%s replied to your comment.', $actor->name),
+                'message' => __('api.notifications.reply_created_message', ['actor' => $actor->name]),
                 'post_id' => $parent->post_id,
                 'post_slug' => $parent->post?->slug,
                 'comment_id' => $reply->id,
@@ -284,10 +299,10 @@ class NotificationService
             NotificationType::SubmissionApproved,
             $post,
             [
-                'title' => 'Concept approved',
-                'body' => sprintf('Your concept "%s" was approved and is now visible.', $this->displayPostTitle($post)),
+                'title' => __('api.notifications.post_approved_title'),
+                'body' => __('api.notifications.post_approved_body', ['title' => $this->displayPostTitle($post)]),
                 'action_url' => $this->postActionUrl($post),
-                'message' => 'Your concept was approved.',
+                'message' => __('api.notifications.post_approved_message'),
                 'post_id' => $post->id,
                 'post_slug' => $post->slug,
                 'status' => 'approved',
@@ -300,10 +315,10 @@ class NotificationService
     public function notifyPostRejected(Post $post, User $actor, ?string $reason = null): void
     {
         $post->loadMissing('user');
-        $body = sprintf('Your concept "%s" was rejected.', $this->displayPostTitle($post));
+        $body = __('api.notifications.post_rejected_body', ['title' => $this->displayPostTitle($post)]);
 
         if ($reason !== null && $reason !== '') {
-            $body .= ' Review note: '.Str::limit($reason, 240);
+            $body .= ' '.__('api.notifications.review_note', ['note' => Str::limit($reason, 240)]);
         }
 
         $this->dispatch(
@@ -312,10 +327,10 @@ class NotificationService
             NotificationType::SubmissionRejected,
             $post,
             [
-                'title' => 'Concept rejected',
+                'title' => __('api.notifications.post_rejected_title'),
                 'body' => $body,
                 'action_url' => $this->postActionUrl($post),
-                'message' => 'Your concept was rejected.',
+                'message' => __('api.notifications.post_rejected_message'),
                 'post_id' => $post->id,
                 'post_slug' => $post->slug,
                 'status' => 'rejected',
@@ -338,10 +353,10 @@ class NotificationService
             NotificationType::ConceptFeatured,
             $post,
             [
-                'title' => 'Concept featured',
-                'body' => sprintf('Your concept "%s" is now featured.', $this->displayPostTitle($post)),
+                'title' => __('api.notifications.post_featured_title'),
+                'body' => __('api.notifications.post_featured_body', ['title' => $this->displayPostTitle($post)]),
                 'action_url' => $this->postActionUrl($post),
-                'message' => 'Your concept is now featured.',
+                'message' => __('api.notifications.post_featured_message'),
                 'post_id' => $post->id,
                 'post_slug' => $post->slug,
             ]
@@ -360,10 +375,10 @@ class NotificationService
             NotificationType::ReportReceived,
             $report,
             [
-                'title' => 'Report submitted',
-                'body' => 'We received your report.',
+                'title' => __('api.notifications.report_received_title'),
+                'body' => __('api.notifications.report_received_body'),
                 'action_url' => $this->reportActionUrl($report),
-                'message' => 'We received your report.',
+                'message' => __('api.notifications.report_received_body'),
                 'report_id' => $report->id,
                 'status' => $report->status,
             ]
@@ -373,7 +388,7 @@ class NotificationService
     public function notifyReportReviewed(Report $report, User $admin): void
     {
         $report->loadMissing('reporter');
-        $body = $this->publicReportMessage($report, 'Your report is now under review.');
+        $body = $this->publicReportMessage($report, __('api.notifications.report_reviewed_body'));
 
         $this->dispatch(
             $report->reporter,
@@ -381,7 +396,7 @@ class NotificationService
             NotificationType::ReportReviewed,
             $report,
             [
-                'title' => 'Report under review',
+                'title' => __('api.notifications.report_reviewed_title'),
                 'body' => $body,
                 'action_url' => $this->reportActionUrl($report),
                 'message' => $body,
@@ -395,7 +410,7 @@ class NotificationService
     public function notifyReportResolved(Report $report, User $admin): void
     {
         $report->loadMissing('reporter');
-        $body = $this->publicReportMessage($report, 'We reviewed your report and took appropriate action.');
+        $body = $this->publicReportMessage($report, __('api.notifications.report_resolved_body'));
 
         $this->dispatch(
             $report->reporter,
@@ -403,7 +418,7 @@ class NotificationService
             NotificationType::ReportResolved,
             $report,
             [
-                'title' => 'Report resolved',
+                'title' => __('api.notifications.report_resolved_title'),
                 'body' => $body,
                 'action_url' => $this->reportActionUrl($report),
                 'message' => $body,
@@ -418,7 +433,7 @@ class NotificationService
     public function notifyReportDismissed(Report $report, User $admin): void
     {
         $report->loadMissing('reporter');
-        $body = $this->publicReportMessage($report, 'We reviewed your report and did not find a violation.');
+        $body = $this->publicReportMessage($report, __('api.notifications.report_dismissed_body'));
 
         $this->dispatch(
             $report->reporter,
@@ -426,7 +441,7 @@ class NotificationService
             NotificationType::ReportDismissed,
             $report,
             [
-                'title' => 'Report reviewed',
+                'title' => __('api.notifications.report_dismissed_title'),
                 'body' => $body,
                 'action_url' => $this->reportActionUrl($report),
                 'message' => $body,
@@ -565,38 +580,38 @@ class NotificationService
     private function defaultTitle(NotificationType $type): string
     {
         return match ($type) {
-            NotificationType::Comment => 'New comment',
-            NotificationType::Reply => 'New reply',
-            NotificationType::Like => 'New like',
-            NotificationType::Favorite => 'New favorite',
-            NotificationType::Follow => 'New follower',
-            NotificationType::SubmissionApproved => 'Concept approved',
-            NotificationType::SubmissionRejected => 'Concept rejected',
-            NotificationType::ConceptFeatured => 'Concept featured',
-            NotificationType::SystemAnnouncement => 'System announcement',
-            NotificationType::ReportReceived => 'Report submitted',
-            NotificationType::ReportReviewed => 'Report under review',
-            NotificationType::ReportResolved => 'Report resolved',
-            NotificationType::ReportDismissed => 'Report reviewed',
+            NotificationType::Comment => __('api.notifications.default_comment_title'),
+            NotificationType::Reply => __('api.notifications.default_reply_title'),
+            NotificationType::Like => __('api.notifications.default_like_title'),
+            NotificationType::Favorite => __('api.notifications.default_favorite_title'),
+            NotificationType::Follow => __('api.notifications.default_follow_title'),
+            NotificationType::SubmissionApproved => __('api.notifications.post_approved_title'),
+            NotificationType::SubmissionRejected => __('api.notifications.post_rejected_title'),
+            NotificationType::ConceptFeatured => __('api.notifications.post_featured_title'),
+            NotificationType::SystemAnnouncement => __('api.notifications.default_system_title'),
+            NotificationType::ReportReceived => __('api.notifications.report_received_title'),
+            NotificationType::ReportReviewed => __('api.notifications.report_reviewed_title'),
+            NotificationType::ReportResolved => __('api.notifications.report_resolved_title'),
+            NotificationType::ReportDismissed => __('api.notifications.report_dismissed_title'),
         };
     }
 
     private function defaultBody(NotificationType $type): string
     {
         return match ($type) {
-            NotificationType::Comment => 'Your concept has a new comment.',
-            NotificationType::Reply => 'Your comment has a new reply.',
-            NotificationType::Like => 'You received a new like.',
-            NotificationType::Favorite => 'Your concept was added to favorites.',
-            NotificationType::Follow => 'You have a new follower.',
-            NotificationType::SubmissionApproved => 'Your concept was approved.',
-            NotificationType::SubmissionRejected => 'Your concept was rejected.',
-            NotificationType::ConceptFeatured => 'Your concept is now featured.',
-            NotificationType::SystemAnnouncement => 'There is a new system announcement.',
-            NotificationType::ReportReceived => 'We received your report.',
-            NotificationType::ReportReviewed => 'Your report is now under review.',
-            NotificationType::ReportResolved => 'We reviewed your report and took appropriate action.',
-            NotificationType::ReportDismissed => 'We reviewed your report and did not find a violation.',
+            NotificationType::Comment => __('api.notifications.default_comment_body'),
+            NotificationType::Reply => __('api.notifications.default_reply_body'),
+            NotificationType::Like => __('api.notifications.default_like_body'),
+            NotificationType::Favorite => __('api.notifications.default_favorite_body'),
+            NotificationType::Follow => __('api.notifications.default_follow_body'),
+            NotificationType::SubmissionApproved => __('api.notifications.post_approved_message'),
+            NotificationType::SubmissionRejected => __('api.notifications.post_rejected_message'),
+            NotificationType::ConceptFeatured => __('api.notifications.post_featured_message'),
+            NotificationType::SystemAnnouncement => __('api.notifications.default_system_body'),
+            NotificationType::ReportReceived => __('api.notifications.report_received_body'),
+            NotificationType::ReportReviewed => __('api.notifications.report_reviewed_body'),
+            NotificationType::ReportResolved => __('api.notifications.report_resolved_body'),
+            NotificationType::ReportDismissed => __('api.notifications.report_dismissed_body'),
         };
     }
 

@@ -30,7 +30,7 @@ class MaterialController extends Controller
 
         return $this->successResponse(
             new MaterialResource($material),
-            'Material created successfully.',
+            __('api.admin.material_created'),
             201
         );
     }
@@ -51,7 +51,7 @@ class MaterialController extends Controller
 
         return $this->successResponse(
             new MaterialResource($material),
-            'Material updated successfully.'
+            __('api.admin.material_updated')
         );
     }
 
@@ -59,6 +59,6 @@ class MaterialController extends Controller
     {
         $contentManagementService->deleteMaterial($material);
 
-        return $this->successResponse(null, 'Material deleted successfully.');
+        return $this->successResponse(null, __('api.admin.material_deleted'));
     }
 }

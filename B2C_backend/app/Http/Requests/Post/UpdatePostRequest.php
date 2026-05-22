@@ -139,7 +139,7 @@ class UpdatePostRequest extends FormRequest
             if ($mediaKind === null || ! $mediaKind->supportsType($this->detectUploadType($file))) {
                 $validator->errors()->add(
                     $kindsKey.'.'.$index,
-                    'The selected attachment kind does not match the uploaded file type.'
+                    __('api.community.attachment_kind_mismatch')
                 );
             }
         }
@@ -159,7 +159,7 @@ class UpdatePostRequest extends FormRequest
             if ($hasFile === $hasExternalUrl) {
                 $validator->errors()->add(
                     'replace_media.'.$index,
-                    'Each media replacement must include either a file or an external URL.'
+                    __('api.community.replacement_required')
                 );
 
                 continue;
@@ -168,14 +168,14 @@ class UpdatePostRequest extends FormRequest
             if ($hasFile && $kind !== null && ! $kind->supportsType($this->detectUploadType($file))) {
                 $validator->errors()->add(
                     'replace_media.'.$index.'.kind',
-                    'The selected replacement kind does not match the uploaded file type.'
+                    __('api.community.replacement_kind_mismatch')
                 );
             }
 
             if ($hasExternalUrl && $kind !== null && ! $kind->supportsType(IdeaMediaType::External3d)) {
                 $validator->errors()->add(
                     'replace_media.'.$index.'.kind',
-                    'External media replacements currently support only 3D model links.'
+                    __('api.community.external_replacement_kind')
                 );
             }
         }
@@ -193,7 +193,7 @@ class UpdatePostRequest extends FormRequest
         if ($removeIds->intersect($replaceIds)->isNotEmpty()) {
             $validator->errors()->add(
                 'replace_media',
-                'A media item cannot be removed and replaced in the same request.'
+                __('api.community.remove_and_replace_conflict')
             );
         }
     }
@@ -229,7 +229,7 @@ class UpdatePostRequest extends FormRequest
         if ($ownedIds->count() !== $mediaIds->count()) {
             $validator->errors()->add(
                 'media',
-                'One or more media items do not belong to this post.'
+                __('api.community.media_not_owned')
             );
         }
     }
@@ -243,21 +243,21 @@ class UpdatePostRequest extends FormRequest
 
             if (is_string($value)) {
                 if (mb_strlen($value) > 255) {
-                    $fail('The '.$attribute.' field must not be greater than 255 characters.');
+                    $fail(__('api.community.tags_too_long'));
                 }
 
                 return;
             }
 
             if (! is_array($value)) {
-                $fail('The '.$attribute.' field must be a string or an array.');
+                $fail(__('api.community.tags_invalid_type'));
 
                 return;
             }
 
             foreach ($value as $tag) {
                 if (! is_string($tag) || trim($tag) === '' || mb_strlen($tag) > 120) {
-                    $fail('Each tag must be a non-empty string with a maximum length of 120 characters.');
+                    $fail(__('api.community.tags_invalid_item'));
 
                     return;
                 }

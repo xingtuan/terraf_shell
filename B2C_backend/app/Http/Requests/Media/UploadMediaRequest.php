@@ -35,10 +35,10 @@ class UploadMediaRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'file.mimetypes' => 'The uploaded file type is not supported for this upload category.',
-            'file.extensions' => 'The uploaded file extension is not supported for this upload category.',
-            'file.max' => 'The uploaded file is too large for this upload category.',
-            'file.image' => 'This upload category accepts only JPG, PNG, or WebP images.',
+            'file.mimetypes' => __('validation.custom.file.mimetypes'),
+            'file.extensions' => __('validation.custom.file.extensions'),
+            'file.max' => __('validation.custom.file.max'),
+            'file.image' => __('validation.custom.file.image'),
         ];
     }
 }

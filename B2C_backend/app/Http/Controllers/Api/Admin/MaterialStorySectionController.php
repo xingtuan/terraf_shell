@@ -30,7 +30,7 @@ class MaterialStorySectionController extends Controller
 
         return $this->successResponse(
             new MaterialStorySectionResource($section),
-            'Material story section created successfully.',
+            __('api.admin.material_story_section_created'),
             201
         );
     }
@@ -54,7 +54,7 @@ class MaterialStorySectionController extends Controller
 
         return $this->successResponse(
             new MaterialStorySectionResource($materialStorySection),
-            'Material story section updated successfully.'
+            __('api.admin.material_story_section_updated')
         );
     }
 
@@ -64,6 +64,6 @@ class MaterialStorySectionController extends Controller
     ): JsonResponse {
         $contentManagementService->deleteMaterialStorySection($materialStorySection);
 
-        return $this->successResponse(null, 'Material story section deleted successfully.');
+        return $this->successResponse(null, __('api.admin.material_story_section_deleted'));
     }
 }

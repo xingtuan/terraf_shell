@@ -30,7 +30,7 @@ class PostController extends Controller
 
         return $this->successResponse(
             (new PostResource($post))->includeDetailFields(),
-            'Post created successfully.',
+            __('api.community.post_created'),
             201
         );
     }
@@ -48,7 +48,7 @@ class PostController extends Controller
 
         return $this->successResponse(
             (new PostResource($post))->includeDetailFields(),
-            'Post updated successfully.'
+            __('api.community.post_updated')
         );
     }
 
@@ -57,6 +57,6 @@ class PostController extends Controller
         $this->authorize('delete', $post);
         $postService->delete($post);
 
-        return $this->successResponse(null, 'Post deleted successfully.');
+        return $this->successResponse(null, __('api.community.post_deleted'));
     }
 }

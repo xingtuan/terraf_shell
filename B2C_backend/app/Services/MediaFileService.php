@@ -56,7 +56,7 @@ class MediaFileService
         $mediaFile = MediaFile::query()->where('path', $path)->firstOrFail();
 
         if (! $user->isAdmin() && (int) $mediaFile->user_id !== (int) $user->id) {
-            throw new AuthorizationException('You are not authorized to delete this media file.');
+            throw new AuthorizationException(__('api.media.delete_forbidden'));
         }
 
         DB::transaction(function () use ($mediaFile): void {

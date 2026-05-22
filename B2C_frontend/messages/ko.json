@@ -1159,6 +1159,21 @@
         "projectStage": "탐색, 프로토타입, 커리큘럼 기획 등",
         "message": "형상 요구사항, 목표 시장, 마감 기대치, 인증 필요사항을 공유해주세요."
       },
+      "validation": {
+        "defaultField": "이 필드",
+        "max": "{field}은(는) {max}자를 초과할 수 없습니다.",
+        "nameRequired": "이름을 입력해 주세요.",
+        "companyRequired": "회사명을 입력해 주세요.",
+        "emailRequired": "이메일 주소를 입력해 주세요.",
+        "emailInvalid": "유효한 이메일 주소를 입력해 주세요.",
+        "urlInvalid": "유효한 웹사이트 URL을 입력해 주세요.",
+        "messageRequired": "프로젝트 내용을 입력해 주세요.",
+        "applicationRequired": "응용 분야를 선택해 주세요.",
+        "organizationTypeRequired": "조직 유형을 입력해 주세요.",
+        "collaborationGoalRequired": "협업 목표를 입력해 주세요.",
+        "materialInterestRequired": "관심 소재를 입력해 주세요.",
+        "intendedUseRequired": "예상 사용 사례를 입력해 주세요."
+      },
       "submit": "문의 보내기",
       "success": "문의가 성공적으로 제출되었습니다.",
       "referenceLabel": "접수 번호",

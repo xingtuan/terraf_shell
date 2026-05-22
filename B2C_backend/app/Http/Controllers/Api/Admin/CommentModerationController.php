@@ -25,7 +25,7 @@ class CommentModerationController extends Controller
 
         return $this->successResponse(
             new CommentResource($comment),
-            'Comment status updated successfully.'
+            __('api.moderation.comment_status_updated')
         );
     }
 }

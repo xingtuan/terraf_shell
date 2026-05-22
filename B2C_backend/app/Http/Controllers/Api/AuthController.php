@@ -27,7 +27,7 @@ class AuthController extends Controller
             'token' => $token,
             'token_type' => 'Bearer',
             'user' => new UserResource($user->setAttribute('show_private', true)),
-        ], 'Registration successful.', 201);
+        ], __('api.auth.registration_successful'), 201);
     }
 
     public function login(LoginRequest $request, AuthService $authService): JsonResponse
@@ -38,14 +38,14 @@ class AuthController extends Controller
             'token' => $token,
             'token_type' => 'Bearer',
             'user' => new UserResource($user->setAttribute('show_private', true)),
-        ], 'Login successful.');
+        ], __('api.auth.login_successful'));
     }
 
     public function logout(Request $request, AuthService $authService): JsonResponse
     {
         $authService->logout($request->user());
 
-        return $this->successResponse(null, 'Logout successful.');
+        return $this->successResponse(null, __('api.auth.logout_successful'));
     }
 
     public function me(Request $request): JsonResponse
@@ -61,7 +61,7 @@ class AuthController extends Controller
 
         return $this->successResponse(
             null,
-            'If the account exists, a password reset link has been sent.'
+            __('api.auth.password_reset_sent')
         );
     }
 
@@ -69,7 +69,7 @@ class AuthController extends Controller
     {
         $authService->resetPassword($request->validated());
 
-        return $this->successResponse(null, 'Password reset successful.');
+        return $this->successResponse(null, __('api.auth.password_reset_successful'));
     }
 
     public function resendVerificationEmail(
@@ -78,7 +78,7 @@ class AuthController extends Controller
     ): JsonResponse {
         $authService->sendVerificationNotification($request->user());
 
-        return $this->successResponse(null, 'Verification email sent.');
+        return $this->successResponse(null, __('api.auth.verification_sent'));
     }
 
     public function verifyEmail(
@@ -107,7 +107,7 @@ class AuthController extends Controller
         if ($request->expectsJson() || $request->wantsJson()) {
             return $this->successResponse(
                 new UserResource($user->setAttribute('show_private', true)),
-                'Email verified successfully.'
+                __('api.auth.email_verified')
             );
         }
 
@@ -122,7 +122,7 @@ class AuthController extends Controller
 
         return $this->successResponse(
             new UserResource($user->setAttribute('show_private', true)),
-            'Email verified successfully.'
+            __('api.auth.email_verified')
         );
     }
 
@@ -146,7 +146,7 @@ class AuthController extends Controller
                 'token' => $token,
                 'email' => (string) $request->query('email'),
             ],
-            'Use this token and email with POST /api/auth/reset-password.'
+            __('api.auth.reset_token_usage')
         );
     }
 }

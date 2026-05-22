@@ -17,7 +17,7 @@ class PostLikeController extends Controller
             'post_id' => $post->id,
             'likes_count' => (int) $post->likes_count,
             'is_liked' => true,
-        ], 'Post liked successfully.');
+        ], __('api.community.post_liked'));
     }
 
     public function destroy(Post $post, InteractionService $interactionService): JsonResponse
@@ -28,6 +28,6 @@ class PostLikeController extends Controller
             'post_id' => $post->id,
             'likes_count' => (int) $post->likes_count,
             'is_liked' => false,
-        ], 'Post like removed successfully.');
+        ], __('api.community.post_like_removed'));
     }
 }

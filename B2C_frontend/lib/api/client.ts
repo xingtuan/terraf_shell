@@ -1,4 +1,7 @@
 import type { ApiPaginationMeta } from "@/lib/types"
+import enMessages from "../../messages/en.json" with { type: "json" }
+import koMessages from "../../messages/ko.json" with { type: "json" }
+import zhMessages from "../../messages/zh.json" with { type: "json" }
 
 type QueryValue =
   | string
@@ -35,6 +38,20 @@ type ApiRequestOptions = {
 }
 
 const DEFAULT_API_BASE_URL = "/api"
+const SUPPORTED_LOCALES = ["en", "zh", "ko"] as const
+
+type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
+type ClientErrorMessages = {
+  apiUnavailable: string
+  requestFailed: string
+  validation: string
+}
+
+const CLIENT_MESSAGES_BY_LOCALE = {
+  en: enMessages,
+  zh: zhMessages,
+  ko: koMessages,
+} as const
 
 export class ApiError extends Error {
   status: number
@@ -170,10 +187,32 @@ function buildUrl(
   return url.toString()
 }
 
-function detectLocale(): string | null {
+function normalizeLocale(value: string | null | undefined): SupportedLocale | null {
+  const locale = value?.toLowerCase().split("-")[0]
+
+  return SUPPORTED_LOCALES.includes(locale as SupportedLocale)
+    ? (locale as SupportedLocale)
+    : null
+}
+
+export function detectLocale(): SupportedLocale | null {
   if (typeof window === "undefined") return null
   const match = /^\/(en|ko|zh)\b/.exec(window.location.pathname)
-  return match ? match[1] : null
+
+  return normalizeLocale(match?.[1])
+}
+
+export function getClientErrorMessages(
+  locale: string | null | undefined = detectLocale(),
+): ClientErrorMessages {
+  const normalizedLocale = normalizeLocale(locale) ?? "en"
+  const errors = CLIENT_MESSAGES_BY_LOCALE[normalizedLocale].common.errors
+
+  return {
+    apiUnavailable: errors.apiUnavailable,
+    requestFailed: errors.requestFailed,
+    validation: errors.validation,
+  }
 }
 
 function isPlainObject(
@@ -228,7 +267,12 @@ export async function requestApi<T>(
       credentials: options.credentials ?? "include",
     })
   } catch {
-    throw new ApiError("The API is unavailable right now.", 0, undefined, "api_unavailable")
+    throw new ApiError(
+      getClientErrorMessages(locale).apiUnavailable,
+      0,
+      undefined,
+      "api_unavailable",
+    )
   }
 
   const rawText = await response.text()
@@ -246,7 +290,7 @@ export async function requestApi<T>(
 
   if (!response.ok || payload === null || payload.success === false) {
     throw new ApiError(
-      payload?.message ?? "The request could not be completed.",
+      payload?.message ?? getClientErrorMessages(locale).requestFailed,
       response.status,
       validationErrors,
       payload?.message ? undefined : "request_failed",
@@ -265,6 +309,16 @@ const GENERIC_VALIDATION_MESSAGES = new Set([
   "Unprocessable Content",
 ])
 
+function isGenericValidationMessage(message: string): boolean {
+  if (GENERIC_VALIDATION_MESSAGES.has(message)) {
+    return true
+  }
+
+  return Object.values(CLIENT_MESSAGES_BY_LOCALE).some(
+    (messages) => messages.common.errors.validation === message,
+  )
+}
+
 /**
  * Returns a user-facing error string.
  *
@@ -281,8 +335,8 @@ export function getErrorMessage(error: unknown): string {
       return first.message
     }
 
-    if (GENERIC_VALIDATION_MESSAGES.has(error.message)) {
-      return "Please check your input and try again."
+    if (isGenericValidationMessage(error.message)) {
+      return getClientErrorMessages().validation
     }
 
     return error.message
@@ -292,7 +346,7 @@ export function getErrorMessage(error: unknown): string {
     return error.message
   }
 
-  return "The request could not be completed."
+  return getClientErrorMessages().requestFailed
 }
 
 /**
@@ -313,8 +367,8 @@ export function getLocalizedErrorMessage(
       return first.message
     }
 
-    if (GENERIC_VALIDATION_MESSAGES.has(error.message)) {
-      return t.validation ?? "Please check your input and try again."
+    if (isGenericValidationMessage(error.message)) {
+      return t.validation ?? getClientErrorMessages().validation
     }
 
     return error.message

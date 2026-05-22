@@ -32,7 +32,7 @@ class TagController extends Controller
 
         return $this->successResponse(
             new TagResource($tag),
-            'Tag created successfully.',
+            __('api.admin.tag_created'),
             201
         );
     }
@@ -56,7 +56,7 @@ class TagController extends Controller
 
         return $this->successResponse(
             new TagResource($tag),
-            'Tag updated successfully.'
+            __('api.admin.tag_updated')
         );
     }
 
@@ -65,7 +65,7 @@ class TagController extends Controller
         $this->ensureAdmin($request);
         $taxonomyService->deleteTag($tag);
 
-        return $this->successResponse(null, 'Tag deleted successfully.');
+        return $this->successResponse(null, __('api.admin.tag_deleted'));
     }
 
     private function ensureAdmin(Request $request): void

@@ -30,7 +30,7 @@ class MaterialApplicationController extends Controller
 
         return $this->successResponse(
             new MaterialApplicationResource($application),
-            'Material application created successfully.',
+            __('api.admin.material_application_created'),
             201
         );
     }
@@ -54,7 +54,7 @@ class MaterialApplicationController extends Controller
 
         return $this->successResponse(
             new MaterialApplicationResource($materialApplication),
-            'Material application updated successfully.'
+            __('api.admin.material_application_updated')
         );
     }
 
@@ -64,6 +64,6 @@ class MaterialApplicationController extends Controller
     ): JsonResponse {
         $contentManagementService->deleteMaterialApplication($materialApplication);
 
-        return $this->successResponse(null, 'Material application deleted successfully.');
+        return $this->successResponse(null, __('api.admin.material_application_deleted'));
     }
 }

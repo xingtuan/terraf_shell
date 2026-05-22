@@ -772,7 +772,7 @@ class ContentManagementService
         }
 
         throw ValidationException::withMessages([
-            'page_key' => 'Unsupported page key.',
+            'page_key' => __('api.admin.unsupported_page_key'),
         ]);
     }
 

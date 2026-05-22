@@ -30,7 +30,7 @@ class MaterialSpecController extends Controller
 
         return $this->successResponse(
             new MaterialSpecResource($spec),
-            'Material spec created successfully.',
+            __('api.admin.material_spec_created'),
             201
         );
     }
@@ -49,7 +49,7 @@ class MaterialSpecController extends Controller
 
         return $this->successResponse(
             new MaterialSpecResource($materialSpec),
-            'Material spec updated successfully.'
+            __('api.admin.material_spec_updated')
         );
     }
 
@@ -57,6 +57,6 @@ class MaterialSpecController extends Controller
     {
         $contentManagementService->deleteMaterialSpec($materialSpec);
 
-        return $this->successResponse(null, 'Material spec deleted successfully.');
+        return $this->successResponse(null, __('api.admin.material_spec_deleted'));
     }
 }

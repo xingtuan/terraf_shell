@@ -38,7 +38,7 @@ class ReportController extends Controller
 
         return $this->successResponse(
             new ReportResource($report),
-            'Report submitted successfully.',
+            __('api.reports.submitted'),
             201
         );
     }

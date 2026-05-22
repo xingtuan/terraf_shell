@@ -79,9 +79,9 @@ class InquiryService
             $inquiry->save();
 
             $description = match (true) {
-                isset($changes['status']) => 'Enquiry status updated.',
-                isset($changes['assigned_to']) => 'Enquiry assignee updated.',
-                default => 'Enquiry notes updated.',
+                isset($changes['status']) => __('api.admin.inquiry_status_updated'),
+                isset($changes['assigned_to']) => __('api.admin.inquiry_assignee_updated'),
+                default => __('api.admin.inquiry_notes_updated'),
             };
 
             $this->governanceService->recordAdminAction(

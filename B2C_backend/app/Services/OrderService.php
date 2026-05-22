@@ -33,13 +33,13 @@ class OrderService
 
         if ($cart->user_id === null && blank($guestEmail)) {
             throw ValidationException::withMessages([
-                'guest_email' => ['An email address is required for guest checkout.'],
+                'guest_email' => [__('api.orders.guest_email_required')],
             ]);
         }
 
         if ($cart->items->isEmpty()) {
             throw ValidationException::withMessages([
-                'cart' => ['Your cart is empty.'],
+                'cart' => [__('api.orders.cart_empty')],
             ]);
         }
 
@@ -57,13 +57,13 @@ class OrderService
                 || ! $variant->isPurchasable()
             ) {
                 throw ValidationException::withMessages([
-                    'cart' => ['One or more items in your cart are no longer available.'],
+                    'cart' => [__('api.orders.items_unavailable')],
                 ]);
             }
 
             if (! $variant->canFulfillQuantity((int) $item->quantity)) {
                 throw ValidationException::withMessages([
-                    'cart' => ['One or more items exceed available stock.'],
+                    'cart' => [__('api.orders.stock_exceeded')],
                 ]);
             }
 
@@ -188,7 +188,7 @@ class OrderService
     {
         if ($order->status !== OrderStatus::Pending) {
             throw ValidationException::withMessages([
-                'order' => ['Only pending order requests can be cancelled.'],
+                'order' => [__('api.orders.not_cancellable')],
             ]);
         }
 

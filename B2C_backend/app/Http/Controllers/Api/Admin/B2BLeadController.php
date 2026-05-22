@@ -37,7 +37,7 @@ class B2BLeadController extends Controller
 
         return $this->successResponse(
             new B2BLeadResource($lead),
-            'B2B lead updated successfully.'
+            __('api.admin.b2b_lead_updated')
         );
     }
 

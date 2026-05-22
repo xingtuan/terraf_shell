@@ -63,7 +63,7 @@ class ListPublishedProductsRequest extends FormRequest
 
             foreach ($attributes as $key => $value) {
                 if (! is_string($key) || ! $definitions->has($key)) {
-                    $validator->errors()->add("attributes.{$key}", 'The selected attribute filter is not available.');
+                    $validator->errors()->add("attributes.{$key}", __('api.products.attribute_filter_unavailable'));
 
                     continue;
                 }
@@ -77,13 +77,13 @@ class ListPublishedProductsRequest extends FormRequest
                 } elseif (is_array($value)) {
                     foreach ($value as $item) {
                         if (! is_scalar($item)) {
-                            $validator->errors()->add("attributes.{$key}", 'Attribute filter values must be scalar.');
+                            $validator->errors()->add("attributes.{$key}", __('api.products.attribute_values_scalar'));
 
                             break;
                         }
                     }
                 } elseif ($value !== null && ! is_scalar($value)) {
-                    $validator->errors()->add("attributes.{$key}", 'Attribute filter values must be scalar.');
+                    $validator->errors()->add("attributes.{$key}", __('api.products.attribute_values_scalar'));
                 }
             }
         });
@@ -109,7 +109,7 @@ class ListPublishedProductsRequest extends FormRequest
             ->exists();
 
         if (! $exists) {
-            $validator->errors()->add('category', 'The selected category filter is not available.');
+            $validator->errors()->add('category', __('api.products.attribute_filter_unavailable'));
         }
     }
 
@@ -123,7 +123,7 @@ class ListPublishedProductsRequest extends FormRequest
         }
 
         if ((float) $priceMax < (float) $priceMin) {
-            $validator->errors()->add('price_max', 'The price max field must be greater than or equal to price min.');
+            $validator->errors()->add('price_max', __('api.products.price_max_gte'));
         }
     }
 
@@ -164,7 +164,7 @@ class ListPublishedProductsRequest extends FormRequest
         if (is_array($value)) {
             foreach (['min', 'max'] as $rangeKey) {
                 if (isset($value[$rangeKey]) && ! is_numeric($value[$rangeKey])) {
-                    $validator->errors()->add("attributes.{$key}.{$rangeKey}", 'Attribute range filters must be numeric.');
+                    $validator->errors()->add("attributes.{$key}.{$rangeKey}", __('api.products.attribute_range_numeric'));
                 }
             }
 
@@ -172,14 +172,14 @@ class ListPublishedProductsRequest extends FormRequest
         }
 
         if ($value !== null && $value !== '' && ! is_numeric($value)) {
-            $validator->errors()->add("attributes.{$key}", 'Attribute filter values must be numeric.');
+            $validator->errors()->add("attributes.{$key}", __('api.products.attribute_values_numeric'));
         }
     }
 
     private function validateBooleanAttribute(Validator $validator, string $key, mixed $value): void
     {
         if (filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === null) {
-            $validator->errors()->add("attributes.{$key}", 'Attribute filter values must be true or false.');
+            $validator->errors()->add("attributes.{$key}", __('api.products.attribute_values_boolean'));
         }
     }
 }

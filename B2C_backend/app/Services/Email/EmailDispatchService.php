@@ -195,7 +195,7 @@ class EmailDispatchService
         $key = 'email-center-test:'.($actor?->id ?: request()->ip());
 
         if (RateLimiter::tooManyAttempts($key, 5)) {
-            throw ValidationException::withMessages(['email' => 'Too many test emails. Please wait before trying again.']);
+            throw ValidationException::withMessages(['email' => [__('api.admin.test_email_rate_limited')]]);
         }
 
         RateLimiter::hit($key, 300);

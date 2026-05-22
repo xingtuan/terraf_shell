@@ -29,7 +29,7 @@ class ReportService
 
             if (isset($target->user_id) && (int) $target->user_id === $reporter->id) {
                 throw ValidationException::withMessages([
-                    'target_id' => ['You cannot report your own content.'],
+                    'target_id' => [__('api.reports.own_content')],
                 ]);
             }
 
@@ -41,7 +41,7 @@ class ReportService
 
             if ($exists) {
                 throw ValidationException::withMessages([
-                    'target_id' => ['You have already reported this content.'],
+                    'target_id' => [__('api.reports.duplicate')],
                 ]);
             }
 

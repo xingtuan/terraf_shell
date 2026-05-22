@@ -137,10 +137,10 @@ class B2BLeadService
             $lead->save();
 
             $description = match (true) {
-                count($changes) > 1 => 'B2B lead review updated.',
-                isset($changes['status']) => 'B2B lead status updated.',
-                isset($changes['assigned_to']) => 'B2B lead owner updated.',
-                default => 'B2B lead notes updated.',
+                count($changes) > 1 => __('api.admin.b2b_lead_review_updated'),
+                isset($changes['status']) => __('api.admin.b2b_lead_status_updated'),
+                isset($changes['assigned_to']) => __('api.admin.b2b_lead_owner_updated'),
+                default => __('api.admin.b2b_lead_notes_updated'),
             };
 
             $this->governanceService->recordAdminAction(

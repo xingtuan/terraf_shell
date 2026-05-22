@@ -16,7 +16,7 @@ class ProfileController extends Controller
 
         return $this->successResponse(
             new UserResource($user),
-            'Profile updated successfully.'
+            __('api.profiles.updated')
         );
     }
 }

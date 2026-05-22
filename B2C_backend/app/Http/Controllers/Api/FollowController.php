@@ -17,7 +17,7 @@ class FollowController extends Controller
         return $this->successResponse([
             'user_id' => $user->id,
             'is_following' => true,
-        ], 'User followed successfully.');
+        ], __('api.community.user_followed'));
     }
 
     public function destroy(User $user, InteractionService $interactionService): JsonResponse
@@ -28,6 +28,6 @@ class FollowController extends Controller
         return $this->successResponse([
             'user_id' => $user->id,
             'is_following' => false,
-        ], 'User unfollowed successfully.');
+        ], __('api.community.user_unfollowed'));
     }
 }

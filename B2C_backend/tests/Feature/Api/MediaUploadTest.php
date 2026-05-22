@@ -186,7 +186,7 @@ class MediaUploadTest extends TestCase
         $response
             ->assertStatus(500)
             ->assertJsonPath('success', false)
-            ->assertJsonPath('message', 'Unable to write uploaded file to local storage disk [public]. Check that storage/app/public is writable and run php artisan storage:link for public uploads.');
+            ->assertJsonPath('message', __('api.media.local_write_failed', ['disk' => 'public']));
 
         $this->assertDatabaseCount('media_files', 0);
     }

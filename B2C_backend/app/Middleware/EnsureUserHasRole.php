@@ -14,21 +14,21 @@ class EnsureUserHasRole
         $user = $request->user();
 
         if ($user === null) {
-            return ApiResponse::error('Authentication is required.', [], 401);
+            return ApiResponse::error(__('api.errors.authentication_required'), [], 401);
         }
 
         if (! $user->isActive()) {
             return ApiResponse::error(
-                'Your account cannot access this area.',
+                __('api.auth.account_inactive'),
                 [
-                    'user' => [$user->participationRestrictionReason() ?: 'This account is not active.'],
+                    'user' => [$user->participationRestrictionReason() ?: __('api.auth.account_not_active')],
                 ],
                 403
             );
         }
 
         if (! $user->hasAnyRole($roles)) {
-            return ApiResponse::error('You are not authorized to perform this action.', [], 403);
+            return ApiResponse::error(__('api.errors.forbidden'), [], 403);
         }
 
         return $next($request);

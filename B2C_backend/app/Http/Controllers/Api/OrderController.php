@@ -60,11 +60,11 @@ class OrderController extends Controller
         $address = null;
 
         if (! $this->settings->boolean('feature.b2c_store_enabled', true)) {
-            abort(403, __('admin.runtime.feature_disabled'));
+            abort(403, __('api.errors.feature_disabled'));
         }
 
         if ($user === null && ! $this->settings->boolean('feature.guest_checkout_enabled', true)) {
-            abort(403, __('admin.runtime.guest_checkout_disabled'));
+            abort(403, __('api.orders.guest_checkout_disabled'));
         }
 
         if (filled($validated['address_id'] ?? null)) {
@@ -74,13 +74,13 @@ class OrderController extends Controller
 
             if (strtoupper((string) $address->country) !== 'NZ') {
                 throw ValidationException::withMessages([
-                    'address_id' => ['Saved checkout addresses must be in New Zealand.'],
+                    'address_id' => [__('api.orders.saved_address_nz_only')],
                 ]);
             }
 
             if (blank($address->postal_code)) {
                 throw ValidationException::withMessages([
-                    'address_id' => ['Saved checkout addresses need a New Zealand postcode.'],
+                    'address_id' => [__('api.orders.saved_address_postcode_required')],
                 ]);
             }
         }
@@ -128,7 +128,7 @@ class OrderController extends Controller
 
         return $this->successResponse(
             new OrderResource($order),
-            'Order request submitted successfully.',
+            __('api.orders.created'),
             201,
         );
     }
@@ -167,7 +167,7 @@ class OrderController extends Controller
 
         if ($order === null) {
             throw ValidationException::withMessages([
-                'order_number' => ['We could not find a guest order matching those details.'],
+                'order_number' => [__('api.orders.guest_lookup_failed')],
             ]);
         }
 
@@ -185,7 +185,7 @@ class OrderController extends Controller
 
         return $this->successResponse(
             new OrderResource($order),
-            'Order request cancelled successfully.',
+            __('api.orders.cancelled'),
         );
     }
 }

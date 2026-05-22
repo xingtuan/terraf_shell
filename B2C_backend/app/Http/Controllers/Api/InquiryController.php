@@ -16,7 +16,7 @@ class InquiryController extends Controller
 
         return $this->successResponse(
             new InquiryResource($inquiry),
-            'Inquiry submitted successfully.',
+            __('api.inquiries.submitted'),
             201
         );
     }

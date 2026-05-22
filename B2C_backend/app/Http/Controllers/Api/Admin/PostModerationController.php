@@ -27,7 +27,7 @@ class PostModerationController extends Controller
 
         return $this->successResponse(
             new PostResource($post),
-            'Post status updated successfully.'
+            __('api.moderation.post_status_updated')
         );
     }
 
@@ -45,7 +45,7 @@ class PostModerationController extends Controller
 
         return $this->successResponse(
             new PostResource($post),
-            'Post featured status updated successfully.'
+            __('api.moderation.post_featured_updated')
         );
     }
 
@@ -53,7 +53,7 @@ class PostModerationController extends Controller
     {
         return $this->successResponse(
             $postRankingService->rankingFormula(),
-            'Post ranking formula retrieved successfully.'
+            __('api.moderation.ranking_formula')
         );
     }
 }

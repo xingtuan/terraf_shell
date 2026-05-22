@@ -282,7 +282,7 @@ class AuthTest extends TestCase
             'password_confirmation' => 'password',
         ])
             ->assertUnprocessable()
-            ->assertJsonPath('message', 'Validation failed.')
+            ->assertJsonPath('message', 'Please check the highlighted fields and try again.')
             ->assertJsonValidationErrors(['email'])
             ->assertJsonPath('errors.email.0', 'This email is already registered. Try signing in instead.');
     }

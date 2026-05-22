@@ -628,7 +628,7 @@ class PostService
 
         if ($media->count() !== $mediaIds->count()) {
             throw ValidationException::withMessages([
-                'media' => ['One or more media items do not belong to this post.'],
+                'media' => [__('api.community.media_not_owned')],
             ]);
         }
 
@@ -661,7 +661,7 @@ class PostService
 
         if ($existingMedia->count() !== $replacementIds->count()) {
             throw ValidationException::withMessages([
-                'replace_media' => ['One or more media items do not belong to this post.'],
+                'replace_media' => [__('api.community.media_not_owned')],
             ]);
         }
 

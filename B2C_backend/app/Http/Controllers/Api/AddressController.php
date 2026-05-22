@@ -28,7 +28,7 @@ class AddressController extends Controller
 
         return $this->successResponse(
             new AddressResource($address),
-            'Address saved successfully.',
+            __('api.addresses.saved'),
             201,
         );
     }
@@ -44,7 +44,7 @@ class AddressController extends Controller
 
         return $this->successResponse(
             new AddressResource($address),
-            'Address updated successfully.',
+            __('api.addresses.updated'),
         );
     }
 
@@ -58,7 +58,7 @@ class AddressController extends Controller
 
         return $this->successResponse([
             'deleted' => true,
-        ], 'Address deleted successfully.');
+        ], __('api.addresses.deleted'));
     }
 
     public function setDefault(int $id): JsonResponse
@@ -72,7 +72,7 @@ class AddressController extends Controller
 
         return $this->successResponse(
             new AddressResource($address),
-            'Default address updated successfully.',
+            __('api.addresses.default_updated'),
         );
     }
 }

@@ -1,7 +1,9 @@
 import {
   ApiError,
   type ApiErrorResponse,
+  detectLocale,
   getApiBaseUrl,
+  getClientErrorMessages,
   requestApi,
   type ApiSuccessResponse,
 } from "@/lib/api/client"
@@ -71,8 +73,11 @@ export async function uploadMedia(
   category: MediaCategory = "general",
   onProgress?: (percent: number) => void,
 ): Promise<UploadedMedia> {
+  const locale = detectLocale()
+  const errorMessages = getClientErrorMessages(locale)
+
   if (typeof window === "undefined") {
-    throw new ApiError("Media uploads must run in the browser.", 0)
+    throw new ApiError(errorMessages.requestFailed, 0, undefined, "request_failed")
   }
 
   const formData = new FormData()
@@ -88,6 +93,10 @@ export async function uploadMedia(
     xhr.withCredentials = true
     xhr.setRequestHeader("Accept", "application/json")
 
+    if (locale) {
+      xhr.setRequestHeader("Accept-Language", locale)
+    }
+
     if (token) {
       xhr.setRequestHeader("Authorization", `Bearer ${token}`)
     }
@@ -101,7 +110,7 @@ export async function uploadMedia(
     })
 
     xhr.addEventListener("error", () => {
-      reject(new ApiError("The API is unavailable right now.", 0))
+      reject(new ApiError(errorMessages.apiUnavailable, 0, undefined, "api_unavailable"))
     })
 
     xhr.addEventListener("load", () => {
@@ -117,9 +126,10 @@ export async function uploadMedia(
       ) {
         reject(
           new ApiError(
-            payload?.message ?? "The request could not be completed.",
+            payload?.message ?? errorMessages.requestFailed,
             xhr.status,
             errors,
+            payload?.message ? undefined : "request_failed",
           ),
         )
 

@@ -15,12 +15,12 @@ class EnsureUserNotBanned
 
         if ($user !== null && $user->isParticipationRestricted()) {
             $reason = $user->participationRestrictionReason()
-                ?: 'A moderator has restricted this account.';
+                ?: __('api.community.restriction_reason');
 
             return ApiResponse::error(
                 $user->isBanned()
-                    ? 'Your account has been banned from community actions.'
-                    : 'Your account is restricted from community actions.',
+                    ? __('api.community.banned')
+                    : __('api.community.restricted'),
                 [
                     'user' => [$reason],
                 ],

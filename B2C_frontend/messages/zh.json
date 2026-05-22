@@ -1159,6 +1159,21 @@
         "projectStage": "探索、原型、课程规划等",
         "message": "请说明形态要求、目标市场、表面方向或认证需求。"
       },
+      "validation": {
+        "defaultField": "此字段",
+        "max": "{field}不能超过 {max} 个字符。",
+        "nameRequired": "请填写姓名。",
+        "companyRequired": "请填写公司名称。",
+        "emailRequired": "请填写邮箱地址。",
+        "emailInvalid": "请输入有效的邮箱地址。",
+        "urlInvalid": "请输入有效的网站地址。",
+        "messageRequired": "请填写项目详情。",
+        "applicationRequired": "请选择应用领域。",
+        "organizationTypeRequired": "请填写组织类型。",
+        "collaborationGoalRequired": "请填写合作目标。",
+        "materialInterestRequired": "请填写感兴趣的材料。",
+        "intendedUseRequired": "请填写预期用途。"
+      },
       "submit": "发送询盘",
       "success": "你的询盘已成功提交。",
       "referenceLabel": "编号",

@@ -106,7 +106,7 @@ class GovernanceService
 
             if (($data['subject_type'] ?? null) !== null && $subject === null) {
                 throw ValidationException::withMessages([
-                    'subject_id' => ['The selected subject could not be found.'],
+                    'subject_id' => [__('api.moderation.subject_not_found')],
                 ]);
             }
 
@@ -412,7 +412,7 @@ class GovernanceService
 
         if ($owner === null || ! $owner->is($user)) {
             throw ValidationException::withMessages([
-                'subject_id' => ['The selected subject does not belong to this user.'],
+                'subject_id' => [__('api.moderation.subject_not_owned')],
             ]);
         }
     }
@@ -423,7 +423,7 @@ class GovernanceService
 
         if ($owner === null || ! $owner->is($user)) {
             throw ValidationException::withMessages([
-                'report_id' => ['The selected report does not target this user or this user\'s content.'],
+                'report_id' => [__('api.moderation.report_not_for_user')],
             ]);
         }
     }

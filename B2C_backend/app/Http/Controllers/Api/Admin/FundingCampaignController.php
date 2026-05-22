@@ -33,7 +33,7 @@ class FundingCampaignController extends Controller
 
         return $this->successResponse(
             new FundingCampaignResource($campaign),
-            'Funding campaign updated successfully.'
+            __('api.admin.funding_campaign_updated')
         );
     }
 
@@ -41,6 +41,6 @@ class FundingCampaignController extends Controller
     {
         $fundingCampaignService->deleteForPost($post, request()->user());
 
-        return $this->successResponse(null, 'Funding campaign deleted successfully.');
+        return $this->successResponse(null, __('api.admin.funding_campaign_deleted'));
     }
 }

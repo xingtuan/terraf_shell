@@ -131,7 +131,7 @@ class StorePostRequest extends FormRequest
             if ($mediaKind === null || ! $mediaKind->supportsType($this->detectUploadType($file))) {
                 $validator->errors()->add(
                     $kindsKey.'.'.$index,
-                    'The selected attachment kind does not match the uploaded file type.'
+                    __('api.community.attachment_kind_mismatch')
                 );
             }
         }
@@ -146,21 +146,21 @@ class StorePostRequest extends FormRequest
 
             if (is_string($value)) {
                 if (mb_strlen($value) > 255) {
-                    $fail('The '.$attribute.' field must not be greater than 255 characters.');
+                    $fail(__('api.community.tags_too_long'));
                 }
 
                 return;
             }
 
             if (! is_array($value)) {
-                $fail('The '.$attribute.' field must be a string or an array.');
+                $fail(__('api.community.tags_invalid_type'));
 
                 return;
             }
 
             foreach ($value as $tag) {
                 if (! is_string($tag) || trim($tag) === '' || mb_strlen($tag) > 120) {
-                    $fail('Each tag must be a non-empty string with a maximum length of 120 characters.');
+                    $fail(__('api.community.tags_invalid_item'));
 
                     return;
                 }

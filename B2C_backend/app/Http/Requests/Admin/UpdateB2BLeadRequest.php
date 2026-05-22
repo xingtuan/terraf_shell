@@ -39,7 +39,7 @@ class UpdateB2BLeadRequest extends FormRequest
     {
         $validator->after(function (Validator $validator): void {
             if (! $this->hasAny(['status', 'priority', 'internal_notes', 'assigned_to', 'follow_up_at'])) {
-                $validator->errors()->add('status', 'Provide at least one field to update.');
+                $validator->errors()->add('status', __('api.admin.update_required'));
             }
         });
     }

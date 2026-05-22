@@ -66,7 +66,7 @@ class AdminModerationService
                             'subject' => $post,
                         ],
                         $admin,
-                        'Concept approved during moderation review.'
+                        __('api.moderation.concept_approved_review')
                     );
                     $this->notificationService->notifyPostApproved($post, $admin);
                 }
@@ -79,7 +79,7 @@ class AdminModerationService
                             'subject' => $post,
                         ],
                         $admin,
-                        'Hidden record superseded by rejection.'
+                        __('api.moderation.hidden_superseded_rejection')
                     );
                     $this->governanceService->createViolation(
                         $post->user,
@@ -102,7 +102,7 @@ class AdminModerationService
                             'subject' => $post,
                         ],
                         $admin,
-                        'Rejected record superseded by takedown.'
+                        __('api.moderation.rejected_superseded_takedown')
                     );
                     $this->governanceService->createViolation(
                         $post->user,
@@ -182,7 +182,7 @@ class AdminModerationService
                         'subject' => $comment,
                     ],
                     $admin,
-                    'Comment approved during moderation review.'
+                    __('api.moderation.comment_approved_review')
                 );
 
                 if ($comment->parent_id !== null && $comment->parent !== null) {
@@ -200,7 +200,7 @@ class AdminModerationService
                         'subject' => $comment,
                     ],
                     $admin,
-                    'Hidden record superseded by rejection.'
+                    __('api.moderation.hidden_superseded_rejection')
                 );
                 $this->governanceService->createViolation(
                     $comment->user,
@@ -222,7 +222,7 @@ class AdminModerationService
                         'subject' => $comment,
                     ],
                     $admin,
-                    'Rejected record superseded by takedown.'
+                    __('api.moderation.rejected_superseded_takedown')
                 );
                 $this->governanceService->createViolation(
                     $comment->user,
@@ -253,7 +253,7 @@ class AdminModerationService
                 null
             ),
             default => throw ValidationException::withMessages([
-                'status' => ['Reports can only be reviewed, resolved, or dismissed through moderation actions.'],
+                'status' => [__('api.moderation.invalid_report_status')],
             ]),
         };
     }
@@ -506,7 +506,7 @@ class AdminModerationService
     {
         if ($admin->is($target) && $role !== $target->roleValue()) {
             throw ValidationException::withMessages([
-                'user' => ['You cannot change your own role.'],
+                'user' => [__('api.moderation.change_own_role')],
             ]);
         }
 
@@ -534,13 +534,13 @@ class AdminModerationService
     ): User {
         if (AccountStatus::tryFrom($status) === null) {
             throw ValidationException::withMessages([
-                'account_status' => ['The selected account status is invalid.'],
+                'account_status' => [__('api.moderation.invalid_account_status')],
             ]);
         }
 
         if ($admin->is($target)) {
             throw ValidationException::withMessages([
-                'user' => ['You cannot change your own account status.'],
+                'user' => [__('api.moderation.change_own_status')],
             ]);
         }
 
@@ -575,7 +575,7 @@ class AdminModerationService
                             ],
                         ],
                         $admin,
-                        $reason ?: 'Account returned to active.'
+                        $reason ?: __('api.moderation.account_returned_active')
                     );
                 }
 
@@ -586,7 +586,7 @@ class AdminModerationService
                             'types' => [UserViolationType::AccountBanned->value],
                         ],
                         $admin,
-                        'Ban record superseded by restriction.'
+                        __('api.moderation.ban_superseded_restriction')
                     );
                     $this->governanceService->createViolation(
                         $target,
@@ -607,7 +607,7 @@ class AdminModerationService
                             'types' => [UserViolationType::AccountRestricted->value],
                         ],
                         $admin,
-                        'Restriction record superseded by ban.'
+                        __('api.moderation.restriction_superseded_ban')
                     );
                     $this->governanceService->createViolation(
                         $target,
@@ -636,7 +636,7 @@ class AdminModerationService
             UserViolationType::AccountRestricted->value,
         ], true)) {
             throw ValidationException::withMessages([
-                'violation' => ['Only open account ban or restriction violations can restore an account.'],
+                'violation' => [__('api.moderation.restore_invalid_violation')],
             ]);
         }
 
@@ -723,7 +723,7 @@ class AdminModerationService
     {
         if ($report->status !== ReportStatus::Pending->value) {
             throw ValidationException::withMessages([
-                'status' => ['Only pending reports can be marked as reviewed.'],
+                'status' => [__('api.moderation.review_pending_only')],
             ]);
         }
     }
@@ -732,13 +732,13 @@ class AdminModerationService
     {
         if ($report->isFinalized()) {
             throw ValidationException::withMessages([
-                'status' => ['This report has already been completed.'],
+                'status' => [__('api.moderation.report_already_completed')],
             ]);
         }
 
         if (! $report->isOpenForModeration()) {
             throw ValidationException::withMessages([
-                'status' => ['Only pending or reviewed reports can be completed.'],
+                'status' => [__('api.moderation.complete_open_only')],
             ]);
         }
     }
@@ -755,7 +755,7 @@ class AdminModerationService
 
         if ($action === null) {
             throw ValidationException::withMessages([
-                'resolution_action' => ['The selected report resolution action is invalid.'],
+                'resolution_action' => [__('api.moderation.invalid_resolution_action')],
             ]);
         }
 
@@ -774,7 +774,7 @@ class AdminModerationService
             $target instanceof Post => $this->updatePostStatus($target, $status, $admin, $internalNote, $report),
             $target instanceof Comment => $this->updateCommentStatus($target, $status, $admin, $internalNote, $report),
             default => throw ValidationException::withMessages([
-                'target' => ['This report target cannot be moderated as content.'],
+                'target' => [__('api.moderation.target_not_content')],
             ]),
         };
     }
@@ -785,7 +785,7 @@ class AdminModerationService
 
         if (! $report->target instanceof Model) {
             throw ValidationException::withMessages([
-                'target' => ['The report target is no longer available.'],
+                'target' => [__('api.moderation.target_unavailable')],
             ]);
         }
 
@@ -798,7 +798,7 @@ class AdminModerationService
 
         if (! $targetUser instanceof User) {
             throw ValidationException::withMessages([
-                'target_user' => ['The reported user could not be determined.'],
+                'target_user' => [__('api.moderation.target_user_missing')],
             ]);
         }
 

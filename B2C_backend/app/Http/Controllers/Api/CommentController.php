@@ -28,7 +28,7 @@ class CommentController extends Controller
 
         return $this->successResponse(
             new CommentResource($comment),
-            'Comment added successfully.',
+            __('api.community.comment_added'),
             201
         );
     }
@@ -39,7 +39,7 @@ class CommentController extends Controller
 
         return $this->successResponse(
             new CommentResource($reply),
-            'Reply added successfully.',
+            __('api.community.reply_added'),
             201
         );
     }
@@ -50,7 +50,7 @@ class CommentController extends Controller
 
         return $this->successResponse(
             new CommentResource($comment),
-            'Comment updated successfully.'
+            __('api.community.comment_updated')
         );
     }
 
@@ -59,6 +59,6 @@ class CommentController extends Controller
         $this->authorize('delete', $comment);
         $commentService->delete($comment);
 
-        return $this->successResponse(null, 'Comment deleted successfully.');
+        return $this->successResponse(null, __('api.community.comment_deleted'));
     }
 }

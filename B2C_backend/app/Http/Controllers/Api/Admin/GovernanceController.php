@@ -71,7 +71,7 @@ class GovernanceController extends Controller
 
         return $this->successResponse(
             new UserViolationResource($violation),
-            'User violation recorded successfully.',
+            __('api.moderation.violation_recorded'),
             201
         );
     }
@@ -93,7 +93,7 @@ class GovernanceController extends Controller
 
         return $this->successResponse(
             new UserViolationResource($violation),
-            'User violation updated successfully.'
+            __('api.moderation.violation_updated')
         );
     }
 

@@ -129,7 +129,7 @@ class InteractionService
     {
         if ($target->is($actor)) {
             throw ValidationException::withMessages([
-                'user' => ['You cannot follow yourself.'],
+                'user' => [__('api.community.cannot_follow_self')],
             ]);
         }
 

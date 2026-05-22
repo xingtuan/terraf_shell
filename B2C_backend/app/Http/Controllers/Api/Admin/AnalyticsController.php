@@ -20,7 +20,7 @@ class AnalyticsController extends Controller
 
         return $this->successResponse(
             new AnalyticsOverviewResource($overview),
-            'Analytics overview retrieved successfully.'
+            __('api.admin.analytics_retrieved')
         );
     }
 }

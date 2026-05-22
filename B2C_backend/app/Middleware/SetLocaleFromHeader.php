@@ -13,18 +13,39 @@ class SetLocaleFromHeader
 
     public function handle(Request $request, Closure $next): Response
     {
-        $header = $request->header('Accept-Language', 'en');
-
-        // Accept-Language may look like "ko-KR,ko;q=0.9,en;q=0.8"
-        $primary = strtolower(trim(explode(',', $header)[0]));
-        $primary = explode(';', $primary)[0];
-        $primary = explode('-', $primary)[0];
-        $primary = trim($primary);
-
-        if (in_array($primary, self::SUPPORTED, true)) {
-            App::setLocale($primary);
-        }
+        App::setLocale($this->resolveLocale($request));
 
         return $next($request);
+    }
+
+    private function resolveLocale(Request $request): string
+    {
+        $fallback = $this->normalizeLocale((string) config('app.locale', 'en')) ?? 'en';
+        $explicit = $this->normalizeLocale((string) $request->header('X-Locale', ''));
+
+        if ($explicit !== null) {
+            return $explicit;
+        }
+
+        $header = (string) $request->header('Accept-Language', '');
+
+        foreach (explode(',', $header) as $part) {
+            $candidate = $this->normalizeLocale($part);
+
+            if ($candidate !== null) {
+                return $candidate;
+            }
+        }
+
+        return $fallback;
+    }
+
+    private function normalizeLocale(string $value): ?string
+    {
+        $locale = strtolower(trim(explode(';', $value)[0] ?? ''));
+        $locale = str_replace('_', '-', $locale);
+        $locale = trim(explode('-', $locale)[0] ?? '');
+
+        return in_array($locale, self::SUPPORTED, true) ? $locale : null;
     }
 }

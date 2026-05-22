@@ -18,7 +18,7 @@ class CartStockLimitException extends ValidationException
         int $requestedQuantity,
         int $availableQuantity,
     ) {
-        $message = "Only {$availableQuantity} units are available.";
+        $message = __('api.cart.stock_limit', ['count' => $availableQuantity]);
         $validator = Validator::make([], []);
         $validator->errors()->add('quantity', $message);
 

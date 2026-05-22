@@ -153,28 +153,28 @@ class MailSettingsService
         $mailer = (string) ($data['mailer'] ?? 'log');
 
         if (! in_array($mailer, self::MAILERS, true)) {
-            throw ValidationException::withMessages(['mailer' => 'Unsupported mailer selected.']);
+            throw ValidationException::withMessages(['mailer' => [__('api.admin.unsupported_mailer')]]);
         }
 
         if (in_array($mailer, ['smtp'], true)) {
             foreach (['host', 'port', 'from_address', 'from_name'] as $field) {
                 if (blank($data[$field] ?? null)) {
-                    throw ValidationException::withMessages([$field => 'This field is required for SMTP mail.']);
+                    throw ValidationException::withMessages([$field => [__('api.admin.smtp_required')]]);
                 }
             }
         }
 
         if (in_array($mailer, ['mailgun'], true) && blank($data['domain'] ?? null)) {
-            throw ValidationException::withMessages(['domain' => 'A domain is required for Mailgun.']);
+            throw ValidationException::withMessages(['domain' => [__('api.admin.mailgun_domain_required')]]);
         }
 
         if (! filter_var((string) ($data['from_address'] ?? ''), FILTER_VALIDATE_EMAIL)) {
-            throw ValidationException::withMessages(['from_address' => 'The sender email address is invalid.']);
+            throw ValidationException::withMessages(['from_address' => [__('api.admin.invalid_sender_email')]]);
         }
 
         foreach (Arr::wrap($data['admin_recipients'] ?? []) as $email) {
             if (filled($email) && ! filter_var((string) $email, FILTER_VALIDATE_EMAIL)) {
-                throw ValidationException::withMessages(['admin_recipients' => 'Admin recipients must be valid email addresses.']);
+                throw ValidationException::withMessages(['admin_recipients' => [__('api.admin.invalid_admin_recipient')]]);
             }
         }
     }

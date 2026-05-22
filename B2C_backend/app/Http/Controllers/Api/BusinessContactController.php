@@ -16,7 +16,7 @@ class BusinessContactController extends Controller
 
         return $this->successResponse(
             new B2BLeadResource($lead),
-            'Business contact submitted successfully.',
+            __('api.inquiries.business_contact_submitted'),
             201
         );
     }

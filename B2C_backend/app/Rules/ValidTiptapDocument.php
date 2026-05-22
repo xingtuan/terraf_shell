@@ -14,7 +14,9 @@ class ValidTiptapDocument implements ValidationRule
         }
 
         if (! is_string($value)) {
-            $fail('The :attribute must be a valid Tiptap JSON document.');
+            $fail(__('api.community.invalid_tiptap_document', [
+                'attribute' => __('validation.attributes.'.$attribute),
+            ]));
 
             return;
         }
@@ -22,7 +24,9 @@ class ValidTiptapDocument implements ValidationRule
         $decoded = json_decode($value, true);
 
         if (! is_array($decoded) || ($decoded['type'] ?? null) !== 'doc') {
-            $fail('The :attribute must be a valid Tiptap JSON document.');
+            $fail(__('api.community.invalid_tiptap_document', [
+                'attribute' => __('validation.attributes.'.$attribute),
+            ]));
         }
     }
 }

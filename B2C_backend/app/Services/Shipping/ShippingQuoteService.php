@@ -70,7 +70,7 @@ class ShippingQuoteService
 
         if (! is_array($selected)) {
             throw ValidationException::withMessages([
-                'shipping_method_code' => ['The selected shipping method is not available for this cart and address.'],
+                'shipping_method_code' => [__('api.shipping.method_unavailable')],
             ]);
         }
 
@@ -129,13 +129,13 @@ class ShippingQuoteService
 
         if ($country !== 'NZ') {
             throw ValidationException::withMessages([
-                'shipping_country' => ['We currently deliver within New Zealand only.'],
+                'shipping_country' => [__('api.shipping.nz_only')],
             ]);
         }
 
         if (blank($address['postcode'] ?? null)) {
             throw ValidationException::withMessages([
-                'shipping_postal_code' => ['A New Zealand postcode is required.'],
+                'shipping_postal_code' => [__('api.shipping.postcode_required')],
             ]);
         }
     }
@@ -187,8 +187,8 @@ class ShippingQuoteService
 
                 return [
                     'code' => (string) $code,
-                    'label' => (string) (data_get($service, 'label') ?? data_get($service, 'name') ?? 'NZ Post delivery'),
-                    'description' => (string) (data_get($service, 'description') ?? 'Tracked delivery within New Zealand'),
+                    'label' => (string) (data_get($service, 'label') ?? data_get($service, 'name') ?? __('api.shipping.standard_label')),
+                    'description' => (string) (data_get($service, 'description') ?? __('api.shipping.standard_description')),
                     'amount' => $this->formatMoney((float) $amount),
                     'currency' => (string) (data_get($service, 'currency') ?? $this->currency()),
                     'eta_min_days' => data_get($service, 'eta_min_days') ?? data_get($service, 'min_days'),
@@ -218,10 +218,10 @@ class ShippingQuoteService
         return [
             [
                 'code' => 'standard',
-                'label' => 'Standard NZ delivery',
+                'label' => __('api.shipping.standard_label'),
                 'description' => $ruralSurcharge > 0
-                    ? 'Tracked delivery within New Zealand. Rural delivery surcharge included.'
-                    : 'Tracked delivery within New Zealand',
+                    ? __('api.shipping.standard_description_rural')
+                    : __('api.shipping.standard_description'),
                 'amount' => $this->formatMoney($standardBase + $ruralSurcharge),
                 'currency' => $this->currency(),
                 'eta_min_days' => 2,
@@ -233,10 +233,10 @@ class ShippingQuoteService
             ],
             [
                 'code' => 'express',
-                'label' => 'Priority NZ delivery',
+                'label' => __('api.shipping.express_label'),
                 'description' => $ruralSurcharge > 0
-                    ? 'Faster tracked delivery. Rural delivery surcharge included.'
-                    : 'Faster tracked delivery within New Zealand',
+                    ? __('api.shipping.express_description_rural')
+                    : __('api.shipping.express_description'),
                 'amount' => $this->formatMoney($expressBase + $ruralSurcharge),
                 'currency' => $this->currency(),
                 'eta_min_days' => 1,

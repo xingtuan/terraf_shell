@@ -30,7 +30,7 @@ class ArticleController extends Controller
 
         return $this->successResponse(
             new ArticleResource($article),
-            'Article created successfully.',
+            __('api.admin.article_created'),
             201
         );
     }
@@ -49,7 +49,7 @@ class ArticleController extends Controller
 
         return $this->successResponse(
             new ArticleResource($article),
-            'Article updated successfully.'
+            __('api.admin.article_updated')
         );
     }
 
@@ -57,6 +57,6 @@ class ArticleController extends Controller
     {
         $contentManagementService->deleteArticle($article);
 
-        return $this->successResponse(null, 'Article deleted successfully.');
+        return $this->successResponse(null, __('api.admin.article_deleted'));
     }
 }

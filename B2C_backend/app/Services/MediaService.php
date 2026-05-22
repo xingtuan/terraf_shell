@@ -90,7 +90,7 @@ class MediaService
             $written = $this->storage->put($path, $contents, ['visibility' => 'public']);
         } catch (Throwable $throwable) {
             throw new RuntimeException(
-                sprintf('Unable to write uploaded file to storage disk [%s]: %s', $disk, $throwable->getMessage()),
+                __('api.media.write_failed', ['disk' => $disk]),
                 previous: $throwable,
             );
         }
@@ -171,13 +171,13 @@ class MediaService
         $pathname = $file->getPathname();
 
         if ($pathname === '' || ! is_readable($pathname)) {
-            throw new RuntimeException('Unable to read the uploaded file from the temporary upload directory.');
+            throw new RuntimeException(__('api.media.upload_read_failed'));
         }
 
         $contents = file_get_contents($pathname);
 
         if ($contents === false) {
-            throw new RuntimeException('Unable to read the uploaded file from the temporary upload directory.');
+            throw new RuntimeException(__('api.media.upload_read_failed'));
         }
 
         return $contents;
@@ -189,13 +189,10 @@ class MediaService
         $isLocal = is_array($config) && ($config['driver'] ?? null) === 'local';
 
         if ($isLocal) {
-            return sprintf(
-                'Unable to write uploaded file to local storage disk [%s]. Check that storage/app/public is writable and run php artisan storage:link for public uploads.',
-                $disk,
-            );
+            return __('api.media.local_write_failed', ['disk' => $disk]);
         }
 
-        return sprintf('Unable to write uploaded file to storage disk [%s]. Check the active storage configuration.', $disk);
+        return __('api.media.write_failed', ['disk' => $disk]);
     }
 
     /**

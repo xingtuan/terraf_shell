@@ -3,6 +3,7 @@ import assert from "node:assert/strict"
 
 import {
   ApiError,
+  getClientErrorMessages,
   getErrorMessage,
   getFieldErrors,
   getLocalizedErrorMessage,
@@ -22,8 +23,9 @@ function makeValidationError(
 const T = {
   apiUnavailable: "API 暂时不可用。",
   requestFailed: "请求无法完成。",
-  validation: "请检查输入并重试。",
+  validation: "请检查标注的字段并重试。",
 }
+const EN_ERRORS = getClientErrorMessages("en")
 
 // ── ApiError class ────────────────────────────────────────────────────────────
 
@@ -148,7 +150,7 @@ describe("getErrorMessage", () => {
 
   it("returns generic fallback when errors is empty and message is generic wrapper", () => {
     const err = new ApiError("The given data was invalid.", 422, {})
-    assert.equal(getErrorMessage(err), "Please check your input and try again.")
+    assert.equal(getErrorMessage(err), EN_ERRORS.validation)
   })
 
   it("returns error.message when it is specific (no field errors)", () => {
@@ -161,8 +163,8 @@ describe("getErrorMessage", () => {
   })
 
   it("falls back to default string for unknown error type", () => {
-    assert.equal(getErrorMessage(null), "The request could not be completed.")
-    assert.equal(getErrorMessage(42), "The request could not be completed.")
+    assert.equal(getErrorMessage(null), EN_ERRORS.requestFailed)
+    assert.equal(getErrorMessage(42), EN_ERRORS.requestFailed)
   })
 })
 

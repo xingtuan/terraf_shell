@@ -17,7 +17,7 @@ class FavoriteController extends Controller
             'post_id' => $post->id,
             'favorites_count' => (int) $post->favorites_count,
             'is_favorited' => true,
-        ], 'Post added to favorites.');
+        ], __('api.community.favorite_added'));
     }
 
     public function destroy(Post $post, InteractionService $interactionService): JsonResponse
@@ -28,6 +28,6 @@ class FavoriteController extends Controller
             'post_id' => $post->id,
             'favorites_count' => (int) $post->favorites_count,
             'is_favorited' => false,
-        ], 'Post removed from favorites.');
+        ], __('api.community.favorite_removed'));
     }
 }

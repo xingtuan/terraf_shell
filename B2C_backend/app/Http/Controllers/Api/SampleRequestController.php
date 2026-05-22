@@ -16,7 +16,7 @@ class SampleRequestController extends Controller
 
         return $this->successResponse(
             new B2BLeadResource($lead),
-            'Sample request submitted successfully.',
+            __('api.inquiries.sample_submitted'),
             201
         );
     }

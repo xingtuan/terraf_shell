@@ -17,7 +17,7 @@ class CommentLikeController extends Controller
             'comment_id' => $comment->id,
             'likes_count' => (int) $comment->likes_count,
             'is_liked' => true,
-        ], 'Comment liked successfully.');
+        ], __('api.community.comment_liked'));
     }
 
     public function destroy(Comment $comment, InteractionService $interactionService): JsonResponse
@@ -28,6 +28,6 @@ class CommentLikeController extends Controller
             'comment_id' => $comment->id,
             'likes_count' => (int) $comment->likes_count,
             'is_liked' => false,
-        ], 'Comment like removed successfully.');
+        ], __('api.community.comment_like_removed'));
     }
 }

@@ -47,6 +47,6 @@ class SystemAnnouncementController extends Controller
             'roles' => $data['roles'] ?? [],
             'send_email' => (bool) ($data['send_email'] ?? false),
             'sent_count' => $sentCount,
-        ], 'System announcement sent successfully.', 201);
+        ], __('api.admin.system_announcement_sent'), 201);
     }
 }

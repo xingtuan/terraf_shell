@@ -34,7 +34,7 @@ class UploadController extends Controller
                 $validated['category'] ?? null
             );
         } catch (RuntimeException $exception) {
-            return $this->errorResponse($exception->getMessage(), [], 500);
+            return $this->errorResponse($exception->getMessage() ?: __('api.media.upload_failed'), [], 500);
         }
 
         return $this->successResponse(new MediaFileResource($mediaFile));

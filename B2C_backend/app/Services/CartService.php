@@ -76,7 +76,7 @@ class CartService
 
         if ($product === null) {
             throw ValidationException::withMessages([
-                'product_id' => ['This product is not available for purchase.'],
+                'product_id' => [__('api.cart.product_unavailable')],
             ]);
         }
 
@@ -121,7 +121,7 @@ class CartService
 
         if ($item === null) {
             throw ValidationException::withMessages([
-                'product_id' => ['This item is not in the cart.'],
+                'product_id' => [__('api.cart.item_not_in_cart')],
             ]);
         }
 
@@ -138,7 +138,7 @@ class CartService
 
         if ($product === null) {
             throw ValidationException::withMessages([
-                'product_id' => ['This product is not available for purchase.'],
+                'product_id' => [__('api.cart.product_unavailable')],
             ]);
         }
 
@@ -255,7 +255,7 @@ class CartService
 
             if ($variant === null) {
                 throw ValidationException::withMessages([
-                    'variant_id' => ['The selected variant does not belong to this product.'],
+                    'variant_id' => [__('api.cart.variant_not_for_product')],
                 ]);
             }
 
@@ -266,7 +266,7 @@ class CartService
 
         if ($variant === null) {
             throw ValidationException::withMessages([
-                'product_id' => ['This product does not have an active purchasable variant.'],
+                'product_id' => [__('api.cart.no_active_variant')],
             ]);
         }
 
@@ -277,7 +277,7 @@ class CartService
     {
         if (! $product->is_active || ! $product->isPublished() || $product->inquiry_only || ! $variant->isPurchasable()) {
             throw ValidationException::withMessages([
-                'product_id' => ['This product is not available for purchase.'],
+                'product_id' => [__('api.cart.product_unavailable')],
             ]);
         }
     }
@@ -313,7 +313,7 @@ class CartService
                     'product_id' => $variant->product_id,
                     'stock_status' => $variant->stock_status,
                     'inventory_policy' => $variant->inventory_policy,
-                    'message' => "Only {$availableQuantity} units are available.",
+                    'message' => __('api.cart.quantity_clamped', ['count' => $availableQuantity]),
                 ];
 
                 return $availableQuantity;

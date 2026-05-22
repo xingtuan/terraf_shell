@@ -39,7 +39,7 @@ class CartController extends Controller
 
         $response = $this->successResponse(
             new CartResource($cart->fresh(['items.product.variants', 'items.variant'])),
-            $quantityAdjustment['message'] ?? 'Item added to cart.',
+            $quantityAdjustment['message'] ?? __('api.cart.item_added'),
             200,
             $quantityAdjustment !== null ? ['cart_adjustment' => $quantityAdjustment] : [],
         );
@@ -59,7 +59,7 @@ class CartController extends Controller
 
         $response = $this->successResponse(
             new CartResource($cart->fresh(['items.product.variants', 'items.variant'])),
-            'Cart updated.',
+            __('api.cart.updated'),
         );
 
         return $this->withGuestCartCookie($response, $request, $cart->session_key);
@@ -73,7 +73,7 @@ class CartController extends Controller
 
         $response = $this->successResponse(
             new CartResource($cart->fresh(['items.product.variants', 'items.variant'])),
-            'Item removed from cart.',
+            __('api.cart.item_removed'),
         );
 
         return $this->withGuestCartCookie($response, $request, $cart->session_key);
@@ -86,7 +86,7 @@ class CartController extends Controller
 
         $response = $this->successResponse([
             'cleared' => true,
-        ], 'Cart cleared.');
+        ], __('api.cart.cleared'));
 
         return $this->withGuestCartCookie($response, $request, $cart->session_key);
     }
@@ -100,7 +100,7 @@ class CartController extends Controller
 
         return $this->successResponse(
             new CartResource($cart),
-            'Guest cart merged successfully.',
+            __('api.cart.guest_merged'),
         )->withoutCookie(CartService::COOKIE_NAME)
             ->withoutCookie(CartService::LEGACY_COOKIE_NAME)
             ->cookie(Cookie::forget(CartService::COOKIE_NAME))

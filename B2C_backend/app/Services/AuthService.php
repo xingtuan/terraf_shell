@@ -172,7 +172,7 @@ class AuthService
         $user = User::query()->findOrFail($id);
 
         if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-            throw new AuthorizationException('Invalid email verification link.');
+            throw new AuthorizationException(__('api.auth.invalid_verification_link'));
         }
 
         $wasUnverified = ! $user->hasVerifiedEmail();

@@ -93,7 +93,7 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return ApiResponse::error(
-                'Validation failed.',
+                __('api.errors.validation_failed'),
                 $exception->errors(),
                 $exception->status
             );
@@ -104,7 +104,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            return ApiResponse::error('Authentication is required.', [], 401);
+            return ApiResponse::error(__('api.errors.authentication_required'), [], 401);
         });
 
         $exceptions->render(function (AuthorizationException $exception, Request $request) {
@@ -124,7 +124,9 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return ApiResponse::error(
-                $exception->getMessage() ?: 'You are not authorized to perform this action.',
+                in_array($exception->getMessage(), ['', 'This action is unauthorized.'], true)
+                    ? __('api.errors.forbidden')
+                    : $exception->getMessage(),
                 [],
                 403
             );
@@ -139,7 +141,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            return ApiResponse::error('The requested resource was not found.', [], 404);
+            return ApiResponse::error(__('api.errors.not_found'), [], 404);
         });
 
         $exceptions->render(function (NotFoundHttpException $exception, Request $request) {
@@ -147,7 +149,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            return ApiResponse::error('The requested endpoint was not found.', [], 404);
+            return ApiResponse::error(__('api.errors.endpoint_not_found'), [], 404);
         });
 
         $exceptions->render(function (Throwable $exception, Request $request) {
@@ -159,9 +161,16 @@ return Application::configure(basePath: dirname(__DIR__))
                 ? $exception->getStatusCode()
                 : 500;
 
-            $message = $status >= 500
-                ? 'An unexpected server error occurred.'
-                : ($exception->getMessage() ?: 'The request could not be completed.');
+            $message = match (true) {
+                $status >= 500 => __('api.errors.server_error'),
+                $status === 401 => __('api.errors.authentication_required'),
+                $status === 403 => in_array($exception->getMessage(), ['', 'This action is unauthorized.'], true)
+                    ? __('api.errors.forbidden')
+                    : $exception->getMessage(),
+                $status === 404 => __('api.errors.not_found'),
+                $status === 429 => __('api.errors.rate_limited'),
+                default => $exception->getMessage() ?: __('api.errors.request_failed'),
+            };
 
             return ApiResponse::error($message, [], $status);
         });

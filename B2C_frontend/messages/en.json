@@ -1159,6 +1159,21 @@
         "projectStage": "Discovery, prototype, curriculum planning...",
         "message": "Share shape requirements, target market, finish expectations, or certification needs."
       },
+      "validation": {
+        "defaultField": "This field",
+        "max": "{field} must be {max} characters or fewer.",
+        "nameRequired": "Name is required.",
+        "companyRequired": "Company is required.",
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Enter a valid email address.",
+        "urlInvalid": "Enter a valid website URL.",
+        "messageRequired": "Project details are required.",
+        "applicationRequired": "Please select an application area.",
+        "organizationTypeRequired": "Organization type is required.",
+        "collaborationGoalRequired": "Collaboration goal is required.",
+        "materialInterestRequired": "Material interest is required.",
+        "intendedUseRequired": "Intended use is required."
+      },
       "submit": "Send Inquiry",
       "success": "Your inquiry has been submitted successfully.",
       "referenceLabel": "Reference",

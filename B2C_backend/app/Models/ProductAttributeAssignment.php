@@ -58,7 +58,7 @@ class ProductAttributeAssignment extends Model
 
             if ($duplicateExists) {
                 throw ValidationException::withMessages([
-                    'attribute_definition_id' => ['This attribute can only be assigned once to a product.'],
+                    'attribute_definition_id' => [__('api.products.duplicate_attribute_assignment')],
                 ]);
             }
         });

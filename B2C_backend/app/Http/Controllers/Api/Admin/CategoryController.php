@@ -32,7 +32,7 @@ class CategoryController extends Controller
 
         return $this->successResponse(
             new CategoryResource($category),
-            'Category created successfully.',
+            __('api.admin.category_created'),
             201
         );
     }
@@ -56,7 +56,7 @@ class CategoryController extends Controller
 
         return $this->successResponse(
             new CategoryResource($category),
-            'Category updated successfully.'
+            __('api.admin.category_updated')
         );
     }
 
@@ -65,7 +65,7 @@ class CategoryController extends Controller
         $this->ensureAdmin($request);
         $taxonomyService->deleteCategory($category);
 
-        return $this->successResponse(null, 'Category deleted successfully.');
+        return $this->successResponse(null, __('api.admin.category_deleted'));
     }
 
     private function ensureAdmin(Request $request): void

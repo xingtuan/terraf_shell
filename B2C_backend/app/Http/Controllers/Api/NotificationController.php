@@ -43,7 +43,7 @@ class NotificationController extends Controller
 
         return $this->successResponse(
             new UserNotificationResource($notification),
-            'Notification marked as read.'
+            __('api.notifications.marked_read')
         );
     }
 
@@ -53,6 +53,6 @@ class NotificationController extends Controller
 
         return $this->successResponse([
             'marked_count' => $markedCount,
-        ], 'Notifications marked as read.');
+        ], __('api.notifications.all_marked_read'));
     }
 }

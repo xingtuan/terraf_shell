@@ -26,7 +26,7 @@ class UserModerationController extends Controller
 
         return $this->successResponse(
             new UserResource($user),
-            'User role updated successfully.'
+            __('api.moderation.user_role_updated')
         );
     }
 
@@ -44,7 +44,7 @@ class UserModerationController extends Controller
 
         return $this->successResponse(
             new UserResource($user),
-            'User account status updated successfully.'
+            __('api.moderation.user_account_status_updated')
         );
     }
 
@@ -62,7 +62,7 @@ class UserModerationController extends Controller
 
         return $this->successResponse(
             new UserResource($user),
-            $user->isBanned() ? 'User banned successfully.' : 'User unbanned successfully.'
+            $user->isBanned() ? __('api.moderation.user_banned') : __('api.moderation.user_unbanned')
         );
     }
 }

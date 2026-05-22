@@ -18,7 +18,7 @@ class PartnershipInquiryController extends Controller
 
         return $this->successResponse(
             new B2BLeadResource($lead),
-            'Partnership inquiry submitted successfully.',
+            __('api.inquiries.partnership_submitted'),
             201
         );
     }
@@ -34,7 +34,7 @@ class PartnershipInquiryController extends Controller
 
         return $this->successResponse(
             new B2BLeadResource($lead),
-            'University collaboration request submitted successfully.',
+            __('api.inquiries.university_submitted'),
             201
         );
     }
@@ -50,7 +50,7 @@ class PartnershipInquiryController extends Controller
 
         return $this->successResponse(
             new B2BLeadResource($lead),
-            'Product development collaboration request submitted successfully.',
+            __('api.inquiries.product_development_submitted'),
             201
         );
     }

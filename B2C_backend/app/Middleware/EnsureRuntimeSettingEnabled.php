@@ -20,10 +20,10 @@ class EnsureRuntimeSettingEnabled
 
         if (! $enabled) {
             if ($request->expectsJson() || $request->is('api/*')) {
-                return ApiResponse::error(__('admin.runtime.feature_disabled'), [], 403);
+                return ApiResponse::error(__('api.errors.feature_disabled'), [], 403);
             }
 
-            abort(403, __('admin.runtime.feature_disabled'));
+            abort(403, __('api.errors.feature_disabled'));
         }
 
         return $next($request);

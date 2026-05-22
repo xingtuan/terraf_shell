@@ -58,30 +58,6 @@ const leadFieldMaxLengths: Partial<Record<LeadFormField, number>> = {
   intendedUse: 1000,
 }
 
-const leadFieldLabels: Partial<Record<LeadFormField, string>> = {
-  name: "Name",
-  companyName: "Company",
-  organizationType: "Organization type",
-  email: "Email",
-  phone: "Phone",
-  country: "Country",
-  region: "Region",
-  companyWebsite: "Company website",
-  jobTitle: "Job title",
-  application: "Application",
-  volume: "Estimated quantity",
-  timeline: "Target timeline",
-  message: "Project details",
-  collaborationGoal: "Collaboration goal",
-  projectStage: "Project stage",
-  materialInterest: "Material interest",
-  quantityEstimate: "Quantity estimate",
-  shippingCountry: "Shipping country",
-  shippingRegion: "Shipping region",
-  shippingAddress: "Shipping address",
-  intendedUse: "Intended use",
-}
-
 const leadTypeOptions: Array<{
   id: LeadFormType
   interestType: LeadInterestType
@@ -185,10 +161,49 @@ function normalizeSearchValue(value: string | null) {
   return normalized ? normalized : null
 }
 
+function formatValidationMessage(
+  template: string,
+  replacements: Record<string, string | number>,
+) {
+  return template.replace(/\{(\w+)\}/g, (match, key) =>
+    replacements[key] === undefined ? match : String(replacements[key]),
+  )
+}
+
+function getLeadFieldLabel(content: B2BFormContent, field: LeadFormField) {
+  const labels = content.fields
+  const fieldLabels: Partial<Record<LeadFormField, string>> = {
+    name: labels.name,
+    companyName: labels.company,
+    organizationType: labels.organizationType,
+    email: labels.email,
+    phone: labels.phone,
+    country: labels.country,
+    region: labels.region,
+    companyWebsite: labels.companyWebsite,
+    jobTitle: labels.jobTitle,
+    application: labels.application,
+    volume: labels.volume,
+    timeline: labels.timeline,
+    message: labels.message,
+    collaborationGoal: labels.collaborationGoal,
+    projectStage: labels.projectStage,
+    materialInterest: labels.materialInterest,
+    quantityEstimate: labels.quantityEstimate,
+    shippingCountry: labels.shippingCountry,
+    shippingRegion: labels.shippingRegion,
+    shippingAddress: labels.shippingAddress,
+    intendedUse: labels.intendedUse,
+  }
+
+  return fieldLabels[field] ?? content.validation.defaultField
+}
+
 function validateMaxLength(
   errors: FieldErrors,
   field: LeadFormField,
   value: string,
+  content: B2BFormContent,
 ) {
   const maxLength = leadFieldMaxLengths[field]
 
@@ -196,56 +211,63 @@ function validateMaxLength(
     return
   }
 
-  errors[field] = `${leadFieldLabels[field] ?? "This field"} must be ${maxLength} characters or fewer.`
+  errors[field] = formatValidationMessage(content.validation.max, {
+    field: getLeadFieldLabel(content, field),
+    max: maxLength,
+  })
 }
 
-function validateLeadForm(values: LeadFormValues): FieldErrors {
+function validateLeadForm(
+  values: LeadFormValues,
+  content: B2BFormContent,
+): FieldErrors {
   const errors: FieldErrors = {}
+  const validation = content.validation
 
   if (!values.name.trim()) {
-    errors.name = "Name is required."
+    errors.name = validation.nameRequired
   }
 
   if (!values.companyName.trim()) {
-    errors.companyName = "Company is required."
+    errors.companyName = validation.companyRequired
   }
 
   if (!values.email.trim()) {
-    errors.email = "Email is required."
+    errors.email = validation.emailRequired
   } else if (!/\S+@\S+\.\S+/.test(values.email)) {
-    errors.email = "Enter a valid email address."
+    errors.email = validation.emailInvalid
   }
 
-  validateMaxLength(errors, "name", values.name)
-  validateMaxLength(errors, "companyName", values.companyName)
-  validateMaxLength(errors, "email", values.email)
-  validateMaxLength(errors, "phone", values.phone)
-  validateMaxLength(errors, "country", values.country)
-  validateMaxLength(errors, "region", values.region)
-  validateMaxLength(errors, "jobTitle", values.jobTitle)
-  validateMaxLength(errors, "application", values.application)
-  validateMaxLength(errors, "volume", values.volume)
-  validateMaxLength(errors, "timeline", values.timeline)
-  validateMaxLength(errors, "message", values.message)
+  validateMaxLength(errors, "name", values.name, content)
+  validateMaxLength(errors, "companyName", values.companyName, content)
+  validateMaxLength(errors, "email", values.email, content)
+  validateMaxLength(errors, "phone", values.phone, content)
+  validateMaxLength(errors, "country", values.country, content)
+  validateMaxLength(errors, "region", values.region, content)
+  validateMaxLength(errors, "jobTitle", values.jobTitle, content)
+  validateMaxLength(errors, "application", values.application, content)
+  validateMaxLength(errors, "volume", values.volume, content)
+  validateMaxLength(errors, "timeline", values.timeline, content)
+  validateMaxLength(errors, "message", values.message, content)
 
   if (values.companyWebsite.trim()) {
-    validateMaxLength(errors, "companyWebsite", values.companyWebsite)
+    validateMaxLength(errors, "companyWebsite", values.companyWebsite, content)
 
     if (!errors.companyWebsite) {
       try {
         new URL(values.companyWebsite)
       } catch {
-        errors.companyWebsite = "Enter a valid website URL."
+        errors.companyWebsite = validation.urlInvalid
       }
     }
   }
 
   if (!values.message.trim()) {
-    errors.message = "Project details are required."
+    errors.message = validation.messageRequired
   }
 
   if (!values.application.trim()) {
-    errors.application = "Application is required."
+    errors.application = validation.applicationRequired
   }
 
   if (
@@ -254,10 +276,10 @@ function validateLeadForm(values: LeadFormValues): FieldErrors {
       values.type === "product_development_collaboration") &&
     !values.organizationType.trim()
   ) {
-    errors.organizationType = "Organization type is required."
+    errors.organizationType = validation.organizationTypeRequired
   }
 
-  validateMaxLength(errors, "organizationType", values.organizationType)
+  validateMaxLength(errors, "organizationType", values.organizationType, content)
 
   if (
     (values.type === "partnership_inquiry" ||
@@ -265,26 +287,26 @@ function validateLeadForm(values: LeadFormValues): FieldErrors {
       values.type === "product_development_collaboration") &&
     !values.collaborationGoal.trim()
   ) {
-    errors.collaborationGoal = "Collaboration goal is required."
+    errors.collaborationGoal = validation.collaborationGoalRequired
   }
 
-  validateMaxLength(errors, "collaborationGoal", values.collaborationGoal)
-  validateMaxLength(errors, "projectStage", values.projectStage)
+  validateMaxLength(errors, "collaborationGoal", values.collaborationGoal, content)
+  validateMaxLength(errors, "projectStage", values.projectStage, content)
 
   if (values.type === "sample_request" && !values.materialInterest.trim()) {
-    errors.materialInterest = "Material interest is required."
+    errors.materialInterest = validation.materialInterestRequired
   }
 
   if (values.type === "sample_request" && !values.intendedUse.trim()) {
-    errors.intendedUse = "Intended use is required."
+    errors.intendedUse = validation.intendedUseRequired
   }
 
-  validateMaxLength(errors, "materialInterest", values.materialInterest)
-  validateMaxLength(errors, "quantityEstimate", values.quantityEstimate)
-  validateMaxLength(errors, "shippingCountry", values.shippingCountry)
-  validateMaxLength(errors, "shippingRegion", values.shippingRegion)
-  validateMaxLength(errors, "shippingAddress", values.shippingAddress)
-  validateMaxLength(errors, "intendedUse", values.intendedUse)
+  validateMaxLength(errors, "materialInterest", values.materialInterest, content)
+  validateMaxLength(errors, "quantityEstimate", values.quantityEstimate, content)
+  validateMaxLength(errors, "shippingCountry", values.shippingCountry, content)
+  validateMaxLength(errors, "shippingRegion", values.shippingRegion, content)
+  validateMaxLength(errors, "shippingAddress", values.shippingAddress, content)
+  validateMaxLength(errors, "intendedUse", values.intendedUse, content)
 
   return errors
 }
@@ -492,7 +514,7 @@ export function B2BInquiryFormSection({
               setSubmission(null)
               setErrorMessage(null)
 
-              const nextFieldErrors = validateLeadForm(values)
+              const nextFieldErrors = validateLeadForm(values, content)
               setFieldErrors(nextFieldErrors)
 
               if (Object.keys(nextFieldErrors).length > 0) {

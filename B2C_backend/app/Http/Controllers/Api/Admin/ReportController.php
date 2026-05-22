@@ -40,7 +40,7 @@ class ReportController extends Controller
 
         return $this->successResponse(
             new ReportResource($report),
-            'Report status updated successfully.'
+            __('api.moderation.report_status_updated')
         );
     }
 
@@ -56,7 +56,7 @@ class ReportController extends Controller
             $request->publicNote()
         );
 
-        return $this->successResponse(new ReportResource($report), 'Report marked as reviewed.');
+        return $this->successResponse(new ReportResource($report), __('api.moderation.report_reviewed'));
     }
 
     public function dismiss(
@@ -71,7 +71,7 @@ class ReportController extends Controller
             $request->publicNote()
         );
 
-        return $this->successResponse(new ReportResource($report), 'Report dismissed.');
+        return $this->successResponse(new ReportResource($report), __('api.moderation.report_dismissed'));
     }
 
     public function resolve(
@@ -87,7 +87,7 @@ class ReportController extends Controller
             $request->publicNote()
         );
 
-        return $this->successResponse(new ReportResource($report), 'Report resolved.');
+        return $this->successResponse(new ReportResource($report), __('api.moderation.report_resolved'));
     }
 
     public function hideTarget(
@@ -102,7 +102,7 @@ class ReportController extends Controller
             $request->publicNote()
         );
 
-        return $this->successResponse(new ReportResource($report), 'Report resolved and target hidden.');
+        return $this->successResponse(new ReportResource($report), __('api.moderation.report_resolved_hidden'));
     }
 
     public function rejectTarget(
@@ -117,7 +117,7 @@ class ReportController extends Controller
             $request->publicNote()
         );
 
-        return $this->successResponse(new ReportResource($report), 'Report resolved and target rejected.');
+        return $this->successResponse(new ReportResource($report), __('api.moderation.report_resolved_rejected'));
     }
 
     public function warnUser(
@@ -132,7 +132,7 @@ class ReportController extends Controller
             $request->publicNote()
         );
 
-        return $this->successResponse(new ReportResource($report), 'Report resolved and user warned.');
+        return $this->successResponse(new ReportResource($report), __('api.moderation.report_resolved_warned'));
     }
 
     public function restrictUser(
@@ -147,7 +147,7 @@ class ReportController extends Controller
             $request->publicNote()
         );
 
-        return $this->successResponse(new ReportResource($report), 'Report resolved and user restricted.');
+        return $this->successResponse(new ReportResource($report), __('api.moderation.report_resolved_restricted'));
     }
 
     public function banUser(
@@ -162,6 +162,6 @@ class ReportController extends Controller
             $request->publicNote()
         );
 
-        return $this->successResponse(new ReportResource($report), 'Report resolved and user banned.');
+        return $this->successResponse(new ReportResource($report), __('api.moderation.report_resolved_banned'));
     }
 }

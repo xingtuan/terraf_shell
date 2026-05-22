@@ -30,7 +30,7 @@ class HomeSectionController extends Controller
 
         return $this->successResponse(
             new HomeSectionResource($section),
-            'Home section created successfully.',
+            __('api.admin.home_section_created'),
             201
         );
     }
@@ -49,7 +49,7 @@ class HomeSectionController extends Controller
 
         return $this->successResponse(
             new HomeSectionResource($homeSection),
-            'Home section updated successfully.'
+            __('api.admin.home_section_updated')
         );
     }
 
@@ -57,6 +57,6 @@ class HomeSectionController extends Controller
     {
         $contentManagementService->deleteHomeSection($homeSection);
 
-        return $this->successResponse(null, 'Home section deleted successfully.');
+        return $this->successResponse(null, __('api.admin.home_section_deleted'));
     }
 }
