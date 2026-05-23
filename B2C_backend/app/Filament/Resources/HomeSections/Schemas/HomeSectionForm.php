@@ -1101,10 +1101,17 @@ class HomeSectionForm
         $key = $data['key'] ?? $record?->key;
 
         if (is_string($key) && self::hasStructuredPayloadKey($key)) {
-            if (isset($state['payload']) && is_array($state['payload'])) {
+            // Prefer $data['payload'] (Filament-dehydrated, integer-indexed arrays) over
+            // $state['payload'] (raw Livewire state, which uses UUID keys for Repeater items).
+            // Using UUID-keyed state causes items to be appended instead of replaced on every save.
+            $incomingPayload = isset($data['payload']) && is_array($data['payload'])
+                ? $data['payload']
+                : (isset($state['payload']) && is_array($state['payload']) ? $state['payload'] : null);
+
+            if ($incomingPayload !== null) {
                 $data['payload'] = self::mergePayloadState(
                     is_array($record?->payload) ? $record->payload : [],
-                    self::normalizeLocalizedArrays($state['payload'])
+                    self::normalizeLocalizedArrays($incomingPayload)
                 );
             }
 
@@ -1202,6 +1209,12 @@ class HomeSectionForm
      */
     private static function mergePayloadState(array $existing, array $incoming): array
     {
+        // Re-index UUID-keyed arrays that originate from Filament's Livewire Repeater state.
+        // UUID keys appear when $state (not $data) is passed as the incoming payload source.
+        if (! array_is_list($incoming) && self::isUuidKeyedArray($incoming)) {
+            $incoming = array_values($incoming);
+        }
+
         if (array_is_list($incoming)) {
             return array_values(array_map(
                 fn (mixed $value, int $index): mixed => is_array($value)
@@ -1247,5 +1260,30 @@ class HomeSectionForm
     private static function hasStructuredPayload(Get $get): bool
     {
         return self::hasStructuredPayloadKey($get('key'));
+    }
+
+    /**
+     * Detect if every key in the array is a UUID string (Filament Repeater internal key format).
+     * Filament stores repeater items with UUID keys in Livewire state; during dehydration it
+     * re-indexes them to integers. This guard handles edge cases where UUID keys slip through.
+     *
+     * @param  array<mixed>  $array
+     */
+    private static function isUuidKeyedArray(array $array): bool
+    {
+        if (empty($array)) {
+            return false;
+        }
+
+        foreach (array_keys($array) as $key) {
+            if (! is_string($key) || ! preg_match(
+                '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i',
+                $key
+            )) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
