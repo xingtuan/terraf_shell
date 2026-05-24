@@ -188,6 +188,188 @@ class MaterialCmsTest extends TestCase
         ], false);
     }
 
+    public function test_material_cms_migration_command_copies_published_material_content_into_page_sections(): void
+    {
+        $material = Material::factory()->published()->create([
+            'slug' => 'shell-composite',
+            'title' => 'Shell composite',
+            'title_translations' => [
+                'en' => 'Shell composite',
+                'zh' => 'ZH Shell composite',
+                'ko' => 'KO Shell composite',
+            ],
+            'headline' => 'Material headline',
+            'headline_translations' => [
+                'en' => 'Material headline',
+                'zh' => 'ZH Material headline',
+                'ko' => 'KO Material headline',
+            ],
+            'summary' => 'Material summary',
+            'summary_translations' => [
+                'en' => 'Material summary',
+                'zh' => 'ZH Material summary',
+                'ko' => 'KO Material summary',
+            ],
+            'media_url' => 'https://example.test/material.jpg',
+            'certifications' => [
+                [
+                    'key' => 'water',
+                    'label' => 'Water absorption',
+                    'label_translations' => [
+                        'en' => 'Water absorption',
+                        'zh' => 'ZH Water absorption',
+                        'ko' => 'KO Water absorption',
+                    ],
+                    'value' => '0.00%',
+                    'status' => 'pending',
+                    'issuer' => 'Lab partner',
+                    'document_url' => 'https://example.test/water.pdf',
+                ],
+            ],
+            'technical_downloads' => [
+                [
+                    'title' => 'Data sheet',
+                    'description' => 'Review document',
+                    'url' => 'https://example.test/data-sheet.pdf',
+                    'type' => 'material_data_sheet',
+                ],
+            ],
+        ]);
+
+        MaterialStorySection::factory()->published()->create([
+            'material_id' => $material->id,
+            'title' => 'Recovered shells',
+            'title_translations' => [
+                'en' => 'Recovered shells',
+                'zh' => 'ZH Recovered shells',
+                'ko' => 'KO Recovered shells',
+            ],
+            'content' => 'Collected and prepared.',
+            'content_translations' => [
+                'en' => 'Collected and prepared.',
+                'zh' => 'ZH Collected and prepared.',
+                'ko' => 'KO Collected and prepared.',
+            ],
+            'highlight' => 'Recovered stream',
+            'media_path' => 'cms/material-story/story.jpg',
+            'sort_order' => 1,
+        ]);
+
+        MaterialApplication::factory()->published()->create([
+            'material_id' => $material->id,
+            'title' => 'Hospitality',
+            'description' => 'Tabletop programs.',
+            'description_translations' => [
+                'en' => 'Tabletop programs.',
+                'zh' => 'ZH Tabletop programs.',
+                'ko' => 'KO Tabletop programs.',
+            ],
+            'audience' => 'Hotels',
+            'cta_label' => 'Discuss',
+            'cta_url' => 'b2b#inquiry',
+            'media_url' => 'https://example.test/application.jpg',
+            'sort_order' => 1,
+        ]);
+
+        MaterialSpec::factory()->published()->create([
+            'material_id' => $material->id,
+            'key' => 'absorption',
+            'label' => 'Absorption',
+            'label_translations' => [
+                'en' => 'Absorption',
+                'zh' => 'ZH Absorption',
+                'ko' => 'KO Absorption',
+            ],
+            'value' => '0.00%',
+            'detail' => 'Pending lab verification.',
+            'icon' => 'badge',
+            'sort_order' => 1,
+        ]);
+
+        $this->artisan('cms:migrate-materials-to-page-sections')
+            ->assertExitCode(0);
+
+        $intro = HomeSection::query()
+            ->where('page_key', 'material')
+            ->where('key', 'intro')
+            ->firstOrFail();
+
+        $this->assertFalse($intro->is_seeded);
+        $this->assertSame(PublishStatus::Published->value, $intro->status);
+        $this->assertSame('Shell composite', $intro->title);
+        $this->assertSame('ZH Shell composite', $intro->title_translations['zh'] ?? null);
+        $this->assertSame('https://example.test/material.jpg', $intro->media_url);
+
+        $story = HomeSection::query()
+            ->where('page_key', 'material')
+            ->where('key', 'material_story')
+            ->firstOrFail();
+        $this->assertSame('Recovered shells', $story->payload['items'][0]['title']);
+        $this->assertSame('cms/material-story/story.jpg', $story->payload['items'][0]['media_path']);
+        $this->assertSame('ZH Recovered shells', $story->payload['items'][0]['title_translations']['zh'] ?? null);
+
+        $applications = HomeSection::query()
+            ->where('page_key', 'material')
+            ->where('key', 'applications')
+            ->firstOrFail();
+        $this->assertSame('Hotels', $applications->payload['items'][0]['audience']);
+        $this->assertSame('https://example.test/application.jpg', $applications->payload['items'][0]['media_url']);
+
+        $facts = HomeSection::query()
+            ->where('page_key', 'material')
+            ->where('key', 'material_facts')
+            ->firstOrFail();
+        $this->assertSame('Absorption', $facts->payload['metrics'][0]['label']);
+        $this->assertSame('ZH Absorption', $facts->payload['metrics'][0]['label_translations']['zh'] ?? null);
+
+        $certifications = HomeSection::query()
+            ->where('page_key', 'material')
+            ->where('key', 'certifications')
+            ->firstOrFail();
+        $this->assertSame('Water absorption', $certifications->payload['items'][0]['label']);
+        $this->assertSame('https://example.test/water.pdf', $certifications->payload['items'][0]['document_url']);
+
+        $downloads = HomeSection::query()
+            ->where('page_key', 'material')
+            ->where('key', 'technical_downloads')
+            ->firstOrFail();
+        $this->assertSame('Data sheet', $downloads->payload['downloads'][0]['title']);
+    }
+
+    public function test_material_page_sections_api_returns_material_content_sections_and_hides_hidden_records(): void
+    {
+        foreach (['material_story', 'applications', 'material_facts', 'certifications'] as $index => $key) {
+            HomeSection::query()->updateOrCreate([
+                'page_key' => 'material',
+                'key' => $key,
+            ], [
+                'title' => "Section {$key}",
+                'payload' => ['items' => [['key' => $key]]],
+                'status' => PublishStatus::Published->value,
+                'sort_order' => $index + 1,
+                'published_at' => now(),
+            ]);
+        }
+
+        HomeSection::factory()->create([
+            'page_key' => 'material',
+            'key' => 'hidden_test_section',
+            'status' => PublishStatus::Draft->value,
+        ]);
+
+        $response = $this->getJson('/api/page-sections?page=material')
+            ->assertOk()
+            ->assertJsonFragment(['key' => 'material_story'])
+            ->assertJsonFragment(['key' => 'applications'])
+            ->assertJsonFragment(['key' => 'material_facts'])
+            ->assertJsonFragment(['key' => 'certifications']);
+
+        $this->assertNotContains(
+            'hidden_test_section',
+            collect($response->json('data'))->pluck('key')->all()
+        );
+    }
+
     public function test_admin_can_crud_material_cms_content_with_media(): void
     {
         Config::set('community.uploads.disk', 'public');

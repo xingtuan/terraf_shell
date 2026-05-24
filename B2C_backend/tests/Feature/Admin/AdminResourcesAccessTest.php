@@ -26,26 +26,6 @@ class AdminResourcesAccessTest extends TestCase
             ->assertOk();
 
         $this->actingAs($admin)
-            ->get('/admin/materials')
-            ->assertOk();
-
-        $this->actingAs($admin)
-            ->get('/admin/materials/create')
-            ->assertOk();
-
-        $this->actingAs($admin)
-            ->get('/admin/material-specs')
-            ->assertOk();
-
-        $this->actingAs($admin)
-            ->get('/admin/material-story-sections')
-            ->assertOk();
-
-        $this->actingAs($admin)
-            ->get('/admin/material-applications')
-            ->assertOk();
-
-        $this->actingAs($admin)
             ->get('/admin/articles')
             ->assertOk();
 
@@ -88,6 +68,23 @@ class AdminResourcesAccessTest extends TestCase
         $this->actingAs($admin)
             ->get('/admin/system-handover-readiness')
             ->assertOk();
+    }
+
+    public function test_legacy_material_cms_resources_are_not_available_in_filament(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        foreach ([
+            '/admin/materials',
+            '/admin/materials/create',
+            '/admin/material-specs',
+            '/admin/material-story-sections',
+            '/admin/material-applications',
+        ] as $path) {
+            $this->actingAs($admin)
+                ->get($path)
+                ->assertForbidden();
+        }
     }
 
     public function test_moderator_can_access_staff_resources_but_not_admin_only_pages(): void

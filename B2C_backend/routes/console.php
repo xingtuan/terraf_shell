@@ -6,6 +6,7 @@ use App\Models\EmailTemplate;
 use App\Services\Email\EmailDispatchService;
 use App\Services\Email\EmailTemplateRenderer;
 use App\Support\LocalStorageReadiness;
+use App\Support\MaterialCmsToHomeSectionsMigrator;
 use Database\Seeders\EmailCenterSeeder;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Arr;
@@ -35,6 +36,18 @@ Artisan::command('email:center:test {email}', function (string $email): int {
 
     return $log->status === 'failed' ? Command::FAILURE : Command::SUCCESS;
 })->purpose('Send an Email Center test email');
+
+Artisan::command('cms:migrate-materials-to-page-sections {--force}', function (): int {
+    $summary = app(MaterialCmsToHomeSectionsMigrator::class)->migrate((bool) $this->option('force'));
+
+    $this->info("Material CMS migration complete. Created: {$summary['created']}; updated: {$summary['updated']}; skipped: ".count($summary['skipped']).'.');
+
+    foreach ($summary['skipped'] as $section) {
+        $this->line("Skipped existing admin-edited section: {$section}");
+    }
+
+    return Command::SUCCESS;
+})->purpose('Copy legacy Material CMS content into material Page Sections');
 
 Artisan::command('email:center:preview {eventKey} {--locale=en}', function (string $eventKey): int {
     $renderer = app(EmailTemplateRenderer::class);

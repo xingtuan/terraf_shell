@@ -1,14 +1,13 @@
-import { Suspense } from "react"
+import { Fragment, Suspense, type ReactNode } from "react"
 
 import { PageIntro } from "@/components/page-intro"
 import { B2BInquiryFormSection } from "@/components/sections/b2b-inquiry-form"
 import { ContactDetailsSection } from "@/components/sections/contact-details"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
-import { findPageSection, getPageSections } from "@/lib/api/page-sections"
+import { getPageSections } from "@/lib/api/page-sections"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getBrandContactHref, getBrandContactLabel } from "@/lib/brand"
-import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildB2BFormContent,
@@ -16,14 +15,16 @@ import {
   buildFinalCtaContent,
   buildFooterContent,
   buildPageIntroContent,
-  type B2BFormContent,
-  type ContactDetailsContent,
-  type PageIntroContent,
 } from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
+import type { HomeSection } from "@/lib/types"
 
 type ContactPageProps = {
   params: Promise<{ locale: string }>
+}
+
+function orderedSections(sections: HomeSection[]) {
+  return [...sections].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
 }
 
 export default async function ContactPage({ params }: ContactPageProps) {
@@ -32,72 +33,57 @@ export default async function ContactPage({ params }: ContactPageProps) {
   const defaultPrimaryHref = getBrandContactHref("#inquiry")
   const defaultSecondaryHref = `${getLocalizedHref(locale, "b2b")}#inquiry`
   const apiBaseUrl = await getServerApiBaseUrl()
-  let intro: PageIntroContent<typeof messages.contactPage.intro> | null = null
-  let contactDetails: ContactDetailsContent | null = null
-  let formContent: B2BFormContent | null = null
-  let finalCtaContent: ReturnType<typeof buildFinalCtaContent> | null = null
+
+  let contactSections: HomeSection[] = []
+  let footerSection: HomeSection | null = null
 
   try {
     const [homeSections, fetchedContactSections] = await Promise.all([
       getHomeSections({ baseUrl: apiBaseUrl, locale, page: "home" }),
       getPageSections({ baseUrl: apiBaseUrl, locale, page: "contact" }),
     ])
-    const contactSection = (key: string) => findPageSection(fetchedContactSections, key)
-    const introSection = contactSection("intro")
-    const detailsSection = contactSection("details")
-    const inquiryFormSection =
-      contactSection("inquiry_form") ?? contactSection("form")
-    const finalCtaSection = contactSection("final_cta")
-    const footerSection = findHomeSection(homeSections, "footer")
 
-    if (hasPublishedCmsSection(introSection)) {
-      intro = buildPageIntroContent(
+    contactSections = fetchedContactSections
+    footerSection = findHomeSection(homeSections, "footer")
+  } catch {
+    contactSections = []
+  }
+
+  const footerContent = buildFooterContent(
+    messages.footer,
+    footerSection,
+    locale,
+    messages.header,
+  )
+
+  const formRenderer = (section: HomeSection) => {
+    const content = buildB2BFormContent(messages.b2bPage.form, section, locale)
+
+    return (
+      <Suspense fallback={null}>
+        <B2BInquiryFormSection
+          locale={locale}
+          content={content}
+          common={messages.common}
+          id={content.formAnchorId ?? "inquiry"}
+          sourcePage="contact"
+          defaultLeadType="business_contact"
+        />
+      </Suspense>
+    )
+  }
+
+  const contactRenderers: Record<string, (section: HomeSection) => ReactNode> = {
+    intro: (section) => {
+      const intro = buildPageIntroContent(
         messages.contactPage.intro,
-        introSection,
+        section,
         locale,
         defaultPrimaryHref,
         defaultSecondaryHref,
       )
-    }
 
-    if (hasPublishedCmsSection(detailsSection)) {
-      const footerContent = buildFooterContent(
-        messages.footer,
-        footerSection,
-        locale,
-        messages.header,
-      )
-      contactDetails = buildContactDetailsContent(
-        messages.contactPage.details,
-        detailsSection,
-        footerContent,
-        getBrandContactLabel(),
-        locale,
-      )
-    }
-
-    if (hasPublishedCmsSection(inquiryFormSection)) {
-      formContent = buildB2BFormContent(
-        messages.b2bPage.form,
-        inquiryFormSection,
-        locale,
-      )
-    }
-
-    if (hasPublishedCmsSection(finalCtaSection)) {
-      finalCtaContent = buildFinalCtaContent(
-        messages.home.finalCta,
-        finalCtaSection,
-        locale,
-      )
-    }
-  } catch {
-    // Missing CMS sections should hide CMS-driven blocks.
-  }
-
-  return (
-    <>
-      {intro ? (
+      return (
         <PageIntro
           eyebrow={intro.eyebrow}
           title={intro.title}
@@ -111,23 +97,40 @@ export default async function ContactPage({ params }: ContactPageProps) {
             href: intro.secondaryHref ?? defaultSecondaryHref,
           }}
         />
-      ) : null}
-      {contactDetails ? <ContactDetailsSection content={contactDetails} /> : null}
-      {formContent ? (
-        <Suspense fallback={null}>
-          <B2BInquiryFormSection
-            locale={locale}
-            content={formContent}
-            common={messages.common}
-            id={formContent.formAnchorId ?? "inquiry"}
-            sourcePage="contact"
-            defaultLeadType="business_contact"
-          />
-        </Suspense>
-      ) : null}
-      {finalCtaContent ? (
-        <FinalCtaSection locale={locale} content={finalCtaContent} />
-      ) : null}
+      )
+    },
+    details: (section) => (
+      <ContactDetailsSection
+        content={buildContactDetailsContent(
+          messages.contactPage.details,
+          section,
+          footerContent,
+          getBrandContactLabel(),
+          locale,
+        )}
+      />
+    ),
+    inquiry_form: formRenderer,
+    form: formRenderer,
+    final_cta: (section) => (
+      <FinalCtaSection
+        locale={locale}
+        content={buildFinalCtaContent(messages.home.finalCta, section, locale)}
+      />
+    ),
+  }
+
+  return (
+    <>
+      {orderedSections(contactSections).map((section) => {
+        const renderSection = contactRenderers[section.key]
+
+        return renderSection ? (
+          <Fragment key={`${section.page_key}-${section.key}`}>
+            {renderSection(section)}
+          </Fragment>
+        ) : null
+      })}
     </>
   )
 }

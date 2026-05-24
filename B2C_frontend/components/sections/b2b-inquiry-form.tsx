@@ -58,64 +58,61 @@ const leadFieldMaxLengths: Partial<Record<LeadFormField, number>> = {
   intendedUse: 1000,
 }
 
-const leadTypeOptions: Array<{
+const leadTypeDefinitions: Array<{
   id: LeadFormType
   interestType: LeadInterestType
-  label: string
-  description: string
 }> = [
   {
     id: "sample_request",
     interestType: "sample_request",
-    label: "Material request",
-    description: "Evaluation kits, material notes, and shipping details.",
   },
   {
     id: "inquiry",
     interestType: "pellet_supply",
-    label: "Pellet supply",
-    description: "Pellet supply, raw material buying, and pilot demand.",
   },
   {
     id: "product_development_collaboration",
     interestType: "product_development",
-    label: "Product development",
-    description: "Co-development for a new product or application line.",
   },
   {
     id: "bulk_order",
     interestType: "bulk_order",
-    label: "Bulk order",
-    description: "Commercial quantities, hospitality programs, and production planning.",
   },
   {
     id: "partnership_inquiry",
     interestType: "partnership",
-    label: "Partnership",
-    description: "Collaboration requests for brands, studios, and strategic partners.",
   },
   {
     id: "other",
     interestType: "other",
-    label: "Other",
-    description: "Use this when the project does not fit the common paths.",
   },
 ]
 
+const leadTypeInterestFallback: Record<LeadFormType, LeadInterestType> = {
+  business_contact: "other",
+  partnership_inquiry: "partnership",
+  sample_request: "sample_request",
+  university_collaboration: "partnership",
+  product_development_collaboration: "product_development",
+  inquiry: "pellet_supply",
+  bulk_order: "bulk_order",
+  other: "other",
+}
+
 function isLeadFormType(value: string | null): value is LeadFormType {
-  return leadTypeOptions.some((option) => option.id === value)
+  return Boolean(value && value in leadTypeInterestFallback)
 }
 
 function getInterestTypeForLeadType(type: LeadFormType): LeadInterestType {
   return (
-    leadTypeOptions.find((option) => option.id === type)?.interestType ??
-    "pellet_supply"
+    leadTypeDefinitions.find((option) => option.id === type)?.interestType ??
+    leadTypeInterestFallback[type]
   )
 }
 
 function getLeadTypeForInterestType(interestType: LeadInterestType): LeadFormType {
   return (
-    leadTypeOptions.find((option) => option.interestType === interestType)?.id ??
+    leadTypeDefinitions.find((option) => option.interestType === interestType)?.id ??
     "inquiry"
   )
 }
@@ -311,48 +308,6 @@ function validateLeadForm(
   return errors
 }
 
-function getPanelCopy(type: LeadFormType) {
-  switch (type) {
-    case "business_contact":
-      return [
-        "General business contact for supply, retail, or brand discussions.",
-        "Useful for buyers, distributors, and commercial introductions.",
-        "Keeps the first outreach connected to the correct backend lead type.",
-      ]
-    case "partnership_inquiry":
-      return [
-        "Structured partnership requests for brands, studios, and agencies.",
-        "Capture collaboration goals, project stage, and timeline in one flow.",
-        "Routes directly to the partnership inquiry endpoint.",
-      ]
-    case "sample_request":
-      return [
-        "Material review support for evaluation and technical review.",
-        "Collect shipping context and intended use without adding a new form layout.",
-        "Backed by the dedicated material request workflow.",
-      ]
-    case "university_collaboration":
-      return [
-        "For universities, labs, and design programs exploring material research.",
-        "Keeps academic collaboration requests separate from commercial leads.",
-        "The backend stores these as university collaboration records.",
-      ]
-    case "product_development_collaboration":
-      return [
-        "For new product lines, prototyping, and design-led co-development.",
-        "Useful when the next step is a scoped development conversation.",
-        "The backend records these under product development collaboration.",
-      ]
-    case "inquiry":
-    default:
-      return [
-        "Pellet supply for raw material buying and pilot programs.",
-        "Compress-moulded product development for tableware and objects.",
-        "Material review support, technical guidance, and future certification workflows.",
-      ]
-  }
-}
-
 export function B2BInquiryFormSection({
   locale,
   content,
@@ -415,12 +370,31 @@ export function B2BInquiryFormSection({
 
   const fields = content.fields
   const placeholders = content.placeholders
-  const localizedLeadTypeOptions = leadTypeOptions.map((option) => ({
-    ...option,
-    ...(content.interestOptions[option.interestType] ?? {}),
-  }))
-  const panelCopy =
-    content.panelCopy[values.interestType] ?? getPanelCopy(values.type)
+  const cmsLeadTypeOptions = content.interestOptionList
+    ?.flatMap((option) => {
+      if (
+        !isLeadFormType(option.id) ||
+        !(option.interestType in content.interestOptions)
+      ) {
+        return []
+      }
+
+      return [
+        {
+          id: option.id,
+          interestType: option.interestType as LeadInterestType,
+          label: option.label,
+          description: option.description,
+        },
+      ]
+    })
+  const localizedLeadTypeOptions = cmsLeadTypeOptions?.length
+    ? cmsLeadTypeOptions
+    : leadTypeDefinitions.map((option) => ({
+        ...option,
+        ...(content.interestOptions[option.interestType] ?? {}),
+      }))
+  const panelCopy = content.panelCopy[values.interestType] ?? []
   const productContext =
     typeof values.metadata?.product_name === "string"
       ? values.metadata.product_name

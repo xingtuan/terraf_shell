@@ -21,8 +21,15 @@ class HomeSectionPayloadNormalizer
         'features',
         'benefits',
         'topic_options',
+        'interest_options',
         'legend',
         'certifications',
+        'sample_request',
+        'pellet_supply',
+        'product_development',
+        'bulk_order',
+        'partnership',
+        'other',
     ];
 
     public static function normalize(mixed $payload): mixed

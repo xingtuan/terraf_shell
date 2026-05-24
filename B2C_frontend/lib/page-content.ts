@@ -3,7 +3,14 @@ import {
   payloadArray as readPayloadArray,
   payloadList,
 } from "@/lib/payload-array"
-import type { CertificationCardInput, CommunityIdea, HomeSection, MaterialDetail, MaterialSpec } from "@/lib/types"
+import type {
+  CertificationCardInput,
+  CommunityIdea,
+  HomeSection,
+  MaterialDetail,
+  MaterialSpec,
+  MaterialSpecIcon,
+} from "@/lib/types"
 
 type HomeMessages = SiteMessages["home"]
 type LocalizedRecord = object
@@ -44,6 +51,7 @@ export type ContactDetailsContent = Omit<SiteMessages["contactPage"]["details"],
     SiteMessages["contactPage"]["details"]["cards"][number] & {
       hrefType?: string | null
       href?: string | null
+      icon?: string | null
     }
   >
 }
@@ -52,6 +60,12 @@ export type B2BFormContent = SiteMessages["b2bPage"]["form"] & {
   formAnchorId?: string
   successMessage?: string
   topicOptions?: string[]
+  interestOptionList?: Array<{
+    id: string
+    interestType: string
+    label: string
+    description: string
+  }>
 }
 
 function nonEmptyString(value: unknown): string | null {
@@ -299,6 +313,55 @@ function sectionPayload(section: HomeSection | null | undefined) {
   return section?.payload && isRecord(section.payload) ? section.payload : null
 }
 
+const leadFormFieldPayloadKeys = {
+  name: "name",
+  company: "company",
+  organizationType: "organization_type",
+  email: "email",
+  phone: "phone",
+  country: "country",
+  region: "region",
+  companyWebsite: "company_website",
+  jobTitle: "job_title",
+  application: "application",
+  volume: "volume",
+  timeline: "timeline",
+  materialInterest: "material_interest",
+  quantityEstimate: "quantity_estimate",
+  shippingCountry: "shipping_country",
+  shippingRegion: "shipping_region",
+  shippingAddress: "shipping_address",
+  intendedUse: "intended_use",
+  collaborationGoal: "collaboration_goal",
+  projectStage: "project_stage",
+  message: "message",
+} as const
+
+const leadFormValidationPayloadKeys = {
+  defaultField: "default_field",
+  max: "max",
+  nameRequired: "name_required",
+  companyRequired: "company_required",
+  emailRequired: "email_required",
+  emailInvalid: "email_invalid",
+  urlInvalid: "url_invalid",
+  messageRequired: "message_required",
+  applicationRequired: "application_required",
+  organizationTypeRequired: "organization_type_required",
+  collaborationGoalRequired: "collaboration_goal_required",
+  materialInterestRequired: "material_interest_required",
+  intendedUseRequired: "intended_use_required",
+} as const
+
+const leadInterestTypes = [
+  "sample_request",
+  "pellet_supply",
+  "product_development",
+  "bulk_order",
+  "partnership",
+  "other",
+] as const
+
 export function payloadArray(
   section: HomeSection | null | undefined,
   field: string,
@@ -339,6 +402,28 @@ function localizedPayloadString(
   fallback?: string | null,
 ) {
   return resolveLocalizedApiString(payload, field, locale, fallback)
+}
+
+function localizedPayloadRecord<T extends Record<string, string>>(
+  payload: Record<string, unknown> | null,
+  field: string,
+  locale: Locale,
+  fallback: T,
+  fieldMap: Record<keyof T, string>,
+): T {
+  const source = isRecord(payload?.[field]) ? payload[field] : null
+  const resolved = { ...fallback }
+
+  for (const [contentKey, payloadKey] of Object.entries(fieldMap)) {
+    resolved[contentKey as keyof T] = localizedPayloadString(
+      source,
+      payloadKey,
+      locale,
+      fallback[contentKey as keyof T],
+    ) as T[keyof T]
+  }
+
+  return resolved
 }
 
 function resolveFooterHref(
@@ -796,6 +881,7 @@ export function buildContactDetailsContent(
         detail: payloadItemString(rawItem, "detail", locale, fallbackCard?.detail),
         hrefType: nonEmptyString(rawItem.href_type),
         href: nonEmptyString(rawItem.href),
+        icon: nonEmptyString(rawItem.icon),
       }
 
       return card.label || card.value || card.detail ? [card] : []
@@ -919,6 +1005,83 @@ export function buildB2BFormContent(
   locale: Locale,
 ): B2BFormContent {
   const payload = sectionPayload(section)
+  const payloadInterestOptions = payloadArray(section, "interest_options")
+    .flatMap((rawItem) => {
+      if (!isRecord(rawItem)) {
+        return []
+      }
+
+      const id = nonEmptyString(rawItem.id)
+      const interestType = nonEmptyString(rawItem.interest_type)
+
+      if (!id || !interestType) {
+        return []
+      }
+
+      const fallbackOption =
+        fallback.interestOptions[
+          interestType as keyof typeof fallback.interestOptions
+        ]
+
+      return [
+        {
+          id,
+          interestType,
+          label: payloadItemString(rawItem, "label", locale, fallbackOption?.label),
+          description: payloadItemString(
+            rawItem,
+            "description",
+            locale,
+            fallbackOption?.description,
+          ),
+        },
+      ]
+    })
+  const interestOptions = {
+    ...fallback.interestOptions,
+  }
+
+  for (const option of payloadInterestOptions) {
+    if (option.interestType in interestOptions) {
+      interestOptions[option.interestType as keyof typeof interestOptions] = {
+        label: option.label,
+        description: option.description,
+      }
+    }
+  }
+
+  const panelCopyPayload = isRecord(payload?.panel_copy)
+    ? payload.panel_copy
+    : null
+  const panelCopy = { ...fallback.panelCopy }
+
+  for (const interestType of leadInterestTypes) {
+    const lines = payloadList(panelCopyPayload?.[interestType])
+      .flatMap((rawLine, index) => {
+        if (isRecord(rawLine)) {
+          const line = payloadItemString(
+            rawLine,
+            "line",
+            locale,
+            fallback.panelCopy[interestType]?.[index],
+          )
+
+          return line ? [line] : []
+        }
+
+        const line = resolveLocalizedApiValue(
+          rawLine,
+          fallback.panelCopy[interestType]?.[index],
+          locale,
+        )
+
+        return line ? [line] : []
+      })
+
+    if (lines.length) {
+      panelCopy[interestType] = lines
+    }
+  }
   const topicOptions = payloadArray(section, "topic_options")
     .flatMap((rawItem, index) => {
       if (isRecord(rawItem)) {
@@ -936,6 +1099,40 @@ export function buildB2BFormContent(
 
   return {
     ...fallback,
+    groups: localizedPayloadRecord(
+      payload,
+      "groups",
+      locale,
+      fallback.groups,
+      {
+        contact: "contact",
+        project: "project",
+        material: "material",
+      },
+    ),
+    fields: localizedPayloadRecord(
+      payload,
+      "fields",
+      locale,
+      fallback.fields,
+      leadFormFieldPayloadKeys,
+    ),
+    placeholders: localizedPayloadRecord(
+      payload,
+      "placeholders",
+      locale,
+      fallback.placeholders,
+      leadFormFieldPayloadKeys,
+    ),
+    validation: localizedPayloadRecord(
+      payload,
+      "validation",
+      locale,
+      fallback.validation,
+      leadFormValidationPayloadKeys,
+    ),
+    interestOptions,
+    panelCopy,
     eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
     title: resolveLocalizedApiString(section, "title", locale, fallback.title),
     description: resolveLocalizedApiString(
@@ -969,6 +1166,9 @@ export function buildB2BFormContent(
       locale,
       "",
     ) || undefined,
+    interestOptionList: payloadInterestOptions.length
+      ? payloadInterestOptions
+      : undefined,
     topicOptions: topicOptions.length ? topicOptions : undefined,
   }
 }
@@ -1088,12 +1288,10 @@ export function buildMaterialStoryContent(
           payloadItemString(rawItem, "label", resolvedLocale, fallbackStep?.number) ||
           String(index + 1).padStart(2, "0"),
         title: payloadItemString(rawItem, "title", resolvedLocale, fallbackStep?.title),
-        description: payloadItemString(
-          rawItem,
-          "description",
-          resolvedLocale,
-          fallbackStep?.description,
-        ),
+        description:
+          payloadItemString(rawItem, "content", resolvedLocale, null) ||
+          payloadItemString(rawItem, "description", resolvedLocale, null) ||
+          payloadItemString(rawItem, "highlight", resolvedLocale, fallbackStep?.description),
         mediaUrl: payloadMediaUrl(rawItem),
       }
 
@@ -1152,12 +1350,9 @@ export function buildApplicationsContent(
       const fallbackItem = fallback.items[index]
       const item = {
         title: payloadItemString(rawItem, "title", resolvedLocale, fallbackItem?.title),
-        description: payloadItemString(
-          rawItem,
-          "description",
-          resolvedLocale,
-          fallbackItem?.description,
-        ),
+        description:
+          payloadItemString(rawItem, "description", resolvedLocale, null) ||
+          payloadItemString(rawItem, "audience", resolvedLocale, fallbackItem?.description),
         mediaUrl: payloadMediaUrl(rawItem),
       }
 
@@ -1212,7 +1407,10 @@ export function buildMaterialFactsContent(
 ): HomeMessages["materialFacts"] {
   const resolvedLocale = locale ?? "en"
   const payload = sectionPayload(scienceSection)
-  const cmsInfoCards = payloadArray(scienceSection, "metrics")
+  const infoCardPayload = payloadArray(scienceSection, "info_cards")
+  const cmsInfoCards = (infoCardPayload.length
+    ? infoCardPayload
+    : payloadArray(scienceSection, "cards"))
     .flatMap((rawItem, index) => {
       if (!isRecord(rawItem)) {
         return []
@@ -1287,6 +1485,53 @@ export function buildMaterialFactsContent(
       material?.science_overview ||
       fallback.note,
   }
+}
+
+function materialSpecIcon(value: unknown): MaterialSpecIcon {
+  return value === "feather" ||
+    value === "shield" ||
+    value === "leaf" ||
+    value === "badge"
+    ? value
+    : "badge"
+}
+
+export function buildMaterialFactSpecs(
+  section: HomeSection | null | undefined,
+  locale: Locale,
+): MaterialSpec[] {
+  const metricItems = payloadArray(section, "metrics")
+  const rawItems = metricItems.length ? metricItems : payloadArray(section, "items")
+
+  return rawItems.flatMap((rawItem, index) => {
+    if (!isRecord(rawItem)) {
+      return []
+    }
+
+    const label = payloadItemString(rawItem, "label", locale)
+    const value = payloadItemString(rawItem, "value", locale)
+    const detail =
+      payloadItemString(rawItem, "detail", locale, null) ||
+      payloadItemString(rawItem, "description", locale, null)
+
+    if (!label && !value && !detail) {
+      return []
+    }
+
+    return [
+      {
+        id: nonEmptyString(rawItem.key) ?? `cms-material-fact-${index}`,
+        key: nonEmptyString(rawItem.key),
+        label,
+        value,
+        detail,
+        unit: nonEmptyString(rawItem.unit),
+        icon: materialSpecIcon(rawItem.icon),
+        sort_order: index,
+        media_url: payloadMediaUrl(rawItem),
+      },
+    ]
+  })
 }
 
 export function buildCredibilityContent(
@@ -1941,7 +2186,10 @@ export function buildCertificationsContent(
   const payload = sectionPayload(section)
   const statusLabels = isRecord(payload?.status_labels) ? payload.status_labels : null
 
-  const cmsCertifications = payloadArray(section, "certifications").flatMap(
+  const certificationItems = payloadArray(section, "items")
+  const cmsCertifications = (certificationItems.length
+    ? certificationItems
+    : payloadArray(section, "certifications")).flatMap(
     (rawItem): CertificationCardInput[] => {
       if (!isRecord(rawItem)) return []
       const name = payloadItemString(rawItem, "name", locale) || undefined
@@ -1958,7 +2206,7 @@ export function buildCertificationsContent(
           status: typeof rawItem.status === "string" ? rawItem.status : undefined,
           verified: typeof rawItem.verified === "boolean" ? rawItem.verified : undefined,
           description: payloadItemString(rawItem, "description", locale) || undefined,
-          issuer: typeof rawItem.issuer === "string" ? rawItem.issuer : undefined,
+          issuer: payloadItemString(rawItem, "issuer", locale) || undefined,
           tested_at: typeof rawItem.tested_at === "string" ? rawItem.tested_at : undefined,
           document_url:
             typeof rawItem.document_url === "string" ? rawItem.document_url : undefined,

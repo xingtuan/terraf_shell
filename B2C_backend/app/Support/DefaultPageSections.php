@@ -736,7 +736,7 @@ class DefaultPageSections
                 '提交询盘',
                 '문의 제출'
             ), null, [
-                'variant' => 'lead_form',
+                ...self::leadFormPayload($messages),
                 'form_anchor_id' => 'inquiry',
                 'submit_success_message_translations' => self::translations($messages, 'common.success.inquirySubmitted'),
                 'submit_button_label_translations' => self::literalTranslations('Submit Inquiry', '提交询盘', '문의 제출'),
@@ -856,9 +856,7 @@ class DefaultPageSections
                 ]),
             ], 9),
             self::record($messages, 'b2b', 'form', 'b2bPage.form.title', 'b2bPage.form.eyebrow', 'b2bPage.form.description', 'b2bPage.form.submit', null, [
-                'variant' => 'lead_form',
-                'product_context_label_translations' => self::translations($messages, 'b2bPage.form.productContextLabel'),
-                'disclaimer_translations' => self::translations($messages, 'b2bPage.form.disclaimer'),
+                ...self::leadFormPayload($messages),
             ], 10),
             self::record($messages, 'b2b', 'after_submit', 'b2bPage.afterSubmit.title', 'b2bPage.afterSubmit.eyebrow', null, null, null, [
                 'variant' => 'after_submit',
@@ -1055,6 +1053,155 @@ class DefaultPageSections
             ],
             $items
         );
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<string, mixed>
+     */
+    private static function leadFormPayload(array $messages): array
+    {
+        return [
+            'variant' => 'lead_form',
+            'groups' => self::translatedMap($messages, 'b2bPage.form.groups', [
+                'contact' => 'contact',
+                'project' => 'project',
+                'material' => 'material',
+            ]),
+            'fields' => self::translatedMap($messages, 'b2bPage.form.fields', self::leadFormFieldMap()),
+            'placeholders' => self::translatedMap($messages, 'b2bPage.form.placeholders', self::leadFormFieldMap()),
+            'validation' => self::translatedMap($messages, 'b2bPage.form.validation', self::leadFormValidationMap()),
+            'interest_options' => self::leadInterestOptions($messages),
+            'panel_copy' => self::leadPanelCopy($messages),
+            'product_context_label_translations' => self::translations($messages, 'b2bPage.form.productContextLabel'),
+            'submit_button_label_translations' => self::translations($messages, 'b2bPage.form.submit'),
+            'submit_success_message_translations' => self::translations($messages, 'b2bPage.form.success'),
+            'privacy_note_translations' => self::translations($messages, 'b2bPage.form.disclaimer'),
+            'disclaimer_translations' => self::translations($messages, 'b2bPage.form.disclaimer'),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function leadFormFieldMap(): array
+    {
+        return [
+            'name' => 'name',
+            'company' => 'company',
+            'organization_type' => 'organizationType',
+            'email' => 'email',
+            'phone' => 'phone',
+            'country' => 'country',
+            'region' => 'region',
+            'company_website' => 'companyWebsite',
+            'job_title' => 'jobTitle',
+            'application' => 'application',
+            'volume' => 'volume',
+            'timeline' => 'timeline',
+            'material_interest' => 'materialInterest',
+            'quantity_estimate' => 'quantityEstimate',
+            'shipping_country' => 'shippingCountry',
+            'shipping_region' => 'shippingRegion',
+            'shipping_address' => 'shippingAddress',
+            'intended_use' => 'intendedUse',
+            'collaboration_goal' => 'collaborationGoal',
+            'project_stage' => 'projectStage',
+            'message' => 'message',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function leadFormValidationMap(): array
+    {
+        return [
+            'default_field' => 'defaultField',
+            'max' => 'max',
+            'name_required' => 'nameRequired',
+            'company_required' => 'companyRequired',
+            'email_required' => 'emailRequired',
+            'email_invalid' => 'emailInvalid',
+            'url_invalid' => 'urlInvalid',
+            'message_required' => 'messageRequired',
+            'application_required' => 'applicationRequired',
+            'organization_type_required' => 'organizationTypeRequired',
+            'collaboration_goal_required' => 'collaborationGoalRequired',
+            'material_interest_required' => 'materialInterestRequired',
+            'intended_use_required' => 'intendedUseRequired',
+        ];
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @param  array<string, string>  $fields
+     * @return array<string, mixed>
+     */
+    private static function translatedMap(array $messages, string $basePath, array $fields): array
+    {
+        $payload = [];
+
+        foreach ($fields as $payloadKey => $messageKey) {
+            $payload[$payloadKey.'_translations'] = self::translations($messages, "{$basePath}.{$messageKey}");
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<int, array<string, mixed>>
+     */
+    private static function leadInterestOptions(array $messages): array
+    {
+        $options = [
+            ['id' => 'sample_request', 'interest_type' => 'sample_request'],
+            ['id' => 'inquiry', 'interest_type' => 'pellet_supply'],
+            ['id' => 'product_development_collaboration', 'interest_type' => 'product_development'],
+            ['id' => 'bulk_order', 'interest_type' => 'bulk_order'],
+            ['id' => 'partnership_inquiry', 'interest_type' => 'partnership'],
+            ['id' => 'other', 'interest_type' => 'other'],
+        ];
+
+        return array_map(
+            fn (array $option): array => [
+                ...$option,
+                'label_translations' => self::translations($messages, "b2bPage.form.interestOptions.{$option['interest_type']}.label"),
+                'description_translations' => self::translations($messages, "b2bPage.form.interestOptions.{$option['interest_type']}.description"),
+            ],
+            $options
+        );
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    private static function leadPanelCopy(array $messages): array
+    {
+        $panelCopy = [];
+
+        foreach (['sample_request', 'pellet_supply', 'product_development', 'bulk_order', 'partnership', 'other'] as $interestType) {
+            $lines = self::get($messages['en'], "b2bPage.form.panelCopy.{$interestType}");
+
+            if (! is_array($lines)) {
+                $panelCopy[$interestType] = [];
+
+                continue;
+            }
+
+            $panelCopy[$interestType] = array_map(
+                fn (mixed $line, int $index): array => [
+                    'line' => is_string($line) ? $line : null,
+                    'line_translations' => self::translations($messages, "b2bPage.form.panelCopy.{$interestType}.{$index}"),
+                ],
+                $lines,
+                array_keys($lines)
+            );
+        }
+
+        return $panelCopy;
     }
 
     /**

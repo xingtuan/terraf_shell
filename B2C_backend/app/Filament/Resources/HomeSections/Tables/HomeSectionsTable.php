@@ -24,7 +24,6 @@ class HomeSectionsTable
     {
         return $table
             ->defaultSort('sort_order')
-            ->reorderable('sort_order')
             ->columns([
                 ImageColumn::make('media_url')
                     ->label(__('admin.ui.media'))
@@ -49,9 +48,6 @@ class HomeSectionsTable
                     ->badge()
                     ->formatStateUsing(fn (mixed $state): string => HomeSectionVisibility::labelFor($state))
                     ->color(fn (mixed $state): string => PublishStatus::colorFor($state)),
-                TextColumn::make('sort_order')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('published_at')
                     ->label(__('admin.ui.published_at'))
                     ->dateTime()

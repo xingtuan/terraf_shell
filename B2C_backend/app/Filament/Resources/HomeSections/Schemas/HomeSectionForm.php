@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\HomeSections\Schemas;
 
 use App\Enums\PublishStatus;
+use App\Filament\Support\AdminOptions;
 use App\Filament\Support\AdminUploadStorage;
 use App\Models\HomeSection;
 use App\Support\HomeSectionPayloadNormalizer;
@@ -46,6 +47,7 @@ class HomeSectionForm
         'product_grid',
         'store_faq',
         'open_concepts',
+        'form',
         'inquiry_form',
         'pilot_projects',
         'details',
@@ -75,6 +77,66 @@ class HomeSectionForm
         'hero',
         'science_block',
         'material_facts',
+    ];
+
+    private const LEAD_FORM_TYPES = [
+        'sample_request',
+        'inquiry',
+        'product_development_collaboration',
+        'bulk_order',
+        'partnership_inquiry',
+        'business_contact',
+        'university_collaboration',
+        'other',
+    ];
+
+    private const LEAD_INTEREST_TYPES = [
+        'sample_request',
+        'pellet_supply',
+        'product_development',
+        'bulk_order',
+        'partnership',
+        'other',
+    ];
+
+    private const LEAD_FORM_FIELDS = [
+        'name',
+        'company',
+        'organization_type',
+        'email',
+        'phone',
+        'country',
+        'region',
+        'company_website',
+        'job_title',
+        'application',
+        'volume',
+        'timeline',
+        'material_interest',
+        'quantity_estimate',
+        'shipping_country',
+        'shipping_region',
+        'shipping_address',
+        'intended_use',
+        'collaboration_goal',
+        'project_stage',
+        'message',
+    ];
+
+    private const LEAD_FORM_VALIDATION_RULES = [
+        'default_field',
+        'max',
+        'name_required',
+        'company_required',
+        'email_required',
+        'email_invalid',
+        'url_invalid',
+        'message_required',
+        'application_required',
+        'organization_type_required',
+        'collaboration_goal_required',
+        'material_interest_required',
+        'intended_use_required',
     ];
 
     public static function configure(Schema $schema): Schema
@@ -117,7 +179,8 @@ class HomeSectionForm
                                     ->label(__('admin.ui.sort_order'))
                                     ->required()
                                     ->numeric()
-                                    ->default(0),
+                                    ->default(0)
+                                    ->hidden(),
                                 FileUpload::make('media_path')
                                     ->label(__('admin.ui.uploaded_media'))
                                     ->image()
@@ -362,6 +425,36 @@ class HomeSectionForm
                             ->label(__('admin.ui.description_ko'))
                             ->rows(3)
                             ->columnSpanFull(),
+                        Textarea::make('content_translations.en')
+                            ->label(self::localizedField('content', 'en'))
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Textarea::make('content_translations.zh')
+                            ->label(self::localizedField('content', 'zh'))
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        Textarea::make('content_translations.ko')
+                            ->label(self::localizedField('content', 'ko'))
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        TextInput::make('highlight_translations.en')
+                            ->label(self::localizedField('highlight', 'en'))
+                            ->maxLength(180),
+                        TextInput::make('highlight_translations.zh')
+                            ->label(self::localizedField('highlight', 'zh'))
+                            ->maxLength(180),
+                        TextInput::make('highlight_translations.ko')
+                            ->label(self::localizedField('highlight', 'ko'))
+                            ->maxLength(180),
+                        TextInput::make('audience_translations.en')
+                            ->label(self::localizedField('audience', 'en'))
+                            ->maxLength(180),
+                        TextInput::make('audience_translations.zh')
+                            ->label(self::localizedField('audience', 'zh'))
+                            ->maxLength(180),
+                        TextInput::make('audience_translations.ko')
+                            ->label(self::localizedField('audience', 'ko'))
+                            ->maxLength(180),
                         TextInput::make('cta_label_translations.en')
                             ->label(__('admin.ui.cta_label_en'))
                             ->maxLength(120),
@@ -415,6 +508,15 @@ class HomeSectionForm
                         TextInput::make('icon')
                             ->label(self::field('icon'))
                             ->maxLength(80),
+                        TextInput::make('unit')
+                            ->label(self::field('unit'))
+                            ->maxLength(40),
+                        TextInput::make('media_path')
+                            ->label(__('admin.ui.uploaded_media'))
+                            ->maxLength(255),
+                        TextInput::make('media_url')
+                            ->label(__('admin.ui.external_media_url'))
+                            ->maxLength(255),
                         TextInput::make('label_translations.en')
                             ->label(__('admin.ui.label_en'))
                             ->maxLength(180),
@@ -443,6 +545,18 @@ class HomeSectionForm
                             ->columnSpanFull(),
                         Textarea::make('description_translations.ko')
                             ->label(__('admin.ui.description_ko'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('detail_translations.en')
+                            ->label(self::localizedField('detail', 'en'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('detail_translations.zh')
+                            ->label(self::localizedField('detail', 'zh'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('detail_translations.ko')
+                            ->label(self::localizedField('detail', 'ko'))
                             ->rows(2)
                             ->columnSpanFull(),
                     ])
@@ -601,6 +715,9 @@ class HomeSectionForm
                         TextInput::make('media_url')
                             ->label(__('admin.ui.external_media_url'))
                             ->maxLength(255),
+                        TextInput::make('media_path')
+                            ->label(__('admin.ui.uploaded_media'))
+                            ->maxLength(255),
                         TextInput::make('title_translations.en')
                             ->label(self::localizedField('title', 'en'))
                             ->maxLength(180),
@@ -677,6 +794,7 @@ class HomeSectionForm
                     ->defaultItems(0)
                     ->dehydrated(fn (Get $get): bool => $get('page_key') === 'contact' && $get('key') === 'details')
                     ->schema([
+                        TextInput::make('icon')->label(self::field('icon'))->maxLength(80),
                         TextInput::make('label_translations.en')->label(self::localizedField('label', 'en'))->maxLength(120),
                         TextInput::make('label_translations.zh')->label(self::localizedField('label', 'zh'))->maxLength(120),
                         TextInput::make('label_translations.ko')->label(self::localizedField('label', 'ko'))->maxLength(120),
@@ -688,11 +806,7 @@ class HomeSectionForm
                         Textarea::make('detail_translations.ko')->label(self::localizedField('detail', 'ko'))->rows(2),
                         Select::make('href_type')
                             ->label(self::field('href_type'))
-                            ->options([
-                                'email' => 'Email',
-                                'phone' => 'Phone',
-                                'text' => 'Text',
-                            ])
+                            ->options(self::contactHrefTypeOptions())
                             ->default('text'),
                         TextInput::make('href')
                             ->label(self::field('href'))
@@ -708,7 +822,7 @@ class HomeSectionForm
 
     private static function contactInquiryFormSection(): Section
     {
-        return Section::make(self::sectionTitle('contact_inquiry_form'))
+        return Section::make(self::sectionTitle('lead_form_content'))
             ->schema([
                 Grid::make(2)
                     ->schema([
@@ -718,28 +832,74 @@ class HomeSectionForm
                     ]),
                 Grid::make(3)
                     ->schema(self::localizedPayloadComponents([
+                        'product_context_label',
                         'submit_button_label',
                         'submit_success_message',
+                        'disclaimer',
                         'privacy_note',
                     ], [
                         'submit_success_message',
+                        'disclaimer',
                         'privacy_note',
                     ])),
-                Repeater::make('payload.topic_options')
-                    ->label(self::field('topic_options'))
-                    ->addActionLabel(self::actionLabel('add_topic_option'))
+                Section::make(self::sectionTitle('lead_form_groups'))
+                    ->schema([
+                        Grid::make(3)
+                            ->schema(self::localizedNestedPayloadComponents('groups', [
+                                'contact',
+                                'project',
+                                'material',
+                            ])),
+                    ]),
+                Section::make(self::sectionTitle('b2b_form_fields'))
+                    ->schema([
+                        Grid::make(3)
+                            ->schema(self::localizedNestedPayloadComponents('fields', self::LEAD_FORM_FIELDS)),
+                    ]),
+                Section::make(self::sectionTitle('b2b_form_placeholders'))
+                    ->schema([
+                        Grid::make(3)
+                            ->schema(self::localizedNestedPayloadComponents('placeholders', self::LEAD_FORM_FIELDS, [
+                                'shipping_address',
+                                'intended_use',
+                                'collaboration_goal',
+                                'message',
+                            ])),
+                    ]),
+                Section::make(self::sectionTitle('b2b_form_validation'))
+                    ->schema([
+                        Grid::make(3)
+                            ->schema(self::localizedNestedPayloadComponents('validation', self::LEAD_FORM_VALIDATION_RULES)),
+                    ]),
+                Repeater::make('payload.interest_options')
+                    ->label(self::field('interest_options'))
+                    ->addActionLabel(self::actionLabel('add_interest_option'))
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
                     ->schema([
+                        Select::make('id')
+                            ->label(self::field('lead_form_type'))
+                            ->options(self::leadFormTypeOptions())
+                            ->required(),
+                        Select::make('interest_type')
+                            ->label(self::field('interest_type'))
+                            ->options(self::leadInterestTypeOptions())
+                            ->required(),
                         TextInput::make('label_translations.en')->label(self::localizedField('label', 'en'))->maxLength(160),
                         TextInput::make('label_translations.zh')->label(self::localizedField('label', 'zh'))->maxLength(160),
                         TextInput::make('label_translations.ko')->label(self::localizedField('label', 'ko'))->maxLength(160),
+                        Textarea::make('description_translations.en')->label(self::localizedField('description', 'en'))->rows(2),
+                        Textarea::make('description_translations.zh')->label(self::localizedField('description', 'zh'))->rows(2),
+                        Textarea::make('description_translations.ko')->label(self::localizedField('description', 'ko'))->rows(2),
                     ])
                     ->columns(3)
                     ->columnSpanFull(),
+                Section::make(self::sectionTitle('panel_copy'))
+                    ->schema(self::panelCopyRepeaters())
+                    ->columns(1),
             ])
-            ->visible(fn (Get $get): bool => $get('page_key') === 'contact' && $get('key') === 'inquiry_form');
+            ->visible(fn (Get $get): bool => self::isLeadFormSection($get));
     }
 
     private static function collaborationStepsSection(): Section
@@ -990,7 +1150,7 @@ class HomeSectionForm
         return Section::make(self::sectionTitle('certification_records'))
             ->description(self::helpText('certification_records'))
             ->schema([
-                Repeater::make('payload.certifications')
+                Repeater::make('payload.items')
                     ->label(self::field('certifications'))
                     ->addActionLabel(self::actionLabel('add_certification'))
                     ->collapsible()
@@ -1002,13 +1162,7 @@ class HomeSectionForm
                             ->maxLength(120),
                         Select::make('status')
                             ->label(__('admin.fields.status'))
-                            ->options([
-                                'certified' => 'Certified',
-                                'tested' => 'Tested',
-                                'in_testing' => 'In testing',
-                                'pending' => 'Pending',
-                                'not_applicable' => 'Not applicable',
-                            ])
+                            ->options(fn (): array => AdminOptions::certificationStatuses())
                             ->default('pending'),
                         Toggle::make('verified')
                             ->label(__('admin.ui.verified')),
@@ -1023,6 +1177,12 @@ class HomeSectionForm
                             ->label(__('admin.ui.document_url'))
                             ->url()
                             ->maxLength(2048),
+                        TextInput::make('media_path')
+                            ->label(__('admin.ui.uploaded_media'))
+                            ->maxLength(255),
+                        TextInput::make('media_url')
+                            ->label(__('admin.ui.external_media_url'))
+                            ->maxLength(255),
                         TextInput::make('name_translations.en')
                             ->label(self::localizedField('name', 'en'))
                             ->maxLength(180),
@@ -1050,11 +1210,29 @@ class HomeSectionForm
                         TextInput::make('value_translations.ko')
                             ->label(self::localizedField('value', 'ko'))
                             ->maxLength(120),
+                        TextInput::make('status_translations.en')
+                            ->label(self::localizedField('status', 'en'))
+                            ->maxLength(120),
+                        TextInput::make('status_translations.zh')
+                            ->label(self::localizedField('status', 'zh'))
+                            ->maxLength(120),
+                        TextInput::make('status_translations.ko')
+                            ->label(self::localizedField('status', 'ko'))
+                            ->maxLength(120),
                         TextInput::make('result')
                             ->label(self::field('result'))
                             ->maxLength(120),
                         TextInput::make('issuer')
                             ->label(self::field('issuer'))
+                            ->maxLength(180),
+                        TextInput::make('issuer_translations.en')
+                            ->label(self::localizedField('issuer', 'en'))
+                            ->maxLength(180),
+                        TextInput::make('issuer_translations.zh')
+                            ->label(self::localizedField('issuer', 'zh'))
+                            ->maxLength(180),
+                        TextInput::make('issuer_translations.ko')
+                            ->label(self::localizedField('issuer', 'ko'))
                             ->maxLength(180),
                         Textarea::make('description_translations.en')
                             ->label(__('admin.ui.description_en'))
@@ -1195,6 +1373,70 @@ class HomeSectionForm
             ->hidden(fn (Get $get): bool => ! self::isFooterSection($get));
     }
 
+    /**
+     * @return array<string, string>
+     */
+    private static function contactHrefTypeOptions(): array
+    {
+        return [
+            'email' => __('admin.home_sections.href_types.email'),
+            'phone' => __('admin.home_sections.href_types.phone'),
+            'text' => __('admin.home_sections.href_types.text'),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function leadFormTypeOptions(): array
+    {
+        return collect(self::LEAD_FORM_TYPES)
+            ->mapWithKeys(fn (string $type): array => [$type => __("admin.home_sections.lead_form_types.{$type}")])
+            ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function leadInterestTypeOptions(): array
+    {
+        return collect(self::LEAD_INTEREST_TYPES)
+            ->mapWithKeys(fn (string $type): array => [$type => __("admin.home_sections.interest_types.{$type}")])
+            ->all();
+    }
+
+    /**
+     * @return array<int, Repeater>
+     */
+    private static function panelCopyRepeaters(): array
+    {
+        return array_map(
+            fn (string $interestType): Repeater => Repeater::make("payload.panel_copy.{$interestType}")
+                ->label(__("admin.home_sections.interest_types.{$interestType}"))
+                ->addActionLabel(self::actionLabel('add_panel_copy_line'))
+                ->collapsible()
+                ->reorderableWithButtons()
+                ->defaultItems(0)
+                ->schema([
+                    Textarea::make('line_translations.en')->label(self::localizedField('line', 'en'))->rows(2),
+                    Textarea::make('line_translations.zh')->label(self::localizedField('line', 'zh'))->rows(2),
+                    Textarea::make('line_translations.ko')->label(self::localizedField('line', 'ko'))->rows(2),
+                ])
+                ->columns(3)
+                ->columnSpanFull(),
+            self::LEAD_INTEREST_TYPES
+        );
+    }
+
+    private static function isLeadFormSection(Get $get): bool
+    {
+        $pageKey = $get('page_key');
+        $key = $get('key');
+
+        return ($pageKey === 'b2b' && $key === 'form')
+            || ($pageKey === 'contact' && in_array($key, ['inquiry_form', 'form'], true));
+    }
+
     private static function sectionTitle(string $key): string
     {
         return __("admin.home_sections.sections.{$key}");
@@ -1235,6 +1477,28 @@ class HomeSectionForm
         foreach ($fields as $field) {
             foreach (LocalizedContent::supportedLocales() as $locale) {
                 $path = "payload.{$field}_translations.{$locale}";
+                $label = self::payloadFieldLabel($field, $locale);
+                $components[] = in_array($field, $textareaFields, true)
+                    ? Textarea::make($path)->label($label)->rows(2)
+                    : TextInput::make($path)->label($label)->maxLength(255);
+            }
+        }
+
+        return $components;
+    }
+
+    /**
+     * @param  array<int, string>  $fields
+     * @param  array<int, string>  $textareaFields
+     * @return array<int, TextInput|Textarea>
+     */
+    private static function localizedNestedPayloadComponents(string $prefix, array $fields, array $textareaFields = []): array
+    {
+        $components = [];
+
+        foreach ($fields as $field) {
+            foreach (LocalizedContent::supportedLocales() as $locale) {
+                $path = "payload.{$prefix}.{$field}_translations.{$locale}";
                 $label = self::payloadFieldLabel($field, $locale);
                 $components[] = in_array($field, $textareaFields, true)
                     ? Textarea::make($path)->label($label)->rows(2)

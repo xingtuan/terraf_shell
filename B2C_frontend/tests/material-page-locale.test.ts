@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 
 import { hasPublishedCmsSection } from "../lib/cms-section-visibility.ts"
+import { payloadArray } from "../lib/payload-array.ts"
 
 type MockSection = Parameters<typeof hasPublishedCmsSection>[0]
 
@@ -36,23 +37,17 @@ function renderCmsBlock(
 }
 
 describe("MaterialPage locale handling", () => {
-  it("passes the route locale into material API request options", () => {
+  it("loads material content only from material Page Sections", () => {
     const source = readMaterialPageSource()
 
     assert.match(
       source,
-      /const materialRequestOptions = {\s*baseUrl: apiBaseUrl,\s*locale,\s*} as const/,
+      /getPageSections\(\{ baseUrl: apiBaseUrl, locale, page: "material" \}\)/,
     )
-    assert.match(source, /getMaterialInfo\(materialRequestOptions\)/)
-    assert.match(source, /getMaterialSpecs\(locale,\s*materialRequestOptions\)/)
-    assert.doesNotMatch(
-      source,
-      /getMaterialInfo\(\{\s*baseUrl: apiBaseUrl\s*\}\)/,
-    )
-    assert.doesNotMatch(
-      source,
-      /getMaterialSpecs\(locale,\s*\{\s*baseUrl: apiBaseUrl\s*\}\)/,
-    )
+    assert.doesNotMatch(source, /getMaterialInfo/)
+    assert.doesNotMatch(source, /getMaterialSpecs/)
+    assert.doesNotMatch(source, /materialInfoToDetail/)
+    assert.doesNotMatch(source, /materialInfoToSpecs/)
   })
 })
 
@@ -116,6 +111,80 @@ describe("CMS section visibility guards", () => {
   })
 })
 
+describe("CMS payload helpers", () => {
+  it("preserves explicit payload item order when sort_order or order is present", () => {
+    assert.deepEqual(
+      payloadArray(
+        {
+          payload: {
+            items: [
+              { title: "Second", sort_order: 2 },
+              { title: "First", sort_order: 1 },
+            ],
+          },
+        },
+        "items",
+      ),
+      [
+        { title: "First", sort_order: 1 },
+        { title: "Second", sort_order: 2 },
+      ],
+    )
+
+    assert.deepEqual(
+      payloadArray(
+        {
+          payload: {
+            cards: {
+              second: { title: "Second", order: 20 },
+              first: { title: "First", order: 10 },
+            },
+          },
+        },
+        "cards",
+      ),
+      [
+        { title: "First", order: 10 },
+        { title: "Second", order: 20 },
+      ],
+    )
+  })
+
+  it("wires material facts, contact details, and lead form copy to CMS payload fields", () => {
+    const pageContentSource = readFileSync(
+      join(process.cwd(), "lib", "page-content.ts"),
+      "utf8",
+    )
+    const formSource = readFileSync(
+      join(process.cwd(), "components", "sections", "b2b-inquiry-form.tsx"),
+      "utf8",
+    )
+    const contactSource = readFileSync(
+      join(process.cwd(), "components", "sections", "contact-details.tsx"),
+      "utf8",
+    )
+
+    assert.match(pageContentSource, /export function buildMaterialFactSpecs/)
+    assert.match(pageContentSource, /payloadArray\(section, "metrics"\)/)
+    assert.match(pageContentSource, /payloadArray\(section, "items"\)/)
+    assert.match(pageContentSource, /payloadArray\(section, "interest_options"\)/)
+    assert.match(pageContentSource, /payload\.panel_copy/)
+    assert.match(pageContentSource, /localizedPayloadRecord\(\s*payload,\s*"fields"/)
+    assert.match(pageContentSource, /localizedPayloadRecord\(\s*payload,\s*"placeholders"/)
+    assert.match(pageContentSource, /localizedPayloadRecord\(\s*payload,\s*"validation"/)
+    assert.match(pageContentSource, /icon: nonEmptyString\(rawItem\.icon\)/)
+
+    assert.match(formSource, /content\.interestOptionList/)
+    assert.match(formSource, /content\.panelCopy\[values\.interestType\]/)
+    assert.doesNotMatch(formSource, /getPanelCopy/)
+    assert.doesNotMatch(formSource, /Evaluation kits, material notes/)
+    assert.doesNotMatch(formSource, /Pellet supply, raw material buying/)
+
+    assert.match(contactSource, /card\.icon/)
+    assert.match(contactSource, /contactIconMap/)
+  })
+})
+
 describe("CMS page sections wiring", () => {
   it("home page fetches home sections and builds visible sections CMS-first", () => {
     const source = readFileSync(
@@ -162,39 +231,41 @@ describe("CMS page sections wiring", () => {
   it("material page fetches material sections and hides missing CMS blocks", () => {
     const source = readMaterialPageSource()
 
-    assert.match(source, /getPageSections\(\{ \.\.\.materialRequestOptions, page: "material" \}\)/)
+    assert.match(source, /getPageSections\(\{ baseUrl: apiBaseUrl, locale, page: "material" \}\)/)
+    assert.match(source, /materialRenderers/)
+    assert.match(source, /orderedSections\(pageSections\)\.map/)
     for (const builder of [
       "buildMaterialFamilyContent",
       "buildMaterialProofPointsContent",
       "buildTechnicalDownloadsContent",
       "buildMaterialComparisonContent",
       "buildCertificationsContent",
+      "buildMaterialFactSpecs",
       "buildFinalCtaContent",
     ]) {
       assert.match(source, new RegExp(`${builder}\\(`))
     }
-    for (const sectionKey of [
-      "introSection",
-      "materialFamilySection",
-      "whyItMattersSection",
-      "materialStorySection",
-      "openSourceLegacySection",
-      "applicationsSection",
-      "materialFactsSection",
-      "proofPointsSection",
-      "certificationsSection",
-      "technicalDownloadsSection",
-      "comparisonSection",
-      "credibilitySection",
-      "trustSection",
-      "pilotProjectsSection",
-      "collaborationSection",
-      "finalCtaSection",
+    for (const rendererKey of [
+      "intro",
+      "material_family",
+      "why_it_matters",
+      "material_story",
+      "applications",
+      "material_facts",
+      "proof_points",
+      "certifications",
+      "technical_downloads",
+      "comparison",
+      "credibility",
+      "trust_and_credibility",
+      "pilot_projects",
+      "collaboration",
+      "final_cta",
     ]) {
-      assert.match(source, new RegExp(`hasPublishedCmsSection\\(${sectionKey}\\)`))
+      assert.match(source, new RegExp(`${rendererKey}: \\(section\\)`))
     }
-    assert.match(source, /materialFamilyContent \? \(/)
-    assert.doesNotMatch(source, /<MaterialFamilySection[\s\S]*buildMaterialFamilyContent/)
+    assert.doesNotMatch(source, /getMaterialInfo|getMaterialSpecs|materialInfoTo/)
+    assert.doesNotMatch(source, /open_source_legacy/)
   })
 
   it("contact page fetches contact sections and only builds existing CMS blocks", () => {
@@ -208,12 +279,10 @@ describe("CMS page sections wiring", () => {
     assert.match(source, /buildContactDetailsContent\(/)
     assert.match(source, /buildB2BFormContent\(/)
     assert.match(source, /buildFooterContent\(/)
-    assert.match(source, /contactSection\("inquiry_form"\)/)
-    assert.match(source, /id=\{formContent\.formAnchorId \?\? "inquiry"\}/)
-    assert.match(source, /hasPublishedCmsSection\(introSection\)/)
-    assert.match(source, /hasPublishedCmsSection\(detailsSection\)/)
-    assert.match(source, /hasPublishedCmsSection\(inquiryFormSection\)/)
-    assert.match(source, /hasPublishedCmsSection\(finalCtaSection\)/)
+    assert.match(source, /contactRenderers/)
+    assert.match(source, /orderedSections\(contactSections\)\.map/)
+    assert.match(source, /inquiry_form: formRenderer/)
+    assert.match(source, /id=\{content\.formAnchorId \?\? "inquiry"\}/)
     assert.doesNotMatch(source, /buildPageIntroContent\(\s*messages\.contactPage\.intro,\s*null/)
   })
 
@@ -224,33 +293,21 @@ describe("CMS page sections wiring", () => {
     )
 
     assert.match(source, /getPageSections\(\{ baseUrl: apiBaseUrl, locale, page: "b2b" \}\)/)
+    assert.match(source, /b2bRenderers/)
+    assert.match(source, /orderedSections\(b2bSections\)\.map/)
     for (const builder of [
       "buildPageIntroContent",
       "buildCollaborationContent",
       "buildB2BProcessContent",
       "buildB2BCtaStripContent",
       "buildB2BApplicationsContent",
+      "buildMaterialFactSpecs",
       "buildB2BFormContent",
       "buildB2BAfterSubmitContent",
     ]) {
       assert.match(source, new RegExp(`${builder}\\(`))
     }
-    for (const sectionKey of [
-      "introSection",
-      "collaborationSection",
-      "processSection",
-      "ctaStripSection",
-      "applicationsSection",
-      "materialFactsSection",
-      "credibilitySection",
-      "trustSection",
-      "pilotProjectsSection",
-      "formSection",
-      "afterSubmitSection",
-      "finalCtaSection",
-    ]) {
-      assert.match(source, new RegExp(`hasPublishedCmsSection\\(${sectionKey}\\)`))
-    }
+    assert.doesNotMatch(source, /getFeaturedMaterial|getMaterialSpecs/)
     assert.doesNotMatch(source, /findHomeSection/)
     assert.doesNotMatch(source, /cardHrefs=\{\[/)
   })
