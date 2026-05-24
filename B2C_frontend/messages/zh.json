@@ -2093,5 +2093,11 @@
     "nextStepEmail": "团队会审核库存和订单细节，然后通过邮件确认。",
     "nextStepManualPayment": "付款仍为人工处理。暂不支持在线支付。",
     "nextStepNzDelivery": "仅支持新西兰境内配送。"
+  },
+  "maintenance": {
+    "title": "系统维护中",
+    "message": "我们正在进行定期维护，稍后将恢复正常访问。",
+    "backSoon": "我们很快就会回来。",
+    "contactPrompt": "如需帮助，请联系我们："
   }
 }

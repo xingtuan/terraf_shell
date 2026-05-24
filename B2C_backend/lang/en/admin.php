@@ -566,6 +566,7 @@ return [
     'application' => [
         'sections' => [
             'application' => 'Application',
+            'branding' => 'Branding & Logo',
         ],
         'fields' => [
             'site_name' => 'Site name',
@@ -577,6 +578,8 @@ return [
             'contact_email' => 'Contact email',
             'support_email' => 'Support email',
             'supported_locales' => 'Supported locales',
+            'logo' => 'Website logo',
+            'logo_help' => 'Upload a logo image (JPG, PNG, WebP, SVG — max 2 MB). If no logo is set, the site name is displayed as text.',
         ],
     ],
     'storage' => [
@@ -642,6 +645,7 @@ return [
     'feature_flags' => [
         'sections' => [
             'public_behavior' => 'Public behavior',
+            'maintenance' => 'Maintenance',
         ],
         'fields' => [
             'b2c_store_enabled' => 'B2C store enabled',
@@ -649,7 +653,8 @@ return [
             'community_enabled' => 'Community enabled',
             'funding_links_enabled' => 'Funding links enabled',
             'guest_checkout_enabled' => 'Guest checkout enabled',
-            'email_sending_enabled' => 'Email sending enabled',
+            'maintenance_mode_enabled' => 'Maintenance mode',
+            'maintenance_mode_enabled_help' => 'When enabled, all public pages show a maintenance screen. The admin panel remains accessible.',
             'maintenance_notice_enabled' => 'Maintenance notice enabled',
             'maintenance_notice_message' => 'Maintenance notice message',
             'maintenance_notice_level' => 'Maintenance notice level',

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 
 import { Toaster } from "@/components/ui/toaster"
 import { BRAND_NAME } from "@/lib/brand"
@@ -66,7 +65,6 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         {children}
         <Toaster />
-        <Analytics />
       </body>
     </html>
   )

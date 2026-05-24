@@ -1,5 +1,11 @@
 import { requestApi } from "@/lib/api/client"
 
+export type Branding = {
+  logo_url: string | null
+  logo_text: string
+  logo_alt: string | null
+}
+
 export type PublicSettings = {
   site_name: string
   default_locale: string
@@ -12,6 +18,10 @@ export type PublicSettings = {
   nz_only_shipping: boolean
   contact_email: string | null
   support_email: string | null
+  branding: Branding
+  maintenance_mode: {
+    enabled: boolean
+  }
   maintenance_notice: {
     enabled: boolean
     message: string | null
@@ -19,8 +29,14 @@ export type PublicSettings = {
   }
 }
 
-export async function getPublicSettings(): Promise<PublicSettings> {
-  const response = await requestApi<PublicSettings>("/public-settings")
+export const defaultBranding: Branding = {
+  logo_url: null,
+  logo_text: "OXP",
+  logo_alt: "OXP",
+}
+
+export async function getPublicSettings(baseUrl?: string): Promise<PublicSettings> {
+  const response = await requestApi<PublicSettings>("/public-settings", { baseUrl })
 
   return response.data
 }

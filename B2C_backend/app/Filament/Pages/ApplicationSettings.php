@@ -4,9 +4,13 @@ namespace App\Filament\Pages;
 
 use App\Filament\Pages\Concerns\ManagesRuntimeSettings;
 use App\Filament\Support\AdminNavigationGroup;
+use App\Filament\Support\AdminUploadStorage;
 use App\Filament\Support\PanelAccess;
 use App\Services\Settings\SettingsService;
+use App\Support\StorageUrl;
 use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Page;
@@ -74,7 +78,46 @@ class ApplicationSettings extends Page
                             ->label(__('admin.application.fields.supported_locales'))
                             ->placeholder('en'),
                     ]),
+                Section::make(__('admin.application.sections.branding'))
+                    ->schema([
+                        Hidden::make('logo_disk'),
+                        FileUpload::make('logo_path')
+                            ->label(__('admin.application.fields.logo'))
+                            ->helperText(__('admin.application.fields.logo_help'))
+                            ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'])
+                            ->maxSize(2048)
+                            ->disk(fn (): string => AdminUploadStorage::disk())
+                            ->directory('brand')
+                            ->visibility(fn (): string => AdminUploadStorage::visibility())
+                            ->fetchFileInformation(false)
+                            ->getUploadedFileUsing(fn (string $file): ?array => $this->logoFileInfo($file))
+                            ->imagePreviewHeight('80')
+                            ->openable()
+                            ->downloadable()
+                            ->columnSpanFull()
+                            ->afterStateUpdated(function (\Filament\Forms\Set $set): void {
+                                $set('logo_disk', AdminUploadStorage::disk());
+                            }),
+                    ]),
             ]);
+    }
+
+    private function logoFileInfo(string $file): ?array
+    {
+        $disk = $this->data['logo_disk'] ?? null;
+        $url = StorageUrl::publicResolve($file, $disk);
+
+        if (! $url) {
+            return null;
+        }
+
+        return [
+            'name' => basename($file),
+            'size' => 0,
+            'type' => 'image/*',
+            'url' => $url,
+        ];
     }
 
     public function content(Schema $schema): Schema
@@ -103,6 +146,17 @@ class ApplicationSettings extends Page
             'timezone' => ['key' => 'app.timezone', 'type' => 'string', 'default' => config('app.timezone', 'UTC')],
             'contact_email' => ['key' => 'app.contact_email', 'type' => 'string', 'default' => config('mail.from.address')],
             'support_email' => ['key' => 'app.support_email', 'type' => 'string', 'default' => config('mail.from.address')],
+            'logo_path' => ['key' => 'app.logo_path', 'type' => 'string', 'default' => null],
+            'logo_disk' => ['key' => 'app.logo_disk', 'type' => 'string', 'default' => null],
         ];
+    }
+
+    protected function mutateSettingsStateBeforeSave(array $state): array
+    {
+        if (filled($state['logo_path'] ?? null) && blank($state['logo_disk'] ?? null)) {
+            $state['logo_disk'] = AdminUploadStorage::disk();
+        }
+
+        return $state;
     }
 }

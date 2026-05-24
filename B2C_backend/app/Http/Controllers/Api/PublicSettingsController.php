@@ -4,14 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\Settings\SettingsService;
+use App\Support\StorageUrl;
 use Illuminate\Http\JsonResponse;
 
 class PublicSettingsController extends Controller
 {
     public function __invoke(SettingsService $settings): JsonResponse
     {
+        $siteName = $settings->string('app.site_name', (string) config('app.name', 'OXP'));
+        $logoPath = $settings->string('app.logo_path', '');
+        $logoDisk = $settings->string('app.logo_disk', '');
+        $logoUrl = filled($logoPath) ? StorageUrl::publicResolve($logoPath, filled($logoDisk) ? $logoDisk : null) : null;
+
         return $this->successResponse([
-            'site_name' => $settings->string('app.site_name', (string) config('app.name')),
+            'site_name' => $siteName,
             'default_locale' => $settings->string('app.default_locale', (string) config('app.locale', 'en')),
             'supported_locales' => $settings->get('app.supported_locales', ['en', 'ko', 'zh']),
             'store_enabled' => $settings->boolean('feature.b2c_store_enabled', true),
@@ -22,6 +28,14 @@ class PublicSettingsController extends Controller
             'nz_only_shipping' => $settings->boolean('shipping.nz_only', true),
             'contact_email' => $settings->string('app.contact_email', (string) config('mail.from.address')),
             'support_email' => $settings->string('app.support_email', (string) config('mail.from.address')),
+            'branding' => [
+                'logo_url' => $logoUrl,
+                'logo_text' => $siteName,
+                'logo_alt' => $siteName,
+            ],
+            'maintenance_mode' => [
+                'enabled' => $settings->boolean('maintenance.mode_enabled', false),
+            ],
             'maintenance_notice' => [
                 'enabled' => $settings->boolean('maintenance.notice_enabled', $settings->boolean('feature.maintenance_notice_enabled', false)),
                 'message' => $settings->string('maintenance.notice_message', ''),

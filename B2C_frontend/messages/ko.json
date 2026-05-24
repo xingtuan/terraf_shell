@@ -2093,5 +2093,11 @@
     "nextStepEmail": "팀이 재고와 주문 세부 사항을 검토한 뒤 이메일로 확인해드립니다.",
     "nextStepManualPayment": "결제는 수동으로 진행됩니다. 아직 온라인 결제는 제공되지 않습니다.",
     "nextStepNzDelivery": "배송은 뉴질랜드 내에서만 가능합니다."
+  },
+  "maintenance": {
+    "title": "점검 중",
+    "message": "정기 점검을 진행 중입니다. 잠시 후 다시 접속해 주세요.",
+    "backSoon": "곧 돌아올게요.",
+    "contactPrompt": "도움이 필요하시면 다음으로 문의해 주세요:"
   }
 }

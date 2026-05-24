@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, X } from "lucide-react"
@@ -9,6 +10,7 @@ import { UserNav } from "@/components/layout/UserNav"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { Button } from "@/components/ui/button"
 import { BRAND_DISPLAY_NAME } from "@/lib/brand"
+import type { Branding } from "@/lib/api/public-settings"
 import {
   getLocalizedHref,
   type Locale,
@@ -20,9 +22,10 @@ type HeaderProps = {
   locale: Locale
   header: SiteMessages["header"]
   languageSwitcher: SiteMessages["languageSwitcher"]
+  branding?: Branding
 }
 
-export function Header({ locale, header, languageSwitcher }: HeaderProps) {
+export function Header({ locale, header, languageSwitcher, branding }: HeaderProps) {
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -63,9 +66,20 @@ export function Header({ locale, header, languageSwitcher }: HeaderProps) {
       <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10">
         <div className="flex h-20 items-center justify-between gap-4">
           <Link href={getLocalizedHref(locale)} className="flex items-center">
-            <span className="font-serif text-2xl tracking-[0.28em] text-foreground">
-              {BRAND_DISPLAY_NAME}
-            </span>
+            {branding?.logo_url ? (
+              <Image
+                src={branding.logo_url}
+                alt={branding.logo_alt ?? branding.logo_text}
+                height={40}
+                width={120}
+                className="h-10 w-auto object-contain"
+                unoptimized
+              />
+            ) : (
+              <span className="font-serif text-2xl tracking-[0.28em] text-foreground">
+                {branding?.logo_text ?? BRAND_DISPLAY_NAME}
+              </span>
+            )}
           </Link>
 
           <nav className="hidden items-center gap-8 lg:flex">

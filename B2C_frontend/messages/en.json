@@ -2093,5 +2093,11 @@
     "nextStepEmail": "Our team reviews stock and order details, then confirms by email.",
     "nextStepManualPayment": "Payment remains manual. Online payment is not available yet.",
     "nextStepNzDelivery": "Delivery is available within New Zealand only."
+  },
+  "maintenance": {
+    "title": "Under Maintenance",
+    "message": "We are performing scheduled maintenance. We will be back shortly.",
+    "backSoon": "We'll be back soon.",
+    "contactPrompt": "If you need assistance, please contact us at"
   }
 }

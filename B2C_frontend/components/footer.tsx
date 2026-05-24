@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { Mail, MapPin, Phone } from "lucide-react"
 
@@ -6,6 +7,7 @@ import {
   getBrandContactHref,
   getBrandContactLabel,
 } from "@/lib/brand"
+import type { Branding } from "@/lib/api/public-settings"
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
 import type { FooterContent } from "@/lib/page-content"
 
@@ -13,6 +15,7 @@ type FooterProps = {
   locale: Locale
   header: SiteMessages["header"]
   footer: FooterContent
+  branding?: Branding
 }
 
 const defaultPhoneValue = "+82 51-555-0188"
@@ -27,7 +30,7 @@ function emailHrefFromValue(value: string, fallbackHref: string) {
   return value.includes("@") ? `mailto:${value}` : fallbackHref
 }
 
-export function Footer({ locale, header, footer }: FooterProps) {
+export function Footer({ locale, header, footer, branding }: FooterProps) {
   const exploreLinks = [
     { label: footer.homeLabel ?? header.home, href: getLocalizedHref(locale) },
     {
@@ -110,9 +113,20 @@ export function Footer({ locale, header, footer }: FooterProps) {
         <div className="mb-14 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-4">
             <Link href={getLocalizedHref(locale)} className="inline-block">
-              <span className="font-serif text-3xl tracking-[0.28em] text-background">
-                {BRAND_DISPLAY_NAME}
-              </span>
+              {branding?.logo_url ? (
+                <Image
+                  src={branding.logo_url}
+                  alt={branding.logo_alt ?? branding.logo_text}
+                  height={48}
+                  width={144}
+                  className="h-12 w-auto object-contain brightness-0 invert"
+                  unoptimized
+                />
+              ) : (
+                <span className="font-serif text-3xl tracking-[0.28em] text-background">
+                  {branding?.logo_text ?? BRAND_DISPLAY_NAME}
+                </span>
+              )}
             </Link>
             <p className="mt-6 max-w-sm text-background/72 leading-relaxed">
               {footer.description}

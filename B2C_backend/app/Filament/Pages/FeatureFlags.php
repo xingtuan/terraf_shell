@@ -63,7 +63,13 @@ class FeatureFlags extends Page
                     Toggle::make('community_enabled')->label(__('admin.feature_flags.fields.community_enabled')),
                     Toggle::make('funding_links_enabled')->label(__('admin.feature_flags.fields.funding_links_enabled')),
                     Toggle::make('guest_checkout_enabled')->label(__('admin.feature_flags.fields.guest_checkout_enabled')),
-                    Toggle::make('email_sending_enabled')->label(__('admin.feature_flags.fields.email_sending_enabled')),
+                ]),
+            ]),
+            Section::make(__('admin.feature_flags.sections.maintenance'))->schema([
+                Grid::make(2)->schema([
+                    Toggle::make('maintenance_mode_enabled')
+                        ->label(__('admin.feature_flags.fields.maintenance_mode_enabled'))
+                        ->helperText(__('admin.feature_flags.fields.maintenance_mode_enabled_help')),
                     Toggle::make('maintenance_notice_enabled')->label(__('admin.feature_flags.fields.maintenance_notice_enabled')),
                     TextInput::make('maintenance_notice_message')->label(__('admin.feature_flags.fields.maintenance_notice_message'))->maxLength(255),
                     TextInput::make('maintenance_notice_level')->label(__('admin.feature_flags.fields.maintenance_notice_level'))->maxLength(20),
@@ -90,7 +96,7 @@ class FeatureFlags extends Page
             'community_enabled' => ['key' => 'feature.community_enabled', 'type' => 'boolean', 'default' => true],
             'funding_links_enabled' => ['key' => 'feature.funding_links_enabled', 'type' => 'boolean', 'default' => true],
             'guest_checkout_enabled' => ['key' => 'feature.guest_checkout_enabled', 'type' => 'boolean', 'default' => true],
-            'email_sending_enabled' => ['key' => 'feature.email_sending_enabled', 'type' => 'boolean', 'default' => false],
+            'maintenance_mode_enabled' => ['key' => 'maintenance.mode_enabled', 'type' => 'boolean', 'default' => false],
             'maintenance_notice_enabled' => ['key' => 'maintenance.notice_enabled', 'type' => 'boolean', 'default' => false],
             'maintenance_notice_message' => ['key' => 'maintenance.notice_message', 'type' => 'string', 'default' => ''],
             'maintenance_notice_level' => ['key' => 'maintenance.notice_level', 'type' => 'string', 'default' => 'info'],
