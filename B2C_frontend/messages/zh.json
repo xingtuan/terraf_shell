@@ -2101,5 +2101,8 @@
     "message": "我们正在进行定期维护，稍后将恢复正常访问。",
     "backSoon": "我们很快就会回来。",
     "contactPrompt": "如需帮助，请联系我们："
+  },
+  "maintenanceNotice": {
+    "defaultMessage": "我们正在进行系统维护，部分功能可能暂时不可用。"
   }
 }

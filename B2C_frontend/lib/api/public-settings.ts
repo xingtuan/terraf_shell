@@ -6,6 +6,14 @@ export type Branding = {
   logo_alt: string | null
 }
 
+export type MaintenanceNotice = {
+  enabled: boolean
+  message_en: string | null
+  message_ko: string | null
+  message_zh: string | null
+  level: "info" | "warning" | "error"
+}
+
 export type PublicSettings = {
   site_name: string
   default_locale: string
@@ -22,11 +30,7 @@ export type PublicSettings = {
   maintenance_mode: {
     enabled: boolean
   }
-  maintenance_notice: {
-    enabled: boolean
-    message: string | null
-    level: string
-  }
+  maintenance_notice: MaintenanceNotice
 }
 
 export const defaultBranding: Branding = {

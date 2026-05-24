@@ -2101,5 +2101,8 @@
     "message": "We are performing scheduled maintenance. We will be back shortly.",
     "backSoon": "We'll be back soon.",
     "contactPrompt": "If you need assistance, please contact us at"
+  },
+  "maintenanceNotice": {
+    "defaultMessage": "We are currently performing maintenance. Some features may be temporarily unavailable."
   }
 }

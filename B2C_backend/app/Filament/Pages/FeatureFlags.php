@@ -7,7 +7,8 @@ use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Services\Settings\SettingsService;
 use Filament\Actions\Action;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -70,9 +71,34 @@ class FeatureFlags extends Page
                     Toggle::make('maintenance_mode_enabled')
                         ->label(__('admin.feature_flags.fields.maintenance_mode_enabled'))
                         ->helperText(__('admin.feature_flags.fields.maintenance_mode_enabled_help')),
-                    Toggle::make('maintenance_notice_enabled')->label(__('admin.feature_flags.fields.maintenance_notice_enabled')),
-                    TextInput::make('maintenance_notice_message')->label(__('admin.feature_flags.fields.maintenance_notice_message'))->maxLength(255),
-                    TextInput::make('maintenance_notice_level')->label(__('admin.feature_flags.fields.maintenance_notice_level'))->maxLength(20),
+                    Toggle::make('maintenance_notice_enabled')
+                        ->label(__('admin.feature_flags.fields.maintenance_notice_enabled'))
+                        ->helperText(__('admin.feature_flags.fields.maintenance_notice_enabled_help')),
+                    Select::make('maintenance_notice_level')
+                        ->label(__('admin.feature_flags.fields.maintenance_notice_level'))
+                        ->helperText(__('admin.feature_flags.fields.maintenance_notice_level_help'))
+                        ->options([
+                            'info' => __('admin.feature_flags.level_options.info'),
+                            'warning' => __('admin.feature_flags.level_options.warning'),
+                            'error' => __('admin.feature_flags.level_options.error'),
+                        ])
+                        ->default('info')
+                        ->required(),
+                ]),
+                Grid::make(3)->schema([
+                    Textarea::make('maintenance_notice_message_en')
+                        ->label(__('admin.feature_flags.fields.maintenance_notice_message_en'))
+                        ->helperText(__('admin.feature_flags.fields.maintenance_notice_message_help'))
+                        ->rows(2)
+                        ->maxLength(500),
+                    Textarea::make('maintenance_notice_message_ko')
+                        ->label(__('admin.feature_flags.fields.maintenance_notice_message_ko'))
+                        ->rows(2)
+                        ->maxLength(500),
+                    Textarea::make('maintenance_notice_message_zh')
+                        ->label(__('admin.feature_flags.fields.maintenance_notice_message_zh'))
+                        ->rows(2)
+                        ->maxLength(500),
                 ]),
             ]),
         ]);
@@ -98,8 +124,10 @@ class FeatureFlags extends Page
             'guest_checkout_enabled' => ['key' => 'feature.guest_checkout_enabled', 'type' => 'boolean', 'default' => true],
             'maintenance_mode_enabled' => ['key' => 'maintenance.mode_enabled', 'type' => 'boolean', 'default' => false],
             'maintenance_notice_enabled' => ['key' => 'maintenance.notice_enabled', 'type' => 'boolean', 'default' => false],
-            'maintenance_notice_message' => ['key' => 'maintenance.notice_message', 'type' => 'string', 'default' => ''],
             'maintenance_notice_level' => ['key' => 'maintenance.notice_level', 'type' => 'string', 'default' => 'info'],
+            'maintenance_notice_message_en' => ['key' => 'maintenance.notice_message_en', 'type' => 'string', 'default' => ''],
+            'maintenance_notice_message_ko' => ['key' => 'maintenance.notice_message_ko', 'type' => 'string', 'default' => ''],
+            'maintenance_notice_message_zh' => ['key' => 'maintenance.notice_message_zh', 'type' => 'string', 'default' => ''],
         ];
     }
 }

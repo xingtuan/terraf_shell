@@ -4,9 +4,10 @@ import { AppProviders } from "@/components/app-providers"
 import { Footer } from "@/components/footer"
 import { Header } from "@/components/header"
 import { LocaleHtmlSync } from "@/components/locale-html-sync"
+import { MaintenanceBanner } from "@/components/maintenance-banner"
 import { MaintenancePage } from "@/components/maintenance-page"
 import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
-import { getPublicSettings, defaultBranding, type Branding } from "@/lib/api/public-settings"
+import { getPublicSettings, defaultBranding, type Branding, type MaintenanceNotice } from "@/lib/api/public-settings"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
 import { getMessages, locales, type Locale, type SiteMessages } from "@/lib/i18n"
@@ -59,9 +60,10 @@ async function loadFooterContent(
   }
 }
 
-async function loadBrandingAndMaintenanceMode(): Promise<{
+async function loadSiteConfig(): Promise<{
   branding: Branding
   maintenanceEnabled: boolean
+  maintenanceNotice: MaintenanceNotice | null
 }> {
   try {
     const apiBaseUrl = await getServerApiBaseUrl()
@@ -69,9 +71,10 @@ async function loadBrandingAndMaintenanceMode(): Promise<{
     return {
       branding: settings.branding ?? defaultBranding,
       maintenanceEnabled: settings.maintenance_mode?.enabled ?? false,
+      maintenanceNotice: settings.maintenance_notice?.enabled ? settings.maintenance_notice : null,
     }
   } catch {
-    return { branding: defaultBranding, maintenanceEnabled: false }
+    return { branding: defaultBranding, maintenanceEnabled: false, maintenanceNotice: null }
   }
 }
 
@@ -82,8 +85,8 @@ export default async function LocaleLayout({
   const locale = await resolveLocale(params)
   const messages = getMessages(locale)
 
-  const [{ branding, maintenanceEnabled }, footer] = await Promise.all([
-    loadBrandingAndMaintenanceMode(),
+  const [{ branding, maintenanceEnabled, maintenanceNotice }, footer] = await Promise.all([
+    loadSiteConfig(),
     loadFooterContent(locale, messages.footer, messages.header),
   ])
 
@@ -106,6 +109,13 @@ export default async function LocaleLayout({
           languageSwitcher={messages.languageSwitcher}
           branding={branding}
         />
+        {maintenanceNotice ? (
+          <MaintenanceBanner
+            notice={maintenanceNotice}
+            locale={locale}
+            defaultMessage={messages.maintenanceNotice.defaultMessage}
+          />
+        ) : null}
         <main className="min-h-screen pt-20">{children}</main>
         {footer ? (
           <Footer locale={locale} header={messages.header} footer={footer} branding={branding} />

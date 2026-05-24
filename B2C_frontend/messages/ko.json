@@ -2101,5 +2101,8 @@
     "message": "정기 점검을 진행 중입니다. 잠시 후 다시 접속해 주세요.",
     "backSoon": "곧 돌아올게요.",
     "contactPrompt": "도움이 필요하시면 다음으로 문의해 주세요:"
+  },
+  "maintenanceNotice": {
+    "defaultMessage": "현재 점검 중입니다. 일부 기능이 일시적으로 이용 불가할 수 있습니다."
   }
 }

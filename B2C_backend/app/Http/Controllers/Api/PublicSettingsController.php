@@ -38,7 +38,9 @@ class PublicSettingsController extends Controller
             ],
             'maintenance_notice' => [
                 'enabled' => $settings->boolean('maintenance.notice_enabled', $settings->boolean('feature.maintenance_notice_enabled', false)),
-                'message' => $settings->string('maintenance.notice_message', ''),
+                'message_en' => $settings->string('maintenance.notice_message_en', $settings->string('maintenance.notice_message', '')),
+                'message_ko' => $settings->string('maintenance.notice_message_ko', ''),
+                'message_zh' => $settings->string('maintenance.notice_message_zh', ''),
                 'level' => $settings->string('maintenance.notice_level', 'info'),
             ],
         ]);
