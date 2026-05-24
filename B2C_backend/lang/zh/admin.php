@@ -2086,6 +2086,7 @@ return [
             'title' => '标题',
             'summary' => '摘要',
             'funding_url' => '融资 URL',
+            'funding_label' => '融资标签',
             'collaboration' => '协作',
             'shipping' => '配送',
         ],

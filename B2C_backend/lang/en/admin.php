@@ -2086,6 +2086,7 @@ return [
             'title' => 'Title',
             'summary' => 'Summary',
             'funding_url' => 'Funding URL',
+            'funding_label' => 'Funding label',
             'collaboration' => 'Collaboration',
             'shipping' => 'Shipping',
         ],

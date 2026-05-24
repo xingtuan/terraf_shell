@@ -85,6 +85,27 @@ export function CommunityIdeasSection({
                     <p className="mt-1 text-foreground">{idea.supportType}</p>
                   </div>
                 </div>
+
+                {(idea.ctaUrl || idea.fundingUrl) ? (
+                  <div className="mt-5 flex flex-wrap gap-3 border-t border-border/70 pt-5">
+                    {idea.ctaUrl ? (
+                      <Link
+                        href={idea.ctaUrl}
+                        className="inline-flex items-center text-sm font-medium text-primary hover:underline"
+                      >
+                        {idea.ctaLabel ?? content.ctaPrimary}
+                      </Link>
+                    ) : null}
+                    {idea.fundingUrl ? (
+                      <Link
+                        href={idea.fundingUrl}
+                        className="inline-flex items-center text-sm font-medium text-muted-foreground hover:underline"
+                      >
+                        {idea.fundingLabel ?? content.ctaSecondary}
+                      </Link>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </article>
           ))}

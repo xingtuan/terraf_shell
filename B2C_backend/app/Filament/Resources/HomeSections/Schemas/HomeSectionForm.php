@@ -988,6 +988,15 @@ class HomeSectionForm
                         TextInput::make('cta_label_translations.ko')
                             ->label(__('admin.ui.cta_label_ko'))
                             ->maxLength(120),
+                        TextInput::make('funding_label_translations.en')
+                            ->label(self::localizedField('funding_label', 'en'))
+                            ->maxLength(120),
+                        TextInput::make('funding_label_translations.zh')
+                            ->label(self::localizedField('funding_label', 'zh'))
+                            ->maxLength(120),
+                        TextInput::make('funding_label_translations.ko')
+                            ->label(self::localizedField('funding_label', 'ko'))
+                            ->maxLength(120),
                         TextInput::make('tags_en')
                             ->label(self::localizedField('tags', 'en'))
                             ->maxLength(255),

@@ -4,7 +4,6 @@ import { CommunityHub } from "@/components/community/community-hub"
 import { PageIntro } from "@/components/page-intro"
 import { FinalCtaSection } from "@/components/sections/final-cta"
 import { CommunityIdeasSection } from "@/components/sections/community-ideas"
-import { getCommunityIdeas } from "@/lib/api/community"
 import { findPageSection, getPageSections } from "@/lib/api/page-sections"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
@@ -30,7 +29,6 @@ export default async function CommunityPage({
   const resolvedSearchParams = await searchParams
   const apiBaseUrl = await getServerApiBaseUrl()
   const messages = getMessages(locale)
-  const ideas = await getCommunityIdeas(locale)
   let communitySections: HomeSection[] = []
 
   try {
@@ -95,7 +93,7 @@ export default async function CommunityPage({
         <CommunityIdeasSection
           locale={locale}
           content={openConceptsContent}
-          ideas={openConceptsContent.ideas ?? ideas}
+          ideas={openConceptsContent.ideas ?? []}
         />
       ) : null}
       {finalCtaContent ? (

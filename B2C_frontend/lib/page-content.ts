@@ -1119,10 +1119,19 @@ export function buildCommunityIdeasContent(
   const cmsIdeas = rawIdeas.flatMap(
     (rawItem, index): CommunityIdea[] => {
       if (!isRecord(rawItem)) return []
-      const title = payloadItemString(rawItem, "title", locale)
-      if (!title) return []
       const tagsField = locale === "zh" ? "tags_zh" : locale === "ko" ? "tags_ko" : "tags_en"
       const tagsRaw = typeof rawItem[tagsField] === "string" ? (rawItem[tagsField] as string) : ""
+      const summary = payloadItemString(rawItem, "summary", locale)
+      const focus = payloadItemString(rawItem, "focus", locale)
+      const stage = payloadItemString(rawItem, "stage", locale)
+      const supportType = payloadItemString(rawItem, "support_type", locale)
+      const ctaUrl = nonEmptyString(rawItem.cta_url) ?? undefined
+      const fundingUrl = nonEmptyString(rawItem.funding_url) ?? undefined
+      const tags = tagsRaw.split(",").map((t) => t.trim()).filter(Boolean)
+      const rawTitle = payloadItemString(rawItem, "title", locale)
+      const hasContent = rawTitle || summary || focus || stage || supportType || ctaUrl || fundingUrl || tags.length
+      if (!hasContent) return []
+      const title = rawTitle || `Concept ${index + 1}`
       return [
         {
           id:
@@ -1130,18 +1139,16 @@ export function buildCommunityIdeasContent(
               ? rawItem.key
               : `cms-idea-${index}`,
           title,
-          summary: payloadItemString(rawItem, "summary", locale),
-          stage: payloadItemString(rawItem, "stage", locale),
-          supportType: payloadItemString(rawItem, "support_type", locale),
-          focus: payloadItemString(rawItem, "focus", locale),
-          image:
-            typeof rawItem.media_url === "string" && rawItem.media_url
-              ? rawItem.media_url
-              : "/images/application-tableware.jpg",
-          tags: tagsRaw
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean),
+          summary,
+          stage,
+          supportType,
+          focus,
+          image: payloadMediaUrl(rawItem) ?? "/images/application-tableware.jpg",
+          tags,
+          ctaLabel: payloadItemString(rawItem, "cta_label", locale) || undefined,
+          ctaUrl,
+          fundingLabel: payloadItemString(rawItem, "funding_label", locale) || undefined,
+          fundingUrl,
         },
       ]
     },
@@ -1172,7 +1179,7 @@ export function buildCommunityIdeasContent(
       payloadString(payload, "cta_secondary_url"),
       getLocalizedHref(locale, "contact"),
     ),
-    ...(cmsIdeas.length ? { ideas: cmsIdeas } : {}),
+    ideas: cmsIdeas,
   }
 }
 

@@ -839,6 +839,10 @@ export interface CommunityIdea {
   focus: string
   image: string
   tags: string[]
+  ctaLabel?: string
+  ctaUrl?: string
+  fundingLabel?: string
+  fundingUrl?: string
 }
 
 export interface CommunityProfile {

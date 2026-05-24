@@ -2086,6 +2086,7 @@ return [
             'title' => '제목',
             'summary' => '요약',
             'funding_url' => '펀딩 URL',
+            'funding_label' => '펀딩 라벨',
             'collaboration' => '협업',
             'shipping' => '배송',
         ],
