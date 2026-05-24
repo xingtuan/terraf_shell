@@ -7,6 +7,7 @@ import { StoreTrustPanel } from "@/components/store/store-trust-panel"
 import { getProducts } from "@/lib/api/products"
 import { findPageSection, getPageSections } from "@/lib/api/page-sections"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildApplicationsContent,
@@ -37,12 +38,10 @@ export default async function StorePage({
 
   let catalogue: ProductCatalogResult | null = null
   let storeSections: HomeSection[] = []
-  let sectionsLoaded = false
   let hasError = false
 
   try {
     storeSections = await getPageSections({ baseUrl: apiBaseUrl, locale, page: "store" })
-    sectionsLoaded = true
   } catch {
     storeSections = []
   }
@@ -66,47 +65,51 @@ export default async function StorePage({
     hasError = true
   }
 
-  const shouldUseCmsVisibility = sectionsLoaded && storeSections.length > 0
   const storeSection = (key: string) => findPageSection(storeSections, key)
-  const shouldRender = (key: string) => !shouldUseCmsVisibility || Boolean(storeSection(key))
-  const intro = buildPageIntroContent(
-    messages.storePage.intro,
-    shouldRender("intro") ? storeSection("intro") : null,
-    locale,
-    `${getLocalizedHref(locale, "store")}#catalogue`,
-    getLocalizedHref(locale, "material"),
-  )
-  const productGridContent = buildStoreGridContent(
-    messages.storePage.grid,
-    shouldRender("product_grid") ? storeSection("product_grid") : null,
-    locale,
-  )
-  const applicationsContent = buildApplicationsContent(
-    messages.home.applications,
-    null,
-    locale,
-    shouldRender("applications") ? storeSection("applications") : null,
-  )
-  const credibilityContent = buildCredibilityContent(
-    messages.home.credibility,
-    null,
-    locale,
-    shouldRender("credibility") ? storeSection("credibility") : null,
-  )
-  const faqContent = buildStoreFaqContent(
-    messages.storePage.faq,
-    shouldRender("store_faq") ? storeSection("store_faq") : null,
-    locale,
-  )
-  const finalCtaContent = buildFinalCtaContent(
-    messages.home.finalCta,
-    shouldRender("final_cta") ? storeSection("final_cta") : null,
-    locale,
-  )
+  const introSection = storeSection("intro")
+  const productGridSection = storeSection("product_grid")
+  const applicationsSection = storeSection("applications")
+  const credibilitySection = storeSection("credibility")
+  const faqSection = storeSection("store_faq")
+  const finalCtaSection = storeSection("final_cta")
+  const intro = hasPublishedCmsSection(introSection)
+    ? buildPageIntroContent(
+        messages.storePage.intro,
+        introSection,
+        locale,
+        `${getLocalizedHref(locale, "store")}#catalogue`,
+        getLocalizedHref(locale, "material"),
+      )
+    : null
+  const productGridContent = hasPublishedCmsSection(productGridSection)
+    ? buildStoreGridContent(messages.storePage.grid, productGridSection, locale)
+    : null
+  const applicationsContent = hasPublishedCmsSection(applicationsSection)
+    ? buildApplicationsContent(
+        messages.home.applications,
+        null,
+        locale,
+        applicationsSection,
+      )
+    : null
+  const credibilityContent = hasPublishedCmsSection(credibilitySection)
+    ? buildCredibilityContent(
+        messages.home.credibility,
+        null,
+        locale,
+        credibilitySection,
+      )
+    : null
+  const faqContent = hasPublishedCmsSection(faqSection)
+    ? buildStoreFaqContent(messages.storePage.faq, faqSection, locale)
+    : null
+  const finalCtaContent = hasPublishedCmsSection(finalCtaSection)
+    ? buildFinalCtaContent(messages.home.finalCta, finalCtaSection, locale)
+    : null
 
   return (
     <>
-      {shouldRender("intro") ? (
+      {intro ? (
         <PageIntro
           eyebrow={intro.eyebrow}
           title={intro.title}
@@ -121,7 +124,7 @@ export default async function StorePage({
           }}
         />
       ) : null}
-      {shouldRender("product_grid") ? (
+      {productGridContent ? (
         <ProductGridSection
           locale={locale}
           content={productGridContent}
@@ -131,20 +134,20 @@ export default async function StorePage({
           hasError={hasError}
         />
       ) : null}
-      {shouldRender("credibility") || shouldRender("store_faq") ? (
+      {credibilityContent || faqContent ? (
         <section className="bg-background py-16 lg:py-20">
           <div className="mx-auto max-w-7xl space-y-10 px-6 lg:px-8">
-            {shouldRender("credibility") ? (
+            {credibilityContent ? (
               <StoreTrustPanel content={credibilityContent} />
             ) : null}
-            {shouldRender("store_faq") ? <StoreFaq content={faqContent} /> : null}
+            {faqContent ? <StoreFaq content={faqContent} /> : null}
           </div>
         </section>
       ) : null}
-      {shouldRender("applications") ? (
+      {applicationsContent ? (
         <ApplicationsSection content={applicationsContent} />
       ) : null}
-      {shouldRender("final_cta") ? (
+      {finalCtaContent ? (
         <FinalCtaSection locale={locale} content={finalCtaContent} />
       ) : null}
     </>

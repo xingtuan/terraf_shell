@@ -14,10 +14,10 @@ import {
   PilotProjectsSection,
   TrustAndCredibilitySection,
 } from "@/components/sections/trust-and-b2b-sections"
-import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
 import { getFeaturedMaterial, getMaterialSpecs } from "@/lib/api/materials"
 import { findPageSection, getPageSections } from "@/lib/api/page-sections"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import type { HomeSection } from "@/lib/types"
 import {
@@ -46,9 +46,7 @@ export default async function B2BPage({ params }: B2BPageProps) {
   const messages = getMessages(locale)
 
   let material = null
-  let pilotProjectsSection = null
   let b2bSections: HomeSection[] = []
-  let homeSections: HomeSection[] = []
 
   try {
     material = await getFeaturedMaterial({ baseUrl: apiBaseUrl, locale })
@@ -57,134 +55,162 @@ export default async function B2BPage({ params }: B2BPageProps) {
   }
 
   try {
-    ;[homeSections, b2bSections] = await Promise.all([
-      getHomeSections({ baseUrl: apiBaseUrl, locale, page: "home" }),
-      getPageSections({ baseUrl: apiBaseUrl, locale, page: "b2b" }),
-    ])
-    pilotProjectsSection =
-      findPageSection(b2bSections, "pilot_projects") ??
-      findHomeSection(homeSections, "pilot_projects")
+    b2bSections = await getPageSections({ baseUrl: apiBaseUrl, locale, page: "b2b" })
   } catch {
-    pilotProjectsSection = null
+    b2bSections = []
   }
-
-  const fallbackSpecs =
-    material?.specs.length
-      ? material.specs
-      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
 
   const defaultPrimaryHref = `${getLocalizedHref(locale, "b2b")}?leadType=inquiry#inquiry`
   const defaultSecondaryHref = getLocalizedHref(locale, "material")
-  const intro = buildPageIntroContent(
-    messages.b2bPage.intro,
-    findPageSection(b2bSections, "intro"),
-    locale,
-    defaultPrimaryHref,
-    defaultSecondaryHref,
-  )
-  const collaborationContent = buildCollaborationContent(
-    messages.home.collaboration,
-    findPageSection(b2bSections, "collaboration") ??
-      findHomeSection(homeSections, "collaboration"),
-    locale,
-  )
-  const materialFactsContent = buildMaterialFactsContent(
-    messages.home.materialFacts,
-    material,
-    findPageSection(b2bSections, "material_facts"),
-    locale,
-  )
-  const credibilityContent = buildCredibilityContent(
-    messages.home.credibility,
-    material,
-    locale,
-    findPageSection(b2bSections, "credibility"),
-  )
-  const processContent = buildB2BProcessContent(
-    messages.b2bPage.process,
-    findPageSection(b2bSections, "process"),
-    locale,
-  )
-  const ctaStripContent = buildB2BCtaStripContent(
-    messages.b2bPage.ctaStrip,
-    findPageSection(b2bSections, "cta_strip"),
-    locale,
-  )
-  const applicationsContent = buildB2BApplicationsContent(
-    messages.b2bPage.applications,
-    findPageSection(b2bSections, "applications"),
-    locale,
-  )
-  const formContent = buildB2BFormContent(
-    messages.b2bPage.form,
-    findPageSection(b2bSections, "form"),
-    locale,
-  )
-  const afterSubmitContent = buildB2BAfterSubmitContent(
-    messages.b2bPage.afterSubmit,
-    findPageSection(b2bSections, "after_submit"),
-    locale,
-  )
-  const trustContent = buildTrustAndCredibilityContent(
-    messages.trustAndCredibility,
-    findPageSection(b2bSections, "trust_and_credibility") ??
-      findHomeSection(homeSections, "trust_and_credibility"),
-    locale,
-  )
-  const pilotProjectsContent = buildPilotProjectsContent(
-    messages.pilotProjects,
-    pilotProjectsSection,
-    locale,
-  )
-  const finalCtaContent = buildFinalCtaContent(
-    messages.home.finalCta,
-    findPageSection(b2bSections, "final_cta"),
-    locale,
-  )
+  const introSection = findPageSection(b2bSections, "intro")
+  const collaborationSection = findPageSection(b2bSections, "collaboration")
+  const processSection = findPageSection(b2bSections, "process")
+  const ctaStripSection = findPageSection(b2bSections, "cta_strip")
+  const applicationsSection = findPageSection(b2bSections, "applications")
+  const materialFactsSection = findPageSection(b2bSections, "material_facts")
+  const credibilitySection = findPageSection(b2bSections, "credibility")
+  const trustSection = findPageSection(b2bSections, "trust_and_credibility")
+  const pilotProjectsSection = findPageSection(b2bSections, "pilot_projects")
+  const formSection = findPageSection(b2bSections, "form")
+  const afterSubmitSection = findPageSection(b2bSections, "after_submit")
+  const finalCtaSection = findPageSection(b2bSections, "final_cta")
+  const materialFactSpecs = hasPublishedCmsSection(materialFactsSection)
+    ? material?.specs.length
+      ? material.specs
+      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
+    : []
+  const intro = hasPublishedCmsSection(introSection)
+    ? buildPageIntroContent(
+        messages.b2bPage.intro,
+        introSection,
+        locale,
+        defaultPrimaryHref,
+        defaultSecondaryHref,
+      )
+    : null
+  const collaborationContent = hasPublishedCmsSection(collaborationSection)
+    ? buildCollaborationContent(
+        messages.home.collaboration,
+        collaborationSection,
+        locale,
+      )
+    : null
+  const processContent = hasPublishedCmsSection(processSection)
+    ? buildB2BProcessContent(messages.b2bPage.process, processSection, locale)
+    : null
+  const ctaStripContent = hasPublishedCmsSection(ctaStripSection)
+    ? buildB2BCtaStripContent(messages.b2bPage.ctaStrip, ctaStripSection, locale)
+    : null
+  const applicationsContent = hasPublishedCmsSection(applicationsSection)
+    ? buildB2BApplicationsContent(
+        messages.b2bPage.applications,
+        applicationsSection,
+        locale,
+      )
+    : null
+  const materialFactsContent = hasPublishedCmsSection(materialFactsSection)
+    ? buildMaterialFactsContent(
+        messages.home.materialFacts,
+        material,
+        materialFactsSection,
+        locale,
+      )
+    : null
+  const credibilityContent = hasPublishedCmsSection(credibilitySection)
+    ? buildCredibilityContent(
+        messages.home.credibility,
+        material,
+        locale,
+        credibilitySection,
+      )
+    : null
+  const trustContent = hasPublishedCmsSection(trustSection)
+    ? buildTrustAndCredibilityContent(
+        messages.trustAndCredibility,
+        trustSection,
+        locale,
+      )
+    : null
+  const pilotProjectsContent = hasPublishedCmsSection(pilotProjectsSection)
+    ? buildPilotProjectsContent(messages.pilotProjects, pilotProjectsSection, locale)
+    : null
+  const formContent = hasPublishedCmsSection(formSection)
+    ? buildB2BFormContent(messages.b2bPage.form, formSection, locale)
+    : null
+  const afterSubmitContent = hasPublishedCmsSection(afterSubmitSection)
+    ? buildB2BAfterSubmitContent(
+        messages.b2bPage.afterSubmit,
+        afterSubmitSection,
+        locale,
+      )
+    : null
+  const finalCtaContent = hasPublishedCmsSection(finalCtaSection)
+    ? buildFinalCtaContent(messages.home.finalCta, finalCtaSection, locale)
+    : null
 
   return (
     <>
-      <PageIntro
-        eyebrow={intro.eyebrow}
-        title={intro.title}
-        description={intro.description}
-        primaryAction={{
-          label: intro.primaryCta,
-          href: intro.primaryHref ?? defaultPrimaryHref,
-        }}
-        secondaryAction={{
-          label: intro.secondaryCta,
-          href: intro.secondaryHref ?? defaultSecondaryHref,
-        }}
-      />
-      <CollaborationSection
-        locale={locale}
-        content={collaborationContent}
-        cardHrefs={collaborationContent.cardHrefs}
-      />
-      <B2BProcessSection content={processContent} />
-      <B2BCtaStrip locale={locale} content={ctaStripContent} />
-      <B2BApplicationsSection content={applicationsContent} />
-      <MaterialFactsSection
-        locale={locale}
-        content={materialFactsContent}
-        specs={material?.specs.length ? material.specs : fallbackSpecs}
-        sheetHref={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}
-      />
-      <CredibilitySection content={credibilityContent} />
-      <TrustAndCredibilitySection content={trustContent} />
-      <PilotProjectsSection content={pilotProjectsContent} />
-      <Suspense fallback={null}>
-        <B2BInquiryFormSection
-          locale={locale}
-          content={formContent}
-          common={messages.common}
-          sourcePage="b2b"
-          defaultLeadType="inquiry"
+      {intro ? (
+        <PageIntro
+          eyebrow={intro.eyebrow}
+          title={intro.title}
+          description={intro.description}
+          primaryAction={{
+            label: intro.primaryCta,
+            href: intro.primaryHref ?? defaultPrimaryHref,
+          }}
+          secondaryAction={{
+            label: intro.secondaryCta,
+            href: intro.secondaryHref ?? defaultSecondaryHref,
+          }}
         />
-      </Suspense>
-      <B2BAfterSubmitSection content={afterSubmitContent} />
-      <FinalCtaSection locale={locale} content={finalCtaContent} />
+      ) : null}
+      {collaborationContent ? (
+        <CollaborationSection
+          locale={locale}
+          content={collaborationContent}
+          cardHrefs={collaborationContent.cardHrefs}
+        />
+      ) : null}
+      {processContent ? <B2BProcessSection content={processContent} /> : null}
+      {ctaStripContent ? (
+        <B2BCtaStrip locale={locale} content={ctaStripContent} />
+      ) : null}
+      {applicationsContent ? (
+        <B2BApplicationsSection content={applicationsContent} />
+      ) : null}
+      {materialFactsContent ? (
+        <MaterialFactsSection
+          locale={locale}
+          content={materialFactsContent}
+          specs={materialFactSpecs}
+          sheetHref={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}
+        />
+      ) : null}
+      {credibilityContent ? (
+        <CredibilitySection content={credibilityContent} />
+      ) : null}
+      {trustContent ? <TrustAndCredibilitySection content={trustContent} /> : null}
+      {pilotProjectsContent ? (
+        <PilotProjectsSection content={pilotProjectsContent} />
+      ) : null}
+      {formContent ? (
+        <Suspense fallback={null}>
+          <B2BInquiryFormSection
+            locale={locale}
+            content={formContent}
+            common={messages.common}
+            sourcePage="b2b"
+            defaultLeadType="inquiry"
+          />
+        </Suspense>
+      ) : null}
+      {afterSubmitContent ? (
+        <B2BAfterSubmitSection content={afterSubmitContent} />
+      ) : null}
+      {finalCtaContent ? (
+        <FinalCtaSection locale={locale} content={finalCtaContent} />
+      ) : null}
     </>
   )
 }

@@ -7,6 +7,7 @@ import { CommunityIdeasSection } from "@/components/sections/community-ideas"
 import { getCommunityIdeas } from "@/lib/api/community"
 import { findPageSection, getPageSections } from "@/lib/api/page-sections"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildCommunityIdeasContent,
@@ -31,7 +32,6 @@ export default async function CommunityPage({
   const messages = getMessages(locale)
   const ideas = await getCommunityIdeas(locale)
   let communitySections: HomeSection[] = []
-  let sectionsLoaded = false
 
   try {
     communitySections = await getPageSections({
@@ -39,36 +39,37 @@ export default async function CommunityPage({
       locale,
       page: "community",
     })
-    sectionsLoaded = true
   } catch {
     communitySections = []
   }
 
-  const shouldUseCmsVisibility = sectionsLoaded && communitySections.length > 0
   const communitySection = (key: string) => findPageSection(communitySections, key)
-  const shouldRender = (key: string) =>
-    !shouldUseCmsVisibility || Boolean(communitySection(key))
-  const intro = buildPageIntroContent(
-    messages.communityPage.intro,
-    shouldRender("intro") ? communitySection("intro") : null,
-    locale,
-    getLocalizedHref(locale, "community/new"),
-    getLocalizedHref(locale, "community"),
-  )
-  const openConceptsContent = buildCommunityIdeasContent(
-    messages.communityPage.ideas,
-    shouldRender("open_concepts") ? communitySection("open_concepts") : null,
-    locale,
-  )
-  const finalCtaContent = buildFinalCtaContent(
-    messages.home.finalCta,
-    shouldRender("final_cta") ? communitySection("final_cta") : null,
-    locale,
-  )
+  const introSection = communitySection("intro")
+  const openConceptsSection = communitySection("open_concepts")
+  const finalCtaSection = communitySection("final_cta")
+  const intro = hasPublishedCmsSection(introSection)
+    ? buildPageIntroContent(
+        messages.communityPage.intro,
+        introSection,
+        locale,
+        getLocalizedHref(locale, "community/new"),
+        getLocalizedHref(locale, "community"),
+      )
+    : null
+  const openConceptsContent = hasPublishedCmsSection(openConceptsSection)
+    ? buildCommunityIdeasContent(
+        messages.communityPage.ideas,
+        openConceptsSection,
+        locale,
+      )
+    : null
+  const finalCtaContent = hasPublishedCmsSection(finalCtaSection)
+    ? buildFinalCtaContent(messages.home.finalCta, finalCtaSection, locale)
+    : null
 
   return (
     <>
-      {shouldRender("intro") ? (
+      {intro ? (
         <PageIntro
           eyebrow={intro.eyebrow}
           title={intro.title}
@@ -90,14 +91,14 @@ export default async function CommunityPage({
           initialQuery={resolvedSearchParams.q}
         />
       </Suspense>
-      {shouldRender("open_concepts") ? (
+      {openConceptsContent ? (
         <CommunityIdeasSection
           locale={locale}
           content={openConceptsContent}
           ideas={ideas}
         />
       ) : null}
-      {shouldRender("final_cta") ? (
+      {finalCtaContent ? (
         <FinalCtaSection locale={locale} content={finalCtaContent} />
       ) : null}
     </>

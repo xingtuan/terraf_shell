@@ -8,6 +8,7 @@ import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
 import { findPageSection, getPageSections } from "@/lib/api/page-sections"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { getBrandContactHref, getBrandContactLabel } from "@/lib/brand"
+import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildB2BFormContent,
@@ -17,9 +18,9 @@ import {
   buildPageIntroContent,
   type B2BFormContent,
   type ContactDetailsContent,
+  type PageIntroContent,
 } from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
-import type { HomeSection } from "@/lib/types"
 
 type ContactPageProps = {
   params: Promise<{ locale: string }>
@@ -31,75 +32,72 @@ export default async function ContactPage({ params }: ContactPageProps) {
   const defaultPrimaryHref = getBrandContactHref("#inquiry")
   const defaultSecondaryHref = `${getLocalizedHref(locale, "b2b")}#inquiry`
   const apiBaseUrl = await getServerApiBaseUrl()
-  let contactSections: HomeSection[] = []
-  let sectionsLoaded = false
-  let intro = buildPageIntroContent(
-    messages.contactPage.intro,
-    null,
-    locale,
-    defaultPrimaryHref,
-    defaultSecondaryHref,
-  )
-  let contactDetails: ContactDetailsContent = messages.contactPage.details
-  let formContent: B2BFormContent = messages.b2bPage.form
-  let finalCtaContent = buildFinalCtaContent(messages.home.finalCta, null, locale)
+  let intro: PageIntroContent<typeof messages.contactPage.intro> | null = null
+  let contactDetails: ContactDetailsContent | null = null
+  let formContent: B2BFormContent | null = null
+  let finalCtaContent: ReturnType<typeof buildFinalCtaContent> | null = null
 
   try {
     const [homeSections, fetchedContactSections] = await Promise.all([
       getHomeSections({ baseUrl: apiBaseUrl, locale, page: "home" }),
       getPageSections({ baseUrl: apiBaseUrl, locale, page: "contact" }),
     ])
-    contactSections = fetchedContactSections
-    sectionsLoaded = true
-    const shouldUseCmsVisibility = contactSections.length > 0
-    const contactSection = (key: string) => findPageSection(contactSections, key)
-    const shouldRenderSection = (key: string) =>
-      !shouldUseCmsVisibility || Boolean(contactSection(key))
-    const footerSection = findHomeSection(homeSections, "footer")
-    const footerContent = buildFooterContent(
-      messages.footer,
-      footerSection,
-      locale,
-      messages.header,
-    )
-    intro = buildPageIntroContent(
-      messages.contactPage.intro,
-      shouldRenderSection("intro") ? contactSection("intro") : null,
-      locale,
-      defaultPrimaryHref,
-      defaultSecondaryHref,
-    )
-    contactDetails = buildContactDetailsContent(
-      messages.contactPage.details,
-      shouldRenderSection("details") ? contactSection("details") : null,
-      footerContent,
-      getBrandContactLabel(),
-      locale,
-    )
+    const contactSection = (key: string) => findPageSection(fetchedContactSections, key)
+    const introSection = contactSection("intro")
+    const detailsSection = contactSection("details")
     const inquiryFormSection =
       contactSection("inquiry_form") ?? contactSection("form")
-    formContent = buildB2BFormContent(
-      messages.b2bPage.form,
-      shouldRenderSection("inquiry_form") ? inquiryFormSection : null,
-      locale,
-    )
-    finalCtaContent = buildFinalCtaContent(
-      messages.home.finalCta,
-      shouldRenderSection("final_cta") ? contactSection("final_cta") : null,
-      locale,
-    )
-  } catch {
-    // Use messages fallback
-  }
+    const finalCtaSection = contactSection("final_cta")
+    const footerSection = findHomeSection(homeSections, "footer")
 
-  const shouldUseCmsVisibility = sectionsLoaded && contactSections.length > 0
-  const contactSection = (key: string) => findPageSection(contactSections, key)
-  const shouldRender = (key: string) =>
-    !shouldUseCmsVisibility || Boolean(contactSection(key))
+    if (hasPublishedCmsSection(introSection)) {
+      intro = buildPageIntroContent(
+        messages.contactPage.intro,
+        introSection,
+        locale,
+        defaultPrimaryHref,
+        defaultSecondaryHref,
+      )
+    }
+
+    if (hasPublishedCmsSection(detailsSection)) {
+      const footerContent = buildFooterContent(
+        messages.footer,
+        footerSection,
+        locale,
+        messages.header,
+      )
+      contactDetails = buildContactDetailsContent(
+        messages.contactPage.details,
+        detailsSection,
+        footerContent,
+        getBrandContactLabel(),
+        locale,
+      )
+    }
+
+    if (hasPublishedCmsSection(inquiryFormSection)) {
+      formContent = buildB2BFormContent(
+        messages.b2bPage.form,
+        inquiryFormSection,
+        locale,
+      )
+    }
+
+    if (hasPublishedCmsSection(finalCtaSection)) {
+      finalCtaContent = buildFinalCtaContent(
+        messages.home.finalCta,
+        finalCtaSection,
+        locale,
+      )
+    }
+  } catch {
+    // Missing CMS sections should hide CMS-driven blocks.
+  }
 
   return (
     <>
-      {shouldRender("intro") ? (
+      {intro ? (
         <PageIntro
           eyebrow={intro.eyebrow}
           title={intro.title}
@@ -114,8 +112,8 @@ export default async function ContactPage({ params }: ContactPageProps) {
           }}
         />
       ) : null}
-      {shouldRender("details") ? <ContactDetailsSection content={contactDetails} /> : null}
-      {shouldRender("inquiry_form") ? (
+      {contactDetails ? <ContactDetailsSection content={contactDetails} /> : null}
+      {formContent ? (
         <Suspense fallback={null}>
           <B2BInquiryFormSection
             locale={locale}
@@ -127,7 +125,7 @@ export default async function ContactPage({ params }: ContactPageProps) {
           />
         </Suspense>
       ) : null}
-      {shouldRender("final_cta") ? (
+      {finalCtaContent ? (
         <FinalCtaSection locale={locale} content={finalCtaContent} />
       ) : null}
     </>

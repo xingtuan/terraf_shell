@@ -1821,6 +1821,17 @@ return [
             'privacy' => '隐私',
             'terms' => '条款',
         ],
+        'visibility' => [
+            'visible' => '在前端显示',
+            'hidden' => '不显示',
+            'archived' => '已归档 / 不显示',
+        ],
+        'columns' => [
+            'frontend_visibility' => '前端显示状态',
+        ],
+        'filters' => [
+            'frontend_visibility' => '前端显示状态',
+        ],
         'sections' => [
             'cards_items' => '卡片 / 项目',
             'stats_metrics' => '统计 / 指标',
@@ -1844,7 +1855,7 @@ return [
         'help' => [
             'cards_items' => '页面版块展示的结构化卡片。前端组件未使用的可选字段可留空。',
             'stats_metrics' => '用于英雄区指标、材料事实卡和科学指标。',
-            'show_on_frontend' => '已发布的版块会通过公共 API 返回。隐藏的版块仍可在此编辑。',
+            'show_on_frontend' => '关闭后，该整个板块不会在前端网站显示。',
             'store_product_grid_labels' => '编辑商品目录网格周围的界面标签。商品数据仍来自商品目录。',
             'credibility_benefits' => '可信度模块使用的简短利益点。',
         ],

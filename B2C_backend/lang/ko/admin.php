@@ -1821,6 +1821,17 @@ return [
             'privacy' => '개인정보',
             'terms' => '이용 약관',
         ],
+        'visibility' => [
+            'visible' => '프론트엔드에 표시',
+            'hidden' => '프론트엔드에서 숨김',
+            'archived' => '보관됨 / 숨김',
+        ],
+        'columns' => [
+            'frontend_visibility' => '프론트엔드 표시 상태',
+        ],
+        'filters' => [
+            'frontend_visibility' => '프론트엔드 표시 상태',
+        ],
         'sections' => [
             'cards_items' => '카드 / 항목',
             'stats_metrics' => '통계 / 지표',
@@ -1844,7 +1855,7 @@ return [
         'help' => [
             'cards_items' => '페이지 섹션에 표시되는 구조화 카드입니다. 프론트엔드 컴포넌트에서 사용하지 않는 선택 필드는 비워 두세요.',
             'stats_metrics' => '히어로 지표, 소재 정보 카드, 과학 지표에 사용합니다.',
-            'show_on_frontend' => '게시된 섹션은 공개 API로 반환됩니다. 숨긴 섹션도 여기에서 계속 편집할 수 있습니다.',
+            'show_on_frontend' => '끄면 이 전체 섹션이 공개 웹사이트에 표시되지 않습니다.',
             'store_product_grid_labels' => '카탈로그 그리드 주변의 UI 라벨을 편집합니다. 상품 데이터는 계속 상품 카탈로그에서 가져옵니다.',
             'credibility_benefits' => '신뢰성 블록에 사용되는 짧은 요점입니다.',
         ],

@@ -6,6 +6,7 @@ import { Header } from "@/components/header"
 import { LocaleHtmlSync } from "@/components/locale-html-sync"
 import { findHomeSection, getHomeSections } from "@/lib/api/homepage"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
 import { getMessages, locales, type Locale, type SiteMessages } from "@/lib/i18n"
 import { buildFooterContent } from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
@@ -46,15 +47,13 @@ async function loadFooterContent(
   try {
     const apiBaseUrl = await getServerApiBaseUrl()
     const sections = await getHomeSections({ baseUrl: apiBaseUrl, locale })
+    const footerSection = findHomeSection(sections, "footer")
 
-    return buildFooterContent(
-      fallback,
-      findHomeSection(sections, "footer"),
-      locale,
-      headerFallback,
-    )
+    return hasPublishedCmsSection(footerSection)
+      ? buildFooterContent(fallback, footerSection, locale, headerFallback)
+      : null
   } catch {
-    return fallback
+    return null
   }
 }
 
@@ -76,7 +75,9 @@ export default async function LocaleLayout({
           languageSwitcher={messages.languageSwitcher}
         />
         <main className="min-h-screen pt-20">{children}</main>
-        <Footer locale={locale} header={messages.header} footer={footer} />
+        {footer ? (
+          <Footer locale={locale} header={messages.header} footer={footer} />
+        ) : null}
       </AppProviders>
     </>
   )

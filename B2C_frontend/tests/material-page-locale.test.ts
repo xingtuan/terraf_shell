@@ -3,6 +3,10 @@ import assert from "node:assert/strict"
 import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 
+import { hasPublishedCmsSection } from "../lib/cms-section-visibility.ts"
+
+type MockSection = Parameters<typeof hasPublishedCmsSection>[0]
+
 function readMaterialPageSource() {
   const candidatePaths = [
     join(process.cwd(), "app", "[locale]", "material", "page.tsx"),
@@ -13,6 +17,22 @@ function readMaterialPageSource() {
   assert.ok(pagePath, "Material page source file was not found")
 
   return readFileSync(pagePath, "utf8")
+}
+
+function findMockSection(sections: MockSection[], key: string) {
+  return sections.find((section) => section?.key === key) ?? null
+}
+
+function renderCmsBlock(
+  componentName: string,
+  section: MockSection,
+  fallbackText: string,
+) {
+  if (!hasPublishedCmsSection(section)) {
+    return ""
+  }
+
+  return `${componentName}\n${section.title ?? fallbackText}`
 }
 
 describe("MaterialPage locale handling", () => {
@@ -36,6 +56,66 @@ describe("MaterialPage locale handling", () => {
   })
 })
 
+describe("CMS section visibility guards", () => {
+  it("renders homepage audience_paths only when the public response includes it", () => {
+    const fallbackText = "Default audience paths title"
+    const sections: MockSection[] = [
+      { id: 1, key: "audience_paths", title: "CMS audience paths" },
+    ]
+
+    const rendered = renderCmsBlock(
+      "AudiencePathsSection",
+      findMockSection(sections, "audience_paths"),
+      fallbackText,
+    )
+
+    assert.match(rendered, /AudiencePathsSection/)
+    assert.match(rendered, /CMS audience paths/)
+
+    const hidden = renderCmsBlock(
+      "AudiencePathsSection",
+      findMockSection([], "audience_paths"),
+      fallbackText,
+    )
+
+    assert.equal(hidden, "")
+    assert.doesNotMatch(hidden, new RegExp(fallbackText))
+  })
+
+  it("does not render missing B2B process fallback content", () => {
+    const rendered = renderCmsBlock(
+      "B2BProcessSection",
+      findMockSection([], "process"),
+      "Default B2B process title",
+    )
+
+    assert.equal(rendered, "")
+    assert.doesNotMatch(rendered, /Default B2B process title/)
+  })
+
+  it("does not render missing contact details fallback content", () => {
+    const rendered = renderCmsBlock(
+      "ContactDetailsSection",
+      findMockSection([], "details"),
+      "Default contact details title",
+    )
+
+    assert.equal(rendered, "")
+    assert.doesNotMatch(rendered, /Default contact details title/)
+  })
+
+  it("does not render missing store product grid fallback content", () => {
+    const rendered = renderCmsBlock(
+      "ProductGridSection",
+      findMockSection([], "product_grid"),
+      "Default catalogue title",
+    )
+
+    assert.equal(rendered, "")
+    assert.doesNotMatch(rendered, /Default catalogue title/)
+  })
+})
+
 describe("CMS page sections wiring", () => {
   it("home page fetches home sections and builds visible sections CMS-first", () => {
     const source = readFileSync(
@@ -45,6 +125,7 @@ describe("CMS page sections wiring", () => {
 
     assert.match(source, /getHomeSections\(\{ baseUrl: apiBaseUrl, locale, page: "home" \}\)/)
     for (const builder of [
+      "buildHeroContent",
       "buildAudiencePathsContent",
       "buildBusinessPillarsContent",
       "buildWhyItMattersContent",
@@ -55,10 +136,30 @@ describe("CMS page sections wiring", () => {
     ]) {
       assert.match(source, new RegExp(`${builder}\\(`))
     }
+    for (const sectionKey of [
+      "heroSection",
+      "audiencePathsSection",
+      "businessPillarsSection",
+      "whyItMattersSection",
+      "materialStorySection",
+      "openSourceLegacySection",
+      "applicationsSection",
+      "scienceSection",
+      "collaborationSection",
+      "credibilitySection",
+      "trustSection",
+      "articlesSection",
+      "pilotProjectsSection",
+      "finalCtaSection",
+    ]) {
+      assert.match(source, new RegExp(`hasPublishedCmsSection\\(${sectionKey}\\)`))
+    }
+    assert.match(source, /audiencePathsContent \? \(/)
+    assert.doesNotMatch(source, /<AudiencePathsSection[\s\S]*buildAudiencePathsContent/)
     assert.doesNotMatch(source, /cardHrefs=\{\[/)
   })
 
-  it("material page fetches material sections and applies marketing-section overrides", () => {
+  it("material page fetches material sections and hides missing CMS blocks", () => {
     const source = readMaterialPageSource()
 
     assert.match(source, /getPageSections\(\{ \.\.\.materialRequestOptions, page: "material" \}\)/)
@@ -72,9 +173,31 @@ describe("CMS page sections wiring", () => {
     ]) {
       assert.match(source, new RegExp(`${builder}\\(`))
     }
+    for (const sectionKey of [
+      "introSection",
+      "materialFamilySection",
+      "whyItMattersSection",
+      "materialStorySection",
+      "openSourceLegacySection",
+      "applicationsSection",
+      "materialFactsSection",
+      "proofPointsSection",
+      "certificationsSection",
+      "technicalDownloadsSection",
+      "comparisonSection",
+      "credibilitySection",
+      "trustSection",
+      "pilotProjectsSection",
+      "collaborationSection",
+      "finalCtaSection",
+    ]) {
+      assert.match(source, new RegExp(`hasPublishedCmsSection\\(${sectionKey}\\)`))
+    }
+    assert.match(source, /materialFamilyContent \? \(/)
+    assert.doesNotMatch(source, /<MaterialFamilySection[\s\S]*buildMaterialFamilyContent/)
   })
 
-  it("contact page fetches contact sections and keeps footer-contact sync", () => {
+  it("contact page fetches contact sections and only builds existing CMS blocks", () => {
     const source = readFileSync(
       join(process.cwd(), "app", "[locale]", "contact", "page.tsx"),
       "utf8",
@@ -87,12 +210,14 @@ describe("CMS page sections wiring", () => {
     assert.match(source, /buildFooterContent\(/)
     assert.match(source, /contactSection\("inquiry_form"\)/)
     assert.match(source, /id=\{formContent\.formAnchorId \?\? "inquiry"\}/)
-    for (const sectionKey of ["intro", "details", "inquiry_form", "final_cta"]) {
-      assert.match(source, new RegExp(`shouldRender\\("${sectionKey}"\\)`))
-    }
+    assert.match(source, /hasPublishedCmsSection\(introSection\)/)
+    assert.match(source, /hasPublishedCmsSection\(detailsSection\)/)
+    assert.match(source, /hasPublishedCmsSection\(inquiryFormSection\)/)
+    assert.match(source, /hasPublishedCmsSection\(finalCtaSection\)/)
+    assert.doesNotMatch(source, /buildPageIntroContent\(\s*messages\.contactPage\.intro,\s*null/)
   })
 
-  it("b2b page fetches b2b sections and applies CMS builders", () => {
+  it("b2b page fetches b2b sections and applies CMS visibility guards", () => {
     const source = readFileSync(
       join(process.cwd(), "app", "[locale]", "b2b", "page.tsx"),
       "utf8",
@@ -110,6 +235,23 @@ describe("CMS page sections wiring", () => {
     ]) {
       assert.match(source, new RegExp(`${builder}\\(`))
     }
+    for (const sectionKey of [
+      "introSection",
+      "collaborationSection",
+      "processSection",
+      "ctaStripSection",
+      "applicationsSection",
+      "materialFactsSection",
+      "credibilitySection",
+      "trustSection",
+      "pilotProjectsSection",
+      "formSection",
+      "afterSubmitSection",
+      "finalCtaSection",
+    ]) {
+      assert.match(source, new RegExp(`hasPublishedCmsSection\\(${sectionKey}\\)`))
+    }
+    assert.doesNotMatch(source, /findHomeSection/)
     assert.doesNotMatch(source, /cardHrefs=\{\[/)
   })
 
@@ -131,16 +273,17 @@ describe("CMS page sections wiring", () => {
       assert.match(source, new RegExp(`${builder}\\(`))
     }
     for (const sectionKey of [
-      "intro",
-      "product_grid",
-      "credibility",
-      "store_faq",
-      "applications",
-      "final_cta",
+      "introSection",
+      "productGridSection",
+      "credibilitySection",
+      "faqSection",
+      "applicationsSection",
+      "finalCtaSection",
     ]) {
-      assert.match(source, new RegExp(`shouldRender\\("${sectionKey}"\\)`))
+      assert.match(source, new RegExp(`hasPublishedCmsSection\\(${sectionKey}\\)`))
     }
-    assert.match(source, /shouldUseCmsVisibility/)
+    assert.doesNotMatch(source, /shouldUseCmsVisibility/)
+    assert.doesNotMatch(source, /shouldRender\(/)
   })
 
   it("community page fetches community sections and applies CMS builders with visibility guards", () => {
@@ -157,10 +300,11 @@ describe("CMS page sections wiring", () => {
     ]) {
       assert.match(source, new RegExp(`${builder}\\(`))
     }
-    for (const sectionKey of ["intro", "open_concepts", "final_cta"]) {
-      assert.match(source, new RegExp(`shouldRender\\("${sectionKey}"\\)`))
+    for (const sectionKey of ["introSection", "openConceptsSection", "finalCtaSection"]) {
+      assert.match(source, new RegExp(`hasPublishedCmsSection\\(${sectionKey}\\)`))
     }
-    assert.match(source, /shouldUseCmsVisibility/)
+    assert.doesNotMatch(source, /shouldUseCmsVisibility/)
+    assert.doesNotMatch(source, /shouldRender\(/)
   })
 
   it("articles page fetches article sections and avoids hardcoded editorial copy", () => {
@@ -173,9 +317,11 @@ describe("CMS page sections wiring", () => {
     assert.match(source, /buildPageIntroContent\(/)
     assert.match(source, /buildFinalCtaContent\(/)
     assert.match(source, /ArticleFeedSection/)
-    for (const sectionKey of ["intro", "article_feed", "final_cta"]) {
-      assert.match(source, new RegExp(`shouldRender\\("${sectionKey}"\\)`))
-    }
+    assert.match(source, /hasPublishedCmsSection\(introSection\)/)
+    assert.match(source, /hasPublishedCmsSection\(articleFeedSection\)/)
+    assert.match(source, /hasPublishedCmsSection\(finalCtaSection\)/)
+    assert.doesNotMatch(source, /shouldUseCmsVisibility/)
+    assert.doesNotMatch(source, /shouldRender\(/)
     assert.doesNotMatch(source, /Articles, lab notes, and material updates/)
     assert.doesNotMatch(source, /Backend-driven editorial content/)
   })

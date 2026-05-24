@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Enums\PublishStatus;
 use App\Filament\Support\HasAdminResourceTranslations;
+use App\Support\HomeSectionVisibility;
 use Filament\Resources\Resource;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -12,6 +14,59 @@ use Tests\TestCase;
 
 class AdminTranslationKeysTest extends TestCase
 {
+    public function test_home_section_visibility_labels_are_resource_specific(): void
+    {
+        $originalLocale = app()->getLocale();
+
+        try {
+            $expected = [
+                'en' => [
+                    'visible' => 'Visible on frontend',
+                    'hidden' => 'Hidden from frontend',
+                    'archived' => 'Archived / hidden',
+                    'column' => 'Frontend visibility',
+                    'toggle' => 'Show on frontend',
+                    'help' => 'Turn off to hide this whole section from the public website.',
+                ],
+                'zh' => [
+                    'visible' => '在前端显示',
+                    'hidden' => '不显示',
+                    'archived' => '已归档 / 不显示',
+                    'column' => '前端显示状态',
+                    'toggle' => '在前端显示',
+                    'help' => '关闭后，该整个板块不会在前端网站显示。',
+                ],
+                'ko' => [
+                    'visible' => '프론트엔드에 표시',
+                    'hidden' => '프론트엔드에서 숨김',
+                    'archived' => '보관됨 / 숨김',
+                    'column' => '프론트엔드 표시 상태',
+                    'toggle' => '프론트엔드에 표시',
+                    'help' => '끄면 이 전체 섹션이 공개 웹사이트에 표시되지 않습니다.',
+                ],
+            ];
+
+            foreach ($expected as $locale => $labels) {
+                app()->setLocale($locale);
+
+                $this->assertSame($labels['visible'], HomeSectionVisibility::labelFor(PublishStatus::Published));
+                $this->assertSame($labels['hidden'], HomeSectionVisibility::labelFor(PublishStatus::Draft));
+                $this->assertSame($labels['archived'], HomeSectionVisibility::labelFor(PublishStatus::Archived));
+                $this->assertSame($labels['column'], __('admin.home_sections.columns.frontend_visibility'));
+                $this->assertSame($labels['column'], __('admin.home_sections.filters.frontend_visibility'));
+                $this->assertSame($labels['toggle'], __('admin.home_sections.fields.show_on_frontend'));
+                $this->assertSame($labels['help'], __('admin.home_sections.help.show_on_frontend'));
+            }
+
+            app()->setLocale('en');
+
+            $this->assertSame('Published', __('admin.publish_status.published'));
+            $this->assertSame('Visible on frontend', HomeSectionVisibility::options()[PublishStatus::Published->value]);
+        } finally {
+            app()->setLocale($originalLocale);
+        }
+    }
+
     public function test_admin_language_files_have_identical_key_structures(): void
     {
         $baseKeys = $this->flattenKeys(require lang_path('en/admin.php'));

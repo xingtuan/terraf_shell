@@ -361,6 +361,45 @@ class MaterialCmsTest extends TestCase
             ]);
     }
 
+    public function test_public_home_and_page_section_endpoints_exclude_draft_home_sections(): void
+    {
+        HomeSection::query()->delete();
+
+        HomeSection::factory()->published()->create([
+            'page_key' => 'home',
+            'key' => 'visible_section',
+            'title' => 'Visible section',
+        ]);
+        HomeSection::factory()->create([
+            'page_key' => 'home',
+            'key' => 'draft_section',
+            'title' => 'Draft section',
+            'status' => PublishStatus::Draft->value,
+        ]);
+        HomeSection::factory()->create([
+            'page_key' => 'home',
+            'key' => 'archived_section',
+            'title' => 'Archived section',
+            'status' => PublishStatus::Archived->value,
+        ]);
+
+        foreach (['/api/home-sections?page=home', '/api/page-sections?page=home'] as $endpoint) {
+            $this->getJson($endpoint)
+                ->assertOk()
+                ->assertJsonCount(1, 'data')
+                ->assertJsonFragment([
+                    'key' => 'visible_section',
+                    'status' => PublishStatus::Published->value,
+                ])
+                ->assertJsonMissing([
+                    'key' => 'draft_section',
+                ])
+                ->assertJsonMissing([
+                    'key' => 'archived_section',
+                ]);
+        }
+    }
+
     public function test_public_page_sections_cover_all_page_keys_and_normalize_payload_maps(): void
     {
         HomeSection::query()->delete();

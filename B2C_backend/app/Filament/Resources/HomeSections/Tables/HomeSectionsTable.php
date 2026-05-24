@@ -4,6 +4,7 @@ namespace App\Filament\Resources\HomeSections\Tables;
 
 use App\Enums\PublishStatus;
 use App\Models\HomeSection;
+use App\Support\HomeSectionVisibility;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -44,8 +45,9 @@ class HomeSectionsTable
                     ->searchable(['title', 'title_translations->en', 'title_translations->ko', 'title_translations->zh'])
                     ->limit(60),
                 TextColumn::make('status')
+                    ->label(__('admin.home_sections.columns.frontend_visibility'))
                     ->badge()
-                    ->formatStateUsing(fn (mixed $state): string => PublishStatus::labelFor($state))
+                    ->formatStateUsing(fn (mixed $state): string => HomeSectionVisibility::labelFor($state))
                     ->color(fn (mixed $state): string => PublishStatus::colorFor($state)),
                 TextColumn::make('sort_order')
                     ->numeric()
@@ -65,7 +67,8 @@ class HomeSectionsTable
                     ->label(__('admin.home_sections.fields.page'))
                     ->options(HomeSection::pageKeyOptions()),
                 SelectFilter::make('status')
-                    ->options(PublishStatus::options()),
+                    ->label(__('admin.home_sections.filters.frontend_visibility'))
+                    ->options(HomeSectionVisibility::options()),
                 Filter::make('updated_at')
                     ->schema([
                         DatePicker::make('updated_from')

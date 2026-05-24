@@ -4,6 +4,7 @@ import { FinalCtaSection } from "@/components/sections/final-cta"
 import { listArticles } from "@/lib/api/articles"
 import { findPageSection, getPageSections } from "@/lib/api/page-sections"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
 import { getLocalizedHref, getMessages } from "@/lib/i18n"
 import {
   buildFinalCtaContent,
@@ -25,7 +26,6 @@ export default async function ArticlesPage({ params }: ArticlesPageProps) {
 
   let articles: ArticleSummary[] = []
   let articleSections: HomeSection[] = []
-  let sectionsLoaded = false
 
   try {
     const response = await listArticles(
@@ -43,41 +43,37 @@ export default async function ArticlesPage({ params }: ArticlesPageProps) {
       locale,
       page: "articles",
     })
-    sectionsLoaded = true
   } catch {
     articleSections = []
   }
 
-  const shouldUseCmsVisibility = sectionsLoaded && articleSections.length > 0
   const articleSection = (key: string) => findPageSection(articleSections, key)
-  const shouldRender = (key: string) =>
-    !shouldUseCmsVisibility || Boolean(articleSection(key))
-  const intro = buildPageIntroContent(
-    {
-      eyebrow: messages.articleFeed.defaultEyebrow,
-      title: messages.articleFeed.defaultTitle,
-      description: messages.articleFeed.defaultDescription,
-      primaryCta: messages.articleFeed.defaultCta,
-      secondaryCta: messages.header.contact,
-    },
-    shouldRender("intro") ? articleSection("intro") : null,
-    locale,
-    `${getLocalizedHref(locale, "articles")}#articles`,
-    getLocalizedHref(locale, "contact"),
-  )
-  const articleFeedSection = shouldRender("article_feed")
-    ? articleSection("article_feed")
+  const introSection = articleSection("intro")
+  const articleFeedSection = articleSection("article_feed")
+  const finalCtaSection = articleSection("final_cta")
+  const intro = hasPublishedCmsSection(introSection)
+    ? buildPageIntroContent(
+        {
+          eyebrow: messages.articleFeed.defaultEyebrow,
+          title: messages.articleFeed.defaultTitle,
+          description: messages.articleFeed.defaultDescription,
+          primaryCta: messages.articleFeed.defaultCta,
+          secondaryCta: messages.header.contact,
+        },
+        introSection,
+        locale,
+        `${getLocalizedHref(locale, "articles")}#articles`,
+        getLocalizedHref(locale, "contact"),
+      )
     : null
   const articleFeedPayload = articleFeedSection?.payload ?? null
-  const finalCtaContent = buildFinalCtaContent(
-    messages.home.finalCta,
-    shouldRender("final_cta") ? articleSection("final_cta") : null,
-    locale,
-  )
+  const finalCtaContent = hasPublishedCmsSection(finalCtaSection)
+    ? buildFinalCtaContent(messages.home.finalCta, finalCtaSection, locale)
+    : null
 
   return (
     <>
-      {shouldRender("intro") ? (
+      {intro ? (
         <PageIntro
           eyebrow={intro.eyebrow}
           title={intro.title}
@@ -94,7 +90,7 @@ export default async function ArticlesPage({ params }: ArticlesPageProps) {
           }}
         />
       ) : null}
-      {shouldRender("article_feed") ? (
+      {hasPublishedCmsSection(articleFeedSection) ? (
         <ArticleFeedSection
           locale={locale}
           eyebrow={resolveLocalizedApiString(
@@ -143,7 +139,7 @@ export default async function ArticlesPage({ params }: ArticlesPageProps) {
           )}
         />
       ) : null}
-      {shouldRender("final_cta") ? (
+      {finalCtaContent ? (
         <FinalCtaSection locale={locale} content={finalCtaContent} />
       ) : null}
     </>

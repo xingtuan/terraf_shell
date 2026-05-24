@@ -17,6 +17,7 @@ import { WhyItMattersSection } from "@/components/sections/why-it-matters"
 import { getHomepageContent, getHomeSections, findHomeSection } from "@/lib/api/homepage"
 import { getFeaturedMaterial, getMaterial, getMaterialSpecs } from "@/lib/api/materials"
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
+import { hasPublishedCmsSection } from "@/lib/cms-section-visibility"
 import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
 import {
   buildAudiencePathsContent,
@@ -125,167 +126,199 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
   )) as
     | MaterialDetail
     | null
-  const fallbackSpecs =
-    primaryMaterial?.specs.length
+  const materialFactSpecs = hasPublishedCmsSection(scienceSection)
+    ? primaryMaterial?.specs.length
       ? primaryMaterial.specs
       : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
+    : []
 
-  const heroContent = buildHeroContent(
-    messages.home.hero,
-    primaryMaterial,
-    heroSection,
-    locale,
-  )
-  const storyContent = buildMaterialStoryContent(
-    messages.home.materialStory,
-    primaryMaterial,
-    locale,
-    materialStorySection,
-  )
-  const applicationsContent = buildApplicationsContent(
-    messages.home.applications,
-    primaryMaterial,
-    locale,
-    applicationsSection,
-  )
-  const materialFactsContent = buildMaterialFactsContent(
-    messages.home.materialFacts,
-    primaryMaterial,
-    scienceSection,
-    locale,
-  )
-  const credibilityContent = buildCredibilityContent(
-    messages.home.credibility,
-    primaryMaterial,
-    locale,
-    credibilitySection,
-  )
-  const collaborationContent = buildCollaborationContent(
-    messages.home.collaboration,
-    collaborationSection,
-    locale,
-  )
-  const pilotProjectsContent = buildPilotProjectsContent(
-    messages.pilotProjects,
-    pilotProjectsSection,
-    locale,
-  )
-  const finalCtaContent = buildFinalCtaContent(
-    messages.home.finalCta,
-    finalCtaSection,
-    locale,
-  )
+  const heroContent = hasPublishedCmsSection(heroSection)
+    ? buildHeroContent(messages.home.hero, primaryMaterial, heroSection, locale)
+    : null
+  const audiencePathsContent = hasPublishedCmsSection(audiencePathsSection)
+    ? buildAudiencePathsContent(
+        messages.home.audiencePaths,
+        audiencePathsSection,
+        locale,
+      )
+    : null
+  const businessPillarsContent = hasPublishedCmsSection(businessPillarsSection)
+    ? buildBusinessPillarsContent(
+        messages.home.businessPillars,
+        businessPillarsSection,
+        locale,
+      )
+    : null
+  const whyItMattersContent = hasPublishedCmsSection(whyItMattersSection)
+    ? buildWhyItMattersContent(
+        messages.home.whyItMatters,
+        whyItMattersSection,
+        locale,
+        primaryMaterial,
+      )
+    : null
+  const storyContent = hasPublishedCmsSection(materialStorySection)
+    ? buildMaterialStoryContent(
+        messages.home.materialStory,
+        primaryMaterial,
+        locale,
+        materialStorySection,
+      )
+    : null
+  const openSourceLegacyContent = hasPublishedCmsSection(openSourceLegacySection)
+    ? buildOpenSourceLegacyContent(
+        messages.home.openSourceLegacy,
+        openSourceLegacySection,
+        locale,
+      )
+    : null
+  const applicationsContent = hasPublishedCmsSection(applicationsSection)
+    ? buildApplicationsContent(
+        messages.home.applications,
+        primaryMaterial,
+        locale,
+        applicationsSection,
+      )
+    : null
+  const materialFactsContent = hasPublishedCmsSection(scienceSection)
+    ? buildMaterialFactsContent(
+        messages.home.materialFacts,
+        primaryMaterial,
+        scienceSection,
+        locale,
+      )
+    : null
+  const credibilityContent = hasPublishedCmsSection(credibilitySection)
+    ? buildCredibilityContent(
+        messages.home.credibility,
+        primaryMaterial,
+        locale,
+        credibilitySection,
+      )
+    : null
+  const collaborationContent = hasPublishedCmsSection(collaborationSection)
+    ? buildCollaborationContent(
+        messages.home.collaboration,
+        collaborationSection,
+        locale,
+      )
+    : null
+  const trustContent = hasPublishedCmsSection(trustSection)
+    ? buildTrustAndCredibilityContent(
+        messages.trustAndCredibility,
+        trustSection,
+        locale,
+      )
+    : null
+  const pilotProjectsContent = hasPublishedCmsSection(pilotProjectsSection)
+    ? buildPilotProjectsContent(messages.pilotProjects, pilotProjectsSection, locale)
+    : null
+  const finalCtaContent = hasPublishedCmsSection(finalCtaSection)
+    ? buildFinalCtaContent(messages.home.finalCta, finalCtaSection, locale)
+    : null
 
   return (
     <>
-      <HeroSection
-        locale={locale}
-        content={heroContent}
-        primaryHref={resolveCmsHref(
-          locale,
-          heroSection?.cta_url,
-          getLocalizedHref(locale, "material"),
-        )}
-        secondaryHref={resolveCmsHref(
-          locale,
-          typeof heroSection?.payload?.secondary_cta_url === "string"
-            ? heroSection.payload.secondary_cta_url
-            : null,
-          getLocalizedHref(locale, "b2b"),
-        )}
-      />
-      <AudiencePathsSection
-        locale={locale}
-        content={buildAudiencePathsContent(
-          messages.home.audiencePaths,
-          audiencePathsSection,
-          locale,
-        )}
-      />
-      <BusinessPillarsSection
-        content={buildBusinessPillarsContent(
-          messages.home.businessPillars,
-          businessPillarsSection,
-          locale,
-        )}
-      />
-      <WhyItMattersSection
-        content={buildWhyItMattersContent(
-          messages.home.whyItMatters,
-          whyItMattersSection,
-          locale,
-          primaryMaterial,
-        )}
-      />
-      <MaterialStorySection content={storyContent} />
-      <OpenSourceLegacySection
-        content={buildOpenSourceLegacyContent(
-          messages.home.openSourceLegacy,
-          openSourceLegacySection,
-          locale,
-        )}
-      />
-      <ApplicationsSection content={applicationsContent} />
-      <MaterialFactsSection
-        locale={locale}
-        content={materialFactsContent}
-        specs={primaryMaterial?.specs.length ? primaryMaterial.specs : fallbackSpecs}
-        sheetHref={resolveCmsHref(
-          locale,
-          scienceSection?.cta_url,
-          `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
-        )}
-      />
-      <CollaborationSection
-        locale={locale}
-        content={collaborationContent}
-        cardHrefs={collaborationContent.cardHrefs}
-      />
-      <CredibilitySection content={credibilityContent} />
-      <TrustAndCredibilitySection
-        content={buildTrustAndCredibilityContent(
-          messages.trustAndCredibility,
-          trustSection,
-          locale,
-        )}
-      />
-      <PilotProjectsSection content={pilotProjectsContent} />
-      <ArticleFeedSection
-        locale={locale}
-        eyebrow={resolveLocalizedApiString(
-          articlesSection,
-          "subtitle",
-          locale,
-          messages.articleFeed.defaultEyebrow,
-        )}
-        title={resolveLocalizedApiString(
-          articlesSection,
-          "title",
-          locale,
-          messages.articleFeed.defaultTitle,
-        )}
-        description={resolveLocalizedApiString(
-          articlesSection,
-          "content",
-          locale,
-          messages.articleFeed.defaultDescription,
-        )}
-        articles={homepage.articles}
-        cta={{
-          label: resolveLocalizedApiString(
+      {heroContent ? (
+        <HeroSection
+          locale={locale}
+          content={heroContent}
+          primaryHref={resolveCmsHref(
+            locale,
+            heroSection?.cta_url,
+            getLocalizedHref(locale, "material"),
+          )}
+          secondaryHref={resolveCmsHref(
+            locale,
+            typeof heroSection?.payload?.secondary_cta_url === "string"
+              ? heroSection.payload.secondary_cta_url
+              : null,
+            getLocalizedHref(locale, "b2b"),
+          )}
+        />
+      ) : null}
+      {audiencePathsContent ? (
+        <AudiencePathsSection locale={locale} content={audiencePathsContent} />
+      ) : null}
+      {businessPillarsContent ? (
+        <BusinessPillarsSection content={businessPillarsContent} />
+      ) : null}
+      {whyItMattersContent ? (
+        <WhyItMattersSection content={whyItMattersContent} />
+      ) : null}
+      {storyContent ? <MaterialStorySection content={storyContent} /> : null}
+      {openSourceLegacyContent ? (
+        <OpenSourceLegacySection content={openSourceLegacyContent} />
+      ) : null}
+      {applicationsContent ? (
+        <ApplicationsSection content={applicationsContent} />
+      ) : null}
+      {materialFactsContent ? (
+        <MaterialFactsSection
+          locale={locale}
+          content={materialFactsContent}
+          specs={materialFactSpecs}
+          sheetHref={resolveCmsHref(
+            locale,
+            scienceSection?.cta_url,
+            `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
+          )}
+        />
+      ) : null}
+      {collaborationContent ? (
+        <CollaborationSection
+          locale={locale}
+          content={collaborationContent}
+          cardHrefs={collaborationContent.cardHrefs}
+        />
+      ) : null}
+      {credibilityContent ? (
+        <CredibilitySection content={credibilityContent} />
+      ) : null}
+      {trustContent ? <TrustAndCredibilitySection content={trustContent} /> : null}
+      {pilotProjectsContent ? (
+        <PilotProjectsSection content={pilotProjectsContent} />
+      ) : null}
+      {hasPublishedCmsSection(articlesSection) ? (
+        <ArticleFeedSection
+          locale={locale}
+          eyebrow={resolveLocalizedApiString(
             articlesSection,
-            "cta_label",
+            "subtitle",
             locale,
-            messages.articleFeed.defaultCta,
-          ),
-          href: resolveCmsHref(
+            messages.articleFeed.defaultEyebrow,
+          )}
+          title={resolveLocalizedApiString(
+            articlesSection,
+            "title",
             locale,
-            articlesSection?.cta_url,
-            getLocalizedHref(locale, "articles"),
-          ),
-        }}
-      />
-      <FinalCtaSection locale={locale} content={finalCtaContent} />
+            messages.articleFeed.defaultTitle,
+          )}
+          description={resolveLocalizedApiString(
+            articlesSection,
+            "content",
+            locale,
+            messages.articleFeed.defaultDescription,
+          )}
+          articles={homepage.articles}
+          cta={{
+            label: resolveLocalizedApiString(
+              articlesSection,
+              "cta_label",
+              locale,
+              messages.articleFeed.defaultCta,
+            ),
+            href: resolveCmsHref(
+              locale,
+              articlesSection.cta_url,
+              getLocalizedHref(locale, "articles"),
+            ),
+          }}
+        />
+      ) : null}
+      {finalCtaContent ? (
+        <FinalCtaSection locale={locale} content={finalCtaContent} />
+      ) : null}
     </>
   )
 }

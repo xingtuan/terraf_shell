@@ -1821,6 +1821,17 @@ return [
             'privacy' => 'Privacy',
             'terms' => 'Terms',
         ],
+        'visibility' => [
+            'visible' => 'Visible on frontend',
+            'hidden' => 'Hidden from frontend',
+            'archived' => 'Archived / hidden',
+        ],
+        'columns' => [
+            'frontend_visibility' => 'Frontend visibility',
+        ],
+        'filters' => [
+            'frontend_visibility' => 'Frontend visibility',
+        ],
         'sections' => [
             'cards_items' => 'Cards / items',
             'stats_metrics' => 'Stats / metrics',
@@ -1844,7 +1855,7 @@ return [
         'help' => [
             'cards_items' => 'Structured cards shown by page sections. Leave optional fields blank when unused by the frontend component.',
             'stats_metrics' => 'Use for hero indicators, material fact cards, and science metrics.',
-            'show_on_frontend' => 'Published sections are returned by the public API. Hidden sections remain editable here.',
+            'show_on_frontend' => 'Turn off to hide this whole section from the public website.',
             'store_product_grid_labels' => 'Editable labels around the catalogue grid. Product data still comes from the product catalogue.',
             'credibility_benefits' => 'Short benefit bullets used by credibility blocks.',
         ],

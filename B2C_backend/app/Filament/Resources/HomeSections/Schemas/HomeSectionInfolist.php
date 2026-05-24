@@ -4,6 +4,7 @@ namespace App\Filament\Resources\HomeSections\Schemas;
 
 use App\Enums\PublishStatus;
 use App\Models\HomeSection;
+use App\Support\HomeSectionVisibility;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -25,8 +26,9 @@ class HomeSectionInfolist
                                 TextEntry::make('key')
                                     ->label(__('admin.ui.section_key')),
                                 TextEntry::make('status')
+                                    ->label(__('admin.home_sections.columns.frontend_visibility'))
                                     ->badge()
-                                    ->formatStateUsing(fn (mixed $state): string => PublishStatus::labelFor($state))
+                                    ->formatStateUsing(fn (mixed $state): string => HomeSectionVisibility::labelFor($state))
                                     ->color(fn (mixed $state): string => PublishStatus::colorFor($state)),
                                 TextEntry::make('sort_order')
                                     ->numeric(),
