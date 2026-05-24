@@ -1215,6 +1215,16 @@ class HomeSectionForm
             $incoming = array_values($incoming);
         }
 
+        // Guard: PHP's empty array `[]` is always array_is_list() === true, which would cause
+        // an empty incoming (e.g. a translation set left blank by the form) to REPLACE an
+        // existing associative map with an empty list. Instead, treat empty-incoming +
+        // non-empty-associative-existing as "no data supplied" and return existing unchanged.
+        // For list-typed existing (payload.items) this guard does NOT fire, so clearing all
+        // Repeater items (user intentionally removed them) still works correctly.
+        if (empty($incoming) && ! empty($existing) && ! array_is_list($existing)) {
+            return $existing;
+        }
+
         if (array_is_list($incoming)) {
             return array_values(array_map(
                 fn (mixed $value, int $index): mixed => is_array($value)
@@ -1232,12 +1242,9 @@ class HomeSectionForm
 
         foreach ($incoming as $key => $value) {
             if (is_array($value)) {
-                if (is_string($key) && str_ends_with($key, '_translations')) {
-                    $merged[$key] = $value;
-
-                    continue;
-                }
-
+                // Use recursive merge for all array values, including _translations.
+                // Previously _translations used direct assignment, which wiped all existing
+                // locale entries whenever the form submitted a partial or empty set.
                 $merged[$key] = self::mergePayloadState(
                     is_array($existing[$key] ?? null) ? $existing[$key] : [],
                     $value
