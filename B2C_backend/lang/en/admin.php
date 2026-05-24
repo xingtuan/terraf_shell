@@ -1841,6 +1841,7 @@ return [
             'frontend_visibility' => 'Frontend visibility',
         ],
         'sections' => [
+            'material_fact_cards' => 'Material fact cards',
             'cards_items' => 'Cards / items',
             'material_story_items' => 'Material story items',
             'material_applications' => 'Material applications',
@@ -1898,6 +1899,7 @@ return [
             'add_legal_link' => 'Add legal link',
             'add_certification' => 'Add certification',
             'add_concept_card' => 'Add concept card',
+            'add_material_fact_card' => 'Add material fact card',
         ],
         'fields' => [
             'page' => 'Page',
@@ -2019,12 +2021,16 @@ return [
             'issuer' => 'Issuer',
             'unit' => 'Unit',
             'concept_cards' => 'Concept cards',
+            'material_fact_cards' => 'Material fact cards',
             'support_type' => 'Support type',
             'focus' => 'Focus',
             'stage' => 'Stage',
             'tags' => 'Tags (comma-separated)',
             'title' => 'Title',
             'summary' => 'Summary',
+            'funding_url' => 'Funding URL',
+            'collaboration' => 'Collaboration',
+            'shipping' => 'Shipping',
         ],
         'href_types' => [
             'email' => 'Email',

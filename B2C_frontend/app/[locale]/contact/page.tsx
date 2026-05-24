@@ -110,7 +110,6 @@ export default async function ContactPage({ params }: ContactPageProps) {
         )}
       />
     ),
-    inquiry_form: formRenderer,
     form: formRenderer,
     final_cta: (section) => (
       <FinalCtaSection

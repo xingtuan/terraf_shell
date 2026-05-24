@@ -566,6 +566,7 @@ return [
     'application' => [
         'sections' => [
             'application' => '애플리케이션',
+            'branding' => '브랜딩 & 로고',
         ],
         'fields' => [
             'site_name' => '사이트 이름',
@@ -577,6 +578,8 @@ return [
             'contact_email' => '문의 이메일',
             'support_email' => '지원 이메일',
             'supported_locales' => '지원 언어',
+            'logo' => '웹사이트 로고',
+            'logo_help' => '로고 이미지를 업로드하세요 (JPG, PNG, WebP, SVG — 최대 2 MB). 로고가 없으면 사이트 이름이 텍스트로 표시됩니다.',
         ],
     ],
     'storage' => [
@@ -642,6 +645,7 @@ return [
     'feature_flags' => [
         'sections' => [
             'public_behavior' => '공개 기능 동작',
+            'maintenance' => '유지 관리',
         ],
         'fields' => [
             'b2c_store_enabled' => 'B2C 스토어 사용',
@@ -649,7 +653,8 @@ return [
             'community_enabled' => '커뮤니티 사용',
             'funding_links_enabled' => '펀딩 링크 사용',
             'guest_checkout_enabled' => '비회원 결제 사용',
-            'email_sending_enabled' => '이메일 발송 사용',
+            'maintenance_mode_enabled' => '유지 관리 모드',
+            'maintenance_mode_enabled_help' => '활성화하면 모든 공개 페이지에 유지 관리 화면이 표시됩니다. 관리자 패널은 계속 접근할 수 있습니다.',
             'maintenance_notice_enabled' => '공지 배너 사용',
             'maintenance_notice_message' => '공지 메시지',
             'maintenance_notice_level' => '공지 레벨',
@@ -1836,6 +1841,7 @@ return [
             'frontend_visibility' => '프론트엔드 표시 상태',
         ],
         'sections' => [
+            'material_fact_cards' => '소재 정보 카드',
             'cards_items' => '카드 / 항목',
             'material_story_items' => '소재 스토리 항목',
             'material_applications' => '소재 적용 분야',
@@ -1893,6 +1899,7 @@ return [
             'add_legal_link' => '법적 링크 추가',
             'add_certification' => '인증 추가',
             'add_concept_card' => '콘셉트 카드 추가',
+            'add_material_fact_card' => '소재 정보 카드 추가',
         ],
         'fields' => [
             'page' => '페이지',
@@ -2014,12 +2021,16 @@ return [
             'issuer' => '발급 기관',
             'unit' => '단위',
             'concept_cards' => '콘셉트 카드',
+            'material_fact_cards' => '소재 정보 카드',
             'support_type' => '지원 유형',
             'focus' => '분야',
             'stage' => '단계',
             'tags' => '태그 (쉼표 구분)',
             'title' => '제목',
             'summary' => '요약',
+            'funding_url' => '펀딩 URL',
+            'collaboration' => '협업',
+            'shipping' => '배송',
         ],
         'href_types' => [
             'email' => '이메일',

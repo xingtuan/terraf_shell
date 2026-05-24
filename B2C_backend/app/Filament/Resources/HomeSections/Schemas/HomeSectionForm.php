@@ -48,7 +48,6 @@ class HomeSectionForm
         'store_faq',
         'open_concepts',
         'form',
-        'inquiry_form',
         'pilot_projects',
         'details',
         'process',
@@ -76,7 +75,6 @@ class HomeSectionForm
     private const METRIC_PAYLOAD_KEYS = [
         'hero',
         'science_block',
-        'material_facts',
     ];
 
     private const LEAD_FORM_TYPES = [
@@ -206,6 +204,7 @@ class HomeSectionForm
                     ]),
                 self::itemsSection(),
                 self::metricsSection(),
+                self::materialFactsSection(),
                 self::secondaryCtaSection(),
                 self::productGridLabelsSection(),
                 self::credibilityBenefitsSection(),
@@ -566,6 +565,142 @@ class HomeSectionForm
             ->visible(fn (Get $get): bool => in_array($get('key'), self::METRIC_PAYLOAD_KEYS, true));
     }
 
+    private static function materialFactsSection(): Section
+    {
+        return Section::make(self::sectionTitle('material_fact_cards'))
+            ->description(self::helpText('stats_metrics'))
+            ->schema([
+                Grid::make(2)
+                    ->schema([
+                        TextInput::make('payload.sheet_title_translations.en')
+                            ->label(self::localizedField('sheet_title', 'en')),
+                        TextInput::make('payload.sheet_title_translations.zh')
+                            ->label(self::localizedField('sheet_title', 'zh')),
+                        TextInput::make('payload.sheet_title_translations.ko')
+                            ->label(self::localizedField('sheet_title', 'ko')),
+                        Textarea::make('payload.note_translations.en')
+                            ->label(self::localizedField('note', 'en'))
+                            ->rows(2),
+                        Textarea::make('payload.note_translations.zh')
+                            ->label(self::localizedField('note', 'zh'))
+                            ->rows(2),
+                        Textarea::make('payload.note_translations.ko')
+                            ->label(self::localizedField('note', 'ko'))
+                            ->rows(2),
+                    ]),
+                Repeater::make('payload.items')
+                    ->label(self::field('material_fact_cards'))
+                    ->addActionLabel(self::actionLabel('add_material_fact_card'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->dehydrated(fn (Get $get): bool => $get('key') === 'material_facts')
+                    ->schema([
+                        TextInput::make('key')
+                            ->label(self::field('key'))
+                            ->maxLength(120),
+                        TextInput::make('icon')
+                            ->label(self::field('icon'))
+                            ->maxLength(80),
+                        TextInput::make('label_translations.en')
+                            ->label(__('admin.ui.label_en'))
+                            ->maxLength(180),
+                        TextInput::make('label_translations.zh')
+                            ->label(__('admin.ui.label_zh'))
+                            ->maxLength(180),
+                        TextInput::make('label_translations.ko')
+                            ->label(__('admin.ui.label_ko'))
+                            ->maxLength(180),
+                        TextInput::make('value_translations.en')
+                            ->label(__('admin.ui.value_en'))
+                            ->maxLength(180),
+                        TextInput::make('value_translations.zh')
+                            ->label(__('admin.ui.value_zh'))
+                            ->maxLength(180),
+                        TextInput::make('value_translations.ko')
+                            ->label(__('admin.ui.value_ko'))
+                            ->maxLength(180),
+                        Textarea::make('description_translations.en')
+                            ->label(__('admin.ui.description_en'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('description_translations.zh')
+                            ->label(__('admin.ui.description_zh'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('description_translations.ko')
+                            ->label(__('admin.ui.description_ko'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('detail_translations.en')
+                            ->label(self::localizedField('detail', 'en'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('detail_translations.zh')
+                            ->label(self::localizedField('detail', 'zh'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('detail_translations.ko')
+                            ->label(self::localizedField('detail', 'ko'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
+                Repeater::make('payload.metrics')
+                    ->label(self::field('metrics'))
+                    ->addActionLabel(self::actionLabel('add_metric'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->dehydrated(fn (Get $get): bool => $get('key') === 'material_facts')
+                    ->schema([
+                        TextInput::make('key')
+                            ->label(self::field('key'))
+                            ->maxLength(120),
+                        TextInput::make('icon')
+                            ->label(self::field('icon'))
+                            ->maxLength(80),
+                        TextInput::make('unit')
+                            ->label(self::field('unit'))
+                            ->maxLength(40),
+                        TextInput::make('label_translations.en')
+                            ->label(__('admin.ui.label_en'))
+                            ->maxLength(180),
+                        TextInput::make('label_translations.zh')
+                            ->label(__('admin.ui.label_zh'))
+                            ->maxLength(180),
+                        TextInput::make('label_translations.ko')
+                            ->label(__('admin.ui.label_ko'))
+                            ->maxLength(180),
+                        TextInput::make('value_translations.en')
+                            ->label(__('admin.ui.value_en'))
+                            ->maxLength(180),
+                        TextInput::make('value_translations.zh')
+                            ->label(__('admin.ui.value_zh'))
+                            ->maxLength(180),
+                        TextInput::make('value_translations.ko')
+                            ->label(__('admin.ui.value_ko'))
+                            ->maxLength(180),
+                        Textarea::make('description_translations.en')
+                            ->label(__('admin.ui.description_en'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('description_translations.zh')
+                            ->label(__('admin.ui.description_zh'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('description_translations.ko')
+                            ->label(__('admin.ui.description_ko'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
+            ])
+            ->visible(fn (Get $get): bool => in_array($get('page_key'), ['material', 'b2b'], true) && $get('key') === 'material_facts');
+    }
+
     private static function secondaryCtaSection(): Section
     {
         return Section::make(self::sectionTitle('secondary_cta'))
@@ -701,7 +836,7 @@ class HomeSectionForm
                             ->label(self::field('secondary_cta_url'))
                             ->maxLength(255),
                     ]),
-                Repeater::make('payload.cards')
+                Repeater::make('payload.items')
                     ->label(self::field('concept_cards'))
                     ->addActionLabel(self::actionLabel('add_concept_card'))
                     ->collapsible()
@@ -717,6 +852,12 @@ class HomeSectionForm
                             ->maxLength(255),
                         TextInput::make('media_path')
                             ->label(__('admin.ui.uploaded_media'))
+                            ->maxLength(255),
+                        TextInput::make('cta_url')
+                            ->label(__('admin.ui.cta_url'))
+                            ->maxLength(255),
+                        TextInput::make('funding_url')
+                            ->label(self::field('funding_url'))
                             ->maxLength(255),
                         TextInput::make('title_translations.en')
                             ->label(self::localizedField('title', 'en'))
@@ -765,6 +906,15 @@ class HomeSectionForm
                             ->maxLength(120),
                         TextInput::make('focus_translations.ko')
                             ->label(self::localizedField('focus', 'ko'))
+                            ->maxLength(120),
+                        TextInput::make('cta_label_translations.en')
+                            ->label(__('admin.ui.cta_label_en'))
+                            ->maxLength(120),
+                        TextInput::make('cta_label_translations.zh')
+                            ->label(__('admin.ui.cta_label_zh'))
+                            ->maxLength(120),
+                        TextInput::make('cta_label_translations.ko')
+                            ->label(__('admin.ui.cta_label_ko'))
                             ->maxLength(120),
                         TextInput::make('tags_en')
                             ->label(self::localizedField('tags', 'en'))
@@ -849,6 +999,8 @@ class HomeSectionForm
                                 'contact',
                                 'project',
                                 'material',
+                                'collaboration',
+                                'shipping',
                             ])),
                     ]),
                 Section::make(self::sectionTitle('b2b_form_fields'))
@@ -1434,7 +1586,7 @@ class HomeSectionForm
         $key = $get('key');
 
         return ($pageKey === 'b2b' && $key === 'form')
-            || ($pageKey === 'contact' && in_array($key, ['inquiry_form', 'form'], true));
+            || ($pageKey === 'contact' && $key === 'form');
     }
 
     private static function sectionTitle(string $key): string

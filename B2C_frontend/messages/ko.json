@@ -1052,7 +1052,9 @@
       "groups": {
         "contact": "연락처 정보",
         "project": "프로젝트 요구사항",
-        "material": "소재 관심 분야"
+        "material": "소재 관심 분야",
+        "collaboration": "협업 세부 사항",
+        "shipping": "배송 정보"
       },
       "interestOptions": {
         "sample_request": {

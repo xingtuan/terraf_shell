@@ -49,6 +49,78 @@ Artisan::command('cms:migrate-materials-to-page-sections {--force}', function ()
     return Command::SUCCESS;
 })->purpose('Copy legacy Material CMS content into material Page Sections');
 
+Artisan::command('cms:merge-inquiry-form-sections', function (): int {
+    $inquiryRecord = DB::table('home_sections')
+        ->where('page_key', 'contact')
+        ->where('key', 'inquiry_form')
+        ->first();
+
+    if (! $inquiryRecord) {
+        $this->info('No contact/inquiry_form record found. Nothing to migrate.');
+
+        return Command::SUCCESS;
+    }
+
+    $formRecord = DB::table('home_sections')
+        ->where('page_key', 'contact')
+        ->where('key', 'form')
+        ->first();
+
+    $inquiryPayload = is_string($inquiryRecord->payload)
+        ? (json_decode($inquiryRecord->payload, true) ?? [])
+        : [];
+
+    if (is_array($inquiryPayload) && isset($inquiryPayload['topic_options']) && ! isset($inquiryPayload['interest_options'])) {
+        $inquiryPayload['interest_options'] = $inquiryPayload['topic_options'];
+        unset($inquiryPayload['topic_options']);
+        $this->line('  Converted topic_options -> interest_options.');
+    }
+
+    if (! $formRecord) {
+        DB::table('home_sections')
+            ->where('id', $inquiryRecord->id)
+            ->update([
+                'key' => 'form',
+                'payload' => json_encode($inquiryPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                'updated_at' => now(),
+            ]);
+        $this->info("Renamed contact/inquiry_form -> contact/form (id={$inquiryRecord->id}).");
+
+        return Command::SUCCESS;
+    }
+
+    $formPayload = is_string($formRecord->payload)
+        ? (json_decode($formRecord->payload, true) ?? [])
+        : [];
+
+    $newerIsBetter = strtotime((string) $inquiryRecord->updated_at) > strtotime((string) $formRecord->updated_at);
+    [$preferred, $secondary] = $newerIsBetter
+        ? [$inquiryPayload, $formPayload]
+        : [$formPayload, $inquiryPayload];
+
+    $merged = array_merge($secondary, array_filter($preferred, fn (mixed $v): bool => $v !== null && $v !== '' && $v !== []));
+
+    $publishedStatus = ($formRecord->status === 'published' || $inquiryRecord->status === 'published')
+        ? 'published'
+        : ($formRecord->status ?? $inquiryRecord->status);
+    $publishedAt = $formRecord->published_at ?? $inquiryRecord->published_at;
+
+    DB::table('home_sections')
+        ->where('id', $formRecord->id)
+        ->update([
+            'payload' => json_encode($merged, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'status' => $publishedStatus,
+            'published_at' => $publishedAt,
+            'updated_at' => now(),
+        ]);
+
+    DB::table('home_sections')->where('id', $inquiryRecord->id)->delete();
+
+    $this->info("Merged contact/inquiry_form (id={$inquiryRecord->id}) into contact/form (id={$formRecord->id}) and deleted the old record.");
+
+    return Command::SUCCESS;
+})->purpose('Merge contact/inquiry_form page section into contact/form, converting topic_options to interest_options');
+
 Artisan::command('email:center:preview {eventKey} {--locale=en}', function (string $eventKey): int {
     $renderer = app(EmailTemplateRenderer::class);
     $event = EmailEvent::query()->where('key', $eventKey)->first();

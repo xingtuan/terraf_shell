@@ -566,6 +566,7 @@ return [
     'application' => [
         'sections' => [
             'application' => '应用',
+            'branding' => '品牌与徽标',
         ],
         'fields' => [
             'site_name' => '站点名称',
@@ -577,6 +578,8 @@ return [
             'contact_email' => '联系邮箱',
             'support_email' => '支持邮箱',
             'supported_locales' => '支持语言',
+            'logo' => '网站徽标',
+            'logo_help' => '上传徽标图片（JPG、PNG、WebP、SVG，最大 2 MB）。未设置时显示站点名称文字。',
         ],
     ],
     'storage' => [
@@ -642,6 +645,7 @@ return [
     'feature_flags' => [
         'sections' => [
             'public_behavior' => '公开功能行为',
+            'maintenance' => '维护',
         ],
         'fields' => [
             'b2c_store_enabled' => '启用 B2C 商店',
@@ -649,7 +653,8 @@ return [
             'community_enabled' => '启用社区',
             'funding_links_enabled' => '启用筹资链接',
             'guest_checkout_enabled' => '启用访客结账',
-            'email_sending_enabled' => '启用邮件发送',
+            'maintenance_mode_enabled' => '维护模式',
+            'maintenance_mode_enabled_help' => '启用后，所有公开页面显示维护界面。管理后台仍可访问。',
             'maintenance_notice_enabled' => '启用维护公告',
             'maintenance_notice_message' => '维护公告消息',
             'maintenance_notice_level' => '维护公告级别',
@@ -1836,6 +1841,7 @@ return [
             'frontend_visibility' => '前端显示状态',
         ],
         'sections' => [
+            'material_fact_cards' => '材料事实卡片',
             'cards_items' => '卡片 / 项目',
             'material_story_items' => '材料故事项目',
             'material_applications' => '材料应用',
@@ -1893,6 +1899,7 @@ return [
             'add_legal_link' => '添加法律链接',
             'add_certification' => '添加认证',
             'add_concept_card' => '添加概念卡片',
+            'add_material_fact_card' => '添加材料事实卡片',
         ],
         'fields' => [
             'page' => '页面',
@@ -2014,12 +2021,16 @@ return [
             'issuer' => '签发方',
             'unit' => '单位',
             'concept_cards' => '概念卡片',
+            'material_fact_cards' => '材料事实卡片',
             'support_type' => '支持类型',
             'focus' => '领域',
             'stage' => '阶段',
             'tags' => '标签（逗号分隔）',
             'title' => '标题',
             'summary' => '摘要',
+            'funding_url' => '融资 URL',
+            'collaboration' => '协作',
+            'shipping' => '配送',
         ],
         'href_types' => [
             'email' => '邮箱',

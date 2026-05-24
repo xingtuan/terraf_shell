@@ -1052,7 +1052,9 @@
       "groups": {
         "contact": "Contact details",
         "project": "Project requirements",
-        "material": "Material interest"
+        "material": "Material interest",
+        "collaboration": "Collaboration details",
+        "shipping": "Shipping information"
       },
       "interestOptions": {
         "sample_request": {

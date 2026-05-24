@@ -794,7 +794,9 @@ export function buildCommunityIdeasContent(
 ): CommunityIdeasContent {
   const payload = sectionPayload(section)
 
-  const cmsIdeas = payloadArray(section, "cards").flatMap(
+  const rawIdeaItems = payloadArray(section, "items")
+  const rawIdeas = rawIdeaItems.length ? rawIdeaItems : payloadArray(section, "cards")
+  const cmsIdeas = rawIdeas.flatMap(
     (rawItem, index): CommunityIdea[] => {
       if (!isRecord(rawItem)) return []
       const title = payloadItemString(rawItem, "title", locale)
@@ -1108,6 +1110,8 @@ export function buildB2BFormContent(
         contact: "contact",
         project: "project",
         material: "material",
+        collaboration: "collaboration",
+        shipping: "shipping",
       },
     ),
     fields: localizedPayloadRecord(
@@ -1500,8 +1504,8 @@ export function buildMaterialFactSpecs(
   section: HomeSection | null | undefined,
   locale: Locale,
 ): MaterialSpec[] {
-  const metricItems = payloadArray(section, "metrics")
-  const rawItems = metricItems.length ? metricItems : payloadArray(section, "items")
+  const factItems = payloadArray(section, "items")
+  const rawItems = factItems.length ? factItems : payloadArray(section, "metrics")
 
   return rawItems.flatMap((rawItem, index) => {
     if (!isRecord(rawItem)) {
