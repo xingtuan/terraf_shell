@@ -3,6 +3,7 @@
 namespace Tests\Feature\Api;
 
 use App\Enums\PublishStatus;
+use App\Filament\Resources\HomeSections\Pages\EditHomeSection;
 use App\Models\Article;
 use App\Models\HomeSection;
 use App\Models\Material;
@@ -15,6 +16,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class MaterialCmsTest extends TestCase
@@ -422,6 +424,75 @@ class MaterialCmsTest extends TestCase
             $this->assertSame([0], array_keys($section['payload']['cards']));
             $this->assertSame('Numeric key card', $section['payload']['cards'][0]['title']);
         }
+    }
+
+    public function test_home_section_visibility_toggle_persists_status_and_controls_public_api_visibility(): void
+    {
+        HomeSection::query()->delete();
+
+        $admin = User::factory()->admin()->create();
+        $section = HomeSection::factory()->published()->create([
+            'page_key' => 'home',
+            'key' => 'visibility_toggle_section',
+            'title' => 'Visibility toggle section',
+        ]);
+        HomeSection::factory()->create([
+            'page_key' => 'home',
+            'key' => 'draft_section',
+            'status' => PublishStatus::Draft->value,
+        ]);
+
+        $this->actingAs($admin);
+
+        Livewire::test(EditHomeSection::class, ['record' => $section->getKey()])
+            ->assertFormSet([
+                'show_on_frontend' => true,
+            ])
+            ->fillForm([
+                'show_on_frontend' => 'false',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $section->refresh();
+
+        $this->assertSame(PublishStatus::Draft->value, $section->status);
+        $this->assertNull($section->published_at);
+
+        Livewire::test(EditHomeSection::class, ['record' => $section->getKey()])
+            ->assertFormSet([
+                'show_on_frontend' => false,
+            ]);
+
+        $this->getJson('/api/page-sections?page=home')
+            ->assertOk()
+            ->assertJsonCount(0, 'data')
+            ->assertJsonMissing([
+                'key' => 'visibility_toggle_section',
+            ]);
+
+        Livewire::test(EditHomeSection::class, ['record' => $section->getKey()])
+            ->fillForm([
+                'show_on_frontend' => '1',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $section->refresh();
+
+        $this->assertSame(PublishStatus::Published->value, $section->status);
+        $this->assertNotNull($section->published_at);
+
+        $this->getJson('/api/page-sections?page=home')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonFragment([
+                'key' => 'visibility_toggle_section',
+                'status' => PublishStatus::Published->value,
+            ])
+            ->assertJsonMissing([
+                'key' => 'draft_section',
+            ]);
     }
 
     public function test_home_section_legacy_status_values_are_normalized(): void

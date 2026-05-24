@@ -104,12 +104,13 @@ class HomeSectionForm
                                             ->where('page_key', $get('page_key') ?: 'home'),
                                     )
                                     ->helperText(__('admin.ui.section_key_helper')),
-                                Toggle::make('status')
+                                Toggle::make('show_on_frontend')
                                     ->label(self::field('show_on_frontend'))
                                     ->helperText(self::helpText('show_on_frontend'))
                                     ->default(false)
-                                    ->formatStateUsing(fn (mixed $state): bool => PublishStatus::normalize($state) === PublishStatus::Published)
-                                    ->dehydrateStateUsing(fn (bool $state): string => $state ? PublishStatus::Published->value : PublishStatus::Draft->value),
+                                    ->formatStateUsing(fn (?HomeSection $record): bool => PublishStatus::normalize($record?->status) === PublishStatus::Published)
+                                    ->dehydrated(false)
+                                    ->validatedWhenNotDehydrated(false),
                                 TextInput::make('cta_url')
                                     ->label(__('admin.ui.cta_url'))
                                     ->maxLength(255),
