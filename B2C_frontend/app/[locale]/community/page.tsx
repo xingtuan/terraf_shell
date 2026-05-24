@@ -95,7 +95,7 @@ export default async function CommunityPage({
         <CommunityIdeasSection
           locale={locale}
           content={openConceptsContent}
-          ideas={ideas}
+          ideas={openConceptsContent.ideas ?? ideas}
         />
       ) : null}
       {finalCtaContent ? (

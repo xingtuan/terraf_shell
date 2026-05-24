@@ -588,6 +588,80 @@ class HomeSectionForm
                             ->label(self::field('secondary_cta_url'))
                             ->maxLength(255),
                     ]),
+                Repeater::make('payload.cards')
+                    ->label(self::field('concept_cards'))
+                    ->addActionLabel(self::actionLabel('add_concept_card'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->dehydrated(fn (Get $get): bool => $get('key') === 'open_concepts')
+                    ->schema([
+                        TextInput::make('key')
+                            ->label(self::field('key'))
+                            ->maxLength(120),
+                        TextInput::make('media_url')
+                            ->label(__('admin.ui.external_media_url'))
+                            ->maxLength(255),
+                        TextInput::make('title_translations.en')
+                            ->label(self::localizedField('title', 'en'))
+                            ->maxLength(180),
+                        TextInput::make('title_translations.zh')
+                            ->label(self::localizedField('title', 'zh'))
+                            ->maxLength(180),
+                        TextInput::make('title_translations.ko')
+                            ->label(self::localizedField('title', 'ko'))
+                            ->maxLength(180),
+                        Textarea::make('summary_translations.en')
+                            ->label(self::localizedField('summary', 'en'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('summary_translations.zh')
+                            ->label(self::localizedField('summary', 'zh'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('summary_translations.ko')
+                            ->label(self::localizedField('summary', 'ko'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        TextInput::make('stage_translations.en')
+                            ->label(self::localizedField('stage', 'en'))
+                            ->maxLength(120),
+                        TextInput::make('stage_translations.zh')
+                            ->label(self::localizedField('stage', 'zh'))
+                            ->maxLength(120),
+                        TextInput::make('stage_translations.ko')
+                            ->label(self::localizedField('stage', 'ko'))
+                            ->maxLength(120),
+                        TextInput::make('support_type_translations.en')
+                            ->label(self::localizedField('support_type', 'en'))
+                            ->maxLength(120),
+                        TextInput::make('support_type_translations.zh')
+                            ->label(self::localizedField('support_type', 'zh'))
+                            ->maxLength(120),
+                        TextInput::make('support_type_translations.ko')
+                            ->label(self::localizedField('support_type', 'ko'))
+                            ->maxLength(120),
+                        TextInput::make('focus_translations.en')
+                            ->label(self::localizedField('focus', 'en'))
+                            ->maxLength(120),
+                        TextInput::make('focus_translations.zh')
+                            ->label(self::localizedField('focus', 'zh'))
+                            ->maxLength(120),
+                        TextInput::make('focus_translations.ko')
+                            ->label(self::localizedField('focus', 'ko'))
+                            ->maxLength(120),
+                        TextInput::make('tags_en')
+                            ->label(self::localizedField('tags', 'en'))
+                            ->maxLength(255),
+                        TextInput::make('tags_zh')
+                            ->label(self::localizedField('tags', 'zh'))
+                            ->maxLength(255),
+                        TextInput::make('tags_ko')
+                            ->label(self::localizedField('tags', 'ko'))
+                            ->maxLength(255),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'open_concepts');
     }
@@ -602,6 +676,7 @@ class HomeSectionForm
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
+                    ->dehydrated(fn (Get $get): bool => $get('page_key') === 'contact' && $get('key') === 'details')
                     ->schema([
                         TextInput::make('label_translations.en')->label(self::localizedField('label', 'en'))->maxLength(120),
                         TextInput::make('label_translations.zh')->label(self::localizedField('label', 'zh'))->maxLength(120),

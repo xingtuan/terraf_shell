@@ -1876,6 +1876,7 @@ return [
             'add_social_link' => '添加社交链接',
             'add_legal_link' => '添加法律链接',
             'add_certification' => '添加认证',
+            'add_concept_card' => '添加概念卡片',
         ],
         'fields' => [
             'page' => '页面',
@@ -1950,6 +1951,13 @@ return [
             'result' => '结果',
             'issuer' => '签发方',
             'unit' => '单位',
+            'concept_cards' => '概念卡片',
+            'support_type' => '支持类型',
+            'focus' => '领域',
+            'stage' => '阶段',
+            'tags' => '标签（逗号分隔）',
+            'title' => '标题',
+            'summary' => '摘要',
         ],
     ],
     'legal_pages' => [

@@ -1876,6 +1876,7 @@ return [
             'add_social_link' => '소셜 링크 추가',
             'add_legal_link' => '법적 링크 추가',
             'add_certification' => '인증 추가',
+            'add_concept_card' => '콘셉트 카드 추가',
         ],
         'fields' => [
             'page' => '페이지',
@@ -1950,6 +1951,13 @@ return [
             'result' => '결과',
             'issuer' => '발급 기관',
             'unit' => '단위',
+            'concept_cards' => '콘셉트 카드',
+            'support_type' => '지원 유형',
+            'focus' => '분야',
+            'stage' => '단계',
+            'tags' => '태그 (쉼표 구분)',
+            'title' => '제목',
+            'summary' => '요약',
         ],
     ],
     'legal_pages' => [

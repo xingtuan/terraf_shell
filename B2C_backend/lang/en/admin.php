@@ -1876,6 +1876,7 @@ return [
             'add_social_link' => 'Add social link',
             'add_legal_link' => 'Add legal link',
             'add_certification' => 'Add certification',
+            'add_concept_card' => 'Add concept card',
         ],
         'fields' => [
             'page' => 'Page',
@@ -1950,6 +1951,13 @@ return [
             'result' => 'Result',
             'issuer' => 'Issuer',
             'unit' => 'Unit',
+            'concept_cards' => 'Concept cards',
+            'support_type' => 'Support type',
+            'focus' => 'Focus',
+            'stage' => 'Stage',
+            'tags' => 'Tags (comma-separated)',
+            'title' => 'Title',
+            'summary' => 'Summary',
         ],
     ],
     'legal_pages' => [

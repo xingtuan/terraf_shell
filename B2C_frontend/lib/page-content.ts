@@ -3,7 +3,7 @@ import {
   payloadArray as readPayloadArray,
   payloadList,
 } from "@/lib/payload-array"
-import type { CertificationCardInput, HomeSection, MaterialDetail, MaterialSpec } from "@/lib/types"
+import type { CertificationCardInput, CommunityIdea, HomeSection, MaterialDetail, MaterialSpec } from "@/lib/types"
 
 type HomeMessages = SiteMessages["home"]
 type LocalizedRecord = object
@@ -36,6 +36,7 @@ export type FinalCtaContent = HomeMessages["finalCta"] & {
 export type CommunityIdeasContent = SiteMessages["communityPage"]["ideas"] & {
   ctaPrimaryHref?: string
   ctaSecondaryHref?: string
+  ideas?: CommunityIdea[]
 }
 
 export type ContactDetailsContent = Omit<SiteMessages["contactPage"]["details"], "cards"> & {
@@ -708,6 +709,37 @@ export function buildCommunityIdeasContent(
 ): CommunityIdeasContent {
   const payload = sectionPayload(section)
 
+  const cmsIdeas = payloadArray(section, "cards").flatMap(
+    (rawItem, index): CommunityIdea[] => {
+      if (!isRecord(rawItem)) return []
+      const title = payloadItemString(rawItem, "title", locale)
+      if (!title) return []
+      const tagsField = locale === "zh" ? "tags_zh" : locale === "ko" ? "tags_ko" : "tags_en"
+      const tagsRaw = typeof rawItem[tagsField] === "string" ? (rawItem[tagsField] as string) : ""
+      return [
+        {
+          id:
+            typeof rawItem.key === "string" && rawItem.key
+              ? rawItem.key
+              : `cms-idea-${index}`,
+          title,
+          summary: payloadItemString(rawItem, "summary", locale),
+          stage: payloadItemString(rawItem, "stage", locale),
+          supportType: payloadItemString(rawItem, "support_type", locale),
+          focus: payloadItemString(rawItem, "focus", locale),
+          image:
+            typeof rawItem.media_url === "string" && rawItem.media_url
+              ? rawItem.media_url
+              : "/images/application-tableware.jpg",
+          tags: tagsRaw
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
+        },
+      ]
+    },
+  )
+
   return {
     ...fallback,
     eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
@@ -733,6 +765,7 @@ export function buildCommunityIdeasContent(
       payloadString(payload, "cta_secondary_url"),
       getLocalizedHref(locale, "contact"),
     ),
+    ...(cmsIdeas.length ? { ideas: cmsIdeas } : {}),
   }
 }
 
