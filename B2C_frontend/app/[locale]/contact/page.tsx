@@ -111,6 +111,7 @@ export default async function ContactPage({ params }: ContactPageProps) {
       />
     ),
     form: formRenderer,
+    inquiry_form: formRenderer,
     final_cta: (section) => (
       <FinalCtaSection
         locale={locale}

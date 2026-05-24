@@ -7,5 +7,15 @@ package-lock.json
 playwright.config.ts
 test-results/
 tests/
+!B2C_backend/tests/
+B2C_backend/tests/*
+!B2C_backend/tests/Feature/
+B2C_backend/tests/Feature/*
+!B2C_backend/tests/Feature/Admin/
+B2C_backend/tests/Feature/Admin/*
+!B2C_backend/tests/Feature/Admin/HomeSectionFactSheetTest.php
+!B2C_frontend/tests/
+B2C_frontend/tests/*
+!B2C_frontend/tests/page-content.test.ts
 SYSTEM_QA_REPORT.md
 playwright-report/

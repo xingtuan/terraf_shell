@@ -186,7 +186,7 @@ class MaterialCmsToHomeSectionsMigrator
      */
     private function migrateSpecs(bool $force, array &$summary): void
     {
-        $metrics = MaterialSpec::query()
+        $items = MaterialSpec::query()
             ->where('status', PublishStatus::Published->value)
             ->whereHas('material', fn ($query) => $query->where('status', PublishStatus::Published->value))
             ->with('material')
@@ -210,7 +210,7 @@ class MaterialCmsToHomeSectionsMigrator
             ->values()
             ->all();
 
-        if ($metrics === []) {
+        if ($items === []) {
             return;
         }
 
@@ -223,7 +223,7 @@ class MaterialCmsToHomeSectionsMigrator
             'content_translations' => $material instanceof Material ? $this->translations($material, 'science_overview') : [],
             'payload' => [
                 'variant' => 'material_facts',
-                'metrics' => $metrics,
+                'items' => $items,
             ],
             'status' => PublishStatus::Published->value,
             'sort_order' => 6,

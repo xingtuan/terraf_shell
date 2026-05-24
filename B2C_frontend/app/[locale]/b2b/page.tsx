@@ -32,6 +32,7 @@ import {
   buildPageIntroContent,
   buildPilotProjectsContent,
   buildTrustAndCredibilityContent,
+  resolveCmsHref,
 } from "@/lib/page-content"
 import { resolveLocale } from "@/lib/resolve-locale"
 
@@ -129,7 +130,13 @@ export default async function B2BPage({ params }: B2BPageProps) {
           locale,
         )}
         specs={buildMaterialFactSpecs(section, locale)}
-        sheetHref={`${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`}
+        sheetHref={resolveCmsHref(
+          locale,
+          typeof section.payload?.sheet_cta_url === "string"
+            ? section.payload.sheet_cta_url
+            : section.cta_url,
+          `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
+        )}
       />
     ),
     credibility: (section) => (

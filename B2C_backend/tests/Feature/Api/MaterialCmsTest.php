@@ -319,8 +319,8 @@ class MaterialCmsTest extends TestCase
             ->where('page_key', 'material')
             ->where('key', 'material_facts')
             ->firstOrFail();
-        $this->assertSame('Absorption', $facts->payload['metrics'][0]['label']);
-        $this->assertSame('ZH Absorption', $facts->payload['metrics'][0]['label_translations']['zh'] ?? null);
+        $this->assertSame('Absorption', $facts->payload['items'][0]['label']);
+        $this->assertSame('ZH Absorption', $facts->payload['items'][0]['label_translations']['zh'] ?? null);
 
         $certifications = HomeSection::query()
             ->where('page_key', 'material')

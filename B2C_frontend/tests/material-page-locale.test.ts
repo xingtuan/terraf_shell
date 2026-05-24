@@ -165,14 +165,18 @@ describe("CMS payload helpers", () => {
     )
 
     assert.match(pageContentSource, /export function buildMaterialFactSpecs/)
+    assert.match(pageContentSource, /export function hasCmsFactCards/)
+    assert.match(pageContentSource, /payloadArray\(scienceSection, "info_cards"\)/)
     assert.match(pageContentSource, /payloadArray\(section, "metrics"\)/)
     assert.match(pageContentSource, /payloadArray\(section, "items"\)/)
+    assert.match(pageContentSource, /localizedPayloadString\(payload,\s*"sheet_description"/)
+    assert.match(pageContentSource, /fallbackSpecs: MaterialSpec\[\] = \[\]/)
     assert.match(pageContentSource, /payloadArray\(section, "interest_options"\)/)
     assert.match(pageContentSource, /payload\.panel_copy/)
     assert.match(pageContentSource, /localizedPayloadRecord\(\s*payload,\s*"fields"/)
     assert.match(pageContentSource, /localizedPayloadRecord\(\s*payload,\s*"placeholders"/)
     assert.match(pageContentSource, /localizedPayloadRecord\(\s*payload,\s*"validation"/)
-    assert.match(pageContentSource, /icon: nonEmptyString\(rawItem\.icon\)/)
+    assert.match(pageContentSource, /icon: materialSpecIcon\(rawItem\.icon, index\)/)
 
     assert.match(formSource, /content\.interestOptionList/)
     assert.match(formSource, /content\.panelCopy\[values\.interestType\]/)
@@ -201,10 +205,14 @@ describe("CMS page sections wiring", () => {
       "buildOpenSourceLegacyContent",
       "buildCollaborationContent",
       "buildTrustAndCredibilityContent",
+      "buildMaterialFactSpecs",
       "buildFinalCtaContent",
     ]) {
       assert.match(source, new RegExp(`${builder}\\(`))
     }
+    assert.match(source, /legacyScienceSpecs/)
+    assert.match(source, /!hasCmsFactCards\(scienceSection\)/)
+    assert.match(source, /buildMaterialFactSpecs\(scienceSection, locale, legacyScienceSpecs\)/)
     for (const sectionKey of [
       "heroSection",
       "audiencePathsSection",

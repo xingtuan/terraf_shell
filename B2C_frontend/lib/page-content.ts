@@ -1405,16 +1405,15 @@ export function buildApplicationsContent(
 
 export function buildMaterialFactsContent(
   fallback: HomeMessages["materialFacts"],
-  material?: MaterialDetail | null,
+  _material?: MaterialDetail | null,
   scienceSection?: HomeSection | null,
   locale?: Locale,
 ): HomeMessages["materialFacts"] {
   const resolvedLocale = locale ?? "en"
   const payload = sectionPayload(scienceSection)
   const infoCardPayload = payloadArray(scienceSection, "info_cards")
-  const cmsInfoCards = (infoCardPayload.length
-    ? infoCardPayload
-    : payloadArray(scienceSection, "cards"))
+  const legacyMetricPayload = payloadArray(scienceSection, "metrics")
+  const cmsInfoCards = (infoCardPayload.length ? infoCardPayload : legacyMetricPayload)
     .flatMap((rawItem, index) => {
       if (!isRecord(rawItem)) {
         return []
@@ -1428,27 +1427,7 @@ export function buildMaterialFactsContent(
 
       return card.label || card.value ? [card] : []
     })
-  const infoCards =
-    cmsInfoCards.length
-      ? cmsInfoCards
-      : material !== null && material !== undefined
-      ? [
-          {
-            label: fallback.infoCards[0]?.label ?? "Material",
-            value:
-              material.applications.length > 0 || (material.applications_count ?? 0) > 0
-                ? fallback.infoCards[0]?.value || material.title
-                : material.title,
-          },
-          {
-            label: fallback.infoCards[1]?.label ?? "Applications",
-            value:
-              material.status === "published"
-                ? fallback.infoCards[1]?.value || material.title
-                : material.title,
-          },
-        ]
-      : fallback.infoCards
+  const infoCards = cmsInfoCards.length ? cmsInfoCards : fallback.infoCards
 
   const sectionEyebrow =
     locale && scienceSection
@@ -1467,7 +1446,13 @@ export function buildMaterialFactsContent(
           fallback.sheetDescription,
         )
       : scienceSection?.content || fallback.sheetDescription
-  const sectionCta =
+  const sectionCta = localizedPayloadString(
+    payload,
+    "sheet_cta_label",
+    resolvedLocale,
+    null,
+  )
+  const legacySectionCta =
     locale && scienceSection
       ? resolveLocalizedApiString(scienceSection, "cta_label", locale, fallback.sheetCta)
       : scienceSection?.cta_label || fallback.sheetCta
@@ -1475,37 +1460,54 @@ export function buildMaterialFactsContent(
   return {
     ...fallback,
     eyebrow: sectionEyebrow,
-    title: sectionTitle || material?.headline || fallback.title,
+    title: sectionTitle || fallback.title,
     sheetTitle:
       localizedPayloadString(payload, "sheet_title", resolvedLocale, null) ||
-      sectionTitle ||
       fallback.sheetTitle,
     sheetDescription:
-      sectionContent || material?.science_overview || fallback.sheetDescription,
-    sheetCta: sectionCta,
+      localizedPayloadString(payload, "sheet_description", resolvedLocale, null) ||
+      sectionContent ||
+      fallback.sheetDescription,
+    sheetCta: sectionCta || legacySectionCta,
     infoCards,
     note:
       localizedPayloadString(payload, "note", resolvedLocale, null) ||
-      material?.science_overview ||
       fallback.note,
   }
 }
 
-function materialSpecIcon(value: unknown): MaterialSpecIcon {
+const materialSpecIconFallbacks: MaterialSpecIcon[] = [
+  "feather",
+  "shield",
+  "leaf",
+  "badge",
+]
+
+function materialSpecIcon(value: unknown, index = 0): MaterialSpecIcon {
   return value === "feather" ||
     value === "shield" ||
     value === "leaf" ||
     value === "badge"
     ? value
-    : "badge"
+    : materialSpecIconFallbacks[index % materialSpecIconFallbacks.length]
+}
+
+export function hasCmsFactCards(section: HomeSection | null | undefined): boolean {
+  return payloadArray(section, "items").length > 0 || payloadArray(section, "metrics").length > 0
 }
 
 export function buildMaterialFactSpecs(
   section: HomeSection | null | undefined,
   locale: Locale,
+  fallbackSpecs: MaterialSpec[] = [],
 ): MaterialSpec[] {
   const factItems = payloadArray(section, "items")
-  const rawItems = factItems.length ? factItems : payloadArray(section, "metrics")
+  const legacyMetricItems = payloadArray(section, "metrics")
+  const rawItems = factItems.length ? factItems : legacyMetricItems
+
+  if (!rawItems.length) {
+    return fallbackSpecs
+  }
 
   return rawItems.flatMap((rawItem, index) => {
     if (!isRecord(rawItem)) {
@@ -1530,7 +1532,7 @@ export function buildMaterialFactSpecs(
         value,
         detail,
         unit: nonEmptyString(rawItem.unit),
-        icon: materialSpecIcon(rawItem.icon),
+        icon: materialSpecIcon(rawItem.icon, index),
         sort_order: index,
         media_url: payloadMediaUrl(rawItem),
       },

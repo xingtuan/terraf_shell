@@ -27,12 +27,14 @@ import {
   buildCredibilityContent,
   buildFinalCtaContent,
   buildHeroContent,
+  buildMaterialFactSpecs,
   buildMaterialFactsContent,
   buildOpenSourceLegacyContent,
   buildPilotProjectsContent,
   buildMaterialStoryContent,
   buildTrustAndCredibilityContent,
   buildWhyItMattersContent,
+  hasCmsFactCards,
   resolveLocalizedApiString,
   resolveCmsHref,
 } from "@/lib/page-content"
@@ -126,10 +128,14 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
   )) as
     | MaterialDetail
     | null
+  const legacyScienceSpecs =
+    hasPublishedCmsSection(scienceSection) && !hasCmsFactCards(scienceSection)
+      ? primaryMaterial?.specs.length
+        ? primaryMaterial.specs
+        : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
+      : []
   const materialFactSpecs = hasPublishedCmsSection(scienceSection)
-    ? primaryMaterial?.specs.length
-      ? primaryMaterial.specs
-      : await getMaterialSpecs(locale, { baseUrl: apiBaseUrl, locale })
+    ? buildMaterialFactSpecs(scienceSection, locale, legacyScienceSpecs)
     : []
 
   const heroContent = hasPublishedCmsSection(heroSection)
@@ -260,7 +266,9 @@ export default async function LocaleHomePage({ params }: HomePageProps) {
           specs={materialFactSpecs}
           sheetHref={resolveCmsHref(
             locale,
-            scienceSection?.cta_url,
+            typeof scienceSection?.payload?.sheet_cta_url === "string"
+              ? scienceSection.payload.sheet_cta_url
+              : scienceSection?.cta_url,
             `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
           )}
         />

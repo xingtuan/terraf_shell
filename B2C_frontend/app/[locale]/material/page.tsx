@@ -140,7 +140,9 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
         specs={buildMaterialFactSpecs(section, locale)}
         sheetHref={resolveCmsHref(
           locale,
-          section.cta_url,
+          typeof section.payload?.sheet_cta_url === "string"
+            ? section.payload.sheet_cta_url
+            : section.cta_url,
           `${getLocalizedHref(locale, "b2b")}?leadType=sample_request#inquiry`,
         )}
       />

@@ -5,6 +5,7 @@ use App\Models\EmailEvent;
 use App\Models\EmailTemplate;
 use App\Services\Email\EmailDispatchService;
 use App\Services\Email\EmailTemplateRenderer;
+use App\Support\DefaultPageSections;
 use App\Support\LocalStorageReadiness;
 use App\Support\MaterialCmsToHomeSectionsMigrator;
 use Database\Seeders\EmailCenterSeeder;
@@ -48,6 +49,14 @@ Artisan::command('cms:migrate-materials-to-page-sections {--force}', function ()
 
     return Command::SUCCESS;
 })->purpose('Copy legacy Material CMS content into material Page Sections');
+
+Artisan::command('cms:seed-fact-sheet-sections', function (): int {
+    $summary = DefaultPageSections::seedFactSheetSections();
+
+    $this->info("Fact sheet sections seeded. Created: {$summary['created']}; updated: {$summary['updated']}; skipped: {$summary['skipped']}.");
+
+    return Command::SUCCESS;
+})->purpose('Seed editable fact-sheet payloads for science and material facts sections');
 
 Artisan::command('cms:merge-inquiry-form-sections', function (): int {
     $inquiryRecord = DB::table('home_sections')

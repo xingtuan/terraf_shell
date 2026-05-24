@@ -15,6 +15,7 @@ class HomeSectionPayloadNormalizer
         'columns',
         'rows',
         'faqs',
+        'info_cards',
         'social_links',
         'legal_links',
         'proofs',
@@ -47,15 +48,27 @@ class HomeSectionPayloadNormalizer
      */
     private static function normalizeArray(array $value, ?string $key = null): array
     {
+        if (is_string($key) && str_ends_with($key, '_translations')) {
+            return self::normalizeTranslationSet($value);
+        }
+
         foreach ($value as $childKey => $childValue) {
             if (! is_array($childValue)) {
                 continue;
             }
 
-            $value[$childKey] = self::normalizeArray(
+            $normalized = self::normalizeArray(
                 $childValue,
                 is_string($childKey) ? $childKey : null,
             );
+
+            if (is_string($childKey) && str_ends_with($childKey, '_translations') && $normalized === []) {
+                unset($value[$childKey]);
+
+                continue;
+            }
+
+            $value[$childKey] = $normalized;
         }
 
         if (
@@ -68,6 +81,31 @@ class HomeSectionPayloadNormalizer
         }
 
         return $value;
+    }
+
+    /**
+     * @param  array<mixed>  $translations
+     * @return array<string, string>
+     */
+    private static function normalizeTranslationSet(array $translations): array
+    {
+        $normalized = [];
+
+        foreach (LocalizedContent::supportedLocales() as $locale) {
+            $value = $translations[$locale] ?? null;
+
+            if (! is_string($value)) {
+                continue;
+            }
+
+            $value = trim($value);
+
+            if ($value !== '') {
+                $normalized[$locale] = $value;
+            }
+        }
+
+        return $normalized;
     }
 
     /**

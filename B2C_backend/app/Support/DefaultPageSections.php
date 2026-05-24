@@ -4,6 +4,8 @@ namespace App\Support;
 
 use App\Enums\PublishStatus;
 use App\Models\HomeSection;
+use App\Models\MaterialSpec;
+use Illuminate\Support\Facades\Schema;
 
 class DefaultPageSections
 {
@@ -70,6 +72,118 @@ class DefaultPageSections
         foreach (self::records() as $record) {
             self::backfillRecord($record);
         }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public static function factSheetRecords(): array
+    {
+        return array_values(array_filter(
+            self::records(),
+            fn (array $record): bool => in_array(
+                "{$record['page_key']}:{$record['key']}",
+                [
+                    'home:science_block',
+                    'material:material_facts',
+                    'b2b:material_facts',
+                ],
+                true,
+            )
+        ));
+    }
+
+    /**
+     * @return array{created: int, updated: int, skipped: int}
+     */
+    public static function seedFactSheetSections(): array
+    {
+        $summary = [
+            'created' => 0,
+            'updated' => 0,
+            'skipped' => 0,
+        ];
+
+        foreach (self::factSheetRecords() as $record) {
+            self::seedFactSheetRecord($record, $summary);
+        }
+
+        return $summary;
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     * @param  array{created: int, updated: int, skipped: int}  $summary
+     */
+    private static function seedFactSheetRecord(array $record, array &$summary): void
+    {
+        $attributes = self::modelAttributes($record);
+
+        /** @var HomeSection|null $section */
+        $section = HomeSection::query()
+            ->where('page_key', $record['page_key'])
+            ->where('key', $record['key'])
+            ->first();
+
+        if (! $section || $section->is_seeded) {
+            HomeSection::query()->updateOrCreate([
+                'page_key' => $record['page_key'],
+                'key' => $record['key'],
+            ], $attributes);
+
+            $summary[$section ? 'updated' : 'created']++;
+
+            return;
+        }
+
+        $updates = [];
+
+        foreach ([
+            'title',
+            'subtitle',
+            'content',
+            'cta_label',
+            'cta_url',
+            'media_url',
+        ] as $field) {
+            if (self::isMissingValue($section->{$field} ?? null) && ! self::isMissingValue($attributes[$field] ?? null)) {
+                $updates[$field] = $attributes[$field];
+            }
+        }
+
+        foreach ([
+            'title_translations',
+            'subtitle_translations',
+            'content_translations',
+            'cta_label_translations',
+        ] as $field) {
+            $merged = self::mergeMissingValues($section->{$field} ?? null, $attributes[$field] ?? null);
+
+            if ($merged !== ($section->{$field} ?? null)) {
+                $updates[$field] = $merged;
+            }
+        }
+
+        $mergedPayload = self::mergeMissingValues($section->payload ?? null, $attributes['payload']);
+
+        if ($mergedPayload !== ($section->payload ?? null)) {
+            $updates['payload'] = $mergedPayload;
+        }
+
+        if (($section->sort_order ?? null) === null) {
+            $updates['sort_order'] = $attributes['sort_order'];
+        }
+
+        if ($updates === []) {
+            $summary['skipped']++;
+
+            return;
+        }
+
+        $section->fill($updates);
+        $section->save();
+
+        $summary['updated']++;
     }
 
     /**
@@ -293,13 +407,7 @@ class DefaultPageSections
                 ], ['/images/application-tableware.jpg', '/images/application-interior.jpg', '/images/application-packaging.jpg', '/images/application-retail.jpg']),
             ], 7),
             self::record($messages, 'home', 'science_block', 'home.materialFacts.title', 'home.materialFacts.eyebrow', 'home.materialFacts.sheetDescription', 'home.materialFacts.sheetCta', 'b2b?leadType=sample_request#inquiry', [
-                'variant' => 'science',
-                'sheet_title_translations' => self::translations($messages, 'home.materialFacts.sheetTitle'),
-                'note_translations' => self::translations($messages, 'home.materialFacts.note'),
-                'metrics' => self::cardItems($messages, 'home.materialFacts.infoCards', [
-                    'label' => 'label',
-                    'value' => 'value',
-                ]),
+                ...self::factSheetPayload($messages, 'science'),
                 'material_slug' => 'premium-oyster-shell',
             ], 8),
             self::record($messages, 'home', 'collaboration', 'home.collaboration.title', 'home.collaboration.eyebrow', null, null, null, [
@@ -423,13 +531,7 @@ class DefaultPageSections
                 ], ['/images/application-tableware.jpg', '/images/application-interior.jpg', '/images/application-packaging.jpg', '/images/application-retail.jpg']),
             ], 6),
             self::record($messages, 'material', 'material_facts', 'home.materialFacts.title', 'home.materialFacts.eyebrow', 'home.materialFacts.sheetDescription', 'home.materialFacts.sheetCta', 'b2b?leadType=sample_request#inquiry', [
-                'variant' => 'material_facts',
-                'sheet_title_translations' => self::translations($messages, 'home.materialFacts.sheetTitle'),
-                'note_translations' => self::translations($messages, 'home.materialFacts.note'),
-                'metrics' => self::cardItems($messages, 'home.materialFacts.infoCards', [
-                    'label' => 'label',
-                    'value' => 'value',
-                ]),
+                ...self::factSheetPayload($messages),
             ], 7),
             self::record($messages, 'material', 'proof_points', 'materialProof.proofPoints.title', 'materialProof.proofPoints.eyebrow', 'materialProof.proofPoints.description', null, null, [
                 'variant' => 'proof_points',
@@ -823,13 +925,7 @@ class DefaultPageSections
                 ]),
             ], 5),
             self::record($messages, 'b2b', 'material_facts', 'home.materialFacts.title', 'home.materialFacts.eyebrow', 'home.materialFacts.sheetDescription', 'home.materialFacts.sheetCta', 'b2b?leadType=sample_request#inquiry', [
-                'variant' => 'material_facts',
-                'sheet_title_translations' => self::translations($messages, 'home.materialFacts.sheetTitle'),
-                'note_translations' => self::translations($messages, 'home.materialFacts.note'),
-                'metrics' => self::cardItems($messages, 'home.materialFacts.infoCards', [
-                    'label' => 'label',
-                    'value' => 'value',
-                ]),
+                ...self::factSheetPayload($messages),
             ], 6),
             self::record($messages, 'b2b', 'credibility', 'home.credibility.title', 'home.credibility.eyebrow', null, null, null, [
                 'variant' => 'credibility',
@@ -898,6 +994,192 @@ class DefaultPageSections
                 'secondary_cta_url' => 'store',
             ], 3),
         ];
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<string, mixed>
+     */
+    private static function factSheetPayload(array $messages, string $variant = 'material_facts'): array
+    {
+        return [
+            'variant' => $variant,
+            'items' => self::materialFactItems(),
+            'sheet_title_translations' => self::translations($messages, 'home.materialFacts.sheetTitle'),
+            'sheet_description_translations' => self::translations($messages, 'home.materialFacts.sheetDescription'),
+            'sheet_cta_label_translations' => self::translations($messages, 'home.materialFacts.sheetCta'),
+            'sheet_cta_url' => 'b2b?leadType=sample_request#inquiry',
+            'info_cards' => self::cardItems($messages, 'home.materialFacts.infoCards', [
+                'label' => 'label',
+                'value' => 'value',
+            ]),
+            'note_translations' => self::translations($messages, 'home.materialFacts.note'),
+        ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private static function materialFactItems(): array
+    {
+        $items = self::materialFactItemsFromDatabase();
+
+        return $items !== [] ? $items : self::fallbackMaterialFactItems();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private static function materialFactItemsFromDatabase(): array
+    {
+        if (! Schema::hasTable('material_specs')) {
+            return [];
+        }
+
+        try {
+            return MaterialSpec::query()
+                ->published()
+                ->ordered()
+                ->get()
+                ->unique(fn (MaterialSpec $spec): string => (string) ($spec->key ?: $spec->id))
+                ->values()
+                ->map(fn (MaterialSpec $spec, int $index): array => [
+                    'key' => $spec->key ?: 'material_fact_'.$spec->id,
+                    'icon' => self::materialFactIcon($spec->icon, $index),
+                    'label' => $spec->label,
+                    'label_translations' => self::modelTranslations($spec, 'label'),
+                    'value' => $spec->value,
+                    'value_translations' => self::modelTranslations($spec, 'value'),
+                    'detail' => $spec->detail,
+                    'detail_translations' => self::modelTranslations($spec, 'detail'),
+                    'description' => $spec->detail,
+                    'description_translations' => self::modelTranslations($spec, 'detail'),
+                    'unit' => $spec->unit,
+                    'media_path' => $spec->media_path,
+                    'media_url' => $spec->media_url,
+                    'sort_order' => $spec->sort_order ?? ($index + 1),
+                ])
+                ->all();
+        } catch (\Throwable) {
+            return [];
+        }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private static function fallbackMaterialFactItems(): array
+    {
+        return [
+            [
+                'key' => 'weight',
+                'icon' => 'feather',
+                'label' => 'Weight',
+                'label_translations' => ['en' => 'Weight'],
+                'value' => 'Lightweight mineral composite',
+                'value_translations' => ['en' => 'Lightweight mineral composite'],
+                'detail' => 'Suitable for portable premium objects, tabletop accessories, and interior accessory systems.',
+                'detail_translations' => ['en' => 'Suitable for portable premium objects, tabletop accessories, and interior accessory systems.'],
+                'description' => 'Suitable for portable premium objects, tabletop accessories, and interior accessory systems.',
+                'description_translations' => ['en' => 'Suitable for portable premium objects, tabletop accessories, and interior accessory systems.'],
+                'sort_order' => 1,
+            ],
+            [
+                'key' => 'strength',
+                'icon' => 'shield',
+                'label' => 'Strength',
+                'label_translations' => ['en' => 'Strength'],
+                'value' => 'High compressive stability',
+                'value_translations' => ['en' => 'High compressive stability'],
+                'detail' => 'Built for premium display, tabletop, and light-use structural applications.',
+                'detail_translations' => ['en' => 'Built for premium display, tabletop, and light-use structural applications.'],
+                'description' => 'Built for premium display, tabletop, and light-use structural applications.',
+                'description_translations' => ['en' => 'Built for premium display, tabletop, and light-use structural applications.'],
+                'sort_order' => 2,
+            ],
+            [
+                'key' => 'flexibility',
+                'icon' => 'leaf',
+                'label' => 'Forming flexibility',
+                'label_translations' => ['en' => 'Forming flexibility'],
+                'value' => 'Process-dependent tuning',
+                'value_translations' => ['en' => 'Process-dependent tuning'],
+                'detail' => 'Can be tuned across rigid and semi-rigid outputs depending on formulation and moulding parameters.',
+                'detail_translations' => ['en' => 'Can be tuned across rigid and semi-rigid outputs depending on formulation and moulding parameters.'],
+                'description' => 'Can be tuned across rigid and semi-rigid outputs depending on formulation and moulding parameters.',
+                'description_translations' => ['en' => 'Can be tuned across rigid and semi-rigid outputs depending on formulation and moulding parameters.'],
+                'sort_order' => 3,
+            ],
+            [
+                'key' => 'absorption',
+                'icon' => 'badge',
+                'label' => 'Water absorption',
+                'label_translations' => ['en' => 'Water absorption'],
+                'value' => '0.00% verification target',
+                'value_translations' => ['en' => '0.00% verification target'],
+                'detail' => 'Initial figure for layout validation. Replace with verified laboratory results before public certification claims.',
+                'detail_translations' => ['en' => 'Initial figure for layout validation. Replace with verified laboratory results before public certification claims.'],
+                'description' => 'Initial figure for layout validation. Replace with verified laboratory results before public certification claims.',
+                'description_translations' => ['en' => 'Initial figure for layout validation. Replace with verified laboratory results before public certification claims.'],
+                'sort_order' => 4,
+            ],
+            [
+                'key' => 'surface',
+                'icon' => 'badge',
+                'label' => 'Surface feel',
+                'label_translations' => ['en' => 'Surface feel'],
+                'value' => 'Fine mineral texture',
+                'value_translations' => ['en' => 'Fine mineral texture'],
+                'detail' => 'Designed to communicate a premium shell-mineral tactility for interior and hospitality objects.',
+                'detail_translations' => ['en' => 'Designed to communicate a premium shell-mineral tactility for interior and hospitality objects.'],
+                'description' => 'Designed to communicate a premium shell-mineral tactility for interior and hospitality objects.',
+                'description_translations' => ['en' => 'Designed to communicate a premium shell-mineral tactility for interior and hospitality objects.'],
+                'sort_order' => 5,
+            ],
+            [
+                'key' => 'circularity',
+                'icon' => 'leaf',
+                'label' => 'Circular sourcing',
+                'label_translations' => ['en' => 'Circular sourcing'],
+                'value' => 'Recovered oyster shell input',
+                'value_translations' => ['en' => 'Recovered oyster shell input'],
+                'detail' => 'Built around reuse, traceability, and circular material communication for premium brands.',
+                'detail_translations' => ['en' => 'Built around reuse, traceability, and circular material communication for premium brands.'],
+                'description' => 'Built around reuse, traceability, and circular material communication for premium brands.',
+                'description_translations' => ['en' => 'Built around reuse, traceability, and circular material communication for premium brands.'],
+                'sort_order' => 6,
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function modelTranslations(MaterialSpec $spec, string $field): array
+    {
+        $translations = is_array($spec->{$field.'_translations'} ?? null)
+            ? $spec->{$field.'_translations'}
+            : [];
+
+        $directValue = $spec->{$field} ?? null;
+
+        if (is_string($directValue) && trim($directValue) !== '' && ! isset($translations['en'])) {
+            $translations['en'] = $directValue;
+        }
+
+        return array_filter(
+            array_intersect_key($translations, array_flip(LocalizedContent::supportedLocales())),
+            fn (mixed $value): bool => is_string($value) && trim($value) !== ''
+        );
+    }
+
+    private static function materialFactIcon(mixed $icon, int $index): string
+    {
+        $icons = ['feather', 'shield', 'leaf', 'badge'];
+
+        return is_string($icon) && in_array($icon, $icons, true)
+            ? $icon
+            : $icons[$index % count($icons)];
     }
 
     /**
