@@ -67,7 +67,6 @@ class HomeSectionForm
         'trust_and_credibility',
         'proof_points',
         'material_family',
-        'details',
         'process',
         'after_submit',
     ];
