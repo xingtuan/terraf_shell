@@ -5,6 +5,7 @@ namespace App\Filament\Resources\HomeSections\Schemas;
 use App\Enums\PublishStatus;
 use App\Filament\Support\AdminUploadStorage;
 use App\Models\HomeSection;
+use App\Support\HomeSectionPayloadNormalizer;
 use App\Support\LocalizedContent;
 use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\CodeEditor\Enums\Language;
@@ -107,7 +108,7 @@ class HomeSectionForm
                                     ->label(self::field('show_on_frontend'))
                                     ->helperText(self::helpText('show_on_frontend'))
                                     ->default(false)
-                                    ->formatStateUsing(fn (?string $state): bool => $state === PublishStatus::Published->value)
+                                    ->formatStateUsing(fn (mixed $state): bool => PublishStatus::normalize($state) === PublishStatus::Published)
                                     ->dehydrateStateUsing(fn (bool $state): string => $state ? PublishStatus::Published->value : PublishStatus::Draft->value),
                                 TextInput::make('cta_url')
                                     ->label(__('admin.ui.cta_url'))
@@ -1109,9 +1110,11 @@ class HomeSectionForm
                 : (isset($state['payload']) && is_array($state['payload']) ? $state['payload'] : null);
 
             if ($incomingPayload !== null) {
-                $data['payload'] = self::mergePayloadState(
-                    is_array($record?->payload) ? $record->payload : [],
-                    self::normalizeLocalizedArrays($incomingPayload)
+                $data['payload'] = HomeSectionPayloadNormalizer::normalize(
+                    self::normalizeLocalizedArrays(self::mergePayloadState(
+                        is_array($record?->payload) ? $record->payload : [],
+                        self::normalizeLocalizedArrays($incomingPayload)
+                    ))
                 );
             }
 
@@ -1122,7 +1125,9 @@ class HomeSectionForm
 
         if (array_key_exists('payload_json', $state)) {
             $payload = self::decodePayloadJson($state['payload_json'] ?? null);
-            $data['payload'] = is_array($payload) ? self::normalizeLocalizedArrays($payload) : $payload;
+            $data['payload'] = is_array($payload)
+                ? HomeSectionPayloadNormalizer::normalize(self::normalizeLocalizedArrays($payload))
+                : $payload;
         }
 
         unset($data['payload_json']);

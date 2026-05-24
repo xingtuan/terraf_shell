@@ -9,6 +9,7 @@ use App\Models\Material;
 use App\Models\MaterialApplication;
 use App\Models\MaterialSpec;
 use App\Models\MaterialStorySection;
+use App\Support\HomeSectionPayloadNormalizer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -576,7 +577,7 @@ class ContentManagementService
                 'cta_label' => $data['cta_label'] ?? null,
                 'cta_label_translations' => $data['cta_label_translations'] ?? null,
                 'cta_url' => $data['cta_url'] ?? null,
-                'payload' => $data['payload'] ?? null,
+                'payload' => $this->normalizeHomeSectionPayload($data['payload'] ?? null),
                 'media_url' => $data['media_url'] ?? null,
                 'sort_order' => $data['sort_order'] ?? 0,
             ], $data);
@@ -602,7 +603,9 @@ class ContentManagementService
                 'cta_label' => $data['cta_label'] ?? $section->cta_label,
                 'cta_label_translations' => $data['cta_label_translations'] ?? $section->cta_label_translations,
                 'cta_url' => $data['cta_url'] ?? $section->cta_url,
-                'payload' => $data['payload'] ?? $section->payload,
+                'payload' => array_key_exists('payload', $data)
+                    ? $this->normalizeHomeSectionPayload($data['payload'])
+                    : $section->payload,
                 'media_url' => $data['media_url'] ?? $section->media_url,
                 'is_seeded' => false,
                 'sort_order' => $data['sort_order'] ?? $section->sort_order,
@@ -646,14 +649,16 @@ class ContentManagementService
 
     private function applyPublishState(array $attributes, array $data, ?Model $existing = null): array
     {
-        $status = $data['status'] ?? $existing?->status ?? PublishStatus::Draft->value;
+        $status = PublishStatus::normalizeValue(
+            $data['status'] ?? $existing?->status ?? PublishStatus::Draft->value
+        );
 
         $attributes['status'] = $status;
 
         if ($status === PublishStatus::Published->value) {
             if (array_key_exists('published_at', $data) && $data['published_at'] !== null) {
                 $attributes['published_at'] = $data['published_at'];
-            } elseif ($existing?->published_at !== null && $existing->status === PublishStatus::Published->value) {
+            } elseif ($existing?->published_at !== null && PublishStatus::normalize($existing->status) === PublishStatus::Published) {
                 $attributes['published_at'] = $existing->published_at;
             } else {
                 $attributes['published_at'] = now();
@@ -663,6 +668,11 @@ class ContentManagementService
         }
 
         return $attributes;
+    }
+
+    private function normalizeHomeSectionPayload(mixed $payload): mixed
+    {
+        return HomeSectionPayloadNormalizer::normalize($payload);
     }
 
     private function syncMedia(Model $model, array $data, string $directory): void

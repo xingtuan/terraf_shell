@@ -10,6 +10,8 @@ trait HasPublishStatus
     protected static function bootHasPublishStatus(): void
     {
         static::saving(function ($model): void {
+            $model->status = PublishStatus::normalizeValue($model->status);
+
             if ($model->status === PublishStatus::Published->value && blank($model->published_at)) {
                 $model->published_at = now();
             }

@@ -25,6 +25,10 @@ class UpsertHomeSectionRequest extends AdminCmsRequest
             $data['key'] = $key === '' ? $this->input('key') : $key;
         }
 
+        if ($this->has('status') && $this->input('status') !== null) {
+            $data['status'] = PublishStatus::normalizeValue($this->input('status'));
+        }
+
         if ($data !== []) {
             $this->merge($data);
         }

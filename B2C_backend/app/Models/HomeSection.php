@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasLocalizedAttributes;
 use App\Models\Concerns\HasOptionalMediaUrl;
 use App\Models\Concerns\HasPublishStatus;
+use App\Support\HomeSectionPayloadNormalizer;
 use Database\Factories\HomeSectionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,8 +23,6 @@ class HomeSection extends Model
         'b2b' => 'B2B',
         'contact' => 'Contact',
         'articles' => 'Articles',
-        'privacy' => 'Privacy',
-        'terms' => 'Terms',
     ];
 
     protected array $localizedAttributes = [
@@ -105,5 +104,15 @@ class HomeSection extends Model
             'is_seeded' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    public function setPayloadAttribute(mixed $value): void
+    {
+        $this->attributes['payload'] = $value === null
+            ? null
+            : json_encode(
+                HomeSectionPayloadNormalizer::normalize($value),
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
+            );
     }
 }

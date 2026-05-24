@@ -163,6 +163,23 @@ describe("CMS page sections wiring", () => {
     assert.match(source, /shouldUseCmsVisibility/)
   })
 
+  it("articles page fetches article sections and avoids hardcoded editorial copy", () => {
+    const source = readFileSync(
+      join(process.cwd(), "app", "[locale]", "articles", "page.tsx"),
+      "utf8",
+    )
+
+    assert.match(source, /getPageSections\(\{[\s\S]*baseUrl: apiBaseUrl,[\s\S]*locale,[\s\S]*page: "articles",?[\s\S]*\}\)/)
+    assert.match(source, /buildPageIntroContent\(/)
+    assert.match(source, /buildFinalCtaContent\(/)
+    assert.match(source, /ArticleFeedSection/)
+    for (const sectionKey of ["intro", "article_feed", "final_cta"]) {
+      assert.match(source, new RegExp(`shouldRender\\("${sectionKey}"\\)`))
+    }
+    assert.doesNotMatch(source, /Articles, lab notes, and material updates/)
+    assert.doesNotMatch(source, /Backend-driven editorial content/)
+  })
+
   it("footer renders configured social and legal link groups", () => {
     const source = readFileSync(join(process.cwd(), "components", "footer.tsx"), "utf8")
 

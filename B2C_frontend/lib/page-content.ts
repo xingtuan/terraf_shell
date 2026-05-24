@@ -1,4 +1,8 @@
 import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
+import {
+  payloadArray as readPayloadArray,
+  payloadList,
+} from "@/lib/payload-array"
 import type { HomeSection, MaterialDetail, MaterialSpec } from "@/lib/types"
 
 type HomeMessages = SiteMessages["home"]
@@ -294,14 +298,11 @@ function sectionPayload(section: HomeSection | null | undefined) {
   return section?.payload && isRecord(section.payload) ? section.payload : null
 }
 
-function payloadArray(
+export function payloadArray(
   section: HomeSection | null | undefined,
   field: string,
 ): unknown[] {
-  const payload = sectionPayload(section)
-  const value = payload?.[field]
-
-  return Array.isArray(value) ? value : []
+  return readPayloadArray(section, field)
 }
 
 function payloadItemString(
@@ -361,8 +362,7 @@ function footerLinkItems(
   field: string,
   fallback: Array<{ label: string; href: string }>,
 ) {
-  const rawItems = payload?.[field]
-  const items = Array.isArray(rawItems) ? rawItems : []
+  const items = payloadList(payload?.[field])
   const resolved = items.flatMap((rawItem, index) => {
     if (!isRecord(rawItem)) {
       return []
@@ -1675,8 +1675,8 @@ export function buildMaterialFamilyContent(
   const payload = sectionPayload(section)
   const diagram = isRecord(payload?.diagram) ? payload.diagram : null
   const badges = isRecord(payload?.badges) ? payload.badges : null
-  const legend = Array.isArray(payload?.legend)
-    ? payload.legend.flatMap((rawItem, index) => {
+  const legend = payloadList(payload?.legend)
+    .flatMap((rawItem, index) => {
         if (!isRecord(rawItem)) {
           return []
         }
@@ -1694,7 +1694,6 @@ export function buildMaterialFamilyContent(
 
         return item.label || item.description ? [item] : []
       })
-    : []
   const lines = payloadArray(section, "items")
     .flatMap((rawItem, index) => {
       if (!isRecord(rawItem)) {
@@ -2095,39 +2094,36 @@ export function buildPilotProjectsContent(
   section: HomeSection | null | undefined,
   locale: Locale,
 ): SiteMessages["pilotProjects"] {
-  const rawItems = section?.payload?.items
-  const items = Array.isArray(rawItems)
-    ? rawItems
-        .flatMap((rawItem, index) => {
-          if (!isRecord(rawItem)) {
-            return []
-          }
+  const items = payloadArray(section, "items")
+    .flatMap((rawItem, index) => {
+      if (!isRecord(rawItem)) {
+        return []
+      }
 
-          const fallbackItem = fallback.items[index]
-          const item = {
-            title: resolvePayloadItemString(
-              rawItem,
-              "title",
-              locale,
-              fallbackItem?.title,
-            ),
-            status: resolvePayloadItemString(
-              rawItem,
-              "status",
-              locale,
-              fallbackItem?.status,
-            ),
-            description: resolvePayloadItemString(
-              rawItem,
-              "description",
-              locale,
-              fallbackItem?.description,
-            ),
-          }
+      const fallbackItem = fallback.items[index]
+      const item = {
+        title: resolvePayloadItemString(
+          rawItem,
+          "title",
+          locale,
+          fallbackItem?.title,
+        ),
+        status: resolvePayloadItemString(
+          rawItem,
+          "status",
+          locale,
+          fallbackItem?.status,
+        ),
+        description: resolvePayloadItemString(
+          rawItem,
+          "description",
+          locale,
+          fallbackItem?.description,
+        ),
+      }
 
-          return item.title || item.status || item.description ? [item] : []
-        })
-    : []
+      return item.title || item.status || item.description ? [item] : []
+    })
 
   return {
     ...fallback,

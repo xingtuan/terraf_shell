@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Api;
 
+use App\Enums\PublishStatus;
 use App\Models\Article;
 use App\Models\HomeSection;
 use App\Models\Material;
@@ -356,6 +357,107 @@ class MaterialCmsTest extends TestCase
             ->assertJsonMissing([
                 'title' => 'Material scoped section',
             ]);
+    }
+
+    public function test_public_page_sections_cover_all_page_keys_and_normalize_payload_maps(): void
+    {
+        HomeSection::query()->delete();
+
+        $pageKeys = ['home', 'material', 'contact', 'b2b', 'store', 'community', 'articles'];
+
+        foreach ($pageKeys as $index => $pageKey) {
+            HomeSection::factory()->published()->create([
+                'page_key' => $pageKey,
+                'key' => "{$pageKey}_visible",
+                'title' => "EN {$pageKey}",
+                'title_translations' => [
+                    'en' => "EN {$pageKey}",
+                    'zh' => "ZH {$pageKey}",
+                    'ko' => "KO {$pageKey}",
+                ],
+                'payload' => [
+                    'items' => [
+                        '550e8400-e29b-41d4-a716-446655440000' => [
+                            'title' => 'Second',
+                            'sort_order' => 2,
+                        ],
+                        '550e8400-e29b-41d4-a716-446655440001' => [
+                            'title' => 'First',
+                            'sort_order' => 1,
+                        ],
+                    ],
+                    'cards' => [
+                        '10' => [
+                            'title' => 'Numeric key card',
+                        ],
+                    ],
+                ],
+                'sort_order' => $index,
+            ]);
+
+            HomeSection::factory()->create([
+                'page_key' => $pageKey,
+                'key' => "{$pageKey}_draft",
+                'status' => PublishStatus::Draft->value,
+            ]);
+        }
+
+        foreach ($pageKeys as $pageKey) {
+            $response = $this->getJson("/api/page-sections?page={$pageKey}&locale=ko")
+                ->assertOk()
+                ->assertJsonCount(1, 'data')
+                ->assertJsonFragment([
+                    'page_key' => $pageKey,
+                    'key' => "{$pageKey}_visible",
+                    'title' => "KO {$pageKey}",
+                ])
+                ->assertJsonMissing([
+                    'key' => "{$pageKey}_draft",
+                ]);
+
+            $section = $response->json('data.0');
+
+            $this->assertSame([0, 1], array_keys($section['payload']['items']));
+            $this->assertSame('Second', $section['payload']['items'][0]['title']);
+            $this->assertSame([0], array_keys($section['payload']['cards']));
+            $this->assertSame('Numeric key card', $section['payload']['cards'][0]['title']);
+        }
+    }
+
+    public function test_home_section_legacy_status_values_are_normalized(): void
+    {
+        foreach ([
+            'visible',
+            'ACTIVE',
+            'frontend',
+            true,
+            '1',
+            '前端显示',
+            PublishStatus::Published,
+        ] as $status) {
+            $section = HomeSection::factory()->create([
+                'status' => $status,
+                'published_at' => null,
+            ])->fresh();
+
+            $this->assertSame(PublishStatus::Published->value, $section->status);
+            $this->assertNotNull($section->published_at);
+        }
+
+        $archived = HomeSection::factory()->create([
+            'status' => 'ARCHIVED',
+            'published_at' => now(),
+        ])->fresh();
+
+        $draft = HomeSection::factory()->create([
+            'status' => 'hidden',
+            'published_at' => now(),
+        ])->fresh();
+
+        $this->assertSame(PublishStatus::Archived->value, $archived->status);
+        $this->assertNull($archived->published_at);
+        $this->assertSame(PublishStatus::Draft->value, $draft->status);
+        $this->assertNull($draft->published_at);
     }
 
     public function test_contact_and_b2b_page_sections_expose_locale_specific_cms_content(): void

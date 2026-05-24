@@ -683,9 +683,18 @@ export type HomeSectionPayload = JsonObject & {
   items?: JsonValue[]
 }
 
+export type PageKey =
+  | "home"
+  | "material"
+  | "contact"
+  | "b2b"
+  | "store"
+  | "community"
+  | "articles"
+
 export interface HomeSection {
   id: number
-  page_key?: "home" | "material" | string | null
+  page_key?: PageKey | null
   key: string
   title?: string | null
   title_translations?: LocalizedStringSet

@@ -45,8 +45,8 @@ class HomeSectionsTable
                     ->limit(60),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => PublishStatus::tryFrom($state)?->label() ?? $state)
-                    ->color(fn (string $state): string => PublishStatus::tryFrom($state)?->color() ?? 'gray'),
+                    ->formatStateUsing(fn (mixed $state): string => PublishStatus::labelFor($state))
+                    ->color(fn (mixed $state): string => PublishStatus::colorFor($state)),
                 TextColumn::make('sort_order')
                     ->numeric()
                     ->sortable(),

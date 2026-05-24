@@ -1,18 +1,9 @@
 import { requestApi } from "@/lib/api/client"
 import { normalizeHomeSection } from "@/lib/api/adapters"
 import { ensureArray } from "@/lib/api/normalizers"
-import type { HomeSection } from "@/lib/types"
+import type { HomeSection, PageKey } from "@/lib/types"
 
-export type PageKey =
-  | "home"
-  | "material"
-  | "contact"
-  | "b2b"
-  | "store"
-  | "community"
-  | "articles"
-  | "privacy"
-  | "terms"
+export type { PageKey } from "@/lib/types"
 
 type PageSectionsRequest = {
   baseUrl?: string

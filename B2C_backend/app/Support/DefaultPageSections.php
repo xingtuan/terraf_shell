@@ -25,6 +25,7 @@ class DefaultPageSections
             ...self::communityRecords($messages),
             ...self::contactRecords($messages),
             ...self::b2bRecords($messages),
+            ...self::articlesRecords($messages),
         ];
     }
 
@@ -870,6 +871,34 @@ class DefaultPageSections
                 'secondary_cta_label_translations' => self::translations($messages, 'home.finalCta.secondaryCta'),
                 'secondary_cta_url' => 'store',
             ], 12),
+        ];
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $messages
+     * @return array<int, array<string, mixed>>
+     */
+    private static function articlesRecords(array $messages): array
+    {
+        return [
+            self::record($messages, 'articles', 'intro', 'articleFeed.defaultTitle', 'articleFeed.defaultEyebrow', 'articleFeed.defaultDescription', 'articleFeed.defaultCta', 'articles#articles', [
+                'variant' => 'intro',
+                'secondary_cta_label_translations' => self::translations($messages, 'header.contact'),
+                'secondary_cta_url' => 'contact',
+            ], 1),
+            self::record($messages, 'articles', 'article_feed', 'articleFeed.defaultTitle', 'articleFeed.defaultEyebrow', 'articleFeed.defaultDescription', 'articleFeed.defaultCta', 'articles', [
+                'variant' => 'article_feed',
+                'limit' => 12,
+                ...self::localizedPayloadField('empty_title', self::translations($messages, 'articleFeed.emptyTitle')),
+                ...self::localizedPayloadField('empty_description', self::translations($messages, 'articleFeed.emptyDescription')),
+            ], 2),
+            self::record($messages, 'articles', 'final_cta', 'home.finalCta.title', null, 'home.finalCta.description', null, null, [
+                'variant' => 'final_cta',
+                'primary_cta_label_translations' => self::translations($messages, 'home.finalCta.primaryCta'),
+                'primary_cta_url' => 'b2b#inquiry',
+                'secondary_cta_label_translations' => self::translations($messages, 'home.finalCta.secondaryCta'),
+                'secondary_cta_url' => 'store',
+            ], 3),
         ];
     }
 
