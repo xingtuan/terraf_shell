@@ -1849,6 +1849,7 @@ return [
             'technical_downloads' => '技术下载',
             'download_empty_state_labels' => '下载空状态标签',
             'certification_labels' => '认证标签',
+            'certification_records' => '认证记录',
             'final_cta_actions' => '最终 CTA 操作',
             'footer_link_groups' => '页脚链接组',
         ],
@@ -1858,6 +1859,7 @@ return [
             'show_on_frontend' => '关闭后，该整个板块不会在前端网站显示。',
             'store_product_grid_labels' => '编辑商品目录网格周围的界面标签。商品数据仍来自商品目录。',
             'credibility_benefits' => '可信度模块使用的简短利益点。',
+            'certification_records' => '覆盖页面显示的认证记录。设置后将替换材料数据源中的记录。',
         ],
         'actions' => [
             'add_item' => '添加项目',
@@ -1873,6 +1875,7 @@ return [
             'add_download' => '添加下载',
             'add_social_link' => '添加社交链接',
             'add_legal_link' => '添加法律链接',
+            'add_certification' => '添加认证',
         ],
         'fields' => [
             'page' => '页面',
@@ -1942,6 +1945,11 @@ return [
             'primary_cta_label' => '主要 CTA 标签',
             'social_links' => '社交链接',
             'legal_links' => '法律链接',
+            'certifications' => '认证',
+            'name' => '名称',
+            'result' => '结果',
+            'issuer' => '签发方',
+            'unit' => '单位',
         ],
     ],
     'legal_pages' => [

@@ -22,6 +22,7 @@ class HomeSectionPayloadNormalizer
         'benefits',
         'topic_options',
         'legend',
+        'certifications',
     ];
 
     public static function normalize(mixed $payload): mixed

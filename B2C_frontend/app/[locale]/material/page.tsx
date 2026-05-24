@@ -335,7 +335,9 @@ export default async function MaterialPage({ params }: MaterialPageProps) {
       ) : null}
       {certificationsContent ? (
         <CertificationsAtAGlance
-          certifications={materialInfo?.certifications ?? []}
+          certifications={
+            certificationsContent.certifications ?? materialInfo?.certifications ?? []
+          }
           eyebrow={certificationsContent.eyebrow}
           title={certificationsContent.title}
           description={certificationsContent.description}

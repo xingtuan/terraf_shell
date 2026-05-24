@@ -1849,6 +1849,7 @@ return [
             'technical_downloads' => '기술 다운로드',
             'download_empty_state_labels' => '다운로드 빈 상태 라벨',
             'certification_labels' => '인증 라벨',
+            'certification_records' => '인증 기록',
             'final_cta_actions' => '최종 CTA 작업',
             'footer_link_groups' => '푸터 링크 그룹',
         ],
@@ -1858,6 +1859,7 @@ return [
             'show_on_frontend' => '끄면 이 전체 섹션이 공개 웹사이트에 표시되지 않습니다.',
             'store_product_grid_labels' => '카탈로그 그리드 주변의 UI 라벨을 편집합니다. 상품 데이터는 계속 상품 카탈로그에서 가져옵니다.',
             'credibility_benefits' => '신뢰성 블록에 사용되는 짧은 요점입니다.',
+            'certification_records' => '페이지에 표시되는 인증 기록을 재정의합니다. 입력된 경우 소재 데이터 소스의 기록을 대체합니다.',
         ],
         'actions' => [
             'add_item' => '항목 추가',
@@ -1873,6 +1875,7 @@ return [
             'add_download' => '다운로드 추가',
             'add_social_link' => '소셜 링크 추가',
             'add_legal_link' => '법적 링크 추가',
+            'add_certification' => '인증 추가',
         ],
         'fields' => [
             'page' => '페이지',
@@ -1942,6 +1945,11 @@ return [
             'primary_cta_label' => '기본 CTA 라벨',
             'social_links' => '소셜 링크',
             'legal_links' => '법적 링크',
+            'certifications' => '인증',
+            'name' => '이름',
+            'result' => '결과',
+            'issuer' => '발급 기관',
+            'unit' => '단위',
         ],
     ],
     'legal_pages' => [

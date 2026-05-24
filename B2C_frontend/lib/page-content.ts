@@ -3,7 +3,7 @@ import {
   payloadArray as readPayloadArray,
   payloadList,
 } from "@/lib/payload-array"
-import type { HomeSection, MaterialDetail, MaterialSpec } from "@/lib/types"
+import type { CertificationCardInput, HomeSection, MaterialDetail, MaterialSpec } from "@/lib/types"
 
 type HomeMessages = SiteMessages["home"]
 type LocalizedRecord = object
@@ -1896,13 +1896,43 @@ export function buildTechnicalDownloadsContent(
   }
 }
 
+export type CertificationsContent = SiteMessages["certificationsAtAGlance"] & {
+  certifications?: CertificationCardInput[]
+}
+
 export function buildCertificationsContent(
   fallback: SiteMessages["certificationsAtAGlance"],
   section: HomeSection | null | undefined,
   locale: Locale,
-): SiteMessages["certificationsAtAGlance"] {
+): CertificationsContent {
   const payload = sectionPayload(section)
   const statusLabels = isRecord(payload?.status_labels) ? payload.status_labels : null
+
+  const cmsCertifications = payloadArray(section, "certifications").flatMap(
+    (rawItem): CertificationCardInput[] => {
+      if (!isRecord(rawItem)) return []
+      const name = payloadItemString(rawItem, "name", locale) || undefined
+      const label = payloadItemString(rawItem, "label", locale) || undefined
+      if (!name && !label) return []
+      return [
+        {
+          key: typeof rawItem.key === "string" ? rawItem.key : undefined,
+          name,
+          label,
+          value: payloadItemString(rawItem, "value", locale) || undefined,
+          result: typeof rawItem.result === "string" ? rawItem.result : undefined,
+          unit: typeof rawItem.unit === "string" ? rawItem.unit : undefined,
+          status: typeof rawItem.status === "string" ? rawItem.status : undefined,
+          verified: typeof rawItem.verified === "boolean" ? rawItem.verified : undefined,
+          description: payloadItemString(rawItem, "description", locale) || undefined,
+          issuer: typeof rawItem.issuer === "string" ? rawItem.issuer : undefined,
+          tested_at: typeof rawItem.tested_at === "string" ? rawItem.tested_at : undefined,
+          document_url:
+            typeof rawItem.document_url === "string" ? rawItem.document_url : undefined,
+        },
+      ]
+    },
+  )
 
   return {
     ...fallback,
@@ -1976,6 +2006,7 @@ export function buildCertificationsContent(
         fallback.statusLabels.not_applicable,
       ),
     },
+    ...(cmsCertifications.length ? { certifications: cmsCertifications } : {}),
   }
 }
 

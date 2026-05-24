@@ -1849,6 +1849,7 @@ return [
             'technical_downloads' => 'Technical downloads',
             'download_empty_state_labels' => 'Download empty-state labels',
             'certification_labels' => 'Certification labels',
+            'certification_records' => 'Certification records',
             'final_cta_actions' => 'Final CTA actions',
             'footer_link_groups' => 'Footer link groups',
         ],
@@ -1858,6 +1859,7 @@ return [
             'show_on_frontend' => 'Turn off to hide this whole section from the public website.',
             'store_product_grid_labels' => 'Editable labels around the catalogue grid. Product data still comes from the product catalogue.',
             'credibility_benefits' => 'Short benefit bullets used by credibility blocks.',
+            'certification_records' => 'Override certification records shown on the page. When provided, these replace records from the Materials data source.',
         ],
         'actions' => [
             'add_item' => 'Add item',
@@ -1873,6 +1875,7 @@ return [
             'add_download' => 'Add download',
             'add_social_link' => 'Add social link',
             'add_legal_link' => 'Add legal link',
+            'add_certification' => 'Add certification',
         ],
         'fields' => [
             'page' => 'Page',
@@ -1942,6 +1945,11 @@ return [
             'primary_cta_label' => 'Primary CTA label',
             'social_links' => 'Social links',
             'legal_links' => 'Legal links',
+            'certifications' => 'Certifications',
+            'name' => 'Name',
+            'result' => 'Result',
+            'issuer' => 'Issuer',
+            'unit' => 'Unit',
         ],
     ],
     'legal_pages' => [

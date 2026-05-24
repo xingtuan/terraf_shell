@@ -158,6 +158,7 @@ class HomeSectionForm
                 self::downloadsSection(),
                 self::downloadLabelsSection(),
                 self::certificationLabelsSection(),
+                self::certificationRecordsSection(),
                 self::finalCtaSection(),
                 Section::make(__('admin.ui.pilot_projects'))
                     ->description(__('admin.ui.pilot_projects_payload_help'))
@@ -168,6 +169,7 @@ class HomeSectionForm
                             ->collapsible()
                             ->reorderableWithButtons()
                             ->defaultItems(0)
+                            ->dehydrated(fn (Get $get): bool => $get('key') === 'pilot_projects')
                             ->schema([
                                 TextInput::make('title_translations.en')
                                     ->label(__('admin.ui.title_en'))
@@ -293,6 +295,7 @@ class HomeSectionForm
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
+                    ->dehydrated(fn (Get $get): bool => in_array($get('key'), self::ITEM_PAYLOAD_KEYS, true))
                     ->schema([
                         TextInput::make('key')
                             ->label(self::field('key'))
@@ -549,6 +552,7 @@ class HomeSectionForm
                     ->collapsible()
                     ->reorderableWithButtons()
                     ->defaultItems(0)
+                    ->dehydrated(fn (Get $get): bool => $get('key') === 'store_faq')
                     ->schema([
                         TextInput::make('question_translations.en')->label(self::localizedField('question', 'en'))->maxLength(240),
                         TextInput::make('question_translations.zh')->label(self::localizedField('question', 'zh'))->maxLength(240),
@@ -903,6 +907,96 @@ class HomeSectionForm
                         TextInput::make('payload.status_labels.not_applicable_translations.zh')->label(self::localizedField('not_applicable', 'zh')),
                         TextInput::make('payload.status_labels.not_applicable_translations.ko')->label(self::localizedField('not_applicable', 'ko')),
                     ]),
+            ])
+            ->visible(fn (Get $get): bool => $get('key') === 'certifications');
+    }
+
+    private static function certificationRecordsSection(): Section
+    {
+        return Section::make(self::sectionTitle('certification_records'))
+            ->description(self::helpText('certification_records'))
+            ->schema([
+                Repeater::make('payload.certifications')
+                    ->label(self::field('certifications'))
+                    ->addActionLabel(self::actionLabel('add_certification'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        TextInput::make('key')
+                            ->label(__('admin.ui.internal_key'))
+                            ->maxLength(120),
+                        Select::make('status')
+                            ->label(__('admin.fields.status'))
+                            ->options([
+                                'certified' => 'Certified',
+                                'tested' => 'Tested',
+                                'in_testing' => 'In testing',
+                                'pending' => 'Pending',
+                                'not_applicable' => 'Not applicable',
+                            ])
+                            ->default('pending'),
+                        Toggle::make('verified')
+                            ->label(__('admin.ui.verified')),
+                        TextInput::make('unit')
+                            ->label(__('admin.ui.unit'))
+                            ->maxLength(40),
+                        TextInput::make('tested_at')
+                            ->label(__('admin.ui.test_date'))
+                            ->maxLength(20)
+                            ->placeholder('YYYY-MM-DD'),
+                        TextInput::make('document_url')
+                            ->label(__('admin.ui.document_url'))
+                            ->url()
+                            ->maxLength(2048),
+                        TextInput::make('name_translations.en')
+                            ->label(self::localizedField('name', 'en'))
+                            ->maxLength(180),
+                        TextInput::make('name_translations.zh')
+                            ->label(self::localizedField('name', 'zh'))
+                            ->maxLength(180),
+                        TextInput::make('name_translations.ko')
+                            ->label(self::localizedField('name', 'ko'))
+                            ->maxLength(180),
+                        TextInput::make('label_translations.en')
+                            ->label(self::localizedField('label', 'en'))
+                            ->maxLength(180),
+                        TextInput::make('label_translations.zh')
+                            ->label(self::localizedField('label', 'zh'))
+                            ->maxLength(180),
+                        TextInput::make('label_translations.ko')
+                            ->label(self::localizedField('label', 'ko'))
+                            ->maxLength(180),
+                        TextInput::make('value_translations.en')
+                            ->label(self::localizedField('value', 'en'))
+                            ->maxLength(120),
+                        TextInput::make('value_translations.zh')
+                            ->label(self::localizedField('value', 'zh'))
+                            ->maxLength(120),
+                        TextInput::make('value_translations.ko')
+                            ->label(self::localizedField('value', 'ko'))
+                            ->maxLength(120),
+                        TextInput::make('result')
+                            ->label(self::field('result'))
+                            ->maxLength(120),
+                        TextInput::make('issuer')
+                            ->label(self::field('issuer'))
+                            ->maxLength(180),
+                        Textarea::make('description_translations.en')
+                            ->label(__('admin.ui.description_en'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('description_translations.zh')
+                            ->label(__('admin.ui.description_zh'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                        Textarea::make('description_translations.ko')
+                            ->label(__('admin.ui.description_ko'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
             ])
             ->visible(fn (Get $get): bool => $get('key') === 'certifications');
     }
