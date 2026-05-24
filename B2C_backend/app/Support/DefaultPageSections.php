@@ -809,10 +809,10 @@ class DefaultPageSections
     private static function contactRecords(array $messages): array
     {
         return [
-            self::record($messages, 'contact', 'intro', 'contactPage.intro.title', 'contactPage.intro.eyebrow', 'contactPage.intro.description', 'contactPage.intro.primaryCta', 'contact#inquiry', [
+            self::record($messages, 'contact', 'intro', 'contactPage.intro.title', 'contactPage.intro.eyebrow', 'contactPage.intro.description', 'contactPage.intro.primaryCta', 'contact#contact-form', [
                 'variant' => 'intro',
                 'secondary_cta_label_translations' => self::translations($messages, 'contactPage.intro.secondaryCta'),
-                'secondary_cta_url' => '#inquiry',
+                'secondary_cta_url' => '#contact-form',
                 'anchor_id' => 'contact-intro',
             ], 1),
             self::record($messages, 'contact', 'details', 'contactPage.details.title', 'contactPage.details.eyebrow', 'contactPage.details.description', null, null, [
@@ -821,7 +821,7 @@ class DefaultPageSections
                 'items' => self::contactDetailCards($messages),
                 'response_translations' => self::translations($messages, 'contactPage.details.response'),
             ], 2),
-            self::manualRecord('contact', 'inquiry_form', self::literalTranslations(
+            self::manualRecord('contact', 'form', self::literalTranslations(
                 'Send a structured inquiry',
                 '发送结构化询盘',
                 '구조화된 문의 보내기'
@@ -839,7 +839,7 @@ class DefaultPageSections
                 '문의 제출'
             ), null, [
                 ...self::leadFormPayload($messages),
-                'form_anchor_id' => 'inquiry',
+                'form_anchor_id' => 'contact-form',
                 'submit_success_message_translations' => self::translations($messages, 'common.success.inquirySubmitted'),
                 'submit_button_label_translations' => self::literalTranslations('Submit Inquiry', '提交询盘', '문의 제출'),
                 'privacy_note_translations' => self::literalTranslations(
@@ -847,15 +847,6 @@ class DefaultPageSections
                     '你的信息仅用于回复此询盘及相关项目沟通。',
                     '입력하신 정보는 이 문의와 관련 프로젝트 커뮤니케이션에 응답하는 데에만 사용됩니다.'
                 ),
-                'topic_options' => self::manualStringItems([
-                    self::literalTranslations('Material supply', '材料供应', '소재 공급'),
-                    self::literalTranslations('Material request', '材料申请', '소재 요청'),
-                    self::literalTranslations('Product development', '产品开发', '제품 개발'),
-                    self::literalTranslations('Retail or store inquiry', '零售或商店咨询', '리테일 또는 스토어 문의'),
-                    self::literalTranslations('Hospitality project', '酒店餐饮项目', '호스피탈리티 프로젝트'),
-                    self::literalTranslations('Community collaboration', '社区合作', '커뮤니티 협업'),
-                    self::literalTranslations('General question', '一般问题', '일반 질문'),
-                ], 'label'),
             ], 3),
             self::manualRecord('contact', 'final_cta', self::literalTranslations(
                 'Start with a short message. We will guide the next step.',
@@ -869,10 +860,10 @@ class DefaultPageSections
                 'Email the Team',
                 '给团队发邮件',
                 '팀에 이메일 보내기'
-            ), 'contact#inquiry', [
+            ), 'contact#contact-form', [
                 'variant' => 'final_cta',
                 'primary_cta_label_translations' => self::literalTranslations('Email the Team', '给团队发邮件', '팀에 이메일 보내기'),
-                'primary_cta_url' => 'contact#inquiry',
+                'primary_cta_url' => 'contact#contact-form',
                 'secondary_cta_label_translations' => self::literalTranslations('Request Review Pack', '申请评估材料', '검토 패키지 요청'),
                 'secondary_cta_url' => 'b2b',
                 'anchor_id' => 'contact-final-cta',
@@ -1349,13 +1340,22 @@ class DefaultPageSections
                 'contact' => 'contact',
                 'project' => 'project',
                 'material' => 'material',
+                'collaboration' => 'collaboration',
+                'shipping' => 'shipping',
             ]),
             'fields' => self::translatedMap($messages, 'b2bPage.form.fields', self::leadFormFieldMap()),
             'placeholders' => self::translatedMap($messages, 'b2bPage.form.placeholders', self::leadFormFieldMap()),
-            'validation' => self::translatedMap($messages, 'b2bPage.form.validation', self::leadFormValidationMap()),
+            'helpers' => [],
+            'validation' => [
+                ...self::translatedMap($messages, 'b2bPage.form.validation', self::leadFormValidationMap()),
+                'required_translations' => self::literalTranslations('{field} is required.', '{field} is required.', '{field} is required.'),
+            ],
+            'field_settings' => self::leadFieldSettings(),
             'interest_options' => self::leadInterestOptions($messages),
             'panel_copy' => self::leadPanelCopy($messages),
+            'custom_fields' => [],
             'product_context_label_translations' => self::translations($messages, 'b2bPage.form.productContextLabel'),
+            'left_panel_eyebrow_translations' => self::literalTranslations('OXP', 'OXP', 'OXP'),
             'submit_button_label_translations' => self::translations($messages, 'b2bPage.form.submit'),
             'submit_success_message_translations' => self::translations($messages, 'b2bPage.form.success'),
             'privacy_note_translations' => self::translations($messages, 'b2bPage.form.disclaimer'),
@@ -1370,26 +1370,26 @@ class DefaultPageSections
     {
         return [
             'name' => 'name',
-            'company' => 'company',
-            'organization_type' => 'organizationType',
+            'companyName' => 'company',
+            'organizationType' => 'organizationType',
             'email' => 'email',
             'phone' => 'phone',
             'country' => 'country',
             'region' => 'region',
-            'company_website' => 'companyWebsite',
-            'job_title' => 'jobTitle',
+            'companyWebsite' => 'companyWebsite',
+            'jobTitle' => 'jobTitle',
             'application' => 'application',
             'volume' => 'volume',
             'timeline' => 'timeline',
-            'material_interest' => 'materialInterest',
-            'quantity_estimate' => 'quantityEstimate',
-            'shipping_country' => 'shippingCountry',
-            'shipping_region' => 'shippingRegion',
-            'shipping_address' => 'shippingAddress',
-            'intended_use' => 'intendedUse',
-            'collaboration_goal' => 'collaborationGoal',
-            'project_stage' => 'projectStage',
             'message' => 'message',
+            'collaborationGoal' => 'collaborationGoal',
+            'projectStage' => 'projectStage',
+            'materialInterest' => 'materialInterest',
+            'quantityEstimate' => 'quantityEstimate',
+            'shippingCountry' => 'shippingCountry',
+            'shippingRegion' => 'shippingRegion',
+            'shippingAddress' => 'shippingAddress',
+            'intendedUse' => 'intendedUse',
         ];
     }
 
@@ -1413,6 +1413,31 @@ class DefaultPageSections
             'material_interest_required' => 'materialInterestRequired',
             'intended_use_required' => 'intendedUseRequired',
         ];
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private static function leadFieldSettings(): array
+    {
+        $required = [
+            'name',
+            'companyName',
+            'email',
+            'application',
+            'message',
+        ];
+
+        return array_values(array_map(
+            fn (string $field, int $index): array => [
+                'key' => $field,
+                'visible' => true,
+                'required' => in_array($field, $required, true),
+                'sort_order' => ($index + 1) * 10,
+            ],
+            array_keys(self::leadFormFieldMap()),
+            array_keys(array_keys(self::leadFormFieldMap()))
+        ));
     }
 
     /**
@@ -1576,7 +1601,7 @@ class DefaultPageSections
         ]);
 
         $hrefs = [
-            ['href_type' => 'email', 'href' => 'contact#inquiry'],
+            ['href_type' => 'email', 'href' => 'contact#contact-form'],
             ['href_type' => 'phone', 'href' => 'tel:+82515550188'],
             ['href_type' => 'text', 'href' => null],
         ];

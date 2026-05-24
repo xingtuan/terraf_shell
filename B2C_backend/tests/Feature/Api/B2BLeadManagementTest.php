@@ -4,8 +4,11 @@ namespace Tests\Feature\Api;
 
 use App\Enums\B2BLeadStatus;
 use App\Enums\B2BLeadType;
+use App\Enums\PublishStatus;
+use App\Filament\Resources\B2BLeads\B2BLeadResource as FilamentB2BLeadResource;
 use App\Mail\B2BLeadSubmittedMail;
 use App\Models\B2BLead;
+use App\Models\HomeSection;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -54,6 +57,94 @@ class B2BLeadManagementTest extends TestCase
             'job_title' => 'Founder',
             'status' => B2BLeadStatus::New->value,
         ]);
+    }
+
+    public function test_contact_form_custom_fields_are_validated_and_stored_in_metadata(): void
+    {
+        HomeSection::factory()->published()->create([
+            'page_key' => 'contact',
+            'key' => 'form',
+            'payload' => [
+                'custom_fields' => [
+                    [
+                        'key' => 'budget_range',
+                        'type' => 'select',
+                        'label_translations' => ['en' => 'Budget range'],
+                        'required' => true,
+                        'options' => [
+                            [
+                                'value' => 'pilot',
+                                'label_translations' => ['en' => 'Pilot budget'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'status' => PublishStatus::Published->value,
+        ]);
+
+        $payload = [
+            'name' => 'Jane Doe',
+            'company_name' => 'OXP Studio',
+            'email' => 'jane@example.com',
+            'inquiry_type' => 'Business Contact',
+            'message' => 'We want to discuss a hospitality collaboration.',
+            'source_page' => 'contact:en',
+            'metadata' => [
+                'custom_fields' => [],
+            ],
+        ];
+
+        $this->postJson('/api/inquiries', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['metadata.custom_fields.budget_range']);
+
+        $this->postJson('/api/inquiries', [
+            ...$payload,
+            'metadata' => [
+                'custom_fields' => [
+                    'budget_range' => 'pilot',
+                ],
+            ],
+        ])->assertCreated();
+
+        $lead = B2BLead::query()->firstOrFail();
+
+        $this->assertSame('pilot', $lead->metadata['custom_fields']['budget_range'] ?? null);
+    }
+
+    public function test_admin_b2b_lead_detail_displays_custom_form_fields(): void
+    {
+        HomeSection::factory()->published()->create([
+            'page_key' => 'contact',
+            'key' => 'form',
+            'payload' => [
+                'custom_fields' => [
+                    [
+                        'key' => 'budget_range',
+                        'type' => 'text',
+                        'label_translations' => ['en' => 'Budget range'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $admin = User::factory()->admin()->create();
+        $lead = B2BLead::factory()->create([
+            'source_page' => 'contact:en',
+            'metadata' => [
+                'custom_fields' => [
+                    'budget_range' => 'Pilot budget',
+                ],
+            ],
+        ]);
+
+        $this->actingAs($admin)
+            ->get(FilamentB2BLeadResource::getUrl('view', ['record' => $lead]))
+            ->assertOk()
+            ->assertSee('Custom form fields')
+            ->assertSee('Budget range')
+            ->assertSee('Pilot budget');
     }
 
     public function test_guests_can_submit_business_partnership_sample_and_collaboration_forms(): void

@@ -7,6 +7,7 @@ use App\Models\Comment;
 use App\Models\Order;
 use App\Models\Post;
 use App\Models\User;
+use App\Support\LeadFormCustomFields;
 use Illuminate\Support\Str;
 
 class EmailPayloadFactory
@@ -75,6 +76,8 @@ class EmailPayloadFactory
     public function forLead(B2BLead $lead, array $extra = []): array
     {
         $lead->loadMissing(['assignee', 'reviewer', 'partnershipInquiry', 'sampleRequest']);
+        $customFields = LeadFormCustomFields::associativeDisplayForLead($lead);
+        $customFieldsBlock = LeadFormCustomFields::renderedBlockForLead($lead);
 
         return array_replace_recursive([
             'user' => [
@@ -91,6 +94,8 @@ class EmailPayloadFactory
                 'application' => $lead->application_type,
                 'estimated_quantity' => $lead->estimated_quantity,
                 'timeline' => $lead->timeline,
+                'custom_fields' => $customFields,
+                'custom_fields_text' => $customFieldsBlock,
             ],
             'lead' => [
                 'id' => $lead->id,
@@ -102,6 +107,8 @@ class EmailPayloadFactory
                 'expected_use_case' => $lead->expected_use_case,
                 'estimated_quantity' => $lead->estimated_quantity,
                 'timeline' => $lead->timeline,
+                'custom_fields' => $customFields,
+                'custom_fields_text' => $customFieldsBlock,
             ],
             'assignee' => [
                 'name' => $lead->assignee?->name,

@@ -30,7 +30,7 @@ function orderedSections(sections: HomeSection[]) {
 export default async function ContactPage({ params }: ContactPageProps) {
   const locale = await resolveLocale(params)
   const messages = getMessages(locale)
-  const defaultPrimaryHref = getBrandContactHref("#inquiry")
+  const defaultPrimaryHref = getBrandContactHref("#contact-form")
   const defaultSecondaryHref = `${getLocalizedHref(locale, "b2b")}#inquiry`
   const apiBaseUrl = await getServerApiBaseUrl()
 
@@ -65,7 +65,7 @@ export default async function ContactPage({ params }: ContactPageProps) {
           locale={locale}
           content={content}
           common={messages.common}
-          id={content.formAnchorId ?? "inquiry"}
+          id={content.formAnchorId ?? "contact-form"}
           sourcePage="contact"
           defaultLeadType="business_contact"
         />
@@ -111,7 +111,6 @@ export default async function ContactPage({ params }: ContactPageProps) {
       />
     ),
     form: formRenderer,
-    inquiry_form: formRenderer,
     final_cta: (section) => (
       <FinalCtaSection
         locale={locale}

@@ -5,6 +5,8 @@ namespace App\Filament\Resources\B2BLeads\Schemas;
 use App\Enums\B2BInterestType;
 use App\Enums\B2BLeadStatus;
 use App\Enums\B2BLeadType;
+use App\Models\B2BLead;
+use App\Support\LeadFormCustomFields;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -133,6 +135,14 @@ class B2BLeadInfolist
                             ->placeholder(__('admin.ui.no_sample_request_detail_attached'))
                             ->columnSpanFull(),
                     ]),
+                Section::make(__('admin.ui.custom_form_fields'))
+                    ->schema([
+                        TextEntry::make('custom_form_fields')
+                            ->label(__('admin.ui.custom_form_fields'))
+                            ->state(fn (B2BLead $record): string => LeadFormCustomFields::renderTextForLead($record) ?: __('admin.ui.no_custom_form_fields'))
+                            ->columnSpanFull(),
+                    ])
+                    ->visible(fn (B2BLead $record): bool => LeadFormCustomFields::displayForLead($record) !== []),
             ]);
     }
 }

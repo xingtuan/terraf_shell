@@ -289,8 +289,8 @@ describe("CMS page sections wiring", () => {
     assert.match(source, /buildFooterContent\(/)
     assert.match(source, /contactRenderers/)
     assert.match(source, /orderedSections\(contactSections\)\.map/)
-    assert.match(source, /inquiry_form: formRenderer/)
-    assert.match(source, /id=\{content\.formAnchorId \?\? "inquiry"\}/)
+    assert.doesNotMatch(source, /inquiry_form: formRenderer/)
+    assert.match(source, /id=\{content\.formAnchorId \?\? "contact-form"\}/)
     assert.doesNotMatch(source, /buildPageIntroContent\(\s*messages\.contactPage\.intro,\s*null/)
   })
 

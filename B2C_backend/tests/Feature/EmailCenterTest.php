@@ -4,16 +4,20 @@ namespace Tests\Feature;
 
 use App\Enums\ContentStatus;
 use App\Filament\Resources\EmailLogs\EmailLogResource;
+use App\Models\B2BLead;
 use App\Models\Cart;
 use App\Models\EmailEvent;
 use App\Models\EmailLog;
 use App\Models\EmailSetting;
 use App\Models\EmailTemplate;
+use App\Models\HomeSection;
 use App\Models\Post;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\AdminModerationService;
 use App\Services\Email\EmailDispatchService;
+use App\Services\Email\EmailCenterDefaults;
+use App\Services\Email\EmailPayloadFactory;
 use App\Services\Email\EmailTemplateRenderer;
 use App\Services\Email\MailSettingsService;
 use Illuminate\Contracts\Bus\Dispatcher;
@@ -314,6 +318,39 @@ class EmailCenterTest extends TestCase
 
         $this->assertDatabaseHas('email_logs', ['event_key' => 'inquiry.submitted_user_confirmation']);
         $this->assertDatabaseHas('email_logs', ['event_key' => 'inquiry.submitted_admin_notification']);
+    }
+
+    public function test_lead_email_payload_includes_renderable_custom_fields(): void
+    {
+        HomeSection::factory()->published()->create([
+            'page_key' => 'contact',
+            'key' => 'form',
+            'payload' => [
+                'custom_fields' => [
+                    [
+                        'key' => 'budget_range',
+                        'type' => 'text',
+                        'label_translations' => ['en' => 'Budget range'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $lead = B2BLead::factory()->create([
+            'source_page' => 'contact:en',
+            'metadata' => [
+                'custom_fields' => [
+                    'budget_range' => 'Pilot budget',
+                ],
+            ],
+        ]);
+
+        $payload = app(EmailPayloadFactory::class)->forLead($lead);
+
+        $this->assertSame('Pilot budget', $payload['lead']['custom_fields']['Budget range']);
+        $this->assertStringContainsString('- Budget range: Pilot budget', $payload['lead']['custom_fields_text']);
+        $this->assertStringContainsString('Custom fields:', EmailCenterDefaults::html('inquiry.submitted_admin_notification'));
+        $this->assertContains('lead.custom_fields', EmailCenterDefaults::variables('inquiry.submitted_admin_notification'));
     }
 
     public function test_community_post_approval_dispatches_email_when_enabled(): void

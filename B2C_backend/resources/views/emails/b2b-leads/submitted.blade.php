@@ -9,3 +9,12 @@
 <p><strong>Source:</strong> {{ $lead->source_page ?? 'N/A' }}</p>
 <p><strong>Message:</strong></p>
 <p>{{ $lead->message }}</p>
+@php($customFields = \App\Support\LeadFormCustomFields::displayForLead($lead))
+@if ($customFields !== [])
+<p><strong>Custom fields:</strong></p>
+<ul>
+    @foreach ($customFields as $field)
+        <li>{{ $field['label'] }}: {{ $field['value'] }}</li>
+    @endforeach
+</ul>
+@endif

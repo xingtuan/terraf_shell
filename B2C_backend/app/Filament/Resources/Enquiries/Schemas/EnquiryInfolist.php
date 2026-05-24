@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Enquiries\Schemas;
 
 use App\Enums\B2BLeadStatus;
 use App\Models\Inquiry;
+use App\Support\LeadFormCustomFields;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -108,6 +109,14 @@ class EnquiryInfolist
                             })
                             ->columnSpanFull(),
                     ]),
+                Section::make(__('admin.ui.custom_form_fields'))
+                    ->schema([
+                        TextEntry::make('custom_form_fields')
+                            ->label(__('admin.ui.custom_form_fields'))
+                            ->state(fn (Inquiry $record): string => LeadFormCustomFields::renderTextForLead($record) ?: __('admin.ui.no_custom_form_fields'))
+                            ->columnSpanFull(),
+                    ])
+                    ->visible(fn (Inquiry $record): bool => LeadFormCustomFields::displayForLead($record) !== []),
             ]);
     }
 }

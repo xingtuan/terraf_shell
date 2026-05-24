@@ -7,15 +7,17 @@ import { ApiError, getErrorMessage } from "@/lib/api/client"
 import {
   mapLeadValidationErrors,
   submitLeadForm,
-  type LeadFormField,
 } from "@/lib/api/leads"
-import { BRAND_DISPLAY_NAME } from "@/lib/brand"
 import type { Locale, SiteMessages } from "@/lib/i18n"
 import type { LeadFormType, LeadFormValues, LeadInterestType } from "@/lib/types"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import type { B2BFormContent } from "@/lib/page-content"
+import type {
+  B2BFormContent,
+  LeadCustomField,
+  LeadFormFieldKey,
+} from "@/lib/page-content"
 
 type B2BInquiryFormSectionProps = {
   locale: Locale
@@ -32,9 +34,10 @@ type SubmissionState = {
   id: number
 } | null
 
-type FieldErrors = Partial<Record<LeadFormField, string>>
+type FieldErrors = Partial<Record<LeadFormFieldKey, string>>
+type CustomFieldErrors = Record<string, string>
 
-const leadFieldMaxLengths: Partial<Record<LeadFormField, number>> = {
+const leadFieldMaxLengths: Partial<Record<LeadFormFieldKey, number>> = {
   name: 100,
   companyName: 150,
   organizationType: 80,
@@ -57,6 +60,47 @@ const leadFieldMaxLengths: Partial<Record<LeadFormField, number>> = {
   shippingAddress: 500,
   intendedUse: 1000,
 }
+
+const leadFormFieldKeys = [
+  "name",
+  "companyName",
+  "organizationType",
+  "email",
+  "phone",
+  "country",
+  "region",
+  "companyWebsite",
+  "jobTitle",
+  "application",
+  "volume",
+  "timeline",
+  "message",
+  "collaborationGoal",
+  "projectStage",
+  "materialInterest",
+  "quantityEstimate",
+  "shippingCountry",
+  "shippingRegion",
+  "shippingAddress",
+  "intendedUse",
+] as const satisfies readonly LeadFormFieldKey[]
+
+const textareaFields = new Set<LeadFormFieldKey>([
+  "message",
+  "collaborationGoal",
+  "shippingAddress",
+  "intendedUse",
+])
+
+const wideFields = new Set<LeadFormFieldKey>([
+  "application",
+  "message",
+  "collaborationGoal",
+  "projectStage",
+  "materialInterest",
+  "shippingAddress",
+  "intendedUse",
+])
 
 const leadTypeDefinitions: Array<{
   id: LeadFormType
@@ -167,38 +211,116 @@ function formatValidationMessage(
   )
 }
 
-function getLeadFieldLabel(content: B2BFormContent, field: LeadFormField) {
-  const labels = content.fields
-  const fieldLabels: Partial<Record<LeadFormField, string>> = {
-    name: labels.name,
-    companyName: labels.company,
-    organizationType: labels.organizationType,
-    email: labels.email,
-    phone: labels.phone,
-    country: labels.country,
-    region: labels.region,
-    companyWebsite: labels.companyWebsite,
-    jobTitle: labels.jobTitle,
-    application: labels.application,
-    volume: labels.volume,
-    timeline: labels.timeline,
-    message: labels.message,
-    collaborationGoal: labels.collaborationGoal,
-    projectStage: labels.projectStage,
-    materialInterest: labels.materialInterest,
-    quantityEstimate: labels.quantityEstimate,
-    shippingCountry: labels.shippingCountry,
-    shippingRegion: labels.shippingRegion,
-    shippingAddress: labels.shippingAddress,
-    intendedUse: labels.intendedUse,
+function getLeadFieldLabel(content: B2BFormContent, field: LeadFormFieldKey) {
+  return content.fieldSettings[field]?.label ?? content.validation.defaultField
+}
+
+function getLeadFieldValue(values: LeadFormValues, field: LeadFormFieldKey) {
+  return values[field]
+}
+
+function isCollaborationLeadType(type: LeadFormType) {
+  return (
+    type === "partnership_inquiry" ||
+    type === "university_collaboration" ||
+    type === "product_development_collaboration"
+  )
+}
+
+function isFieldApplicable(type: LeadFormType, field: LeadFormFieldKey) {
+  if (
+    [
+      "organizationType",
+      "jobTitle",
+      "companyWebsite",
+    ].includes(field)
+  ) {
+    return type === "business_contact" || isCollaborationLeadType(type)
   }
 
-  return fieldLabels[field] ?? content.validation.defaultField
+  if (
+    [
+      "materialInterest",
+      "quantityEstimate",
+      "shippingCountry",
+      "shippingRegion",
+      "shippingAddress",
+      "intendedUse",
+    ].includes(field)
+  ) {
+    return type === "sample_request"
+  }
+
+  if (["collaborationGoal", "projectStage"].includes(field)) {
+    return isCollaborationLeadType(type)
+  }
+
+  return true
+}
+
+function isBackendRequiredField(type: LeadFormType, field: LeadFormFieldKey) {
+  if (["name", "companyName", "email", "message"].includes(field)) {
+    return true
+  }
+
+  if (field === "organizationType" || field === "collaborationGoal") {
+    return isCollaborationLeadType(type)
+  }
+
+  if (field === "materialInterest" || field === "intendedUse") {
+    return type === "sample_request"
+  }
+
+  return false
+}
+
+function activeLeadFields(content: B2BFormContent, type: LeadFormType) {
+  return leadFormFieldKeys
+    .map((field) => content.fieldSettings[field])
+    .filter((field) => field.visible || isBackendRequiredField(type, field.key))
+    .filter((field) => isFieldApplicable(type, field.key))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+}
+
+function isFieldRequired(
+  content: B2BFormContent,
+  type: LeadFormType,
+  field: LeadFormFieldKey,
+) {
+  return (
+    isBackendRequiredField(type, field) ||
+    content.fieldSettings[field]?.required === true
+  )
+}
+
+function requiredMessageForField(
+  content: B2BFormContent,
+  field: LeadFormFieldKey,
+) {
+  const validation = content.validation
+  const messages: Partial<Record<LeadFormFieldKey, string>> = {
+    name: validation.nameRequired,
+    companyName: validation.companyRequired,
+    email: validation.emailRequired,
+    message: validation.messageRequired,
+    application: validation.applicationRequired,
+    organizationType: validation.organizationTypeRequired,
+    collaborationGoal: validation.collaborationGoalRequired,
+    materialInterest: validation.materialInterestRequired,
+    intendedUse: validation.intendedUseRequired,
+  }
+
+  return (
+    messages[field] ??
+    formatValidationMessage(validation.required, {
+      field: getLeadFieldLabel(content, field),
+    })
+  )
 }
 
 function validateMaxLength(
   errors: FieldErrors,
-  field: LeadFormField,
+  field: LeadFormFieldKey,
   value: string,
   content: B2BFormContent,
 ) {
@@ -217,39 +339,34 @@ function validateMaxLength(
 function validateLeadForm(
   values: LeadFormValues,
   content: B2BFormContent,
-): FieldErrors {
+): { fields: FieldErrors; customFields: CustomFieldErrors } {
   const errors: FieldErrors = {}
+  const customFieldErrors: CustomFieldErrors = {}
   const validation = content.validation
+  const visibleFields = activeLeadFields(content, values.type)
 
-  if (!values.name.trim()) {
-    errors.name = validation.nameRequired
+  for (const field of visibleFields) {
+    const value = getLeadFieldValue(values, field.key)
+
+    if (isFieldRequired(content, values.type, field.key) && !value.trim()) {
+      errors[field.key] = requiredMessageForField(content, field.key)
+    }
+
+    validateMaxLength(errors, field.key, value, content)
   }
 
-  if (!values.companyName.trim()) {
-    errors.companyName = validation.companyRequired
+  if (visibleFields.some((field) => field.key === "email")) {
+    if (!values.email.trim()) {
+      errors.email = validation.emailRequired
+    } else if (!/\S+@\S+\.\S+/.test(values.email)) {
+      errors.email = validation.emailInvalid
+    }
   }
 
-  if (!values.email.trim()) {
-    errors.email = validation.emailRequired
-  } else if (!/\S+@\S+\.\S+/.test(values.email)) {
-    errors.email = validation.emailInvalid
-  }
-
-  validateMaxLength(errors, "name", values.name, content)
-  validateMaxLength(errors, "companyName", values.companyName, content)
-  validateMaxLength(errors, "email", values.email, content)
-  validateMaxLength(errors, "phone", values.phone, content)
-  validateMaxLength(errors, "country", values.country, content)
-  validateMaxLength(errors, "region", values.region, content)
-  validateMaxLength(errors, "jobTitle", values.jobTitle, content)
-  validateMaxLength(errors, "application", values.application, content)
-  validateMaxLength(errors, "volume", values.volume, content)
-  validateMaxLength(errors, "timeline", values.timeline, content)
-  validateMaxLength(errors, "message", values.message, content)
-
-  if (values.companyWebsite.trim()) {
-    validateMaxLength(errors, "companyWebsite", values.companyWebsite, content)
-
+  if (
+    visibleFields.some((field) => field.key === "companyWebsite") &&
+    values.companyWebsite.trim()
+  ) {
     if (!errors.companyWebsite) {
       try {
         new URL(values.companyWebsite)
@@ -259,53 +376,71 @@ function validateLeadForm(
     }
   }
 
-  if (!values.message.trim()) {
-    errors.message = validation.messageRequired
+  const customValues = getCustomFieldValues(values)
+
+  for (const customField of content.customFields) {
+    const value = customValues[customField.key]
+
+    if (customField.required && isBlankCustomValue(value)) {
+      customFieldErrors[customField.key] = formatValidationMessage(
+        validation.required,
+        {
+          field: customField.label,
+        },
+      )
+    }
   }
 
-  if (!values.application.trim()) {
-    errors.application = validation.applicationRequired
+  return { fields: errors, customFields: customFieldErrors }
+}
+
+function getCustomFieldValues(values: LeadFormValues) {
+  const customFields = values.metadata?.custom_fields
+
+  return customFields &&
+    typeof customFields === "object" &&
+    !Array.isArray(customFields)
+    ? customFields
+    : {}
+}
+
+function isBlankCustomValue(value: unknown) {
+  if (value === null || value === undefined) {
+    return true
   }
 
-  if (
-    (values.type === "partnership_inquiry" ||
-      values.type === "university_collaboration" ||
-      values.type === "product_development_collaboration") &&
-    !values.organizationType.trim()
-  ) {
-    errors.organizationType = validation.organizationTypeRequired
+  if (typeof value === "string") {
+    return value.trim() === ""
   }
 
-  validateMaxLength(errors, "organizationType", values.organizationType, content)
-
-  if (
-    (values.type === "partnership_inquiry" ||
-      values.type === "university_collaboration" ||
-      values.type === "product_development_collaboration") &&
-    !values.collaborationGoal.trim()
-  ) {
-    errors.collaborationGoal = validation.collaborationGoalRequired
+  if (Array.isArray(value)) {
+    return value.length === 0
   }
 
-  validateMaxLength(errors, "collaborationGoal", values.collaborationGoal, content)
-  validateMaxLength(errors, "projectStage", values.projectStage, content)
+  return false
+}
 
-  if (values.type === "sample_request" && !values.materialInterest.trim()) {
-    errors.materialInterest = validation.materialInterestRequired
+function getCustomFieldValue(
+  values: LeadFormValues,
+  customField: LeadCustomField,
+) {
+  const value = getCustomFieldValues(values)[customField.key]
+
+  if (customField.type === "checkbox") {
+    if (customField.options.length > 0) {
+      return Array.isArray(value) ? value.filter((item) => typeof item === "string") : []
+    }
+
+    return value === true
   }
 
-  if (values.type === "sample_request" && !values.intendedUse.trim()) {
-    errors.intendedUse = validation.intendedUseRequired
-  }
+  return typeof value === "string" ? value : ""
+}
 
-  validateMaxLength(errors, "materialInterest", values.materialInterest, content)
-  validateMaxLength(errors, "quantityEstimate", values.quantityEstimate, content)
-  validateMaxLength(errors, "shippingCountry", values.shippingCountry, content)
-  validateMaxLength(errors, "shippingRegion", values.shippingRegion, content)
-  validateMaxLength(errors, "shippingAddress", values.shippingAddress, content)
-  validateMaxLength(errors, "intendedUse", values.intendedUse, content)
+function customErrorFromApiKey(key: string) {
+  const match = key.match(/^metadata\.custom_fields\.([^.]+)$/)
 
-  return errors
+  return match?.[1] ?? null
 }
 
 export function B2BInquiryFormSection({
@@ -321,6 +456,7 @@ export function B2BInquiryFormSection({
   const [submission, setSubmission] = useState<SubmissionState>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+  const [customFieldErrors, setCustomFieldErrors] = useState<CustomFieldErrors>({})
   const [values, setValues] = useState<LeadFormValues>(() =>
     createInitialValues(locale, sourcePage, defaultLeadType),
   )
@@ -395,12 +531,16 @@ export function B2BInquiryFormSection({
         ...(content.interestOptions[option.interestType] ?? {}),
       }))
   const panelCopy = content.panelCopy[values.interestType] ?? []
+  const visibleFields = activeLeadFields(content, values.type)
+  const visibleCustomFields = [...content.customFields].sort(
+    (a, b) => a.sortOrder - b.sortOrder,
+  )
   const productContext =
     typeof values.metadata?.product_name === "string"
       ? values.metadata.product_name
       : null
 
-  function updateField(field: LeadFormField, value: string) {
+  function updateField(field: LeadFormFieldKey, value: string) {
     setValues((currentValues) => ({
       ...currentValues,
       [field]: value,
@@ -409,6 +549,220 @@ export function B2BInquiryFormSection({
       ...currentErrors,
       [field]: undefined,
     }))
+  }
+
+  function updateCustomField(key: string, value: string | string[] | boolean) {
+    setValues((currentValues) => {
+      const metadata = currentValues.metadata ?? {}
+      const currentCustomFields =
+        metadata.custom_fields &&
+        typeof metadata.custom_fields === "object" &&
+        !Array.isArray(metadata.custom_fields)
+          ? metadata.custom_fields
+          : {}
+
+      return {
+        ...currentValues,
+        metadata: {
+          ...metadata,
+          custom_fields: {
+            ...currentCustomFields,
+            [key]: value,
+          },
+        },
+      }
+    })
+    setCustomFieldErrors((currentErrors) => {
+      const { [key]: _removed, ...remainingErrors } = currentErrors
+
+      return remainingErrors
+    })
+  }
+
+  function renderCoreField(field: LeadFormFieldKey) {
+    const setting = content.fieldSettings[field]
+    const error = fieldErrors[field]
+    const required = isFieldRequired(content, values.type, field)
+    const inputId = `${id}-${field}`
+    const value = getLeadFieldValue(values, field)
+    const label = setting.label
+    const helper = setting.helper || content.helpers[field]
+    const className = `space-y-2 ${wideFields.has(field) ? "sm:col-span-2" : ""}`
+
+    return (
+      <label key={field} className={className} htmlFor={inputId}>
+        <span className="text-sm text-foreground">
+          {label}
+          {required ? <span aria-hidden="true"> *</span> : null}
+        </span>
+        {textareaFields.has(field) ? (
+          <Textarea
+            id={inputId}
+            value={value}
+            onChange={(event) => updateField(field, event.target.value)}
+            placeholder={setting.placeholder}
+            className={field === "message" ? "min-h-36" : "min-h-24"}
+            aria-invalid={error ? true : undefined}
+          />
+        ) : (
+          <Input
+            id={inputId}
+            value={value}
+            onChange={(event) => updateField(field, event.target.value)}
+            type={field === "email" ? "email" : field === "companyWebsite" ? "url" : "text"}
+            placeholder={setting.placeholder}
+            aria-invalid={error ? true : undefined}
+          />
+        )}
+        {helper ? <p className="text-sm text-muted-foreground">{helper}</p> : null}
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      </label>
+    )
+  }
+
+  function renderCustomField(customField: LeadCustomField) {
+    const value = getCustomFieldValue(values, customField)
+    const error = customFieldErrors[customField.key]
+    const inputId = `${id}-custom-${customField.key}`
+
+    if (customField.type === "textarea") {
+      return (
+        <label
+          key={customField.key}
+          className="space-y-2 sm:col-span-2"
+          htmlFor={inputId}
+        >
+          <span className="text-sm text-foreground">
+            {customField.label}
+            {customField.required ? <span aria-hidden="true"> *</span> : null}
+          </span>
+          <Textarea
+            id={inputId}
+            value={typeof value === "string" ? value : ""}
+            onChange={(event) =>
+              updateCustomField(customField.key, event.target.value)
+            }
+            placeholder={customField.placeholder}
+            className="min-h-24"
+            aria-invalid={error ? true : undefined}
+          />
+          {customField.helper ? (
+            <p className="text-sm text-muted-foreground">{customField.helper}</p>
+          ) : null}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        </label>
+      )
+    }
+
+    if (customField.type === "select") {
+      return (
+        <label key={customField.key} className="space-y-2" htmlFor={inputId}>
+          <span className="text-sm text-foreground">
+            {customField.label}
+            {customField.required ? <span aria-hidden="true"> *</span> : null}
+          </span>
+          <select
+            id={inputId}
+            value={typeof value === "string" ? value : ""}
+            onChange={(event) =>
+              updateCustomField(customField.key, event.target.value)
+            }
+            className="h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            aria-invalid={error ? true : undefined}
+          >
+            <option value="">{customField.placeholder}</option>
+            {customField.options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {customField.helper ? (
+            <p className="text-sm text-muted-foreground">{customField.helper}</p>
+          ) : null}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        </label>
+      )
+    }
+
+    if (customField.type === "checkbox") {
+      const selectedValues = Array.isArray(value) ? value : []
+
+      return (
+        <fieldset key={customField.key} className="space-y-3 sm:col-span-2">
+          <legend className="text-sm text-foreground">
+            {customField.label}
+            {customField.required ? <span aria-hidden="true"> *</span> : null}
+          </legend>
+          {customField.options.length > 0 ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {customField.options.map((option) => {
+                const checked = selectedValues.includes(option.value)
+
+                return (
+                  <label
+                    key={option.value}
+                    className="flex items-start gap-3 rounded-2xl border border-border/60 px-4 py-3 text-sm text-foreground"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(event) => {
+                        const nextValue = event.target.checked
+                          ? [...selectedValues, option.value]
+                          : selectedValues.filter((item) => item !== option.value)
+
+                        updateCustomField(customField.key, nextValue)
+                      }}
+                      className="mt-1"
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                )
+              })}
+            </div>
+          ) : (
+            <label className="flex items-start gap-3 rounded-2xl border border-border/60 px-4 py-3 text-sm text-foreground">
+              <input
+                type="checkbox"
+                checked={value === true}
+                onChange={(event) =>
+                  updateCustomField(customField.key, event.target.checked)
+                }
+                className="mt-1"
+              />
+              <span>{customField.placeholder || customField.label}</span>
+            </label>
+          )}
+          {customField.helper ? (
+            <p className="text-sm text-muted-foreground">{customField.helper}</p>
+          ) : null}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        </fieldset>
+      )
+    }
+
+    return (
+      <label key={customField.key} className="space-y-2" htmlFor={inputId}>
+        <span className="text-sm text-foreground">
+          {customField.label}
+          {customField.required ? <span aria-hidden="true"> *</span> : null}
+        </span>
+        <Input
+          id={inputId}
+          value={typeof value === "string" ? value : ""}
+          onChange={(event) =>
+            updateCustomField(customField.key, event.target.value)
+          }
+          placeholder={customField.placeholder}
+          aria-invalid={error ? true : undefined}
+        />
+        {customField.helper ? (
+          <p className="text-sm text-muted-foreground">{customField.helper}</p>
+        ) : null}
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      </label>
+    )
   }
 
   return (
@@ -428,7 +782,10 @@ export function B2BInquiryFormSection({
 
         <div className="mb-8 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {localizedLeadTypeOptions.map((option) => {
-            const isActive = option.interestType === values.interestType
+            const isActive =
+              option.id === values.type ||
+              (option.interestType === values.interestType &&
+                values.type === "business_contact")
 
             return (
               <button
@@ -443,9 +800,10 @@ export function B2BInquiryFormSection({
                   setSubmission(null)
                   setErrorMessage(null)
                   setFieldErrors({})
+                  setCustomFieldErrors({})
                   setValues((currentValues) => ({
                     ...currentValues,
-                    type: getLeadTypeForInterestType(option.interestType),
+                    type: option.id,
                     interestType: option.interestType,
                   }))
                 }}
@@ -463,9 +821,11 @@ export function B2BInquiryFormSection({
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-3xl border border-border/60 bg-background p-8">
-            <p className="mb-6 text-sm uppercase tracking-[0.18em] text-primary">
-              {BRAND_DISPLAY_NAME}
-            </p>
+            {content.leftPanelEyebrow ? (
+              <p className="mb-6 text-sm uppercase tracking-[0.18em] text-primary">
+                {content.leftPanelEyebrow}
+              </p>
+            ) : null}
             <div className="space-y-4 text-muted-foreground">
               {panelCopy.map((line) => (
                 <p key={line}>{line}</p>
@@ -488,10 +848,14 @@ export function B2BInquiryFormSection({
               setSubmission(null)
               setErrorMessage(null)
 
-              const nextFieldErrors = validateLeadForm(values, content)
-              setFieldErrors(nextFieldErrors)
+              const nextErrors = validateLeadForm(values, content)
+              setFieldErrors(nextErrors.fields)
+              setCustomFieldErrors(nextErrors.customFields)
 
-              if (Object.keys(nextFieldErrors).length > 0) {
+              if (
+                Object.keys(nextErrors.fields).length > 0 ||
+                Object.keys(nextErrors.customFields).length > 0
+              ) {
                 return
               }
 
@@ -504,6 +868,7 @@ export function B2BInquiryFormSection({
                       id: result.id,
                     })
                     setFieldErrors({})
+                    setCustomFieldErrors({})
                     setValues((currentValues) => ({
                       ...createInitialValues(locale, sourcePage, currentValues.type),
                     }))
@@ -511,8 +876,27 @@ export function B2BInquiryFormSection({
                   .catch((error) => {
                     if (error instanceof ApiError) {
                       const mapped = mapLeadValidationErrors(error.errors)
+                      const nextCustomFieldErrors: CustomFieldErrors = {}
+
+                      for (const [key, messages] of Object.entries(
+                        error.errors ?? {},
+                      )) {
+                        const customFieldKey = customErrorFromApiKey(key)
+
+                        if (customFieldKey && messages[0]) {
+                          nextCustomFieldErrors[customFieldKey] = messages[0]
+                        }
+                      }
+
                       if (Object.keys(mapped).length > 0) {
-                        setFieldErrors(mapped)
+                        setFieldErrors(mapped as FieldErrors)
+                        setCustomFieldErrors(nextCustomFieldErrors)
+                        setErrorMessage(common.errors.validation)
+                        return
+                      }
+
+                      if (Object.keys(nextCustomFieldErrors).length > 0) {
+                        setCustomFieldErrors(nextCustomFieldErrors)
                         setErrorMessage(common.errors.validation)
                         return
                       }
@@ -527,6 +911,14 @@ export function B2BInquiryFormSection({
                 {content.groups.contact}
               </p>
             </div>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {visibleFields.map((field) => renderCoreField(field.key))}
+              {visibleCustomFields.map((customField) =>
+                renderCustomField(customField),
+              )}
+            </div>
+
+            {false ? (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <label className="space-y-2">
                 <span className="text-sm text-foreground">{fields.name}</span>
@@ -902,6 +1294,7 @@ export function B2BInquiryFormSection({
                 ) : null}
               </label>
             </div>
+            ) : null}
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <Button type="submit" size="lg" disabled={isPending}>

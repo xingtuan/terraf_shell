@@ -56,10 +56,60 @@ export type ContactDetailsContent = Omit<SiteMessages["contactPage"]["details"],
   >
 }
 
-export type B2BFormContent = SiteMessages["b2bPage"]["form"] & {
+export type LeadFormFieldKey =
+  | "name"
+  | "companyName"
+  | "organizationType"
+  | "email"
+  | "phone"
+  | "country"
+  | "region"
+  | "companyWebsite"
+  | "jobTitle"
+  | "application"
+  | "volume"
+  | "timeline"
+  | "message"
+  | "collaborationGoal"
+  | "projectStage"
+  | "materialInterest"
+  | "quantityEstimate"
+  | "shippingCountry"
+  | "shippingRegion"
+  | "shippingAddress"
+  | "intendedUse"
+
+export type LeadCustomField = {
+  key: string
+  type: "text" | "textarea" | "select" | "checkbox"
+  label: string
+  placeholder: string
+  helper: string
+  required: boolean
+  sortOrder: number
+  options: Array<{ value: string; label: string }>
+}
+
+export type LeadFieldSetting = {
+  key: LeadFormFieldKey
+  label: string
+  placeholder: string
+  helper: string
+  visible: boolean
+  required: boolean
+  sortOrder: number
+}
+
+export type B2BFormContent = Omit<SiteMessages["b2bPage"]["form"], "validation"> & {
+  validation: SiteMessages["b2bPage"]["form"]["validation"] & {
+    required: string
+  }
   formAnchorId?: string
+  leftPanelEyebrow?: string
   successMessage?: string
-  topicOptions?: string[]
+  helpers: Partial<Record<LeadFormFieldKey, string>>
+  fieldSettings: Record<LeadFormFieldKey, LeadFieldSetting>
+  customFields: LeadCustomField[]
   interestOptionList?: Array<{
     id: string
     interestType: string
@@ -315,30 +365,31 @@ function sectionPayload(section: HomeSection | null | undefined) {
 
 const leadFormFieldPayloadKeys = {
   name: "name",
-  company: "company",
-  organizationType: "organization_type",
+  company: "companyName",
+  organizationType: "organizationType",
   email: "email",
   phone: "phone",
   country: "country",
   region: "region",
-  companyWebsite: "company_website",
-  jobTitle: "job_title",
+  companyWebsite: "companyWebsite",
+  jobTitle: "jobTitle",
   application: "application",
   volume: "volume",
   timeline: "timeline",
-  materialInterest: "material_interest",
-  quantityEstimate: "quantity_estimate",
-  shippingCountry: "shipping_country",
-  shippingRegion: "shipping_region",
-  shippingAddress: "shipping_address",
-  intendedUse: "intended_use",
-  collaborationGoal: "collaboration_goal",
-  projectStage: "project_stage",
   message: "message",
+  collaborationGoal: "collaborationGoal",
+  projectStage: "projectStage",
+  materialInterest: "materialInterest",
+  quantityEstimate: "quantityEstimate",
+  shippingCountry: "shippingCountry",
+  shippingRegion: "shippingRegion",
+  shippingAddress: "shippingAddress",
+  intendedUse: "intendedUse",
 } as const
 
 const leadFormValidationPayloadKeys = {
   defaultField: "default_field",
+  required: "required",
   max: "max",
   nameRequired: "name_required",
   companyRequired: "company_required",
@@ -353,6 +404,54 @@ const leadFormValidationPayloadKeys = {
   intendedUseRequired: "intended_use_required",
 } as const
 
+const legacyLeadFormFieldPayloadKeys: Record<LeadFormFieldKey, string> = {
+  name: "name",
+  companyName: "company",
+  organizationType: "organization_type",
+  email: "email",
+  phone: "phone",
+  country: "country",
+  region: "region",
+  companyWebsite: "company_website",
+  jobTitle: "job_title",
+  application: "application",
+  volume: "volume",
+  timeline: "timeline",
+  message: "message",
+  collaborationGoal: "collaboration_goal",
+  projectStage: "project_stage",
+  materialInterest: "material_interest",
+  quantityEstimate: "quantity_estimate",
+  shippingCountry: "shipping_country",
+  shippingRegion: "shipping_region",
+  shippingAddress: "shipping_address",
+  intendedUse: "intended_use",
+}
+
+const leadFormFieldKeys = [
+  "name",
+  "companyName",
+  "organizationType",
+  "email",
+  "phone",
+  "country",
+  "region",
+  "companyWebsite",
+  "jobTitle",
+  "application",
+  "volume",
+  "timeline",
+  "message",
+  "collaborationGoal",
+  "projectStage",
+  "materialInterest",
+  "quantityEstimate",
+  "shippingCountry",
+  "shippingRegion",
+  "shippingAddress",
+  "intendedUse",
+] as const satisfies readonly LeadFormFieldKey[]
+
 const leadInterestTypes = [
   "sample_request",
   "pellet_supply",
@@ -361,6 +460,227 @@ const leadInterestTypes = [
   "partnership",
   "other",
 ] as const
+
+const legacyLeadFieldKeyLookup = Object.fromEntries(
+  Object.entries(legacyLeadFormFieldPayloadKeys).map(([stable, legacy]) => [
+    legacy,
+    stable,
+  ]),
+) as Record<string, LeadFormFieldKey>
+
+function normalizeLeadFormFieldKey(value: unknown): LeadFormFieldKey | null {
+  const key = nonEmptyString(value)
+
+  if (!key) {
+    return null
+  }
+
+  if ((leadFormFieldKeys as readonly string[]).includes(key)) {
+    return key as LeadFormFieldKey
+  }
+
+  return legacyLeadFieldKeyLookup[key] ?? null
+}
+
+function localizedLeadFieldString(
+  payload: Record<string, unknown> | null,
+  container: string,
+  field: LeadFormFieldKey,
+  locale: Locale,
+  fallback?: string | null,
+) {
+  const source = isRecord(payload?.[container]) ? payload[container] : null
+  const stable = localizedPayloadString(source, field, locale, null)
+
+  if (stable) {
+    return stable
+  }
+
+  const legacy = localizedPayloadString(
+    source,
+    legacyLeadFormFieldPayloadKeys[field],
+    locale,
+    null,
+  )
+
+  return legacy || fallback || ""
+}
+
+function leadFieldFallbackLabel(
+  fallback: SiteMessages["b2bPage"]["form"],
+  field: LeadFormFieldKey,
+) {
+  if (field === "companyName") {
+    return fallback.fields.company
+  }
+
+  return fallback.fields[field as keyof typeof fallback.fields] ?? field
+}
+
+function leadFieldFallbackPlaceholder(
+  fallback: SiteMessages["b2bPage"]["form"],
+  field: LeadFormFieldKey,
+) {
+  if (field === "companyName") {
+    return fallback.placeholders.company
+  }
+
+  return fallback.placeholders[field as keyof typeof fallback.placeholders] ?? ""
+}
+
+function buildLeadHelpers(
+  payload: Record<string, unknown> | null,
+  locale: Locale,
+): Partial<Record<LeadFormFieldKey, string>> {
+  const helpers: Partial<Record<LeadFormFieldKey, string>> = {}
+
+  for (const field of leadFormFieldKeys) {
+    const helper = localizedLeadFieldString(payload, "helpers", field, locale, "")
+
+    if (helper) {
+      helpers[field] = helper
+    }
+  }
+
+  return helpers
+}
+
+function buildLeadFieldSettings(
+  payload: Record<string, unknown> | null,
+  fallback: SiteMessages["b2bPage"]["form"],
+  locale: Locale,
+): Record<LeadFormFieldKey, LeadFieldSetting> {
+  const defaultRequired = new Set<LeadFormFieldKey>([
+    "name",
+    "companyName",
+    "email",
+    "application",
+    "message",
+  ])
+  const settings = Object.fromEntries(
+    leadFormFieldKeys.map((field, index) => [
+      field,
+      {
+        key: field,
+        label: localizedLeadFieldString(
+          payload,
+          "fields",
+          field,
+          locale,
+          leadFieldFallbackLabel(fallback, field),
+        ),
+        placeholder: localizedLeadFieldString(
+          payload,
+          "placeholders",
+          field,
+          locale,
+          leadFieldFallbackPlaceholder(fallback, field),
+        ),
+        helper: localizedLeadFieldString(payload, "helpers", field, locale, ""),
+        visible: true,
+        required: defaultRequired.has(field),
+        sortOrder: (index + 1) * 10,
+      },
+    ]),
+  ) as Record<LeadFormFieldKey, LeadFieldSetting>
+
+  for (const rawSetting of payloadList(payload?.field_settings)) {
+    if (!isRecord(rawSetting)) {
+      continue
+    }
+
+    const key = normalizeLeadFormFieldKey(rawSetting.key)
+
+    if (!key) {
+      continue
+    }
+
+    settings[key] = {
+      ...settings[key],
+      visible:
+        typeof rawSetting.visible === "boolean"
+          ? rawSetting.visible
+          : settings[key].visible,
+      required:
+        typeof rawSetting.required === "boolean"
+          ? rawSetting.required
+          : settings[key].required,
+      sortOrder:
+        typeof rawSetting.sort_order === "number"
+          ? rawSetting.sort_order
+          : typeof rawSetting.order === "number"
+            ? rawSetting.order
+            : settings[key].sortOrder,
+    }
+  }
+
+  return settings
+}
+
+function localizedOptionLabel(
+  item: Record<string, unknown>,
+  locale: Locale,
+  fallback: string,
+) {
+  return payloadItemString(item, "label", locale, fallback) || fallback
+}
+
+function buildLeadCustomFields(
+  payload: Record<string, unknown> | null,
+  locale: Locale,
+): LeadCustomField[] {
+  return payloadList(payload?.custom_fields)
+    .flatMap((rawField) => {
+      if (!isRecord(rawField)) {
+        return []
+      }
+
+      const key = nonEmptyString(rawField.key)
+      const type = nonEmptyString(rawField.type)
+
+      if (
+        !key ||
+        !type ||
+        !["text", "textarea", "select", "checkbox"].includes(type)
+      ) {
+        return []
+      }
+
+      const options = payloadList(rawField.options)
+        .flatMap((rawOption) => {
+          if (!isRecord(rawOption)) {
+            return []
+          }
+
+          const value = nonEmptyString(rawOption.value)
+
+          return value
+            ? [
+                {
+                  value,
+                  label: localizedOptionLabel(rawOption, locale, value),
+                },
+              ]
+            : []
+        })
+
+      return [
+        {
+          key,
+          type: type as LeadCustomField["type"],
+          label: payloadItemString(rawField, "label", locale, key) || key,
+          placeholder:
+            payloadItemString(rawField, "placeholder", locale, "") || "",
+          helper: payloadItemString(rawField, "helper", locale, "") || "",
+          required: rawField.required === true,
+          sortOrder:
+            typeof rawField.sort_order === "number" ? rawField.sort_order : 0,
+          options,
+        },
+      ]
+    })
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+}
 
 export function payloadArray(
   section: HomeSection | null | undefined,
@@ -1084,20 +1404,33 @@ export function buildB2BFormContent(
       panelCopy[interestType] = lines
     }
   }
-  const topicOptions = payloadArray(section, "topic_options")
-    .flatMap((rawItem, index) => {
-      if (isRecord(rawItem)) {
-        const fallbackOption = fallback.interestOptions[
-          Object.keys(fallback.interestOptions)[index] as keyof typeof fallback.interestOptions
-        ]?.label
+  const fields = { ...fallback.fields }
+  const placeholders = { ...fallback.placeholders }
 
-        return [
-          payloadItemString(rawItem, "label", locale, fallbackOption),
-        ].filter(Boolean)
-      }
+  for (const [contentKey, fieldKey] of Object.entries(leadFormFieldPayloadKeys)) {
+    const stableFieldKey = fieldKey as LeadFormFieldKey
+    fields[contentKey as keyof typeof fields] = localizedLeadFieldString(
+      payload,
+      "fields",
+      stableFieldKey,
+      locale,
+      fields[contentKey as keyof typeof fields],
+    ) as (typeof fields)[keyof typeof fields]
+    placeholders[contentKey as keyof typeof placeholders] =
+      localizedLeadFieldString(
+        payload,
+        "placeholders",
+        stableFieldKey,
+        locale,
+        placeholders[contentKey as keyof typeof placeholders],
+      ) as (typeof placeholders)[keyof typeof placeholders]
+  }
 
-      return [resolveLocalizedApiValue(rawItem, null, locale)].filter(Boolean)
-    })
+  const validationFallback = {
+    ...fallback.validation,
+    required: "{field} is required.",
+  }
+  const fieldSettings = buildLeadFieldSettings(payload, fallback, locale)
 
   return {
     ...fallback,
@@ -1114,27 +1447,18 @@ export function buildB2BFormContent(
         shipping: "shipping",
       },
     ),
-    fields: localizedPayloadRecord(
-      payload,
-      "fields",
-      locale,
-      fallback.fields,
-      leadFormFieldPayloadKeys,
-    ),
-    placeholders: localizedPayloadRecord(
-      payload,
-      "placeholders",
-      locale,
-      fallback.placeholders,
-      leadFormFieldPayloadKeys,
-    ),
+    fields,
+    placeholders,
+    helpers: buildLeadHelpers(payload, locale),
     validation: localizedPayloadRecord(
       payload,
       "validation",
       locale,
-      fallback.validation,
+      validationFallback,
       leadFormValidationPayloadKeys,
     ),
+    fieldSettings,
+    customFields: buildLeadCustomFields(payload, locale),
     interestOptions,
     panelCopy,
     eyebrow: resolveLocalizedApiString(section, "subtitle", locale, fallback.eyebrow),
@@ -1151,6 +1475,12 @@ export function buildB2BFormContent(
       locale,
       fallback.productContextLabel,
     ),
+    leftPanelEyebrow: localizedPayloadString(
+      payload,
+      "left_panel_eyebrow",
+      locale,
+      "",
+    ) || undefined,
     disclaimer: localizedPayloadString(
       payload,
       "privacy_note",
@@ -1173,7 +1503,6 @@ export function buildB2BFormContent(
     interestOptionList: payloadInterestOptions.length
       ? payloadInterestOptions
       : undefined,
-    topicOptions: topicOptions.length ? topicOptions : undefined,
   }
 }
 

@@ -103,30 +103,31 @@ class HomeSectionForm
 
     private const LEAD_FORM_FIELDS = [
         'name',
-        'company',
-        'organization_type',
+        'companyName',
+        'organizationType',
         'email',
         'phone',
         'country',
         'region',
-        'company_website',
-        'job_title',
+        'companyWebsite',
+        'jobTitle',
         'application',
         'volume',
         'timeline',
-        'material_interest',
-        'quantity_estimate',
-        'shipping_country',
-        'shipping_region',
-        'shipping_address',
-        'intended_use',
-        'collaboration_goal',
-        'project_stage',
         'message',
+        'collaborationGoal',
+        'projectStage',
+        'materialInterest',
+        'quantityEstimate',
+        'shippingCountry',
+        'shippingRegion',
+        'shippingAddress',
+        'intendedUse',
     ];
 
     private const LEAD_FORM_VALIDATION_RULES = [
         'default_field',
+        'required',
         'max',
         'name_required',
         'company_required',
@@ -1054,6 +1055,7 @@ class HomeSectionForm
                 Grid::make(3)
                     ->schema(self::localizedPayloadComponents([
                         'product_context_label',
+                        'left_panel_eyebrow',
                         'submit_button_label',
                         'submit_success_message',
                         'disclaimer',
@@ -1083,9 +1085,19 @@ class HomeSectionForm
                     ->schema([
                         Grid::make(3)
                             ->schema(self::localizedNestedPayloadComponents('placeholders', self::LEAD_FORM_FIELDS, [
-                                'shipping_address',
-                                'intended_use',
-                                'collaboration_goal',
+                                'shippingAddress',
+                                'intendedUse',
+                                'collaborationGoal',
+                                'message',
+                            ])),
+                    ]),
+                Section::make(self::sectionTitle('b2b_form_helpers'))
+                    ->schema([
+                        Grid::make(3)
+                            ->schema(self::localizedNestedPayloadComponents('helpers', self::LEAD_FORM_FIELDS, [
+                                'shippingAddress',
+                                'intendedUse',
+                                'collaborationGoal',
                                 'message',
                             ])),
                     ]),
@@ -1094,6 +1106,30 @@ class HomeSectionForm
                         Grid::make(3)
                             ->schema(self::localizedNestedPayloadComponents('validation', self::LEAD_FORM_VALIDATION_RULES)),
                     ]),
+                Repeater::make('payload.field_settings')
+                    ->label(self::field('field_settings'))
+                    ->addActionLabel(self::actionLabel('add_field_setting'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        Select::make('key')
+                            ->label(self::field('field_key'))
+                            ->options(self::leadFormFieldOptions())
+                            ->required(),
+                        Toggle::make('visible')
+                            ->label(self::field('visible'))
+                            ->default(true),
+                        Toggle::make('required')
+                            ->label(self::field('required'))
+                            ->default(false),
+                        TextInput::make('sort_order')
+                            ->label(__('admin.ui.sort_order'))
+                            ->numeric()
+                            ->default(0),
+                    ])
+                    ->columns(4)
+                    ->columnSpanFull(),
                 Repeater::make('payload.interest_options')
                     ->label(self::field('interest_options'))
                     ->addActionLabel(self::actionLabel('add_interest_option'))
@@ -1121,6 +1157,60 @@ class HomeSectionForm
                 Section::make(self::sectionTitle('panel_copy'))
                     ->schema(self::panelCopyRepeaters())
                     ->columns(1),
+                Repeater::make('payload.custom_fields')
+                    ->label(self::field('custom_fields'))
+                    ->addActionLabel(self::actionLabel('add_custom_field'))
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->defaultItems(0)
+                    ->schema([
+                        TextInput::make('key')
+                            ->label(self::field('field_key'))
+                            ->required()
+                            ->maxLength(80),
+                        Select::make('type')
+                            ->label(self::field('field_type'))
+                            ->options(self::customFieldTypeOptions())
+                            ->required()
+                            ->default('text'),
+                        Toggle::make('required')
+                            ->label(self::field('required'))
+                            ->default(false),
+                        TextInput::make('sort_order')
+                            ->label(__('admin.ui.sort_order'))
+                            ->numeric()
+                            ->default(0),
+                        TextInput::make('label_translations.en')->label(self::localizedField('label', 'en'))->maxLength(160),
+                        TextInput::make('label_translations.zh')->label(self::localizedField('label', 'zh'))->maxLength(160),
+                        TextInput::make('label_translations.ko')->label(self::localizedField('label', 'ko'))->maxLength(160),
+                        TextInput::make('placeholder_translations.en')->label(self::localizedField('placeholder', 'en'))->maxLength(180),
+                        TextInput::make('placeholder_translations.zh')->label(self::localizedField('placeholder', 'zh'))->maxLength(180),
+                        TextInput::make('placeholder_translations.ko')->label(self::localizedField('placeholder', 'ko'))->maxLength(180),
+                        Textarea::make('helper_translations.en')->label(self::localizedField('helper', 'en'))->rows(2),
+                        Textarea::make('helper_translations.zh')->label(self::localizedField('helper', 'zh'))->rows(2),
+                        Textarea::make('helper_translations.ko')->label(self::localizedField('helper', 'ko'))->rows(2),
+                        Repeater::make('options')
+                            ->label(self::field('options'))
+                            ->addActionLabel(self::actionLabel('add_custom_field_option'))
+                            ->collapsible()
+                            ->reorderableWithButtons()
+                            ->defaultItems(0)
+                            ->visible(fn (Get $get): bool => in_array($get('type'), ['select', 'checkbox'], true))
+                            ->schema([
+                                TextInput::make('value')->label(self::field('value'))->required()->maxLength(120),
+                                TextInput::make('label_translations.en')->label(self::localizedField('label', 'en'))->maxLength(160),
+                                TextInput::make('label_translations.zh')->label(self::localizedField('label', 'zh'))->maxLength(160),
+                                TextInput::make('label_translations.ko')->label(self::localizedField('label', 'ko'))->maxLength(160),
+                                TextInput::make('sort_order')
+                                    ->label(__('admin.ui.sort_order'))
+                                    ->numeric()
+                                    ->default(0),
+                            ])
+                            ->columns(4)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(4)
+                    ->columnSpanFull(),
             ])
             ->visible(fn (Get $get): bool => self::isLeadFormSection($get));
     }
@@ -1626,6 +1716,29 @@ class HomeSectionForm
         return collect(self::LEAD_INTEREST_TYPES)
             ->mapWithKeys(fn (string $type): array => [$type => __("admin.home_sections.interest_types.{$type}")])
             ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function leadFormFieldOptions(): array
+    {
+        return collect(self::LEAD_FORM_FIELDS)
+            ->mapWithKeys(fn (string $field): array => [$field => self::field($field)])
+            ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private static function customFieldTypeOptions(): array
+    {
+        return [
+            'text' => self::field('text'),
+            'textarea' => self::field('textarea'),
+            'select' => self::field('select'),
+            'checkbox' => self::field('checkbox'),
+        ];
     }
 
     /**

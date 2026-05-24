@@ -3,9 +3,11 @@
 namespace App\Http\Requests\Lead;
 
 use App\Enums\B2BInterestType;
+use App\Support\LeadFormCustomFields;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 abstract class BaseLeadRequest extends FormRequest
 {
@@ -38,6 +40,14 @@ abstract class BaseLeadRequest extends FormRequest
             'message' => ['required', 'string', 'max:5000'],
             'source_page' => ['nullable', 'string', 'max:120'],
             'metadata' => ['nullable', 'array'],
+            'metadata.custom_fields' => ['nullable', 'array'],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            LeadFormCustomFields::validate($this->all(), $validator);
+        });
     }
 }
