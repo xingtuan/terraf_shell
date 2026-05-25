@@ -1964,7 +1964,18 @@
       "featured": "Featured",
       "pinned": "Pinned",
       "uncategorized": "Uncategorized",
-      "likesLabel": "Likes: {count}"
+      "likesLabel": "Likes: {count}",
+      "postStatusLabels": {
+        "approved": "Approved",
+        "pending": "Pending review",
+        "pending_review": "Pending review",
+        "rejected": "Rejected",
+        "draft": "Draft",
+        "hidden": "Hidden",
+        "archived": "Archived",
+        "deleted": "Deleted",
+        "unknown": "Unknown"
+      }
     },
     "notifications": {
       "title": "Notifications",

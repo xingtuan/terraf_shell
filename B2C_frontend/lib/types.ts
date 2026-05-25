@@ -995,6 +995,7 @@ export interface CommunityPost {
   views_count?: number
   support_enabled?: boolean
   support_button_text?: string | null
+  support_button_text_translations?: LocalizedStringSet
   external_crowdfunding_url?: string | null
   campaign_status?: string | null
   target_amount?: number | null

@@ -1964,7 +1964,18 @@
       "featured": "추천",
       "pinned": "고정",
       "uncategorized": "미분류",
-      "likesLabel": "좋아요: {count}"
+      "likesLabel": "좋아요: {count}",
+      "postStatusLabels": {
+        "approved": "승인됨",
+        "pending": "검토 대기",
+        "pending_review": "검토 대기",
+        "rejected": "반려됨",
+        "draft": "임시 저장",
+        "hidden": "숨김",
+        "archived": "보관됨",
+        "deleted": "삭제됨",
+        "unknown": "알 수 없는 상태"
+      }
     },
     "notifications": {
       "title": "알림",

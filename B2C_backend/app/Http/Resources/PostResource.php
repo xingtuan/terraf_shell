@@ -58,6 +58,7 @@ class PostResource extends JsonResource
             'views_count' => (int) ($this->views_count ?? 0),
             'support_enabled' => (bool) ($campaign?->support_enabled ?? false),
             'support_button_text' => $fundingEnabled ? $supportButtonText : null,
+            'support_button_text_translations' => $fundingEnabled ? ($campaign?->support_button_text_translations ?? null) : null,
             'external_crowdfunding_url' => $campaign?->external_crowdfunding_url,
             'campaign_status' => $campaign?->campaign_status,
             'target_amount' => $campaign?->target_amount !== null ? (float) $campaign->target_amount : null,

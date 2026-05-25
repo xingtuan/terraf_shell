@@ -156,6 +156,44 @@ function getCampaignStatusLabel(
   return labels[status] ?? status.replace(/_/g, " ")
 }
 
+function getPostStatusLabel(
+  messages: SiteMessages["community"]["post"],
+  status?: string | null,
+): string {
+  if (!status) {
+    return messages.postStatusLabels.unknown
+  }
+
+  const normalized = status.trim().toLowerCase().replace(/\s+/g, "_")
+  const labels = messages.postStatusLabels as Record<string, string>
+
+  return labels[normalized] ?? messages.postStatusLabels.unknown
+}
+
+function getSupportButtonLabel(
+  post: CommunityPost | null,
+  locale: Locale,
+  postMessages: SiteMessages["community"]["post"],
+): string {
+  if (!post) return postMessages.supportIdea
+
+  const campaign = post.funding_campaign
+  if (campaign?.support_button_text_translations?.[locale]) {
+    return campaign.support_button_text_translations[locale]!
+  }
+  if (campaign?.support_button_text_translations?.en) {
+    return campaign.support_button_text_translations.en!
+  }
+
+  const postTrans = post.support_button_text_translations
+  if (postTrans?.[locale]) return postTrans[locale]!
+  if (postTrans?.en) return postTrans.en!
+
+  if (campaign) return postMessages.supportCampaign
+
+  return post.support_button_text?.trim() || postMessages.supportIdea
+}
+
 function CreatorSupportLink({
   url,
   messages,
@@ -438,9 +476,12 @@ export function CommunityPostDetail({
   }
 
   const supportUrl = post ? getCommunitySupportUrl(post) : null
-  const supportButtonText = post?.support_button_text?.trim() || messages.post.supportIdea
   const officialCampaign = post?.funding_campaign ?? null
   const officialCampaignUrl = officialCampaign?.external_crowdfunding_url ?? null
+  const supportButtonText = getSupportButtonLabel(post, locale, messages.post)
+  const showBottomSupportButton =
+    !!supportUrl &&
+    normalizeUrlForComparison(supportUrl) !== normalizeUrlForComparison(officialCampaignUrl)
   const creatorSupportUrl =
     post &&
     hasSupportUrl(post.funding_url) &&
@@ -530,7 +571,7 @@ export function CommunityPostDetail({
                         </span>
                       ) : null}
                       <span className="rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
-                        {post.status}
+                        {getPostStatusLabel(messages.post, post.status)}
                       </span>
                     </div>
 
@@ -606,7 +647,7 @@ export function CommunityPostDetail({
                   </p>
                   <p>
                     <span className="text-foreground">{messages.post.status}:</span>{" "}
-                    {post.status}
+                    {getPostStatusLabel(messages.post, post.status)}
                   </p>
                 </div>
 
@@ -862,7 +903,7 @@ export function CommunityPostDetail({
                       targetId={post.id}
                     />
                   ) : null}
-                  {supportUrl ? (
+                  {showBottomSupportButton ? (
                     <Button asChild size="sm">
                       <a href={supportUrl} target="_blank" rel="noreferrer">
                         {supportButtonText}

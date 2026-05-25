@@ -976,6 +976,7 @@ export function normalizeCommunityPost(post: CommunityPost): CommunityPost {
     cover_image_disk: post.cover_image_disk ?? null,
     reading_time: Number(post.reading_time ?? 0),
     support_enabled: normalizeBoolean(post.support_enabled),
+    support_button_text_translations: normalizeLocalizedStringSet(post.support_button_text_translations),
     target_amount: normalizeOptionalNumber(post.target_amount),
     pledged_amount: normalizeOptionalNumber(post.pledged_amount),
     backer_count: normalizeOptionalNumber(post.backer_count),

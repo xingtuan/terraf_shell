@@ -1964,7 +1964,18 @@
       "featured": "精选",
       "pinned": "置顶",
       "uncategorized": "未分类",
-      "likesLabel": "点赞：{count}"
+      "likesLabel": "点赞：{count}",
+      "postStatusLabels": {
+        "approved": "已通过",
+        "pending": "待审核",
+        "pending_review": "待审核",
+        "rejected": "未通过",
+        "draft": "草稿",
+        "hidden": "已隐藏",
+        "archived": "已归档",
+        "deleted": "已删除",
+        "unknown": "未知状态"
+      }
     },
     "notifications": {
       "title": "通知",
