@@ -6,6 +6,8 @@ use App\Enums\ContentStatus;
 use App\Filament\Support\PanelAccess;
 use App\Models\Comment;
 use App\Services\AdminModerationService;
+use App\Enums\UserViolationStatus;
+use App\Enums\UserViolationType;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -70,6 +72,18 @@ class CommentsTable
                     ->formatStateUsing(fn (string $state): string => ContentStatus::tryFrom($state)?->label() ?? ucfirst($state))
                     ->color(fn (string $state): string => ContentStatus::tryFrom($state)?->color() ?? 'gray')
                     ->sortable(),
+                TextColumn::make('sensitive_word_flag')
+                    ->label(__('admin.ui.review_reason'))
+                    ->badge()
+                    ->state(function (Comment $record): ?string {
+                        if ($record->relationLoaded('openSensitiveWordViolation') && $record->openSensitiveWordViolation !== null) {
+                            return __('admin.ui.sensitive_word_detected');
+                        }
+                        return null;
+                    })
+                    ->color('warning')
+                    ->placeholder('—')
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->label(__('admin.ui.created'))
                     ->dateTime()

@@ -128,18 +128,6 @@ class CommunitySettingsService
             ->all();
     }
 
-    public function defaultFundingSupportButtonText(): string
-    {
-        $value = $this->settings->string(
-            'community.default_funding_support_button_text',
-            (string) config('community.funding.default_support_button_text', 'Support this concept'),
-        );
-
-        $value = trim($value);
-
-        return $value !== '' ? $value : 'Support this concept';
-    }
-
     public function normalizeSubmissionPolicy(string $value): string
     {
         return match (Str::of($value)->trim()->lower()->value()) {

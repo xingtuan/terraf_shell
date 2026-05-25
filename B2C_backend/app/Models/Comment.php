@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\ContentStatus;
+use App\Enums\UserViolationStatus;
+use App\Enums\UserViolationType;
 use Database\Factories\CommentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Comment extends Model
 {
@@ -57,6 +60,19 @@ class Comment extends Model
     public function moderationLogs(): MorphMany
     {
         return $this->morphMany(ModerationLog::class, 'subject');
+    }
+
+    public function violations(): MorphMany
+    {
+        return $this->morphMany(UserViolation::class, 'subject');
+    }
+
+    public function openSensitiveWordViolation(): MorphOne
+    {
+        return $this->morphOne(UserViolation::class, 'subject')
+            ->where('type', UserViolationType::SensitiveWord->value)
+            ->where('status', UserViolationStatus::Open->value)
+            ->latestOfMany();
     }
 
     public function scopeApproved(Builder $query): Builder

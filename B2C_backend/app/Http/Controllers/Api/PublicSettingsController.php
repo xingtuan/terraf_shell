@@ -51,7 +51,6 @@ class PublicSettingsController extends Controller
                 'allowed_extensions' => $communitySettings->allowedExtensions(),
                 'max_external_links' => $communitySettings->maxExternalLinks(),
                 'sensitive_words_enabled' => $communitySettings->sensitiveWordsEnabled(),
-                'default_funding_support_button_text' => $communitySettings->defaultFundingSupportButtonText(),
             ],
         ]);
     }

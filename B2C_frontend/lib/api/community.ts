@@ -12,6 +12,7 @@ import {
   type Locale,
 } from "@/lib/i18n"
 import type { CommunityIdea, InquirySubmissionResult } from "@/lib/types"
+import { createPost } from "@/lib/api/posts"
 
 export async function getCommunityIdeas(
   locale: Locale,
@@ -31,8 +32,8 @@ export async function getCommunityIdeas(
 
 export async function submitCommunityIdea(
   idea: Pick<CommunityIdea, "title" | "summary"> & { locale: string },
+  token: string,
 ): Promise<InquirySubmissionResult> {
-  // Intentionally mock-only until the backend exposes a concept submission endpoint.
   const publicSettings = await getPublicSettings().catch(() => null)
   const communitySettings = normalizeCommunitySettings(publicSettings?.community)
   const externalLinkCount = countExternalLinks([idea.title, idea.summary])
@@ -47,20 +48,15 @@ export async function submitCommunityIdea(
     )
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 300))
-
-  const timestamp = Date.now().toString().slice(-6)
-  const reference = `COM-${timestamp}`
-
-  console.info("Mock community idea captured", {
-    reference,
-    idea,
-  })
+  const post = await createPost(
+    { title: idea.title, content: idea.summary, excerpt: idea.summary },
+    token,
+  )
 
   return {
     success: true,
-    id: Number(timestamp),
-    reference,
-    status: "mock",
+    id: post.id,
+    reference: `POST-${post.id}`,
+    status: post.status ?? "pending",
   }
 }

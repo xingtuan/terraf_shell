@@ -128,7 +128,6 @@ class RuntimeSettingsServiceProvider extends ServiceProvider
             'community.moderation.sensitive_words.terms' => $settings->get('community.sensitive_words', config('community.moderation.sensitive_words.terms', [])),
             'community.b2b_leads.notify_admins' => $settings->boolean('feature.b2b_lead_notifications', (bool) config('community.b2b_leads.notify_admins', false)),
             'community.b2b_leads.notification_recipients' => $settings->get('community.b2b_lead_notification_recipients', config('community.b2b_leads.notification_recipients', [])),
-            'community.funding.default_support_button_text' => $settings->string('community.default_funding_support_button_text', (string) config('community.funding.default_support_button_text', 'Support this concept')),
         ]);
     }
 }

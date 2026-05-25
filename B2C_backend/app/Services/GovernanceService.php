@@ -261,17 +261,39 @@ class GovernanceService
         }
 
         $reason = 'admin.moderation_log.reasons.sensitive_word_flagged';
+        $metadata = [
+            'matched_terms' => $matches['matched_terms'],
+            'matched_fields' => $matches['matched_fields'],
+            'source' => $actionPrefix,
+        ];
+
+        $existing = $subject !== null
+            ? UserViolation::query()
+                ->where('user_id', $user->id)
+                ->where('subject_type', $subject->getMorphClass())
+                ->where('subject_id', $subject->getKey())
+                ->where('type', UserViolationType::SensitiveWord->value)
+                ->where('status', UserViolationStatus::Open->value)
+                ->latest()
+                ->first()
+            : null;
+
+        if ($existing !== null) {
+            $existing->forceFill([
+                'metadata' => $metadata,
+                'occurred_at' => now(),
+            ])->save();
+
+            return $existing;
+        }
+
         $violation = $this->createViolation(
             $user,
             null,
             UserViolationType::SensitiveWord->value,
             UserViolationSeverity::Warning->value,
             $reason,
-            [
-                'matched_terms' => $matches['matched_terms'],
-                'matched_fields' => $matches['matched_fields'],
-                'source' => $actionPrefix,
-            ],
+            $metadata,
             $subject,
             $report
         );

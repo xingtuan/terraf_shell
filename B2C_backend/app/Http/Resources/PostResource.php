@@ -5,7 +5,6 @@ namespace App\Http\Resources;
 use App\Models\FundingCampaign;
 use App\Models\Post;
 use App\Models\User;
-use App\Services\CommunitySettingsService;
 use App\Services\Settings\SettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -32,10 +31,9 @@ class PostResource extends JsonResource
         $viewer = $request->user('sanctum') ?? $request->user();
         $fundingEnabled = app(SettingsService::class)->boolean('feature.funding_links_enabled', true);
         $campaign = $fundingEnabled ? $this->visibleFundingCampaign($request, $viewer) : null;
-        $defaultSupportButtonText = app(CommunitySettingsService::class)->defaultFundingSupportButtonText();
         $hasVisibleFundingTarget = $campaign !== null || filled($this->funding_url);
         $supportButtonText = $hasVisibleFundingTarget
-            ? (trim((string) ($campaign?->support_button_text ?? '')) ?: $defaultSupportButtonText)
+            ? (trim((string) ($campaign?->support_button_text ?? '')) ?: null)
             : null;
 
         return [

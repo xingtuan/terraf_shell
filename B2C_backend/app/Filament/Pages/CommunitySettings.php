@@ -67,7 +67,6 @@ class CommunitySettings extends Page
                 ]),
                 TagsInput::make('allowed_extensions')->label(__('admin.community_settings.fields.allowed_extensions')),
                 TagsInput::make('sensitive_words')->label(__('admin.community_settings.fields.sensitive_words')),
-                TextInput::make('default_funding_support_button_text')->label(__('admin.community_settings.fields.default_funding_support_button_text')),
             ]),
         ]);
     }
@@ -92,7 +91,6 @@ class CommunitySettings extends Page
             'max_external_links' => ['key' => 'community.max_external_links', 'type' => 'integer', 'default' => config('community.idea_media.max_external_links', 4)],
             'sensitive_words_enabled' => ['key' => 'community.sensitive_words_enabled', 'type' => 'boolean', 'default' => config('community.moderation.sensitive_words.enabled', false)],
             'sensitive_words' => ['key' => 'community.sensitive_words', 'type' => 'json', 'default' => config('community.moderation.sensitive_words.terms', [])],
-            'default_funding_support_button_text' => ['key' => 'community.default_funding_support_button_text', 'type' => 'string', 'default' => config('community.funding.default_support_button_text', __('admin.ui.support_this_concept'))],
         ];
     }
 }

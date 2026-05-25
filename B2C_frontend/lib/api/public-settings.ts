@@ -21,7 +21,6 @@ export type CommunityPublicSettings = {
   allowed_extensions: string[]
   max_external_links: number
   sensitive_words_enabled: boolean
-  default_funding_support_button_text: string
 }
 
 export type PublicSettings = {
@@ -87,7 +86,6 @@ export const defaultCommunitySettings: CommunityPublicSettings = {
   ],
   max_external_links: 4,
   sensitive_words_enabled: false,
-  default_funding_support_button_text: "Support this concept",
 }
 
 export async function getPublicSettings(baseUrl?: string): Promise<PublicSettings> {

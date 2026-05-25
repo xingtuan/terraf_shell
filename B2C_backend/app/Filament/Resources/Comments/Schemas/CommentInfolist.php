@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Comments\Schemas;
 
 use App\Enums\ContentStatus;
 use App\Filament\Resources\ModerationLogs\ModerationLogResource;
+use App\Models\Comment;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
@@ -71,6 +72,55 @@ class CommentInfolist
                                 TextEntry::make('content')
                                     ->columnSpanFull(),
                             ]),
+                    ]),
+                Section::make(__('admin.ui.sensitive_word_detection'))
+                    ->schema([
+                        TextEntry::make('sensitive_word_hit')
+                            ->label(__('admin.ui.sensitive_word_detected'))
+                            ->state(function (Comment $record): string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                return $violation !== null ? __('admin.system.yes') : __('admin.system.no');
+                            })
+                            ->badge()
+                            ->color(function (Comment $record): string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                return $violation !== null ? 'danger' : 'success';
+                            }),
+                        TextEntry::make('sensitive_matched_fields')
+                            ->label(__('admin.ui.matched_fields'))
+                            ->state(function (Comment $record): string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                $fields = $violation?->metadata['matched_fields'] ?? [];
+                                return $fields !== [] ? implode(', ', (array) $fields) : '—';
+                            })
+                            ->placeholder('—'),
+                        TextEntry::make('sensitive_matched_count')
+                            ->label(__('admin.ui.matched_count'))
+                            ->state(function (Comment $record): int|string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                $terms = $violation?->metadata['matched_terms'] ?? [];
+                                return count((array) $terms) ?: '—';
+                            }),
+                        TextEntry::make('sensitive_matched_terms')
+                            ->label(__('admin.ui.matched_terms'))
+                            ->state(function (Comment $record): string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                $terms = $violation?->metadata['matched_terms'] ?? [];
+                                return $terms !== [] ? implode(', ', (array) $terms) : '—';
+                            })
+                            ->placeholder('—')
+                            ->badge()
+                            ->color('danger'),
                     ]),
                 Section::make(__('admin.ui.moderation_history'))
                     ->schema([

@@ -11,7 +11,6 @@ class FundingCampaignService
 {
     public function __construct(
         private readonly GovernanceService $governanceService,
-        private readonly CommunitySettingsService $communitySettings,
     ) {}
 
     public function showForAdmin(Post $post): ?FundingCampaign
@@ -29,7 +28,7 @@ class FundingCampaignService
 
             $campaign->fill([
                 'support_enabled' => (bool) $data['support_enabled'],
-                'support_button_text' => trim((string) ($data['support_button_text'] ?? '')) ?: $this->defaultButtonText(),
+                'support_button_text' => trim((string) ($data['support_button_text'] ?? '')) ?: null,
                 'external_crowdfunding_url' => $data['external_crowdfunding_url'] ?? null,
                 'campaign_status' => $data['campaign_status'],
                 'target_amount' => $data['target_amount'] ?? null,
@@ -81,11 +80,6 @@ class FundingCampaignService
                 $post->user
             );
         });
-    }
-
-    private function defaultButtonText(): string
-    {
-        return $this->communitySettings->defaultFundingSupportButtonText();
     }
 
     /**

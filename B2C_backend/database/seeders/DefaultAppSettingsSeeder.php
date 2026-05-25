@@ -73,7 +73,6 @@ class DefaultAppSettingsSeeder extends Seeder
             'community.max_external_links' => ['value' => config('community.idea_media.max_external_links', 4), 'type' => 'integer'],
             'community.sensitive_words_enabled' => ['value' => config('community.moderation.sensitive_words.enabled', false), 'type' => 'boolean'],
             'community.sensitive_words' => ['value' => config('community.moderation.sensitive_words.terms', []), 'type' => 'json'],
-            'community.default_funding_support_button_text' => ['value' => config('community.funding.default_support_button_text', 'Support this concept'), 'type' => 'string'],
             'shipping.nz_only' => ['value' => true, 'type' => 'boolean'],
             'shipping.origin_city' => ['value' => config('store.shipping.origin.city'), 'type' => 'string'],
             'shipping.origin_postcode' => ['value' => config('store.shipping.origin.postcode'), 'type' => 'string'],

@@ -14,7 +14,7 @@ describe("community public settings wiring", () => {
     assert.match(source, /export type CommunityPublicSettings/)
     assert.match(source, /community: CommunityPublicSettings/)
     assert.match(source, /allowed_extensions: string\[\]/)
-    assert.match(source, /default_funding_support_button_text: string/)
+    assert.doesNotMatch(source, /default_funding_support_button_text/)
     assert.doesNotMatch(source, /submission_policy/)
   })
 

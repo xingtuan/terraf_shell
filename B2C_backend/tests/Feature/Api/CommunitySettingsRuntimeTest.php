@@ -35,7 +35,6 @@ class CommunitySettingsRuntimeTest extends TestCase
             'community.max_external_links' => ['value' => 0, 'type' => 'integer'],
             'community.sensitive_words_enabled' => ['value' => true, 'type' => 'boolean'],
             'community.sensitive_words' => ['value' => 'alpha,beta', 'type' => 'string'],
-            'community.default_funding_support_button_text' => ['value' => 'Back this idea', 'type' => 'string'],
         ]);
 
         $communitySettings = app(CommunitySettingsService::class);
@@ -47,7 +46,6 @@ class CommunitySettingsRuntimeTest extends TestCase
         $this->assertSame(0, $communitySettings->maxExternalLinks());
         $this->assertTrue($communitySettings->sensitiveWordsEnabled());
         $this->assertSame(['alpha', 'beta'], $communitySettings->sensitiveWords());
-        $this->assertSame('Back this idea', $communitySettings->defaultFundingSupportButtonText());
     }
 
     public function test_community_settings_page_no_longer_manages_submission_policy(): void
@@ -405,32 +403,13 @@ class CommunitySettingsRuntimeTest extends TestCase
         app(SettingsService::class)->setMany([
             'community.allowed_extensions' => ['value' => ['jpg', 'pdf'], 'type' => 'json'],
             'community.sensitive_words' => ['value' => ['private-term'], 'type' => 'json'],
-            'community.default_funding_support_button_text' => ['value' => 'Back this idea', 'type' => 'string'],
         ]);
 
         $this->getJson('/api/public-settings')
             ->assertOk()
             ->assertJsonPath('data.community.allowed_extensions.0', 'jpg')
-            ->assertJsonPath('data.community.default_funding_support_button_text', 'Back this idea')
+            ->assertJsonMissingPath('data.community.default_funding_support_button_text')
             ->assertJsonMissingPath('data.community.sensitive_words')
             ->assertJsonMissingPath('data.community.submission_policy');
-    }
-
-    public function test_default_funding_button_text_is_returned_from_public_settings_and_post_resource(): void
-    {
-        app(SettingsService::class)->set('community.default_funding_support_button_text', 'Back this idea', ['type' => 'string']);
-
-        $post = Post::factory()->create([
-            'status' => 'approved',
-            'funding_url' => 'https://example.com/fund',
-        ]);
-
-        $this->getJson('/api/public-settings')
-            ->assertOk()
-            ->assertJsonPath('data.community.default_funding_support_button_text', 'Back this idea');
-
-        $this->getJson("/api/posts/{$post->id}")
-            ->assertOk()
-            ->assertJsonPath('data.support_button_text', 'Back this idea');
     }
 }

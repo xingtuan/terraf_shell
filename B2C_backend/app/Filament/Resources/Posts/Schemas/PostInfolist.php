@@ -12,6 +12,7 @@ use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use App\Models\UserViolation;
 
 class PostInfolist
 {
@@ -193,6 +194,55 @@ class PostInfolist
                                     ->label(__('admin.ui.alt_text'))
                                     ->placeholder(__('admin.ui.no_alt_text_provided')),
                             ]),
+                    ]),
+                Section::make(__('admin.ui.sensitive_word_detection'))
+                    ->schema([
+                        TextEntry::make('sensitive_word_hit')
+                            ->label(__('admin.ui.sensitive_word_detected'))
+                            ->state(function (Post $record): string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                return $violation !== null ? __('admin.system.yes') : __('admin.system.no');
+                            })
+                            ->badge()
+                            ->color(function (Post $record): string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                return $violation !== null ? 'danger' : 'success';
+                            }),
+                        TextEntry::make('sensitive_matched_fields')
+                            ->label(__('admin.ui.matched_fields'))
+                            ->state(function (Post $record): string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                $fields = $violation?->metadata['matched_fields'] ?? [];
+                                return $fields !== [] ? implode(', ', (array) $fields) : '—';
+                            })
+                            ->placeholder('—'),
+                        TextEntry::make('sensitive_matched_count')
+                            ->label(__('admin.ui.matched_count'))
+                            ->state(function (Post $record): int|string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                $terms = $violation?->metadata['matched_terms'] ?? [];
+                                return count((array) $terms) ?: '—';
+                            }),
+                        TextEntry::make('sensitive_matched_terms')
+                            ->label(__('admin.ui.matched_terms'))
+                            ->state(function (Post $record): string {
+                                $violation = $record->relationLoaded('openSensitiveWordViolation')
+                                    ? $record->openSensitiveWordViolation
+                                    : $record->openSensitiveWordViolation()->first();
+                                $terms = $violation?->metadata['matched_terms'] ?? [];
+                                return $terms !== [] ? implode(', ', (array) $terms) : '—';
+                            })
+                            ->placeholder('—')
+                            ->badge()
+                            ->color('danger'),
                     ]),
                 Section::make(__('admin.ui.moderation'))
                     ->schema([

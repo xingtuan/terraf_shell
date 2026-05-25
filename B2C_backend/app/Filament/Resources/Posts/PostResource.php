@@ -62,7 +62,7 @@ class PostResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['user.profile', 'category', 'tags', 'images', 'media', 'fundingCampaign', 'featuredBy'])
+            ->with(['user.profile', 'category', 'tags', 'images', 'media', 'fundingCampaign', 'featuredBy', 'openSensitiveWordViolation'])
             ->withCount(['reports']);
     }
 

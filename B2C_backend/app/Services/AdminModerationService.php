@@ -62,6 +62,7 @@ class AdminModerationService
                             'types' => [
                                 UserViolationType::ContentRejected->value,
                                 UserViolationType::ContentHidden->value,
+                                UserViolationType::SensitiveWord->value,
                             ],
                             'subject' => $post,
                         ],
@@ -75,7 +76,10 @@ class AdminModerationService
                     $this->governanceService->resolveViolations(
                         $post->user,
                         [
-                            'types' => [UserViolationType::ContentHidden->value],
+                            'types' => [
+                                UserViolationType::ContentHidden->value,
+                                UserViolationType::SensitiveWord->value,
+                            ],
                             'subject' => $post,
                         ],
                         $admin,
@@ -178,6 +182,7 @@ class AdminModerationService
                         'types' => [
                             UserViolationType::ContentRejected->value,
                             UserViolationType::ContentHidden->value,
+                            UserViolationType::SensitiveWord->value,
                         ],
                         'subject' => $comment,
                     ],
@@ -196,7 +201,10 @@ class AdminModerationService
                 $this->governanceService->resolveViolations(
                     $comment->user,
                     [
-                        'types' => [UserViolationType::ContentHidden->value],
+                        'types' => [
+                            UserViolationType::ContentHidden->value,
+                            UserViolationType::SensitiveWord->value,
+                        ],
                         'subject' => $comment,
                     ],
                     $admin,
