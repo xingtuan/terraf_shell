@@ -123,7 +123,6 @@ export type AccountCopy = {
     collaborationLabel: string
     collaborationHint: string
     emailLabel: string
-    emailPlaceholder: string
     roleLabel: string
     statusLabel: string
     memberSinceLabel: string
@@ -140,7 +139,6 @@ export type AccountCopy = {
     save: string
     saving: string
     success: string
-    emailInvalid: string
     urlInvalid: string
   }
   community: {
@@ -371,7 +369,6 @@ const en: AccountCopy = {
     collaborationHint:
       "This public signal helps other people understand whether outreach is welcome.",
     emailLabel: "Email",
-    emailPlaceholder: "you@example.com",
     roleLabel: "Role",
     statusLabel: "Account status",
     memberSinceLabel: "Member since",
@@ -390,7 +387,6 @@ const en: AccountCopy = {
     save: "Save changes",
     saving: "Saving changes...",
     success: "Profile updated.",
-    emailInvalid: "Enter a valid email address.",
     urlInvalid: "Enter a valid URL.",
   },
   community: {
@@ -623,7 +619,6 @@ const ko: AccountCopy = {
     collaborationLabel: "협업 의향 있음",
     collaborationHint: "이 공개 정보는 협업 문의를 환영하는지 알리는 데 도움이 됩니다.",
     emailLabel: "이메일",
-    emailPlaceholder: "you@example.com",
     roleLabel: "역할",
     statusLabel: "계정 상태",
     memberSinceLabel: "가입일",
@@ -641,7 +636,6 @@ const ko: AccountCopy = {
     save: "변경사항 저장",
     saving: "저장 중...",
     success: "프로필이 업데이트되었습니다.",
-    emailInvalid: "올바른 이메일 주소를 입력하세요.",
     urlInvalid: "올바른 URL을 입력하세요.",
   },
   community: {
@@ -865,7 +859,6 @@ const zh: AccountCopy = {
     collaborationLabel: "开放合作",
     collaborationHint: "这个公开信号有助于让他人了解你是否欢迎合作联系。",
     emailLabel: "邮箱",
-    emailPlaceholder: "you@example.com",
     roleLabel: "角色",
     statusLabel: "账户状态",
     memberSinceLabel: "注册时间",
@@ -882,7 +875,6 @@ const zh: AccountCopy = {
     save: "保存更改",
     saving: "正在保存...",
     success: "资料已更新。",
-    emailInvalid: "请输入有效的邮箱地址。",
     urlInvalid: "请输入有效的 URL。",
   },
   community: {

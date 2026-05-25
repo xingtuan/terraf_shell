@@ -71,6 +71,8 @@ class UserProfileEndpointsTest extends TestCase
             ->assertJsonPath('data.comments_count', 2)
             ->assertJsonPath('data.favorites_count', 3)
             ->assertJsonPath('data.is_following', true)
+            ->assertJsonMissingPath('data.email')
+            ->assertJsonMissingPath('data.email_verified')
             ->assertJsonMissingPath('data.reports_count');
 
         Sanctum::actingAs($target);

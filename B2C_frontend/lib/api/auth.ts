@@ -30,7 +30,6 @@ export type ResetPasswordPayload = {
 export type UpdateProfilePayload = {
   name?: string
   username?: string
-  email?: string
   bio?: string
   location?: string
   website?: string

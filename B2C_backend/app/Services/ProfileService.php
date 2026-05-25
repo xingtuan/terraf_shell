@@ -3,30 +3,19 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Services\Email\EmailDispatchService;
-use App\Services\Email\EmailPayloadFactory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
 
 class ProfileService
 {
     public function __construct(
         private readonly MediaService $mediaService,
-        private readonly EmailDispatchService $emailDispatchService,
-        private readonly EmailPayloadFactory $emailPayloadFactory,
     ) {}
 
     public function update(User $user, array $data): User
     {
-        $emailChanged = array_key_exists('email', $data) && $data['email'] !== $user->email;
-
-        $updatedUser = DB::transaction(function () use ($user, $data, $emailChanged): User {
-            $user->fill(Arr::only($data, ['name', 'username', 'email']));
-
-            if ($emailChanged) {
-                $user->email_verified_at = null;
-            }
+        return DB::transaction(function () use ($user, $data): User {
+            $user->fill(Arr::only($data, ['name', 'username']));
 
             $user->save();
 
@@ -68,29 +57,5 @@ class ProfileService
 
             return $user->fresh()->load('profile');
         });
-
-        if ($emailChanged) {
-            $verificationUrl = URL::temporarySignedRoute(
-                'verification.verify',
-                now()->addMinutes(60),
-                [
-                    'id' => $updatedUser->getKey(),
-                    'hash' => sha1($updatedUser->getEmailForVerification()),
-                ]
-            );
-
-            $this->emailDispatchService->sendEventSafely(
-                'auth.email_verification',
-                $this->emailPayloadFactory->forUser($updatedUser, [
-                    'verification_url' => $verificationUrl,
-                ]),
-                [
-                    'related' => $updatedUser,
-                    'idempotency_key' => 'auth.email_verification:'.$updatedUser->id.':'.$updatedUser->email,
-                ],
-            );
-        }
-
-        return $updatedUser;
     }
 }

@@ -159,11 +159,12 @@ class AuthTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => 'taylor@example.com']);
     }
 
-    public function test_authenticated_user_can_update_expanded_profile_and_email_change_requires_reverification(): void
+    public function test_authenticated_user_can_update_expanded_profile_but_not_email(): void
     {
-        Notification::fake();
-
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'email' => 'john@example.com',
+            'email_verified_at' => now(),
+        ]);
         Sanctum::actingAs($user);
 
         $this
@@ -183,14 +184,15 @@ class AuthTest extends TestCase
             ->assertJsonPath('data.profile.portfolio_url', 'https://portfolio.example.com')
             ->assertJsonPath('data.profile.website', 'https://portfolio.example.com')
             ->assertJsonPath('data.profile.open_to_collab', true)
-            ->assertJsonPath('data.email', 'new-john@example.com')
-            ->assertJsonPath('data.email_verified', false);
+            ->assertJsonPath('data.email', 'john@example.com')
+            ->assertJsonPath('data.email_verified', true);
 
-        Notification::assertNothingSent();
-        $this->assertDatabaseHas('email_logs', [
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'email' => 'john@example.com',
+        ]);
+        $this->assertDatabaseMissing('email_logs', [
             'event_key' => 'auth.email_verification',
-            'status' => EmailLog::STATUS_SKIPPED,
-            'skip_reason' => 'global_disabled',
         ]);
     }
 

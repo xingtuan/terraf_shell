@@ -30,7 +30,6 @@ type ProfileFormValues = {
   avatar_url: string | null
   avatar_path: string | null
   name: string
-  email: string
   bio: string
   location: string
   region: string
@@ -44,7 +43,6 @@ type FieldErrors = Partial<
   Record<
     | "avatar"
     | "name"
-    | "email"
     | "bio"
     | "website"
     | "portfolio_url",
@@ -57,7 +55,6 @@ function createInitialForm(profile: UserProfile | null): ProfileFormValues {
     avatar_url: profile?.avatar_url ?? null,
     avatar_path: null,
     name: profile?.name ?? "",
-    email: profile?.email ?? "",
     bio: profile?.bio ?? profile?.profile?.bio ?? "",
     location: profile?.profile?.location ?? "",
     region: profile?.profile?.region ?? "",
@@ -118,7 +115,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
     const nextErrors: FieldErrors = {}
     const trimmedName = form.name.trim()
     const trimmedBio = form.bio.trim()
-    const trimmedEmail = form.email.trim()
     const trimmedWebsite = form.website.trim()
     const trimmedPortfolio = form.portfolio_url.trim()
 
@@ -130,10 +126,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
 
     if (trimmedBio.length > 200) {
       nextErrors.bio = communityProfileMessages.bioMax
-    }
-
-    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
-      nextErrors.email = copy.profile.emailInvalid
     }
 
     if (trimmedWebsite && !isValidUrl(trimmedWebsite)) {
@@ -164,7 +156,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
           avatar_url: form.avatar_url,
           avatar_path: form.avatar_path,
           name: form.name.trim(),
-          email: form.email.trim(),
           bio: form.bio.trim(),
           location: form.location.trim(),
           region: form.region.trim(),
@@ -188,7 +179,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
             submitError.errors?.avatar_path?.[0] ??
             submitError.errors?.avatar_url?.[0],
           name: submitError.errors?.name?.[0],
-          email: submitError.errors?.email?.[0],
           bio: submitError.errors?.bio?.[0],
           website: submitError.errors?.website?.[0],
           portfolio_url: submitError.errors?.portfolio_url?.[0],
@@ -223,6 +213,8 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
     }
   }
 
+  const accountEmail = session.user?.email ?? ""
+  const emailVerified = session.user?.email_verified ?? false
   const showVerificationEmailAction = session.user?.email_verified === false
 
   return (
@@ -515,40 +507,6 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
               </label>
             </AccountPanel>
 
-            <AccountPanel className="bg-background/70 p-6">
-              <p className="text-sm uppercase tracking-[0.18em] text-primary">
-                {copy.profile.identityTitle}
-              </p>
-              <h2 className="mt-3 font-serif text-3xl text-foreground">
-                {copy.profile.identityTitle}
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                {copy.profile.identityDescription}
-              </p>
-
-              <div className="mt-8 space-y-2">
-                <label className="text-sm font-medium text-foreground">
-                  {copy.profile.emailLabel}
-                </label>
-                <Input
-                  value={form.email}
-                  onChange={(event) => {
-                    setForm((currentValue) => ({
-                      ...currentValue,
-                      email: event.target.value,
-                    }))
-                    setErrors((currentErrors) => ({
-                      ...currentErrors,
-                      email: undefined,
-                    }))
-                  }}
-                  placeholder={copy.profile.emailPlaceholder}
-                />
-                {errors.email ? (
-                  <p className="text-sm text-destructive">{errors.email}</p>
-                ) : null}
-              </div>
-            </AccountPanel>
           </div>
 
           <div className="space-y-6">
@@ -609,7 +567,14 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
             </AccountPanel>
 
             <AccountPanel className="bg-background/70 p-6">
-              <div className="space-y-4 text-sm">
+              <h2 className="font-serif text-3xl text-foreground">
+                {copy.profile.identityTitle}
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                {copy.profile.identityDescription}
+              </p>
+
+              <div className="mt-6 space-y-4 text-sm">
                 <div className="flex items-center justify-between gap-4 border-b border-border/60 pb-3">
                   <span className="text-muted-foreground">{copy.profile.roleLabel}</span>
                   <span className="text-right text-foreground">
@@ -639,8 +604,8 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
                   <span className="text-muted-foreground">
                     {copy.profile.emailLabel}
                   </span>
-                  <span className="text-right text-foreground">
-                    {form.email || "—"}
+                  <span className="break-all text-right text-foreground">
+                    {accountEmail || "—"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
@@ -649,12 +614,12 @@ export function AccountProfilePage({ locale }: AccountProfilePageProps) {
                   </span>
                   <span
                     className={`text-right text-sm font-medium ${
-                      session.user?.email_verified
+                      emailVerified
                         ? "text-emerald-600"
                         : "text-amber-600"
                     }`}
                   >
-                    {session.user?.email_verified
+                    {emailVerified
                       ? copy.profile.emailVerifiedLabel
                       : copy.profile.emailNotVerifiedLabel}
                   </span>
