@@ -5,6 +5,13 @@ import { headers } from "next/headers"
 import { getApiBaseUrl } from "@/lib/api/client"
 
 export async function getServerApiBaseUrl() {
+  const configuredServerApiBaseUrl =
+    process.env.NEXT_SERVER_API_BASE_URL?.trim()
+
+  if (configuredServerApiBaseUrl) {
+    return configuredServerApiBaseUrl.replace(/\/+$/, "")
+  }
+
   const configuredApiBaseUrl = getApiBaseUrl()
 
   if (/^https?:\/\//i.test(configuredApiBaseUrl)) {

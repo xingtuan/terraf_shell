@@ -131,42 +131,7 @@ function buildPublicLocalMediaUrl(storedPath: string) {
     }
   }
 
-  const apiBaseUrl = getApiBaseUrl()
-  const apiMediaPath = `/media/files/public/${normalizedStoredPath}`
-
-  if (/^https?:\/\//i.test(apiBaseUrl)) {
-    try {
-      const apiBase = new URL(apiBaseUrl)
-      const basePath = apiBase.pathname.replace(/\/+$/, "")
-      const mediaPath = `${basePath}${apiMediaPath}`.replace(/\/{2,}/g, "/")
-
-      apiBase.pathname = mediaPath
-      apiBase.search = ""
-      apiBase.hash = ""
-
-      return apiBase.toString()
-    } catch {
-      // Fall through to relative URL.
-    }
-  }
-
-  if (apiBaseUrl.startsWith("/")) {
-    const basePath = apiBaseUrl.replace(/\/+$/, "")
-    return `${basePath}${apiMediaPath}`.replace(/\/{2,}/g, "/")
-  }
-
-  const apiOrigin = getApiOrigin()
-  const rewrittenPath = `/storage/${normalizedStoredPath}`
-
-  if (!apiOrigin) {
-    return rewrittenPath
-  }
-
-  try {
-    return new URL(rewrittenPath, `${apiOrigin}/`).toString()
-  } catch {
-    return rewrittenPath
-  }
+  return `/storage/${normalizedStoredPath}`
 }
 
 export function normalizeMaterialSpecIcon(icon?: string | null): MaterialSpecIcon {

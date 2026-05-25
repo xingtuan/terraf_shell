@@ -168,6 +168,12 @@ class CartService
 
     public function mergeGuestCart(string $sessionKey, int $userId): void
     {
+        $sessionKey = $this->normalizeSessionKey($sessionKey);
+
+        if ($sessionKey === '') {
+            return;
+        }
+
         $guestCart = Cart::query()
             ->forSession($sessionKey)
             ->whereNull('user_id')
@@ -375,12 +381,25 @@ class CartService
 
     private function sessionKeyFromRequest(Request $request): string
     {
-        $sessionKey = trim((string) $request->cookie(self::COOKIE_NAME, ''));
+        foreach ([self::COOKIE_NAME, self::LEGACY_COOKIE_NAME] as $cookieName) {
+            $sessionKey = $this->normalizeSessionKey($request->cookie($cookieName, ''));
 
-        if ($sessionKey !== '') {
-            return $sessionKey;
+            if ($sessionKey !== '') {
+                return $sessionKey;
+            }
         }
 
-        return trim((string) $request->cookie(self::LEGACY_COOKIE_NAME, ''));
+        return '';
+    }
+
+    private function normalizeSessionKey(mixed $sessionKey): string
+    {
+        $sessionKey = trim((string) $sessionKey);
+
+        if ($sessionKey === '' || strlen($sessionKey) > 64 || ! Str::isUuid($sessionKey)) {
+            return '';
+        }
+
+        return $sessionKey;
     }
 }

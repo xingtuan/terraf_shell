@@ -99,7 +99,7 @@ describe("requestApi auth header", () => {
 })
 
 describe("media URL normalization", () => {
-  it("rewrites legacy public media URLs through the API media route when API base is relative", () => {
+  it("rewrites legacy public media URLs to the public storage path when API base is relative", () => {
     const originalApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
     const originalMediaBaseUrl = process.env.NEXT_PUBLIC_MEDIA_BASE_URL
 
@@ -111,11 +111,11 @@ describe("media URL normalization", () => {
         rewriteLegacyPublicMediaUrl(
           "http://172.204.80.173/media/files/public/images/community/test.png",
         ),
-        "/api/media/files/public/images/community/test.png",
+        "/storage/images/community/test.png",
       )
       assert.equal(
         rewriteLegacyPublicMediaUrl("/storage/images/community/test.png"),
-        "/api/media/files/public/images/community/test.png",
+        "/storage/images/community/test.png",
       )
     } finally {
       if (originalApiBaseUrl === undefined) {
