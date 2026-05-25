@@ -60,7 +60,7 @@ class TaxSettings extends Page
                 Grid::make(2)->schema([
                     Toggle::make('gst_enabled')->label(__('admin.tax.fields.gst_enabled')),
                     Toggle::make('prices_include_gst')->label(__('admin.tax.fields.prices_include_gst')),
-                    TextInput::make('gst_rate')->label(__('admin.tax.fields.gst_rate'))->numeric()->minValue(0)->maxValue(1),
+                    TextInput::make('gst_rate')->label(__('admin.tax.fields.gst_rate'))->numeric()->minValue(0)->maxValue(100)->hint(__('admin.tax.hints.gst_rate')),
                     TextInput::make('label')->label(__('admin.tax.fields.tax_label'))->maxLength(80),
                 ]),
             ]),
@@ -75,6 +75,19 @@ class TaxSettings extends Page
                 ->livewireSubmitHandler('save')
                 ->footer([Actions::make([Action::make('save')->label(__('admin.actions.save_settings'))->submit('save')->requiresConfirmation()])]),
         ]);
+    }
+
+    protected function mutateSettingsStateBeforeSave(array $state): array
+    {
+        if (isset($state['gst_rate']) && is_numeric($state['gst_rate'])) {
+            $rate = (float) $state['gst_rate'];
+            // Accept percentage inputs (e.g. 15 or 20) and convert to decimal rate (0.15, 0.20).
+            if ($rate > 1) {
+                $state['gst_rate'] = round($rate / 100, 6);
+            }
+        }
+
+        return $state;
     }
 
     protected function settingMap(): array

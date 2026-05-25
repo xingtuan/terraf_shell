@@ -247,6 +247,7 @@ export interface CartSummary {
   estimated_tax_usd?: string
   estimated_total_usd?: string
   free_shipping_threshold_usd?: string
+  tax_rate?: number
   tax_label?: string | null
   prices_include_tax?: boolean
   shipping_notice?: string | null

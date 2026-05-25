@@ -707,6 +707,7 @@ export function normalizeCartSummary(cart: CartSummary): CartSummary {
       cart.free_shipping_threshold_usd === undefined
         ? "200.00"
         : String(cart.free_shipping_threshold_usd),
+    tax_rate: cart.tax_rate !== null && cart.tax_rate !== undefined ? Number(cart.tax_rate) : undefined,
     tax_label: cart.tax_label ?? null,
     prices_include_tax: Boolean(cart.prices_include_tax ?? true),
     shipping_notice: cart.shipping_notice ?? null,

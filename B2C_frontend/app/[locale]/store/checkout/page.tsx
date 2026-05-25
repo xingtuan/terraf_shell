@@ -270,10 +270,17 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   )
   const subtotal = Number(cart?.subtotal_usd ?? 0)
   const shipping = Number(selectedShippingOption?.amount ?? 0)
-  const taxRate = shippingQuote?.tax.rate ?? 0.15
-  const pricesIncludeTax = shippingQuote?.tax.included ?? true
-  const tax = calculateTax(subtotal + shipping, taxRate, pricesIncludeTax)
-  const total = pricesIncludeTax ? subtotal + shipping : subtotal + shipping + tax
+  // Tax rate and inclusive flag come exclusively from the backend; never fall back to a hardcoded constant.
+  const taxRate = shippingQuote?.tax.rate ?? cart?.tax_rate ?? 0
+  const pricesIncludeTax = shippingQuote?.tax.included ?? cart?.prices_include_tax ?? true
+  // Only show a calculated tax amount once we have a shipping quote with a rate.
+  // Before that, `tax` is null so the UI can render a "pending" placeholder.
+  const tax = shippingQuote && taxRate > 0
+    ? calculateTax(subtotal + shipping, taxRate, pricesIncludeTax)
+    : null
+  const total = shippingQuote
+    ? (pricesIncludeTax ? subtotal + shipping : subtotal + shipping + (tax ?? 0))
+    : subtotal
   const storeDisabled = runtimeSettings?.store_enabled === false
   const guestCheckoutDisabled =
     !session.token && runtimeSettings?.guest_checkout_enabled === false
@@ -855,7 +862,10 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                 {shippingQuote?.tax.label ?? t.gstIncluded}
               </span>
               <span className="text-foreground">
-                {formatCurrencyAmount(tax, locale, currency)}
+                {tax !== null
+                  ? formatCurrencyAmount(tax, locale, currency)
+                  : <span className="text-xs text-muted-foreground">{t.shippingCalculatedAtCheckout}</span>
+                }
               </span>
             </div>
             <div className="flex items-center justify-between pt-2 text-base font-medium">

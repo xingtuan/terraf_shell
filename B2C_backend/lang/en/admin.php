@@ -641,6 +641,9 @@ return [
             'gst_rate' => 'GST rate',
             'tax_label' => 'Tax label',
         ],
+        'hints' => [
+            'gst_rate' => 'Enter as a decimal (e.g. 0.15 for 15%) or as a percentage (e.g. 15). Values above 1 are treated as percentages and converted automatically.',
+        ],
     ],
     'feature_flags' => [
         'sections' => [

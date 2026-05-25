@@ -23,6 +23,10 @@ class CartResource extends JsonResource
         $taxService = app(TaxService::class);
         $estimatedTax = $taxService->taxForTotal($subtotal);
 
+        $estimatedTotal = $taxService->pricesIncludeGst()
+            ? $subtotal
+            : $subtotal + $estimatedTax;
+
         return [
             'id' => $this->id,
             'item_count' => $this->itemCount(),
@@ -30,8 +34,9 @@ class CartResource extends JsonResource
             'subtotal_usd' => number_format($subtotal, 2, '.', ''),
             'estimated_shipping_usd' => number_format(0, 2, '.', ''),
             'estimated_tax_usd' => number_format($estimatedTax, 2, '.', ''),
-            'estimated_total_usd' => number_format($subtotal, 2, '.', ''),
+            'estimated_total_usd' => number_format($estimatedTotal, 2, '.', ''),
             'free_shipping_threshold_usd' => number_format((float) config('store.shipping.free_shipping_threshold', StorePricing::FREE_SHIPPING_THRESHOLD), 2, '.', ''),
+            'tax_rate' => $taxService->gstRate(),
             'tax_label' => $taxService->label(),
             'prices_include_tax' => $taxService->pricesIncludeGst(),
             'shipping_notice' => 'Shipping calculated at checkout.',

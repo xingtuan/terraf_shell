@@ -641,6 +641,9 @@ return [
             'gst_rate' => 'GST 税率',
             'tax_label' => '税费标签',
         ],
+        'hints' => [
+            'gst_rate' => '输入小数（如 0.15 表示 15%）或百分比（如 15）。大于 1 的值将自动视为百分比并转换。',
+        ],
     ],
     'feature_flags' => [
         'sections' => [

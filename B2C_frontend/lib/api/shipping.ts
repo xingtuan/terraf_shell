@@ -86,7 +86,7 @@ function normalizeShippingQuote(quote: ShippingQuote): ShippingQuote {
     options: ensureArray(quote.options).map(normalizeShippingOption),
     tax: {
       label: quote.tax?.label ?? "GST included",
-      rate: Number(quote.tax?.rate ?? 0.15),
+      rate: Number(quote.tax?.rate ?? 0),
       amount:
         quote.tax?.amount === null || quote.tax?.amount === undefined
           ? "0.00"

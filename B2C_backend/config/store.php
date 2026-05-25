@@ -5,7 +5,7 @@ return [
 
     'tax' => [
         'gst_rate' => (float) env('STORE_GST_RATE', 0.15),
-        'prices_include_gst' => (bool) env('STORE_PRICES_INCLUDE_GST', true),
+        'prices_include_gst' => filter_var(env('STORE_PRICES_INCLUDE_GST', true), FILTER_VALIDATE_BOOLEAN),
         'label' => env('STORE_TAX_LABEL', 'GST included'),
     ],
 
