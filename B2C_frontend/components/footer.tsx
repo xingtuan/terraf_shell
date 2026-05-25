@@ -114,14 +114,16 @@ export function Footer({ locale, header, footer, branding }: FooterProps) {
           <div className="lg:col-span-4">
             <Link href={getLocalizedHref(locale)} className="inline-block">
               {branding?.logo_url ? (
-                <Image
-                  src={branding.logo_url}
-                  alt={branding.logo_alt ?? branding.logo_text}
-                  height={48}
-                  width={144}
-                  className="h-12 w-auto object-contain brightness-0 invert"
-                  unoptimized
-                />
+                <span className="relative block h-10 w-[144px] sm:w-[160px]">
+                  <Image
+                    src={branding.logo_url}
+                    alt={branding.logo_alt ?? branding.logo_text}
+                    fill
+                    sizes="160px"
+                    className="object-contain object-left"
+                    unoptimized
+                  />
+                </span>
               ) : (
                 <span className="font-serif text-3xl tracking-[0.28em] text-background">
                   {branding?.logo_text ?? BRAND_DISPLAY_NAME}

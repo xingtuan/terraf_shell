@@ -1,10 +1,45 @@
-import type { CartSummaryItem, Product, ProductInventoryPolicy } from "@/lib/types"
+import type { CartSummaryItem, Product, ProductInventoryPolicy, ProductStockStatus } from "@/lib/types"
 
 const PROJECT_ENQUIRY_USE_CASES = new Set([
   "hospitality_service",
   "design_projects",
   "retail_gifting",
 ])
+
+type StockStatusMessages = {
+  in_stock: string
+  low_stock: string
+  preorder: string
+  made_to_order: string
+  sold_out: string
+  unavailable: string
+  inquiry_only: string
+}
+
+export function getLocalizedStockStatusLabel(
+  product: Pick<Product, "stock_status" | "stock_status_label">,
+  stockStatusMessages: StockStatusMessages,
+  fallback: string,
+): string {
+  switch (product.stock_status as ProductStockStatus | null | undefined) {
+    case "in_stock":
+      return stockStatusMessages.in_stock
+    case "low_stock":
+      return stockStatusMessages.low_stock
+    case "preorder":
+      return stockStatusMessages.preorder
+    case "made_to_order":
+      return stockStatusMessages.made_to_order
+    case "sold_out":
+      return stockStatusMessages.sold_out
+    case "unavailable":
+      return stockStatusMessages.unavailable
+    case "inquiry_only":
+      return stockStatusMessages.inquiry_only
+    default:
+      return product.stock_status_label ?? fallback
+  }
+}
 
 export function getProductAvailabilitySummary(
   product: Pick<Product, "lead_time" | "availability_text">,

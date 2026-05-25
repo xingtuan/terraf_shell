@@ -1620,6 +1620,17 @@
     "faqB2bAvailableAnswer": "네. 대량 문의 옵션을 통해 MOQ, 리드타임, 프로젝트 요구 사항을 전달해 주세요.",
     "faqB2bUnavailableAnswer": "호스피탈리티 또는 B2B 요구 사항이 있다면 수량과 일정을 포함해 팀에 문의해 주세요."
   },
+  "store": {
+    "stockStatus": {
+      "in_stock": "재고 있음",
+      "low_stock": "재고 소량",
+      "preorder": "예약 주문",
+      "made_to_order": "주문 제작",
+      "sold_out": "품절",
+      "unavailable": "구매 불가",
+      "inquiry_only": "문의 전용"
+    }
+  },
   "community": {
     "memberFallback": "커뮤니티 회원",
     "layout": {

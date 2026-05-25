@@ -4,8 +4,8 @@ import type { Product } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 type ProductAvailabilityBadgeProps = {
-  product: Pick<Product, "stock_status" | "stock_status_label" | "in_stock">
-  fallbackLabel: string
+  product: Pick<Product, "stock_status">
+  label: string
   className?: string
 }
 
@@ -25,7 +25,7 @@ function productAvailabilityTone(status?: Product["stock_status"]) {
 
 export function ProductAvailabilityBadge({
   product,
-  fallbackLabel,
+  label,
   className,
 }: ProductAvailabilityBadgeProps) {
   return (
@@ -36,7 +36,7 @@ export function ProductAvailabilityBadge({
         className,
       )}
     >
-      {product.stock_status_label || fallbackLabel}
+      {label}
     </span>
   )
 }

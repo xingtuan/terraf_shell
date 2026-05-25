@@ -20,7 +20,11 @@ import {
   getCartAdjustmentMessage,
   getLocalizedCartQuantityErrorMessage,
 } from "@/lib/store/cart-messages"
-import { getProductAvailabilitySummary, supportsProjectEnquiry } from "@/lib/store/product-display"
+import {
+  getLocalizedStockStatusLabel,
+  getProductAvailabilitySummary,
+  supportsProjectEnquiry,
+} from "@/lib/store/product-display"
 import type { Product } from "@/lib/types"
 import { useCart } from "@/hooks/useCart"
 import { toast } from "@/hooks/use-toast"
@@ -119,7 +123,10 @@ export function ProductCard({ locale, product }: ProductCardProps) {
                 </span>
               ))}
             </div>
-            <ProductAvailabilityBadge product={product} fallbackLabel={t.inStock} />
+            <ProductAvailabilityBadge
+                product={product}
+                label={getLocalizedStockStatusLabel(product, messages.store.stockStatus, t.inStock)}
+              />
           </div>
         </div>
       </Link>

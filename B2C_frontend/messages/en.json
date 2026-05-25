@@ -1620,6 +1620,17 @@
     "faqB2bAvailableAnswer": "Yes. Use the bulk enquiry option for MOQ, lead time, and project requirements.",
     "faqB2bUnavailableAnswer": "For hospitality or B2B requirements, contact the team and include your quantity and timeline."
   },
+  "store": {
+    "stockStatus": {
+      "in_stock": "In stock",
+      "low_stock": "Low stock",
+      "preorder": "Pre-order",
+      "made_to_order": "Made to order",
+      "sold_out": "Sold out",
+      "unavailable": "Unavailable",
+      "inquiry_only": "Inquiry only"
+    }
+  },
   "community": {
     "memberFallback": "Community member",
     "layout": {

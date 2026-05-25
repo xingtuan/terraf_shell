@@ -14,6 +14,8 @@ export type ProductStockStatus =
   | "preorder"
   | "made_to_order"
   | "sold_out"
+  | "unavailable"
+  | "inquiry_only"
 
 export type ProductInventoryPolicy =
   | "deny"

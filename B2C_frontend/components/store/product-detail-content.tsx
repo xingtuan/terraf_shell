@@ -25,6 +25,7 @@ import {
   formatQuantityCountMessage,
 } from "@/lib/store/cart-messages"
 import {
+  getLocalizedStockStatusLabel,
   getProductAvailabilitySummary,
   getProductQuantityLimit,
   supportsProjectEnquiry,
@@ -291,8 +292,15 @@ export function ProductDetailContent({
     product.lead_time
       ? { label: t.glanceLeadTime, value: product.lead_time }
       : null,
-    selectedProduct.stock_status_label
-      ? { label: t.glanceStock, value: selectedProduct.stock_status_label }
+    selectedProduct.stock_status || selectedProduct.stock_status_label
+      ? {
+          label: t.glanceStock,
+          value: getLocalizedStockStatusLabel(
+            selectedProduct,
+            messages.store.stockStatus,
+            selectedProduct.stock_status_label ?? t.availabilityLabel,
+          ),
+        }
       : null,
   ].filter((item): item is { label: string; value: string } => Boolean(item))
   const reassuranceItems = [
@@ -414,7 +422,11 @@ export function ProductDetailContent({
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <ProductAvailabilityBadge
                       product={selectedProduct}
-                      fallbackLabel={t.availabilityLabel}
+                      label={getLocalizedStockStatusLabel(
+                        selectedProduct,
+                        messages.store.stockStatus,
+                        t.availabilityLabel,
+                      )}
                     />
                     <span className="text-sm text-muted-foreground">
                       {getProductAvailabilitySummary(selectedProduct, t.defaultAvailability)}

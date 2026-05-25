@@ -1620,6 +1620,17 @@
     "faqB2bAvailableAnswer": "可以。请使用批量询盘选项提交 MOQ、交付周期与项目需求。",
     "faqB2bUnavailableAnswer": "如有餐饮酒店或 B2B 需求，请联系团队并注明数量和时间安排。"
   },
+  "store": {
+    "stockStatus": {
+      "in_stock": "有库存",
+      "low_stock": "库存紧张",
+      "preorder": "预售",
+      "made_to_order": "按需制作",
+      "sold_out": "已售罄",
+      "unavailable": "暂不可售",
+      "inquiry_only": "仅限询价"
+    }
+  },
   "community": {
     "memberFallback": "社区成员",
     "layout": {
