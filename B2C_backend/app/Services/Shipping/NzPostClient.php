@@ -2,6 +2,7 @@
 
 namespace App\Services\Shipping;
 
+use App\Services\Settings\SettingsService;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
@@ -9,18 +10,22 @@ use Throwable;
 
 class NzPostClient
 {
+    public function __construct(
+        private readonly SettingsService $settings,
+    ) {}
+
     public function isEnabled(): bool
     {
-        return (bool) config('store.nzpost.enabled', false);
+        return $this->settings->boolean('nzpost.enabled', (bool) config('store.nzpost.enabled', false));
     }
 
     public function isConfigured(): bool
     {
         return $this->isEnabled()
-            && filled(config('store.nzpost.base_url'))
+            && filled($this->baseUrl())
             && (
-                filled(config('store.nzpost.api_key'))
-                || (filled(config('store.nzpost.client_id')) && filled(config('store.nzpost.client_secret')))
+                filled($this->apiKey())
+                || (filled($this->clientId()) && filled($this->clientSecret()))
             );
     }
 
@@ -63,15 +68,59 @@ class NzPostClient
         return $this->safePost('/shippingoptions/2.0/domestic', $payload);
     }
 
+    private function baseUrl(): string
+    {
+        return $this->settings->string(
+            'nzpost.base_url',
+            (string) config('store.nzpost.base_url', 'https://api.nzpost.co.nz'),
+        );
+    }
+
+    private function apiKey(): ?string
+    {
+        $fromSettings = $this->settings->secret('nzpost.api_key');
+        if (filled($fromSettings)) {
+            return $fromSettings;
+        }
+
+        $fromConfig = config('store.nzpost.api_key');
+
+        return filled($fromConfig) ? (string) $fromConfig : null;
+    }
+
+    private function clientId(): ?string
+    {
+        $fromSettings = $this->settings->secret('nzpost.client_id');
+        if (filled($fromSettings)) {
+            return $fromSettings;
+        }
+
+        $fromConfig = config('store.nzpost.client_id');
+
+        return filled($fromConfig) ? (string) $fromConfig : null;
+    }
+
+    private function clientSecret(): ?string
+    {
+        $fromSettings = $this->settings->secret('nzpost.client_secret');
+        if (filled($fromSettings)) {
+            return $fromSettings;
+        }
+
+        $fromConfig = config('store.nzpost.client_secret');
+
+        return filled($fromConfig) ? (string) $fromConfig : null;
+    }
+
     private function request(): PendingRequest
     {
-        $request = Http::baseUrl(rtrim((string) config('store.nzpost.base_url'), '/'))
+        $request = Http::baseUrl(rtrim($this->baseUrl(), '/'))
             ->acceptJson()
             ->asJson()
             ->timeout(8)
             ->retry(1, 200);
 
-        $apiKey = config('store.nzpost.api_key');
+        $apiKey = $this->apiKey();
 
         if (filled($apiKey)) {
             $request = $request->withHeaders([
@@ -80,8 +129,8 @@ class NzPostClient
             ]);
         }
 
-        $clientId = config('store.nzpost.client_id');
-        $clientSecret = config('store.nzpost.client_secret');
+        $clientId = $this->clientId();
+        $clientSecret = $this->clientSecret();
 
         if (filled($clientId) && filled($clientSecret)) {
             $request = $request->withBasicAuth((string) $clientId, (string) $clientSecret);

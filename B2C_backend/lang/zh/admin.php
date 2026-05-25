@@ -555,7 +555,14 @@ return [
         'not_tested' => '本会话尚未测试。',
         'fields' => [
             'nz_only_shipping' => '仅新西兰配送',
+            'rate_source' => '配送报价来源',
         ],
+        'rate_source' => [
+            'auto' => '自动（NZ Post 优先，失败后使用兜底费率）',
+            'manual' => '手动（始终使用标准/快速兜底配送费）',
+            'nzpost' => '仅 NZ Post（不可用时报错）',
+        ],
+        'rate_source_notice' => '当 NZ Post 已启用并成功返回报价时，前端会优先显示 NZ Post 报价；标准/快速 fallback 运费仅在 NZ Post 未配置、失败或无报价时使用。选择"手动"时始终使用上方配置的费率。',
         'default_package_weight_value' => '500 g',
         'test_address_line1' => '测试地址',
     ],

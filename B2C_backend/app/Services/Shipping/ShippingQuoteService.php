@@ -4,6 +4,7 @@ namespace App\Services\Shipping;
 
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Services\Settings\SettingsService;
 use App\Services\Store\TaxService;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
@@ -13,6 +14,7 @@ class ShippingQuoteService
     public function __construct(
         private readonly NzPostClient $nzPostClient,
         private readonly TaxService $taxService,
+        private readonly SettingsService $settings,
     ) {}
 
     /**
@@ -25,10 +27,23 @@ class ShippingQuoteService
         $this->validateAddress($address);
 
         $subtotal = $this->subtotal($cart);
-        $options = $this->nzPostOptions($cart, $address);
+        $rateSource = $this->settings->string('shipping.rate_source', 'auto');
 
-        if ($options === []) {
+        if ($rateSource === 'manual') {
             $options = $this->fallbackOptions($cart, $address);
+        } elseif ($rateSource === 'nzpost') {
+            $options = $this->nzPostOptions($cart, $address);
+            if ($options === []) {
+                throw ValidationException::withMessages([
+                    'shipping' => [__('api.shipping.nzpost_unavailable')],
+                ]);
+            }
+        } else {
+            // auto: NZ Post priority, fallback if unavailable
+            $options = $this->nzPostOptions($cart, $address);
+            if ($options === []) {
+                $options = $this->fallbackOptions($cart, $address);
+            }
         }
 
         $defaultOption = collect($options)->first(fn (array $option): bool => (bool) ($option['is_default'] ?? false))
@@ -126,8 +141,9 @@ class ShippingQuoteService
     public function validateAddress(array $address): void
     {
         $country = strtoupper(trim((string) ($address['country'] ?? '')));
+        $nzOnly = $this->settings->boolean('shipping.nz_only', true);
 
-        if ($country !== 'NZ') {
+        if ($nzOnly && $country !== 'NZ') {
             throw ValidationException::withMessages([
                 'shipping_country' => [__('api.shipping.nz_only')],
             ]);
@@ -146,16 +162,25 @@ class ShippingQuoteService
      */
     private function nzPostOptions(Cart $cart, array $address): array
     {
+        $originPostcode = $this->settings->string(
+            'shipping.origin_postcode',
+            (string) config('store.shipping.origin.postcode', ''),
+        );
+        $originCity = $this->settings->string(
+            'shipping.origin_city',
+            (string) config('store.shipping.origin.city', ''),
+        );
+
         $payload = $this->nzPostClient->shippingOptions([
             'origin' => [
-                'postcode' => config('store.shipping.origin.postcode'),
-                'city' => config('store.shipping.origin.city'),
+                'postcode' => $originPostcode,
+                'city' => $originCity,
                 'country' => config('store.shipping.origin.country', 'NZ'),
             ],
             'destination' => [
                 'postcode' => $address['postcode'] ?? null,
                 'city' => $address['city'] ?? null,
-                'country' => 'NZ',
+                'country' => strtoupper((string) ($address['country'] ?? 'NZ')),
             ],
             'items' => $cart->items->map(fn (CartItem $item): array => [
                 'quantity' => $item->quantity,
@@ -210,10 +235,24 @@ class ShippingQuoteService
     private function fallbackOptions(Cart $cart, array $address): array
     {
         $subtotal = $this->subtotal($cart);
-        $ruralSurcharge = $this->isRural($address) ? (float) config('store.shipping.rural_surcharge', 5) : 0.0;
-        $freeThreshold = (float) config('store.shipping.free_shipping_threshold', 200);
-        $standardBase = $subtotal >= $freeThreshold ? 0.0 : (float) config('store.shipping.standard_rate', 8);
-        $expressBase = (float) config('store.shipping.express_rate', 14);
+
+        $ruralSurcharge = $this->isRural($address)
+            ? (float) $this->settings->get('shipping.rural_surcharge', config('store.shipping.rural_surcharge', 5))
+            : 0.0;
+
+        $freeThreshold = (float) $this->settings->get(
+            'shipping.free_shipping_threshold',
+            config('store.shipping.free_shipping_threshold', 200),
+        );
+
+        $standardBase = $subtotal >= $freeThreshold
+            ? 0.0
+            : (float) $this->settings->get('shipping.fallback_standard_amount', config('store.shipping.standard_rate', 8));
+
+        $expressBase = (float) $this->settings->get(
+            'shipping.fallback_express_amount',
+            config('store.shipping.express_rate', 14),
+        );
 
         return [
             [

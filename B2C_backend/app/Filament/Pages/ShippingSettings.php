@@ -11,6 +11,7 @@ use App\Services\Shipping\NzPostClient;
 use App\Services\Shipping\ShippingQuoteService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
@@ -54,8 +55,9 @@ class ShippingSettings extends Page
             'fallback_standard_amount' => $settings->get('shipping.fallback_standard_amount', config('store.shipping.standard_rate', 8)),
             'fallback_express_amount' => $settings->get('shipping.fallback_express_amount', config('store.shipping.express_rate', 14)),
             'rural_surcharge' => $settings->get('shipping.rural_surcharge', config('store.shipping.rural_surcharge', 5)),
+            'rate_source' => $settings->string('shipping.rate_source', 'auto'),
             'address_lookup_query' => 'Auckland',
-            'shipping_quote_postcode' => (string) (config('store.shipping.origin.postcode') ?: '1010'),
+            'shipping_quote_postcode' => $settings->string('shipping.origin_postcode', (string) (config('store.shipping.origin.postcode') ?: '1010')),
         ]);
     }
 
@@ -98,6 +100,10 @@ class ShippingSettings extends Page
                             ->hiddenLabel()
                             ->content(__('admin.shipping.read_only_notice'))
                             ->columnSpanFull(),
+                        Placeholder::make('rate_source_notice')
+                            ->hiddenLabel()
+                            ->content(__('admin.shipping.rate_source_notice'))
+                            ->columnSpanFull(),
                     ]),
                 Section::make(__('admin.sections.shipping_configuration'))
                     ->schema([
@@ -133,6 +139,15 @@ class ShippingSettings extends Page
                                     ->label(__('admin.fields.rural_surcharge'))
                                     ->numeric()
                                     ->minValue(0),
+                                Select::make('rate_source')
+                                    ->label(__('admin.shipping.fields.rate_source'))
+                                    ->options([
+                                        'auto' => __('admin.shipping.rate_source.auto'),
+                                        'manual' => __('admin.shipping.rate_source.manual'),
+                                        'nzpost' => __('admin.shipping.rate_source.nzpost'),
+                                    ])
+                                    ->default('auto')
+                                    ->selectablePlaceholder(false),
                                 Placeholder::make('tax')
                                     ->label(__('admin.fields.tax_label'))
                                     ->content(fn (): string => sprintf(
@@ -143,7 +158,9 @@ class ShippingSettings extends Page
                                     )),
                                 Placeholder::make('nzpost_base_url')
                                     ->label(__('admin.fields.base_url'))
-                                    ->content(fn (): string => $this->displayValue(config('store.nzpost.base_url'))),
+                                    ->content(fn (): string => $this->displayValue(
+                                        app(SettingsService::class)->string('nzpost.base_url', (string) config('store.nzpost.base_url', '')),
+                                    )),
                             ]),
                     ]),
                 Section::make(__('admin.sections.shipping_test_tools'))
@@ -173,6 +190,7 @@ class ShippingSettings extends Page
             'shipping.fallback_standard_amount' => ['value' => (float) ($state['fallback_standard_amount'] ?? 8), 'type' => 'float'],
             'shipping.fallback_express_amount' => ['value' => (float) ($state['fallback_express_amount'] ?? 14), 'type' => 'float'],
             'shipping.rural_surcharge' => ['value' => (float) ($state['rural_surcharge'] ?? 5), 'type' => 'float'],
+            'shipping.rate_source' => ['value' => $state['rate_source'] ?? 'auto', 'type' => 'string'],
         ]);
 
         Notification::make()
@@ -203,16 +221,17 @@ class ShippingSettings extends Page
             ->send();
     }
 
-    public function testShippingQuote(ShippingQuoteService $shippingQuoteService): void
+    public function testShippingQuote(ShippingQuoteService $shippingQuoteService, SettingsService $settings): void
     {
         $postcode = trim((string) ($this->form->getState()['shipping_quote_postcode'] ?? ''));
+        $city = $settings->string('shipping.origin_city', (string) (config('store.shipping.origin.city') ?: 'Auckland'));
         $cart = Cart::query()->make();
         $cart->setRelation('items', new EloquentCollection);
 
         try {
             $quote = $shippingQuoteService->quote($cart, [
                 'line1' => __('admin.shipping.test_address_line1'),
-                'city' => (string) (config('store.shipping.origin.city') ?: 'Auckland'),
+                'city' => $city,
                 'region' => null,
                 'postcode' => $postcode !== '' ? $postcode : '1010',
                 'country' => 'NZ',

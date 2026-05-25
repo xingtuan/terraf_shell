@@ -555,7 +555,14 @@ return [
         'not_tested' => 'Not tested in this session.',
         'fields' => [
             'nz_only_shipping' => 'NZ-only shipping',
+            'rate_source' => 'Shipping rate source',
         ],
+        'rate_source' => [
+            'auto' => 'Auto (NZ Post priority, fallback if unavailable)',
+            'manual' => 'Manual (always use standard/express rates)',
+            'nzpost' => 'NZ Post only (error if unavailable)',
+        ],
+        'rate_source_notice' => 'When NZ Post is enabled and returns a quote, the frontend shows NZ Post rates. Standard/express fallback rates are used only when NZ Post is not configured, fails, or returns no quote. Set "Manual" to always use the rates configured above.',
         'default_package_weight_value' => '500 g',
         'test_address_line1' => 'Test address',
     ],

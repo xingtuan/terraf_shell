@@ -555,7 +555,14 @@ return [
         'not_tested' => '이 세션에서 아직 테스트하지 않았습니다.',
         'fields' => [
             'nz_only_shipping' => '뉴질랜드 전용 배송',
+            'rate_source' => '배송 요금 출처',
         ],
+        'rate_source' => [
+            'auto' => '자동 (NZ Post 우선, 실패 시 기본 요금 사용)',
+            'manual' => '수동 (항상 표준/특급 기본 요금 사용)',
+            'nzpost' => 'NZ Post 전용 (사용 불가 시 오류 반환)',
+        ],
+        'rate_source_notice' => 'NZ Post가 활성화되어 있고 견적을 성공적으로 반환하면 프론트엔드에 NZ Post 요금이 표시됩니다. NZ Post가 구성되지 않았거나 실패하거나 견적이 없을 때만 표준/특급 기본 요금이 사용됩니다. "수동"을 선택하면 위에 설정된 요금이 항상 사용됩니다.',
         'default_package_weight_value' => '500 g',
         'test_address_line1' => '테스트 주소',
     ],

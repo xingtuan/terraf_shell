@@ -44,7 +44,7 @@ class StoreShippingController extends Controller
             'address.city' => ['required', 'string', 'max:255'],
             'address.region' => ['nullable', 'string', 'max:255'],
             'address.postcode' => ['required', 'string', 'max:20'],
-            'address.country' => ['required', 'string', 'size:2', 'in:NZ'],
+            'address.country' => ['required', 'string', 'size:2'],
             'address.is_rural' => ['nullable', 'boolean'],
         ]);
 
