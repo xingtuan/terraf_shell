@@ -22,7 +22,7 @@ class ProductAttributeResource extends JsonResource
             'key' => $definition?->key,
             'label' => $this->translated($definition?->label_translations, $definition?->label, $locale),
             'value' => $this->rawValue(),
-            'display_label' => $this->translated($value?->label_translations, $this->displayValue(), $locale),
+            'display_label' => $this->localizedDisplayValue($value, $locale),
             'type' => $definition?->type,
             'unit' => $definition?->unit,
             'group' => $definition?->group,
@@ -34,6 +34,24 @@ class ProductAttributeResource extends JsonResource
             'is_specification' => (bool) $definition?->is_specification,
             'allows_multiple' => (bool) $definition?->allows_multiple,
         ];
+    }
+
+    private function localizedDisplayValue(mixed $attributeValue, string $locale): ?string
+    {
+        if ($attributeValue !== null) {
+            return $this->translated($attributeValue->label_translations, $this->displayValue(), $locale);
+        }
+
+        // For text-only specs: read translations stored in value_json.translations
+        $json = $this->value_json;
+        if (is_array($json) && isset($json['translations']) && is_array($json['translations'])) {
+            $translated = $json['translations'][$locale] ?? $json['translations']['en'] ?? null;
+            if (is_string($translated) && trim($translated) !== '') {
+                return $translated;
+            }
+        }
+
+        return $this->displayValue();
     }
 
     /**
