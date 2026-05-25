@@ -15,6 +15,7 @@ import { formatCurrencyAmount } from "@/lib/api/products"
 import { getPublicSettings, type PublicSettings } from "@/lib/api/public-settings"
 import {
   getAddressDetails,
+  getShippingOptionTotals,
   getShippingOptions,
   searchAddresses,
 } from "@/lib/api/shipping"
@@ -24,7 +25,7 @@ import {
   getLocalizedShippingMethodDescription,
   getLocalizedShippingMethodLabel,
 } from "@/lib/store/order-display"
-import type { Address, AddressSearchResult, NzAddress, ShippingQuote } from "@/lib/types"
+import type { Address, AddressSearchResult, NzAddress, ShippingOptionTotals, ShippingQuote } from "@/lib/types"
 import { useAuthSession } from "@/hooks/use-auth-session"
 import { useCart } from "@/hooks/useCart"
 
@@ -69,16 +70,6 @@ const addressFieldKeys = new Set<keyof CheckoutFormState>([
   "shipping_is_rural",
 ])
 
-function calculateTax(totalBeforeTax: number, rate: number, included: boolean) {
-  if (totalBeforeTax <= 0 || rate <= 0) {
-    return 0
-  }
-
-  return included
-    ? totalBeforeTax - totalBeforeTax / (1 + rate)
-    : totalBeforeTax * rate
-}
-
 function formatEta(min?: number | null, max?: number | null) {
   if (!min && !max) return null
   if (min && max) return min === max ? `${min}` : `${min}-${max}`
@@ -101,6 +92,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   const [addressLookupLoading, setAddressLookupLoading] = useState(false)
   const [shippingQuote, setShippingQuote] = useState<ShippingQuote | null>(null)
   const [selectedShippingCode, setSelectedShippingCode] = useState("")
+  const [selectedOptionTotals, setSelectedOptionTotals] = useState<ShippingOptionTotals | null>(null)
   const [shippingLoading, setShippingLoading] = useState(false)
   const [shippingError, setShippingError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
@@ -229,12 +221,14 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     if (!quoteAddress || !cart || cart.items.length === 0) {
       setShippingQuote(null)
       setSelectedShippingCode("")
+      setSelectedOptionTotals(null)
       setShippingError(null)
       return
     }
 
     let cancelled = false
     setShippingLoading(true)
+    setSelectedOptionTotals(null)
     setShippingError(null)
 
     void getShippingOptions(quoteAddress)
@@ -264,23 +258,40 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     }
   }, [cart, quoteAddress])
 
+  // Fetch authoritative tax/totals from the backend whenever the selected shipping code changes.
+  // This ensures the displayed amounts always match what the backend will actually charge.
+  useEffect(() => {
+    if (!selectedShippingCode || !quoteAddress) {
+      setSelectedOptionTotals(null)
+      return
+    }
+
+    let cancelled = false
+
+    void getShippingOptionTotals(quoteAddress, selectedShippingCode)
+      .then((result) => {
+        if (!cancelled) setSelectedOptionTotals(result)
+      })
+      .catch(() => {
+        // On failure, clear totals so the UI shows the pending placeholder.
+        if (!cancelled) setSelectedOptionTotals(null)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [selectedShippingCode, quoteAddress])
+
   const topAddresses = useMemo(() => addresses.slice(0, 3), [addresses])
   const selectedShippingOption = shippingQuote?.options.find(
     (option) => option.code === selectedShippingCode,
   )
   const subtotal = Number(cart?.subtotal_usd ?? 0)
-  const shipping = Number(selectedShippingOption?.amount ?? 0)
-  // Tax rate and inclusive flag come exclusively from the backend; never fall back to a hardcoded constant.
-  const taxRate = shippingQuote?.tax.rate ?? cart?.tax_rate ?? 0
-  const pricesIncludeTax = shippingQuote?.tax.included ?? cart?.prices_include_tax ?? true
-  // Only show a calculated tax amount once we have a shipping quote with a rate.
-  // Before that, `tax` is null so the UI can render a "pending" placeholder.
-  const tax = shippingQuote && taxRate > 0
-    ? calculateTax(subtotal + shipping, taxRate, pricesIncludeTax)
-    : null
-  const total = shippingQuote
-    ? (pricesIncludeTax ? subtotal + shipping : subtotal + shipping + (tax ?? 0))
-    : subtotal
+  // Authoritative tax and totals always come from the backend.
+  // selectedOptionTotals is populated by the effect above for the currently-selected shipping method.
+  const tax = selectedOptionTotals ? Number(selectedOptionTotals.totals.tax) : null
+  const total = selectedOptionTotals ? Number(selectedOptionTotals.totals.total) : subtotal
+  const taxLabel = selectedOptionTotals?.tax.label ?? shippingQuote?.tax.label
   const storeDisabled = runtimeSettings?.store_enabled === false
   const guestCheckoutDisabled =
     !session.token && runtimeSettings?.guest_checkout_enabled === false
@@ -853,13 +864,13 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
                 {selectedShippingOption
                   ? Number(selectedShippingOption.amount) === 0
                     ? t.shippingFree
-                    : formatCurrencyAmount(shipping, locale, currency)
+                    : formatCurrencyAmount(selectedShippingOption.amount, locale, currency)
                   : t.shippingCalculatedAtCheckout}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">
-                {shippingQuote?.tax.label ?? t.gstIncluded}
+                {taxLabel ?? t.gstIncluded}
               </span>
               <span className="text-foreground">
                 {tax !== null

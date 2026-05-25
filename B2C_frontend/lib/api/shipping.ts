@@ -5,6 +5,7 @@ import type {
   AddressSearchResponse,
   NzAddress,
   ShippingOption,
+  ShippingOptionTotals,
   ShippingQuote,
 } from "@/lib/types"
 
@@ -134,4 +135,37 @@ export async function getShippingOptions(address: NzAddress) {
   })
 
   return normalizeShippingQuote(response.data)
+}
+
+function normalizeShippingOptionTotals(data: ShippingOptionTotals): ShippingOptionTotals {
+  return {
+    tax: {
+      label: data.tax?.label ?? "GST included",
+      rate: Number(data.tax?.rate ?? 0),
+      amount: data.tax?.amount != null ? String(data.tax.amount) : "0.00",
+      included: Boolean(data.tax?.included ?? true),
+    },
+    totals: {
+      subtotal: String(data.totals?.subtotal ?? "0.00"),
+      shipping: String(data.totals?.shipping ?? "0.00"),
+      tax: String(data.totals?.tax ?? "0.00"),
+      total: String(data.totals?.total ?? "0.00"),
+      currency: data.totals?.currency ?? "NZD",
+    },
+  }
+}
+
+export async function getShippingOptionTotals(
+  address: NzAddress,
+  code: string,
+): Promise<ShippingOptionTotals> {
+  const response = await requestApi<ShippingOptionTotals>(
+    "/store/shipping-option/totals",
+    {
+      method: "POST",
+      body: { address, code },
+    },
+  )
+
+  return normalizeShippingOptionTotals(response.data)
 }

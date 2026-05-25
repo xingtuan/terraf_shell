@@ -414,6 +414,9 @@ export interface ShippingQuote {
   }
 }
 
+/** Authoritative tax + totals for one specific shipping method code. */
+export type ShippingOptionTotals = Pick<ShippingQuote, "tax" | "totals">
+
 export interface ProductCategory {
   id: number
   slug: string

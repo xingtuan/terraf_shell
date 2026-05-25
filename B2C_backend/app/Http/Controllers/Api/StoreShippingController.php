@@ -54,4 +54,31 @@ class StoreShippingController extends Controller
             $this->shippingQuoteService->quote($cart, $validated['address']),
         );
     }
+
+    /**
+     * Returns authoritative tax and totals for a specific shipping method code.
+     * Used by checkout to keep displayed totals in sync with what the backend will charge.
+     */
+    public function selectedOptionTotals(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'address' => ['required', 'array'],
+            'address.line1' => ['nullable', 'string', 'max:255'],
+            'address.line2' => ['nullable', 'string', 'max:255'],
+            'address.city' => ['required', 'string', 'max:255'],
+            'address.region' => ['nullable', 'string', 'max:255'],
+            'address.postcode' => ['required', 'string', 'max:20'],
+            'address.country' => ['required', 'string', 'size:2'],
+            'address.is_rural' => ['nullable', 'boolean'],
+            'code' => ['required', 'string', 'max:100'],
+        ]);
+
+        $cart = $this->cartService->getOrCreateCart($request);
+        $result = $this->shippingQuoteService->selectedOption($cart, $validated['address'], $validated['code']);
+
+        return $this->successResponse([
+            'tax' => $result['tax'],
+            'totals' => $result['totals'],
+        ]);
+    }
 }

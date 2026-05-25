@@ -105,7 +105,7 @@ class RuntimeSettingsServiceProvider extends ServiceProvider
             'store.shipping.express_rate' => (float) $settings->get('shipping.fallback_express_amount', (float) config('store.shipping.express_rate', 14)),
             'store.shipping.rural_surcharge' => (float) $settings->get('shipping.rural_surcharge', (float) config('store.shipping.rural_surcharge', 5)),
             'store.tax.gst_enabled' => $settings->boolean('tax.gst_enabled', (bool) config('store.tax.gst_enabled', true)),
-            'store.tax.gst_rate' => (float) $settings->get('tax.gst_rate', (float) config('store.tax.gst_rate', 0.15)),
+            'store.tax.gst_rate' => $this->normaliseGstRate($settings->get('tax.gst_rate', config('store.tax.gst_rate', 0.15))),
             'store.tax.prices_include_gst' => $settings->boolean('tax.prices_include_gst', (bool) config('store.tax.prices_include_gst', true)),
             'store.tax.label' => $settings->string('tax.label', (string) config('store.tax.label', 'GST included')),
             'store.nzpost.enabled' => $settings->boolean('nzpost.enabled', (bool) config('store.nzpost.enabled', false)),
@@ -114,6 +114,14 @@ class RuntimeSettingsServiceProvider extends ServiceProvider
             'store.nzpost.client_secret' => $settings->secret('nzpost.client_secret', config('store.nzpost.client_secret')),
             'store.nzpost.api_key' => $settings->secret('nzpost.api_key', config('store.nzpost.api_key')),
         ]);
+    }
+
+    private function normaliseGstRate(mixed $raw): float
+    {
+        $rate = (float) $raw;
+
+        // Accept percentage values (15, "15") and convert to decimal (0.15).
+        return $rate > 1 ? round($rate / 100, 6) : $rate;
     }
 
     private function applyCommunitySettings(SettingsService $settings): void
