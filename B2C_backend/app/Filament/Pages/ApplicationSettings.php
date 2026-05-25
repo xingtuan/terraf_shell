@@ -13,6 +13,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
@@ -96,7 +97,7 @@ class ApplicationSettings extends Page
                             ->openable()
                             ->downloadable()
                             ->columnSpanFull()
-                            ->afterStateUpdated(function (\Filament\Forms\Set $set): void {
+                            ->afterStateUpdated(function (Set $set): void {
                                 $set('logo_disk', AdminUploadStorage::disk());
                             }),
                     ]),

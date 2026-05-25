@@ -903,14 +903,14 @@
     "intro": {
       "eyebrow": "B2C 商店",
       "title": "由牡蛎壳颗粒制成的高端餐具与家居物件。",
-      "description": "一个已连接后端 API 的在线产品目录，用于浏览、发现产品并直接转化为询盘。",
+      "description": "挑选您的喜欢。",
       "primaryCta": "查看精选产品",
       "secondaryCta": "了解材料"
     },
     "grid": {
       "eyebrow": "产品网格",
       "title": "适用于用餐、礼赠与安静居家仪式的 OXP 物件。",
-      "description": "当前已发布的产品、品类、价格和供应状态均来自后端产品目录与管理面板。",
+      "description": "精选物品已上新。",
       "pricePrefix": "起价",
       "availabilityLabel": "供应状态",
       "categoryQuickFilterLabel": "按品类浏览",
@@ -918,7 +918,7 @@
       "searchLabel": "搜索",
       "searchPlaceholder": "按产品名称、产品编码或属性搜索",
       "allOption": "全部",
-      "filterHint": "按产品名称、品类、库存状态或动态属性搜索，并将完整筛选状态保留在 URL 中。",
+      "filterHint": "按产品名称、品类、库存状态或动态属性搜索。",
       "categoryHint": "正在显示 {category} 分类的产品。",
       "activeFiltersLabel": "已启用筛选",
       "removeFilterLabel": "移除 {label}",

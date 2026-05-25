@@ -903,14 +903,14 @@
     "intro": {
       "eyebrow": "B2C Store",
       "title": "Premium tableware and home objects shaped from oyster shell pellets.",
-      "description": "A live product catalogue connected to the backend API for browsing, discovery, and direct lead conversion.",
+      "description": "Choose your favorite.",
       "primaryCta": "Shop Featured Pieces",
       "secondaryCta": "Learn About the Material"
     },
     "grid": {
       "eyebrow": "Product Grid",
       "title": "OXP objects for dining, gifting, and calm interior rituals.",
-      "description": "Published products, categories, pricing, and availability now come from the backend product catalogue and admin panel.",
+      "description": "Selected items have been added.",
       "pricePrefix": "From",
       "availabilityLabel": "Availability",
       "categoryQuickFilterLabel": "Browse by category",
@@ -918,7 +918,7 @@
       "searchLabel": "Search",
       "searchPlaceholder": "Search by product, product code, or attribute",
       "allOption": "All",
-      "filterHint": "Search by product, category, stock state, or dynamic attribute and keep the full filter state in the URL.",
+      "filterHint": "Search by product, category, stock state.",
       "categoryHint": "Showing products in {category}.",
       "activeFiltersLabel": "Active filters",
       "removeFilterLabel": "Remove {label}",

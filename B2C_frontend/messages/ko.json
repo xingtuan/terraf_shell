@@ -903,14 +903,14 @@
     "intro": {
       "eyebrow": "B2C 스토어",
       "title": "굴 패각 펠릿으로 만든 프리미엄 테이블웨어와 홈 오브제.",
-      "description": "백엔드 API와 연결된 실시간 제품 카탈로그로, 탐색과 발견, 직접 문의 전환까지 지원합니다.",
+      "description": "마음에 드는 것을 고르세요.",
       "primaryCta": "추천 제품 보기",
       "secondaryCta": "소재 알아보기"
     },
     "grid": {
       "eyebrow": "제품 그리드",
       "title": "다이닝, 기프팅, 차분한 인테리어 루틴을 위한 OXP 오브제.",
-      "description": "게시된 제품, 카테고리, 가격, 재고 상태는 이제 백엔드 제품 카탈로그와 관리자 패널에서 불러옵니다.",
+      "description": "선택한 항목이 추가되었습니다.",
       "pricePrefix": "시작가",
       "availabilityLabel": "공급 상태",
       "categoryQuickFilterLabel": "카테고리로 보기",
@@ -918,7 +918,7 @@
       "searchLabel": "검색",
       "searchPlaceholder": "제품명, 제품 코드 또는 속성으로 검색",
       "allOption": "전체",
-      "filterHint": "제품명, 카테고리, 재고 상태 또는 동적 속성으로 검색하고 전체 필터 상태를 URL에 유지합니다.",
+      "filterHint": "제품명, 카테고리, 재고 상태, 동적 속성 또는 전체 필터를 사용하여 검색하세요.",
       "categoryHint": "{category} 카테고리의 제품을 표시합니다.",
       "activeFiltersLabel": "활성 필터",
       "removeFilterLabel": "{label} 제거",
