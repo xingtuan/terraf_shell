@@ -11,8 +11,8 @@ import {
 } from "@/lib/api/notifications"
 import { getErrorMessage } from "@/lib/api/client"
 import { getCommunityUserName } from "@/lib/community-ui"
-import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
-import { resolveCmsHref } from "@/lib/page-content"
+import { type Locale, type SiteMessages } from "@/lib/i18n"
+import { resolveNotificationHref } from "@/lib/notification-href"
 import type { UserNotification } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -31,47 +31,6 @@ function extractQuotedText(value?: string | null) {
   const match = value.match(/"([^"]+)"/)
 
   return match?.[1] ?? null
-}
-
-function resolveNotificationHref(locale: Locale, notification: UserNotification) {
-  if (notification.action_url) {
-    return resolveCmsHref(
-      locale,
-      notification.action_url,
-      getLocalizedHref(locale, "community"),
-    )
-  }
-
-  const postSlug =
-    (notification.target && "slug" in notification.target
-      ? notification.target.slug
-      : null) ??
-    (typeof notification.data?.post_slug === "string"
-      ? notification.data.post_slug
-      : null)
-
-  const commentId =
-    typeof notification.data?.comment_id === "number"
-      ? notification.data.comment_id
-      : null
-
-  if (postSlug) {
-    return `${getLocalizedHref(locale, `community/${postSlug}`)}${
-      commentId ? `#comment-${commentId}` : ""
-    }`
-  }
-
-  const username =
-    notification.actor?.username ??
-    (typeof notification.data?.username === "string"
-      ? notification.data.username
-      : null)
-
-  if (username) {
-    return getLocalizedHref(locale, `community/u/${username}`)
-  }
-
-  return getLocalizedHref(locale, "community")
 }
 
 function formatNotificationMessage(

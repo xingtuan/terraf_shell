@@ -50,7 +50,9 @@ class InteractionTest extends TestCase
         Sanctum::actingAs($target);
         $notificationsResponse = $this->getJson('/api/notifications')
             ->assertOk()
-            ->assertJsonPath('data.0.type', 'follow');
+            ->assertJsonPath('data.0.type', 'follow')
+            ->assertJsonPath('data.0.action_url', '/community/u/'.$actor->username)
+            ->assertJsonPath('data.0.data.username', $actor->username);
 
         $notificationId = $notificationsResponse->json('data.0.id');
 

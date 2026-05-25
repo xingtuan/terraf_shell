@@ -1241,13 +1241,13 @@
     "readArticle": "아티클 읽기",
     "defaultEyebrow": "최신 업데이트",
     "defaultTitle": "최신 소재 및 스튜디오 업데이트.",
-    "defaultDescription": "게시된 아티클은 이제 백엔드 CMS에서 불러오며, 프런트엔드를 다시 빌드하지 않아도 노출할 수 있습니다.",
+    "defaultDescription": "OXP 최신 소식.",
     "defaultCta": "모든 업데이트 보기"
   },
   "trustAndCredibility": {
     "eyebrow": "신뢰와 검증",
     "title": "책임 있는 소재 혁신을 위해 설계되었습니다",
-    "description": "승인되지 않은 고객, 수상, 인증을 만들지 않고 B2B 검토에 필요한 신뢰 요소를 제시합니다.",
+    "description": "승인된 고객, 수상 내역 또는 인증.",
     "cards": [
       {
         "title": "연구 기반 소재 개발",
@@ -1275,7 +1275,7 @@
   "pilotProjects": {
     "eyebrow": "파일럿 프로젝트",
     "title": "파일럿 프로젝트와 협업",
-    "description": "고객, 파트너, 사례 이름은 승인 후에만 표시합니다. 그 전에는 투명한 자리표시자로 신뢰를 유지합니다.",
+    "description": "고객, 파트너, 사례 이름은 승인 후에만 표시합니다. ",
     "items": [
       {
         "title": "파일럿 협업 상세 내용 공개 예정",

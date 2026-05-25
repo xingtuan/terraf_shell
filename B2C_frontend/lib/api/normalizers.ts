@@ -79,6 +79,34 @@ export function resolveApiUrl(url?: string | null) {
   }
 }
 
+export function normalizeNotificationActionUrl(url?: string | null) {
+  if (!url?.trim()) {
+    return null
+  }
+
+  const trimmed = url.trim()
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      const parsed = new URL(trimmed)
+      const apiBaseUrl = getApiBaseUrl()
+      const apiOrigin = /^https?:\/\//i.test(apiBaseUrl)
+        ? new URL(apiBaseUrl).origin
+        : typeof window !== "undefined"
+          ? window.location.origin
+          : null
+
+      if (apiOrigin && parsed.origin === apiOrigin) {
+        return `${parsed.pathname}${parsed.search}${parsed.hash}`
+      }
+    } catch {
+      return trimmed
+    }
+  }
+
+  return trimmed
+}
+
 export function rewriteLegacyPublicMediaUrl(url?: string | null) {
   if (!url) {
     return null

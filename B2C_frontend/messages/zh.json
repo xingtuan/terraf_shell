@@ -1241,13 +1241,13 @@
     "readArticle": "阅读文章",
     "defaultEyebrow": "最新更新",
     "defaultTitle": "最新的材料与工作室更新。",
-    "defaultDescription": "已发布文章现可直接来自后端 CMS，无需重新构建前端即可展示。",
+    "defaultDescription": "OXP最新动态。",
     "defaultCta": "查看全部更新"
   },
   "trustAndCredibility": {
     "eyebrow": "信任与可信度",
     "title": "为负责任的材料创新而构建",
-    "description": "这些可信度模块用于支持 B2B 审查，不会虚构未获批准的客户、奖项或认证。",
+    "description": "获批准的客户、奖项或认证。",
     "cards": [
       {
         "title": "基于研究的材料开发",
@@ -1275,7 +1275,7 @@
   "pilotProjects": {
     "eyebrow": "试点项目",
     "title": "试点项目与合作",
-    "description": "客户、合作伙伴和案例名称仅在获得批准后展示。在此之前，透明的占位内容可保持可信度。",
+    "description": "客户、合作伙伴和案例名称仅在获得批准后展示。",
     "items": [
       {
         "title": "试点合作详情即将公布",

@@ -2,6 +2,7 @@ import {
   ensureArray,
   normalizeMaterialSpecIcon,
   normalizePaginationMeta,
+  normalizeNotificationActionUrl,
   resolveApiUrl,
   rewriteLegacyPublicMediaUrl,
 } from "@/lib/api/normalizers"
@@ -1051,7 +1052,7 @@ export function normalizeUserNotification(
     ...notification,
     actor: normalizeCommunityUser(notification.actor),
     target: normalizeNotificationTarget(notification.target),
-    action_url: resolveApiUrl(notification.action_url),
+    action_url: normalizeNotificationActionUrl(notification.action_url),
     data: isJsonObject(notification.data) ? notification.data : {},
     is_read: Boolean(notification.is_read),
   }

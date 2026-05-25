@@ -210,6 +210,8 @@ class NotificationService
 
     public function notifyUserFollowed(User $recipient, User $actor): void
     {
+        $actionUrl = $this->userProfileActionUrl($actor);
+
         $this->dispatch(
             $recipient,
             $actor,
@@ -218,20 +220,27 @@ class NotificationService
             [
                 'title' => __('api.notifications.user_followed_title'),
                 'body' => __('api.notifications.user_followed_body', ['actor' => $actor->name]),
-                'action_url' => '/users/'.$actor->id,
+                'action_url' => $actionUrl,
                 'message' => __('api.notifications.user_followed_body', ['actor' => $actor->name]),
                 'user_id' => $actor->id,
                 'username' => $actor->username,
             ]
         );
 
-        $this->dispatchCommunityEmail('community.follow_created', $recipient, $actor, $recipient, $this->emailPayloadFactory->forUser($recipient, [
-            'actor' => [
-                'name' => $actor->name,
-                'email' => $actor->email,
-            ],
-            'action_url' => '/users/'.$actor->id,
-        ]));
+        $this->dispatchCommunityEmail(
+            'community.follow_created',
+            $recipient,
+            $actor,
+            $recipient,
+            $this->emailPayloadFactory->forUser($recipient, [
+                'actor' => [
+                    'name' => $actor->name,
+                    'email' => $actor->email,
+                    'username' => $actor->username,
+                ],
+                'action_url' => $actionUrl,
+            ])
+        );
     }
 
     public function notifyCommentCreated(Post $post, Comment $comment, User $actor): void
@@ -625,6 +634,11 @@ class NotificationService
         $comment->loadMissing('post');
 
         return $this->postActionUrl($comment->post).'#comment-'.$comment->id;
+    }
+
+    private function userProfileActionUrl(User $user): string
+    {
+        return '/community/u/'.$user->username;
     }
 
     private function displayPostTitle(Post $post): string

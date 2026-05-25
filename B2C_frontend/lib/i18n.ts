@@ -1,6 +1,6 @@
-import en from "@/messages/en.json"
-import ko from "@/messages/ko.json"
-import zh from "@/messages/zh.json"
+import en from "../messages/en.json" with { type: "json" }
+import ko from "../messages/ko.json" with { type: "json" }
+import zh from "../messages/zh.json" with { type: "json" }
 
 export const locales = ["en", "ko", "zh"] as const
 

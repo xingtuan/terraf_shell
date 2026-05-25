@@ -1241,13 +1241,13 @@
     "readArticle": "Read article",
     "defaultEyebrow": "Latest Updates",
     "defaultTitle": "The newest material and studio updates.",
-    "defaultDescription": "Published articles now come from the backend CMS and can be surfaced without rebuilding the frontend.",
+    "defaultDescription": "Latest News from OXP.",
     "defaultCta": "View all updates"
   },
   "trustAndCredibility": {
     "eyebrow": "Trust and credibility",
     "title": "Built for responsible material innovation",
-    "description": "Credibility blocks are written to support B2B review without inventing unapproved customers, awards, or certifications.",
+    "description": "Approved clients, awards, or certifications.",
     "cards": [
       {
         "title": "Research-backed material development",
@@ -1275,7 +1275,7 @@
   "pilotProjects": {
     "eyebrow": "Pilot projects",
     "title": "Pilot projects and collaborations",
-    "description": "Client, partner, and case-study names are shown only after approval. Until then, transparent placeholders keep the site credible.",
+    "description": "Client, partner, and case-study names are shown only after approval. ",
     "items": [
       {
         "title": "Pilot collaboration details coming soon",

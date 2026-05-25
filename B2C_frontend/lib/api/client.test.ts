@@ -9,7 +9,10 @@ import {
   getLocalizedErrorMessage,
   requestApi,
 } from "./client.ts"
-import { rewriteLegacyPublicMediaUrl } from "./normalizers.ts"
+import {
+  normalizeNotificationActionUrl,
+  rewriteLegacyPublicMediaUrl,
+} from "./normalizers.ts"
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -128,6 +131,38 @@ describe("media URL normalization", () => {
         delete process.env.NEXT_PUBLIC_MEDIA_BASE_URL
       } else {
         process.env.NEXT_PUBLIC_MEDIA_BASE_URL = originalMediaBaseUrl
+      }
+    }
+  })
+})
+
+describe("notification action URL normalization", () => {
+  it("keeps page paths relative and strips only the configured API origin", () => {
+    const originalApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+
+    process.env.NEXT_PUBLIC_API_BASE_URL = "https://backend.example.com/api"
+
+    try {
+      assert.equal(normalizeNotificationActionUrl(null), null)
+      assert.equal(normalizeNotificationActionUrl("  "), null)
+      assert.equal(normalizeNotificationActionUrl("/posts/my-post"), "/posts/my-post")
+      assert.equal(normalizeNotificationActionUrl("posts/my-post"), "posts/my-post")
+      assert.equal(normalizeNotificationActionUrl("/users/123"), "/users/123")
+      assert.equal(
+        normalizeNotificationActionUrl(
+          "https://backend.example.com/posts/my-post?from=notice#comment-2",
+        ),
+        "/posts/my-post?from=notice#comment-2",
+      )
+      assert.equal(
+        normalizeNotificationActionUrl("https://example.com/updates"),
+        "https://example.com/updates",
+      )
+    } finally {
+      if (originalApiBaseUrl === undefined) {
+        delete process.env.NEXT_PUBLIC_API_BASE_URL
+      } else {
+        process.env.NEXT_PUBLIC_API_BASE_URL = originalApiBaseUrl
       }
     }
   })

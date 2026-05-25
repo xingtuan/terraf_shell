@@ -10,29 +10,13 @@ import {
   listNotifications,
   markNotificationRead,
 } from "@/lib/api/notifications"
-import { getLocalizedHref, getMessages, type Locale } from "@/lib/i18n"
-import { resolveCmsHref } from "@/lib/page-content"
+import { getMessages, type Locale } from "@/lib/i18n"
+import { resolveNotificationHref } from "@/lib/notification-href"
 import type { UserNotification } from "@/lib/types"
 
 type CommunityNotificationsPanelProps = {
   locale: Locale
   token?: string | null
-}
-
-function resolveNotificationHref(locale: Locale, notification: UserNotification) {
-  if (notification.action_url) {
-    return resolveCmsHref(locale, notification.action_url, getLocalizedHref(locale, "community"))
-  }
-
-  if (notification.target && "slug" in notification.target) {
-    return getLocalizedHref(locale, `community/${notification.target.slug}`)
-  }
-
-  if (notification.target && "username" in notification.target) {
-    return `${getLocalizedHref(locale, "community")}?user=${notification.target.id}`
-  }
-
-  return getLocalizedHref(locale, "community")
 }
 
 function notificationIcon(type: string) {

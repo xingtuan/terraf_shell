@@ -1,8 +1,8 @@
-import { getLocalizedHref, type Locale, type SiteMessages } from "@/lib/i18n"
+import { getLocalizedHref, type Locale, type SiteMessages } from "./i18n.ts"
 import {
   payloadArray as readPayloadArray,
   payloadList,
-} from "@/lib/payload-array"
+} from "./payload-array.ts"
 import type {
   CertificationCardInput,
   CommunityIdea,
@@ -10,7 +10,7 @@ import type {
   MaterialDetail,
   MaterialSpec,
   MaterialSpecIcon,
-} from "@/lib/types"
+} from "./types.ts"
 
 type HomeMessages = SiteMessages["home"]
 type LocalizedRecord = object

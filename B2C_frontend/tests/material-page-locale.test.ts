@@ -173,8 +173,8 @@ describe("CMS payload helpers", () => {
     assert.match(pageContentSource, /fallbackSpecs: MaterialSpec\[\] = \[\]/)
     assert.match(pageContentSource, /payloadArray\(section, "interest_options"\)/)
     assert.match(pageContentSource, /payload\.panel_copy/)
-    assert.match(pageContentSource, /localizedPayloadRecord\(\s*payload,\s*"fields"/)
-    assert.match(pageContentSource, /localizedPayloadRecord\(\s*payload,\s*"placeholders"/)
+    assert.match(pageContentSource, /localizedLeadFieldString\(\s*payload,\s*"fields"/)
+    assert.match(pageContentSource, /localizedLeadFieldString\(\s*payload,\s*"placeholders"/)
     assert.match(pageContentSource, /localizedPayloadRecord\(\s*payload,\s*"validation"/)
     assert.match(pageContentSource, /icon: materialSpecIcon\(rawItem\.icon, index\)/)
 
