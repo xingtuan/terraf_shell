@@ -109,9 +109,12 @@ return [
         'remove_and_replace_conflict' => '同一媒体项目不能在同一请求中同时移除和替换。',
         'media_not_owned' => '一个或多个媒体项目不属于此帖子。',
         'invalid_tiptap_document' => ':Attribute 必须是有效的富文本内容。',
+        'too_many_files' => '每个社区帖子最多可上传 :max 个文件。',
+        'too_many_external_links' => '本次提交最多可包含 :max 个外部链接。',
     ],
     'media' => [
         'upload_failed' => '媒体上传失败，请重试。',
+        'community_upload_disabled' => '社区访客上传当前已关闭。',
         'upload_read_failed' => '无法读取上传的文件，请重试。',
         'write_failed' => '无法将上传文件写入存储磁盘 [:disk]，请检查当前存储配置。',
         'local_write_failed' => '无法将上传文件写入本地存储磁盘 [:disk]，请检查公共存储是否可写。',

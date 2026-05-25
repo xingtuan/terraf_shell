@@ -14,10 +14,14 @@ B2C_backend/tests/Feature/*
 !B2C_backend/tests/Feature/Admin/
 B2C_backend/tests/Feature/Admin/*
 !B2C_backend/tests/Feature/Admin/HomeSectionFactSheetTest.php
+!B2C_backend/tests/Feature/Api/
+B2C_backend/tests/Feature/Api/*
+!B2C_backend/tests/Feature/Api/CommunitySettingsRuntimeTest.php
 !B2C_frontend/tests/
 B2C_frontend/tests/*
 !B2C_frontend/tests/page-content.test.ts
 !B2C_frontend/tests/notification-display.test.ts
 !B2C_frontend/tests/notification-components.test.ts
+!B2C_frontend/tests/community-settings.test.ts
 SYSTEM_QA_REPORT.md
 playwright-report/

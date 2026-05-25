@@ -1835,7 +1835,14 @@
       "contentMax": "内容不能超过 {max} 个字符。",
       "excerptMax": "摘要不能超过 500 个字符。",
       "fundingInvalid": "请输入有效的 URL。",
-      "imagesMax": "最多可上传 12 个附件。"
+      "imagesMax": "最多可上传 12 个附件。",
+      "imagesMaxDynamic": "最多可上传 {max} 个文件。",
+      "invalidFileType": "允许的文件类型：{extensions}。",
+      "fileTooLarge": "每个文件不能超过 {size}。",
+      "externalLinksMax": "最多可包含 {max} 个外部链接。",
+      "uploadLimitsHint": "最多 {maxFiles} 个文件，每个不超过 {maxSize}。允许：{extensions}。外部链接：{maxLinks}。{guestUpload}",
+      "guestUploadEnabled": "访客上传已启用。",
+      "guestUploadDisabled": "访客上传已关闭。"
     },
     "richEditor": {
       "editorLabel": "帖子内容编辑器",
@@ -1847,6 +1854,8 @@
       "coverUploadFailed": "封面图片上传失败，请重试。",
       "coverRemoveFailed": "封面图片移除失败，请重试。",
       "imageUploadFailed": "图片上传失败，请重试。",
+      "invalidFileType": "允许的文件类型：{extensions}。",
+      "fileTooLarge": "每个文件不能超过 {size}。",
       "uploadingImage": "正在上传图片...",
       "linkPlaceholder": "https://example.com",
       "linkInvalid": "请输入有效的 http 或 https 链接。",

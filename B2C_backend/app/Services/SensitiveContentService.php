@@ -6,9 +6,13 @@ use Illuminate\Support\Str;
 
 class SensitiveContentService
 {
+    public function __construct(
+        private readonly CommunitySettingsService $communitySettings,
+    ) {}
+
     public function enabled(): bool
     {
-        return (bool) config('community.moderation.sensitive_words.enabled', false);
+        return $this->communitySettings->sensitiveWordsEnabled();
     }
 
     /**
@@ -24,7 +28,7 @@ class SensitiveContentService
             ];
         }
 
-        $configuredTerms = collect(config('community.moderation.sensitive_words.terms', []))
+        $configuredTerms = collect($this->communitySettings->sensitiveWords())
             ->map(fn ($term): string => trim(Str::lower((string) $term)))
             ->filter()
             ->unique()

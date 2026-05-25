@@ -1835,7 +1835,14 @@
       "contentMax": "내용은 {max}자 이하여야 합니다.",
       "excerptMax": "요약은 500자 이하여야 합니다.",
       "fundingInvalid": "올바른 URL을 입력해 주세요.",
-      "imagesMax": "첨부파일은 최대 12개까지 업로드할 수 있습니다."
+      "imagesMax": "첨부파일은 최대 12개까지 업로드할 수 있습니다.",
+      "imagesMaxDynamic": "파일은 최대 {max}개까지 업로드할 수 있습니다.",
+      "invalidFileType": "허용되는 파일 형식: {extensions}.",
+      "fileTooLarge": "각 파일은 {size} 이하여야 합니다.",
+      "externalLinksMax": "외부 링크는 최대 {max}개까지 포함할 수 있습니다.",
+      "uploadLimitsHint": "최대 {maxFiles}개 파일, 파일당 {maxSize}. 허용: {extensions}. 외부 링크: {maxLinks}개. {guestUpload}",
+      "guestUploadEnabled": "게스트 업로드가 활성화되어 있습니다.",
+      "guestUploadDisabled": "게스트 업로드가 비활성화되어 있습니다."
     },
     "richEditor": {
       "editorLabel": "게시물 내용 편집기",
@@ -1847,6 +1854,8 @@
       "coverUploadFailed": "커버 이미지 업로드에 실패했습니다. 다시 시도해 주세요.",
       "coverRemoveFailed": "커버 이미지 제거에 실패했습니다. 다시 시도해 주세요.",
       "imageUploadFailed": "이미지 업로드에 실패했습니다. 다시 시도해 주세요.",
+      "invalidFileType": "허용되는 파일 형식: {extensions}.",
+      "fileTooLarge": "각 파일은 {size} 이하여야 합니다.",
       "uploadingImage": "이미지 업로드 중...",
       "linkPlaceholder": "https://example.com",
       "linkInvalid": "올바른 http 또는 https 링크를 입력해 주세요.",

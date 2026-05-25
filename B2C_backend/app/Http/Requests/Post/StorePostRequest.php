@@ -7,7 +7,9 @@ use App\Enums\IdeaMediaType;
 use App\Models\Post;
 use App\Rules\ExternalSafeUrl;
 use App\Rules\ValidTiptapDocument;
+use App\Services\CommunitySettingsService;
 use App\Services\Settings\SettingsService;
+use App\Support\CommunityContentValidation;
 use App\Support\MediaUploadRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -38,8 +40,9 @@ class StorePostRequest extends FormRequest
 
     public function rules(): array
     {
-        $maxFiles = (int) config('community.idea_media.max_files', 12);
-        $maxExternalLinks = (int) config('community.idea_media.max_external_links', 4);
+        $communitySettings = app(CommunitySettingsService::class);
+        $maxFiles = $communitySettings->maxFiles();
+        $maxExternalLinks = $communitySettings->maxExternalLinks();
         $hasLocalCoverPath = filled($this->input('cover_image_path'));
 
         return [
@@ -65,7 +68,7 @@ class StorePostRequest extends FormRequest
             'tags' => [$this->tagsRule()],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
-            'images' => ['nullable', 'array', 'max:4'],
+            'images' => ['nullable', 'array', 'max:'.$maxFiles],
             'images.*' => MediaUploadRules::optionalImageRules(),
             'image_alts' => ['nullable', 'array'],
             'image_alts.*' => ['nullable', 'string', 'max:150'],
@@ -95,8 +98,46 @@ class StorePostRequest extends FormRequest
         return [
             function (Validator $validator): void {
                 $this->validateAttachmentKinds($validator, 'attachments', 'attachment_kinds');
+                $this->validateTotalUploads($validator);
+                $this->validateExternalLinks($validator);
             },
         ];
+    }
+
+    private function validateTotalUploads(Validator $validator): void
+    {
+        $maxFiles = app(CommunitySettingsService::class)->maxFiles();
+        $totalFiles = CommunityContentValidation::countUploadedFiles($this->file('images', []))
+            + CommunityContentValidation::countUploadedFiles($this->file('attachments', []))
+            + (filled($this->input('cover_image_path')) ? 1 : 0);
+
+        if ($totalFiles > $maxFiles) {
+            $validator->errors()->add(
+                'attachments',
+                __('api.community.too_many_files', ['max' => $maxFiles])
+            );
+        }
+    }
+
+    private function validateExternalLinks(Validator $validator): void
+    {
+        $maxLinks = app(CommunitySettingsService::class)->maxExternalLinks();
+        $linkCount = CommunityContentValidation::countExternalLinks([
+            'title' => $this->input('title'),
+            'excerpt' => $this->input('excerpt'),
+            'content' => $this->input('content'),
+            'content_json' => $this->input('content_json'),
+            'funding_url' => $this->input('funding_url'),
+            'cover_image_url' => $this->input('cover_image_url'),
+            'model_3d_links' => $this->input('model_3d_links', []),
+        ]);
+
+        if ($linkCount > $maxLinks) {
+            $validator->errors()->add(
+                'content',
+                __('api.community.too_many_external_links', ['max' => $maxLinks])
+            );
+        }
     }
 
     private function detectUploadType(UploadedFile $file): IdeaMediaType

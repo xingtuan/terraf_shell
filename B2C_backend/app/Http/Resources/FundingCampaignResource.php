@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Http\Resources\Concerns\ResolvesLocalizedFields;
 use App\Models\FundingCampaign;
+use App\Services\CommunitySettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,11 +18,14 @@ class FundingCampaignResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $defaultSupportButtonText = app(CommunitySettingsService::class)->defaultFundingSupportButtonText();
+        $supportButtonText = trim((string) $this->localizedString($request, 'support_button_text'));
+
         return [
             'id' => $this->id,
             'post_id' => $this->post_id,
             'support_enabled' => (bool) $this->support_enabled,
-            'support_button_text' => $this->localizedString($request, 'support_button_text'),
+            'support_button_text' => $supportButtonText !== '' ? $supportButtonText : $defaultSupportButtonText,
             'support_button_text_translations' => $this->localizedStringSet('support_button_text'),
             'external_crowdfunding_url' => $this->external_crowdfunding_url,
             'campaign_status' => $this->campaign_status,

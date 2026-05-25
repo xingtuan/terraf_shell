@@ -59,13 +59,16 @@ class CommentService
         }
 
         return DB::transaction(function () use ($post, $user, $data, $parent): Comment {
-            $status = $this->communityModerationPolicyService->statusFor($user);
+            $content = $this->resolveContent($data);
+            $status = $this->communityModerationPolicyService->statusFor($user, [
+                'content' => $content,
+            ]);
 
             $comment = Comment::query()->create([
                 'post_id' => $post->id,
                 'user_id' => $user->id,
                 'parent_id' => $parent?->id,
-                'content' => $this->resolveContent($data),
+                'content' => $content,
                 'status' => $status,
             ]);
 
@@ -110,11 +113,14 @@ class CommentService
         return DB::transaction(function () use ($comment, $user, $data): Comment {
             $comment->loadMissing(['post', 'user.profile', 'post.user.profile']);
             $previousStatus = $comment->status;
+            $content = $this->resolveContent($data);
             $nextStatus = $user->isAdmin()
                 ? ContentStatus::Approved->value
-                : $this->communityModerationPolicyService->statusFor($user);
+                : $this->communityModerationPolicyService->statusFor($user, [
+                    'content' => $content,
+                ]);
 
-            $comment->content = $this->resolveContent($data);
+            $comment->content = $content;
 
             if ($previousStatus !== ContentStatus::Approved->value && $nextStatus === ContentStatus::Approved->value) {
                 $comment->post->increment('comments_count');

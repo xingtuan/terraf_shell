@@ -109,9 +109,12 @@ return [
         'remove_and_replace_conflict' => '같은 요청에서 동일한 미디어를 삭제하면서 대체할 수 없습니다.',
         'media_not_owned' => '하나 이상의 미디어 항목이 이 게시글에 속하지 않습니다.',
         'invalid_tiptap_document' => ':Attribute은(는) 유효한 리치 텍스트 문서여야 합니다.',
+        'too_many_files' => '커뮤니티 게시물 하나에는 파일을 최대 :max개까지 업로드할 수 있습니다.',
+        'too_many_external_links' => '이 제출에는 외부 링크를 최대 :max개까지 포함할 수 있습니다.',
     ],
     'media' => [
         'upload_failed' => '미디어 업로드에 실패했습니다. 다시 시도해 주세요.',
+        'community_upload_disabled' => '현재 커뮤니티 게스트 업로드가 비활성화되어 있습니다.',
         'upload_read_failed' => '업로드한 파일을 읽을 수 없습니다. 다시 시도해 주세요.',
         'write_failed' => '업로드한 파일을 저장 디스크 [:disk]에 쓸 수 없습니다. 현재 저장소 설정을 확인해 주세요.',
         'local_write_failed' => '업로드한 파일을 로컬 저장 디스크 [:disk]에 쓸 수 없습니다. public storage가 쓰기 가능한지 확인해 주세요.',

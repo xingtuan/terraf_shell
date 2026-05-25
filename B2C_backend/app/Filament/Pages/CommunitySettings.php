@@ -2,11 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\CommunitySubmissionPolicy;
 use App\Filament\Pages\Concerns\ManagesRuntimeSettings;
 use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Services\Settings\SettingsService;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -63,7 +65,9 @@ class CommunitySettings extends Page
                     TextInput::make('max_files')->numeric()->minValue(1)->label(__('admin.community_settings.fields.max_files')),
                     TextInput::make('max_file_size_kb')->numeric()->minValue(1)->label(__('admin.community_settings.fields.max_file_size_kb')),
                     TextInput::make('max_external_links')->numeric()->minValue(0)->label(__('admin.community_settings.fields.max_external_links')),
-                    TextInput::make('submission_policy')->label(__('admin.community_settings.fields.submission_policy')),
+                    Select::make('submission_policy')
+                        ->options(CommunitySubmissionPolicy::options())
+                        ->label(__('admin.community_settings.fields.submission_policy')),
                     Toggle::make('sensitive_words_enabled')->label(__('admin.community_settings.fields.sensitive_words_enabled')),
                 ]),
                 TagsInput::make('allowed_extensions')->label(__('admin.community_settings.fields.allowed_extensions')),

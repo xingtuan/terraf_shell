@@ -14,8 +14,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ApiError, getErrorMessage } from "@/lib/api/client"
+import {
+  getPublicSettings,
+  type CommunityPublicSettings,
+} from "@/lib/api/public-settings"
 import { createPost, listCategories, listTags } from "@/lib/api/posts"
 import { createRichTextDocumentFromText } from "@/lib/community-rich-text"
+import {
+  countExternalLinks,
+  formatAllowedExtensions,
+  formatMaxFileSize,
+  normalizeCommunitySettings,
+} from "@/lib/community-settings"
 import { getTagName } from "@/lib/community-ui"
 import {
   defaultLocale,
@@ -87,6 +97,8 @@ export function CommunityPostComposer({
   const [coverImagePath, setCoverImagePath] = useState("")
   const [coverImageDisk, setCoverImageDisk] = useState<string | null>(null)
   const [fundingUrl, setFundingUrl] = useState("")
+  const [communitySettings, setCommunitySettings] =
+    useState<CommunityPublicSettings>(normalizeCommunitySettings())
   const [errors, setErrors] = useState<ComposerErrors>({})
   const [isPending, startTransition] = useTransition()
 
@@ -120,6 +132,26 @@ export function CommunityPostComposer({
       isCancelled = true
     }
   }, [locale])
+
+  useEffect(() => {
+    let isCancelled = false
+
+    void getPublicSettings()
+      .then((settings) => {
+        if (!isCancelled) {
+          setCommunitySettings(normalizeCommunitySettings(settings.community))
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setCommunitySettings(normalizeCommunitySettings())
+        }
+      })
+
+    return () => {
+      isCancelled = true
+    }
+  }, [])
 
   function resetForm() {
     setTitle("")
@@ -245,6 +277,7 @@ export function CommunityPostComposer({
             disabled={isPending}
             coverImageUrl={coverImageUrl}
             coverImagePath={coverImagePath}
+            communitySettings={communitySettings}
             onChange={(nextJson, plainText) => {
               setContentJson(nextJson)
               setContent(plainText)
@@ -255,6 +288,17 @@ export function CommunityPostComposer({
               setCoverImageDisk(disk ?? null)
             }}
           />
+          <p className="text-xs text-muted-foreground">
+            {formatMessage(form.uploadLimitsHint, {
+              maxFiles: communitySettings.max_files,
+              maxSize: formatMaxFileSize(communitySettings),
+              extensions: formatAllowedExtensions(communitySettings),
+              maxLinks: communitySettings.max_external_links,
+              guestUpload: communitySettings.allow_guest_upload
+                ? form.guestUploadEnabled
+                : form.guestUploadDisabled,
+            })}
+          </p>
           {errors.content ? (
             <p className="text-xs text-destructive">{errors.content}</p>
           ) : null}
@@ -294,6 +338,18 @@ export function CommunityPostComposer({
                 } catch {
                   nextErrors.funding_url = form.fundingInvalid
                 }
+              }
+
+              if (
+                countExternalLinks([
+                  trimmedTitle,
+                  trimmedContent,
+                  trimmedFundingUrl,
+                ]) > communitySettings.max_external_links
+              ) {
+                nextErrors.funding_url = formatMessage(form.externalLinksMax, {
+                  max: communitySettings.max_external_links,
+                })
               }
 
               setErrors(nextErrors)

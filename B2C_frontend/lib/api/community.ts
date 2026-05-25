@@ -1,5 +1,16 @@
 import { communityIdeaRecords } from "@/lib/data/community"
-import { pickLocalizedValue, type Locale } from "@/lib/i18n"
+import { getPublicSettings } from "@/lib/api/public-settings"
+import {
+  countExternalLinks,
+  normalizeCommunitySettings,
+} from "@/lib/community-settings"
+import {
+  defaultLocale,
+  getMessages,
+  isValidLocale,
+  pickLocalizedValue,
+  type Locale,
+} from "@/lib/i18n"
 import type { CommunityIdea, InquirySubmissionResult } from "@/lib/types"
 
 export async function getCommunityIdeas(
@@ -22,6 +33,20 @@ export async function submitCommunityIdea(
   idea: Pick<CommunityIdea, "title" | "summary"> & { locale: string },
 ): Promise<InquirySubmissionResult> {
   // Intentionally mock-only until the backend exposes a concept submission endpoint.
+  const publicSettings = await getPublicSettings().catch(() => null)
+  const communitySettings = normalizeCommunitySettings(publicSettings?.community)
+  const externalLinkCount = countExternalLinks([idea.title, idea.summary])
+
+  if (externalLinkCount > communitySettings.max_external_links) {
+    const locale = isValidLocale(idea.locale) ? idea.locale : defaultLocale
+    throw new Error(
+      getMessages(locale).community.form.externalLinksMax.replace(
+        "{max}",
+        String(communitySettings.max_external_links),
+      ),
+    )
+  }
+
   await new Promise((resolve) => setTimeout(resolve, 300))
 
   const timestamp = Date.now().toString().slice(-6)

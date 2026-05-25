@@ -19,11 +19,15 @@ class EnsureRuntimeSettingEnabled
         $enabled = $this->settings->boolean($key, filter_var($default, FILTER_VALIDATE_BOOLEAN));
 
         if (! $enabled) {
+            $message = $key === 'community.allow_guest_upload'
+                ? __('api.media.community_upload_disabled')
+                : __('api.errors.feature_disabled');
+
             if ($request->expectsJson() || $request->is('api/*')) {
-                return ApiResponse::error(__('api.errors.feature_disabled'), [], 403);
+                return ApiResponse::error($message, [], 403);
             }
 
-            abort(403, __('api.errors.feature_disabled'));
+            abort(403, $message);
         }
 
         return $next($request);

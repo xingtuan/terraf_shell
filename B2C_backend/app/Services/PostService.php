@@ -123,7 +123,11 @@ class PostService
     {
         return DB::transaction(function () use ($user, $data): Post {
             $data = $this->preparePostData($data);
-            $status = $this->communityModerationPolicyService->statusFor($user);
+            $status = $this->communityModerationPolicyService->statusFor($user, [
+                'title' => $data['title'] ?? '',
+                'content' => $data['content'] ?? '',
+                'excerpt' => $data['excerpt'] ?? '',
+            ]);
             $isAdmin = $user->isAdmin();
 
             $post = Post::query()->create([
@@ -202,7 +206,11 @@ class PostService
                     $post->featured_by = $post->is_featured ? $user->id : null;
                 }
             } else {
-                $post->status = $this->communityModerationPolicyService->statusFor($user);
+                $post->status = $this->communityModerationPolicyService->statusFor($user, [
+                    'title' => $data['title'] ?? $post->title,
+                    'content' => $data['content'] ?? $post->content,
+                    'excerpt' => array_key_exists('excerpt', $data) ? $data['excerpt'] : $post->excerpt,
+                ]);
                 $post->published_at = $post->status === ContentStatus::Approved->value
                     ? ($post->published_at ?? now())
                     : null;

@@ -16,11 +16,21 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { getErrorMessage } from "@/lib/api/client"
+import {
+  getPublicSettings,
+  type CommunityPublicSettings,
+} from "@/lib/api/public-settings"
 import { listCategories, listTags, updatePost } from "@/lib/api/posts"
 import {
   createRichTextDocumentFromText,
   isRichTextDocument,
 } from "@/lib/community-rich-text"
+import {
+  countExternalLinks,
+  formatAllowedExtensions,
+  formatMaxFileSize,
+  normalizeCommunitySettings,
+} from "@/lib/community-settings"
 import { getTagName } from "@/lib/community-ui"
 import {
   defaultLocale,
@@ -99,6 +109,8 @@ export function CommunityPostEditorDialog({
   )
   const [categories, setCategories] = useState<CommunityCategory[]>([])
   const [tags, setTags] = useState<CommunityTag[]>([])
+  const [communitySettings, setCommunitySettings] =
+    useState<CommunityPublicSettings>(normalizeCommunitySettings())
   const [message, setMessage] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -152,6 +164,30 @@ export function CommunityPostEditorDialog({
     }
   }, [locale, open])
 
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+
+    let isCancelled = false
+
+    void getPublicSettings()
+      .then((settings) => {
+        if (!isCancelled) {
+          setCommunitySettings(normalizeCommunitySettings(settings.community))
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setCommunitySettings(normalizeCommunitySettings())
+        }
+      })
+
+    return () => {
+      isCancelled = true
+    }
+  }, [open])
+
   function validate() {
     const trimmedTitle = title.trim()
     const trimmedContent = content.trim()
@@ -183,6 +219,19 @@ export function CommunityPostEditorDialog({
       } catch {
         return form.fundingInvalid
       }
+    }
+
+    if (
+      countExternalLinks([
+        trimmedTitle,
+        trimmedContent,
+        excerpt.trim(),
+        trimmedFundingUrl,
+      ]) > communitySettings.max_external_links
+    ) {
+      return formatMessage(form.externalLinksMax, {
+        max: communitySettings.max_external_links,
+      })
     }
 
     return null
@@ -296,12 +345,24 @@ export function CommunityPostEditorDialog({
               maxCharacters={MAX_CONTENT_CHARACTERS}
               disabled={isPending}
               showCoverImage={false}
-              onChange={(nextJson, plainText) => {
-                setContentJson(nextJson)
-                setContent(plainText)
-              }}
-            />
-          </div>
+              communitySettings={communitySettings}
+            onChange={(nextJson, plainText) => {
+              setContentJson(nextJson)
+              setContent(plainText)
+            }}
+          />
+          <p className="text-xs text-muted-foreground">
+            {formatMessage(form.uploadLimitsHint, {
+              maxFiles: communitySettings.max_files,
+              maxSize: formatMaxFileSize(communitySettings),
+              extensions: formatAllowedExtensions(communitySettings),
+              maxLinks: communitySettings.max_external_links,
+              guestUpload: communitySettings.allow_guest_upload
+                ? form.guestUploadEnabled
+                : form.guestUploadDisabled,
+            })}
+          </p>
+        </div>
 
           {message ? <p className="text-sm text-destructive">{message}</p> : null}
         </div>

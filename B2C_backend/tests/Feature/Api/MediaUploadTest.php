@@ -285,6 +285,10 @@ class MediaUploadTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors(['file']);
 
+        app(SettingsService::class)->set('community.max_file_size_kb', 5120, [
+            'type' => 'integer',
+        ]);
+
         $this->post('/api/media/upload', [
             'file' => UploadedFile::fake()->image('oversized.png')->size(6000),
             'category' => 'community-cover',

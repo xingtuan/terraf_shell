@@ -438,6 +438,7 @@ export function CommunityPostDetail({
   }
 
   const supportUrl = post ? getCommunitySupportUrl(post) : null
+  const supportButtonText = post?.support_button_text?.trim() || messages.post.supportIdea
   const officialCampaign = post?.funding_campaign ?? null
   const officialCampaignUrl = officialCampaign?.external_crowdfunding_url ?? null
   const creatorSupportUrl =
@@ -864,7 +865,7 @@ export function CommunityPostDetail({
                   {supportUrl ? (
                     <Button asChild size="sm">
                       <a href={supportUrl} target="_blank" rel="noreferrer">
-                        {messages.post.supportIdea}
+                        {supportButtonText}
                       </a>
                     </Button>
                   ) : null}

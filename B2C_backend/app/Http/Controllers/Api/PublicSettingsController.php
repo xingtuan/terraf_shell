@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Services\CommunitySettingsService;
 use App\Services\Settings\SettingsService;
 use App\Support\StorageUrl;
 use Illuminate\Http\JsonResponse;
 
 class PublicSettingsController extends Controller
 {
-    public function __invoke(SettingsService $settings): JsonResponse
+    public function __invoke(SettingsService $settings, CommunitySettingsService $communitySettings): JsonResponse
     {
         $siteName = $settings->string('app.site_name', (string) config('app.name', 'OXP'));
         $logoPath = $settings->string('app.logo_path', '');
@@ -42,6 +43,16 @@ class PublicSettingsController extends Controller
                 'message_ko' => $settings->string('maintenance.notice_message_ko', ''),
                 'message_zh' => $settings->string('maintenance.notice_message_zh', ''),
                 'level' => $settings->string('maintenance.notice_level', 'info'),
+            ],
+            'community' => [
+                'allow_guest_upload' => $communitySettings->allowGuestUpload(),
+                'max_files' => $communitySettings->maxFiles(),
+                'max_file_size_kb' => $communitySettings->maxFileSizeKb(),
+                'allowed_extensions' => $communitySettings->allowedExtensions(),
+                'max_external_links' => $communitySettings->maxExternalLinks(),
+                'submission_policy' => $communitySettings->submissionPolicy(),
+                'sensitive_words_enabled' => $communitySettings->sensitiveWordsEnabled(),
+                'default_funding_support_button_text' => $communitySettings->defaultFundingSupportButtonText(),
             ],
         ]);
     }

@@ -6,10 +6,17 @@ use App\Enums\CommunitySubmissionPolicy;
 use App\Enums\ContentStatus;
 use App\Models\CommunityModerationSetting;
 use App\Models\User;
+use App\Services\Settings\SettingsService;
 use Illuminate\Support\Facades\DB;
 
 class CommunityModerationPolicyService
 {
+    public function __construct(
+        private readonly CommunitySettingsService $communitySettings,
+        private readonly SensitiveContentService $sensitiveContentService,
+        private readonly SettingsService $settings,
+    ) {}
+
     public function getSettings(): CommunityModerationSetting
     {
         return CommunityModerationSetting::query()->firstOrCreate(
@@ -25,11 +32,19 @@ class CommunityModerationPolicyService
 
     public function getSubmissionPolicy(): CommunitySubmissionPolicy
     {
+        $runtimePolicy = $this->settings->get('community.submission_policy');
+
+        if (is_string($runtimePolicy) && trim($runtimePolicy) !== '') {
+            return CommunitySubmissionPolicy::from(
+                $this->communitySettings->normalizeSubmissionPolicy($runtimePolicy)
+            );
+        }
+
         $policy = $this->getSettings()->submission_policy;
 
         return $policy instanceof CommunitySubmissionPolicy
             ? $policy
-            : CommunitySubmissionPolicy::from((string) $policy);
+            : CommunitySubmissionPolicy::from($this->communitySettings->normalizeSubmissionPolicy((string) $policy));
     }
 
     public function shouldAutoApprove(User $user): bool
@@ -45,8 +60,16 @@ class CommunityModerationPolicyService
         };
     }
 
-    public function statusFor(User $user): string
+    public function statusFor(User $user, array $fields = []): string
     {
+        if ($user->canModerate()) {
+            return ContentStatus::Approved->value;
+        }
+
+        if ($fields !== [] && $this->sensitiveContentService->scan($fields)['matched_terms'] !== []) {
+            return ContentStatus::Pending->value;
+        }
+
         return $this->shouldAutoApprove($user)
             ? ContentStatus::Approved->value
             : ContentStatus::Pending->value;
@@ -63,6 +86,7 @@ class CommunityModerationPolicyService
             $settings->forceFill([
                 'submission_policy' => $policy,
             ])->save();
+            $this->settings->set('community.submission_policy', $policy->value, ['type' => 'string']);
 
             $this->syncTrustedUsers($trustedUserIds);
 

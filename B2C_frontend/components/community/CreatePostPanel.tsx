@@ -5,6 +5,10 @@ import { useEffect, useState, useTransition } from "react"
 
 import { ApiError, getErrorMessage } from "@/lib/api/client"
 import {
+  getPublicSettings,
+  type CommunityPublicSettings,
+} from "@/lib/api/public-settings"
+import {
   createPost,
   getPost,
   listCategories,
@@ -18,6 +22,13 @@ import {
   createRichTextDocumentFromText,
   isRichTextDocument,
 } from "@/lib/community-rich-text"
+import {
+  acceptsCommunityFile,
+  countExternalLinks,
+  formatAllowedExtensions,
+  formatMaxFileSize,
+  normalizeCommunitySettings,
+} from "@/lib/community-settings"
 import type { Locale, SiteMessages } from "@/lib/i18n"
 import type { CommunityCategory, CommunityMedia, CommunityPost } from "@/lib/types"
 import { Button } from "@/components/ui/button"
@@ -114,19 +125,7 @@ function getSubmissionToastTitle(
     : messages.form.pendingSuccess
 }
 
-const MAX_ATTACHMENTS = 12
 const MAX_CONTENT_CHARACTERS = 10000
-const SAFE_ATTACHMENT_ACCEPT = [
-  ".jpg",
-  ".jpeg",
-  ".png",
-  ".webp",
-  ".pdf",
-  ".doc",
-  ".docx",
-  ".xls",
-  ".xlsx",
-].join(",")
 
 function isImageAttachment(file: File | CommunityMedia) {
   if (file instanceof File) {
@@ -203,6 +202,8 @@ export function CreatePostPanel({
   const [coverImagePath, setCoverImagePath] = useState("")
   const [coverImageDisk, setCoverImageDisk] = useState<string | null>(null)
   const [attachments, setAttachments] = useState<File[]>([])
+  const [communitySettings, setCommunitySettings] =
+    useState<CommunityPublicSettings>(normalizeCommunitySettings())
   const [imagePreviews, setImagePreviews] = useState<
     Array<{ index: number; url: string }>
   >([])
@@ -213,6 +214,14 @@ export function CreatePostPanel({
   const [isPending, startTransition] = useTransition()
 
   const currentPost = editingPost ?? initialData ?? null
+  const attachmentAccept = communitySettings.allowed_extensions
+    .map((extension) => `.${extension}`)
+    .join(",")
+  const existingUploadCount =
+    currentPost?.media?.filter((media) => !media.is_external && media.path).length ?? 0
+  const coverUploadCount = coverImagePath ? 1 : 0
+  const maxFiles = communitySettings.max_files
+  const maxFileSizeBytes = communitySettings.max_file_size_kb * 1024
 
   useEffect(() => {
     if (!open) {
@@ -230,6 +239,30 @@ export function CreatePostPanel({
       .catch(() => {
         if (!isCancelled) {
           setCategories([])
+        }
+      })
+
+    return () => {
+      isCancelled = true
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+
+    let isCancelled = false
+
+    void getPublicSettings()
+      .then((settings) => {
+        if (!isCancelled) {
+          setCommunitySettings(normalizeCommunitySettings(settings.community))
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setCommunitySettings(normalizeCommunitySettings())
         }
       })
 
@@ -356,8 +389,38 @@ export function CreatePostPanel({
       }
     }
 
-    if (attachments.length > MAX_ATTACHMENTS) {
-      nextErrors.attachments = messages.form.imagesMax
+    if (existingUploadCount + coverUploadCount + attachments.length > maxFiles) {
+      nextErrors.attachments = formatMessage(messages.form.imagesMaxDynamic, {
+        max: maxFiles,
+      })
+    } else {
+      const invalidFile = attachments.find(
+        (file) => !acceptsCommunityFile(file, communitySettings),
+      )
+      const oversizedFile = attachments.find((file) => file.size > maxFileSizeBytes)
+
+      if (invalidFile) {
+        nextErrors.attachments = formatMessage(messages.form.invalidFileType, {
+          extensions: formatAllowedExtensions(communitySettings),
+        })
+      } else if (oversizedFile) {
+        nextErrors.attachments = formatMessage(messages.form.fileTooLarge, {
+          size: formatMaxFileSize(communitySettings),
+        })
+      }
+    }
+
+    if (
+      countExternalLinks([
+        trimmedTitle,
+        trimmedContent,
+        trimmedExcerpt,
+        trimmedFundingUrl,
+      ]) > communitySettings.max_external_links
+    ) {
+      nextErrors.funding_url = formatMessage(messages.form.externalLinksMax, {
+        max: communitySettings.max_external_links,
+      })
     }
 
     setErrors(nextErrors)
@@ -534,6 +597,7 @@ export function CreatePostPanel({
               disabled={isPending || isLoadingPostDetail}
               coverImageUrl={coverImageUrl}
               coverImagePath={coverImagePath}
+              communitySettings={communitySettings}
               onChange={(nextJson, plainText) => {
                 setContentJson(nextJson)
                 setContent(plainText)
@@ -630,12 +694,59 @@ export function CreatePostPanel({
             </label>
             <Input
               type="file"
-              accept={SAFE_ATTACHMENT_ACCEPT}
+              accept={attachmentAccept}
               multiple
               onChange={(event) => {
                 const nextFiles = Array.from(event.target.files ?? [])
 
                 setAttachments((currentAttachments) => {
+                  if (
+                    existingUploadCount +
+                      coverUploadCount +
+                      currentAttachments.length +
+                      nextFiles.length >
+                    maxFiles
+                  ) {
+                    setErrors((currentErrors) => ({
+                      ...currentErrors,
+                      attachments: formatMessage(messages.form.imagesMaxDynamic, {
+                        max: maxFiles,
+                      }),
+                    }))
+
+                    return currentAttachments
+                  }
+
+                  const invalidFile = nextFiles.find(
+                    (file) => !acceptsCommunityFile(file, communitySettings),
+                  )
+
+                  if (invalidFile) {
+                    setErrors((currentErrors) => ({
+                      ...currentErrors,
+                      attachments: formatMessage(messages.form.invalidFileType, {
+                        extensions: formatAllowedExtensions(communitySettings),
+                      }),
+                    }))
+
+                    return currentAttachments
+                  }
+
+                  const oversizedFile = nextFiles.find(
+                    (file) => file.size > maxFileSizeBytes,
+                  )
+
+                  if (oversizedFile) {
+                    setErrors((currentErrors) => ({
+                      ...currentErrors,
+                      attachments: formatMessage(messages.form.fileTooLarge, {
+                        size: formatMaxFileSize(communitySettings),
+                      }),
+                    }))
+
+                    return currentAttachments
+                  }
+
                   const seen = new Set(
                     currentAttachments.map((file) => getAttachmentIdentity(file)),
                   )
@@ -650,6 +761,11 @@ export function CreatePostPanel({
                     }
                   })
 
+                  setErrors((currentErrors) => ({
+                    ...currentErrors,
+                    attachments: undefined,
+                  }))
+
                   return mergedAttachments
                 })
 
@@ -657,7 +773,15 @@ export function CreatePostPanel({
               }}
             />
             <p className="text-xs text-muted-foreground">
-              {messages.form.imagesHint}
+              {formatMessage(messages.form.uploadLimitsHint, {
+                maxFiles,
+                maxSize: formatMaxFileSize(communitySettings),
+                extensions: formatAllowedExtensions(communitySettings),
+                maxLinks: communitySettings.max_external_links,
+                guestUpload: communitySettings.allow_guest_upload
+                  ? messages.form.guestUploadEnabled
+                  : messages.form.guestUploadDisabled,
+              })}
             </p>
             {imagePreviews.length > 0 ? (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

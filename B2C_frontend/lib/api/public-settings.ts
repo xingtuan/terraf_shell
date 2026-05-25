@@ -14,6 +14,17 @@ export type MaintenanceNotice = {
   level: "info" | "warning" | "error"
 }
 
+export type CommunityPublicSettings = {
+  allow_guest_upload: boolean
+  max_files: number
+  max_file_size_kb: number
+  allowed_extensions: string[]
+  max_external_links: number
+  submission_policy: string
+  sensitive_words_enabled: boolean
+  default_funding_support_button_text: string
+}
+
 export type PublicSettings = {
   site_name: string
   default_locale: string
@@ -31,6 +42,7 @@ export type PublicSettings = {
     enabled: boolean
   }
   maintenance_notice: MaintenanceNotice
+  community: CommunityPublicSettings
 }
 
 export const defaultBranding: Branding = {
@@ -39,8 +51,25 @@ export const defaultBranding: Branding = {
   logo_alt: "OXP",
 }
 
+export const defaultCommunitySettings: CommunityPublicSettings = {
+  allow_guest_upload: false,
+  max_files: 12,
+  max_file_size_kb: 10240,
+  allowed_extensions: ["jpg", "jpeg", "png", "webp", "pdf", "doc", "docx", "xls", "xlsx"],
+  max_external_links: 4,
+  submission_policy: "all_require_approval",
+  sensitive_words_enabled: false,
+  default_funding_support_button_text: "Support this concept",
+}
+
 export async function getPublicSettings(baseUrl?: string): Promise<PublicSettings> {
   const response = await requestApi<PublicSettings>("/public-settings", { baseUrl })
 
-  return response.data
+  return {
+    ...response.data,
+    community: {
+      ...defaultCommunitySettings,
+      ...(response.data.community ?? {}),
+    },
+  }
 }

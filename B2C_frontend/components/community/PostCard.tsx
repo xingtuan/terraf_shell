@@ -118,6 +118,7 @@ export function PostCard({
 
   const isOwner = currentUserId === post.user?.id
   const supportUrl = getCommunitySupportUrl(post)
+  const supportButtonText = post.support_button_text?.trim() || messages.post.supportIdea
   const readingTime = post.reading_time ?? 0
   const downloadableAttachmentCount =
     post.media?.filter((item) => !item.is_external && (item.is_attachment || !item.is_image)).length ?? 0
@@ -382,7 +383,7 @@ export function PostCard({
             {supportUrl ? (
               <Button asChild size="sm">
                 <a href={supportUrl} target="_blank" rel="noreferrer">
-                  {messages.post.supportIdea}
+                  {supportButtonText}
                 </a>
               </Button>
             ) : null}

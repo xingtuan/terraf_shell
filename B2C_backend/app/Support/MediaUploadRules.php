@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use App\Services\CommunitySettingsService;
+
 final class MediaUploadRules
 {
     /**
@@ -9,7 +11,11 @@ final class MediaUploadRules
      */
     public static function imageExtensions(): array
     {
-        return self::csvConfig('community.idea_media.image_extensions', ['jpg', 'jpeg', 'png', 'webp']);
+        $configuredImageExtensions = self::csvConfig('community.idea_media.image_extensions', ['jpg', 'jpeg', 'png', 'webp']);
+        $allowedExtensions = self::communitySettings()->allowedExtensions();
+        $extensions = array_values(array_intersect($configuredImageExtensions, $allowedExtensions));
+
+        return $extensions !== [] ? $extensions : ['__disabled__'];
     }
 
     /**
@@ -17,7 +23,7 @@ final class MediaUploadRules
      */
     public static function attachmentExtensions(): array
     {
-        return self::csvConfig('community.idea_media.allowed_extensions', ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx']);
+        return self::communitySettings()->allowedExtensions();
     }
 
     /**
@@ -56,7 +62,7 @@ final class MediaUploadRules
             'image',
             'mimetypes:'.implode(',', self::imageMimeTypes()),
             'extensions:'.implode(',', self::imageExtensions()),
-            'max:'.self::maxImageSizeKb(),
+            'max:'.self::maxFileSizeKb(),
         ];
     }
 
@@ -78,7 +84,7 @@ final class MediaUploadRules
             'file',
             'mimetypes:'.implode(',', self::attachmentMimeTypes()),
             'extensions:'.implode(',', self::attachmentExtensions()),
-            'max:'.self::maxAttachmentSizeKb(),
+            'max:'.self::maxFileSizeKb(),
         ];
     }
 
@@ -100,12 +106,17 @@ final class MediaUploadRules
 
     public static function maxImageSizeKb(): int
     {
-        return max(1, (int) config('community.idea_media.max_image_size_kb', 5120));
+        return self::maxFileSizeKb();
     }
 
     public static function maxAttachmentSizeKb(): int
     {
-        return max(1, (int) config('community.idea_media.max_attachment_size_kb', 10240));
+        return self::maxFileSizeKb();
+    }
+
+    public static function maxFileSizeKb(): int
+    {
+        return self::communitySettings()->maxFileSizeKb();
     }
 
     private static function isAttachmentCategory(?string $category): bool
@@ -139,5 +150,10 @@ final class MediaUploadRules
             static fn (mixed $item): string => strtolower(trim((string) $item)),
             $items
         )));
+    }
+
+    private static function communitySettings(): CommunitySettingsService
+    {
+        return app(CommunitySettingsService::class);
     }
 }

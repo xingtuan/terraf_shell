@@ -109,9 +109,12 @@ return [
         'remove_and_replace_conflict' => 'A media item cannot be removed and replaced in the same request.',
         'media_not_owned' => 'One or more media items do not belong to this post.',
         'invalid_tiptap_document' => ':Attribute must be a valid rich-text document.',
+        'too_many_files' => 'You can upload up to :max files for one community post.',
+        'too_many_external_links' => 'This submission can include up to :max external links.',
     ],
     'media' => [
         'upload_failed' => 'The media upload failed. Please try again.',
+        'community_upload_disabled' => 'Community guest uploads are currently disabled.',
         'upload_read_failed' => 'Unable to read the uploaded file. Please try again.',
         'write_failed' => 'Unable to write uploaded file to storage disk [:disk]. Check the active storage configuration.',
         'local_write_failed' => 'Unable to write uploaded file to local storage disk [:disk]. Check that public storage is writable.',

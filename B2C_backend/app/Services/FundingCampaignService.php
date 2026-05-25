@@ -11,6 +11,7 @@ class FundingCampaignService
 {
     public function __construct(
         private readonly GovernanceService $governanceService,
+        private readonly CommunitySettingsService $communitySettings,
     ) {}
 
     public function showForAdmin(Post $post): ?FundingCampaign
@@ -84,7 +85,7 @@ class FundingCampaignService
 
     private function defaultButtonText(): string
     {
-        return (string) config('community.funding.default_support_button_text', 'Support this concept');
+        return $this->communitySettings->defaultFundingSupportButtonText();
     }
 
     /**

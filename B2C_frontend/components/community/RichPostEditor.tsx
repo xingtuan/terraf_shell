@@ -42,6 +42,16 @@ import {
 } from "@/lib/community-rich-text"
 import { deleteMedia, uploadMedia } from "@/lib/api/media"
 import {
+  defaultCommunitySettings,
+  type CommunityPublicSettings,
+} from "@/lib/api/public-settings"
+import {
+  acceptsCommunityFile,
+  formatAllowedExtensions,
+  formatMaxFileSize,
+  normalizeCommunitySettings,
+} from "@/lib/community-settings"
+import {
   defaultLocale,
   getMessages,
   isValidLocale,
@@ -59,6 +69,7 @@ type RichPostEditorProps = {
   maxCharacters?: number
   disabled?: boolean
   showCoverImage?: boolean
+  communitySettings?: CommunityPublicSettings
 }
 
 type CoverImageState = {
@@ -176,12 +187,20 @@ export function RichPostEditor({
   maxCharacters = 10000,
   disabled = false,
   showCoverImage,
+  communitySettings,
 }: RichPostEditorProps) {
   const params = useParams()
   const locale = resolveLocaleFromParams(params.locale)
   const messages = getMessages(locale).community
   const labels = messages.richEditor
   const toolbar = labels.toolbar
+  const uploadSettings = normalizeCommunitySettings(
+    communitySettings ?? defaultCommunitySettings,
+  )
+  const imageAccept = uploadSettings.allowed_extensions
+    .filter((extension) => ["jpg", "jpeg", "png", "webp"].includes(extension))
+    .map((extension) => `.${extension}`)
+    .join(",") || "image/*"
   const placeholderText = placeholder ?? messages.form.contentPlaceholder
   const imageInputRef = useRef<HTMLInputElement | null>(null)
   const coverInputRef = useRef<HTMLInputElement | null>(null)
@@ -287,6 +306,25 @@ export function RichPostEditor({
     }
 
     setInlineError(null)
+
+    if (!acceptsCommunityFile(file, uploadSettings)) {
+      setInlineError(
+        formatMessage(labels.invalidFileType, {
+          extensions: formatAllowedExtensions(uploadSettings),
+        }),
+      )
+      return
+    }
+
+    if (file.size > uploadSettings.max_file_size_kb * 1024) {
+      setInlineError(
+        formatMessage(labels.fileTooLarge, {
+          size: formatMaxFileSize(uploadSettings),
+        }),
+      )
+      return
+    }
+
     setIsUploadingInlineImage(true)
 
     try {
@@ -309,6 +347,25 @@ export function RichPostEditor({
     }
 
     setCoverError(null)
+
+    if (!acceptsCommunityFile(file, uploadSettings)) {
+      setCoverError(
+        formatMessage(labels.invalidFileType, {
+          extensions: formatAllowedExtensions(uploadSettings),
+        }),
+      )
+      return
+    }
+
+    if (file.size > uploadSettings.max_file_size_kb * 1024) {
+      setCoverError(
+        formatMessage(labels.fileTooLarge, {
+          size: formatMaxFileSize(uploadSettings),
+        }),
+      )
+      return
+    }
+
     setIsUploadingCoverImage(true)
 
     try {
@@ -460,7 +517,7 @@ export function RichPostEditor({
           <Input
             ref={coverInputRef}
             type="file"
-            accept="image/*"
+            accept={imageAccept}
             disabled={disabled || isUploadingCoverImage}
             className="hidden"
             onChange={(event) => {
@@ -648,7 +705,7 @@ export function RichPostEditor({
             <Input
               ref={imageInputRef}
               type="file"
-              accept="image/*"
+              accept={imageAccept}
               disabled={disabled || isUploadingInlineImage}
               className="hidden"
               onChange={(event) => {

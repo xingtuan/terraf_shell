@@ -1835,7 +1835,14 @@
       "contentMax": "Content must be {max} characters or fewer.",
       "excerptMax": "Excerpt must be 500 characters or fewer.",
       "fundingInvalid": "Enter a valid URL.",
-      "imagesMax": "You can upload up to 12 attachments."
+      "imagesMax": "You can upload up to 12 attachments.",
+      "imagesMaxDynamic": "You can upload up to {max} files.",
+      "invalidFileType": "Allowed file types: {extensions}.",
+      "fileTooLarge": "Each file must be {size} or smaller.",
+      "externalLinksMax": "You can include up to {max} external links.",
+      "uploadLimitsHint": "Up to {maxFiles} files, {maxSize} each. Allowed: {extensions}. External links: {maxLinks}. {guestUpload}",
+      "guestUploadEnabled": "Guest uploads are enabled.",
+      "guestUploadDisabled": "Guest uploads are disabled."
     },
     "richEditor": {
       "editorLabel": "Post content editor",
@@ -1847,6 +1854,8 @@
       "coverUploadFailed": "Cover image upload failed. Try again.",
       "coverRemoveFailed": "Cover image removal failed. Try again.",
       "imageUploadFailed": "Image upload failed. Try again.",
+      "invalidFileType": "Allowed file types: {extensions}.",
+      "fileTooLarge": "Each file must be {size} or smaller.",
       "uploadingImage": "Uploading image...",
       "linkPlaceholder": "https://example.com",
       "linkInvalid": "Enter a valid http or https link.",
