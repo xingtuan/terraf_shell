@@ -9,6 +9,9 @@ import {
 import { getServerApiBaseUrl } from "@/lib/api/server-base-url"
 import { resolveLocale } from "@/lib/resolve-locale"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 type TermsPageProps = {
   params: Promise<{ locale: string }>
 }

@@ -53,8 +53,8 @@ export async function getLegalPageContent(
     )
 
     return nonBlankLegalContent(response.data ?? {})
-  } catch {
-    return getFallbackLegalPageContent(page, options.locale)
+  } catch (error) {
+    return fallbackLegalContent(page, options.locale)
   }
 }
 
@@ -83,7 +83,7 @@ function nonBlankLegalContent(content: LegalPageContent): LegalPageContent {
   return result
 }
 
-function getFallbackLegalPageContent(
+function fallbackLegalContent(
   page: LegalPageKey,
   locale: string | undefined,
 ): LegalPageContent {
