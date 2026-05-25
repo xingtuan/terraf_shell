@@ -28,13 +28,13 @@ class FundingCampaignService
 
             $campaign->fill([
                 'support_enabled' => (bool) $data['support_enabled'],
-                'support_button_text' => trim((string) ($data['support_button_text'] ?? '')) ?: null,
+                'support_button_text_translations' => $data['support_button_text_translations'] ?? null,
                 'external_crowdfunding_url' => $data['external_crowdfunding_url'] ?? null,
                 'campaign_status' => $data['campaign_status'],
                 'target_amount' => $data['target_amount'] ?? null,
                 'pledged_amount' => $data['pledged_amount'] ?? null,
                 'backer_count' => $data['backer_count'] ?? null,
-                'reward_description' => $data['reward_description'] ?? null,
+                'reward_description_translations' => $data['reward_description_translations'] ?? null,
                 'campaign_start_at' => $data['campaign_start_at'] ?? null,
                 'campaign_end_at' => $data['campaign_end_at'] ?? null,
             ]);
