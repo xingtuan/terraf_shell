@@ -26,7 +26,7 @@ class PendingPostsQueue extends TableWidget
     {
         return $table
             ->query(fn (): Builder => Post::query()
-                ->with(['user.profile', 'category'])
+                ->with(['user.profile', 'category', 'openSensitiveWordViolation'])
                 ->withCount(['reports'])
                 ->where('status', ContentStatus::Pending->value)
                 ->latest())
@@ -48,6 +48,18 @@ class PendingPostsQueue extends TableWidget
                     ->label(__('admin.ui.reports'))
                     ->badge()
                     ->color(fn (int $state): string => $state > 0 ? 'danger' : 'gray'),
+                TextColumn::make('sensitive_word_flag')
+                    ->label(__('admin.ui.review_reason'))
+                    ->badge()
+                    ->state(function (Post $record): ?string {
+                        if ($record->relationLoaded('openSensitiveWordViolation') && $record->openSensitiveWordViolation !== null) {
+                            return __('admin.ui.sensitive_word_detected');
+                        }
+
+                        return null;
+                    })
+                    ->color('warning')
+                    ->placeholder('—'),
                 TextColumn::make('created_at')
                     ->label(__('admin.ui.submitted'))
                     ->dateTime()

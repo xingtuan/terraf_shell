@@ -219,7 +219,8 @@ class PostInfolist
                                     ? $record->openSensitiveWordViolation
                                     : $record->openSensitiveWordViolation()->first();
                                 $fields = $violation?->metadata['matched_fields'] ?? [];
-                                return $fields !== [] ? implode(', ', (array) $fields) : '—';
+                                $keys = array_keys((array) $fields);
+                                return $keys !== [] ? implode(', ', $keys) : '—';
                             })
                             ->placeholder('—'),
                         TextEntry::make('sensitive_matched_count')
