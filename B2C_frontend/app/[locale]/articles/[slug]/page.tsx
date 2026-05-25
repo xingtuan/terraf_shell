@@ -50,7 +50,7 @@ export default async function ArticleDetailPage({
           `Read the full backend-driven article and follow ${BRAND_NAME} material updates.`
         }
         primaryAction={{
-          label: "Back to articles",
+          label: messages.articleDetail.backToArticles,
           href: getLocalizedHref(locale, "articles"),
         }}
         secondaryAction={{

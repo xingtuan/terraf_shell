@@ -72,6 +72,12 @@ class ArticleForm
                         RichEditor::make('content_translations.en')
                             ->label(__('admin.ui.content'))
                             ->required()
+                            ->toolbarButtons([
+                                'bold', 'italic', 'underline',
+                                'bulletList', 'orderedList',
+                                'blockquote', 'h2', 'h3',
+                                'link', 'undo', 'redo',
+                            ])
                             ->columnSpanFull(),
                     ]),
                 Section::make(__('admin.ui.korean'))
@@ -85,6 +91,12 @@ class ArticleForm
                             ->columnSpanFull(),
                         RichEditor::make('content_translations.ko')
                             ->label(__('admin.ui.content'))
+                            ->toolbarButtons([
+                                'bold', 'italic', 'underline',
+                                'bulletList', 'orderedList',
+                                'blockquote', 'h2', 'h3',
+                                'link', 'undo', 'redo',
+                            ])
                             ->columnSpanFull(),
                     ]),
                 Section::make(__('admin.ui.chinese'))
@@ -98,6 +110,12 @@ class ArticleForm
                             ->columnSpanFull(),
                         RichEditor::make('content_translations.zh')
                             ->label(__('admin.ui.content'))
+                            ->toolbarButtons([
+                                'bold', 'italic', 'underline',
+                                'bulletList', 'orderedList',
+                                'blockquote', 'h2', 'h3',
+                                'link', 'undo', 'redo',
+                            ])
                             ->columnSpanFull(),
                     ]),
             ]);

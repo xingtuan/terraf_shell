@@ -2137,5 +2137,8 @@
   },
   "maintenanceNotice": {
     "defaultMessage": "我们正在进行系统维护，部分功能可能暂时不可用。"
+  },
+  "articleDetail": {
+    "backToArticles": "返回文章列表"
   }
 }

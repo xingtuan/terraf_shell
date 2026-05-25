@@ -1,3 +1,4 @@
+import { SafeHtml } from "@/components/rich-text/safe-html"
 import { getIntlLocale, type Locale } from "@/lib/i18n"
 import type { ArticleDetail } from "@/lib/types"
 
@@ -49,9 +50,7 @@ export function ArticleDetailContent({
               </p>
             ) : null}
 
-            <div className="mt-10 whitespace-pre-wrap leading-8 text-foreground">
-              {article.content}
-            </div>
+            <SafeHtml html={article.content} className="mt-10" />
           </div>
         </article>
       </div>

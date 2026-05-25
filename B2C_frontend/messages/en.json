@@ -2137,5 +2137,8 @@
   },
   "maintenanceNotice": {
     "defaultMessage": "We are currently performing maintenance. Some features may be temporarily unavailable."
+  },
+  "articleDetail": {
+    "backToArticles": "Back to articles"
   }
 }
