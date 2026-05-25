@@ -1048,12 +1048,29 @@ function normalizeNotificationTarget(
 export function normalizeUserNotification(
   notification: UserNotification,
 ): UserNotification {
+  const data = isJsonObject(notification.data) ? notification.data : {}
+  const title =
+    notification.title ??
+    (typeof data.title === "string" ? data.title : null)
+  const body =
+    notification.body ??
+    (typeof data.body === "string"
+      ? data.body
+      : typeof data.message === "string"
+        ? data.message
+        : null)
+  const actionUrl =
+    notification.action_url ??
+    (typeof data.action_url === "string" ? data.action_url : null)
+
   return {
     ...notification,
+    title,
+    body,
     actor: normalizeCommunityUser(notification.actor),
     target: normalizeNotificationTarget(notification.target),
-    action_url: normalizeNotificationActionUrl(notification.action_url),
-    data: isJsonObject(notification.data) ? notification.data : {},
+    action_url: normalizeNotificationActionUrl(actionUrl),
+    data,
     is_read: Boolean(notification.is_read),
   }
 }

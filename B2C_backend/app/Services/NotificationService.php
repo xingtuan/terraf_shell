@@ -473,8 +473,8 @@ class NotificationService
         $data = [
             'title' => $title,
             'body' => $body,
-            'action_url' => $actionUrl,
             'message' => $body,
+            'action_url' => $actionUrl,
             'roles' => array_values($roles),
         ];
 

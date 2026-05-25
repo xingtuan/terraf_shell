@@ -1964,6 +1964,8 @@
       "loading": "Loading notifications...",
       "markAllRead": "Mark all as read",
       "open": "Open",
+      "expand": "Expand",
+      "collapse": "Collapse",
       "comment": "{actor} commented on your post: {post_title}",
       "reply": "{actor} replied to your comment",
       "like": "{actor} liked your post: {post_title}",

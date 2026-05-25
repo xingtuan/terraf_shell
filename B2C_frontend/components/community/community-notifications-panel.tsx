@@ -11,6 +11,12 @@ import {
   markNotificationRead,
 } from "@/lib/api/notifications"
 import { getMessages, type Locale } from "@/lib/i18n"
+import {
+  getNotificationBody,
+  getNotificationExcerpt,
+  getNotificationTitle,
+  isSystemAnnouncement,
+} from "@/lib/notification-display"
 import { resolveNotificationHref } from "@/lib/notification-href"
 import type { UserNotification } from "@/lib/types"
 
@@ -37,11 +43,15 @@ export function CommunityNotificationsPanel({
   const [message, setMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [expandedAnnouncementIds, setExpandedAnnouncementIds] = useState<
+    Set<number>
+  >(() => new Set())
 
   useEffect(() => {
     if (!token) {
       setNotifications([])
       setUnreadCount(0)
+      setExpandedAnnouncementIds(new Set())
       return
     }
 
@@ -104,6 +114,7 @@ export function CommunityNotificationsPanel({
             setNotifications([])
             setUnreadCount(0)
             setMessage(null)
+            setExpandedAnnouncementIds(new Set())
           }}
         >
           Clear view
@@ -134,74 +145,119 @@ export function CommunityNotificationsPanel({
       ) : null}
 
       <div className="mt-5 space-y-3">
-        {notifications.map((notification) => (
-          <div
-            key={notification.id}
-            className="rounded-2xl bg-background px-4 py-4"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex min-w-0 gap-3">
-                {(() => {
-                  const Icon = notificationIcon(notification.type)
+        {notifications.map((notification) => {
+          const announcement = isSystemAnnouncement(notification)
+          const body = getNotificationBody(notification)
+          const excerpt = getNotificationExcerpt(notification, 220)
+          const compactBodyLength = body?.replace(/\s+/g, " ").trim().length ?? 0
+          const isLongAnnouncement = announcement && compactBodyLength > 220
+          const isExpanded = expandedAnnouncementIds.has(notification.id)
+          const displayBody = announcement
+            ? isLongAnnouncement && !isExpanded
+              ? excerpt
+              : body
+            : notification.body
+          const href =
+            announcement && !notification.action_url
+              ? null
+              : resolveNotificationHref(locale, notification)
 
-                  return Icon ? (
-                    <span className="mt-0.5 rounded-full bg-muted p-2 text-muted-foreground">
-                      <Icon className="size-4" />
-                    </span>
-                  ) : null
-                })()}
-                <div className="min-w-0">
-                  <p className="font-medium text-foreground">
-                    {notification.title || t.announcement}
-                  </p>
-                  {notification.body ? (
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {notification.body}
+          return (
+            <div
+              key={notification.id}
+              className="rounded-2xl bg-background px-4 py-4"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex min-w-0 gap-3">
+                  {(() => {
+                    const Icon = notificationIcon(notification.type)
+
+                    return Icon ? (
+                      <span className="mt-0.5 rounded-full bg-muted p-2 text-muted-foreground">
+                        <Icon className="size-4" />
+                      </span>
+                    ) : null
+                  })()}
+                  <div className="min-w-0">
+                    <p className="font-medium text-foreground">
+                      {announcement
+                        ? getNotificationTitle(notification, t.announcement)
+                        : notification.title || t.announcement}
                     </p>
-                  ) : null}
-                </div>
-              </div>
-              {!notification.is_read ? (
-                <button
-                  type="button"
-                  className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
-                  onClick={() => {
-                    if (!token) {
-                      return
-                    }
+                    {displayBody ? (
+                      <p
+                        className={`mt-2 text-sm leading-relaxed text-muted-foreground ${
+                          announcement ? "whitespace-pre-line" : ""
+                        }`}
+                      >
+                        {displayBody}
+                      </p>
+                    ) : null}
+                    {isLongAnnouncement ? (
+                      <button
+                        type="button"
+                        className="mt-2 text-xs font-medium text-primary"
+                        onClick={() => {
+                          setExpandedAnnouncementIds((currentIds) => {
+                            const nextIds = new Set(currentIds)
 
-                    void markNotificationRead(notification.id, token)
-                      .then((updatedNotification) => {
-                        setNotifications((currentNotifications) =>
-                          currentNotifications.map((currentNotification) =>
-                            currentNotification.id === notification.id
-                              ? updatedNotification
-                              : currentNotification,
-                          ),
-                        )
-                        setUnreadCount((currentCount) =>
-                          Math.max(0, currentCount - 1),
-                        )
-                      })
-                      .catch((error) => {
-                        setMessage(getErrorMessage(error))
-                      })
-                  }}
-                >
-                  {t.markAllRead}
-                </button>
+                            if (nextIds.has(notification.id)) {
+                              nextIds.delete(notification.id)
+                            } else {
+                              nextIds.add(notification.id)
+                            }
+
+                            return nextIds
+                          })
+                        }}
+                      >
+                        {isExpanded ? t.collapse : t.expand}
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+                {!notification.is_read ? (
+                  <button
+                    type="button"
+                    className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
+                    onClick={() => {
+                      if (!token) {
+                        return
+                      }
+
+                      void markNotificationRead(notification.id, token)
+                        .then((updatedNotification) => {
+                          setNotifications((currentNotifications) =>
+                            currentNotifications.map((currentNotification) =>
+                              currentNotification.id === notification.id
+                                ? updatedNotification
+                                : currentNotification,
+                            ),
+                          )
+                          setUnreadCount((currentCount) =>
+                            Math.max(0, currentCount - 1),
+                          )
+                        })
+                        .catch((error) => {
+                          setMessage(getErrorMessage(error))
+                        })
+                    }}
+                  >
+                    {t.markAllRead}
+                  </button>
+                ) : null}
+              </div>
+
+              {href ? (
+                <div className="mt-4">
+                  <Button asChild variant="ghost" size="sm" className="px-0">
+                    <Link href={href}>{t.open}</Link>
+                  </Button>
+                </div>
               ) : null}
             </div>
-
-            <div className="mt-4">
-              <Button asChild variant="ghost" size="sm" className="px-0">
-                <Link href={resolveNotificationHref(locale, notification)}>
-                  {t.open}
-                </Link>
-              </Button>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

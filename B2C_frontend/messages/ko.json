@@ -1964,6 +1964,8 @@
       "loading": "알림을 불러오는 중...",
       "markAllRead": "모두 읽음 처리",
       "open": "열기",
+      "expand": "전체 보기",
+      "collapse": "접기",
       "comment": "{actor}님이 회원님의 게시물에 댓글을 남겼습니다: {post_title}",
       "reply": "{actor}님이 회원님의 댓글에 답글을 남겼습니다",
       "like": "{actor}님이 회원님의 게시물을 좋아합니다: {post_title}",

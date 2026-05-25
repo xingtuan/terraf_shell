@@ -1964,6 +1964,8 @@
       "loading": "正在加载通知...",
       "markAllRead": "全部标为已读",
       "open": "打开",
+      "expand": "展开全文",
+      "collapse": "收起",
       "comment": "{actor} 评论了你的帖子：{post_title}",
       "reply": "{actor} 回复了你的评论",
       "like": "{actor} 点赞了你的帖子：{post_title}",

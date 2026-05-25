@@ -9,6 +9,7 @@ use App\Jobs\CreateUserNotificationJob;
 use App\Models\Post;
 use App\Models\User;
 use App\Models\UserNotification;
+use App\Services\NotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
@@ -359,5 +360,44 @@ class NotificationPhaseFiveTest extends TestCase
             ->assertJsonPath('data.0.title', 'Platform update')
             ->assertJsonPath('data.0.body', 'Material showcase content has been refreshed.')
             ->assertJsonPath('data.0.action_url', '/materials/premium-oyster-shell');
+    }
+
+    public function test_broadcast_system_announcement_persists_body_and_resource_body(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $recipient = User::factory()->create();
+        $body = "First line of the announcement.\nSecond line with details.";
+
+        $sentCount = app(NotificationService::class)->broadcastSystemAnnouncement(
+            $admin,
+            'Maintenance notice',
+            $body,
+        );
+
+        $this->assertSame(1, $sentCount);
+
+        $notification = UserNotification::query()
+            ->where('recipient_user_id', $recipient->id)
+            ->where('type', NotificationType::SystemAnnouncement->value)
+            ->firstOrFail();
+
+        $this->assertNotEmpty($notification->title);
+        $this->assertNotEmpty($notification->body);
+        $this->assertSame('Maintenance notice', $notification->title);
+        $this->assertSame($body, $notification->body);
+        $this->assertSame('Maintenance notice', $notification->data['title'] ?? null);
+        $this->assertSame($body, $notification->data['body'] ?? null);
+        $this->assertSame($body, $notification->data['message'] ?? null);
+
+        Sanctum::actingAs($recipient);
+
+        $this->getJson('/api/notifications?type=system_announcement')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.title', 'Maintenance notice')
+            ->assertJsonPath('data.0.body', $body)
+            ->assertJsonPath('data.0.data.title', 'Maintenance notice')
+            ->assertJsonPath('data.0.data.body', $body)
+            ->assertJsonPath('data.0.data.message', $body);
     }
 }
