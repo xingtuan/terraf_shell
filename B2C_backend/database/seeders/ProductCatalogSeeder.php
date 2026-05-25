@@ -261,7 +261,6 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => '세련된 촉감, 가벼운 핸들링, 호스피탈리티 수준의 내구성을 갖춘 프리미엄 굴껍데기 디너 플레이트.',
                 ],
 
-                'image_url' => '/images/application-tableware.jpg',
                 'gallery' => [
                     '/images/application-tableware.jpg',
                     '/images/hero-material.jpg',
@@ -449,7 +448,6 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => '셰프 중심의 호스피탈리티 서비스와 프리미엄 주거용 테이블을 위한 넉넉한 OXP 서빙 볼.',
                 ],
 
-                'image_url' => '/images/application-interior.jpg',
                 'gallery' => [
                     '/images/application-interior.jpg',
                     '/images/material-texture.jpg',
@@ -630,7 +628,6 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => '프리미엄 리추얼, 선물, 부티크 호스피탈리티를 위해 설계된 컴팩트한 OXP 에스프레소 세트.',
                 ],
 
-                'image_url' => '/images/application-retail.jpg',
                 'gallery' => [
                     '/images/application-retail.jpg',
                     '/images/material-texture.jpg',
@@ -815,7 +812,6 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => '프리미엄 인테리어, 부티크 호스피탈리티, 선물 프로그램을 위한 조형적 OXP 플랜터.',
                 ],
 
-                'image_url' => '/images/application-interior.jpg',
                 'gallery' => [
                     '/images/application-interior.jpg',
                     '/images/application-packaging.jpg',
@@ -996,7 +992,6 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => '스파 리추얼, 선물, 차분한 인테리어 스타일링을 위한 컴팩트한 OXP 트레이.',
                 ],
 
-                'image_url' => '/images/material-texture.jpg',
                 'gallery' => [
                     '/images/material-texture.jpg',
                     '/images/application-packaging.jpg',
@@ -1176,7 +1171,6 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => '호스피탈리티, 리테일, 인테리어 디자인 프로젝트 검토를 위한 OXP 건축 검토 타일.',
                 ],
 
-                'image_url' => '/images/application-packaging.jpg',
                 'gallery' => [
                     '/images/application-packaging.jpg',
                     '/images/hero-material.jpg',
@@ -1356,7 +1350,6 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => '디자인 팀, 호스피탈리티 바이어, 프로젝트 평가를 위한 컴팩트한 OXP 리뷰 키트.',
                 ],
 
-                'image_url' => '/images/process-collected.jpg',
                 'gallery' => [
                     '/images/process-collected.jpg',
                     '/images/process-refined.jpg',
@@ -1536,7 +1529,6 @@ class ProductCatalogSeeder extends Seeder
                     'ko' => '현재 품절된 OXP 용기로, 프리미엄 캔들 및 호스피탈리티 어메니티 콘셉트를 위해 설계되었습니다.',
                 ],
 
-                'image_url' => '/images/application-retail.jpg',
                 'gallery' => [
                     '/images/application-retail.jpg',
                     '/images/application-packaging.jpg',
