@@ -20,7 +20,6 @@ export type CommunityPublicSettings = {
   max_file_size_kb: number
   allowed_extensions: string[]
   max_external_links: number
-  submission_policy: string
   sensitive_words_enabled: boolean
   default_funding_support_button_text: string
 }
@@ -55,9 +54,38 @@ export const defaultCommunitySettings: CommunityPublicSettings = {
   allow_guest_upload: false,
   max_files: 12,
   max_file_size_kb: 10240,
-  allowed_extensions: ["jpg", "jpeg", "png", "webp", "pdf", "doc", "docx", "xls", "xlsx"],
+  allowed_extensions: [
+    "jpg",
+    "jpeg",
+    "png",
+    "webp",
+    "gif",
+    "pdf",
+    "doc",
+    "docx",
+    "ppt",
+    "pptx",
+    "xls",
+    "xlsx",
+    "txt",
+    "md",
+    "csv",
+    "zip",
+    "rar",
+    "7z",
+    "stl",
+    "obj",
+    "glb",
+    "gltf",
+    "dwg",
+    "dxf",
+    "step",
+    "stp",
+    "iges",
+    "igs",
+    "srt",
+  ],
   max_external_links: 4,
-  submission_policy: "all_require_approval",
   sensitive_words_enabled: false,
   default_funding_support_button_text: "Support this concept",
 }

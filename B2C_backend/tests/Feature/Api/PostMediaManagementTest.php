@@ -222,7 +222,6 @@ class PostMediaManagementTest extends TestCase
             ['payload.js', 'application/javascript'],
             ['payload.html', 'text/html'],
             ['payload.svg', 'image/svg+xml'],
-            ['payload.zip', 'application/zip'],
         ] as [$name, $mime]) {
             $this->post('/api/posts', [
                 'title' => 'Invalid attachment concept',

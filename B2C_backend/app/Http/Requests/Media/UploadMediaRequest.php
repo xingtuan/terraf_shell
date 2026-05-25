@@ -37,7 +37,7 @@ class UploadMediaRequest extends FormRequest
         return [
             'file.mimetypes' => __('validation.custom.file.mimetypes'),
             'file.extensions' => __('validation.custom.file.extensions'),
-            'file.max' => __('validation.custom.file.max'),
+            'file.max' => __('api.community.file_too_large'),
             'file.image' => __('validation.custom.file.image'),
         ];
     }

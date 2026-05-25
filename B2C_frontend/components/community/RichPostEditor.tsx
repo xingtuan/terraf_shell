@@ -46,8 +46,9 @@ import {
   type CommunityPublicSettings,
 } from "@/lib/api/public-settings"
 import {
-  acceptsCommunityFile,
-  formatAllowedExtensions,
+  acceptsCommunityImageFile,
+  communityImageExtensions,
+  formatCommunityImageExtensions,
   formatMaxFileSize,
   normalizeCommunitySettings,
 } from "@/lib/community-settings"
@@ -197,10 +198,9 @@ export function RichPostEditor({
   const uploadSettings = normalizeCommunitySettings(
     communitySettings ?? defaultCommunitySettings,
   )
-  const imageAccept = uploadSettings.allowed_extensions
-    .filter((extension) => ["jpg", "jpeg", "png", "webp"].includes(extension))
+  const imageAccept = communityImageExtensions
     .map((extension) => `.${extension}`)
-    .join(",") || "image/*"
+    .join(",")
   const placeholderText = placeholder ?? messages.form.contentPlaceholder
   const imageInputRef = useRef<HTMLInputElement | null>(null)
   const coverInputRef = useRef<HTMLInputElement | null>(null)
@@ -307,10 +307,10 @@ export function RichPostEditor({
 
     setInlineError(null)
 
-    if (!acceptsCommunityFile(file, uploadSettings)) {
+    if (!acceptsCommunityImageFile(file)) {
       setInlineError(
         formatMessage(labels.invalidFileType, {
-          extensions: formatAllowedExtensions(uploadSettings),
+          extensions: formatCommunityImageExtensions(),
         }),
       )
       return
@@ -348,10 +348,10 @@ export function RichPostEditor({
 
     setCoverError(null)
 
-    if (!acceptsCommunityFile(file, uploadSettings)) {
+    if (!acceptsCommunityImageFile(file)) {
       setCoverError(
         formatMessage(labels.invalidFileType, {
-          extensions: formatAllowedExtensions(uploadSettings),
+          extensions: formatCommunityImageExtensions(),
         }),
       )
       return

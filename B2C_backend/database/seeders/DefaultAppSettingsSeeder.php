@@ -71,7 +71,6 @@ class DefaultAppSettingsSeeder extends Seeder
             'community.max_file_size_kb' => ['value' => config('community.idea_media.max_file_size_kb', 10240), 'type' => 'integer'],
             'community.allowed_extensions' => ['value' => config('community.idea_media.allowed_extensions', []), 'type' => 'json'],
             'community.max_external_links' => ['value' => config('community.idea_media.max_external_links', 4), 'type' => 'integer'],
-            'community.submission_policy' => ['value' => config('community.moderation.submission_policy', 'all_require_approval'), 'type' => 'string'],
             'community.sensitive_words_enabled' => ['value' => config('community.moderation.sensitive_words.enabled', false), 'type' => 'boolean'],
             'community.sensitive_words' => ['value' => config('community.moderation.sensitive_words.terms', []), 'type' => 'json'],
             'community.default_funding_support_button_text' => ['value' => config('community.funding.default_support_button_text', 'Support this concept'), 'type' => 'string'],

@@ -172,8 +172,9 @@ class IdeaMedia extends Model
     public static function inferMediaTypeFromExtension(?string $extension): IdeaMediaType
     {
         $normalized = strtolower((string) $extension);
+        $imageExtensions = config('community.idea_media.image_extensions', ['jpg', 'jpeg', 'png', 'webp', 'gif']);
 
-        if (in_array($normalized, config('community.idea_media.image_extensions', []), true)) {
+        if (in_array($normalized, $imageExtensions, true)) {
             return IdeaMediaType::Image;
         }
 

@@ -679,7 +679,6 @@ return [
             'max_files' => 'Max files',
             'max_file_size_kb' => 'Max file size KB',
             'max_external_links' => 'Max external links',
-            'submission_policy' => 'Submission policy',
             'sensitive_words_enabled' => 'Sensitive words enabled',
             'allowed_extensions' => 'Allowed extensions',
             'sensitive_words' => 'Sensitive word list',

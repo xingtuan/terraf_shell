@@ -15,6 +15,7 @@ describe("community public settings wiring", () => {
     assert.match(source, /community: CommunityPublicSettings/)
     assert.match(source, /allowed_extensions: string\[\]/)
     assert.match(source, /default_funding_support_button_text: string/)
+    assert.doesNotMatch(source, /submission_policy/)
   })
 
   it("post editor reads upload and link limits from public settings", () => {

@@ -109,7 +109,11 @@ return [
         'remove_and_replace_conflict' => '同一媒体项目不能在同一请求中同时移除和替换。',
         'media_not_owned' => '一个或多个媒体项目不属于此帖子。',
         'invalid_tiptap_document' => ':Attribute 必须是有效的富文本内容。',
+        'invalid_attachment_extension' => '附件类型不被允许，请上传允许的文件格式。',
         'too_many_files' => '每个社区帖子最多可上传 :max 个文件。',
+        'file_too_large' => '附件大小超过限制。',
+        'sensitive_content_pending' => '内容包含需要审核的词语，已提交等待审核。',
+        'sensitive_content_blocked' => '内容包含需要审核的词语，请修改后再提交。',
         'too_many_external_links' => '本次提交最多可包含 :max 个外部链接。',
     ],
     'media' => [

@@ -6,7 +6,6 @@ use App\Enums\CommunitySubmissionPolicy;
 use App\Enums\ContentStatus;
 use App\Models\CommunityModerationSetting;
 use App\Models\User;
-use App\Services\Settings\SettingsService;
 use Illuminate\Support\Facades\DB;
 
 class CommunityModerationPolicyService
@@ -14,7 +13,6 @@ class CommunityModerationPolicyService
     public function __construct(
         private readonly CommunitySettingsService $communitySettings,
         private readonly SensitiveContentService $sensitiveContentService,
-        private readonly SettingsService $settings,
     ) {}
 
     public function getSettings(): CommunityModerationSetting
@@ -32,14 +30,6 @@ class CommunityModerationPolicyService
 
     public function getSubmissionPolicy(): CommunitySubmissionPolicy
     {
-        $runtimePolicy = $this->settings->get('community.submission_policy');
-
-        if (is_string($runtimePolicy) && trim($runtimePolicy) !== '') {
-            return CommunitySubmissionPolicy::from(
-                $this->communitySettings->normalizeSubmissionPolicy($runtimePolicy)
-            );
-        }
-
         $policy = $this->getSettings()->submission_policy;
 
         return $policy instanceof CommunitySubmissionPolicy
@@ -86,7 +76,6 @@ class CommunityModerationPolicyService
             $settings->forceFill([
                 'submission_policy' => $policy,
             ])->save();
-            $this->settings->set('community.submission_policy', $policy->value, ['type' => 'string']);
 
             $this->syncTrustedUsers($trustedUserIds);
 

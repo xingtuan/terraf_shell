@@ -3,6 +3,8 @@ import {
   type CommunityPublicSettings,
 } from "@/lib/api/public-settings"
 
+export const communityImageExtensions = ["jpg", "jpeg", "png", "webp", "gif"]
+
 export function normalizeCommunitySettings(
   settings?: CommunityPublicSettings | null,
 ): CommunityPublicSettings {
@@ -59,8 +61,16 @@ export function acceptsCommunityFile(
   return settings.allowed_extensions.includes(getFileExtension(file))
 }
 
+export function acceptsCommunityImageFile(file: File) {
+  return communityImageExtensions.includes(getFileExtension(file))
+}
+
 export function formatAllowedExtensions(settings: CommunityPublicSettings) {
   return settings.allowed_extensions.map((extension) => `.${extension}`).join(", ")
+}
+
+export function formatCommunityImageExtensions() {
+  return communityImageExtensions.map((extension) => `.${extension}`).join(", ")
 }
 
 export function formatMaxFileSize(settings: CommunityPublicSettings) {

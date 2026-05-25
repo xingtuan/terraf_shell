@@ -679,7 +679,6 @@ return [
             'max_files' => '최대 파일 수',
             'max_file_size_kb' => '최대 파일 크기(KB)',
             'max_external_links' => '최대 외부 링크 수',
-            'submission_policy' => '제출 승인 정책',
             'sensitive_words_enabled' => '민감어 검사 사용',
             'allowed_extensions' => '허용 확장자',
             'sensitive_words' => '민감어 목록',

@@ -2,13 +2,11 @@
 
 namespace App\Filament\Pages;
 
-use App\Enums\CommunitySubmissionPolicy;
 use App\Filament\Pages\Concerns\ManagesRuntimeSettings;
 use App\Filament\Support\AdminNavigationGroup;
 use App\Filament\Support\PanelAccess;
 use App\Services\Settings\SettingsService;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -65,9 +63,6 @@ class CommunitySettings extends Page
                     TextInput::make('max_files')->numeric()->minValue(1)->label(__('admin.community_settings.fields.max_files')),
                     TextInput::make('max_file_size_kb')->numeric()->minValue(1)->label(__('admin.community_settings.fields.max_file_size_kb')),
                     TextInput::make('max_external_links')->numeric()->minValue(0)->label(__('admin.community_settings.fields.max_external_links')),
-                    Select::make('submission_policy')
-                        ->options(CommunitySubmissionPolicy::options())
-                        ->label(__('admin.community_settings.fields.submission_policy')),
                     Toggle::make('sensitive_words_enabled')->label(__('admin.community_settings.fields.sensitive_words_enabled')),
                 ]),
                 TagsInput::make('allowed_extensions')->label(__('admin.community_settings.fields.allowed_extensions')),
@@ -95,7 +90,6 @@ class CommunitySettings extends Page
             'max_file_size_kb' => ['key' => 'community.max_file_size_kb', 'type' => 'integer', 'default' => config('community.idea_media.max_file_size_kb', 10240)],
             'allowed_extensions' => ['key' => 'community.allowed_extensions', 'type' => 'json', 'default' => config('community.idea_media.allowed_extensions', [])],
             'max_external_links' => ['key' => 'community.max_external_links', 'type' => 'integer', 'default' => config('community.idea_media.max_external_links', 4)],
-            'submission_policy' => ['key' => 'community.submission_policy', 'type' => 'string', 'default' => config('community.moderation.submission_policy', 'all_require_approval')],
             'sensitive_words_enabled' => ['key' => 'community.sensitive_words_enabled', 'type' => 'boolean', 'default' => config('community.moderation.sensitive_words.enabled', false)],
             'sensitive_words' => ['key' => 'community.sensitive_words', 'type' => 'json', 'default' => config('community.moderation.sensitive_words.terms', [])],
             'default_funding_support_button_text' => ['key' => 'community.default_funding_support_button_text', 'type' => 'string', 'default' => config('community.funding.default_support_button_text', __('admin.ui.support_this_concept'))],

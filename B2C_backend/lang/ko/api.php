@@ -109,7 +109,11 @@ return [
         'remove_and_replace_conflict' => '같은 요청에서 동일한 미디어를 삭제하면서 대체할 수 없습니다.',
         'media_not_owned' => '하나 이상의 미디어 항목이 이 게시글에 속하지 않습니다.',
         'invalid_tiptap_document' => ':Attribute은(는) 유효한 리치 텍스트 문서여야 합니다.',
+        'invalid_attachment_extension' => '허용되지 않는 첨부 파일 형식입니다. 허용된 파일 형식으로 업로드해 주세요.',
         'too_many_files' => '커뮤니티 게시물 하나에는 파일을 최대 :max개까지 업로드할 수 있습니다.',
+        'file_too_large' => '첨부 파일 크기가 제한을 초과했습니다.',
+        'sensitive_content_pending' => '검토가 필요한 단어가 포함되어 승인 대기 상태로 제출되었습니다.',
+        'sensitive_content_blocked' => '검토가 필요한 단어가 포함되어 있습니다. 수정 후 다시 제출해 주세요.',
         'too_many_external_links' => '이 제출에는 외부 링크를 최대 :max개까지 포함할 수 있습니다.',
     ],
     'media' => [

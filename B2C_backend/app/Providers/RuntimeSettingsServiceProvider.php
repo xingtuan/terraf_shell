@@ -124,7 +124,6 @@ class RuntimeSettingsServiceProvider extends ServiceProvider
             'community.idea_media.max_file_size_kb' => $settings->integer('community.max_file_size_kb', (int) config('community.idea_media.max_file_size_kb', 10240)),
             'community.idea_media.max_external_links' => $settings->integer('community.max_external_links', (int) config('community.idea_media.max_external_links', 4)),
             'community.idea_media.allowed_extensions' => $settings->get('community.allowed_extensions', config('community.idea_media.allowed_extensions', [])),
-            'community.moderation.submission_policy' => $settings->string('community.submission_policy', (string) config('community.moderation.submission_policy', 'all_require_approval')),
             'community.moderation.sensitive_words.enabled' => $settings->boolean('community.sensitive_words_enabled', (bool) config('community.moderation.sensitive_words.enabled', false)),
             'community.moderation.sensitive_words.terms' => $settings->get('community.sensitive_words', config('community.moderation.sensitive_words.terms', [])),
             'community.b2b_leads.notify_admins' => $settings->boolean('feature.b2b_lead_notifications', (bool) config('community.b2b_leads.notify_admins', false)),

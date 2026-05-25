@@ -2,20 +2,27 @@
 
 namespace App\Support;
 
+use App\Rules\AllowedCommunityAttachment;
 use App\Services\CommunitySettingsService;
 
 final class MediaUploadRules
 {
     /**
+     * @var list<string>
+     */
+    private const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+    /**
      * @return list<string>
      */
     public static function imageExtensions(): array
     {
-        $configuredImageExtensions = self::csvConfig('community.idea_media.image_extensions', ['jpg', 'jpeg', 'png', 'webp']);
-        $allowedExtensions = self::communitySettings()->allowedExtensions();
-        $extensions = array_values(array_intersect($configuredImageExtensions, $allowedExtensions));
+        $extensions = array_values(array_intersect(
+            self::csvConfig('community.idea_media.image_extensions', self::IMAGE_EXTENSIONS),
+            self::IMAGE_EXTENSIONS,
+        ));
 
-        return $extensions !== [] ? $extensions : ['__disabled__'];
+        return $extensions !== [] ? $extensions : self::IMAGE_EXTENSIONS;
     }
 
     /**
@@ -31,7 +38,7 @@ final class MediaUploadRules
      */
     public static function imageMimeTypes(): array
     {
-        return self::csvConfig('community.idea_media.image_mime_types', ['image/jpeg', 'image/png', 'image/webp']);
+        return self::csvConfig('community.idea_media.image_mime_types', ['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
     }
 
     /**
@@ -49,6 +56,14 @@ final class MediaUploadRules
             'application/vnd.ms-excel',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function legacyDocumentExtensions(): array
+    {
+        return self::csvConfig('community.idea_media.document_extensions', ['pdf', 'doc', 'docx', 'xls', 'xlsx']);
     }
 
     /**
@@ -75,33 +90,40 @@ final class MediaUploadRules
     }
 
     /**
-     * @return list<string>
+     * @return list<string|AllowedCommunityAttachment>
      */
     public static function attachmentRules(): array
     {
         return [
             'required',
             'file',
-            'mimetypes:'.implode(',', self::attachmentMimeTypes()),
-            'extensions:'.implode(',', self::attachmentExtensions()),
             'max:'.self::maxFileSizeKb(),
+            new AllowedCommunityAttachment(self::communitySettings()),
         ];
     }
 
     /**
-     * @return list<string>
+     * @return list<string|AllowedCommunityAttachment>
      */
     public static function optionalAttachmentRules(): array
     {
-        return ['nullable', ...array_values(array_filter(self::attachmentRules(), static fn (string $rule): bool => $rule !== 'required'))];
+        return ['nullable', ...array_values(array_filter(self::attachmentRules(), static fn (mixed $rule): bool => $rule !== 'required'))];
     }
 
     /**
-     * @return list<string>
+     * @return list<string|AllowedCommunityAttachment>
      */
     public static function genericFileRules(?string $category): array
     {
-        return self::isAttachmentCategory($category) ? self::attachmentRules() : self::imageRules();
+        if (self::isCommunityAttachmentCategory($category)) {
+            return self::attachmentRules();
+        }
+
+        if (self::isLegacyDocumentCategory($category)) {
+            return self::legacyAttachmentRules();
+        }
+
+        return self::imageRules();
     }
 
     public static function maxImageSizeKb(): int
@@ -119,15 +141,38 @@ final class MediaUploadRules
         return self::communitySettings()->maxFileSizeKb();
     }
 
-    private static function isAttachmentCategory(?string $category): bool
+    /**
+     * @return list<string>
+     */
+    private static function legacyAttachmentRules(): array
+    {
+        return [
+            'required',
+            'file',
+            'mimetypes:'.implode(',', self::attachmentMimeTypes()),
+            'extensions:'.implode(',', self::legacyDocumentExtensions()),
+            'max:'.self::maxFileSizeKb(),
+        ];
+    }
+
+    private static function isCommunityAttachmentCategory(?string $category): bool
     {
         $normalized = str((string) $category)->lower()->replace('_', '-')->trim()->value();
 
         return in_array($normalized, [
+            'community',
             'attachment',
             'attachments',
             'community-attachment',
             'community-attachments',
+        ], true);
+    }
+
+    private static function isLegacyDocumentCategory(?string $category): bool
+    {
+        $normalized = str((string) $category)->lower()->replace('_', '-')->trim()->value();
+
+        return in_array($normalized, [
             'document',
             'documents',
             'business-document',

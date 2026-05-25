@@ -109,7 +109,11 @@ return [
         'remove_and_replace_conflict' => 'A media item cannot be removed and replaced in the same request.',
         'media_not_owned' => 'One or more media items do not belong to this post.',
         'invalid_tiptap_document' => ':Attribute must be a valid rich-text document.',
+        'invalid_attachment_extension' => 'This attachment type is not allowed. Please upload an allowed file format.',
         'too_many_files' => 'You can upload up to :max files for one community post.',
+        'file_too_large' => 'The attachment file size exceeds the limit.',
+        'sensitive_content_pending' => 'This content contains terms that require review and has been submitted for approval.',
+        'sensitive_content_blocked' => 'This content contains terms that require review. Please edit it before submitting.',
         'too_many_external_links' => 'This submission can include up to :max external links.',
     ],
     'media' => [

@@ -679,7 +679,6 @@ return [
             'max_files' => '最大文件数',
             'max_file_size_kb' => '最大文件大小 KB',
             'max_external_links' => '最大外部链接数',
-            'submission_policy' => '提交审核策略',
             'sensitive_words_enabled' => '启用敏感词',
             'allowed_extensions' => '允许的扩展名',
             'sensitive_words' => '敏感词列表',

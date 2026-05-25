@@ -50,7 +50,6 @@ class PublicSettingsController extends Controller
                 'max_file_size_kb' => $communitySettings->maxFileSizeKb(),
                 'allowed_extensions' => $communitySettings->allowedExtensions(),
                 'max_external_links' => $communitySettings->maxExternalLinks(),
-                'submission_policy' => $communitySettings->submissionPolicy(),
                 'sensitive_words_enabled' => $communitySettings->sensitiveWordsEnabled(),
                 'default_funding_support_button_text' => $communitySettings->defaultFundingSupportButtonText(),
             ],

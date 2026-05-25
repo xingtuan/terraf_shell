@@ -11,7 +11,37 @@ class CommunitySettingsService
     /**
      * @var list<string>
      */
-    private const DEFAULT_ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx'];
+    private const DEFAULT_ALLOWED_EXTENSIONS = [
+        'jpg',
+        'jpeg',
+        'png',
+        'webp',
+        'gif',
+        'pdf',
+        'doc',
+        'docx',
+        'ppt',
+        'pptx',
+        'xls',
+        'xlsx',
+        'txt',
+        'md',
+        'csv',
+        'zip',
+        'rar',
+        '7z',
+        'stl',
+        'obj',
+        'glb',
+        'gltf',
+        'dwg',
+        'dxf',
+        'step',
+        'stp',
+        'iges',
+        'igs',
+        'srt',
+    ];
 
     public function __construct(
         private readonly SettingsService $settings,
@@ -54,8 +84,7 @@ class CommunitySettingsService
         );
 
         $extensions = $this->normalizeList($value)
-            ->map(static fn (string $extension): string => strtolower(ltrim($extension, '.')))
-            ->map(static fn (string $extension): string => preg_replace('/[^a-z0-9]/', '', $extension) ?: '')
+            ->map(static fn (string $extension): string => strtolower(trim(ltrim($extension, '.'))))
             ->filter()
             ->unique()
             ->values()
@@ -71,16 +100,6 @@ class CommunitySettingsService
             0,
             4,
         );
-    }
-
-    public function submissionPolicy(): string
-    {
-        $value = $this->settings->string(
-            'community.submission_policy',
-            (string) config('community.moderation.submission_policy', CommunitySubmissionPolicy::AllRequireApproval->value),
-        );
-
-        return $this->normalizeSubmissionPolicy($value);
     }
 
     public function sensitiveWordsEnabled(): bool
@@ -152,6 +171,24 @@ class CommunitySettingsService
 
         return collect($value)
             ->flatten()
+            ->flatMap(static function (mixed $item): array {
+                $text = trim((string) $item);
+
+                if ($text === '') {
+                    return [];
+                }
+
+                $decoded = json_decode($text, true);
+
+                if (is_array($decoded)) {
+                    return collect($decoded)
+                        ->flatten()
+                        ->map(static fn (mixed $decodedItem): string => trim((string) $decodedItem))
+                        ->all();
+                }
+
+                return preg_split('/[\r\n,]+/', $text) ?: [];
+            })
             ->map(static fn (mixed $item): string => trim((string) $item));
     }
 

@@ -123,11 +123,7 @@ class PostService
     {
         return DB::transaction(function () use ($user, $data): Post {
             $data = $this->preparePostData($data);
-            $status = $this->communityModerationPolicyService->statusFor($user, [
-                'title' => $data['title'] ?? '',
-                'content' => $data['content'] ?? '',
-                'excerpt' => $data['excerpt'] ?? '',
-            ]);
+            $status = $this->communityModerationPolicyService->statusFor($user, $this->moderationFields($data));
             $isAdmin = $user->isAdmin();
 
             $post = Post::query()->create([
@@ -157,7 +153,9 @@ class PostService
                 [
                     'title' => $post->title,
                     'content' => $post->content,
+                    'content_json' => $post->content_json,
                     'excerpt' => $post->excerpt,
+                    'funding_url' => $post->funding_url,
                 ],
                 'post',
                 $post
@@ -171,6 +169,7 @@ class PostService
     {
         return DB::transaction(function () use ($user, $post, $data): Post {
             $data = $this->preparePostData($data, $post);
+            $moderationFields = $this->moderationFields($data, $post);
             $wasFeatured = (bool) $post->is_featured;
             $previousCoverImagePath = $post->cover_image_path;
             $previousCoverImageDisk = $post->coverImageDisk();
@@ -205,16 +204,12 @@ class PostService
                     $post->featured_at = $post->is_featured ? now() : null;
                     $post->featured_by = $post->is_featured ? $user->id : null;
                 }
-            } else {
-                $post->status = $this->communityModerationPolicyService->statusFor($user, [
-                    'title' => $data['title'] ?? $post->title,
-                    'content' => $data['content'] ?? $post->content,
-                    'excerpt' => array_key_exists('excerpt', $data) ? $data['excerpt'] : $post->excerpt,
-                ]);
-                $post->published_at = $post->status === ContentStatus::Approved->value
-                    ? ($post->published_at ?? now())
-                    : null;
             }
+
+            $post->status = $this->communityModerationPolicyService->statusFor($user, $moderationFields);
+            $post->published_at = $post->status === ContentStatus::Approved->value
+                ? ($post->published_at ?? now())
+                : null;
 
             $post->save();
 
@@ -229,7 +224,9 @@ class PostService
                 [
                     'title' => $post->title,
                     'content' => $post->content,
+                    'content_json' => $post->content_json,
                     'excerpt' => $post->excerpt,
+                    'funding_url' => $post->funding_url,
                 ],
                 'post',
                 $post
@@ -918,6 +915,20 @@ class PostService
         }
 
         return $data;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function moderationFields(array $data, ?Post $post = null): array
+    {
+        return [
+            'title' => $data['title'] ?? $post?->title ?? '',
+            'content' => $data['content'] ?? $post?->content ?? '',
+            'content_json' => array_key_exists('content_json', $data) ? $data['content_json'] : $post?->content_json,
+            'excerpt' => array_key_exists('excerpt', $data) ? $data['excerpt'] : $post?->excerpt ?? '',
+            'funding_url' => array_key_exists('funding_url', $data) ? $data['funding_url'] : $post?->funding_url ?? '',
+        ];
     }
 
     private function normalizeCoverImageDisk(mixed $disk, string $path, ?Post $post = null): string

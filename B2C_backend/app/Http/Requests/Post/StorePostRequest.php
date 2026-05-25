@@ -4,6 +4,7 @@ namespace App\Http\Requests\Post;
 
 use App\Enums\IdeaMediaKind;
 use App\Enums\IdeaMediaType;
+use App\Models\IdeaMedia;
 use App\Models\Post;
 use App\Rules\ExternalSafeUrl;
 use App\Rules\ValidTiptapDocument;
@@ -104,6 +105,19 @@ class StorePostRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'attachments.max' => __('api.community.too_many_files', ['max' => app(CommunitySettingsService::class)->maxFiles()]),
+            'attachments.*.max' => __('api.community.file_too_large'),
+            'images.max' => __('api.community.too_many_files', ['max' => app(CommunitySettingsService::class)->maxFiles()]),
+            'images.*.max' => __('api.community.file_too_large'),
+        ];
+    }
+
     private function validateTotalUploads(Validator $validator): void
     {
         $maxFiles = app(CommunitySettingsService::class)->maxFiles();
@@ -144,11 +158,7 @@ class StorePostRequest extends FormRequest
     {
         $extension = strtolower((string) ($file->getClientOriginalExtension() ?: $file->extension()));
 
-        if (in_array($extension, config('community.idea_media.image_extensions', []), true)) {
-            return IdeaMediaType::Image;
-        }
-
-        return IdeaMediaType::Document;
+        return IdeaMedia::inferMediaTypeFromExtension($extension);
     }
 
     private function validateAttachmentKinds(Validator $validator, string $filesKey, string $kindsKey): void

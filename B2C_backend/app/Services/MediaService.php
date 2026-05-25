@@ -234,6 +234,13 @@ class MediaService
             'application/vnd.ms-powerpoint',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'text/plain',
+            'text/markdown',
+            'text/csv',
+            'application/zip',
+            'application/x-rar-compressed',
+            'application/x-7z-compressed',
         ], true)) {
             return true;
         }
@@ -242,8 +249,27 @@ class MediaService
             'pdf',
             'doc',
             'docx',
+            'ppt',
+            'pptx',
             'xls',
             'xlsx',
+            'txt',
+            'md',
+            'csv',
+            'srt',
+            'zip',
+            'rar',
+            '7z',
+            'stl',
+            'obj',
+            'glb',
+            'gltf',
+            'dwg',
+            'dxf',
+            'step',
+            'stp',
+            'iges',
+            'igs',
         ], true);
     }
 

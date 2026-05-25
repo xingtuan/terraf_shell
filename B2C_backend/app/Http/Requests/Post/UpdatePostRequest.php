@@ -112,6 +112,20 @@ class UpdatePostRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'attachments.max' => __('api.community.too_many_files', ['max' => app(CommunitySettingsService::class)->maxFiles()]),
+            'attachments.*.max' => __('api.community.file_too_large'),
+            'images.max' => __('api.community.too_many_files', ['max' => app(CommunitySettingsService::class)->maxFiles()]),
+            'images.*.max' => __('api.community.file_too_large'),
+            'replace_media.*.file.max' => __('api.community.file_too_large'),
+        ];
+    }
+
     private function validateTotalUploads(Validator $validator): void
     {
         $post = $this->route('post');
@@ -211,11 +225,7 @@ class UpdatePostRequest extends FormRequest
     {
         $extension = strtolower((string) ($file->getClientOriginalExtension() ?: $file->extension()));
 
-        if (in_array($extension, config('community.idea_media.image_extensions', []), true)) {
-            return IdeaMediaType::Image;
-        }
-
-        return IdeaMediaType::Document;
+        return IdeaMedia::inferMediaTypeFromExtension($extension);
     }
 
     private function validateAttachmentKinds(Validator $validator, string $filesKey, string $kindsKey): void
