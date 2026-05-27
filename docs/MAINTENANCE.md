@@ -1,22 +1,20 @@
-# 维护说明
+# Maintenance
 
-本文面向交付后的日常维护人员，覆盖更新代码、备份、日志、缓存、重新构建、重新运行安装脚本和客户维护建议。
+This document covers post-handover maintenance: updates, backups, logs, cache clearing, rebuilds, storage, mail, and safe reruns of the installer.
 
-## 日常检查
+## Routine Checks
 
-建议定期检查：
+Regularly verify:
 
-- 前端首页、商城、购物车、Checkout、社区和后台是否可访问。
-- `terraf-frontend` systemd 服务状态。
-- `terraf-queue` Supervisor 状态。
-- Cron scheduler 是否存在。
-- Laravel 日志是否有持续异常。
-- Nginx 和 PHP-FPM 日志。
-- 数据库备份是否成功。
-- 本地 storage 或 Azure 容器是否可访问。
-- 默认管理员是否已改密码或停用。
-
-命令：
+- Frontend, store, cart, checkout, community, and admin availability.
+- `terraf-frontend` systemd service.
+- `terraf-queue` Supervisor worker.
+- Cron scheduler.
+- Laravel logs.
+- Nginx and PHP-FPM logs.
+- Database backups.
+- Local storage or Azure container access.
+- Admin account security.
 
 ```bash
 sudo systemctl status terraf-frontend
@@ -26,110 +24,76 @@ sudo systemctl status php8.3-fpm
 sudo systemctl status mysql
 ```
 
-## 更新代码
+## Updating Code
 
-推荐使用自动部署脚本：
+Recommended:
 
 ```bash
 sudo env RUN_SEED=0 bash auto_deploy.sh your-domain-or-ip
 ```
 
-脚本会：
+The script pulls code, installs dependencies, runs migrations, rebuilds caches, installs frontend dependencies, builds frontend, and restarts services.
 
-- 拉取代码。
-- 安装后端依赖。
-- 运行迁移。
-- 清理和重建缓存。
-- 安装前端依赖。
-- 重新 build 前端。
-- 重启 Nginx、PHP-FPM、队列和前端服务。
-
-如果有本地修改，脚本会停止。确认可以丢弃后再执行：
+If local changes block deployment:
 
 ```bash
 sudo env RUN_SEED=0 RESET_WORKTREE=1 bash auto_deploy.sh your-domain-or-ip
 ```
 
-`RESET_WORKTREE=1` 会丢弃未提交修改和未跟踪文件，必须谨慎使用。
+Only use `RESET_WORKTREE=1` when local changes can be discarded.
 
-## 数据库备份
-
-MySQL 备份示例：
+## Database Backup
 
 ```bash
 mkdir -p ~/terraf-backups
 mysqldump -u oxp_user -p oxp_local > ~/terraf-backups/oxp_local-$(date +%F-%H%M%S).sql
 ```
 
-建议：
+Recommendations:
 
-- 部署前备份。
-- 每日自动备份。
-- 定期做恢复演练。
-- 备份文件加密并保存到服务器外部位置。
+- Back up before deployments.
+- Schedule daily backups.
+- Store encrypted copies outside the server.
+- Test restore procedures.
 
-恢复示例：
+Restore example:
 
 ```bash
 mysql -u oxp_user -p oxp_local < backup.sql
 ```
 
-恢复生产数据库前必须确认目标数据库和备份时间。
+## File Backup
 
-## 文件备份
-
-本地 storage：
+Local storage:
 
 ```bash
 tar -czf ~/terraf-backups/storage-public-$(date +%F-%H%M%S).tar.gz -C B2C_backend/storage/app public
 ```
 
-还应备份：
+Also back up:
 
 - `B2C_backend/.env`
 - `B2C_frontend/.env.local`
-- Nginx 站点配置。
-- Supervisor 配置。
-- systemd 服务文件。
+- Nginx site configs
+- Supervisor config
+- systemd service file
 
-Azure storage 需要使用 Azure 工具或平台备份策略备份容器。
+Use Azure tooling or platform backup policies for Azure containers.
 
-## 日志检查
-
-Laravel：
+## Logs
 
 ```bash
 tail -f B2C_backend/storage/logs/laravel.log
-```
-
-队列：
-
-```bash
 tail -f B2C_backend/storage/logs/queue-worker.log
-```
-
-前端：
-
-```bash
 sudo journalctl -u terraf-frontend -f
-```
-
-Nginx：
-
-```bash
 sudo tail -f /var/log/nginx/access.log
 sudo tail -f /var/log/nginx/error.log
-```
-
-PHP-FPM：
-
-```bash
 sudo journalctl -u php8.3-fpm -f
 ```
 
-## 清缓存
+## Cache
 
-后端：
+Backend:
 
 ```bash
 cd B2C_backend
@@ -139,20 +103,13 @@ php artisan route:cache
 php artisan view:cache
 ```
 
-后台运行时设置异常时，优先：
-
-```bash
-cd B2C_backend
-php artisan optimize:clear
-```
-
-队列相关配置变更后：
+Restart queue workers after queue or `.env` changes:
 
 ```bash
 sudo supervisorctl restart terraf-queue:*
 ```
 
-## 重新构建前端
+## Frontend Rebuild
 
 ```bash
 cd B2C_frontend
@@ -161,90 +118,84 @@ pnpm build
 sudo systemctl restart terraf-frontend
 ```
 
-修改 `.env.local`、前端文案、页面代码或 API base URL 后都需要重新 build。
+Rebuild after frontend code, message files, or frontend environment variables change.
 
-## 重新运行安装脚本
+## Re-running The Installer
 
-安全方式：
+Safe production rerun:
 
 ```bash
 sudo env RUN_SEED=0 bash auto_deploy.sh your-domain-or-ip
 ```
 
-只在首次交付或确认 Seeder 可重复执行时使用：
+First install or controlled reseed:
 
 ```bash
 sudo env RUN_SEED=1 bash auto_deploy.sh your-domain-or-ip
 ```
 
-强制重置工作区：
+Force reset:
 
 ```bash
 sudo env RUN_SEED=0 RESET_WORKTREE=1 bash auto_deploy.sh your-domain-or-ip
 ```
 
-重置前检查：
+Before reset, confirm database backup, file backup, environment backups, Git worktree state, and seed strategy.
 
-- 数据库已备份。
-- 上传文件已备份。
-- `.env` 和 `.env.local` 已备份。
-- Git 工作区没有需要保留的人工修改。
-- `RUN_SEED` 设置符合本次目的。
+## Storage Maintenance
 
-## Storage 维护
+Local storage:
 
-本地 storage：
+- Back up `storage/app/public`.
+- Check `public/storage`.
+- Check permissions.
 
-- 定期备份 `storage/app/public`。
-- 检查 `public/storage` 链接。
-- 确认目录权限。
+Azure storage:
 
-Azure storage：
+- Rotate keys.
+- Check container access policy.
+- Check SAS TTL.
+- Use Storage Settings connection and upload tests.
 
-- 定期轮换密钥。
-- 检查容器访问策略。
-- 检查 SAS URL TTL。
-- 使用后台 Storage Settings 做连接和上传测试。
+Read [STORAGE.md](STORAGE.md) before switching drivers.
 
-切换 storage driver 前先阅读 [STORAGE.md](STORAGE.md)。
+## Mail Maintenance
 
-## 邮件维护
-
-生产环境应在后台 Email Settings 配置 SMTP，并测试：
+Configure production SMTP in Email Settings and test:
 
 ```bash
 cd B2C_backend
 php artisan email:center:test admin@example.com
 ```
 
-如果邮件延迟，检查队列 worker。
+If mail is delayed, check queue workers.
 
-## 客户维护建议
+## Handover Recommendations
 
-交付后客户维护人员应掌握：
+The client maintenance team should know how to:
 
-- 如何登录后台和修改管理员密码。
-- 如何编辑首页、材料、文章和页面 Section。
-- 如何维护商品、SKU、库存和订单。
-- 如何调整 GST、Shipping 和 NZ Post。
-- 如何处理社区举报和用户限制。
-- 如何测试 storage 和邮件。
-- 如何查看日志并联系开发人员。
+- Login and change admin passwords.
+- Edit homepage, materials, articles, and page sections.
+- Manage products, SKU, stock, and orders.
+- Adjust GST, shipping, and NZ Post.
+- Handle reports and user restrictions.
+- Test storage and mail.
+- Read logs and escalate incidents.
 
-建议保留一份客户专用的账号清单、服务器清单、备份策略和紧急联系人清单，不要把真实密码写入 Git 仓库。
+Do not store real passwords in Git.
 
-## 发布前检查清单
+## Release Checklist
 
-- `APP_DEBUG=false`。
-- HTTPS 已配置。
-- 默认管理员密码已修改。
-- 数据库和 storage 已备份。
-- 前端 `pnpm build` 成功。
-- 后端迁移成功。
-- 队列 worker 正常。
-- Scheduler 正常。
-- 邮件测试通过。
-- Storage 上传测试通过。
-- 购物车、Guest Checkout、订单查询通过。
-- GST 和 Shipping 结果符合业务。
-- 三语关键页面无明显缺失。
+- `APP_DEBUG=false`
+- HTTPS configured
+- Default admin password changed
+- Database and storage backed up
+- Frontend build successful
+- Backend migrations successful
+- Queue worker running
+- Scheduler running
+- Mail test successful
+- Storage upload test successful
+- Cart, Guest Checkout, and order lookup tested
+- GST and shipping verified
+- Key pages checked in all supported languages

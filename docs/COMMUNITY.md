@@ -1,144 +1,92 @@
-# 社区说明
+# Community
 
-社区模块支持帖子、富文本、附件、封面图、Funding Link、评论、收藏、举报、审核、用户限制和通知。
+The community module supports posts, rich text, attachments, cover images, funding links, comments, favorites, reports, moderation, user restrictions, and notifications.
 
-## 功能范围
+## Features
 
-当前代码包含：
+Current functionality includes:
 
-- 社区帖子列表、详情、搜索和排序。
-- 富文本内容 JSON。
-- Cover image。
-- 附件 / idea media。
-- 外部 3D 链接。
-- Funding Link 和 Funding Campaign 展示。
-- 评论和回复。
-- 点赞、收藏、关注。
-- 举报。
-- 审核队列。
-- 用户违规和限制。
-- 用户通知。
+- Post listing, detail, search, and sorting.
+- Tiptap rich text JSON.
+- Cover images.
+- Attachments / idea media.
+- External 3D links.
+- Funding links and funding campaign display.
+- Comments and replies.
+- Likes, favorites, and follows.
+- Reports.
+- Moderation queue.
+- User violations and restrictions.
+- User notifications.
 
-社区入口是否展示由后台 Feature Flags 控制。
+Visibility is controlled by Feature Flags.
 
-## 帖子
+## Posts
 
-帖子支持：
+Posts can contain title, content, summary, cover image, category, tags, attachments, external links, and funding URL. Creation and updates are handled by `PostService`, which applies authorization, moderation, sensitive-word checks, and media synchronization.
 
-- 三语或单语标题和内容。
-- Tiptap 富文本 JSON。
-- 摘要。
-- Cover image。
-- 分类和标签。
-- 附件。
-- 外部链接。
-- Funding URL。
+## Rich Text And Attachments
 
-帖子创建和更新由后端 `PostService` 处理，会执行权限、审核策略、敏感词和媒体同步逻辑。
+Frontend editing uses Tiptap. Upload limits come from `config/community.php` and admin Community Settings:
 
-## 富文本和附件
+- Max file count.
+- Max file size.
+- Allowed extensions.
+- Allowed MIME types.
+- Image and document restrictions.
 
-前端使用 Tiptap 编辑富文本。附件上传限制来自 `config/community.php` 和后台 Community Settings，包含：
+Uploads use the active storage driver.
 
-- 最大文件数量。
-- 最大文件大小。
-- 允许扩展名。
-- 允许 MIME。
-- 图片和文档类型限制。
+## Cover Images
 
-上传使用当前 storage driver。切换 local / Azure 后，必须测试 cover image 和附件访问。
+Cover image URLs are resolved by the backend:
 
-## Cover Image
+- Local public storage: usually `/storage/...`.
+- Azure: public Azure URL or temporary SAS URL.
 
-帖子可配置封面图。封面图 URL 由后端根据 storage driver 解析：
+## Funding Links
 
-- local public：通常为 `/storage/...`。
-- Azure：根据 Azure URL 或临时 SAS URL 返回。
+Posts can include funding URLs. Funding Links are controlled by Feature Flags. Funding Campaign records can display support text, progress-style information, target amounts, and external crowdfunding links.
 
-如果列表页封面不显示，优先检查 Storage Settings 和 `public/storage` 链接。
+Funding links are external content / support flows, not an internal payment gateway.
 
-## Funding Link
+## Comments
 
-帖子可包含 funding URL。后台 Feature Flags 中的 Funding Links 控制前端入口。系统也包含 Funding Campaign 管理，用于展示支持进度、目标金额和外部众筹链接。
+Users can create comments and replies. Comments may be affected by moderation rules, sensitive words, and account restrictions.
 
-Funding Link 是内容和运营能力，不是支付网关。真实收款仍依赖外部链接或线下流程。
+## Likes, Favorites, Follows
 
-## 评论
+Signed-in users can like posts, save posts, follow authors, and view saved content from the account area.
 
-用户可对帖子发表评论或回复。评论支持：
+## Reports
 
-- 创建。
-- 查看。
-- 删除或审核处理。
-- 举报。
+Reports enter admin Reports / Moderation Queue. Admin handling should record the content, reason, action, user restriction decision, and notification decision.
 
-评论可能受用户状态、审核策略和敏感词限制影响。
+## Moderation
 
-## 收藏、点赞和关注
+Moderation settings support sensitive words, automatic flags, moderation queue, admin action logs, and user violation records.
 
-登录用户可以：
+If content does not appear, it may be pending review, hidden, deleted, or affected by user restrictions.
 
-- 点赞帖子。
-- 收藏帖子。
-- 关注作者。
-- 在账户中心查看保存内容和社区记录。
+## User Restrictions
 
-相关接口需要登录认证。
-
-## 举报
-
-用户可以举报帖子、评论或其他社区内容。举报进入后台 Reports / Moderation Queue。
-
-管理员处理举报时应记录：
-
-- 被举报内容。
-- 举报原因。
-- 处理动作。
-- 是否限制用户。
-- 是否通知相关用户。
-
-## 审核
-
-审核策略由 Community Moderation Settings 控制。系统支持：
-
-- 敏感词。
-- 自动标记。
-- 审核队列。
-- 管理员处理记录。
-- 用户违规记录。
-
-如内容没有展示，可能处于待审核、被隐藏、被删除或作者账号受限。
-
-## 用户限制
-
-后台 Users Governance 相关模块支持：
-
-- 账户状态。
-- 用户违规记录。
-- 用户限制。
-- 管理员操作日志。
-
-账户状态异常可先 dry run：
+Admin governance modules support account status, violations, restrictions, and action logs.
 
 ```bash
 cd B2C_backend
 php artisan users:repair-account-status --dry-run
 ```
 
-## 通知
+## Notifications
 
-社区互动、审核处理和关注相关事件会生成通知。通知依赖数据库和队列。
-
-检查：
+Community notifications depend on database records and queue workers.
 
 ```bash
 sudo supervisorctl status terraf-queue:*
 tail -f B2C_backend/storage/logs/queue-worker.log
 ```
 
-## 后台管理入口
-
-后台社区相关模块：
+## Admin Modules
 
 - Posts
 - Comments
@@ -154,24 +102,10 @@ tail -f B2C_backend/storage/logs/queue-worker.log
 - Community Settings
 - Community Moderation Settings
 
-## 常见问题
+## Common Issues
 
-### 用户不能发帖
-
-检查 Community Feature Flag、登录状态、账户限制、审核策略和上传限制。
-
-### 附件上传失败
-
-检查文件大小、扩展名、MIME、PHP 上传限制、Nginx body size、storage driver 和写入权限。
-
-### 帖子发出后不显示
-
-可能被审核策略拦截、命中敏感词、作者账号受限或内容被管理员隐藏。
-
-### Funding Link 不显示
-
-检查 Feature Flags 中 Funding Links 是否启用，并确认帖子或 Campaign 已填写外部链接。
-
-### 举报后没有通知
-
-检查队列 worker 是否运行，查看 `queue-worker.log` 和 `laravel.log`。
+- User cannot post: check feature flag, login state, account restrictions, moderation, and upload limits.
+- Attachment upload fails: check size, extension, MIME, PHP limits, Nginx body size, storage driver, and permissions.
+- Post does not appear: check moderation status and user restrictions.
+- Funding link does not show: check Funding Links feature flag and post/campaign URL.
+- Reports do not create notifications: check queue worker logs.

@@ -1,38 +1,26 @@
-# 部署说明
+# Deployment
 
-本文说明当前项目的生产部署方式。默认推荐使用根目录 `auto_deploy.sh`，手动部署时应以脚本实际写入的服务配置为模板。
+This document describes production deployment for the current codebase. The recommended path is the root `auto_deploy.sh` script.
 
-## 推荐部署模型
+## Deployment Model
 
-单机部署结构：
-
-| 入口 | 目标服务 |
+| Entry | Target |
 | --- | --- |
-| `http://SERVER/` | Nginx 代理到 Next.js `127.0.0.1:3000` |
-| `http://SERVER/api/` | Nginx 代理到 Laravel `127.0.0.1:8000/api/` |
-| `http://SERVER/storage/` | Nginx 代理到 Laravel storage 路由 |
-| `http://SERVER:8000/admin` | Laravel / Filament 管理后台 |
-| `http://SERVER:8000/up` | Laravel 健康检查 |
+| `http://SERVER/` | Nginx to Next.js `127.0.0.1:3000` |
+| `http://SERVER/api/` | Nginx to Laravel `127.0.0.1:8000/api/` |
+| `http://SERVER/storage/` | Nginx to Laravel storage routes |
+| `http://SERVER:8000/admin` | Laravel / Filament admin |
+| `http://SERVER:8000/up` | Laravel health check |
 
-自动部署脚本会安装和配置：
+The automated script installs and configures Nginx, PHP 8.3 FPM, MySQL, Composer, Node.js 20, pnpm, Supervisor, Cron, and `terraf-frontend.service`.
 
-- Nginx
-- PHP 8.3 FPM
-- MySQL
-- Composer
-- Node.js 20
-- pnpm
-- Supervisor queue worker
-- Cron scheduler
-- systemd 前端服务 `terraf-frontend`
-
-## 自动部署命令
+## Automated Deployment
 
 ```bash
 sudo bash auto_deploy.sh example.com
 ```
 
-常用生产参数：
+Production update example:
 
 ```bash
 sudo env \
@@ -46,23 +34,18 @@ sudo env \
   bash auto_deploy.sh example.com
 ```
 
-首次交付通常使用 `RUN_SEED=1` 初始化数据；正式上线后的增量更新建议使用 `RUN_SEED=0`，避免重复执行 Seeder 造成运营数据混淆。
+Use `RUN_SEED=1` for first delivery when starter data is required. Use `RUN_SEED=0` for routine production updates.
 
 ## Nginx
 
-脚本写入两个站点：
+The script writes:
 
-- `/etc/nginx/sites-available/front`：监听 80，处理前端、`/api/` 和 `/storage/`。
-- `/etc/nginx/sites-available/laravel`：监听 8000，直接提供 Laravel public 目录和管理后台。
+- `/etc/nginx/sites-available/front`: port 80, frontend plus `/api/` and `/storage/`.
+- `/etc/nginx/sites-available/laravel`: port 8000, Laravel public root and admin panel.
 
-脚本会禁用旧的默认站点和历史站点名：
+It disables historical/default sites named `default`, `terraf`, `terraf-backend-8000`, and `terraf-frontend-80`.
 
-- `default`
-- `terraf`
-- `terraf-backend-8000`
-- `terraf-frontend-80`
-
-检查命令：
+Checks:
 
 ```bash
 sudo nginx -t
@@ -74,9 +57,7 @@ curl -I http://example.com:8000/up
 
 ## PHP-FPM
 
-脚本使用 `php8.3-fpm`，并将 8000 站点的 PHP 请求转发到 PHP-FPM socket。
-
-检查命令：
+The deployment uses `php8.3-fpm`.
 
 ```bash
 php -v
@@ -84,16 +65,13 @@ sudo systemctl status php8.3-fpm
 sudo journalctl -u php8.3-fpm -n 100 --no-pager
 ```
 
-## 前端服务
+## Frontend Service
 
-脚本写入 systemd 服务：
+The script writes `/etc/systemd/system/terraf-frontend.service`.
 
-- 文件：`/etc/systemd/system/terraf-frontend.service`
-- 工作目录：`$APP_DIR/B2C_frontend`
-- 用户：`www-data`
-- 启动命令：`pnpm start --hostname 127.0.0.1 --port 3000`
-
-检查和重启：
+- Working directory: `$APP_DIR/B2C_frontend`
+- User: `www-data`
+- Command: `pnpm start --hostname 127.0.0.1 --port 3000`
 
 ```bash
 sudo systemctl status terraf-frontend
@@ -101,17 +79,16 @@ sudo journalctl -u terraf-frontend -f
 sudo systemctl restart terraf-frontend
 ```
 
-前端生产构建：
+Manual rebuild:
 
 ```bash
 cd /var/www/terraf_shell/B2C_frontend
 pnpm install --frozen-lockfile=false
 pnpm build
+sudo systemctl restart terraf-frontend
 ```
 
-## Laravel 后端
-
-部署命令：
+## Laravel Backend
 
 ```bash
 cd /var/www/terraf_shell/B2C_backend
@@ -123,25 +100,23 @@ php artisan route:cache
 php artisan view:cache
 ```
 
-如果需要初始化内容：
+Starter data:
 
 ```bash
 php artisan db:seed --force
 ```
 
-生产环境不要在服务器上运行 `composer update`。依赖变更应在开发环境更新锁文件后再部署。
+Do not run `composer update` on production servers.
 
-## 队列
+## Queue
 
-脚本写入 Supervisor 配置：
+Supervisor config:
 
-- 文件：`/etc/supervisor/conf.d/terraf-queue.conf`
-- 程序：`terraf-queue`
-- 命令：`php artisan queue:work database --queue=default --sleep=3 --tries=3 --timeout=90`
-- 用户：`www-data`
-- 日志：`B2C_backend/storage/logs/queue-worker.log`
-
-检查命令：
+- File: `/etc/supervisor/conf.d/terraf-queue.conf`
+- Program: `terraf-queue`
+- Command: `php artisan queue:work database --queue=default --sleep=3 --tries=3 --timeout=90`
+- User: `www-data`
+- Log: `B2C_backend/storage/logs/queue-worker.log`
 
 ```bash
 sudo supervisorctl reread
@@ -152,45 +127,41 @@ tail -f /var/www/terraf_shell/B2C_backend/storage/logs/queue-worker.log
 
 ## Scheduler
 
-脚本写入：
-
-```text
-/etc/cron.d/terraf-scheduler
-```
-
-内容为每分钟以 `www-data` 运行：
+The script writes `/etc/cron.d/terraf-scheduler` to run every minute:
 
 ```bash
 cd /var/www/terraf_shell/B2C_backend && php artisan schedule:run
 ```
 
-检查：
+Checks:
 
 ```bash
 cat /etc/cron.d/terraf-scheduler
 sudo systemctl status cron
 ```
 
-## 环境变量
+## Environment Defaults
 
-后端 `.env` 由脚本从 `.env.example` 复制并设置关键值。脚本默认：
+Backend defaults written by the script:
 
-- `APP_ENV=production`
-- `APP_DEBUG=false`
-- `APP_URL=http://SERVER:8000`
-- `FRONTEND_URL=http://SERVER`
-- `CACHE_STORE=database`
-- `QUEUE_CONNECTION=database`
-- `SESSION_DRIVER=database`
-- `STORAGE_DISK=public`
-- `FILESYSTEM_DISK=public`
-- `MEDIA_DRIVER=public`
-- `COMMUNITY_UPLOAD_DISK=public`
-- `LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK=public`
-- `MAIL_MAILER=log`
-- `NZPOST_ENABLED=false`
+```dotenv
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=http://SERVER:8000
+FRONTEND_URL=http://SERVER
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+SESSION_DRIVER=database
+STORAGE_DISK=public
+FILESYSTEM_DISK=public
+MEDIA_DRIVER=public
+COMMUNITY_UPLOAD_DISK=public
+LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK=public
+MAIL_MAILER=log
+NZPOST_ENABLED=false
+```
 
-前端 `.env.local` 默认：
+Frontend defaults:
 
 ```dotenv
 NEXT_PUBLIC_API_BASE_URL=/api
@@ -200,19 +171,20 @@ NEXT_PUBLIC_BRAND_CONTACT_EMAIL=
 NEXT_PUBLIC_SITE_URL=http://SERVER
 ```
 
-配置优先级和后台设置见 [CONFIGURATION.md](CONFIGURATION.md)。
+See [CONFIGURATION.md](CONFIGURATION.md) for configuration precedence.
 
-## SSL / 域名
+## SSL And Domains
 
-`auto_deploy.sh` 不自动申请或配置 SSL。上线建议：
+`auto_deploy.sh` does not install SSL certificates. After configuring HTTPS, update:
 
-1. DNS 指向服务器。
-2. 确认 80 端口可访问。
-3. 使用 Certbot 或外部负载均衡配置 HTTPS。
-4. 将 `APP_URL`、`FRONTEND_URL`、`NEXT_PUBLIC_SITE_URL`、CORS 和 Sanctum 域名改为 HTTPS 域名。
-5. 重新执行 Laravel 缓存命令和前端 build。
+- `APP_URL`
+- `FRONTEND_URL`
+- `NEXT_PUBLIC_SITE_URL`
+- CORS allowed origins
+- Sanctum stateful domains
+- secure cookie settings when applicable
 
-示例：
+Then clear backend cache and rebuild frontend:
 
 ```bash
 cd /var/www/terraf_shell/B2C_backend
@@ -224,36 +196,37 @@ pnpm build
 sudo systemctl restart terraf-frontend
 ```
 
-## 更新部署流程
+## Update Flow
 
-普通更新：
+Normal update:
 
 ```bash
 sudo env RUN_SEED=0 bash auto_deploy.sh example.com
 ```
 
-如果脚本提示存在本地修改：
+If local Git changes exist:
 
-1. 查看修改：`git -C /var/www/terraf_shell status --short`
-2. 确认是否为需要保留的人工改动。
-3. 需要保留时先备份或提交。
-4. 可以丢弃时再执行：
+```bash
+git -C /var/www/terraf_shell status --short
+```
+
+Only discard them when safe:
 
 ```bash
 sudo env RUN_SEED=0 RESET_WORKTREE=1 bash auto_deploy.sh example.com
 ```
 
-## 回滚建议
+## Rollback Notes
 
-项目没有内置自动回滚脚本。建议每次部署前记录：
+There is no automatic rollback script. Before each production deployment record:
 
 - Git commit
-- 数据库备份文件
-- `.env` 备份
-- 上传文件或 Azure 容器状态
-- 前端 build 成功时间
+- database backup
+- `.env` backup
+- uploaded-file or Azure container state
+- frontend build timestamp
 
-代码回滚示例：
+Code rollback example:
 
 ```bash
 cd /var/www/terraf_shell
@@ -271,4 +244,4 @@ sudo systemctl restart terraf-frontend
 sudo supervisorctl restart terraf-queue:*
 ```
 
-数据库迁移回滚需要逐次评估，不建议在生产环境盲目执行 `migrate:rollback`。
+Do not blindly run database rollback commands in production.

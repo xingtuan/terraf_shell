@@ -1,77 +1,83 @@
-# 已知问题和边界
+# Known Issues And Boundaries
 
-本文记录当前真实代码下仍需人工确认或按运维流程处理的事项。历史上已经修复或不再成立的限制不再列入，例如库存不扣减、Funding Link 仅后台可见、后台主要文案不可本地化等。
+This document records current operational boundaries and items that require manual confirmation.
 
-## 支付网关
+## Payment Gateway
 
-当前系统没有内置第三方在线支付网关。订单可以创建，付款状态由后台按线下、转账或外部流程手动维护。
+The system does not include an integrated third-party online payment gateway. Orders can be created, and payment status is maintained manually.
 
-影响：
+Impact:
 
-- 前端 Checkout 不会跳转到 Stripe、PayPal 等支付页。
-- 后台付款状态只有 `unpaid`、`paid`、`refunded`。
-- 财务对账需要外部流程。
+- Checkout does not redirect to Stripe, PayPal, Windcave, or another payment provider.
+- Payment statuses are `unpaid`, `paid`, and `refunded`.
+- Financial reconciliation must happen outside the system.
 
-## SSL 不由自动脚本配置
+## SSL Is Not Configured By The Script
 
-`auto_deploy.sh` 不自动申请或安装 HTTPS 证书。上线需要单独配置 Certbot、负载均衡证书或反向代理证书。
+`auto_deploy.sh` does not request or install HTTPS certificates. Configure Certbot, load balancer certificates, or reverse-proxy certificates separately.
 
-配置 HTTPS 后要同步更新：
+After enabling HTTPS, update:
 
 - `APP_URL`
 - `FRONTEND_URL`
 - `NEXT_PUBLIC_SITE_URL`
 - CORS allowed origins
 - Sanctum stateful domains
-- session secure cookie 设置
+- secure cookie settings
 
-## Azure / Local 历史媒体迁移
+## Azure / Local Historical Media Migration
 
-后台支持 local / Azure 切换、连接测试、上传测试和媒体扫描导出，但不会自动批量搬迁历史文件。
+The admin panel supports local / Azure switching, connection tests, upload tests, and media scan exports. It does not bulk-migrate historical files.
 
-切换 storage driver 前必须单独规划：
+Before switching drivers, plan:
 
-- 旧文件复制。
-- 数据库路径是否保持一致。
-- 公共 URL 或 SAS URL。
-- 回滚方案。
+- file copying
+- database path compatibility
+- public URL or SAS URL behavior
+- rollback strategy
 
-## 自动部署脚本的服务器范围
+## Automated Script Scope
 
-`auto_deploy.sh` 面向 Ubuntu / Debian apt 系单机。它不是 Docker、Kubernetes 或多机高可用部署方案。
+`auto_deploy.sh` targets Ubuntu / Debian apt-based single-server deployments. It is not a Docker, Kubernetes, or multi-server high-availability deployment.
 
-脚本会安装系统包、写入 Nginx、Supervisor、Cron 和 systemd 配置。不要在已有复杂生产环境中无评估直接运行。
+The script installs system packages and writes Nginx, Supervisor, Cron, and systemd configuration. Do not run it in an existing complex production environment without review.
 
-## Seed 数据重复执行
+## Seeder Re-runs
 
-`RUN_SEED=1` 会运行 `php artisan db:seed --force`。当前 Seeder 包含正式初始化内容和示例运营数据。生产环境常规更新建议使用：
+`RUN_SEED=1` runs:
+
+```bash
+php artisan db:seed --force
+```
+
+Seeders include starter content and sample operational records. For routine production updates, use:
 
 ```bash
 sudo env RUN_SEED=0 bash auto_deploy.sh your-domain-or-ip
 ```
 
-## 默认管理员账号
+## Seeded Admin User
 
-`RUN_SEED=1` 时会创建默认管理员：
+When seeders run, the default admin is:
 
 - `admin@example.com`
 - `password`
 
-交付前必须修改密码或停用默认账号。
+Change the password or disable the account before handover.
 
-## 端口暴露
+## Port Exposure
 
-自动部署默认：
+Automated deployment exposes:
 
-- 80：前端和 API 代理。
-- 8000：Laravel 后台和健康检查。
+- `80`: frontend and API proxy
+- `8000`: Laravel admin and health check
 
-如果生产环境不希望公网访问 8000，需要在 Nginx / 防火墙 / 反向代理层重新设计后台入口。
+If public `:8000` access is not acceptable, redesign admin access through Nginx, firewall rules, VPN, or a reverse proxy.
 
-## NZ Post 依赖
+## NZ Post Dependency
 
-Shipping 的 `auto` 模式会尝试 NZ Post，失败后回退手动费率。真实 NZ Post 报价依赖有效凭据、服务代码、网络和 API 可用性。
+Shipping `auto` mode tries NZ Post first and falls back to manual rates. Real NZ Post quotes depend on valid credentials, service codes, network access, and API availability.
 
-## 文档维护边界
+## Documentation Boundaries
 
-历史 QA、审计、修复跟踪文档保留为记录。如果它们与 README、INSTALLATION、DEPLOYMENT、CONFIGURATION 等当前文档冲突，应以当前文档和代码为准。
+Historical QA, audit, and fix-tracking documents are retained as records. If they conflict with the root README or top-level docs, use the current top-level documents and the code as the source of truth.

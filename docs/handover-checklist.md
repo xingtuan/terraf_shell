@@ -1,120 +1,120 @@
-# 交付前检查清单
+# Pre-Handover Checklist
 
-本清单以当前代码和 `auto_deploy.sh` 为准，用于最终交付前确认系统可安装、可运营、可维护。
+Use this checklist before final delivery.
 
-## 代码和依赖
+## Code And Dependencies
 
-- [ ] 后端 PHP 版本为 8.3。
-- [ ] `B2C_backend/composer.lock` 存在，生产部署使用 `composer install`。
-- [ ] 前端 Node.js 主版本为 20。
-- [ ] 前端使用 pnpm 安装和构建。
-- [ ] 根目录 `auto_deploy.sh` 可在目标 Ubuntu / Debian 服务器执行。
-- [ ] 没有把真实密钥、密码、token 写入仓库。
+- [ ] Backend PHP version is compatible with PHP 8.3.
+- [ ] `B2C_backend/composer.lock` exists.
+- [ ] Production uses `composer install`, not `composer update`.
+- [ ] Frontend uses Node.js 20 for deployment.
+- [ ] Frontend uses pnpm.
+- [ ] `auto_deploy.sh` has been reviewed for the target Ubuntu / Debian server.
+- [ ] No real secrets are committed.
 
-## 自动化安装
+## Automated Installation
 
-- [ ] 已阅读 [INSTALLATION.md](INSTALLATION.md)。
-- [ ] 已确认服务器域名 / IP、端口、防火墙和 Git 仓库权限。
-- [ ] 首次安装命令已确认：
+- [ ] [INSTALLATION.md](INSTALLATION.md) has been reviewed.
+- [ ] Domain / IP, firewall, ports, and Git access are confirmed.
+- [ ] First-install command is confirmed:
 
 ```bash
 sudo bash auto_deploy.sh your-domain-or-ip
 ```
 
-- [ ] 生产更新命令使用 `RUN_SEED=0`：
+- [ ] Production update command uses `RUN_SEED=0`:
 
 ```bash
 sudo env RUN_SEED=0 bash auto_deploy.sh your-domain-or-ip
 ```
 
-- [ ] 已理解 `RESET_WORKTREE=1` 会丢弃本地 Git 修改和未跟踪文件。
-- [ ] 已确认 `/root/terraf-install/credentials.txt` 权限和保管方式。
+- [ ] The team understands that `RESET_WORKTREE=1` discards local Git changes and untracked files.
+- [ ] `/root/terraf-install/credentials.txt` storage and permissions are confirmed.
 
-## 后端
+## Backend
 
-- [ ] `.env` 中 `APP_ENV=production`。
-- [ ] `.env` 中 `APP_DEBUG=false`。
-- [ ] `APP_KEY` 已生成并备份。
-- [ ] 数据库连接正常。
-- [ ] `php artisan migrate --force` 成功。
-- [ ] 如需初始化内容，`php artisan db:seed --force` 已成功。
-- [ ] `php artisan optimize:clear` 后可正常访问。
-- [ ] `php artisan config:cache`、`route:cache`、`view:cache` 可执行。
+- [ ] `APP_ENV=production`.
+- [ ] `APP_DEBUG=false`.
+- [ ] `APP_KEY` is generated and backed up.
+- [ ] Database connection works.
+- [ ] `php artisan migrate --force` succeeds.
+- [ ] Seeders are run only when intended.
+- [ ] Cache commands succeed.
 
-## 前端
+## Frontend
 
-- [ ] `B2C_frontend/.env.local` 包含 `NEXT_PUBLIC_API_BASE_URL=/api`。
-- [ ] `NEXT_SERVER_API_BASE_URL` 指向可访问的 Laravel API。
-- [ ] `NEXT_PUBLIC_SITE_URL` 为正式前端 URL。
-- [ ] `pnpm build` 成功。
-- [ ] `terraf-frontend` systemd 服务运行。
+- [ ] `B2C_frontend/.env.local` has `NEXT_PUBLIC_API_BASE_URL=/api`.
+- [ ] `NEXT_SERVER_API_BASE_URL` points to a reachable Laravel API.
+- [ ] `NEXT_PUBLIC_SITE_URL` is the production frontend URL.
+- [ ] `pnpm build` succeeds.
+- [ ] `terraf-frontend` service runs.
 
-## 管理后台
+## Admin
 
-- [ ] 后台 `/admin` 可访问。
-- [ ] 默认管理员密码已修改，或默认账号已停用。
-- [ ] 管理员权限和交付账号已确认。
-- [ ] 后台语言切换可用。
-- [ ] Application Settings 已配置品牌、URL、联系信息和 Logo。
-- [ ] Email Settings 已配置生产 SMTP，或明确保持 log mailer。
-- [ ] Storage Settings 连接测试和上传测试通过。
+- [ ] `/admin` is reachable.
+- [ ] Seeded admin password is changed or the account is disabled.
+- [ ] Admin roles and handover accounts are confirmed.
+- [ ] Admin locale switching works.
+- [ ] Application Settings are configured.
+- [ ] Email Settings are configured or log mailer is explicitly accepted.
+- [ ] Storage Settings connection and upload tests pass.
 
-## 内容和初始化数据
+## Content And Starter Data
 
-- [ ] 首页 Section 可编辑并在前端展示。
-- [ ] 材料页内容可编辑并在前端展示。
-- [ ] 文章 / CMS 内容可编辑并在前端展示。
-- [ ] 商品初始化目录符合交付要求。
-- [ ] 明显测试用户、测试帖子或测试订单已清理或标记。
-- [ ] Seed 数据按正式初始化内容描述。
+- [ ] Homepage sections display correctly.
+- [ ] Material content displays correctly.
+- [ ] Article / CMS content displays correctly.
+- [ ] Product starter catalog is acceptable.
+- [ ] Test users, posts, and orders are removed or clearly marked.
+- [ ] Seed data is described as starter content.
 
-## 商城
+## Store
 
-- [ ] 商品分类、商品、图片、变体和 SKU 正常。
-- [ ] SKU 库存和库存策略符合业务。
-- [ ] 下单时库存扣减已验证。
-- [ ] 取消待处理订单库存回补已验证。
-- [ ] Guest Checkout 按业务要求启用或关闭。
-- [ ] 游客订单查询可用。
-- [ ] 登录用户订单中心可用。
-- [ ] GST 计算符合 Tax Settings。
-- [ ] Shipping Settings 和 NZ Post 设置符合业务。
-- [ ] 当前系统无内置在线支付网关，付款状态按手动流程维护。
+- [ ] Categories, products, images, variants, and SKU work.
+- [ ] Stock and inventory policies match the business process.
+- [ ] Stock deduction on order creation is verified.
+- [ ] Pending order cancellation restores stock.
+- [ ] Guest Checkout is enabled or disabled as required.
+- [ ] Guest order lookup works.
+- [ ] Account order history works.
+- [ ] GST calculations match Tax Settings.
+- [ ] Shipping Settings and NZ Post settings match business requirements.
+- [ ] The absence of an online payment gateway is accepted.
 
-## 社区
+## Community
 
-- [ ] 社区 Feature Flag 符合业务。
-- [ ] 发帖、评论、点赞、收藏、关注可用。
-- [ ] Cover image 和附件上传可用。
-- [ ] Funding Link 前端展示已验证。
-- [ ] 举报流程进入后台 Reports / Moderation Queue。
-- [ ] 用户限制和违规记录可维护。
-- [ ] 通知依赖队列并已验证。
+- [ ] Community feature flag is correct.
+- [ ] Posting, comments, likes, favorites, and follows work.
+- [ ] Cover image and attachment uploads work.
+- [ ] Funding links display as expected.
+- [ ] Reports enter admin moderation.
+- [ ] User restrictions can be managed.
+- [ ] Notifications are verified with the queue running.
 
-## 存储
+## Storage
 
-- [ ] 本地 storage link 存在，或 Azure Storage 已配置。
-- [ ] 商品、首页、材料、文章、社区图片可访问。
-- [ ] local / Azure 切换策略已确认。
-- [ ] 历史媒体迁移需求已确认；后台媒体扫描只负责检查和导出，不自动搬迁文件。
+- [ ] Local storage link exists or Azure Storage is configured.
+- [ ] Product, homepage, material, article, and community images display.
+- [ ] Storage switching strategy is confirmed.
+- [ ] Historical media migration requirements are confirmed.
 
-## 队列和调度器
+## Queue And Scheduler
 
-- [ ] Supervisor `terraf-queue` 正常。
-- [ ] `/etc/cron.d/terraf-scheduler` 存在。
-- [ ] `php artisan schedule:run` 可执行。
-- [ ] 邮件、通知、异步任务不会长期堆积。
+- [ ] Supervisor `terraf-queue` runs.
+- [ ] `/etc/cron.d/terraf-scheduler` exists.
+- [ ] `php artisan schedule:run` can run.
+- [ ] Mail, notifications, and async jobs do not accumulate.
 
-## 安全和上线
+## Security And Launch
 
-- [ ] HTTPS 已配置或上线计划已确认。
-- [ ] 80 / 443 / 8000 端口暴露策略已确认。
-- [ ] 数据库备份策略已确认。
-- [ ] 上传文件或 Azure 容器备份策略已确认。
-- [ ] `.env`、`.env.local`、数据库密码和 Azure 密钥已安全保存。
-- [ ] 日志查看和应急联系人已交付。
+- [ ] HTTPS is configured or launch plan is confirmed.
+- [ ] Public port exposure is confirmed.
+- [ ] Database backup strategy is confirmed.
+- [ ] Uploaded-file or Azure backup strategy is confirmed.
+- [ ] `.env`, `.env.local`, database passwords, and Azure keys are stored safely.
+- [ ] Logs and escalation contacts are handed over.
 
-## 验证命令
+## Verification Commands
 
 ```bash
 cd B2C_backend
@@ -126,7 +126,7 @@ node scripts/check-i18n-keys.mjs
 pnpm build
 ```
 
-端到端测试需要前后端服务运行：
+Playwright tests require running backend and frontend services:
 
 ```bash
 pnpm test

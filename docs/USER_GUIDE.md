@@ -1,177 +1,112 @@
-# 用户使用说明
+# User Guide
 
-本文面向前端用户流程，覆盖内容浏览、商城、Guest Checkout、订单查询、账户中心和社区互动。
+This guide covers the user-facing site: content browsing, store, cart, Guest Checkout, order lookup, account pages, and community activity.
 
-## 访问和语言
+## Access And Languages
 
-前端站点由 Next.js 提供，生产环境默认访问：
+The frontend is served by Next.js:
 
 ```text
 http://your-domain-or-ip/
 ```
 
-系统支持：
+Supported languages:
 
 - English
-- 中文
-- 한국어
+- Chinese
+- Korean
 
-前端路由按 locale 组织，例如 `/en`、`/zh`、`/ko`。默认语言由前端和后台公共设置共同决定。
+Routes are locale-based, for example `/en`, `/zh`, and `/ko`.
 
-## 浏览首页和内容
+## Homepage And Content
 
-首页内容来自后台 Home Sections 和 Public Settings。用户可以浏览：
+Users can browse:
 
-- 首页主内容。
-- 材料介绍。
-- 文章和 CMS 内容。
-- 商城入口。
-- 社区入口。
-- B2B / 联系表单。
-- 法务页面。
+- Homepage sections.
+- Material pages.
+- Articles and CMS content.
+- Store.
+- Community.
+- B2B / contact forms.
+- Legal pages.
 
-如果后台关闭某些 Feature Flag，前端会隐藏或限制对应入口。
+Feature Flags may hide or restrict modules.
 
-## 材料页
+## Material Pages
 
-材料页展示后台维护的：
+Material pages display admin-managed overview content, specifications, application scenarios, story sections, and related articles or page sections.
 
-- 材料概览。
-- 材料规格。
-- 应用场景。
-- 故事内容。
-- 相关文章或页面板块。
+## Store
 
-内容支持三语。缺少某语言内容时，前端会按现有数据和 fallback 策略展示可用内容。
+Users can browse categories, search products, view images and descriptions, choose variants, and add items to cart. Purchasability depends on product status, variant status, stock, and inventory policy.
 
-## 商店
+## Cart
 
-用户可以：
+The cart supports guests and signed-in users:
 
-- 浏览商品分类。
-- 搜索和查看商品。
-- 查看商品图片、描述、价格、属性和 SKU。
-- 选择变体。
-- 添加到购物车。
-
-商品是否可购买取决于后台的上架状态、变体状态和库存策略。
-
-## 购物车
-
-购物车支持游客和登录用户：
-
-- 游客购物车使用 cookie session。
-- 登录后购物车可与账户关联。
-- 商品数量会受库存限制影响。
-- 删除商品或修改数量会重新计算小计、GST、配送费和总价。
-
-如果购物车异常，用户可尝试退出登录、清理浏览器 cookie 后重新添加商品；管理员应同时检查库存和后端日志。
+- Guest carts use a cookie session.
+- Signed-in carts are linked to the account.
+- Guest carts can merge after login.
+- Totals recalculate after quantity or item changes.
 
 ## Guest Checkout
 
-Guest Checkout 允许未登录用户下单。用户需要填写：
+Guest Checkout allows users to order without an account when the feature flag is enabled. Required information includes email, recipient details, shipping address, shipping option, and contact details.
 
-- 邮箱。
-- 收货人信息。
-- 收货地址。
-- 配送方式。
-- 备注或联系信息。
+The system does not include an online payment gateway. Payment status is maintained by admins.
 
-Guest Checkout 是否开放由后台 Feature Flags 控制。当前系统没有内置在线支付网关，订单付款状态由后台按实际收款流程维护。
+## Registered Checkout
 
-## 登录用户结账
+Signed-in users can use saved addresses and view orders from the account area.
 
-登录用户可以使用账户中的地址簿快速结账。下单后订单会出现在账户订单中心。
+Orders deduct stock when the selected variant uses a deny inventory policy and has stock quantity configured.
 
-如果库存策略为 `deny` 且库存充足，订单创建时会扣减对应 SKU 库存。取消待处理订单时会回补库存。
+## Order Lookup
 
-## 订单查询
+Guest orders are looked up by order number and guest token. Registered users can view their orders from the account center.
 
-游客下单后可通过订单提交页或订单查询页查看订单。系统会为游客订单生成查询 token。
+Order details may include items, address, shipping option, GST, total, status, payment status, shipment fields, and tracking number.
 
-登录用户可在账户中心查看自己的订单列表和订单详情。
+## Account Pages
 
-订单详情通常包含：
+Signed-in users can manage:
 
-- 订单号。
-- 商品明细。
-- 配送地址。
-- 配送方式。
-- GST。
-- 总价。
-- 订单状态。
-- 付款状态。
-- 发货信息和追踪号。
+- Profile.
+- Password.
+- Email verification.
+- Addresses.
+- Orders.
+- Community posts.
+- Saved content.
+- Notifications.
 
-## 账户页面
+## Community Posting
 
-登录用户可以管理：
+Community posts support title, rich text content, cover image, attachments, tags, external 3D links, and funding links.
 
-- 个人资料。
-- 密码。
-- 邮箱验证状态。
-- 地址簿。
-- 订单。
-- 社区帖子。
-- 收藏内容。
-- 通知。
+Publication may depend on moderation rules, sensitive words, and account status.
 
-账户相关请求通过 Laravel Sanctum 和 session / cookie 保护。
+## Comments, Likes, Favorites, Follows
 
-## 社区发帖
+Signed-in users can comment, reply, like posts, save posts, follow users, and view saved content from the account area.
 
-社区用户可以创建帖子。帖子支持：
+## Reports
 
-- 标题。
-- 富文本内容。
-- 封面图。
-- 附件。
-- 标签。
-- 外部 3D 链接。
-- Funding Link。
+Users can report community content. Reports enter the admin moderation workflow.
 
-帖子是否立即展示取决于后台审核策略、敏感词规则和用户账户状态。
+## Notifications
 
-## 评论
+Notifications are created for community interactions, moderation events, and order updates. Queue workers must run for timely processing.
 
-用户可以对帖子发表评论或回复。评论可能受到审核策略、用户限制和敏感词规则影响。
+## B2B And Contact
 
-## 收藏、点赞和关注
+Users can submit contact forms, B2B inquiries, sample requests, and material review requests. Admins handle these from the backend.
 
-系统支持：
+## Common User Issues
 
-- 点赞帖子。
-- 收藏帖子。
-- 关注用户。
-- 查看保存内容。
-
-这些操作需要登录。
-
-## 举报
-
-用户可以举报社区内容。举报会进入后台 Reports / Moderation Queue，由管理员处理。
-
-恶意举报或违规内容可能导致账户限制。
-
-## 通知
-
-系统会向用户发送与社区互动、审核、订单状态等相关的通知。通知依赖后端队列，若队列停止，通知可能延迟。
-
-## B2B 和联系表单
-
-用户可以提交：
-
-- 联系表单。
-- B2B 询盘。
-- 样品 / 材料请求。
-
-这些记录会进入后台 B2B Leads / Enquiries 或相关管理模块，管理员可跟进处理。
-
-## 常见用户问题
-
-- 图片不显示：可能是 storage link、Azure URL、权限或媒体路径问题。
-- 无法结账：检查 Guest Checkout Feature Flag、库存、配送设置和地址是否在支持区域。
-- 配送费不对：检查后台 Shipping Settings 和 NZ Post 设置。
-- GST 不对：检查 Tax Settings 中税率和价格是否含税设置。
-- 订单查不到：游客订单需要正确的查询链接或 token；登录用户只能查看自己账户订单。
-- 社区内容不显示：可能处于审核、被举报处理、违反敏感词规则或用户账号受限。
+- Images do not display: check storage link, Azure URLs, permissions, or media paths.
+- Checkout fails: check Guest Checkout, stock, shipping settings, and address support.
+- Shipping looks wrong: check Shipping Settings and NZ Post configuration.
+- GST looks wrong: check Tax Settings.
+- Guest order lookup fails: confirm the order number and token.
+- Community content is missing: it may be pending moderation, hidden, removed, or affected by account restrictions.

@@ -1,10 +1,10 @@
-# 存储说明
+# Storage
 
-系统支持本地 public storage 和 Azure Blob Storage。当前代码通过 `StorageManagerService`、`StorageUrl` 和后台 Storage Settings 管理 active driver、URL 生成、连接测试和上传测试。
+The system supports local public storage and Azure Blob Storage. Runtime behavior is managed by `StorageManagerService`, `StorageUrl`, and admin Storage Settings.
 
-## 默认行为
+## Defaults
 
-`auto_deploy.sh` 默认将后端 `.env` 设置为本地 public storage：
+`auto_deploy.sh` configures local public storage:
 
 ```dotenv
 STORAGE_DISK=public
@@ -14,47 +14,47 @@ COMMUNITY_UPLOAD_DISK=public
 LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK=public
 ```
 
-并创建：
+It creates:
 
 ```text
 B2C_backend/public/storage -> B2C_backend/storage/app/public
 ```
 
-前端和 Nginx 通过 `/storage/...` 访问本地公开文件。
+Nginx and the frontend access public files through `/storage/...`.
 
-## 本地 Storage
+## Local Storage
 
-本地公开文件保存在：
+Files are stored under:
 
 ```text
 B2C_backend/storage/app/public
 ```
 
-公开访问路径：
+Public URL:
 
 ```text
 http://your-domain/storage/{path}
 ```
 
-手动创建链接：
+Manual link command:
 
 ```bash
 cd B2C_backend
 php artisan storage:link
 ```
 
-检查：
+Checks:
 
 ```bash
 ls -l B2C_backend/public/storage
 test -w B2C_backend/storage/app/public && echo writable
 ```
 
-如果 `public/storage` 已存在但不是符号链接，`auto_deploy.sh` 会停止，避免覆盖未知文件。
+If `public/storage` already exists but is not a symlink, the automated script stops to avoid overwriting unknown files.
 
 ## Azure Storage
 
-Azure Blob Storage 通过 Laravel filesystem disk `azure` 接入。需要配置：
+Azure uses the Laravel `azure` filesystem disk:
 
 ```dotenv
 AZURE_STORAGE_NAME=
@@ -63,96 +63,81 @@ AZURE_STORAGE_CONTAINER=
 AZURE_STORAGE_URL=
 ```
 
-后台 Storage Settings 支持：
+Admin Storage Settings supports driver switching, Azure credentials, connection test, upload test, temporary URL / SAS settings, recent-driver rollback, and media scan export.
 
-- 切换 active driver。
-- 保存 Azure account、key、container、URL。
-- 连接测试。
-- 上传测试。
-- 临时 URL / SAS 设置。
-- 回滚最近的 storage driver。
+If SAS temporary URLs are enabled, `StorageUrl` returns signed Azure URLs. Otherwise it builds stable URLs from the configured base URL and container.
 
-如果启用 SAS 临时 URL，`StorageUrl` 会使用 Azure temporary URL；否则会根据公开 URL 和 container 生成稳定 URL。
+## Upload Sources
 
-## 上传路径
+Common uploaded media:
 
-常见上传来源：
+- Product images.
+- Homepage and page section images.
+- Material and article images.
+- Community post cover images.
+- Community attachments and idea media.
+- Filament / Livewire temporary uploads.
 
-- 商品图片。
-- 首页 / 页面 Section 图片。
-- 材料和文章图片。
-- 社区帖子 cover image。
-- 社区附件和 idea media。
-- Filament / Livewire 临时上传文件。
+Community upload paths and limits come from `config/community.php` and admin Community Settings.
 
-社区附件默认目录和限制来自 `config/community.php` 以及后台 Community Settings。
+## Media URLs
 
-## 图片访问
-
-本地 public storage：
+Local public storage:
 
 ```text
 /storage/{path}
 ```
 
-非公开 local disk 或受保护文件可通过后端媒体路由访问：
+Protected or non-public local files may use:
 
 ```text
 /media/files/{disk}/{path}
 ```
 
-Azure：
+Azure URLs depend on the configured public base URL or SAS temporary URL settings.
 
-- 有公开 base URL 时生成 Azure URL。
-- 启用临时 URL 时生成带过期时间的 URL。
-- URL 过期会导致图片短时间后无法访问，需要检查 SAS TTL。
-
-## 前端媒体配置
-
-前端可配置：
+## Frontend Media Base
 
 ```dotenv
 NEXT_PUBLIC_MEDIA_BASE_URL=
 ```
 
-通常保持为空，让后端 API 返回完整或相对媒体 URL。只有在使用独立 CDN / 媒体域名且前端需要拼接 URL 时才设置该值。
+Leave this empty in normal deployments so the backend can return resolved media URLs. Use it only when a separate CDN or media domain is required.
 
-## 本地切换到 Azure
+## Switching Local To Azure
 
-建议流程：
+Recommended flow:
 
-1. 备份数据库和 `storage/app/public`。
-2. 在后台 Storage Settings 填写 Azure 配置。
-3. 执行连接测试和上传测试。
-4. 确认新上传文件可以访问。
-5. 导出现有媒体扫描清单。
-6. 按清单单独迁移历史文件到 Azure。
-7. 检查商品、首页、材料、文章、社区图片。
-8. 清理缓存并重新构建前端。
+1. Back up the database and `storage/app/public`.
+2. Configure Azure in Storage Settings.
+3. Run connection and upload tests.
+4. Confirm newly uploaded files display.
+5. Export the media scan.
+6. Migrate historical files to Azure separately.
+7. Check product, homepage, material, article, and community images.
+8. Clear cache and rebuild frontend if URL behavior changed.
 
-当前后台媒体扫描支持检查和导出，不会自动批量搬迁文件。
+The admin media scan exports findings; it does not perform bulk migration.
 
-## Azure 切回本地
+## Switching Azure To Local
 
-建议流程：
+1. Back up the database and Azure container.
+2. Download required files to matching local paths under `storage/app/public`.
+3. Switch active driver to local / public.
+4. Confirm `php artisan storage:link`.
+5. Check media URLs.
+6. Clear cache.
 
-1. 备份数据库和 Azure 容器。
-2. 将需要保留的 Azure 文件下载到 `storage/app/public` 对应路径。
-3. 切换 active driver 为 local / public。
-4. 确认 `php artisan storage:link` 正常。
-5. 检查媒体 URL 是否仍能解析。
-6. 清理缓存。
+## Permissions
 
-## 权限
-
-生产环境中 Laravel 需要写入：
+Laravel needs write access to:
 
 ```text
 B2C_backend/storage
 B2C_backend/bootstrap/cache
 ```
 
-自动部署会设置 `www-data` 权限和 ACL。手动修复：
+Manual repair:
 
 ```bash
 sudo chown -R www-data:www-data B2C_backend/storage B2C_backend/bootstrap/cache
@@ -161,30 +146,10 @@ sudo setfacl -R -m u:www-data:rwX B2C_backend/storage B2C_backend/bootstrap/cach
 sudo setfacl -dR -m u:www-data:rwX B2C_backend/storage B2C_backend/bootstrap/cache
 ```
 
-## 常见问题
+## Troubleshooting
 
-### 上传成功但图片不显示
-
-检查：
-
-- 当前 active driver 是否正确。
-- 本地是否存在 `public/storage` 链接。
-- Nginx `/storage/` 是否代理到 Laravel。
-- Azure container、key、base URL 是否正确。
-- 后台 Storage Settings 上传测试是否通过。
-
-### 切换 Azure 后旧图片失效
-
-数据库中记录的路径通常不会自动变更。需要把历史文件迁移到 Azure 对应路径，或保持本地文件仍可访问。
-
-### 本地 storage link 创建失败
-
-检查 `public/storage` 是否已经存在。若是普通目录或文件，先备份确认后再处理，不要直接删除未知生产文件。
-
-### SAS URL 很快失效
-
-检查后台或 `.env` 中的 temporary URL TTL。过短会导致页面缓存或用户长时间停留后图片失效。
-
-### Livewire 临时上传失败
-
-确认 `LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK` 指向可写 disk，且后端 PHP 上传大小、Nginx body size 和社区上传限制一致。
+- Upload succeeds but image is missing: check active driver, storage link, Nginx `/storage/`, Azure container, Azure key, base URL, and upload test.
+- Old images fail after Azure switch: migrate historical files or keep old storage accessible.
+- Storage link fails: inspect existing `public/storage` before deleting anything.
+- SAS URLs expire too quickly: increase temporary URL TTL.
+- Livewire upload fails: check upload disk, PHP limits, Nginx body size, and storage permissions.
