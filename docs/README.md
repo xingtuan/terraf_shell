@@ -1,6 +1,6 @@
 # Documentation Center
 
-This directory contains the delivery documentation for OXP / Terraf Shell. The root [README.md](../README.md) is the main entry point. The top-level files in this directory are the authoritative installation, deployment, maintenance, and module references.
+This directory contains the delivery documentation for OXP / Terraf Shell. The root [README.md](/README.md) is the main entry point. The top-level files in this directory are the authoritative installation, deployment, maintenance, and module references.
 
 ## Recommended Reading Order
 
