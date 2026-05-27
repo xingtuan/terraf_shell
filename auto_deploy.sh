@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ############################################
-# Terraf / OXP Final Clean Deployment Script v2
+# Terraf / OXP Final Clean Deployment Script v3
 #
 # Purpose:
 #   Clean production-style single-server deployment.
@@ -18,7 +18,8 @@ set -euo pipefail
 #   - Does NOT run composer update.
 #   - Does NOT use artisan tinker.
 #   - Does NOT manually ALTER application tables.
-#   - Creates Laravel public/storage symlink with root ln -s, not artisan storage:link.
+#  - Creates Laravel public/storage symlink with root ln -s, not artisan storage:link.
+#  - Uses absolute paths for storage symlink creation to avoid copied hidden-character path errors.
 #   - DB schema fixes must be committed as Laravel migrations.
 #   - Frontend build fixes must be committed in the repo.
 #
@@ -84,7 +85,7 @@ BACKEND_URL="http://${SERVER_NAME}:8000"
 BACKEND_LOCAL_URL="http://127.0.0.1:8000"
 
 echo "============================================"
-echo "Terraf / OXP Final Clean Deployment v2"
+echo "Terraf / OXP Final Clean Deployment v3"
 echo "============================================"
 echo "Server:             ${SERVER_NAME}"
 echo "Frontend:           ${FRONTEND_URL}"
@@ -205,22 +206,31 @@ artisan_as_www_data() {
 create_storage_symlink() {
   echo "==> Creating Laravel storage symlink with root..."
 
-  cd "$BACKEND_DIR"
+  local storage_public_dir="${BACKEND_DIR}/storage/app/public"
+  local public_dir="${BACKEND_DIR}/public"
+  local public_storage_link="${public_dir}/storage"
+  local link_target="../storage/app/public"
 
-  mkdir -p storage/app/public
-  chown -R www-data:www-data storage/app/public
-  chmod -R ug+rwX storage/app/public
+  # Use absolute paths and install -d to avoid hidden/control-character issues
+  # from copied shell snippets.
+  install -d -m 2775 -o www-data -g www-data "$storage_public_dir"
+  install -d -m 2775 -o www-data -g www-data "$public_dir"
 
-  rm -f public/storage
-
-  if [ -e public/storage ] && [ ! -L public/storage ]; then
-    fail "public/storage exists and is not a symlink. Move or remove it before deployment."
+  if [ -L "$public_storage_link" ] || [ ! -e "$public_storage_link" ]; then
+    rm -f -- "$public_storage_link"
+  else
+    fail "${public_storage_link} exists and is not a symlink. Move or remove it before deployment."
   fi
 
-  ln -s ../storage/app/public public/storage
-  chown -h www-data:www-data public/storage
+  ln -s "$link_target" "$public_storage_link"
+  chown -h www-data:www-data "$public_storage_link"
 
-  ls -la public/storage
+  echo "Storage symlink:"
+  ls -la "$public_storage_link"
+
+  if [ ! -d "${public_storage_link}" ]; then
+    fail "Storage symlink was created but target is not reachable: ${public_storage_link}"
+  fi
 }
 
 strict_or_warn() {
@@ -698,6 +708,7 @@ set_env ".env.local" "NEXT_PUBLIC_API_BASE_URL" "/api"
 set_env ".env.local" "NEXT_SERVER_API_BASE_URL" "${BACKEND_LOCAL_URL}/api"
 set_env ".env.local" "NEXT_PUBLIC_MEDIA_BASE_URL" ""
 set_env ".env.local" "NEXT_PUBLIC_BRAND_CONTACT_EMAIL" ""
+set_env ".env.local" "NEXT_PUBLIC_SITE_URL" "${FRONTEND_URL}"
 
 ############################################
 # Frontend install/build
@@ -713,6 +724,7 @@ NEXT_TELEMETRY_DISABLED=1 \
 NEXT_PUBLIC_API_BASE_URL="/api" \
 NEXT_SERVER_API_BASE_URL="${BACKEND_LOCAL_URL}/api" \
 NEXT_PUBLIC_MEDIA_BASE_URL="" \
+NEXT_PUBLIC_SITE_URL="${FRONTEND_URL}" \
 pnpm build
 
 chown -R www-data:www-data "$FRONTEND_DIR/.next" || true
@@ -807,6 +819,7 @@ Important frontend env:
 NEXT_PUBLIC_API_BASE_URL=/api
 NEXT_SERVER_API_BASE_URL=${BACKEND_LOCAL_URL}/api
 NEXT_PUBLIC_MEDIA_BASE_URL=
+NEXT_PUBLIC_SITE_URL=${FRONTEND_URL}
 
 Recommended server commands:
 cd ${BACKEND_DIR}
@@ -816,6 +829,7 @@ sudo -u www-data php artisan migrate --force
 
 Storage symlink repair:
 cd ${BACKEND_DIR}
+sudo install -d -m 2775 -o www-data -g www-data storage/app/public public
 sudo rm -f public/storage
 sudo ln -s ../storage/app/public public/storage
 sudo chown -h www-data:www-data public/storage
