@@ -1,0 +1,23 @@
+- [← Core Docs](/)
+
+- **English Manual**
+  - [Overview](en/00-overview)
+  - [System Architecture](en/01-system-architecture)
+  - [User Manual](en/02-user-manual)
+  - [Admin Manual](en/03-admin-manual)
+  - [Store Manual](en/04-store-manual)
+  - [Community Manual](en/05-community-manual)
+  - [B2B & Contact Manual](en/06-b2b-and-contact-manual)
+  - [Content Management](en/07-content-management-manual)
+  - [Order & Customer Mgmt](en/08-order-and-customer-management)
+  - [Moderation & Reporting](en/09-moderation-and-reporting)
+  - [Settings & Configuration](en/10-settings-and-configuration)
+  - [Deployment & Maintenance](en/11-deployment-and-maintenance)
+  - [Troubleshooting](en/12-troubleshooting)
+  - [FAQ](en/13-faq)
+  - [Feature Matrix](en/14-feature-matrix)
+  - [Release Notes & Handover](en/15-release-notes-and-handover)
+
+- **Other Languages**
+  - [🇨🇳 中文](zh/00-项目总览)
+  - [🇰🇷 한국어](ko/00-프로젝트-개요)
