@@ -414,7 +414,7 @@ Manage the dynamic sections of the homepage:
 ### 12.1 Email Templates
 
 View and edit transactional email templates. Each template has:
-- Template key (e.g., `order_confirmed`, `password_reset`)
+- Template key (e.g., `order.created`, `order.status_changed`, `auth.password_reset`)
 - Subject line (multilingual)
 - Body content (multilingual, HTML-capable)
 - Template variables (e.g., `{{customer_name}}`, `{{order_number}}`)

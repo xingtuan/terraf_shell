@@ -4,6 +4,8 @@ The Next.js 16 frontend for the OXP brand platform. It serves as a multi-languag
 
 Built with the App Router, TypeScript, Tailwind CSS 4, and a clear separation between server-rendered content pages and client-interactive community features.
 
+For final delivery installation, deployment, and maintenance instructions, use the repository root `README.md` and `docs/INSTALLATION.md`. This frontend README is a module reference.
+
 ---
 
 ## Tech Stack
@@ -72,8 +74,10 @@ node scripts/check-i18n-keys.mjs
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | `/api` | Backend API base URL. Change to an absolute URL (e.g., `http://127.0.0.1:8000/api`) when running frontend and backend on different ports without a reverse proxy. |
 | `API_PROXY_TARGET` | `http://127.0.0.1:8000` in development | Laravel origin used by the Next.js `/api/*` rewrite when `NEXT_PUBLIC_API_BASE_URL=/api`. |
+| `NEXT_SERVER_API_BASE_URL` | `http://127.0.0.1:8000/api` | Laravel API base URL used by server-side rendering and production builds. |
 | `NEXT_PUBLIC_MEDIA_BASE_URL` | *(empty)* | Optional CDN base URL for media assets served from Azure Blob Storage. |
 | `NEXT_PUBLIC_BRAND_CONTACT_EMAIL` | *(empty)* | Optional confirmed OXP contact email. Leave empty until the client confirms the final address. |
+| `NEXT_PUBLIC_SITE_URL` | `https://example.com` | Public frontend URL used in generated links and deployment checks. |
 
 Runtime feature visibility also comes from `GET /api/public-settings` when available. The frontend keeps environment/static fallbacks so local builds do not crash if the endpoint is unavailable.
 

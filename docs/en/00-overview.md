@@ -118,9 +118,9 @@ Built on Filament 5 (Laravel):
 | Guest checkout | Complete |
 | Payment processing integration | Not implemented (payment method recorded, gateway not connected) |
 | NZ Post shipping integration | Optional / configurable (disabled by default) |
-| Funding campaigns | Partial (data model and admin exists; frontend display is limited) |
+| Funding links and campaigns | Implemented for external funding links and campaign display; not an internal payment gateway |
 | Email transactional system | Implemented (templates, events, logs) — requires SMTP configuration |
-| Multilingual content (EN/KO/ZH) | Complete for frontend; admin panel UI partially localized |
+| Multilingual content (EN/KO/ZH) | Frontend, backend API messages, validation messages, and admin translation files are maintained across EN / ZH / KO |
 | Media / file upload | Complete (Azure Blob Storage or local disk) |
 | Analytics | Basic admin analytics endpoint; no third-party dashboard |
 
@@ -130,9 +130,9 @@ Built on Filament 5 (Laravel):
 
 - **Payment gateway**: The order model records payment method and reference, but no actual payment gateway (Stripe, PayPal, etc.) is connected. Orders are placed as "unpaid" and must be manually confirmed.
 - **NZ Post shipping**: Real-time shipping quotes from NZ Post are implemented but disabled by default. Flat-rate shipping rules are applied instead.
-- **Funding campaigns**: The backend data model and admin management are complete, but the frontend rendering of campaign status/progress is limited.
+- **Funding links and campaigns**: Posts and campaign records can expose public funding links and progress-style campaign information where configured.
 - **Email**: The email template and event system is fully built, but requires SMTP server configuration before transactional emails will be sent in production.
-- **Admin panel UI localization**: The admin panel interface is primarily in English. Locale switching for the admin panel affects only certain labels.
+- **Admin panel UI localization**: Admin locale switching is implemented with English, Chinese, and Korean backend/admin translation files.
 
 ---
 

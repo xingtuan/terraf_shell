@@ -4,6 +4,8 @@ Laravel 13 REST API backend for the OXP platform. It provides authentication, co
 
 The frontend is a separate Next.js application that consumes this service over REST with JSON responses.
 
+For final delivery installation, deployment, and maintenance instructions, use the repository root `README.md` and `docs/INSTALLATION.md`. This backend README is a module reference.
+
 Current delivery status: product catalog APIs are live at `/api/products`, `/api/products/featured`, and `/api/products/{slug}`; cart APIs are live; checkout supports guest and registered users; guest order lookup uses order number plus `guest_order_token`; shipping is New Zealand only; NZ Post lookup/quote support is available when configured; runtime settings, storage driver switching, the web installer, public settings, health checks, admin localization, Email Center, media management, and System / Handover Readiness are implemented.
 
 ---
@@ -17,8 +19,8 @@ Current delivery status: product catalog APIs are live at `/api/products`, `/api
 | Admin Panel | Filament 5 |
 | API Authentication | Laravel Sanctum (token-based) |
 | Database | MySQL 8+ |
-| Cache & Queue | Redis |
-| File Storage | Azure Blob Storage (primary) + local `public` disk (fallback) |
+| Cache & Queue | Database drivers by default; Redis optional |
+| File Storage | local `public` disk and Azure Blob Storage |
 | File System Adapter | League Flysystem Azure Blob Storage |
 | Testing | PHPUnit 12.5+ |
 | Code Style | Laravel Pint |
@@ -93,7 +95,7 @@ Every endpoint returns one of these three shapes:
 - PHP 8.3+ with extensions: `intl`, `pdo_mysql`, `mbstring`, `openssl`
 - Composer
 - MySQL 8+
-- Redis
+- Optional Redis if you choose Redis cache or queue drivers
 
 ### Installation
 
@@ -104,7 +106,7 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-Configure your database, Redis, and storage settings in `.env`, then:
+Configure your database, queue/cache, and storage settings in `.env`, then:
 
 ```bash
 php artisan migrate --seed
@@ -126,7 +128,7 @@ php artisan queue:work
 
 ### Lightweight Local Configuration
 
-To run without Azure Blob Storage or Redis:
+To run without Azure Blob Storage:
 
 ```env
 QUEUE_CONNECTION=sync
@@ -262,7 +264,7 @@ Most events use queued jobs:
 php artisan queue:work
 ```
 
-Use `QUEUE_CONNECTION=redis` only when Redis is reachable and a Redis queue worker is running. Predis is included and is the default Redis client (`REDIS_CLIENT=predis`); use `REDIS_CLIENT=phpredis` only on servers with the PHP Redis extension installed. Set `QUEUE_CONNECTION=sync` only for local development.
+Use `QUEUE_CONNECTION=database` for the default delivery setup. Use `QUEUE_CONNECTION=redis` only when Redis is reachable and a Redis queue worker is running. Predis is included and is the default Redis client (`REDIS_CLIENT=predis`); use `REDIS_CLIENT=phpredis` only on servers with the PHP Redis extension installed. Set `QUEUE_CONNECTION=sync` only for local development.
 
 For Redis queues, run the worker with the Redis connection:
 
@@ -284,16 +286,16 @@ Example Supervisor config:
 ```ini
 [program:terraf-queue]
 process_name=%(program_name)s_%(process_num)02d
-command=php /www/terraf_shell/B2C_backend/artisan queue:work redis --queue=default --sleep=3 --tries=3 --timeout=90
-directory=/www/terraf_shell/B2C_backend
+command=php /var/www/terraf_shell/B2C_backend/artisan queue:work database --queue=default --sleep=3 --tries=3 --timeout=90
+directory=/var/www/terraf_shell/B2C_backend
 autostart=true
 autorestart=true
 stopasgroup=true
 killasgroup=true
-user=victor
+user=www-data
 numprocs=1
 redirect_stderr=true
-stdout_logfile=/www/terraf_shell/B2C_backend/storage/logs/queue-worker.log
+stdout_logfile=/var/www/terraf_shell/B2C_backend/storage/logs/queue-worker.log
 stopwaitsecs=3600
 ```
 

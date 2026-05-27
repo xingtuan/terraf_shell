@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ############################################
-# Terraf / OXP Final Clean Deployment Script v3
+# Terraf / OXP automated deployment script
 #
 # Purpose:
 #   Clean production-style single-server deployment.
@@ -23,14 +23,14 @@ set -euo pipefail
 #   - DB schema fixes must be committed as Laravel migrations.
 #   - Frontend build fixes must be committed in the repo.
 #
-# Required repo fixes before using this as the final installer:
+# Preflight checks:
 #   1. composer.lock must match composer.json and PHP version.
 #   2. carts.session_key must be long enough via migration, recommended VARCHAR(512).
 #   3. frontend server API resolver should support NEXT_SERVER_API_BASE_URL.
 #   4. legal/privacy pages should not crash next build when CMS API is unavailable.
 #
 # Usage:
-#   sudo bash deploy_terraf_final_clean.sh 172.204.80.106
+#   sudo bash auto_deploy.sh your-domain-or-ip
 #
 # Optional env overrides:
 #   APP_DIR=/var/www/terraf_shell
@@ -51,7 +51,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 if [ "$EUID" -ne 0 ]; then
   echo "ERROR: Please run as root:"
-  echo "  sudo bash deploy_terraf_final_clean.sh your-domain-or-ip"
+  echo "  sudo bash auto_deploy.sh your-domain-or-ip"
   exit 1
 fi
 

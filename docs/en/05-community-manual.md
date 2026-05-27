@@ -4,7 +4,7 @@
 
 The OXP community is a user-generated content hub where registered users can share ideas, projects, and knowledge related to sustainable materials and design. It functions similarly to a specialized social publishing platform.
 
-*Related code: `B2C_backend/app/Services/PostService.php`, `B2C_frontend/src/components/community/`*
+*Related code: `B2C_backend/app/Services/PostService.php`, `B2C_frontend/components/community/`*
 
 ---
 
@@ -51,7 +51,7 @@ Post content uses the **Tiptap** rich text editor. Users can:
 
 Content is stored as JSON (`content_json`) and rendered on the frontend by `PostRenderer.tsx`.
 
-*Related code: `B2C_frontend/src/components/community/RichPostEditor.tsx`*
+*Related code: `B2C_frontend/components/community/RichPostEditor.tsx`*
 
 ### 2.3 Submission Policy
 
@@ -163,7 +163,7 @@ Posts can optionally be linked to a **funding campaign**:
 - Campaign content includes localized title, description, and support button text.
 - Campaign status: Active, Inactive, Completed, or Cancelled.
 
-> **Current limitation**: Funding campaign display on the frontend is limited. The data model and admin management are complete, but the frontend rendering of campaign progress is minimal.
+Funding links and campaign information are displayed publicly where configured. They link to external support or funding flows; the system does not process funding payments internally.
 
 *Related code: `app/Models/FundingCampaign.php`, `app/Filament/Resources/FundingCampaignResource.php`*
 
@@ -231,7 +231,7 @@ Public user profiles are accessible at `/community/profile/{username}`. Profiles
 - User's published posts
 - Follow / unfollow button
 
-*Related code: `B2C_frontend/src/components/community/community-profile-page.tsx`*
+*Related code: `B2C_frontend/components/community/community-profile-page.tsx`*
 
 ---
 
@@ -297,7 +297,7 @@ From the admin panel, administrators can:
 
 | Limitation | Detail |
 |---|---|
-| Funding campaign frontend | Limited display of campaign progress on the frontend |
+| Internal funding payments | Funding links point to external support flows; there is no internal payment processor for campaigns |
 | No real-time updates | Feed does not auto-refresh without page reload |
 | No direct messaging | No private message system between users |
 | No post scheduling | Posts are published immediately (no future scheduling) |
@@ -305,4 +305,4 @@ From the admin panel, administrators can:
 
 ---
 
-*Related code: `B2C_backend/app/Services/PostService.php`, `B2C_backend/app/Models/Post.php`, `B2C_frontend/src/components/community/`*
+*Related code: `B2C_backend/app/Services/PostService.php`, `B2C_backend/app/Models/Post.php`, `B2C_frontend/components/community/`*

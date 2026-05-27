@@ -283,4 +283,4 @@ At checkout, the saved default address is pre-filled.
 
 ---
 
-*Related code: `B2C_backend/app/Services/OrderService.php`, `B2C_backend/app/Services/CartService.php`, `B2C_frontend/src/components/store/`*
+*Related code: `B2C_backend/app/Services/OrderService.php`, `B2C_backend/app/Services/CartService.php`, `B2C_frontend/components/store/`*

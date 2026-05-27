@@ -1,215 +1,77 @@
-# OXP Platform — Known Issues and Limitations
+# 已知问题和边界
 
-**Last Updated**: May 2026  
-**Codebase**: Terraf / B2C_backend + B2C_frontend
+本文记录当前真实代码下仍需人工确认或按运维流程处理的事项。历史上已经修复或不再成立的限制不再列入，例如库存不扣减、Funding Link 仅后台可见、后台主要文案不可本地化等。
 
-This document catalogues known issues, unimplemented features, and areas requiring post-handover attention. It is intended for the development team and technical stakeholders.
+## 支付网关
 
----
+当前系统没有内置第三方在线支付网关。订单可以创建，付款状态由后台按线下、转账或外部流程手动维护。
 
-## Critical (Must Address Before Live Payments)
+影响：
 
-### KI-001: No Payment Gateway Integrated
+- 前端 Checkout 不会跳转到 Stripe、PayPal 等支付页。
+- 后台付款状态只有 `unpaid`、`paid`、`refunded`。
+- 财务对账需要外部流程。
 
-**Severity**: Critical  
-**Area**: Store / Commerce  
-**Status**: Not Implemented
+## SSL 不由自动脚本配置
 
-**Description**: The order data model records `payment_method` and `payment_reference` fields and tracks `payment_status` (unpaid/paid/refunded/failed), but no payment gateway is connected. Orders are created with `payment_status = unpaid`.
+`auto_deploy.sh` 不自动申请或安装 HTTPS 证书。上线需要单独配置 Certbot、负载均衡证书或反向代理证书。
 
-**Current workaround**: Administrators manually confirm payment and update `payment_status` to `paid` via the admin panel after receiving payment through a separate channel.
+配置 HTTPS 后要同步更新：
 
-**Recommended fix**: Integrate a payment provider appropriate for the New Zealand market. Options: Windcave (Payment Express), Stripe NZ, PayPal. Integration requires:
-- A new `PaymentController` or webhook handler
-- Order status transition triggered on successful payment
-- Automatic inventory decrement on payment (see KI-002)
+- `APP_URL`
+- `FRONTEND_URL`
+- `NEXT_PUBLIC_SITE_URL`
+- CORS allowed origins
+- Sanctum stateful domains
+- session secure cookie 设置
 
-**Files to modify**: `app/Services/OrderService.php`, `app/Models/Order.php`, add `app/Http/Controllers/Api/PaymentController.php`
+## Azure / Local 历史媒体迁移
 
----
+后台支持 local / Azure 切换、连接测试、上传测试和媒体扫描导出，但不会自动批量搬迁历史文件。
 
-## High (Important for Accurate Operations)
+切换 storage driver 前必须单独规划：
 
-### KI-002: Inventory Not Automatically Decremented on Order
+- 旧文件复制。
+- 数据库路径是否保持一致。
+- 公共 URL 或 SAS URL。
+- 回滚方案。
 
-**Severity**: High  
-**Area**: Store / Inventory  
-**Status**: Partial — tracked but not automated
+## 自动部署脚本的服务器范围
 
-**Description**: `ProductVariant.stock_quantity` is tracked per variant, and the `inventory_adjustments` table exists for audit logging. However, when an order is placed or confirmed, the `stock_quantity` field is **not automatically decremented**.
+`auto_deploy.sh` 面向 Ubuntu / Debian apt 系单机。它不是 Docker、Kubernetes 或多机高可用部署方案。
 
-**Current workaround**: Administrators manually edit `stock_quantity` via **Admin Panel → Store → Inventory** after fulfilling each order.
+脚本会安装系统包、写入 Nginx、Supervisor、Cron 和 systemd 配置。不要在已有复杂生产环境中无评估直接运行。
 
-**Recommended fix**: Add inventory decrement logic triggered when order transitions to `confirmed` or `processing` status:
-- Option A: Add an `OrderObserver` that hooks into the `updating` event and decrements stock when status changes.
-- Option B: Add the decrement inside `OrderService::confirmOrder()`.
+## Seed 数据重复执行
 
-**Files to modify**: `app/Services/OrderService.php` or add `app/Observers/OrderObserver.php`
+`RUN_SEED=1` 会运行 `php artisan db:seed --force`。当前 Seeder 包含正式初始化内容和示例运营数据。生产环境常规更新建议使用：
 
----
+```bash
+sudo env RUN_SEED=0 bash auto_deploy.sh your-domain-or-ip
+```
 
-### KI-003: Order Confirmation Email Trigger Not Independently Verified
+## 默认管理员账号
 
-**Severity**: High  
-**Area**: Email / Notifications  
-**Status**: Needs verification
+`RUN_SEED=1` 时会创建默认管理员：
 
-**Description**: The email template system (`email_templates`, `email_events` tables) and the `B2BLeadSubmittedMail` mailable are confirmed working. The `order_confirmed` email event template exists in the database. However, the exact trigger wiring from order status change → email dispatch has not been verified end-to-end in a production-like environment.
+- `admin@example.com`
+- `password`
 
-**Risk**: Customers may not receive order confirmation emails.
+交付前必须修改密码或停用默认账号。
 
-**Recommended fix**: Test manually:
-1. Configure SMTP in Email Settings.
-2. Place a test order.
-3. Change order status to `confirmed` in admin panel.
-4. Verify confirmation email is received.
+## 端口暴露
 
-Check `app/Http/Controllers/Api/OrderController.php` and `app/Services/OrderService.php` for mail dispatch calls.
+自动部署默认：
 
----
+- 80：前端和 API 代理。
+- 8000：Laravel 后台和健康检查。
 
-## Medium (Important but Not Immediately Blocking)
+如果生产环境不希望公网访问 8000，需要在 Nginx / 防火墙 / 反向代理层重新设计后台入口。
 
-### KI-004: Funding Campaign Frontend Display Limited
+## NZ Post 依赖
 
-**Severity**: Medium  
-**Area**: Community / Funding Campaigns  
-**Status**: Backend complete; frontend partial
+Shipping 的 `auto` 模式会尝试 NZ Post，失败后回退手动费率。真实 NZ Post 报价依赖有效凭据、服务代码、网络和 API 可用性。
 
-**Description**: `FundingCampaign` model, `PartnershipInquiry` model, admin management via `FundingCampaignResource`, and database migrations are complete. The campaign can be linked to a community post (`idea_id`). However, the public-facing frontend:
-- Does not show campaign progress (amount raised vs. goal)
-- Does not show a "Support" / pledge action button with functional workflow
-- Campaign list view is limited
+## 文档维护边界
 
-**Recommended fix**: Design and implement frontend campaign display components:
-- Campaign progress bar (funded amount / goal)
-- Support/pledge CTA button
-- Campaign status badge (active/completed/cancelled)
-
-**Files to check**: `B2C_frontend/src/components/community/`, `B2C_backend/app/Models/FundingCampaign.php`
-
----
-
-### KI-005: Admin Panel UI Not Fully Localized to Korean/Chinese
-
-**Severity**: Medium (if non-English admins required)  
-**Area**: Admin Panel / i18n  
-**Status**: Partial
-
-**Description**: The Filament 5 admin panel has locale switching (`/admin/locale/{locale}`). Some field labels and navigation items are localized, but the bulk of the Filament-generated UI (table column headers, form labels, button text, notifications) remains in English.
-
-**Impact**: Non-English-speaking administrators may find the panel difficult to use.
-
-**Recommended fix**: Add Filament language packs for Korean and Chinese, and systematically add translation keys to all Filament resource `label()`, `placeholder()`, and `helperText()` definitions.
-
----
-
-## Low (UX Improvements / Future Enhancements)
-
-### KI-006: Community Feed Does Not Auto-Refresh
-
-**Severity**: Low  
-**Area**: Community  
-**Status**: Not Implemented
-
-**Description**: New posts, likes, and comments do not appear in the feed without a manual page refresh. There is no WebSocket or polling mechanism.
-
-**Recommended fix**: Implement either:
-- A short polling interval (e.g., every 30 seconds) using `setInterval` and the existing feed API
-- WebSocket-based real-time updates (requires Laravel Echo or similar)
-
----
-
-### KI-007: No Integrated Analytics Dashboard
-
-**Severity**: Low  
-**Area**: Analytics  
-**Status**: Basic only
-
-**Description**: A basic analytics endpoint (`GET /api/admin/analytics/overview`) returns aggregate metrics (total users, posts, orders, community activity). No third-party analytics service (Google Analytics, Plausible, Mixpanel) is integrated.
-
-**Recommended fix**: Add a client-side analytics script (e.g., Google Analytics 4 or Plausible snippet) to the frontend `layout.tsx`, and optionally add a backend event tracking service.
-
----
-
-### KI-008: No Self-Service Account Deletion
-
-**Severity**: Low  
-**Area**: User Accounts  
-**Status**: Not Implemented (admin-only)
-
-**Description**: Users cannot delete their own accounts from the frontend. Administrators can delete user records from the admin panel. This may be required for GDPR / privacy compliance depending on the platform's operating jurisdiction.
-
-**Recommended fix**: Add a "Delete Account" option to the user account settings page. Backend endpoint: implement `DELETE /api/account` (requires authentication and possibly a confirmation step).
-
----
-
-### KI-009: No Discount / Coupon Code System
-
-**Severity**: Low  
-**Area**: Store / Commerce  
-**Status**: Not Implemented
-
-**Description**: No discount code, coupon, or promotional pricing system exists. There are no `coupon_codes`, `discounts`, or `promotions` tables.
-
-**Recommended fix**: Design a promotions system. Minimum viable implementation: a `coupon_codes` table with code, discount type (percentage/fixed), expiry, and a usage check at checkout.
-
----
-
-### KI-010: No Product Review or Rating System
-
-**Severity**: Low  
-**Area**: Store / Commerce  
-**Status**: Not Implemented
-
-**Description**: There are no `product_reviews` or `product_ratings` tables or UI.
-
-**Recommended fix**: Add a product review model linked to verified purchasers, and a frontend review form on the product detail page.
-
----
-
-### KI-011: NZ-Only Shipping Configuration
-
-**Severity**: Low (if international is required)  
-**Area**: Store / Shipping  
-**Status**: By design, NZ-only
-
-**Description**: Shipping is configured for New Zealand: NZD currency, NZ Post integration, rural surcharge logic. No international carrier integration or multi-currency pricing exists.
-
-**Recommended fix for international**: Add currency conversion service, international carrier API integrations, and multi-currency product pricing.
-
----
-
-## Informational (Design Decisions / Not Issues)
-
-### KI-D00: Azure Flysystem Package Maintenance
-
-Composer audit reports `league/flysystem-azure-blob-storage` as abandoned. It is currently retained to avoid a risky storage rewrite during delivery hardening. Plan a follow-up replacement with the maintained Azure Flysystem adapter after validating upload, URL generation, file visibility, and admin media workflows against staging data.
-
-### KI-D01: Manual Payment Confirmation by Design
-
-The platform was delivered without payment gateway integration per initial project scope. This is a known design constraint, not a bug. See KI-001 for resolution path.
-
-### KI-D02: Admin Panel Primarily in English by Design
-
-The Filament 5 admin panel's primary language is English. This was the agreed operating assumption. Non-English localization is possible as a follow-up task (see KI-005).
-
-### KI-D03: Queue Connection Uses Database Driver
-
-`QUEUE_CONNECTION=database` is the default. This is adequate for moderate traffic. For high-volume production, switching to Redis (`QUEUE_CONNECTION=redis`) is recommended for better performance and reliability.
-
----
-
-## Reporting New Issues
-
-Issues discovered after handover should be tracked in the project's agreed issue tracker. When filing a new issue, include:
-
-1. Steps to reproduce
-2. Expected behavior
-3. Actual behavior
-4. Environment (production / staging / local)
-5. Relevant logs from `B2C_backend/storage/logs/laravel.log`
-
----
-
-*Related documentation: `docs/en/15-release-notes-and-handover.md`, `docs/handover-checklist.md`*
+历史 QA、审计、修复跟踪文档保留为记录。如果它们与 README、INSTALLATION、DEPLOYMENT、CONFIGURATION 等当前文档冲突，应以当前文档和代码为准。

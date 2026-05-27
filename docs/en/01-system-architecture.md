@@ -271,7 +271,7 @@ sequenceDiagram
 The platform includes a complete email center:
 
 - **Email templates**: Stored in `email_templates` table with localized content
-- **Email events**: Defined in `email_events` table (e.g., `order_confirmed`, `post_published`)
+- **Email events**: Defined in `email_events` table (e.g., `order.created`, `order.status_changed`, `order.shipped`)
 - **Email logs**: All sent emails are recorded in `email_logs`
 - **Mail driver**: Configured via `MAIL_MAILER` environment variable (defaults to `log` in development)
 - **B2B lead notification**: `B2BLeadSubmittedMail` notifies admins when a new B2B lead is received
@@ -286,7 +286,7 @@ The platform includes a complete email center:
 ### Frontend
 - Translation files: `B2C_frontend/messages/{locale}.json`
 - Locale routing: `[locale]` segment in Next.js App Router
-- Custom i18n implementation: `B2C_frontend/src/lib/i18n.ts`
+- Custom i18n implementation: `B2C_frontend/lib/i18n.ts`
 - Build-time validation: `check:i18n` script validates key coverage across locales
 
 ### Backend
@@ -331,4 +331,4 @@ Key categories:
 
 ---
 
-*Related code: `B2C_backend/app/`, `B2C_frontend/src/`, `B2C_backend/routes/`*
+*Related code: `B2C_backend/app/`, `B2C_frontend/`, `B2C_backend/routes/`*

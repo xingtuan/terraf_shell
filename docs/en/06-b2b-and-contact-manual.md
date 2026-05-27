@@ -210,4 +210,4 @@ To configure:
 
 ---
 
-*Related code: `B2C_backend/app/Models/B2BLead.php`, `B2C_backend/app/Services/B2BLeadService.php`, `B2C_frontend/src/components/sections/b2b-inquiry-form.tsx`*
+*Related code: `B2C_backend/app/Models/B2BLead.php`, `B2C_backend/app/Services/B2BLeadService.php`, `B2C_frontend/components/sections/b2b-inquiry-form.tsx`*

@@ -90,7 +90,7 @@ This table provides a comprehensive overview of all platform features and their 
 | Post notifications | ✅ | ✅ | ✅ | N/A | ✅ Complete | Requires queue worker |
 | Content reporting | ✅ | ✅ | ✅ | N/A | ✅ Complete | |
 | Funding campaigns (backend) | N/A | ✅ | ✅ | ✅ | ✅ Complete | |
-| Funding campaigns (frontend display) | ⚠️ | ✅ | ✅ | ✅ | ⚠️ Partial | Limited frontend display |
+| Funding campaigns (frontend display) | ✅ | ✅ | ✅ | ✅ | ✅ Complete | External funding links and campaign display; no internal payment gateway |
 | Real-time feed updates | ❌ | N/A | N/A | N/A | ❌ Not Implemented | Manual refresh required |
 | Direct messaging | ❌ | ❌ | ❌ | N/A | ❌ Not Implemented | |
 | Post scheduling | ❌ | ❌ | ❌ | N/A | ❌ Not Implemented | |
@@ -173,7 +173,7 @@ This table provides a comprehensive overview of all platform features and their 
 
 | Feature | User Side | Admin Side | DB | Multilingual | Status | Notes |
 |---|---|---|---|---|---|---|
-| Admin panel (Filament 5) | N/A | ✅ | N/A | ⚠️ | ✅ Complete | Admin UI primarily in English |
+| Admin panel (Filament 5) | N/A | ✅ | N/A | ✅ | ✅ Complete | Admin locale switching with EN / ZH / KO translations |
 | Admin locale switching | N/A | ✅ | N/A | ✅ | ✅ Complete | |
 | Application settings | N/A | ✅ | ✅ | N/A | ✅ Complete | |
 | Feature flags | N/A | ✅ | ✅ | N/A | ✅ Complete | |
@@ -199,7 +199,7 @@ This table provides a comprehensive overview of all platform features and their 
 | Categories and tags | ✅ | ✅ | ✅ | ✅ Complete | |
 | Legal pages | ✅ | ✅ | ✅ | ✅ Complete | |
 | Email templates | ✅ | ✅ | ✅ | ✅ Complete | |
-| Admin panel UI | ✅ | ⚠️ | ⚠️ | ⚠️ Partial | Admin UI primarily English |
+| Admin panel UI | ✅ | ✅ | ✅ | ✅ Complete | Admin locale switching and translation files maintained for EN / ZH / KO |
 | URL locale routing | ✅ | ✅ | ✅ | ✅ Complete | |
 
 ---

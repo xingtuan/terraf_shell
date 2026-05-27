@@ -104,30 +104,30 @@ The following areas have known limitations or partial implementation. These are 
 
 ---
 
-### 2. Automatic Inventory Management (Partial)
-**Description**: Stock levels are tracked per product variant in the database, but the system does not automatically decrement stock when an order is placed.
+### 2. Automatic Inventory Management
+**Description**: Stock levels are tracked per product variant and `OrderService` deducts variant stock when an order is created for variants with a deny inventory policy and a non-null stock quantity.
 
-**Current behavior**: Admins must manually update inventory quantities after fulfilling orders.
+**Current behavior**: Pending order cancellation restores stock. Admins should still audit stock movements and inventory logs.
 
-**Recommended next step**: Implement an `OrderObserver` or modify the `OrderService` to deduct stock quantities when an order transitions to "Confirmed" or "Processing" status.
+**Recommended next step**: Keep order creation, cancellation, and inventory log coverage in regression tests.
 
 **Risk level**: Medium — important for accurate stock visibility.
 
 ---
 
-### 3. Funding Campaign Frontend (Partial)
-**Description**: The funding campaign data model, admin management, and database are fully implemented. However, the frontend display of campaign status, progress, and support functionality is limited.
+### 3. Funding Links and Campaign Display
+**Description**: Posts can expose funding links and the frontend displays funding-related campaign information where configured.
 
-**Current behavior**: Campaign data is stored and manageable in admin, but the public-facing campaign page/widget has minimal display.
+**Current behavior**: Funding links are content / external-support flows, not an internal payment gateway.
 
-**Recommended next step**: Design and implement frontend campaign display components including progress visualization and support action.
+**Recommended next step**: Confirm the final external funding provider and legal wording before launch.
 
 **Risk level**: Low — depends on whether funding campaigns are a priority feature for launch.
 
 ---
 
-### 4. Order Confirmation Email (Needs Verification)
-**Description**: The email template and event system is built. The `order_confirmed` event template exists. However, the exact trigger wiring between order status change and email dispatch has not been independently verified.
+### 4. Order Email Flow (Needs Verification)
+**Description**: The email template and event system is built. Current order events include `order.created`, `order.cancelled`, `order.status_changed`, `order.shipped`, and `order.admin_new_order`.
 
 **Recommended next step**: Test the complete email flow: place a test order, confirm it in admin, and verify the confirmation email is received.
 
@@ -135,10 +135,10 @@ The following areas have known limitations or partial implementation. These are 
 
 ---
 
-### 5. Admin Panel UI Localization (Partial)
-**Description**: The admin panel interface is primarily in English. Admin locale switching (`/admin/locale/{locale}`) affects some labels, but the full Filament admin UI is not comprehensively translated to Korean or Chinese.
+### 5. Admin Panel UI Localization
+**Description**: Admin locale switching is implemented and the project includes English, Chinese, and Korean backend/admin translation files.
 
-**Recommended next step**: If admin panel operation in Korean or Chinese is required, additional Filament localization work is needed.
+**Recommended next step**: Run `php artisan admin:check-translations` and complete any new labels introduced by future admin modules.
 
 **Risk level**: Low to Medium — depends on the language preference of platform administrators.
 
@@ -242,14 +242,14 @@ Based on codebase analysis, the following improvements are recommended for prior
 
 1. **Payment gateway integration** — Critical for real commerce operations.
 2. **Automatic inventory decrement** — Important for stock accuracy.
-3. **Funding campaign frontend** — If campaigns are a priority feature.
+3. **Funding provider/legal copy** — Confirm external funding destination and wording before launch.
 4. **Email flow end-to-end testing** — Verify all transactional emails work.
 5. **Analytics integration** — For business intelligence.
 6. **Real-time community updates** — For improved community UX.
 7. **Product review system** — Common e-commerce trust signal.
 8. **Discount / coupon codes** — For promotional campaigns.
 9. **International shipping support** — If expanding beyond New Zealand.
-10. **Admin panel UI localization** — If non-English admin operators required.
+10. **Admin panel UI localization maintenance** — Keep new admin labels synchronized across EN / ZH / KO.
 
 ---
 

@@ -277,8 +277,10 @@ The frontend (`B2C_frontend`) uses a separate `.env.local` or `.env.production` 
 
 | Variable | Description |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | Backend API base URL (e.g., `https://api.yoursite.com`) |
-| `NEXT_PUBLIC_APP_URL` | Frontend app URL |
+| `NEXT_PUBLIC_API_BASE_URL` | Browser-facing API base URL; use `/api` when Next / Nginx proxying is enabled |
+| `API_PROXY_TARGET` | Laravel origin used by Next rewrites when `NEXT_PUBLIC_API_BASE_URL=/api` |
+| `NEXT_SERVER_API_BASE_URL` | Laravel API base URL used by server-side rendering and production builds |
+| `NEXT_PUBLIC_SITE_URL` | Public frontend URL |
 
 These must be set correctly before building the frontend for production.
 

@@ -178,7 +178,7 @@ The legal page editor provides:
 
 The footer contains navigation links and contact information. In the current implementation, footer links are managed through the homepage sections system and/or hardcoded in the frontend footer component.
 
-**Frontend component**: `B2C_frontend/src/components/footer.tsx`
+**Frontend component**: `B2C_frontend/components/footer.tsx`
 
 Contact the development team to update footer links or content.
 
@@ -274,4 +274,4 @@ Review seeded articles, materials, homepage sections, and store content as norma
 
 ---
 
-*Related code: `B2C_backend/app/Filament/Resources/`, `B2C_backend/app/Models/`, `B2C_frontend/src/components/sections/`*
+*Related code: `B2C_backend/app/Filament/Resources/`, `B2C_backend/app/Models/`, `B2C_frontend/components/sections/`*
