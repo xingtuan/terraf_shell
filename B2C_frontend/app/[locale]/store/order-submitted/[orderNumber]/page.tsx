@@ -24,21 +24,17 @@ export default async function GuestOrderSubmittedPage({
   const messages = getMessages(locale)
   const t = messages.guestOrderSubmitted
   const token = resolvedSearchParams?.token ?? ""
-  const apiBaseUrl = await getServerApiBaseUrl()
   let order: StoreOrder | null = null
   let isInvalidToken = false
 
   if (token) {
     try {
+      const apiBaseUrl = await getServerApiBaseUrl()
       order = await getGuestOrder(resolvedParams.orderNumber, token, {
         baseUrl: apiBaseUrl,
       })
-    } catch (error) {
-      if (error instanceof ApiError && [401, 403, 404].includes(error.status)) {
-        isInvalidToken = true
-      } else {
-        isInvalidToken = true
-      }
+    } catch {
+      isInvalidToken = true
     }
   } else {
     isInvalidToken = true
