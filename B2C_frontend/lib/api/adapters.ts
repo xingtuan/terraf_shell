@@ -691,7 +691,7 @@ export function normalizeCartSummary(cart: CartSummary): CartSummary {
     estimated_shipping_usd:
       cart.estimated_shipping_usd === null ||
       cart.estimated_shipping_usd === undefined
-        ? "0.00"
+        ? null
         : String(cart.estimated_shipping_usd),
     estimated_tax_usd:
       cart.estimated_tax_usd === null || cart.estimated_tax_usd === undefined
@@ -705,8 +705,14 @@ export function normalizeCartSummary(cart: CartSummary): CartSummary {
     free_shipping_threshold_usd:
       cart.free_shipping_threshold_usd === null ||
       cart.free_shipping_threshold_usd === undefined
-        ? "200.00"
+        ? null
         : String(cart.free_shipping_threshold_usd),
+    free_shipping_remaining_usd:
+      cart.free_shipping_remaining_usd === null ||
+      cart.free_shipping_remaining_usd === undefined
+        ? "0.00"
+        : String(cart.free_shipping_remaining_usd),
+    free_shipping_applied: Boolean(cart.free_shipping_applied ?? false),
     tax_rate: cart.tax_rate !== null && cart.tax_rate !== undefined ? Number(cart.tax_rate) : undefined,
     tax_label: cart.tax_label ?? null,
     prices_include_tax: Boolean(cart.prices_include_tax ?? true),

@@ -52,8 +52,8 @@ class ShippingSettings extends Page
             'origin_city' => $settings->string('shipping.origin_city', (string) config('store.shipping.origin.city', '')),
             'origin_postcode' => $settings->string('shipping.origin_postcode', (string) config('store.shipping.origin.postcode', '')),
             'free_shipping_threshold' => $settings->get('shipping.free_shipping_threshold', config('store.shipping.free_shipping_threshold', 200)),
-            'fallback_standard_amount' => $settings->get('shipping.fallback_standard_amount', config('store.shipping.standard_rate', 8)),
-            'fallback_express_amount' => $settings->get('shipping.fallback_express_amount', config('store.shipping.express_rate', 14)),
+            'fallback_standard_amount' => $settings->get('shipping.standard_rate', $settings->get('shipping.fallback_standard_amount', config('store.shipping.standard_rate', 8))),
+            'fallback_express_amount' => $settings->get('shipping.express_rate', $settings->get('shipping.fallback_express_amount', config('store.shipping.express_rate', 14))),
             'rural_surcharge' => $settings->get('shipping.rural_surcharge', config('store.shipping.rural_surcharge', 5)),
             'rate_source' => $settings->string('shipping.rate_source', 'auto'),
             'address_lookup_query' => 'Auckland',
@@ -187,11 +187,15 @@ class ShippingSettings extends Page
             'shipping.origin_city' => ['value' => $state['origin_city'] ?? null, 'type' => 'string'],
             'shipping.origin_postcode' => ['value' => $state['origin_postcode'] ?? null, 'type' => 'string'],
             'shipping.free_shipping_threshold' => ['value' => (float) ($state['free_shipping_threshold'] ?? 200), 'type' => 'float'],
+            'shipping.standard_rate' => ['value' => (float) ($state['fallback_standard_amount'] ?? 8), 'type' => 'float'],
             'shipping.fallback_standard_amount' => ['value' => (float) ($state['fallback_standard_amount'] ?? 8), 'type' => 'float'],
+            'shipping.express_rate' => ['value' => (float) ($state['fallback_express_amount'] ?? 14), 'type' => 'float'],
             'shipping.fallback_express_amount' => ['value' => (float) ($state['fallback_express_amount'] ?? 14), 'type' => 'float'],
             'shipping.rural_surcharge' => ['value' => (float) ($state['rural_surcharge'] ?? 5), 'type' => 'float'],
             'shipping.rate_source' => ['value' => $state['rate_source'] ?? 'auto', 'type' => 'string'],
         ]);
+
+        $settings->warmCache();
 
         Notification::make()
             ->title(__('admin.notifications.saved'))

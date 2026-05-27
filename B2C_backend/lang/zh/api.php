@@ -62,6 +62,7 @@ return [
         'express_description' => '新西兰境内更快的可追踪配送',
         'express_description_rural' => '更快的可追踪配送，已包含乡村配送附加费。',
         'nzpost_unavailable' => 'NZ Post 配送服务暂时不可用，请稍后重试或联系客服。',
+        'disabled' => '配送服务暂时不可用。',
     ],
     'addresses' => [
         'saved' => '地址已保存。',

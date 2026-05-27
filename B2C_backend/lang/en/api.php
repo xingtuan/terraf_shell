@@ -62,6 +62,7 @@ return [
         'express_description' => 'Faster tracked delivery within New Zealand',
         'express_description_rural' => 'Faster tracked delivery. Rural delivery surcharge included.',
         'nzpost_unavailable' => 'NZ Post shipping is currently unavailable. Please try again or contact support.',
+        'disabled' => 'Shipping is currently unavailable.',
     ],
     'addresses' => [
         'saved' => 'Address saved successfully.',

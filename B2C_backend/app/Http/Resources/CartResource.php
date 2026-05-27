@@ -5,8 +5,8 @@ namespace App\Http\Resources;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\ProductVariant;
-use App\Services\Store\TaxService;
-use App\Support\StorePricing;
+use App\Services\Shipping\ShippingQuoteService;
+use App\Services\Store\CartPricingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,31 +19,39 @@ class CartResource extends JsonResource
     public function toArray(Request $request): array
     {
         $this->loadMissing(['items.product.variants', 'items.product.attributeAssignments.definition', 'items.product.attributeAssignments.attributeValue', 'items.variant']);
-        $subtotal = (float) $this->total();
-        $taxService = app(TaxService::class);
-        $estimatedTax = $taxService->taxForTotal($subtotal);
+        $pricing = app(CartPricingService::class);
+        $shippingQuote = app(ShippingQuoteService::class);
+        $subtotal = $pricing->subtotal($this->resource);
+        $shippingEstimate = $shippingQuote->estimateForCart($this->resource);
+        $estimatedShipping = $shippingEstimate['amount'];
+        $tax = $pricing->taxSnapshot($subtotal, $estimatedShipping ?? 0.0);
+        $estimatedTotal = $pricing->total($subtotal, $estimatedShipping ?? 0.0);
 
-        $estimatedTotal = $taxService->pricesIncludeGst()
-            ? $subtotal
-            : $subtotal + $estimatedTax;
+        $freeShippingThreshold = $shippingEstimate['free_shipping_threshold'];
 
         return [
             'id' => $this->id,
             'item_count' => $this->itemCount(),
             'currency' => (string) config('store.currency', 'NZD'),
-            'subtotal_usd' => number_format($subtotal, 2, '.', ''),
-            'estimated_shipping_usd' => number_format(0, 2, '.', ''),
-            'estimated_tax_usd' => number_format($estimatedTax, 2, '.', ''),
-            'estimated_total_usd' => number_format($estimatedTotal, 2, '.', ''),
-            'free_shipping_threshold_usd' => number_format((float) config('store.shipping.free_shipping_threshold', StorePricing::FREE_SHIPPING_THRESHOLD), 2, '.', ''),
-            'tax_rate' => $taxService->gstRate(),
-            'tax_label' => $taxService->label(),
-            'prices_include_tax' => $taxService->pricesIncludeGst(),
-            'shipping_notice' => 'Shipping calculated at checkout.',
-            'items' => $this->items->map(function (CartItem $item) use ($request): array {
+            'subtotal_usd' => $pricing->formatMoney($subtotal),
+            'estimated_shipping_usd' => $estimatedShipping !== null
+                ? $pricing->formatMoney($estimatedShipping)
+                : null,
+            'estimated_tax_usd' => $pricing->formatMoney((float) $tax['amount']),
+            'estimated_total_usd' => $pricing->formatMoney($estimatedTotal),
+            'free_shipping_threshold_usd' => $freeShippingThreshold !== null
+                ? $pricing->formatMoney($freeShippingThreshold)
+                : null,
+            'free_shipping_remaining_usd' => $pricing->formatMoney((float) $shippingEstimate['free_shipping_remaining']),
+            'free_shipping_applied' => (bool) $shippingEstimate['free_shipping_applied'],
+            'tax_rate' => $tax['rate'],
+            'tax_label' => $tax['label'],
+            'prices_include_tax' => $tax['included'],
+            'shipping_notice' => $shippingEstimate['notice'],
+            'items' => $this->items->map(function (CartItem $item) use ($request, $pricing): array {
                 $product = $item->product;
                 $quantityLimit = $this->quantityLimitForItem($item);
-                $unitPrice = (float) ($item->unit_price_amount ?? $item->unit_price_usd);
+                $unitPrice = $pricing->lineUnitPrice($item);
                 $lineTotal = $unitPrice * $item->quantity;
 
                 return [
@@ -54,10 +62,10 @@ class CartResource extends JsonResource
                     'available_quantity' => $quantityLimit['available_quantity'],
                     'can_increase_quantity' => $quantityLimit['can_increase_quantity'],
                     'quantity_error_message' => $quantityLimit['quantity_error_message'],
-                    'unit_price_amount' => number_format($unitPrice, 2, '.', ''),
-                    'unit_price_usd' => number_format($unitPrice, 2, '.', ''),
+                    'unit_price_amount' => $pricing->formatMoney($unitPrice),
+                    'unit_price_usd' => $pricing->formatMoney($unitPrice),
                     'currency' => $item->currency ?: (string) config('store.currency', 'NZD'),
-                    'line_total' => number_format($lineTotal, 2, '.', ''),
+                    'line_total' => $pricing->formatMoney($lineTotal),
                     'variant_sku' => $item->variant?->sku,
                     'variant_title' => $item->variant?->displayTitle(),
                     'option_values' => $item->variant?->option_values ?? [],

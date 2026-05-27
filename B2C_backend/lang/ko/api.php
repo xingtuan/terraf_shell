@@ -62,6 +62,7 @@ return [
         'express_description' => '뉴질랜드 내 더 빠른 추적 배송',
         'express_description_rural' => '더 빠른 추적 배송입니다. 농촌 배송 추가 요금이 포함되어 있습니다.',
         'nzpost_unavailable' => 'NZ Post 배송 서비스를 현재 사용할 수 없습니다. 다시 시도하거나 고객 지원에 문의하세요.',
+        'disabled' => '배송 서비스를 현재 사용할 수 없습니다.',
     ],
     'addresses' => [
         'saved' => '주소를 저장했습니다.',

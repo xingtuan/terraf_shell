@@ -74,6 +74,16 @@ export function CartSidebar({ locale }: CartSidebarProps) {
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [updatingLineKey, setUpdatingLineKey] = useState<string | null>(null)
   const [lineErrors, setLineErrors] = useState<Record<string, string>>({})
+  const estimatedShippingAmount =
+    cart?.estimated_shipping_usd === null || cart?.estimated_shipping_usd === undefined
+      ? null
+      : Number(cart.estimated_shipping_usd)
+  const shippingDisplay =
+    estimatedShippingAmount === null
+      ? messages.cartPage.shippingCalculatedAtCheckout
+      : estimatedShippingAmount === 0 && cart?.free_shipping_applied
+        ? messages.cartPage.shippingFree
+        : formatCurrencyAmount(cart?.estimated_shipping_usd ?? "0.00", locale, cart?.currency ?? "NZD")
 
   function clearLineError(key: string) {
     setLineErrors((currentErrors) => {
@@ -303,10 +313,7 @@ export function CartSidebar({ locale }: CartSidebarProps) {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">{t.estShipping}</span>
                 <span className="font-medium text-foreground">
-                  {formatCurrencyAmount(
-                    cart?.estimated_shipping_usd ?? "0.00",
-                    locale,
-                  )}
+                  {shippingDisplay}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
@@ -318,13 +325,17 @@ export function CartSidebar({ locale }: CartSidebarProps) {
                   )}
                 </span>
               </div>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                {t.freeShippingOver}{" "}
-                {formatCurrencyAmount(
-                  cart?.free_shipping_threshold_usd ?? "200.00",
-                  locale,
-                )}
-              </p>
+              {cart?.free_shipping_threshold_usd ? (
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  {cart.free_shipping_applied
+                    ? messages.cartPage.freeShippingApplied
+                    : `${t.freeShippingOver} ${formatCurrencyAmount(
+                        cart.free_shipping_threshold_usd,
+                        locale,
+                        cart.currency ?? "NZD",
+                      )}`}
+                </p>
+              ) : null}
               <div className="grid gap-3">
                 <Button asChild variant="outline" className="w-full">
                   <Link href={getLocalizedHref(locale, "store/cart")}>{t.viewCart}</Link>

@@ -245,10 +245,12 @@ export interface CartSummary {
   item_count: number
   currency?: string
   subtotal_usd: string
-  estimated_shipping_usd?: string
+  estimated_shipping_usd?: string | null
   estimated_tax_usd?: string
   estimated_total_usd?: string
-  free_shipping_threshold_usd?: string
+  free_shipping_threshold_usd?: string | null
+  free_shipping_remaining_usd?: string
+  free_shipping_applied?: boolean
   tax_rate?: number
   tax_label?: string | null
   prices_include_tax?: boolean
@@ -390,6 +392,7 @@ export interface ShippingOption {
   label: string
   description?: string | null
   amount: string
+  original_amount?: string | null
   currency: string
   eta_min_days?: number | null
   eta_max_days?: number | null
@@ -397,6 +400,8 @@ export interface ShippingOption {
   is_default?: boolean
   source?: string
   rural_surcharge?: string | null
+  free_shipping_applied?: boolean
+  meta?: JsonObject
 }
 
 export interface ShippingQuote {

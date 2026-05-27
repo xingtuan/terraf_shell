@@ -94,6 +94,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   const [selectedShippingCode, setSelectedShippingCode] = useState("")
   const [selectedOptionTotals, setSelectedOptionTotals] = useState<ShippingOptionTotals | null>(null)
   const [shippingLoading, setShippingLoading] = useState(false)
+  const [totalsLoading, setTotalsLoading] = useState(false)
   const [shippingError, setShippingError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -222,6 +223,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
       setShippingQuote(null)
       setSelectedShippingCode("")
       setSelectedOptionTotals(null)
+      setTotalsLoading(false)
       setShippingError(null)
       return
     }
@@ -235,6 +237,9 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
       .then((quote) => {
         if (cancelled) return
         setShippingQuote(quote)
+        if (quote.options.length === 0) {
+          setShippingError(t.selectedShippingMethodUnavailable)
+        }
         setSelectedShippingCode((currentCode) => {
           const currentOption = quote.options.find((option) => option.code === currentCode)
           const defaultOption =
@@ -247,7 +252,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
         if (cancelled) return
         setShippingQuote(null)
         setSelectedShippingCode("")
-        setShippingError(getErrorMessage(error))
+        setShippingError(getErrorMessage(error) || t.unableToCalculateShipping)
       })
       .finally(() => {
         if (!cancelled) setShippingLoading(false)
@@ -256,46 +261,58 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     return () => {
       cancelled = true
     }
-  }, [cart, quoteAddress])
+  }, [cart, quoteAddress, t.selectedShippingMethodUnavailable, t.unableToCalculateShipping])
 
   // Fetch authoritative tax/totals from the backend whenever the selected shipping code changes.
   // This ensures the displayed amounts always match what the backend will actually charge.
   useEffect(() => {
     if (!selectedShippingCode || !quoteAddress) {
       setSelectedOptionTotals(null)
+      setTotalsLoading(false)
       return
     }
 
     let cancelled = false
+    setTotalsLoading(true)
+    setSelectedOptionTotals(null)
+    setShippingError(null)
 
     void getShippingOptionTotals(quoteAddress, selectedShippingCode)
       .then((result) => {
         if (!cancelled) setSelectedOptionTotals(result)
       })
-      .catch(() => {
-        // On failure, clear totals so the UI shows the pending placeholder.
-        if (!cancelled) setSelectedOptionTotals(null)
+      .catch((error) => {
+        if (!cancelled) {
+          setSelectedOptionTotals(null)
+          setShippingError(getErrorMessage(error) || t.shippingTotalsUnavailable)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setTotalsLoading(false)
       })
 
     return () => {
       cancelled = true
     }
-  }, [selectedShippingCode, quoteAddress])
+  }, [selectedShippingCode, quoteAddress, t.shippingTotalsUnavailable])
 
   const topAddresses = useMemo(() => addresses.slice(0, 3), [addresses])
   const selectedShippingOption = shippingQuote?.options.find(
     (option) => option.code === selectedShippingCode,
   )
-  const subtotal = Number(cart?.subtotal_usd ?? 0)
-  // Authoritative tax and totals always come from the backend.
-  // selectedOptionTotals is populated by the effect above for the currently-selected shipping method.
+  const subtotal = Number(selectedOptionTotals?.totals.subtotal ?? cart?.subtotal_usd ?? 0)
+  const shipping = selectedOptionTotals ? Number(selectedOptionTotals.totals.shipping) : null
   const tax = selectedOptionTotals ? Number(selectedOptionTotals.totals.tax) : null
-  const total = selectedOptionTotals ? Number(selectedOptionTotals.totals.total) : subtotal
-  const taxLabel = selectedOptionTotals?.tax.label ?? shippingQuote?.tax.label
+  const total = selectedOptionTotals ? Number(selectedOptionTotals.totals.total) : null
+  const taxLabel =
+    selectedOptionTotals?.tax.label ??
+    shippingQuote?.tax.label ??
+    (selectedOptionTotals?.tax.included === false ? t.gstAdded : t.gstIncluded)
   const storeDisabled = runtimeSettings?.store_enabled === false
   const guestCheckoutDisabled =
     !session.token && runtimeSettings?.guest_checkout_enabled === false
   const currency =
+    selectedOptionTotals?.totals.currency ??
     selectedShippingOption?.currency ??
     shippingQuote?.totals.currency ??
     cart?.currency ??
@@ -388,6 +405,11 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
 
     if (!selectedShippingCode) {
       setSubmitError(t.shippingMethodRequired)
+      return
+    }
+
+    if (!selectedOptionTotals) {
+      setSubmitError(t.shippingTotalsUnavailable)
       return
     }
 
@@ -738,7 +760,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
             ) : null}
             {shippingError ? (
               <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {t.shippingUnavailable}
+                {shippingError}
               </div>
             ) : null}
             {shippingQuote?.options.length ? (
@@ -861,10 +883,10 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">{t.shipping}</span>
               <span className="text-foreground">
-                {selectedShippingOption
-                  ? Number(selectedShippingOption.amount) === 0
+                {shipping !== null
+                  ? shipping === 0
                     ? t.shippingFree
-                    : formatCurrencyAmount(selectedShippingOption.amount, locale, currency)
+                    : formatCurrencyAmount(shipping, locale, currency)
                   : t.shippingCalculatedAtCheckout}
               </span>
             </div>
@@ -882,7 +904,10 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
             <div className="flex items-center justify-between pt-2 text-base font-medium">
               <span className="text-foreground">{t.total}</span>
               <span className="text-foreground">
-                {formatCurrencyAmount(total, locale, currency)}
+                {total !== null
+                  ? formatCurrencyAmount(total, locale, currency)
+                  : <span className="text-xs text-muted-foreground">{t.shippingCalculatedAtCheckout}</span>
+                }
               </span>
             </div>
           </div>
@@ -898,7 +923,9 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
             disabled={
               isSubmitting ||
               shippingLoading ||
+              totalsLoading ||
               !selectedShippingCode ||
+              !selectedOptionTotals ||
               guestCheckoutDisabled
             }
             onClick={() => {

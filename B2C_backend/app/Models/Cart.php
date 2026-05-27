@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Store\CartPricingService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -57,13 +58,9 @@ class Cart extends Model
 
     public function total(): string
     {
-        $items = $this->relationLoaded('items') ? $this->items : $this->items()->get();
+        $pricing = app(CartPricingService::class);
 
-        $total = $items->sum(
-            fn (CartItem $item): float => (float) ($item->unit_price_amount ?? $item->unit_price_usd) * $item->quantity
-        );
-
-        return number_format($total, 2, '.', '');
+        return $pricing->formatMoney($pricing->subtotal($this));
     }
 
     public function itemCount(): int

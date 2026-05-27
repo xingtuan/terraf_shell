@@ -8,6 +8,7 @@ use App\Services\Shipping\AddressLookupService;
 use App\Services\Shipping\ShippingQuoteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class StoreShippingController extends Controller
 {
@@ -59,7 +60,7 @@ class StoreShippingController extends Controller
      * Returns authoritative tax and totals for a specific shipping method code.
      * Used by checkout to keep displayed totals in sync with what the backend will charge.
      */
-    public function selectedOptionTotals(Request $request): JsonResponse
+    public function shippingOptionTotals(Request $request): JsonResponse
     {
         $validated = $request->validate([
             'address' => ['required', 'array'],
@@ -70,15 +71,29 @@ class StoreShippingController extends Controller
             'address.postcode' => ['required', 'string', 'max:20'],
             'address.country' => ['required', 'string', 'size:2'],
             'address.is_rural' => ['nullable', 'boolean'],
-            'code' => ['required', 'string', 'max:100'],
+            'shipping_method_code' => ['required_without:code', 'nullable', 'string', 'max:100'],
+            'code' => ['required_without:shipping_method_code', 'nullable', 'string', 'max:100'],
         ]);
 
         $cart = $this->cartService->getOrCreateCart($request);
-        $result = $this->shippingQuoteService->selectedOption($cart, $validated['address'], $validated['code']);
+
+        if ($cart->items->isEmpty()) {
+            throw ValidationException::withMessages([
+                'cart' => [__('api.orders.cart_empty')],
+            ]);
+        }
+
+        $code = (string) ($validated['shipping_method_code'] ?? $validated['code'] ?? '');
+        $result = $this->shippingQuoteService->selectedOption($cart, $validated['address'], $code);
 
         return $this->successResponse([
             'tax' => $result['tax'],
             'totals' => $result['totals'],
         ]);
+    }
+
+    public function selectedOptionTotals(Request $request): JsonResponse
+    {
+        return $this->shippingOptionTotals($request);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Services\Store\CartPricingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -243,10 +244,11 @@ class CartService
     public function getCartSummary(Cart $cart): array
     {
         $cart->loadMissing(['items.product.variants', 'items.variant']);
+        $pricing = app(CartPricingService::class);
 
         return [
             'items' => $cart->items,
-            'subtotal' => $cart->total(),
+            'subtotal' => $pricing->formatMoney($pricing->subtotal($cart)),
             'item_count' => $cart->itemCount(),
         ];
     }
@@ -396,7 +398,15 @@ class CartService
     {
         $sessionKey = trim((string) $sessionKey);
 
-        if ($sessionKey === '' || strlen($sessionKey) > 64 || ! Str::isUuid($sessionKey)) {
+        if ($sessionKey === '' || strlen($sessionKey) > 512) {
+            return '';
+        }
+
+        if (Str::isUuid($sessionKey)) {
+            return $sessionKey;
+        }
+
+        if (preg_match('/\A[A-Za-z0-9._:-]+\z/', $sessionKey) !== 1) {
             return '';
         }
 

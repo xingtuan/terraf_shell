@@ -4,13 +4,16 @@ namespace App\Services;
 
 use App\Enums\OrderStatus;
 use App\Models\Cart;
+use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\ProductVariant;
 use App\Services\Email\EmailDispatchService;
 use App\Services\Email\EmailPayloadFactory;
 use App\Services\Shipping\ShippingQuoteService;
+use App\Services\Store\CartPricingService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -20,6 +23,7 @@ class OrderService
         private readonly EmailDispatchService $emailDispatchService,
         private readonly EmailPayloadFactory $emailPayloadFactory,
         private readonly ShippingQuoteService $shippingQuoteService,
+        private readonly CartPricingService $pricing,
     ) {}
 
     public function createFromCart(
@@ -43,7 +47,7 @@ class OrderService
             ]);
         }
 
-        $items = $cart->items->map(function ($item) {
+        $items = $cart->items->map(function (CartItem $item): array {
             $product = $item->product;
 
             $variant = $item->variant ?? $product?->defaultVariant();
@@ -67,7 +71,7 @@ class OrderService
                 ]);
             }
 
-            $unitPrice = $variant->effectivePrice();
+            $unitPrice = $this->pricing->lineUnitPrice($item);
 
             return [
                 'variant' => $variant,
@@ -89,7 +93,7 @@ class OrderService
             ];
         });
 
-        $subtotal = (float) $items->sum(fn (array $item): float => (float) $item['snapshot']['subtotal_usd']);
+        $subtotal = round((float) $items->sum(fn (array $item): float => (float) $item['snapshot']['subtotal_usd']), 2);
         $quoteAddress = [
             'line1' => $shippingData['shipping_address_line1'],
             'line2' => $shippingData['shipping_address_line2'] ?? null,
@@ -105,9 +109,43 @@ class OrderService
             $shippingMethodCode,
         );
         $shippingOption = $selectedShipping['option'];
-        $shipping = (float) $selectedShipping['totals']['shipping'];
-        $tax = (float) $selectedShipping['totals']['tax'];
-        $total = (float) $selectedShipping['totals']['total'];
+        $shipping = (float) ($shippingOption['amount'] ?? 0);
+        $quoteSubtotal = (float) data_get($selectedShipping, 'totals.subtotal', $subtotal);
+
+        if (abs($quoteSubtotal - $subtotal) > 0.01) {
+            Log::warning('Shipping quote subtotal differed from order subtotal during order creation.', [
+                'cart_id' => $cart->id,
+                'quote_subtotal' => $quoteSubtotal,
+                'order_subtotal' => $subtotal,
+                'shipping_method_code' => $shippingMethodCode,
+            ]);
+        }
+
+        $taxSnapshot = $this->pricing->taxSnapshot($subtotal, $shipping);
+        $tax = (float) $taxSnapshot['amount'];
+        $total = $this->pricing->total($subtotal, $shipping);
+        $currency = (string) data_get($selectedShipping, 'totals.currency', config('store.currency', 'NZD'));
+        $authoritativeTax = [
+            'label' => $taxSnapshot['label'],
+            'rate' => $taxSnapshot['rate'],
+            'amount' => $this->pricing->formatMoney($tax),
+            'included' => $taxSnapshot['included'],
+        ];
+        $authoritativeTotals = [
+            'subtotal' => $this->pricing->formatMoney($subtotal),
+            'shipping' => $this->pricing->formatMoney($shipping),
+            'tax' => $this->pricing->formatMoney($tax),
+            'total' => $this->pricing->formatMoney($total),
+            'currency' => $currency,
+        ];
+
+        $selectedShipping['tax'] = $authoritativeTax;
+        $selectedShipping['totals'] = $authoritativeTotals;
+        if (! isset($selectedShipping['snapshot']) || ! is_array($selectedShipping['snapshot'])) {
+            $selectedShipping['snapshot'] = [];
+        }
+        $selectedShipping['snapshot']['tax'] = $authoritativeTax;
+        $selectedShipping['snapshot']['totals'] = $authoritativeTotals;
 
         $order = DB::transaction(function () use (
             $cart,

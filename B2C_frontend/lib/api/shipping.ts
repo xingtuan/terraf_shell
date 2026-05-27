@@ -63,6 +63,10 @@ function normalizeShippingOption(option: ShippingOption): ShippingOption {
       option.amount === null || option.amount === undefined
         ? "0.00"
         : String(option.amount),
+    original_amount:
+      option.original_amount === null || option.original_amount === undefined
+        ? null
+        : String(option.original_amount),
     currency: option.currency ?? "NZD",
     eta_min_days:
       option.eta_min_days === null || option.eta_min_days === undefined
@@ -79,6 +83,8 @@ function normalizeShippingOption(option: ShippingOption): ShippingOption {
       option.rural_surcharge === null || option.rural_surcharge === undefined
         ? null
         : String(option.rural_surcharge),
+    free_shipping_applied: Boolean(option.free_shipping_applied ?? false),
+    meta: option.meta ?? undefined,
   }
 }
 
@@ -163,7 +169,7 @@ export async function getShippingOptionTotals(
     "/store/shipping-option/totals",
     {
       method: "POST",
-      body: { address, code },
+      body: { address, shipping_method_code: code },
     },
   )
 

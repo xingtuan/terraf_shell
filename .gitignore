@@ -16,7 +16,10 @@ B2C_backend/tests/Feature/Admin/*
 !B2C_backend/tests/Feature/Admin/HomeSectionFactSheetTest.php
 !B2C_backend/tests/Feature/Api/
 B2C_backend/tests/Feature/Api/*
+!B2C_backend/tests/Feature/Api/CartPricingSummaryTest.php
 !B2C_backend/tests/Feature/Api/CommunitySettingsRuntimeTest.php
+!B2C_backend/tests/Feature/Api/ShippingQuoteServiceTest.php
+!B2C_backend/tests/Feature/Api/StoreTaxTotalsTest.php
 !B2C_frontend/tests/
 B2C_frontend/tests/*
 !B2C_frontend/tests/page-content.test.ts

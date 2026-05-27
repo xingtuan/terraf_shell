@@ -160,6 +160,18 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
     )
   }
 
+  const estimatedShippingAmount =
+    cart.estimated_shipping_usd === null || cart.estimated_shipping_usd === undefined
+      ? null
+      : Number(cart.estimated_shipping_usd)
+  const freeShippingRemaining = Number(cart.free_shipping_remaining_usd ?? 0)
+  const shippingDisplay =
+    estimatedShippingAmount === null
+      ? t.shippingCalculatedAtCheckout
+      : estimatedShippingAmount === 0 && cart.free_shipping_applied
+        ? t.shippingFree
+        : formatCurrencyAmount(cart.estimated_shipping_usd ?? "0.00", locale, cart.currency ?? "NZD")
+
   return (
     <>
       <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
@@ -348,7 +360,7 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{t.shipping}</span>
-                <span className="text-foreground">{t.shippingCalculatedAtCheckout}</span>
+                <span className="text-foreground">{shippingDisplay}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">
@@ -359,15 +371,29 @@ export function StoreCartPage({ locale }: StoreCartPageProps) {
                 </span>
               </div>
               <div className="flex items-center justify-between border-t border-border/60 pt-4 text-base font-medium">
-                <span className="text-foreground">{t.subtotal}</span>
+                <span className="text-foreground">{t.estimatedTotal}</span>
                 <span className="text-foreground">
-                  {formatCurrencyAmount(cart.subtotal_usd, locale)}
+                  {formatCurrencyAmount(cart.estimated_total_usd ?? cart.subtotal_usd, locale, cart.currency ?? "NZD")}
                 </span>
               </div>
             </div>
 
             <div className="mt-6 rounded-3xl bg-background p-5 text-sm leading-relaxed text-muted-foreground">
-              <p>{t.shippingAtCheckoutNote}</p>
+              {cart.free_shipping_applied ? (
+                <p className="font-medium text-foreground">{t.freeShippingApplied}</p>
+              ) : freeShippingRemaining > 0 ? (
+                <p className="font-medium text-foreground">
+                  {t.freeShippingRemaining.replace(
+                    "{amount}",
+                    formatCurrencyAmount(freeShippingRemaining, locale, cart.currency ?? "NZD"),
+                  )}
+                </p>
+              ) : null}
+              <p className={cart.free_shipping_applied || freeShippingRemaining > 0 ? "mt-2" : ""}>
+                {estimatedShippingAmount === null
+                  ? t.shippingAtCheckoutNote
+                  : t.freeShippingNote}
+              </p>
               <p className="mt-2">{t.noAccountRequired}</p>
             </div>
 

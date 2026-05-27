@@ -71,9 +71,11 @@ function emptyCartState(previousCart: CartSummary | null): CartSummary | null {
     ...previousCart,
     item_count: 0,
     subtotal_usd: "0.00",
-    estimated_shipping_usd: "0.00",
+    estimated_shipping_usd: null,
     estimated_tax_usd: "0.00",
     estimated_total_usd: "0.00",
+    free_shipping_remaining_usd: "0.00",
+    free_shipping_applied: false,
     items: [],
   }
 }

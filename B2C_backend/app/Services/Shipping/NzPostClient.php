@@ -16,6 +16,12 @@ class NzPostClient
 
     public function isEnabled(): bool
     {
+        $shippingKey = $this->settings->get('shipping.nzpost_enabled');
+
+        if ($shippingKey !== null) {
+            return filter_var($shippingKey, FILTER_VALIDATE_BOOLEAN);
+        }
+
         return $this->settings->boolean('nzpost.enabled', (bool) config('store.nzpost.enabled', false));
     }
 

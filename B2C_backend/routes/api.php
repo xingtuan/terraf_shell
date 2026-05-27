@@ -103,7 +103,7 @@ Route::get('/products/{slug}', [PublicProductController::class, 'show']);
 Route::get('/store/address-search', [StoreShippingController::class, 'addressSearch']);
 Route::get('/store/address-details', [StoreShippingController::class, 'addressDetails']);
 Route::post('/store/shipping-options', [StoreShippingController::class, 'shippingOptions']);
-Route::post('/store/shipping-option/totals', [StoreShippingController::class, 'selectedOptionTotals']);
+Route::post('/store/shipping-option/totals', [StoreShippingController::class, 'shippingOptionTotals']);
 Route::prefix('cart')->group(function (): void {
     Route::get('/', [CartController::class, 'show']);
     Route::post('/items', [CartController::class, 'addItem']);
