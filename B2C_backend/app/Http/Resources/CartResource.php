@@ -133,7 +133,7 @@ class CartResource extends JsonResource
             'available_quantity' => $availableQuantity,
             'can_increase_quantity' => $item->quantity < $availableQuantity,
             'quantity_error_message' => $item->quantity > $availableQuantity
-                ? "Only {$availableQuantity} units are available."
+                ? __('api.cart.stock_limit', ['count' => $availableQuantity])
                 : null,
         ];
     }

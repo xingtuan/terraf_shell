@@ -197,9 +197,9 @@ export function ProductDetailContent({
 
       if (adjustmentMessage) {
         setAddError(adjustmentMessage)
-        toast({
-          title: adjustmentMessage,
-        })
+        toast({ title: adjustmentMessage })
+      } else {
+        toast({ title: messages.cartQuantity.itemAdded })
       }
     } catch (nextError) {
       const message = getLocalizedCartQuantityErrorMessage(

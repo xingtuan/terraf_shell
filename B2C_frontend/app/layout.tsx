@@ -6,6 +6,8 @@ import { BRAND_NAME } from "@/lib/brand"
 
 import "./globals.css"
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000"
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -19,6 +21,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: `${BRAND_NAME} | Oyster Shell Material`,
   description:
     `${BRAND_NAME} is a multilingual oyster shell material website for B2C products, B2B pellets, and community collaboration.`,
@@ -30,6 +33,10 @@ export const metadata: Metadata = {
     "South Korea",
     BRAND_NAME,
   ],
+  openGraph: {
+    siteName: BRAND_NAME,
+    type: "website",
+  },
   icons: {
     icon: [
       {

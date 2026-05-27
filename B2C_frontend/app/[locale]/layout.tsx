@@ -32,6 +32,13 @@ export async function generateMetadata({
   return {
     title: messages.meta.title,
     description: messages.meta.description,
+    openGraph: {
+      title: messages.meta.title,
+      description: messages.meta.description,
+      siteName: messages.meta.siteName,
+      locale,
+      type: "website",
+    },
     alternates: {
       languages: {
         en: "/en",

@@ -10,7 +10,6 @@ use App\Models\Order;
 use App\Services\CartService;
 use App\Services\OrderService;
 use App\Services\Settings\SettingsService;
-use App\Services\Shipping\ShippingQuoteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -21,7 +20,6 @@ class OrderController extends Controller
     public function __construct(
         private readonly CartService $cartService,
         private readonly OrderService $orderService,
-        private readonly ShippingQuoteService $shippingQuoteService,
         private readonly SettingsService $settings,
     ) {}
 
@@ -106,16 +104,6 @@ class OrderController extends Controller
             'shipping_country' => $validated['shipping_country'],
             'shipping_is_rural' => $validated['shipping_is_rural'] ?? null,
         ];
-
-        $this->shippingQuoteService->validateAddress([
-            'line1' => $shippingData['shipping_address_line1'],
-            'line2' => $shippingData['shipping_address_line2'] ?? null,
-            'city' => $shippingData['shipping_city'],
-            'region' => $shippingData['shipping_state_province'] ?? null,
-            'postcode' => $shippingData['shipping_postal_code'] ?? null,
-            'country' => $shippingData['shipping_country'],
-            'is_rural' => $shippingData['shipping_is_rural'] ?? null,
-        ]);
 
         $cart = $this->cartService->getOrCreateCart($request);
         $order = $this->orderService->createFromCart(

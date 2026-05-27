@@ -137,8 +137,11 @@ export function Header({ locale, header, languageSwitcher, branding }: HeaderPro
       <div
         className={cn(
           "absolute left-0 right-0 top-full border-b border-border bg-background/98 backdrop-blur-md transition-all duration-300 lg:hidden",
-          isMobileMenuOpen ? "visible opacity-100" : "invisible opacity-0",
+          isMobileMenuOpen
+            ? "pointer-events-auto translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-2 opacity-0",
         )}
+        aria-hidden={!isMobileMenuOpen}
       >
         <nav className="flex w-full flex-col gap-6 px-6 py-8">
           {navLinks.map((link) => (

@@ -1380,6 +1380,7 @@
     "quantityUnavailable": "数量不可用",
     "onlyAvailable": "仅剩 {count} 件可购买。",
     "addedMaximumAvailable": "仅剩 {count} 件可购买，已将购物车更新为最大数量。",
+    "itemAdded": "已加入购物车",
     "quantityUpdated": "数量已更新",
     "unableToUpdateQuantity": "无法更新数量",
     "itemRemoved": "商品已移除",

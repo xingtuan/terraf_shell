@@ -1380,6 +1380,7 @@
     "quantityUnavailable": "Quantity unavailable",
     "onlyAvailable": "Only {count} available.",
     "addedMaximumAvailable": "Only {count} available. Your cart was updated to the maximum.",
+    "itemAdded": "Added to cart",
     "quantityUpdated": "Quantity updated",
     "unableToUpdateQuantity": "Unable to update quantity",
     "itemRemoved": "Item removed",

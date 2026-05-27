@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { ApiError } from "@/lib/api/client"
@@ -12,6 +13,42 @@ import type { Product } from "@/lib/types"
 
 type ProductDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>
+}
+
+export async function generateMetadata({
+  params,
+}: ProductDetailPageProps): Promise<Metadata> {
+  const resolvedParams = await params
+
+  if (!isValidLocale(resolvedParams.locale)) {
+    return {}
+  }
+
+  const apiBaseUrl = await getServerApiBaseUrl()
+
+  try {
+    const product = await getProduct(resolvedParams.slug, {
+      baseUrl: apiBaseUrl,
+      locale: resolvedParams.locale,
+    })
+
+    const title = product.seo?.title ?? product.name ?? product.title
+    const description = product.seo?.description ?? product.subtitle ?? product.short_description ?? undefined
+    const image = product.primary_image_url ?? product.image_url
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title: title ?? undefined,
+        description: description ?? undefined,
+        type: "website",
+        ...(image ? { images: [{ url: image }] } : {}),
+      },
+    }
+  } catch {
+    return {}
+  }
 }
 
 export default async function ProductDetailPage({

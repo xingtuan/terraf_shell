@@ -55,11 +55,11 @@ class CartService
 
             $cart = Cart::query()->create([
                 'session_key' => $sessionKey,
-                'expires_at' => now()->addDays(7),
+                'expires_at' => now()->addDays(30),
             ]);
         } else {
             $cart->forceFill([
-                'expires_at' => now()->addDays(7),
+                'expires_at' => now()->addDays(30),
             ])->save();
         }
 
