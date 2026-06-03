@@ -160,6 +160,18 @@ class OrderService
             $shippingOption,
             $selectedShipping,
         ): Order {
+            // Serialize concurrent checkouts of the same cart. A second request
+            // for the same cart blocks here until the first transaction commits,
+            // after which the re-check below sees the consumed (empty) cart and
+            // aborts — preventing a single cart from being checked out twice.
+            Cart::query()->whereKey($cart->id)->lockForUpdate()->first();
+
+            if ($cart->items()->lockForUpdate()->doesntExist()) {
+                throw ValidationException::withMessages([
+                    'cart' => [__('api.orders.cart_empty')],
+                ]);
+            }
+
             $order = Order::query()->create([
                 'user_id' => $cart->user_id,
                 'guest_email' => $cart->user_id === null ? Str::lower((string) $guestEmail) : null,

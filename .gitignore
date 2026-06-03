@@ -28,3 +28,14 @@ B2C_frontend/tests/*
 !B2C_frontend/tests/community-settings.test.ts
 SYSTEM_QA_REPORT.md
 playwright-report/
+
+# E2E n8n testing system — NEVER commit secrets or artifacts
+e2e-runner/.env
+e2e-runner/node_modules/
+e2e-runner/.seed-*.json
+e2e-tests/node_modules/
+e2e-tests/test-results/
+e2e-tests/playwright-report/
+e2e-tests/.auth/
+e2e-runner/*
+e2e-tests/*
