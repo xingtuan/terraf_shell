@@ -109,25 +109,32 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
     nextToken: string,
     fallbackUser: CommunityUser,
   ) {
-    const guestCartSessionKey = getCartSessionKey()
+    setIsReady(false)
+    setIsLoadingUser(true)
 
-    if (guestCartSessionKey) {
-      try {
-        await mergeGuestCart(guestCartSessionKey, nextToken)
-        clearCartSessionKey()
-      } catch {
-        // If cart merge fails, the user session should still succeed.
+    try {
+      const guestCartSessionKey = getCartSessionKey()
+
+      if (guestCartSessionKey) {
+        try {
+          await mergeGuestCart(guestCartSessionKey, nextToken)
+          clearCartSessionKey()
+        } catch {
+          // If cart merge fails, the user session should still succeed.
+        }
       }
+
+      const nextUser = await getCurrentUser(nextToken).catch(() => fallbackUser)
+
+      setStoredAuthToken(nextToken)
+      setToken(nextToken)
+      setUser(nextUser)
+
+      return nextUser
+    } finally {
+      setIsLoadingUser(false)
+      setIsReady(true)
     }
-
-    const nextUser = await getCurrentUser(nextToken).catch(() => fallbackUser)
-
-    setStoredAuthToken(nextToken)
-    setToken(nextToken)
-    setUser(nextUser)
-    setIsReady(true)
-
-    return nextUser
   }
 
   async function loginWithCredentials(payload: LoginPayload) {

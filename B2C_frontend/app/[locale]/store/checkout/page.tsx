@@ -223,9 +223,10 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     form.shipping_postal_code,
     form.shipping_state_province,
   ])
+  const cartReadyForShipping = session.isReady && !loading && Boolean(cart?.items.length)
 
   useEffect(() => {
-    if (!quoteAddress || !cart || cart.items.length === 0) {
+    if (!quoteAddress || !cartReadyForShipping) {
       setShippingQuote(null)
       setSelectedShippingCode("")
       setSelectedOptionTotals(null)
@@ -267,12 +268,12 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     return () => {
       cancelled = true
     }
-  }, [cart, quoteAddress, session.token, t.selectedShippingMethodUnavailable, t.unableToCalculateShipping])
+  }, [cart, cartReadyForShipping, quoteAddress, session.token, t.selectedShippingMethodUnavailable, t.unableToCalculateShipping])
 
   // Fetch authoritative tax/totals from the backend whenever the selected shipping code changes.
   // This ensures the displayed amounts always match what the backend will actually charge.
   useEffect(() => {
-    if (!selectedShippingCode || !quoteAddress) {
+    if (!selectedShippingCode || !quoteAddress || !cartReadyForShipping) {
       setSelectedOptionTotals(null)
       setTotalsLoading(false)
       return
@@ -300,7 +301,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     return () => {
       cancelled = true
     }
-  }, [selectedShippingCode, quoteAddress, session.token, t.shippingTotalsUnavailable])
+  }, [cart, cartReadyForShipping, selectedShippingCode, quoteAddress, session.token, t.shippingTotalsUnavailable])
 
   const topAddresses = useMemo(() => addresses.slice(0, 3), [addresses])
   const selectedShippingOption = shippingQuote?.options.find(

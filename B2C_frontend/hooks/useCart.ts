@@ -3,6 +3,7 @@
 import {
   createElement,
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -92,7 +93,7 @@ export function CartProvider({ children }: CartProviderProps) {
     setIsOpen(false)
   }, [pathname])
 
-  async function loadCart() {
+  const loadCart = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -108,7 +109,7 @@ export function CartProvider({ children }: CartProviderProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token])
 
   useEffect(() => {
     let isCancelled = false
@@ -162,11 +163,11 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }, [token])
 
-  async function addItemToCart(
+  const addItemToCart = useCallback(async (
     productId: number,
     quantity: number,
     variantId?: number | null,
-  ) {
+  ) => {
     setLoading(true)
     setError(null)
 
@@ -183,13 +184,13 @@ export function CartProvider({ children }: CartProviderProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token])
 
-  async function updateCartLine(
+  const updateCartLine = useCallback(async (
     productId: number,
     quantity: number,
     variantId?: number | null,
-  ) {
+  ) => {
     setLoading(true)
     setError(null)
 
@@ -204,9 +205,12 @@ export function CartProvider({ children }: CartProviderProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token])
 
-  async function removeCartLine(productId: number, variantId?: number | null) {
+  const removeCartLine = useCallback(async (
+    productId: number,
+    variantId?: number | null,
+  ) => {
     setLoading(true)
     setError(null)
 
@@ -221,9 +225,9 @@ export function CartProvider({ children }: CartProviderProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token])
 
-  async function clearCartItems() {
+  const clearCartItems = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -236,7 +240,7 @@ export function CartProvider({ children }: CartProviderProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token])
 
   const value = useMemo<CartContextValue>(
     () => ({
@@ -254,7 +258,17 @@ export function CartProvider({ children }: CartProviderProps) {
       removeItem: removeCartLine,
       clearCart: clearCartItems,
     }),
-    [cart, loading, error, isOpen],
+    [
+      cart,
+      loading,
+      error,
+      isOpen,
+      loadCart,
+      addItemToCart,
+      updateCartLine,
+      removeCartLine,
+      clearCartItems,
+    ],
   )
 
   return createElement(CartContext.Provider, { value }, children)
