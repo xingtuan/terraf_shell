@@ -239,7 +239,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     setSelectedOptionTotals(null)
     setShippingError(null)
 
-    void getShippingOptions(quoteAddress)
+    void getShippingOptions(quoteAddress, session.token)
       .then((quote) => {
         if (cancelled) return
         setShippingQuote(quote)
@@ -267,7 +267,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     return () => {
       cancelled = true
     }
-  }, [cart, quoteAddress, t.selectedShippingMethodUnavailable, t.unableToCalculateShipping])
+  }, [cart, quoteAddress, session.token, t.selectedShippingMethodUnavailable, t.unableToCalculateShipping])
 
   // Fetch authoritative tax/totals from the backend whenever the selected shipping code changes.
   // This ensures the displayed amounts always match what the backend will actually charge.
@@ -283,7 +283,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     setSelectedOptionTotals(null)
     setShippingError(null)
 
-    void getShippingOptionTotals(quoteAddress, selectedShippingCode)
+    void getShippingOptionTotals(quoteAddress, selectedShippingCode, session.token)
       .then((result) => {
         if (!cancelled) setSelectedOptionTotals(result)
       })
@@ -300,7 +300,7 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     return () => {
       cancelled = true
     }
-  }, [selectedShippingCode, quoteAddress, t.shippingTotalsUnavailable])
+  }, [selectedShippingCode, quoteAddress, session.token, t.shippingTotalsUnavailable])
 
   const topAddresses = useMemo(() => addresses.slice(0, 3), [addresses])
   const selectedShippingOption = shippingQuote?.options.find(

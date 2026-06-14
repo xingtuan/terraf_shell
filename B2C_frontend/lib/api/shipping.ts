@@ -132,9 +132,13 @@ export async function getAddressDetails(id: string) {
   return normalizeAddressDetailsResponse(response.data)
 }
 
-export async function getShippingOptions(address: NzAddress) {
+export async function getShippingOptions(
+  address: NzAddress,
+  token?: string | null,
+) {
   const response = await requestApi<ShippingQuote>("/store/shipping-options", {
     method: "POST",
+    token,
     body: {
       address,
     },
@@ -164,11 +168,13 @@ function normalizeShippingOptionTotals(data: ShippingOptionTotals): ShippingOpti
 export async function getShippingOptionTotals(
   address: NzAddress,
   code: string,
+  token?: string | null,
 ): Promise<ShippingOptionTotals> {
   const response = await requestApi<ShippingOptionTotals>(
     "/store/shipping-option/totals",
     {
       method: "POST",
+      token,
       body: { address, shipping_method_code: code },
     },
   )
