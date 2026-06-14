@@ -100,11 +100,15 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (AuthenticationException $exception, Request $request) {
-            if (! $request->is('api/*')) {
-                return null;
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return ApiResponse::error(__('api.errors.authentication_required'), [], 401);
             }
 
-            return ApiResponse::error(__('api.errors.authentication_required'), [], 401);
+            // Guests hitting an auth-protected web route (the /admin/* export endpoints in
+            // routes/web.php) are sent to the Filament admin login. The framework default would
+            // otherwise call route('login') — undefined in this app — throwing
+            // RouteNotFoundException and surfacing a 500 instead of a clean redirect.
+            return redirect()->guest(route('filament.admin.auth.login'));
         });
 
         $exceptions->render(function (AuthorizationException $exception, Request $request) {

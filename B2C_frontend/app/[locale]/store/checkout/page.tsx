@@ -102,10 +102,16 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
   const [runtimeSettings, setRuntimeSettings] = useState<PublicSettings | null>(null)
 
   useEffect(() => {
+    // Wait until auth has finished hydrating before loading the cart. Firing
+    // while session.token is still transitioning null -> token would issue a
+    // guest getCart() whose (empty) response can land after the authenticated
+    // one and clobber the real cart, leaving checkout stuck on "cart is empty".
+    if (!session.isReady) return
+
     void loadCart()
     // loadCart intentionally reads the latest auth token from context.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session.token])
+  }, [session.isReady, session.token])
 
   useEffect(() => {
     let cancelled = false
@@ -469,7 +475,10 @@ function CheckoutScreen({ locale }: { locale: Locale }) {
     }
   }
 
-  if (loading && !cart) {
+  // Show the loading state until auth is ready and the cart has finished
+  // loading. This prevents a stale/empty cart from flashing the "empty" screen
+  // while the authenticated cart is still being fetched.
+  if (!session.isReady || (loading && (!cart || cart.items.length === 0))) {
     return (
       <div className="mx-auto max-w-4xl px-6 py-20 lg:px-8">
         <div className="rounded-[2rem] border border-border/60 bg-card p-10 text-center text-sm text-muted-foreground">
